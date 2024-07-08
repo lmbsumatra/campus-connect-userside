@@ -1,38 +1,304 @@
-.App {
-  text-align: center;
+.swatch-sqr {
+  width: 20px;
+  height: 20px;
+  border: #ffffff solid 1px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* * * * * * * * * */
+/*       root      */
+/* * * * * * * * * */
+:root {
+  --clr-main: linear-gradient(to right, #2179c8, #c31f3b);
+  --clr-main-darker: linear-gradient(to right, #1b62a0, #99182e);
+  --clr-main-reverse: linear-gradient(to left, #2179c8, #c31f3b);
+  /* --clr-primary: #1c1c1c; */
+  --clr-secondary: #6c757d;
+  --clr-light: #e0e0e0;
+  --clr-white: #ffffff;
+  --ff-serif: "Bellefair", serif;
+  --ff-sans-cond: "Barlow Condensed", sans-serif;
+  --ff-sans-normal: "Barlow", sans-serif;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Text Colors */
+
+:root {
+  --text-gradient: {
+    background: var(--clr-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.text-light {
+  color: var(--clr-light);
+}
+
+/*  Font Sizes */
+.fs-2 {
+  font-size: 26px;
+}
+
+/* Background Colors */
+.bg-main {
+  background: var(--clr-main);
+}
+
+.bg-light {
+  background-color: var(--clr-light);
+}
+
+/* * * * * * * * * */
+/* Basic CSS Reset */
+/* * * * * * * * * */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: #0a0a0a;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  line-height: 1.6;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.card-img {
+  padding: 10px;
+  border-radius: 13px !important;
+  overflow: hidden;
+}
+
+.card {
+  box-shadow: 0 0 0 1px var(--clr-main), 0 0 0 2px var(--clr-main) inset;
+}
+
+.card:hover {
+  box-sizing: border-box;
+  background-clip: padding-box;
+  border: solid 1px transparent;
+  border-radius: 5px;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    margin: -1px;
+    border-radius: inherit;
+    background: var(--clr-main);
+  }
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.btn.btn-primary {
+  border-radius: 8px;
+  padding: 7px 20px;
+  color: var(--clr-main);
+  border: solid 1px transparent;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0)
+    ),
+    var(--clr-main);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  box-shadow: 2px 1000px 1px #fff inset;
+  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
+}
+
+.btn.btn-primary.filled,
+.btn.btn-primary.no-fill:hover {
+  border: solid 1px transparent;
+  color: white;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0)
+    ),
+    var(--clr-main-darker);
+  box-shadow: none;
+  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
+}
+
+.btn.btn-primary.filled .text-gradient,
+.btn.btn-primary.no-fill:hover .text-gradient {
+  -webkit-text-fill-color: white;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.btn.btn-primary.filled:hover,
+.btn.btn-primary.no-fill {
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0)
+    ),
+    var(--clr-main);
+  box-shadow: 2px 1000px 1px #fff inset;
+  color: black;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.btn.btn-primary.filled:hover .text-gradient,
+.btn.btn-primary.no-fill .text-gradient {
+  background: var(--clr-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn.btn-secondary {
+  border-radius: 100rem;
+  padding: 7px 20px;
+  color: var(--clr-main);
+  border: solid 1px transparent;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0)
+    ),
+    var(--clr-main);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  box-shadow: 2px 1000px 1px #fff inset;
+  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
+}
+
+.btn.btn-secondary.filled,
+.btn.btn-secondary.no-fill:hover {
+  border: solid 1px transparent;
+  color: white;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0)
+    ),
+    var(--clr-main-darker);
+  box-shadow: none;
+  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
+}
+
+.btn.btn-secondary.filled .text-gradient,
+.btn.btn-secondary.no-fill:hover .text-gradient {
+  -webkit-text-fill-color: white;
+  color: white;
+}
+
+.btn.btn-secondary.filled:hover,
+.btn.btn-secondary.no-fill {
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0)
+    ),
+    var(--clr-main);
+  box-shadow: 2px 1000px 1px #fff inset;
+  color: black;
+}
+
+.btn.btn-secondary.filled:hover .text-gradient,
+.btn.btn-secondary.no-fill .text-gradient {
+  background: var(--clr-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn.btn-tertiary {
+  border-radius: 0px;
+  padding: 3px 6px;
+  color: var(--clr-main);
+  border: solid 1px transparent;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0)
+    ),
+    var(--clr-main);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  box-shadow: 2px 1000px 1px #fff inset;
+  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
+}
+
+.btn.btn-tertiary.filled,
+.btn.btn-tertiary.no-fill:hover {
+  border: solid 1px transparent;
+  color: white;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0)
+    ),
+    var(--clr-main-darker);
+  box-shadow: none;
+  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
+}
+
+.btn.btn-tertiary.filled .text-gradient,
+.btn.btn-tertiary.no-fill:hover .text-gradient {
+  -webkit-text-fill-color: white;
+  color: white;
+}
+
+.btn.btn-tertiary.filled:hover,
+.btn.btn-tertiary.no-fill {
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0)
+    ),
+    var(--clr-main);
+  box-shadow: 2px 1000px 1px #fff inset;
+  color: black;
+}
+
+.btn.btn-tertiary.filled:hover .text-gradient,
+.btn.btn-tertiary.no-fill .text-gradient {
+  background: var(--clr-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+:focus {
+  outline: none;
+}
+
+.custom-container {
+  padding: 0px;
+  margin: 60px 100px;
 }

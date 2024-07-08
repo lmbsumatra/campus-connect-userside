@@ -1,0 +1,29 @@
+/* * * * * * * * * */
+/*   Subheader     */
+/* * * * * * * * * */
+.sub-header {
+    background: var(--clr-main);
+  }
+  
+  .main-features {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  
+  .feature {
+    flex: 1 1 24%;
+    margin: 20px 10px;
+  }
+  
+  .sub-title {
+    font-size: 26px;
+    font-weight: bold;
+    color: var(--clr-white);
+  }
+  
+  .sub-description {
+    font-size: 16px;
+    color: var(--clr-light);
+  }
+  
