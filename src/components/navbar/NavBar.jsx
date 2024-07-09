@@ -54,7 +54,7 @@ const NavBar = () => {
               </li>
               <li className="nav-item">
                 <a className="nav-link" href="#">
-                  <span>Borrowing Posts</span>
+                  <span>Item Listings</span>
                   <i className="fa-solid fa-list"></i>
                 </a>
               </li>
@@ -84,7 +84,9 @@ const NavBar = () => {
                   <div className="user-menu">
                     <button className="dropdown-btn">Profile</button>
                     <button className="dropdown-btn">Settings</button>
-                    <button className="dropdown-btn" onClick={handleClick}>Logout</button>
+                    <button className="dropdown-btn" onClick={handleClick}>
+                      Logout
+                    </button>
                   </div>
                 )}
               </li>

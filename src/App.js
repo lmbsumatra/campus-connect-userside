@@ -1,6 +1,6 @@
 // src/App.js
-import React from 'react';
-import './App.css';
+import React from "react";
+import "./App.css";
 
 // components
 import NavBar from "./components/navbar/NavBar";
@@ -11,15 +11,14 @@ import ItemList from "./components/itemlisting/ItemList";
 import Banner from "./components/banner/Banner";
 import BorrowingPost from "./components/borrowingposts/BorrowingPost";
 import FAB from "./components/fab/FAB";
+import Footer from "./components/footer/Footer";
 
 function App() {
   const handleFabClick = (action) => {
-    if (action === 'add-item') {
-      console.log('Add Item button clicked');
-      // Implement your logic for adding an item
-    } else if (action === 'create-post') {
-      console.log('Create Post button clicked');
-      // Implement your logic for creating a post
+    if (action === "add-item") {
+      console.log("Add Item button clicked");
+    } else if (action === "create-post") {
+      console.log("Create Post button clicked");
     }
   };
 
@@ -32,6 +31,7 @@ function App() {
       <ItemList />
       <Banner />
       <BorrowingPost />
+      <Footer />
       <FAB icon="+" onClick={handleFabClick} />
     </div>
   );

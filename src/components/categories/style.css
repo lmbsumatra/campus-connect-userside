@@ -2,19 +2,37 @@
 /*  Categories     */
 /* * * * * * * * * */
 .box-div {
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
-      rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
-    width: 150px;
-    height: 150px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .categories {
-    display: flex;
-    justify-content: space-between;
-  }
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-shrink: 0;
+  margin-right:50px; 
+}
+
+.categories {
+  display: flex;
+  overflow-x: scroll;
+  overflow-y: hidden; /* Ensure no vertical overflow */
+  padding: 40px 100px 100px 100px; /* Adjust as needed for shadow visibility */
+}
+
+.categories::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
+}
+
+.categories {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.box-div img {
+  height: 50px;
+  width: auto;
+}

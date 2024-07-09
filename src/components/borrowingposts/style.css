@@ -6,11 +6,17 @@
   padding: 20px 0;
 }
 
-.icon-user {
-  background-color: #c31f3b;
+.user-container {
+  background-color: var(--clr-light);
   line-height: 0;
-  padding: 0;
-  margin: 0%;
+  overflow: hidden;
+  padding: 10px 20px;
+}
+
+.icon-user {
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
 }
 
 .card-container {
@@ -23,22 +29,25 @@
 .card {
   display: flex;
   flex-direction: row;
-  padding: 10px;
+  padding: 0;
+  /* overflow: hidden; */
 }
 
 .card-body {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
+  padding: 0;
 }
 
 .card-img-left {
-  height: 100%;
+  width: 100%;
+  height: auto;
   object-fit: cover;
   padding: 0px;
-
+  border-radius: 4px;
 }
 
-img {
-  height: 100%;
+.card-content  {
+  width: 100%;
 }

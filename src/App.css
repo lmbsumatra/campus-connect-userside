@@ -64,6 +64,7 @@
 html,
 body {
   height: 100%;
+  background-color: white;
 }
 
 body {
@@ -301,4 +302,21 @@ textarea {
 .custom-container {
   padding: 0px;
   margin: 60px 100px;
+  position: relative;
+  /* top: -100px; */
+  /* overflow: hidden; */
 }
+/* Medium Devices */
+@media (max-width: 992px) {
+  .custom-container {
+    margin: 20px 50px;
+  }
+}
+
+/* Small Devices */
+@media (max-width: 768px) {
+  .custom-container {
+    margin: 20px 25px;
+  }
+}
+
