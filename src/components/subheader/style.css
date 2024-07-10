@@ -13,7 +13,7 @@
 }
 
 .feature {
-  flex: 1 1 calc(50% - 20px); /* 2 per row on medium devices */
+  flex: 1;
   margin: 20px 10px;
 }
 
