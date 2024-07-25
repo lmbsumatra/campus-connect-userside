@@ -90,7 +90,7 @@ function Profile() {
               <img src={profilePhoto} alt="Profile" className="profile-photo" />
             </div>
             <div className="profile-info">
-              <h1>Elsa Manuel</h1>
+              <h1>Aiah Arceta</h1>
               <p>College: CIT</p>
               <p>Rating: ⭐⭐⭐⭐⭐</p>
               <p>Joined: July 10, 2024</p>

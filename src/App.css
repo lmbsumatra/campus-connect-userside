@@ -457,12 +457,39 @@ textarea {
   display: block;
   padding: 10px;
   border-radius: 5px;
+  position: relative;
+  transition: color 0.3s;
+  font-weight: bold;
 }
 
 .profile-sidebar ul li a.active,
 .profile-sidebar ul li a:hover {
-  background-color: #007bff;
-  color: white;
+  background: var(--clr-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.profile-sidebar ul li a::before {
+  content: "";
+  position: absolute;
+  left: -10px; /* Adjust to align correctly */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 100%; /* Ensure it spans the full height */
+  background-color: #2179c8;
+  border-radius: 3px;
+  transition: all 0.3s;
+  opacity: 0;
+}
+
+.profile-sidebar ul li a.active::before,
+.profile-sidebar ul li a:hover::before {
+  opacity: 1;
+  left: -10px;
+  opacity: 1;
+  left: -10px; /* Ensure it moves left correctly */
+  background: var(--clr-main); /* Apply the gradient to the bar */
 }
 
 .profile-content {
