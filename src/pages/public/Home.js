@@ -11,6 +11,42 @@ import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
 import FAB from "../../components/fab/FAB";
 import Footer from "../../components/footer/Footer";
 
+// Import images
+import item1 from "../../assets/images/item/item_1.jpg";
+import ownerImg from "../../assets/images/icons/user-icon.svg";
+
+// Sample items
+const items = [
+  {
+    image: item1,
+    title: "Wrench",
+    price: "₱ 500",
+    owner: "Ebe Dencel",
+    ownerImage: ownerImg,
+  },
+  {
+    image: item1,
+    title: "Wrench",
+    price: "₱ 500",
+    owner: "Ebe Dencel",
+    ownerImage: ownerImg,
+  },
+  {
+    image: item1,
+    title: "Wrench",
+    price: "₱ 500",
+    owner: "Ebe Dencel",
+    ownerImage: ownerImg,
+  },
+  {
+    image: item1,
+    title: "Wrench",
+    price: "₱ 500",
+    owner: "Ebe Dencel",
+    ownerImage: ownerImg,
+  },
+];
+
 function Home() {
   const handleFabClick = (action) => {
     if (action === "add-item") {
@@ -26,7 +62,7 @@ function Home() {
       <Header />
       <Subheader />
       <Categories />
-      <ItemList />
+      <ItemList items={items} />
       <Banner />
       <BorrowingPost />
       <Footer />
