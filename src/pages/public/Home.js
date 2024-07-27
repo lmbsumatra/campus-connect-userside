@@ -1,6 +1,6 @@
 import React from "react";
 
-// components
+
 import NavBar from "../../components/navbar/NavBar";
 import Header from "../../components/header/Header";
 import Subheader from "../../components/subheader/Subheader";
@@ -11,11 +11,11 @@ import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
 import FAB from "../../components/fab/FAB";
 import Footer from "../../components/footer/Footer";
 
-// Import images
+
 import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
 
-// Sample items
+
 const items = [
   {
     image: item1,

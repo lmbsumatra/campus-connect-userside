@@ -97,11 +97,12 @@ img {
   box-shadow: 0 0 0 1px var(--clr-main), 0 0 0 2px var(--clr-main) inset;
 }
 
-.card:hover {
+/* Custom card hover styles */
+.custom-container .card:hover {
   box-sizing: border-box;
   background-clip: padding-box;
-  border: solid 1px transparent;
-  border-radius: 5px;
+  border: solid 1px transparent !important; /* Using !important to ensure it overrides */
+  border-radius: 5px !important;
 
   &:before {
     content: "";
@@ -113,9 +114,10 @@ img {
     z-index: -1;
     margin: -1px;
     border-radius: inherit;
-    background: var(--clr-main);
+    background: var(--clr-main) !important;
   }
 }
+
 table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -293,6 +295,11 @@ textarea {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+}
+.button-container {
+  margin-top: auto; 
+  display: flex;
+  justify-content: flex-end;
 }
 
 .icon, .icon-link {
@@ -499,7 +506,18 @@ textarea {
   border-radius: 20px;
   margin-top: 10px;
   margin-bottom: 10px;
+  display: flex;
 }
+
+.photo-icon {
+  position: absolute;
+  top: 10px; 
+  right: -50px; 
+  float: right;
+  width: 32px;
+  height: 32px; 
+}
+
 
 .banner-image {
   width: 100%;

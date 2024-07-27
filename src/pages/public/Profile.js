@@ -1,8 +1,9 @@
 import React from "react";
+import UserItemList from "../../components/itemlisting/UserItemList";
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
 import NavBar from "../../components/navbar/NavBar";
 import Footer from "../../components/footer/Footer";
-import ItemList from "../../components/itemlisting/ItemList";
+
 
 import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
@@ -52,7 +53,7 @@ function Transactions() {
 }
 
 function MyListings() {
-  return <ItemList items={items} />;
+  return <UserItemList items={items} />;
 }
 
 function MyPosts() {
@@ -90,7 +91,7 @@ function Profile() {
               <img src={profilePhoto} alt="Profile" className="profile-photo" />
             </div>
             <div className="profile-info">
-              <h1>Aiah Arceta</h1>
+              <h1>Khaylle Rosario</h1>
               <p>College: CIT</p>
               <p>Rating: ⭐⭐⭐⭐⭐</p>
               <p>Joined: July 10, 2024</p>

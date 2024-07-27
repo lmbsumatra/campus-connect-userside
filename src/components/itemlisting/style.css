@@ -1,31 +1,29 @@
-.item > *:not(:last-child) {
-  padding: 20px 0;
-}
+
 
 .item {
   position: relative;
-  top: -100px;
+  margin-top: 20px;
 }
 
-.margin-top-adjustment {
-  margin-top: 80px; 
+/* Padding adjustment for the children of item container */
+.item > *:not(:last-child) {
+  padding: 10px 0;
 }
 
-
-.icon-user {
-  background-color: #c31f3b;
-  line-height: 0;
-  padding: 0;
-  margin: 0;
+/* Styling for the card view */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .card {
-  height: auto;
-  width: 300px;
-}
-
-.card-body {
-  padding: 10px 0 5px 0;
+  width: calc(33.333% - 20px);
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .card-img-top {
@@ -39,6 +37,13 @@
   border-radius: 4px;
 }
 
+.card-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
 .card-body > *:not(:last-child) {
   margin-bottom: 4px;
 }
+
