@@ -1,5 +1,5 @@
 import React from "react";
-import UserItemList from "../../components/itemlisting/UserItemList";
+import UserItemList from "../../components/User/UserItemList";
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
 import NavBar from "../../components/navbar/NavBar";
 import Footer from "../../components/footer/Footer";

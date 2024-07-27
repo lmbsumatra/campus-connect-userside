@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./style.css";
 import ListView from "../../assets/images/icons/list.png";
+import GridView from "../../assets/images/icons/grid.png";
 
 const UserItemList = ({ items = [] }) => {
   const [isListView, setIsListView] = useState(false);
@@ -55,7 +56,7 @@ const UserItemList = ({ items = [] }) => {
   const renderTableView = () => (
     <div className="table-responsive">
       <table className="table table-striped">
-        <thead>
+        <thead className="table-header">
           <tr>
             <th>Name</th>
             <th>Description</th>
@@ -90,11 +91,19 @@ const UserItemList = ({ items = [] }) => {
 
   return (
     <div className="custom-container item">
-      <h2 className="fs-2 fw-bold margin-top-adjustment">Items</h2>
-      <div className="photo-icon-container" onClick={handleToggleView}>
-        <img src={ListView} alt="List View Icon" className="photo-icon" />
-      </div>
-      {isListView ? renderTableView() : renderCardView()}
+    <h2 className="fs-2 fw-bold margin-top-adjustment">Items</h2>
+    <div 
+      className="photo-icon-container" 
+      onClick={handleToggleView}
+      title={isListView ? "Switch to Grid View" : "Switch to List View"}
+>
+    <img 
+    src={isListView ? GridView : ListView} 
+    alt={isListView ? "Grid View Icon" : "List View Icon"} 
+    className="photo-icon" 
+    />
+    </div>
+    {isListView ? renderTableView() : renderCardView()}
     </div>
   );
 };
