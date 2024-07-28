@@ -4,7 +4,7 @@ import "./style.css";
 const ItemList = ({ items = [] }) => {
   return (
     <div className="custom-container item">
-      <h2 className="fs-2 fw-bold margin-top-adjustment">Items</h2>
+      <h2 className="fs-2 fw-bold margin-top-adjustment">Top Listings</h2>
       <div className="card-container">
         {items.length > 0 ? (
           items.map((item, index) => (

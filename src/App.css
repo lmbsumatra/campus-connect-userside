@@ -92,32 +92,6 @@ img {
   border-radius: 13px !important;
   overflow: hidden;
 }
-
-.card {
-  box-shadow: 0 0 0 1px var(--clr-main), 0 0 0 2px var(--clr-main) inset;
-}
-
-/* Custom card hover styles */
-.custom-container .card:hover {
-  box-sizing: border-box;
-  background-clip: padding-box;
-  border: solid 1px transparent !important; /* Using !important to ensure it overrides */
-  border-radius: 5px !important;
-
-  &:before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: -1;
-    margin: -1px;
-    border-radius: inherit;
-    background: var(--clr-main) !important;
-  }
-}
-
 table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -365,6 +339,7 @@ textarea {
   padding: 20px;
   position: relative;
   border-radius: 20px;
+  width: 90%;
 
 }
 .profile-banner {
@@ -501,19 +476,10 @@ textarea {
 
 .profile-content {
   flex-grow: 1;
-  padding: 20px;
   background-color: white;
   border-radius: 20px;
   margin-top: 10px;
   margin-bottom: 10px;
-}
-
-.photo-icon {
-  position: absolute;
-  top: 10px; 
-  right: 0px; 
-  width: 30px;
-  height: 30px; 
 }
 
 
@@ -525,20 +491,56 @@ textarea {
 
 .profile-info {
   text-align: center;
+  width: 70%;
 }
 
+.profile-info h1 {
+  margin: 10px 0;
+}
 
-.profile-info p {
-  margin: 5px 0;
+.profile-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.profile-details > div {
+  text-align: center;
+}
+
+.profile-details .profile-label {
+  font-weight: bold;
+  color: #6c757d;
+}
+
+.profile-details .profile-value {
+  display: block;
+  margin-top: 5px;
+}
+
+.profile-bio {
+  text-align: center;
 }
 
 .edit-profile-button {
   margin-top: 10px;
   padding: 5px 10px;
   border: none;
-  background-color: #4b6cb7;
+  background: var(--clr-main-reverse);
   color: white;
-  border-radius: 5px;
+  border-radius: 50px;
+  cursor: pointer;
+}
+
+.edit-profile-button:hover {
+  background: var(--clr-main-darker);
+}
+
+.profile-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 20px;
+  width: 90%;
 }
 
 .items-header {

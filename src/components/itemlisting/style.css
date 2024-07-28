@@ -6,19 +6,19 @@
 /* Padding adjustment for the children of item container */
 .item > *:not(:last-child) {
   padding: 10px 0;
+  margin-left: 20px;
 }
 
 /* Styling for the card view */
 .card-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 10px;
 }
 
 .card {
-  width: calc(33.333% - 20px);
+  width: calc(25% - 10px);
   background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
   border-radius: 5px;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -36,7 +36,7 @@
 }
 
 .card-body {
-  padding: 10px;
+  padding: 5px;
   display: flex;
   flex-direction: column;
 }
@@ -44,4 +44,20 @@
 .card-body > *:not(:last-child) {
   margin-bottom: 4px;
 }
+
+.card {
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid #e0e0e0;
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+}
+
+.card:hover {
+  border: double 1px transparent;
+  background-image: linear-gradient(white, white), var(--clr-main);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+}
+
 

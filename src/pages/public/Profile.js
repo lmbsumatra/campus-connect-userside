@@ -4,7 +4,6 @@ import { Route, Routes, NavLink, Navigate } from "react-router-dom";
 import NavBar from "../../components/navbar/NavBar";
 import Footer from "../../components/footer/Footer";
 
-
 import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
 import profilePhoto from "../../assets/images/icons/user-icon.svg";
@@ -91,12 +90,27 @@ function Profile() {
               <img src={profilePhoto} alt="Profile" className="profile-photo" />
             </div>
             <div className="profile-info">
-              <h1>Khaylle Rosario</h1>
-              <p>College: CIT</p>
-              <p>Rating: ⭐⭐⭐⭐⭐</p>
-              <p>Joined: July 10, 2024</p>
+              <h2>Elisa Manuel</h2>
+              <div className="profile-details">
+                <div>
+                  <span className="profile-label">College</span>
+                  <span className="profile-value">CIT</span>
+                </div>
+                <div>
+                  <span className="profile-label">Rating</span>
+                  <span className="profile-value">⭐⭐⭐⭐⭐</span>
+                </div>
+                <div className="profile-bio">
+                  <span className="profile-label">Bio</span>
+                  <span className="profile-value">This is a placeholder for the bio section.</span>
+                </div>
+                <div>
+                  <span className="profile-label">Joined</span>
+                  <span className="profile-value">July 10, 2024</span>
+                </div>
+              </div>
+              <button className="edit-profile-button">Edit Profile</button>
             </div>
-            <button className="edit-profile-button">Edit Profile</button>
           </div>
           <div className="profile-content">
             <Routes>

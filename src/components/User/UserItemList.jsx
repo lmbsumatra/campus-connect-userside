@@ -91,19 +91,21 @@ const UserItemList = ({ items = [] }) => {
 
   return (
     <div className="custom-container item">
-    <h2 className="fs-2 fw-bold margin-top-adjustment">Items</h2>
-    <div 
-      className="photo-icon-container" 
-      onClick={handleToggleView}
-      title={isListView ? "Switch to Grid View" : "Switch to List View"}
->
-    <img 
-    src={isListView ? GridView : ListView} 
-    alt={isListView ? "Grid View Icon" : "List View Icon"} 
-    className="photo-icon" 
-    />
-    </div>
-    {isListView ? renderTableView() : renderCardView()}
+      <div className="header-container">
+        <h2 className="fs-2 fw-bold margin-top-adjustment">Items</h2>
+        <div 
+          className="photo-icon-container" 
+          onClick={handleToggleView}
+          title={isListView ? "Switch to Grid View" : "Switch to List View"}
+        >
+          <img 
+            src={isListView ? GridView : ListView} 
+            alt={isListView ? "Grid View Icon" : "List View Icon"} 
+            className="photo-icon" 
+          />
+        </div>
+      </div>
+      {isListView ? renderTableView() : renderCardView()}
     </div>
   );
 };
