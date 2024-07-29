@@ -2,6 +2,7 @@
   --clr-main: linear-gradient(to right, #2179c8, #c31f3b);
   --clr-main-darker: linear-gradient(to right, #1b62a0, #99182e);
   --clr-main-reverse: linear-gradient(to left, #2179c8, #c31f3b);
+  --clr-main-lighter: linear-gradient(to right, #d4e3f8, #f7d4d8);
   --clr-secondary: #6c757d;
   --clr-light: #e0e0e0;
   --clr-white: #ffffff;
@@ -102,16 +103,26 @@
   --bs-table-color: var(--bs-emphasis-color);
   --bs-table-bg: transparent;
   --bs-table-border-color: var(--bs-border-color);
+  --bs-table-border-radius:10px;
 }
 
 .custom-container .table .table-header {
-  background: var(--clr-main);
+  background: var(--clr-main-lighter);
+}
+
+.custom-container .table {
+  --bs-table-color: var(--bs-emphasis-color);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--bs-border-color);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .custom-container .table .table-header th {
-  color: white;
+  color: black;
   font-weight: bold;
 }
+
 
 .photo-icon {
   transition: transform 0.3s ease;
@@ -137,3 +148,121 @@
   background-origin: border-box;
   background-clip: content-box, border-box;
 }
+.table-edit-btn {
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  transition: background 0.3s ease;
+  padding: 6px 12px;
+  border-radius: 4px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.table-edit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: var(--clr-main);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.table-edit-btn:hover::before {
+  opacity: 1;
+}
+
+.table-edit-btn:hover {
+  color: #fff;
+}
+
+.star-icon {
+  background: var(--clr-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.transactions-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+.transactions-table-container h3 {
+  text-align: center;
+}
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 1em;
+  min-width: 400px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  --bs-table-color: var(--bs-emphasis-color);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--bs-border-color);
+}
+
+.transactions-table thead {
+  background-image: var(--clr-main-lighter);
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 12px 15px;
+  color: black;
+}
+
+.transactions-table tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+
+.transactions-table tbody tr:nth-of-type(even) {
+  background-color: #f4f4f4;
+}
+
+.transactions-table tbody tr:last-of-type {
+  border-bottom: 1px solid #ddd;
+}
+
+
+.table-edit-btn {
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  transition: background 0.3s ease;
+  padding: 6px 12px;
+  border-radius: 4px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.table-edit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: var(--clr-main);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.table-edit-btn:hover::before {
+  opacity: 1;
+}
+
+.table-edit-btn:hover {
+  color: #fff;
+}
+

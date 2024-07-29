@@ -1,6 +1,18 @@
 import React from "react";
 import "./style.css";
 
+const StarRating = ({ rating }) => {
+  return (
+    <div className="star-rating">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <span key={star} className={`star-icon ${star > rating ? 'empty' : ''}`}>
+          <i className="fa-solid fa-star"></i>
+        </span>
+      ))}
+    </div>
+  );
+};
+
 const ItemList = ({ items = [] }) => {
   return (
     <div className="custom-container item">
@@ -25,12 +37,7 @@ const ItemList = ({ items = [] }) => {
                   />
                   <div>
                     <h5 className="fs-6">{item.owner}</h5>
-                    <span>
-                      <i
-                        className="fa-solid fa-star"
-                        style={{ color: "#ffd43b" }}
-                      ></i>
-                    </span>
+                    <StarRating rating={item.rating || 0} />
                   </div>
                 </div>
                 <div className="d-flex justify-content-between">

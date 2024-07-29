@@ -1,5 +1,6 @@
 import React from "react";
 import UserItemList from "../../components/User/UserItemList";
+import TransactionsTable from "../../components/User/Transactions";  
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
 import NavBar from "../../components/navbar/NavBar";
 import Footer from "../../components/footer/Footer";
@@ -8,6 +9,18 @@ import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
 import profilePhoto from "../../assets/images/icons/user-icon.svg";
 
+const StarRating = ({ rating }) => {
+  return (
+    <div className="star-rating">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <span key={star} className={`star-icon ${star > rating ? 'empty' : ''}`}>
+          <i className="fa-solid fa-star"></i>
+        </span>
+      ))}
+    </div>
+  );
+};
+
 const items = [
   {
     image: item1,
@@ -15,6 +28,7 @@ const items = [
     price: "₱ 500",
     owner: "Ebe Dencel",
     ownerImage: ownerImg,
+    rating: 4,
   },
   {
     image: item1,
@@ -22,6 +36,7 @@ const items = [
     price: "₱ 500",
     owner: "Ebe Dencel",
     ownerImage: ownerImg,
+    rating: 5,
   },
   {
     image: item1,
@@ -29,6 +44,7 @@ const items = [
     price: "₱ 500",
     owner: "Ebe Dencel",
     ownerImage: ownerImg,
+    rating: 3,
   },
   {
     image: item1,
@@ -36,6 +52,7 @@ const items = [
     price: "₱ 500",
     owner: "Ebe Dencel",
     ownerImage: ownerImg,
+    rating: 2,
   },
 ];
 
@@ -48,7 +65,7 @@ function MyRentals() {
 }
 
 function Transactions() {
-  return <div>Transactions Content</div>;
+  return <TransactionsTable />;  // Use the TransactionsTable component
 }
 
 function MyListings() {
@@ -98,7 +115,9 @@ function Profile() {
                 </div>
                 <div>
                   <span className="profile-label">Rating</span>
-                  <span className="profile-value">⭐⭐⭐⭐⭐</span>
+                  <span className="profile-value">
+                    <StarRating rating={4} /> 
+                  </span>
                 </div>
                 <div className="profile-bio">
                   <span className="profile-label">Bio</span>

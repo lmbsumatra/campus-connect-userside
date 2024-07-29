@@ -3,6 +3,18 @@ import "./style.css";
 import ListView from "../../assets/images/icons/list.png";
 import GridView from "../../assets/images/icons/grid.png";
 
+const StarRating = ({ rating }) => {
+  return (
+    <div className="star-rating">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <span key={star} className={`star-icon ${star > rating ? 'empty' : ''}`}>
+          <i className="fa-solid fa-star"></i>
+        </span>
+      ))}
+    </div>
+  );
+};
+
 const UserItemList = ({ items = [] }) => {
   const [isListView, setIsListView] = useState(false);
 
@@ -31,12 +43,7 @@ const UserItemList = ({ items = [] }) => {
                 />
                 <div>
                   <h5 className="fs-6">{item.owner}</h5>
-                  <span>
-                    <i
-                      className="fa-solid fa-star"
-                      style={{ color: "#ffd43b" }}
-                    ></i>
-                  </span>
+                  <StarRating rating={item.rating || 0} />
                 </div>
               </div>
               <div className="button-container d-flex justify-content-end">
@@ -62,6 +69,7 @@ const UserItemList = ({ items = [] }) => {
             <th>Description</th>
             <th>Category</th>
             <th>Amount</th>
+            <th>Ratings</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -73,8 +81,9 @@ const UserItemList = ({ items = [] }) => {
                 <td>{item.description}</td>
                 <td>{item.category}</td>
                 <td>{item.price}</td>
+                <td><StarRating rating={item.rating || 0} /></td>
                 <td>
-                  <button className="btn btn-primary me-2">Edit</button>
+                  <button className="btn btn-primary table-edit-btn me-2">Edit</button>
                   <button className="btn btn-danger">Delete</button>
                 </td>
               </tr>
@@ -88,7 +97,7 @@ const UserItemList = ({ items = [] }) => {
       </table>
     </div>
   );
-
+  
   return (
     <div className="custom-container item">
       <div className="header-container">

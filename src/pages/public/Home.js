@@ -23,6 +23,7 @@ const items = [
     price: "₱ 500",
     owner: "Ebe Dencel",
     ownerImage: ownerImg,
+    rating: 3,
   },
   {
     image: item1,
@@ -30,6 +31,7 @@ const items = [
     price: "₱ 500",
     owner: "Ebe Dencel",
     ownerImage: ownerImg,
+    rating: 2,
   },
   {
     image: item1,
@@ -37,6 +39,7 @@ const items = [
     price: "₱ 500",
     owner: "Ebe Dencel",
     ownerImage: ownerImg,
+    rating: 5,
   },
   {
     image: item1,
@@ -44,6 +47,7 @@ const items = [
     price: "₱ 500",
     owner: "Ebe Dencel",
     ownerImage: ownerImg,
+    rating: 1,
   },
 ];
 

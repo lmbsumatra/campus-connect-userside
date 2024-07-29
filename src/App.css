@@ -454,11 +454,11 @@ textarea {
 .profile-sidebar ul li a::before {
   content: "";
   position: absolute;
-  left: -10px; /* Adjust to align correctly */
+  left: -10px; 
   top: 50%;
   transform: translateY(-50%);
   width: 5px;
-  height: 100%; /* Ensure it spans the full height */
+  height: 100%; 
   background-color: #2179c8;
   border-radius: 3px;
   transition: all 0.3s;
@@ -470,8 +470,8 @@ textarea {
   opacity: 1;
   left: -10px;
   opacity: 1;
-  left: -10px; /* Ensure it moves left correctly */
-  background: var(--clr-main); /* Apply the gradient to the bar */
+  left: -10px; 
+  background: var(--clr-main); 
 }
 
 .profile-content {
@@ -555,4 +555,25 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+}
+
+.star-rating {
+  display: inline-flex;
+}
+
+.star-icon {
+  font-size: 1.2em;
+  background: var(--clr-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.star-icon.empty {
+  background: #e0e0e0;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
