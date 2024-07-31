@@ -1,0 +1,142 @@
+/* body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+} */
+
+.form-container {
+  display: flex;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 20%;
+  background-color: #f8f8f8;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-item {
+  padding: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.sidebar-item.active {
+  color: #007bff;
+  border-left: 5px solid #007bff;
+  font-weight: bold;
+}
+
+.sidebar-item:hover {
+  background-color: #eee;
+}
+
+.form-content {
+  width: 80%;
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.input-border {
+  border: 1px solid var(--clr-light);
+  padding: 10px;
+  border-radius: 4px;
+  background-color: var(--clr-light);
+}
+
+input[type="time"],
+input[type="date"] {
+  background-color: var(--clr-white);
+}
+
+.left {
+  border-radius: 4px 0 0 4px;
+}
+.right {
+  border-radius: 0px 4px 4px 0px;
+}
+.center {
+  border-radius: 0 0 0 0;
+}
+
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.specification-group,
+.image-group,
+.duration-group,
+.dates-group {
+  display: flex;
+  align-items: center;
+}
+
+.spec-button,
+.upload-image,
+.add-spec,
+.remove-spec,
+.add-duration,
+.add-date {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.upload-image {
+  width: 100px;
+  height: 100px;
+}
+
+.spec-button:hover,
+.upload-image:hover,
+.add-spec:hover,
+.add-duration:hover,
+.add-date:hover {
+  background-color: #eee;
+}
+
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.image-placeholder {
+  width: 100px;
+  height: 100px;
+  background-color: #ddd;
+  border-radius: 4px;
+  margin-left: 10px;
+  overflow: hidden;
+  display: inline-block;
+  margin-bottom: 5px;
+  border: 1px solid var(--clr-light);
+}
+
+.rental-details .form-group .dates-group{
+  display: block;
+}

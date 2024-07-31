@@ -1,0 +1,254 @@
+{
+  "borrowingPosts": [
+    {
+      "id": 1,
+      "username": "Alice",
+      "userProfilePicture": "../../assets/images/profile/profile_1.jpg",
+      "userRating": 4.8,
+      "itemName": "Flute",
+      "itemDescription": "A high-quality concert flute suitable for both beginners and professionals.",
+      "itemImage": "../../assets/images/item/item_1.jpg",
+      "itemSpecifications": [
+        "Brand: Yamaha",
+        "Model: YFL-222",
+        "Type: Concert Flute",
+        "Material: Nickel Silver",
+        "Finish: Silver-Plated",
+        "Key System: Offset G",
+        "Weight: 1.2 kg"
+      ],
+      "rentalDuration": ["9:00 am - 10:00 pm"],
+      "rentalDate": "July 01, 2024",
+      "deliveryMethod": "Meetup",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    },
+    {
+      "id": 2,
+      "username": "Bob",
+      "userProfilePicture": "../../assets/images/profile/profile_2.jpg",
+      "userRating": 4.5,
+      "itemName": "Guitar",
+      "itemDescription": "An acoustic guitar with a rich sound and smooth playability.",
+      "itemImage": "../../assets/images/item/item_2.jpg",
+      "itemSpecifications": [
+        "Brand: Fender",
+        "Model: FA-125",
+        "Type: Acoustic Guitar",
+        "Material: Spruce Top, Mahogany Back and Sides",
+        "Finish: Gloss",
+        "Scale Length: 25.3 inches",
+        "Weight: 2.5 kg"
+      ],
+      "rentalDuration": ["10:00 am - 6:00 pm"],
+      "rentalDate": "July 02, 2024",
+      "deliveryMethod": "Pickup",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    },
+    {
+      "id": 3,
+      "username": "Charlie",
+      "userProfilePicture": "../../assets/images/profile/profile_3.jpg",
+      "userRating": 4.7,
+      "itemName": "Violin",
+      "itemDescription": "A handcrafted violin with a warm and rich tone, perfect for performances.",
+      "itemImage": "../../assets/images/item/item_3.jpg",
+      "itemSpecifications": [
+        "Brand: Stentor",
+        "Model: 1500",
+        "Type: Full-Size Violin",
+        "Material: Solid Carved Spruce Top, Maple Back and Sides",
+        "Finish: Traditional Hand Varnish",
+        "Bow: Brazilwood",
+        "Weight: 0.5 kg"
+      ],
+      "rentalDuration": ["11:00 am - 8:00 pm"],
+      "rentalDate": "July 03, 2024",
+      "deliveryMethod": "Meetup",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    },
+    {
+      "id": 4,
+      "username": "Daisy",
+      "userProfilePicture": "../../assets/images/profile/profile_4.jpg",
+      "userRating": 4.9,
+      "itemName": "Trumpet",
+      "itemDescription": "A professional-grade trumpet suitable for orchestras and solo performances.",
+      "itemImage": "../../assets/images/item/item_4.jpg",
+      "itemSpecifications": [
+        "Brand: Bach",
+        "Model: TR300H2",
+        "Type: Bb Trumpet",
+        "Material: Brass",
+        "Finish: Lacquered",
+        "Bell Diameter: 4.75 inches",
+        "Weight: 1.0 kg"
+      ],
+      "rentalDuration": ["8:00 am - 5:00 pm"],
+      "rentalDate": "July 04, 2024",
+      "deliveryMethod": "Delivery",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    },
+    {
+      "id": 5,
+      "username": "Eve",
+      "userProfilePicture": "../../assets/images/profile/profile_5.jpg",
+      "userRating": 4.6,
+      "itemName": "Piano",
+      "itemDescription": "A digital piano with weighted keys, perfect for both practice and performances.",
+      "itemImage": "../../assets/images/item/item_5.jpg",
+      "itemSpecifications": [
+        "Brand: Casio",
+        "Model: Privia PX-160",
+        "Type: Digital Piano",
+        "Material: Synthetic Ivory and Ebony Keys",
+        "Finish: Black",
+        "Number of Keys: 88",
+        "Weight: 11.5 kg"
+      ],
+      "rentalDuration": ["12:00 pm - 9:00 pm"],
+      "rentalDate": "July 05, 2024",
+      "deliveryMethod": "Pickup",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    },
+    {
+      "id": 6,
+      "username": "Frank",
+      "userProfilePicture": "../../assets/images/profile/profile_6.jpg",
+      "userRating": 4.7,
+      "itemName": "Saxophone",
+      "itemDescription": "An alto saxophone with a rich and expressive sound, suitable for jazz and classical music.",
+      "itemImage": "../../assets/images/item/item_6.jpg",
+      "itemSpecifications": [
+        "Brand: Yamaha",
+        "Model: YAS-280",
+        "Type: Alto Saxophone",
+        "Material: Brass",
+        "Finish: Gold Lacquer",
+        "Key: Eb",
+        "Weight: 2.3 kg"
+      ],
+      "rentalDuration": ["10:00 am - 5:00 pm"],
+      "rentalDate": "July 06, 2024",
+      "deliveryMethod": "Meetup",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    },
+    {
+      "id": 7,
+      "username": "Grace",
+      "userProfilePicture": "../../assets/images/profile/profile_7.jpg",
+      "userRating": 4.5,
+      "itemName": "Drum Set",
+      "itemDescription": "A complete drum set with high-quality components, ideal for rock and jazz performances.",
+      "itemImage": "../../assets/images/item/item_7.jpg",
+      "itemSpecifications": [
+        "Brand: Pearl",
+        "Model: Export Series",
+        "Type: Drum Set",
+        "Material: Poplar/Asian Mahogany Shells",
+        "Finish: Jet Black",
+        "Configuration: 5-Piece",
+        "Weight: 25 kg"
+      ],
+      "rentalDuration": ["9:00 am - 8:00 pm"],
+      "rentalDate": "July 07, 2024",
+      "deliveryMethod": "Pickup",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    },
+    {
+      "id": 8,
+      "username": "Hank",
+      "userProfilePicture": "../../assets/images/profile/profile_8.jpg",
+      "userRating": 4.8,
+      "itemName": "Clarinet",
+      "itemDescription": "A professional-grade clarinet with a warm and rich tone, suitable for orchestral and solo performances.",
+      "itemImage": "../../assets/images/item/item_8.jpg",
+      "itemSpecifications": [
+        "Brand: Buffet Crampon",
+        "Model: E11",
+        "Type: Bb Clarinet",
+        "Material: Grenadilla Wood",
+        "Finish: Natural",
+        "Key System: Boehm",
+        "Weight: 0.8 kg"
+      ],
+      "rentalDuration": ["11:00 am - 7:00 pm"],
+      "rentalDate": "July 08, 2024",
+      "deliveryMethod": "Meetup",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    },
+    {
+      "id": 9,
+      "username": "Ivy",
+      "userProfilePicture": "../../assets/images/profile/profile_9.jpg",
+      "userRating": 4.6,
+      "itemName": "Cello",
+      "itemDescription": "A full-size cello with a rich and powerful tone, perfect for orchestral performances.",
+      "itemImage": "../../assets/images/item/item_9.jpg",
+      "itemSpecifications": [
+        "Brand: Eastman Strings",
+        "Model: VC305",
+        "Type: Full-Size Cello",
+        "Material: Spruce Top, Maple Back and Sides",
+        "Finish: Hand-Applied Spirit Varnish",
+        "Bow: Pernambuco",
+        "Weight: 5.0 kg"
+      ],
+      "rentalDuration": ["10:00 am - 6:00 pm"],
+      "rentalDate": "July 09, 2024",
+      "deliveryMethod": "Delivery",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    },
+    {
+      "id": 10,
+      "username": "Jack",
+      "userProfilePicture": "../../assets/images/profile/profile_10.jpg",
+      "userRating": 4.9,
+      "itemName": "Trombone",
+      "itemDescription": "A high-quality trombone with a powerful and expressive sound, suitable for various genres.",
+      "itemImage": "../../assets/images/item/item_10.jpg",
+      "itemSpecifications": [
+        "Brand: King",
+        "Model: 606",
+        "Type: Tenor Trombone",
+        "Material: Brass",
+        "Finish: Lacquered",
+        "Bell Diameter: 8 inches",
+        "Weight: 1.5 kg"
+      ],
+      "rentalDuration": ["8:00 am - 5:00 pm"],
+      "rentalDate": "July 10, 2024",
+      "deliveryMethod": "Meetup",
+      "actions": {
+        "message": "Message",
+        "view": "View"
+      }
+    }
+  ]
+}

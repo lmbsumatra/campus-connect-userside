@@ -2,7 +2,7 @@ import React from "react";
 import UserItemList from "../../components/User/UserItemList";
 import TransactionsTable from "../../components/User/Transactions";  
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
-import NavBar from "../../components/navbar/NavBar";
+import NavBar from "../../components/navbar/navbar/NavBar.jsx";
 import Footer from "../../components/footer/Footer";
 
 import item1 from "../../assets/images/item/item_1.jpg";

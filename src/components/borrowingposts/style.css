@@ -1,4 +1,4 @@
-/* * * * * * * * * */
+* * * * * * * *
 /*  Item Listing   */
 /* * * * * * * * * */
 
@@ -9,7 +9,7 @@
 .user-container {
   background-color: var(--clr-light);
   line-height: 0;
-  overflow: hidden;
+  /* overflow: hidden; */
   padding: 10px 20px;
 }
 

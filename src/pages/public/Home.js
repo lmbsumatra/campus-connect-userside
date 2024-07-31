@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 
-import NavBar from "../../components/navbar/NavBar";
+import NavBar from "../../components/navbar/navbar/NavBar";
 import Header from "../../components/header/Header";
 import Subheader from "../../components/subheader/Subheader";
 import Categories from "../../components/categories/Categories";
@@ -52,6 +52,13 @@ const items = [
 ];
 
 function Home() {
+  const [borrowingPosts, setBorrowingPosts] = useState([]);
+
+  useEffect(() => {
+    fetch('/Posts.json')
+      .then((response) => response.json())
+      .then((data) => setBorrowingPosts(data.borrowingPosts));
+  }, []);
   const handleFabClick = (action) => {
     if (action === "add-item") {
       console.log("Add Item button clicked");
@@ -68,7 +75,7 @@ function Home() {
       <Categories />
       <ItemList items={items} />
       <Banner />
-      <BorrowingPost />
+      <BorrowingPost borrowingPosts={borrowingPosts} />
       <Footer />
       <FAB icon="+" onClick={handleFabClick} />
     </div>

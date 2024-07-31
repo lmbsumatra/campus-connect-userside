@@ -1,0 +1,117 @@
+.message-menu {
+    position: absolute;
+    top: 65px;
+    right: 140px;
+    background-color: var(--clr-white);
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+    width: 300px;
+    padding: 10px;
+  }
+  
+  .message-menu .triangle {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid var(--clr-white);
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .icon-link:hover {
+    transform: scale(1.1);
+  }
+  
+  .message-icon {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border-bottom: 1px solid var(--clr-light);
+  }
+  
+  .menu-header h5 {
+    margin: 0;
+    color: var(--clr-primary);
+  }
+  
+  .menu-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .message-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--clr-light);
+    transition: background 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .message-item:hover {
+    background: var(--clr-light);
+  }
+  
+  .message-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .message-info {
+    flex-grow: 1;
+  }
+  
+  .message-info h6 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--clr-primary);
+  }
+  
+  .message-info p {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    color: var(--clr-secondary);
+  }
+  
+  .message-info span {
+    display: block;
+    font-size: 12px;
+    color: var(--clr-tertiary);
+    margin-top: 5px;
+  }
+  

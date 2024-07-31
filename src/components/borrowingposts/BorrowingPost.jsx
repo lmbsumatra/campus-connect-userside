@@ -1,68 +1,115 @@
+// modules
+import React from "react";
+// styles
 import "./style.css";
-import item from "../../assets/images/item/item_1.jpg";
+// images
+import item1 from "../../assets/images/item/item_1.jpg";
+import item2 from "../../assets/images/item/item_2.jpg";
+import item3 from "../../assets/images/item/item_3.jpg";
+import item4 from "../../assets/images/item/item_4.jpg";
+import item5 from "../../assets/images/item/item_5.jpg";
+import { useNavigate } from "react-router-dom";
 
-const BorrowingPost = () => {
+const BorrowingPost = ({ borrowingPosts }) => {
+  const navigate = useNavigate();
+
+  const getItemImage = (itemImage) => {
+    switch (itemImage) {
+      case "item_1.jpg":
+        return item1;
+      case "item_2.jpg":
+        return item2;
+      case "item_3.jpg":
+        return item3;
+      case "item_4.jpg":
+        return item4;
+      case "item_5.jpg":
+        return item5;
+      default:
+        return item1;
+    }
+  };
+
+  const handleCardClick = (id) => {
+    navigate(`/posts/${id}`);
+  };
+
   return (
     <div className="custom-container post">
       <h2 className="fs-2 fw-bold">New Borrowing Posts</h2>
       <div className="card-container">
-        <div className="card" style={{ width: "550px" }}>
-          <div className="d-flex user-container align-items-center">
-            <div className=" align-items-center">
-              <img src={item} alt="" className="icon-user me-2" />
-              <h5 className="fs-6">
-                Username (
-                <span>
-                  4.8
-                  <i
-                    className="fa-solid fa-star"
-                    style={{ color: "#ffd43b" }}
-                  ></i>
-                </span>
-                ) <span>is looking for</span>
-              </h5>
-            </div>
-            <div className="d-flex justify-content-between">
-              <button className="btn btn-primary no-fill me-2">
-                <span className="text-gradient">Message</span>
-              </button>
-              <button className="btn btn-primary no-fill">
-                <span className="text-gradient">View</span>
-              </button>
-            </div>
-          </div>
-          <div className="card-body d-flex flex-row">
-            <div className="card-content">
-              <div className="pe-3">
-                <div>
-                  <h5 className="fs-5">Flute</h5>
-                </div>
-                <div className="d-flex align-items-center mb-1">
-                  <span className="me-2">Duration</span>
-                  <button className="btn btn-tertiary no-fill">
-                    9am - 10pm
-                  </button>
-                </div>
-                <div className="d-flex align-items-center mb-1">
-                  <span className="me-2">Rental Date</span>
-                  <button className="btn btn-tertiary no-fill">July 01</button>
-                </div>
-                <div className="d-flex align-items-center mb-1">
-                  <span className="me-2">Delivery</span>
-                  <button className="btn btn-tertiary no-fill">Meetup</button>
-                </div>
+        {borrowingPosts.map((post) => (
+          <div
+            className="card"
+            style={{ width: "550px", cursor: "pointer" }}
+            key={post.id}
+            onClick={() => handleCardClick(post.id)}
+          >
+            <div className="d-flex user-container align-items-center">
+              <div className="align-items-center">
+                <img
+                  src={getItemImage(post.itemImage)}
+                  alt=""
+                  className="icon-user me-2"
+                />
+                <h5 className="fs-6">
+                  {post.username} (
+                  <span>
+                    {post.userRating}
+                    <i
+                      className="fa-solid fa-star"
+                      style={{ color: "#ffd43b" }}
+                    ></i>
+                  </span>
+                  ) <span>is looking for</span>
+                </h5>
+              </div>
+              <div className="d-flex justify-content-between">
+                <button className="btn btn-primary no-fill me-2">
+                  <span className="text-gradient">{post.actions.message}</span>
+                </button>
+                <button className="btn btn-primary no-fill">
+                  <span className="text-gradient">{post.actions.view}</span>
+                </button>
               </div>
             </div>
-            <div>
-              <img
-                src={item}
-                className="card-img-left"
-                alt="..."
-                style={{ width: "200px", objectFit: "cover" }}
-              />
+            <div className="card-body d-flex flex-row">
+              <div className="card-content">
+                <div className="pe-3">
+                  <div>
+                    <h5 className="fs-5">{post.itemName}</h5>
+                  </div>
+                  <div className="d-flex align-items-center mb-1">
+                    <span className="me-2">Duration</span>
+                    <button className="btn btn-tertiary no-fill">
+                      {post.rentalDuration}
+                    </button>
+                  </div>
+                  <div className="d-flex align-items-center mb-1">
+                    <span className="me-2">Rental Date</span>
+                    <button className="btn btn-tertiary no-fill">
+                      {post.rentalDate}
+                    </button>
+                  </div>
+                  <div className="d-flex align-items-center mb-1">
+                    <span className="me-2">Delivery</span>
+                    <button className="btn btn-tertiary no-fill">
+                      {post.deliveryMethod}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <img
+                  src={getItemImage(post.itemImage)}
+                  className="card-img-left"
+                  alt="..."
+                  style={{ width: "200px", objectFit: "cover" }}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
