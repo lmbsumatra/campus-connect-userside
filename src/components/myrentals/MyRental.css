@@ -1,0 +1,200 @@
+/* Profile.css */
+
+/* Common styles for MyRentals section */
+.my-rentals {
+  padding: 20px;
+  position: relative; /* Added for positioning the button */
+}
+
+.rental-filters {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-button {
+  padding: 10px 20px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6c757d;
+  position: relative;
+  transition: color 0.3s, font-weight 0.3s;
+}
+
+.filter-button:hover,
+.filter-button.active {
+  background: var(--clr-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold; /* Bold text on hover and active */
+}
+
+.filter-button.active::before,
+.filter-button.active::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0px; /* Position the line below the text */
+  transform: translateX(-50%);
+  width: 70%;
+  height: 3px;
+  background-color: #2179c8;
+  border-radius: 3px;
+  transition: all 0.3s;
+}
+
+.filter-button:hover::before,
+.filter-button.active::before {
+  opacity: 1;
+  background: var(--clr-main); /* Apply the gradient to the bar */
+}
+
+.rental-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rental-item {
+  display: flex;
+  align-items: flex-start; /* Align items to the top */
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.rental-item h3 {
+  font-size: 18px;
+}
+
+.rental-item p {
+  margin: 1px 0;
+}
+
+.rental-item img {
+  width: 100px; /* Fixed width */
+  height: 100px; /* Fixed height to make it square */
+  object-fit: cover;
+  border-radius: 5px;
+  margin-right: 20px; /* Add some space between image and text */
+}
+
+.rental-item-content {
+  flex-grow: 1; /* Ensure content takes up remaining space */
+  display: flex;
+  flex-direction: column;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.accept-button,
+.decline-button {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 5px;
+}
+
+/* Styles for the "View Progress" button */
+.view-progress-button {
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6c757d;
+  position: absolute;
+  bottom: -20px; /* Adjust the bottom position as needed */
+  right: 40px; /* Adjust the right position as needed */
+}
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+  .rental-filters {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .filter-buttons {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .filter-button {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .rental-item {
+    padding: 15px;
+  }
+
+  .rental-item h3 {
+    font-size: 16px;
+  }
+
+  .accept-button,
+  .decline-button {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rental-filters {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .filter-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .filter-button {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  .rental-item {
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items */
+    padding: 10px;
+    text-align: center; /* Center-align text for smaller screens */
+  }
+
+  .rental-item img {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .rental-item h3 {
+    font-size: 14px;
+  }
+
+  .accept-button,
+  .decline-button {
+    padding: 6px 12px;
+    font-size: 10px;
+  }
+
+  .view-progress-button {
+    width: 100%;
+    margin-top: 10px;
+    position: static; /* Default position */
+  }
+}

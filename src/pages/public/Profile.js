@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import UserItemList from "../../components/User/UserItemList";
 import TransactionsTable from "../../components/User/Transactions";  
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
 import NavBar from "../../components/navbar/navbar/NavBar.jsx";
 import Footer from "../../components/footer/Footer";
+
+//MyRentals
+import RentalFilters from "../../components/myrentals/RentalFilters";
+import RentalItem from "../../components/myrentals/RentalItem";
+import { rentalItems, filterOptions } from "../../components/myrentals/data";
+import ReviewModal from "../../components/modalReview/ReviewModal";
 
 import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
@@ -61,8 +67,62 @@ function EditProfile() {
 }
 
 function MyRentals() {
-  return <div>My Rentals Content</div>;
-}
+  const [activeFilter, setActiveFilter] = useState("Request");
+   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [selectedItem, setSelectedItem] = useState(null);
+ 
+   const handleFilterClick = (filter) => {
+     setActiveFilter(filter);
+   };
+ 
+   const openModal = (item) => {
+     setSelectedItem(item);
+     setIsModalOpen(true);
+   };
+ 
+   const closeModal = () => {
+     setIsModalOpen(false);
+     setSelectedItem(null);
+   };
+ 
+   return (
+     <div className="my-rentals">
+       <RentalFilters 
+         filterOptions={filterOptions}
+         activeFilter={activeFilter}
+         onFilterClick={handleFilterClick}
+       />
+       <div className="rental-items">
+         {rentalItems
+           .filter((item) => 
+             activeFilter === "All" || 
+             item.status === activeFilter || 
+             (activeFilter === "Request" && item.status === "Pending")
+           )
+           .map((item) => (
+             <RentalItem 
+               key={item.id} 
+               item={item} 
+               onOpenModal={openModal}
+             />
+           ))}
+       </div>
+       {selectedItem && (
+         <ReviewModal 
+           isOpen={isModalOpen} 
+           onClose={closeModal} 
+           item={{
+             ...selectedItem, 
+             rentalPeriod: `${selectedItem.requestDate} - ${selectedItem.returnDate}`, 
+             rentalRate: "10php", 
+             ownerName: "Owner name" // Placeholder, replace with actual data
+           }} 
+         />
+       )}
+     </div>
+   );
+ }
+ 
 
 function Transactions() {
   return <TransactionsTable />;  // Use the TransactionsTable component

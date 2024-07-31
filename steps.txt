@@ -2,3 +2,4 @@
 2. npm install bootstrap
 3. npm install react-router-dom
 4. npm install date-fns
+5. npm install react-star-ratings
