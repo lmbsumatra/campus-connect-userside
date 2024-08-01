@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import UserItemList from "../../components/User/UserItemList";
-import TransactionsTable from "../../components/User/Transactions";  
+import UserItemList from "../../components/User/LendersPOV/UserItemList.jsx";
+import TransactionsTable from "../../components/User/LendersPOV/Transactions.jsx";
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
 import NavBar from "../../components/navbar/navbar/NavBar.jsx";
+import StarRating from "../../components/Rating/StarRating.jsx";
+import { items } from "../../components/itemlisting/data.jsx";
 import Footer from "../../components/footer/Footer";
 
 //MyRentals
@@ -10,57 +12,9 @@ import RentalFilters from "../../components/myrentals/RentalFilters";
 import RentalItem from "../../components/myrentals/RentalItem";
 import { rentalItems, filterOptions } from "../../components/myrentals/data";
 import ReviewModal from "../../components/modalReview/ReviewModal";
-
-import item1 from "../../assets/images/item/item_1.jpg";
-import ownerImg from "../../assets/images/icons/user-icon.svg";
 import profilePhoto from "../../assets/images/icons/user-icon.svg";
 
-const StarRating = ({ rating }) => {
-  return (
-    <div className="star-rating">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <span key={star} className={`star-icon ${star > rating ? 'empty' : ''}`}>
-          <i className="fa-solid fa-star"></i>
-        </span>
-      ))}
-    </div>
-  );
-};
 
-const items = [
-  {
-    image: item1,
-    title: "Wrench",
-    price: "₱ 500",
-    owner: "Ebe Dencel",
-    ownerImage: ownerImg,
-    rating: 4,
-  },
-  {
-    image: item1,
-    title: "Wrench",
-    price: "₱ 500",
-    owner: "Ebe Dencel",
-    ownerImage: ownerImg,
-    rating: 5,
-  },
-  {
-    image: item1,
-    title: "Wrench",
-    price: "₱ 500",
-    owner: "Ebe Dencel",
-    ownerImage: ownerImg,
-    rating: 3,
-  },
-  {
-    image: item1,
-    title: "Wrench",
-    price: "₱ 500",
-    owner: "Ebe Dencel",
-    ownerImage: ownerImg,
-    rating: 2,
-  },
-];
 
 function EditProfile() {
   return <div>Edit Profile Content</div>;
@@ -140,7 +94,7 @@ function Profile() {
   return (
     <div>
       <NavBar />
-      <div className="profile-container">
+      <div className="prof-container profile-page">
         <div className="profile-sidebar">
           <ul>
             <li>

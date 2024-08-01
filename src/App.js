@@ -10,7 +10,7 @@ import Post from "./components/post/Post.jsx";
 import PostForm from "./pages/private/new-post/PostForm.js";
 import MessagePage from "./pages/private/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/RentProgress.jsx";
-
+import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx"; 
 function App() {
   return (
     <BrowserRouter>
@@ -22,6 +22,7 @@ function App() {
         <Route path="/messages" element={<MessagePage />} />
         <Route path="/profile/*" element={<Profile />} />
         <Route path="/rent-progress" element={<RentProgress />} />
+        <Route path="/user/:id" element={<UserProfileVisit />} />
       </Routes>
     </BrowserRouter>
   );
