@@ -1,0 +1,109 @@
+/* * * * * * * * * */
+/*   LISTING ITEM  */
+/* * * * * * * * * */
+.profile-info {
+  display: flex;
+  align-items: center;
+}
+
+.profile-pic {
+  width: 40px; /* Adjust size as needed */
+  height: 40px; /* Adjust size as needed */
+  border-radius: 50%; /* Makes the image circular */
+}
+
+.user-name {
+  display: block;
+  font-weight: bold;
+}
+
+.rating {
+  font-size: 0.875rem; /* Adjust size as needed */
+  color: #f5c518; /* Gold color for stars */
+}
+
+.price {
+  color: green; /* Change the color to green */
+  font-weight: bold; /* Make the text bold */
+}
+
+
+/* * * * * * * * * */
+/*   View Item     */
+/* * * * * * * * * */
+
+.view-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.item-profile, .user-info, .item-specs {
+  margin-bottom: 30px;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.item-image img {
+  width: 100%;
+  height: auto;
+  max-height: 400px; /* Adjust the max height to better fit your layout */
+  object-fit: cover;
+}
+
+.item-desc p {
+  margin: 5px 0;
+}
+
+.price {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-check {
+  margin-top: 10px;
+}
+
+.btn-primary.no-fill {
+  background-color: transparent;
+  color: #007bff;
+  border: 1px solid #007bff;
+}
+
+.user-info .profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.rating {
+  font-size: 1.2em;
+}
+
+.btn-outline-secondary {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.item-specs hr {
+  border: 0;
+  height: 3px;
+  background-color: #ddd;
+  margin: 20px 0;
+}
+
+
+
+
+
+
+

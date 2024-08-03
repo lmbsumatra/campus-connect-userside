@@ -11,6 +11,10 @@ import PostForm from "./pages/private/new-post/PostForm.js";
 import MessagePage from "./pages/private/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/RentProgress.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx"; 
+import Listings from "./pages/public/Listing.js";
+import ViewItem from './components/listings/ViewItem';
+import AddItem from './components/listings/AddItem.js'
+
 function App() {
   return (
     <BrowserRouter>
@@ -23,6 +27,9 @@ function App() {
         <Route path="/profile/*" element={<Profile />} />
         <Route path="/rent-progress" element={<RentProgress />} />
         <Route path="/user/:id" element={<UserProfileVisit />} />
+        <Route path="/listings" element={<Listings />} />
+        <Route path="/item/:id" element={<ViewItem />} />
+        <Route path="/add-item" element={<AddItem />} />
       </Routes>
     </BrowserRouter>
   );
