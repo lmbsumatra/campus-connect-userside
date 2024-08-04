@@ -3,7 +3,7 @@ import UserItemList from "../../components/User/LendersPOV/UserItemList.jsx";
 import TransactionsTable from "../../components/User/LendersPOV/Transactions.jsx";
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
 import NavBar from "../../components/navbar/navbar/NavBar.jsx";
-import StarRating from "../../components/Rating/StarRating.jsx";
+import StarRating from "../../components/rating/StarRating.jsx";
 import { items } from "../../components/itemlisting/data.jsx";
 import Footer from "../../components/footer/Footer";
 

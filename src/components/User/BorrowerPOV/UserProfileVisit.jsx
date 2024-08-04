@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../BorrowerPOV/style.css";
 import NavBar from "../../navbar/navbar/NavBar.jsx";
 import Footer from "../../footer/Footer.jsx";
-import StarRating from "../../Rating/StarRating.jsx";
+import StarRating from "../../rating/StarRating.jsx";
 import { items, users } from "../data.jsx";
 import BorrowingPost from "./Posts.jsx";
 

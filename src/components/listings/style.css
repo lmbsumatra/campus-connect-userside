@@ -2,7 +2,7 @@
 /*   LISTING ITEM  */
 /* * * * * * * * * */
 .profile-info {
-  display: flex;
+  /* display: flex; comment ko muna to ha kasi naadjust rin yung style sa .profile-info sa profile page naging flex*/
   align-items: center;
 }
 
