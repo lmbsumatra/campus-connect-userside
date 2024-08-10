@@ -1,82 +1,78 @@
 import React, { useState } from "react";
-import UserItemList from "../../components/User/LendersPOV/UserItemList.jsx";
-import TransactionsTable from "../../components/User/LendersPOV/Transactions.jsx";
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
 import NavBar from "../../components/navbar/navbar/NavBar.jsx";
 import StarRating from "../../components/rating/StarRating.jsx";
 import { items } from "../../components/itemlisting/data.jsx";
 import Footer from "../../components/footer/Footer";
+import UserItemList from "../../components/User/LendersPOV/UserItemList.jsx";
+import TransactionsTable from "../../components/User/LendersPOV/Transactions.jsx";
 
-//MyRentals
+// MyRentals
 import RentalFilters from "../../components/myrentals/RentalFilters";
 import RentalItem from "../../components/myrentals/RentalItem";
 import { rentalItems, filterOptions } from "../../components/myrentals/data";
 import ReviewModal from "../../components/modalReview/ReviewModal";
 import profilePhoto from "../../assets/images/icons/user-icon.svg";
 
-
-
-function EditProfile() {
-  return <div>Edit Profile Content</div>;
-}
+// Import the EditProfile component
+import EditProfile from "../../components/editprofile/EditProfile.jsx";
 
 function MyRentals() {
   const [activeFilter, setActiveFilter] = useState("Request");
-   const [isModalOpen, setIsModalOpen] = useState(false);
-   const [selectedItem, setSelectedItem] = useState(null);
- 
-   const handleFilterClick = (filter) => {
-     setActiveFilter(filter);
-   };
- 
-   const openModal = (item) => {
-     setSelectedItem(item);
-     setIsModalOpen(true);
-   };
- 
-   const closeModal = () => {
-     setIsModalOpen(false);
-     setSelectedItem(null);
-   };
- 
-   return (
-     <div className="my-rentals">
-       <RentalFilters 
-         filterOptions={filterOptions}
-         activeFilter={activeFilter}
-         onFilterClick={handleFilterClick}
-       />
-       <div className="rental-items">
-         {rentalItems
-           .filter((item) => 
-             activeFilter === "All" || 
-             item.status === activeFilter || 
-             (activeFilter === "Request" && item.status === "Pending")
-           )
-           .map((item) => (
-             <RentalItem 
-               key={item.id} 
-               item={item} 
-               onOpenModal={openModal}
-             />
-           ))}
-       </div>
-       {selectedItem && (
-         <ReviewModal 
-           isOpen={isModalOpen} 
-           onClose={closeModal} 
-           item={{
-             ...selectedItem, 
-             rentalPeriod: `${selectedItem.requestDate} - ${selectedItem.returnDate}`, 
-             rentalRate: "10php", 
-             ownerName: "Owner name" // Placeholder, replace with actual data
-           }} 
-         />
-       )}
-     </div>
-   );
- }
- 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const handleFilterClick = (filter) => {
+    setActiveFilter(filter);
+  };
+
+  const openModal = (item) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  return (
+    <div className="my-rentals">
+      <RentalFilters 
+        filterOptions={filterOptions}
+        activeFilter={activeFilter}
+        onFilterClick={handleFilterClick}
+      />
+      <div className="rental-items">
+        {rentalItems
+          .filter((item) => 
+            activeFilter === "All" || 
+            item.status === activeFilter || 
+            (activeFilter === "Request" && item.status === "Pending")
+          )
+          .map((item) => (
+            <RentalItem 
+              key={item.id} 
+              item={item} 
+              onOpenModal={openModal}
+            />
+          ))}
+      </div>
+      {selectedItem && (
+        <ReviewModal 
+          isOpen={isModalOpen} 
+          onClose={closeModal} 
+          item={{
+            ...selectedItem, 
+            rentalPeriod: `${selectedItem.requestDate} - ${selectedItem.returnDate}`, 
+            rentalRate: "10php", 
+            ownerName: "Owner name" // Placeholder, replace with actual data
+          }} 
+        />
+      )}
+    </div>
+  );
+}
 
 function Transactions() {
   return <TransactionsTable />;  // Use the TransactionsTable component

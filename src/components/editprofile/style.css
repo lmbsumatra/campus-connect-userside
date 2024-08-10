@@ -1,0 +1,86 @@
+:root {
+    --clr-main: linear-gradient(to right, #2179c8, #c31f3b);
+    --clr-main-darker: linear-gradient(to right, #1b62a0, #99182e);
+    --clr-main-reverse: linear-gradient(to left, #2179c8, #c31f3b);
+    --clr-main-lighter: linear-gradient(to right, #d4e3f8, #f7d4d8);
+    --clr-secondary: #6c757d;
+    --clr-light: #e0e0e0;
+    --clr-white: #ffffff;
+    --ff-serif: "Bellefair", serif;
+    --ff-sans-cond: "Barlow Condensed", sans-serif;
+    --ff-sans-normal: "Barlow", sans-serif;
+  }
+
+.edit-profile-form {
+    max-width: 928px;
+    margin: 0 auto;
+    background-color: #FFFFFF; 
+    border-radius: 12px; 
+    padding: 20px;
+  }
+  
+  .form-section {
+    background-color:#FFFFFF; 
+    border-radius: 12px; 
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc; 
+  }
+  
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .verification-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333; 
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="email"],
+  .form-group input[type="password"],
+  .form-group input[type="date"],
+  .form-group input[type="file"] {
+    padding: 10px;
+    border: 1px solid #ccc; 
+    border-radius: 8px;
+    background-color: #F5F5F5;
+    color: #333;
+  }
+  
+  .save-profile-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px; 
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  
+  .save-profile-button:hover {
+    background-color: #45a049;
+  }
+  
+  h3.section-label {
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #333; 
+    text-align: center;
+  }
