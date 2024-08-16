@@ -1,6 +1,6 @@
 import React from "react";
 import "./style.css"; // Use the same CSS file
-import StarRating from "../../rating/StarRating";
+import StarRating from "../../Rating/StarRating.jsx";
 
 import item1 from "../../../assets/images/item/item_1.jpg";
 import item2 from "../../../assets/images/item/item_2.jpg";
