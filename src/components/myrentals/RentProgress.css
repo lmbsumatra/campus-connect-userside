@@ -1,0 +1,93 @@
+/* src/pages/RentProgress.css */
+
+.rent-progress {
+    padding: 20px;
+    background-color: rgb(232, 232, 232);
+  }
+  
+  .progress-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 50px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .progress-container h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .status {
+    display: block;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #4caf50;
+  }
+  
+  .progress-tracker {
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 50px 80px 20px 80px
+  }
+  
+  .step {
+    text-align: center;
+    position: relative;
+  }
+  
+  .bullet {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #4caf50;
+    margin: 0 auto 10px;
+  }
+  
+  .completed .bullet {
+    background-color: #4caf50;
+  }
+  
+  .step p {
+    font-size: 12px;
+  }
+
+  .transaction-details,
+  .delivery-info,
+  .owner-info {
+    margin-bottom: 20px;
+    border: 1px solid rgb(232, 232, 232);
+    border-radius: 3px;
+    padding: 10px 10px 5px 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .transaction-details h3,
+  .delivery-info h3,
+  .owner-info h3 {
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+  
+  .item-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .item-info img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 20px;
+  }
+  
+  .rating {
+    color: gold;
+  }
+  
+ 
