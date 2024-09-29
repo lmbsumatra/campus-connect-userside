@@ -76,3 +76,13 @@
     color: #777;
   }
   
+  @media (max-width: 600px) {
+    .notifications {
+      top: 0;
+      right: 0;
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0; /* Remove rounded corners */
+    }
+  }
+  

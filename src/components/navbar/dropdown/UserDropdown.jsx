@@ -10,7 +10,7 @@ const UserDropdown = ({ showDropdown, toggleDropdown, handleClick }) => {
   return (
     <li className="nav-item">
       <a className="icon-link" href="#" onClick={toggleDropdown}>
-        <img src={UserIcon} alt="User Icon" className="message-icon" />
+        <img src={UserIcon} alt="User Icon" className="user-icon" />
       </a>
 
       {showDropdown && (
@@ -22,30 +22,30 @@ const UserDropdown = ({ showDropdown, toggleDropdown, handleClick }) => {
               <h5>Justin Bieber</h5>
               <h6>View Profile</h6>
             </div>
+            <button className="close-btn" onClick={toggleDropdown}>
+              &times; {/* Close icon */}
+            </button>
           </div>
           <div className="dropdown-content">
-            <button className="dropdown-btn d-flex align-items-center">
+            <button className="dropdown-btn" onClick={() => console.log('My Rentals clicked')}>
               <div className="icon">
                 <img src={MyRentalsIcon} alt="My Rentals" />
               </div>
               <h6>My Rentals</h6>
             </button>
-            <button className="dropdown-btn d-flex align-items-center">
+            <button className="dropdown-btn" onClick={() => console.log('My Items clicked')}>
               <div className="icon">
                 <img src={MyItemsIcon} alt="My Items" />
               </div>
               <h6>My Items</h6>
             </button>
-            <button className="dropdown-btn d-flex align-items-center">
+            <button className="dropdown-btn" onClick={() => console.log('My Posts clicked')}>
               <div className="icon">
                 <img src={MyPostsIcon} alt="My Posts" />
               </div>
               <h6>My Posts</h6>
             </button>
-            <button
-              className="dropdown-btn d-flex align-items-center"
-              onClick={handleClick}
-            >
+            <button className="dropdown-btn" onClick={handleClick}>
               <div className="icon">
                 <img src={LogoutIcon} alt="Logout" />
               </div>

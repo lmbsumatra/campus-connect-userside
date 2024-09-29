@@ -4,6 +4,7 @@ import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
 
 const Notification = ({ showNotifications, toggleNotifications }) => {
+  
   return (
     <li className="nav-item">
       <a className="icon-link" href="#" onClick={toggleNotifications}>

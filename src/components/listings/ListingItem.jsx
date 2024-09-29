@@ -17,11 +17,11 @@ export const items = [
 function ListingItem() {
   return (
     <div className='custom-container'>
-      <h2 className='mb-5'>Item Listings</h2>
+      {/* <h2 className='mb-5'>Item Listings</h2> */}
       <div className='row'>
       {items.map(item => (
           <div key={item.id} className="col-md-4 col-sm-6 mb-4">
-             <Card style={{ width: '18rem' }}>
+             <Card style={{ width: '100%' }}>
               <Card.Img variant="top" src={item.imageUrl} alt="Item image" />
               <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-2">
@@ -38,7 +38,7 @@ function ListingItem() {
                     </div>
                   </div>
                 </div>
-                <Link to={`/item/${item.id}`} className="btn btn-primary no-fill ml-auto">View</Link>
+                <Link to={`/item/${item.id}`} className="btn btn-one">View</Link>
               </div>
               </Card.Body>
             </Card>

@@ -78,6 +78,7 @@ const PostForm = () => {
           />
           <div className="form-fields">
             <input type="text" placeholder="Item Name" className="borderless" />
+            <hr />
             <div className="buttons">
               <button className="btn btn-two" data="Message"></button>
               <button className="btn btn-one">Borrow</button>
@@ -92,17 +93,26 @@ const PostForm = () => {
                       type="time"
                       value={duration.fromTime}
                       className="time-input"
+                      onChange={(e) => {
+                        const newDurations = [...rentalDurations];
+                        newDurations[index].fromTime = e.target.value;
+                        setRentalDurations(newDurations);
+                      }}
                     />
                     <label>to</label>
                     <input
                       type="time"
                       value={duration.toTime}
                       className="time-input"
+                      onChange={(e) => {
+                        const newDurations = [...rentalDurations];
+                        newDurations[index].toTime = e.target.value;
+                        setRentalDurations(newDurations);
+                      }}
                     />
                     <button
                       className="btn btn-danger"
                       onClick={() => {
-                        // Remove the selected duration
                         const newDurations = rentalDurations.filter(
                           (_, i) => i !== index
                         );
@@ -149,9 +159,10 @@ const PostForm = () => {
                 </div>
 
                 {rentalDatesOption === "custom" && (
-                  <div>
+                  <div className="sub-groupby">
                     <input type="date" onChange={handleDateChange} />
                     <div>
+                      <label>Selected Dates:</label>
                       {customDates.map((date, index) => (
                         <div key={index}>
                           {date}
@@ -168,7 +179,7 @@ const PostForm = () => {
                 )}
 
                 {rentalDatesOption === "weekly" && (
-                  <div>
+                  <div className="sub-groupby">
                     <label>Select Days:</label>
                     <div className="day-selector">
                       {["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"].map(
@@ -185,7 +196,7 @@ const PostForm = () => {
                         )
                       )}
                     </div>
-                    <div className="time-inputs">
+                    <div className="date-inputs">
                       <label>Start Date</label>
                       <input
                         type="date"
@@ -193,7 +204,7 @@ const PostForm = () => {
                         onChange={(e) =>
                           setDateRange({ ...dateRange, start: e.target.value })
                         }
-                        className="time-input"
+                        className="date-input"
                       />
                       <label>End Date</label>
                       <input
@@ -202,11 +213,11 @@ const PostForm = () => {
                         onChange={(e) =>
                           setDateRange({ ...dateRange, end: e.target.value })
                         }
-                        className="time-input"
+                        className="date-input"
                       />
                     </div>
                     <div>
-                      <h4>Selected Dates:</h4>
+                      <label>Selected Dates:</label>
                       <ul>
                         {weeklyDays.map((day) => {
                           const startDate = new Date(dateRange.start);
@@ -227,7 +238,6 @@ const PostForm = () => {
                             d.setDate(d.getDate() + 1)
                           ) {
                             if (d.getDay() === (dayIndex + 1) % 7) {
-                              // Adjusting for JavaScript's getDay() (0 = Sun)
                               dates.push(d.toISOString().split("T")[0]);
                             }
                           }
@@ -261,8 +271,10 @@ const PostForm = () => {
           <button className="btn btn-two" data="View Listings"></button>
           <button className="btn btn-two" data="View Profile"></button>
         </div>
-        <div>
-          <div className="item-specifications">
+        <div className="item-specifications">
+          <label>Specifications</label>
+          <hr />
+          <div>
             {specifications.map((spec, index) => (
               <div key={index} className="specification">
                 <input
@@ -280,7 +292,7 @@ const PostForm = () => {
                 />
                 <textarea
                   placeholder="Item Description"
-                  className="item-description"
+                  className="item-specs-description"
                   value={spec.description}
                   onChange={(e) =>
                     setSpecifications(
@@ -303,6 +315,13 @@ const PostForm = () => {
           <button className="btn btn-primary" onClick={handleAddSpecification}>
             +
           </button>
+          <hr />
+          <label>Item Description</label>
+          <hr />
+          <textarea
+            placeholder="Item Description"
+            className="item-description"
+          />
         </div>
       </div>
       <Footer />

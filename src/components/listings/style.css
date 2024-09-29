@@ -67,6 +67,21 @@
   margin-top: 10px;
 }
 
+.groupby input[type=text] {
+  background-image: white; /* Set background color to white */
+  border: 1px solid #ccc; /* Optional: add a border */
+  padding: 8px; /* Optional: add some padding */
+  border-radius: 4px; /* Optional: rounded corners */
+  display: block;
+  width: 100%;
+}
+
+/* Add gap between delivery options */
+.delivery-options label {
+  margin-right: 15px; /* Adjust the gap as needed */
+}
+
+
 /* .btn-primary.no-fill {
   background-color: transparent;
   color: #007bff;

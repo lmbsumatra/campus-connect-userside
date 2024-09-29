@@ -7,11 +7,11 @@ import { Link } from 'react-router-dom';
 
 function Listings() {
   return (
-    <div>
+    <>
       <NavBar />
       <div className="custom-container">
         <div className="row">
-          <div className="col-md-3">
+          <div className="col-md-2">
             <h5>Filters</h5>
             <div className="mb-3">
               <label className="form-label">By Category</label>
@@ -36,13 +36,13 @@ function Listings() {
             </div>
             <Link to="/add-item" className="btn btn-primary no-fill">Add New Item</Link>
           </div>
-          <div className="col-md-9">
+          <div className="col-md-10">
             <ListingItem />
           </div>
         </div>
       </div>
       <Footer />
-    </div>
+    </>
   );
 }
 

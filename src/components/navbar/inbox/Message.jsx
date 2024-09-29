@@ -15,6 +15,7 @@ const Message = ({ showDropdown, toggleDropdown }) => {
           <div className="triangle"></div>
           <div className="menu-header">
             <h5>Inbox</h5>
+            <button className="close-btn" onClick={toggleDropdown}>×</button>
           </div>
           <div className="menu-content">
             <div className="message-item">

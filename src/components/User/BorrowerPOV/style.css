@@ -258,11 +258,11 @@
   padding: 20px 0;
 }
 
-.custom-container {
+/* .custom-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 15px;
-}
+} */
 
 .borrowing-card-container {
   display: flex;

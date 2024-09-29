@@ -37,11 +37,11 @@ const BorrowingPost = ({ borrowingPosts }) => {
   return (
     <div className="custom-container post">
       <h2 className="fs-2 fw-bold">New Borrowing Posts</h2>
-      <div className="card-container">
+      <div className="card-container d-flex justify-content-center">
         {borrowingPosts.map((post) => (
           <div
             className="card"
-            style={{ width: "550px", cursor: "pointer" }}
+            style={{ width: "500px", cursor: "pointer" }}
             key={post.id}
             onClick={() => handleCardClick(post.id)}
           >

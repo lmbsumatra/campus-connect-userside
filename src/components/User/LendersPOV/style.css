@@ -257,9 +257,9 @@
   background-clip: text;
   color: transparent;
 }
-.custom-container {
+/* .custom-container {
   position: relative;
-}
+} */
 
 .header-container {
   display: flex;

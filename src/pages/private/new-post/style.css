@@ -1,4 +1,6 @@
-
+.form-container > *:not(:first-child) {
+  background-color: white;
+}
 .form-container > *:not(:first-child) {
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
@@ -30,10 +32,25 @@ h2 {
   overflow: hidden;
 }
 
+.image-preview {
+  width: 100%;
+  min-height: 200px; /* Set a specific height or use a percentage */
+  height: 100%;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
 .image-preview img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: 100%; /* Fill the height of the parent */
+  object-fit: cover; /* Maintain aspect ratio while covering */
 }
 
 .form-fields {
@@ -47,10 +64,9 @@ h2 {
 .borderless {
   border: none;
   width: 100%;
-  padding: 10px;
+  padding: 10px 0;
   margin-bottom: 10px;
   font-size: 1em;
-  border-bottom: 1px solid #ccc;
 }
 
 .time-inputs {
@@ -87,30 +103,36 @@ h2 {
 }
 
 .rental-duration {
+  min-width: 100px;
+  max-width: 100%;
   margin-bottom: 10px;
 }
 
-.rental-duration label,
-.rental-dates label {
+.rental-dates input[type="date"] {
+  min-width: 80px;
+  max-width: 100%;
+}
+label {
   display: block;
   font-weight: bold;
-  margin-bottom: 5px;
 }
 .rental-dates label {
   display: block;
   font-weight: bold;
-  margin-bottom: 10px; /* Increased spacing for clarity */
 }
 
 .date-options {
   display: flex;
-  align-items: center;
-  gap: 15px; /* Increased gap for better spacing */
-  margin-bottom: 20px; /* Added bottom margin */
+  align-items: center; /* Align items vertically */
+  gap: 10px; /* Add space between items */
 }
 
 .date-options input[type="radio"] {
-  margin-right: 5px; /* Space between radio and label */
+  margin: 0; /* Remove default margin */
+}
+
+.date-options label {
+  margin: 0; /* Remove margin to align properly */
 }
 
 .custom-dates-inputs {
@@ -123,6 +145,39 @@ h2 {
   gap: 10px; /* Space between date and remove button */
 }
 
+.date-inputs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  max-width: 100%;
+  height: 42px; /* Adjust height as needed */
+  border: 1px solid #ccc; /* Border for the parent container */
+  border-radius: 5px;
+  padding: 0 10px; /* Add padding for better spacing */
+}
+
+.date-inputs label {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Centers text vertically */
+  height: 100%;
+  margin: 0; /* Ensure no margin */
+  padding: 0; /* Ensure no padding */
+}
+
+.date-input {
+  height: 100%;
+  border: 1px solid transparent; /* Set a transparent border for normal state */
+  padding: 0 5px; /* Optional: Add padding for better spacing */
+  outline: none;
+}
+
+.date-input:focus {
+  border-color: white; /* Change border color when focused */
+  border-width: 0px; /* Remove border visually when focused */
+}
+
 .weekly-days {
   display: flex;
   flex-direction: column;
@@ -130,7 +185,7 @@ h2 {
 }
 
 .weekly-days label {
-  margin: 5px 0; /* Space between day checkboxes */
+  margin: px 0; /* Space between day checkboxes */
 }
 
 .weekly-range {
@@ -144,14 +199,20 @@ h2 {
 
 .day-selector {
   display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .day {
-  padding: 10px 15px; /* Padding for clickable area */
+  padding: 4px 4px; /* Padding for clickable area */
+  margin: 2px;
+  display: flex;
+  justify-content: space-between;
   border: 1px solid #ccc; /* Border for visual separation */
   border-radius: 5px; /* Rounded corners */
   cursor: pointer; /* Pointer cursor on hover */
   transition: background-color 0.3s, color 0.3s; /* Smooth transitions */
+  width: 100%;
 }
 
 .day.selected {
@@ -176,11 +237,6 @@ h2 {
   margin-bottom: 20px;
   padding: 10px 20px;
   border-radius: 8px;
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
 }
 
 .profile-name {
@@ -210,11 +266,12 @@ h2 {
   background-color: #0056b3;
 }
 
-.item-specifications {
+.item-specifications,
+.item-description {
   padding: 20px;
   border-radius: 8px;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .specification {
@@ -224,14 +281,80 @@ h2 {
 }
 
 .spec-title,
-.item-description {
+.item-specs-description {
   font-size: 1em;
   border: 1px solid #ccc;
   border-radius: 5px;
   height: 40px;
   margin-bottom: 4px;
+  min-width: 100px;
+  max-width: 100%;
 }
 
-.item-description {
+.item-specs-description {
   resize: horizontal;
+}
+
+.optional-fees {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden; /* Prevents overflow during the transition */
+  max-height: 0; /* Initially hidden */
+  opacity: 0; /* Initially hidden */
+}
+
+.optional-fees.expanded {
+  max-height: 300px; /* Set a larger value to accommodate content */
+  opacity: 1; /* Fully visible */
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+
+/* Medium Devices */
+@media (max-width: 992px) {
+  .form-preview {
+    flex-direction: column; /* Stack image and form fields */
+  }
+
+  .form-fields {
+    width: 100%; /* Full width on smaller screens */
+  }
+
+  .image-preview {
+    margin-bottom: 20px; /* Space below the image */
+  }
+}
+
+@media (max-width: 768px) {
+  .day-selector {
+    overflow-x: scroll;
+  }
+  .rental-duration {
+    width: 100%;
+  }
+
+  .rental-duration input {
+    width: 42px;
+  }
+  .time-inputs label {
+    width: auto;
+  }
+
+  .profile {
+    display: block;
+    margin: 2px;
+  }
+  .profile > * {
+    margin: 2px;
+  }
+  .form-preview {
+    flex-direction: column; /* Stack image and form fields */
+  }
+
+  .form-fields {
+    width: 100%; /* Full width on smaller screens */
+  }
+
+  .image-preview {
+    margin-bottom: 20px; /* Space below the image */
+  }
 }
