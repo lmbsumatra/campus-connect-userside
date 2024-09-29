@@ -67,11 +67,11 @@
   margin-top: 10px;
 }
 
-.btn-primary.no-fill {
+/* .btn-primary.no-fill {
   background-color: transparent;
   color: #007bff;
   border: 1px solid #007bff;
-}
+} */
 
 .user-info .profile-pic {
   width: 40px;
@@ -84,7 +84,7 @@
   font-size: 1.2em;
 }
 
-.btn-outline-secondary {
+/* .btn-outline-secondary {
   border-color: #6c757d;
   color: #6c757d;
 }
@@ -92,7 +92,7 @@
 .btn-outline-secondary:hover {
   background-color: #6c757d;
   color: #fff;
-}
+} */
 
 .item-specs hr {
   border: 0;

@@ -1,5 +1,5 @@
 import React from 'react';
-import MessageIcon from "../../../assets/images/icons/message-icon.svg";
+import MessageIcon from "../../../assets/images/icons/message.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import './style.css';
 

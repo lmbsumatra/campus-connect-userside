@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Logo from "../../../assets/images/icons/CC-LOGO-01.svg";
-import Language from "../../../assets/images/icons/en-icon.svg";
-import Notification from '../notif/Notification.jsx';
-import Message from '../inbox/Message.jsx';
-import UserDropdown from '../dropdown/UserDropdown.jsx';
-import './style.css';
+import Language from "../../../assets/images/icons/language.svg";
+import Notification from "../notif/Notification.jsx";
+import Message from "../inbox/Message.jsx";
+import UserDropdown from "../dropdown/UserDropdown.jsx";
+import "./style.css";
 
 const NavBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -46,17 +46,20 @@ const NavBar = () => {
         crossOrigin="anonymous"
         referrerPolicy="no-referrer"
       />
+
       <div className="nav-content">
         <div className="nav-logo">
           <img src={Logo} alt="Logo" />
         </div>
 
-        {isLoggedIn ? (
+        {!isLoggedIn ? (
           <>
             <ul className="nav custom-nav-underline">
               <li className="nav-item">
                 <a
-                  className={`nav-link ${activeTab === "home" ? "active fw-bold" : ""}`}
+                  className={`nav-link ${
+                    activeTab === "home" ? "active fw-bold" : ""
+                  }`}
                   aria-current="page"
                   href="/home"
                   onClick={() => setTab("home")}
@@ -67,7 +70,9 @@ const NavBar = () => {
               </li>
               <li className="nav-item">
                 <a
-                  className={`nav-link ${activeTab === "listings" ? "active fw-bold" : ""}`}
+                  className={`nav-link ${
+                    activeTab === "listings" ? "active fw-bold" : ""
+                  }`}
                   href="/listings"
                   onClick={() => setTab("listings")}
                 >
@@ -77,7 +82,9 @@ const NavBar = () => {
               </li>
               <li className="nav-item">
                 <a
-                  className={`nav-link ${activeTab === "posts" ? "active fw-bold" : ""}`}
+                  className={`nav-link ${
+                    activeTab === "posts" ? "active fw-bold" : ""
+                  }`}
                   href="/posts"
                   onClick={() => setTab("posts")}
                 >
@@ -87,11 +94,21 @@ const NavBar = () => {
               </li>
             </ul>
             <ul className="nav nav-icons">
-              <Notification showNotifications={showNotifications} toggleNotifications={toggleNotifications} />
-              <Message showDropdown={showMessages} toggleDropdown={toggleMessages} />
-              <UserDropdown showDropdown={showDropdown} toggleDropdown={toggleDropdown} handleClick={handleClick} />
+              <Notification
+                showNotifications={showNotifications}
+                toggleNotifications={toggleNotifications}
+              />
+              <Message
+                showDropdown={showMessages}
+                toggleDropdown={toggleMessages}
+              />
+              <UserDropdown
+                showDropdown={showDropdown}
+                toggleDropdown={toggleDropdown}
+                handleClick={handleClick}
+              />
               <li className="nav-item nav-language">
-                <a className="icon-link" href="#">
+                <a className="icon-link" href="">
                   <img src={Language} alt="Language Icon" />
                 </a>
                 <span>EN</span>
@@ -102,17 +119,15 @@ const NavBar = () => {
           <div>
             <ul className="nav nav-icons">
               <li className="nav-item">
-                <button className="btn btn-secondary no-fill" onClick={handleClick}>
+                <button className="btn btn-three" onClick={handleClick}>
                   <span className="text-gradient fw-bold">Log in</span>
                 </button>
               </li>
               <li className="nav-item">
-                <button className="btn btn-secondary filled">
-                  <span className="text-gradient fw-bold">Register</span>
-                </button>
+                <button className="btn btn-four">Register</button>
               </li>
               <li className="nav-item nav-language">
-                <a className="icon-link" href="#">
+                <a className="icon-link" href="">
                   <img src={Language} alt="Language Icon" />
                 </a>
                 <span>EN</span>

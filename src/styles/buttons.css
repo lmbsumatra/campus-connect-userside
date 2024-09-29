@@ -1,0 +1,177 @@
+.btn {
+  padding: 7px 28px;
+  transition: background-image 0.3s, color 0.3s;
+}
+
+.btn.btn-one,
+.btn.btn-two,
+.btn.btn-three,
+.btn.btn-four {
+  border: none;
+}
+
+.btn-one {
+  border-radius: 8px;
+  background-image: linear-gradient(to right, #2179c8, #c31f3b);
+  color: white !important;
+  border: none;
+  transition: background-image 0.3s, color 0.3s;
+}
+
+.btn-one:hover {
+  background-image: linear-gradient(to right, #1a5e99, #9e182e);
+}
+
+.btn-two {
+  border: none;
+  outline: none;
+  position: relative;
+  z-index: 1;
+  border-radius: 4px;
+  background: linear-gradient(to right, #2179c8, #c31f3b);
+  cursor: pointer;
+}
+.btn-two::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  border-radius: 4px;
+  background-color: white;
+  z-index: -1;
+  transition: 200ms;
+}
+.btn-two::after {
+  content: attr(data);
+  background: linear-gradient(to right, #2179c8, #c31f3b);
+  -webkit-background-clip: text;
+  color: transparent;
+  transition: 200ms;
+}
+
+.btn-two:hover {
+  background: linear-gradient(to right, #2179c8, #c31f3b);
+}
+
+.btn-two:hover::before {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  ); /* Optional: adds a white overlay on hover */
+}
+
+.btn.btn-three {
+  border: none;
+  outline: none;
+  position: relative;
+  z-index: 1;
+  border-radius: 100px;
+  background: linear-gradient(to right, #2179c8, #c31f3b);
+  cursor: pointer;
+}
+.btn-three::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  border-radius: 100px;
+  background-color: white;
+  z-index: -1;
+  transition: 200ms;
+}
+.btn-three::after {
+  content: attr(data);
+  background: linear-gradient(to right, #2179c8, #c31f3b);
+  -webkit-background-clip: text;
+  color: transparent;
+  transition: 200ms;
+}
+
+.btn-three:hover {
+  background: linear-gradient(to right, #2179c8, #c31f3b);
+}
+
+.btn-three:hover::before {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  ); /* Optional: adds a white overlay on hover */
+}
+
+.btn.btn-four {
+  border-radius: 100px;
+  background-image: linear-gradient(to right, #2179c8, #c31f3b);
+  color: white !important;
+  border: none;
+  transition: background-image 0.3s, color 0.3s;
+}
+
+.btn-four:hover {
+  background-image: linear-gradient(to right, #1a5e99, #9e182e);
+}
+.btn.btn-five {
+  padding: 2px 8px;
+  border-radius: 100px;
+  background-image: linear-gradient(to right, #2179c8, #c31f3b);
+  color: white !important;
+  border: none;
+  transition: background-image 0.3s, color 0.3s;
+}
+.btn-five:hover {
+  background-image: linear-gradient(to right, #1a5e99, #9e182e);
+}
+
+.btn-six:hover {
+  background-image: linear-gradient(to right, #1a5e99, #9e182e);
+}
+
+.btn.btn-six {
+  padding: 2px 8px;
+  border: none;
+  outline: none;
+  position: relative;
+  z-index: 1;
+  border-radius: 100px;
+  background: linear-gradient(to right, #2179c8, #c31f3b);
+  cursor: pointer;
+}
+.btn-six::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  border-radius: 100px;
+  background-color: white;
+  z-index: -1;
+  transition: 200ms;
+}
+.btn-six::after {
+  content: attr(data);
+  background: linear-gradient(to right, #2179c8, #c31f3b);
+  -webkit-background-clip: text;
+  color: transparent;
+  transition: 200ms;
+}
+
+.btn-six:hover {
+  background: linear-gradient(to right, #2179c8, #c31f3b);
+}
+
+.btn-six:hover::before {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  ); /* Optional: adds a white overlay on hover */
+}

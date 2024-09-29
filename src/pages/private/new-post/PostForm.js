@@ -8,21 +8,25 @@ import { parseISO, eachWeekOfInterval, format, addDays } from "date-fns";
 import "./style.css";
 
 const PostForm = () => {
-  const [activeTab, setActiveTab] = useState("item-details");
-  const [specifications, setSpecifications] = useState([
-    { title: "", description: "" },
-  ]);
   const [images, setImages] = useState([]);
   const [rentalDurations, setRentalDurations] = useState([
     { from: "", fromTime: "", to: "", toTime: "" },
   ]);
-  const [rentalDatesOption, setRentalDatesOption] = useState("");
-  const [dates, setDates] = useState([]);
-  const [customDateInput, setCustomDateInput] = useState("");
+  const [rentalRate, setRentalRate] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [specifications, setSpecifications] = useState([
+    { title: "", description: "" },
+  ]);
+
+  const [rentalDatesOption, setRentalDatesOption] = useState("custom");
   const [customDates, setCustomDates] = useState([]);
-  const [weeklyDay, setWeeklyDay] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [weeklyDays, setWeeklyDays] = useState([]);
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages((prevImages) => [...prevImages, ...files]);
+  };
 
   const handleAddSpecification = () => {
     setSpecifications([...specifications, { title: "", description: "" }]);
@@ -33,331 +37,272 @@ const PostForm = () => {
     setSpecifications(newSpecifications);
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setImages((prevImages) => [...prevImages, ...files]);
+  const handleDateChange = (event) => {
+    const { value } = event.target;
+    setCustomDates((prev) => [...prev, value]);
   };
 
-  const handleAddDuration = () => {
-    setRentalDurations([
-      ...rentalDurations,
-      { from: "", fromTime: "", to: "", toTime: "" },
-    ]);
+  const handleRemoveDate = (date) => {
+    setCustomDates((prev) => prev.filter((d) => d !== date));
   };
 
-  const handleRemoveDuration = (index) => {
-    const newDurations = rentalDurations.filter((_, i) => i !== index);
-    setRentalDurations(newDurations);
-  };
-  const handleAddDate = () => {
-    if (rentalDatesOption === "custom" && customDateInput) {
-      setDates([...dates, customDateInput]);
-      setCustomDateInput("");
-    } else if (
-      rentalDatesOption === "weekly" &&
-      weeklyDay &&
-      startDate &&
-      endDate
-    ) {
-      const start = parseISO(startDate);
-      const end = parseISO(endDate);
-      const dayOfWeek = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ].indexOf(weeklyDay);
-      const weeks = eachWeekOfInterval({ start, end });
-
-      const weeklyDates = [];
-      weeks.forEach((weekStart) => {
-        const date = addDays(weekStart, dayOfWeek);
-        if (date >= start && date <= end) {
-          weeklyDates.push(format(date, "yyyy-MM-dd"));
-        }
-      });
-
-      setDates([...dates, ...weeklyDates]);
-      setWeeklyDay("");
-      setStartDate("");
-      setEndDate("");
-    }
-  };
-
-  const handleRemoveDate = (index) => {
-    const updatedDates = dates.filter((_, i) => i !== index);
-    setDates(updatedDates);
+  const handleDayChange = (day) => {
+    setWeeklyDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
   };
 
   return (
     <>
       <NavBar />
       <div className="form-container custom-container">
-        <div className="sidebar">
+        <h2>Create new post</h2>
+        <div className="form-preview">
           <div
-            className={`sidebar-item ${
-              activeTab === "item-details" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("item-details")}
+            className="image-preview"
+            onClick={() => document.getElementById("imageInput").click()}
           >
-            Item Details
+            {images.length === 0 ? (
+              "Click here to add an image."
+            ) : (
+              <img src={URL.createObjectURL(images[0])} alt="Preview" />
+            )}
           </div>
-          <div
-            className={`sidebar-item ${
-              activeTab === "rental-details" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("rental-details")}
-          >
-            Rental Details
-          </div>
-          <div
-            className={`sidebar-item ${
-              activeTab === "post-status" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("post-status")}
-          >
-            Post Status
-          </div>
-        </div>
-        <div className="form-content">
-          {activeTab === "item-details" && (
-            <div className="item-details d-flex justify-content-between">
-              <div className="me-5">
-                <div className="form-group">
-                  <label htmlFor="item-name">Item Name</label>
-                  <input
-                    type="text"
-                    id="item-name"
-                    placeholder="Example Input"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="description">Description</label>
-                  <input
-                    type="text"
-                    id="description"
-                    placeholder="Example Input"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="specification">Specification</label>
-                  {specifications.map((spec, index) => (
-                    <div key={index} className="specification-group">
-                      <input
-                        type="text"
-                        value={spec.title}
-                        onChange={(e) => {
-                          const newSpecifications = [...specifications];
-                          newSpecifications[index].title = e.target.value;
-                          setSpecifications(newSpecifications);
-                        }}
-                        placeholder="Title"
-                        required
-                      />
-                      <input
-                        type="text"
-                        value={spec.description}
-                        onChange={(e) => {
-                          const newSpecifications = [...specifications];
-                          newSpecifications[index].description = e.target.value;
-                          setSpecifications(newSpecifications);
-                        }}
-                        placeholder="Description"
-                        required
-                      />
-                      <button
-                        type="button"
-                        className="remove-spec"
-                        onClick={() => handleRemoveSpecification(index)}
-                      >
-                        -
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    className="add-spec"
-                    onClick={handleAddSpecification}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-              <div className="form-group w-50">
-                <label htmlFor="item-image">Item Image</label>
-                <div className="d-flex">
-                  <input
-                    placeholder="Upload Image"
-                    className="upload-image"
-                    type="file"
-                    id="item-image"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageChange}
-                    required
-                  />
-                  <div className="image-preview">
-                    {images.length > 0 &&
-                      images.map((image, index) => (
-                        <div key={index} className="image-placeholder">
-                          <img
-                            src={URL.createObjectURL(image)}
-                            alt={`preview ${index}`}
-                          />
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
+          <input
+            type="file"
+            id="imageInput"
+            style={{ display: "none" }}
+            accept="image/*"
+            multiple
+            onChange={handleImageChange}
+          />
+          <div className="form-fields">
+            <input type="text" placeholder="Item Name" className="borderless" />
+            <div className="buttons">
+              <button className="btn btn-two" data="Message"></button>
+              <button className="btn btn-one">Borrow</button>
             </div>
-          )}
-          {activeTab === "rental-details" && (
-            <div className="rental-details">
-              <div className="form-group">
-                <label htmlFor="rental-duration">Rental Duration</label>
+            <div className="groupby">
+              <div className="rental-duration">
+                <label>Rental Duration</label>
                 {rentalDurations.map((duration, index) => (
-                  <div className="duration-group mb-1">
-                    <div className="input-border left">From</div>
+                  <div className="time-inputs" key={index}>
+                    <label>From</label>
                     <input
                       type="time"
-                      placeholder="Time"
-                      className="input-border center"
                       value={duration.fromTime}
-                      onChange={(e) => {
-                        const newDurations = [...rentalDurations];
-                        newDurations[index].fromTime = e.target.value;
-                        setRentalDurations(newDurations);
-                      }}
-                      required
+                      className="time-input"
                     />
-                    <div className="input-border center">To</div>
+                    <label>to</label>
                     <input
                       type="time"
-                      placeholder="Time"
-                      className="input-border right"
                       value={duration.toTime}
-                      onChange={(e) => {
-                        const newDurations = [...rentalDurations];
-                        newDurations[index].toTime = e.target.value;
-                        setRentalDurations(newDurations);
-                      }}
-                      required
+                      className="time-input"
                     />
                     <button
-                      className="add-duration"
-                      onClick={() => handleRemoveDuration(index)}
+                      className="btn btn-danger"
+                      onClick={() => {
+                        // Remove the selected duration
+                        const newDurations = rentalDurations.filter(
+                          (_, i) => i !== index
+                        );
+                        setRentalDurations(newDurations);
+                      }}
                     >
                       -
                     </button>
                   </div>
                 ))}
-                <button className="add-duration" onClick={handleAddDuration}>
+
+                <button
+                  className="btn btn-primary"
+                  onClick={() =>
+                    setRentalDurations([
+                      ...rentalDurations,
+                      { from: "", fromTime: "", to: "", toTime: "" },
+                    ])
+                  }
+                >
                   +
                 </button>
               </div>
-              <div className="form-group">
-                <label htmlFor="rental-dates">Rental Dates</label>
-                <div className="dates-group">
-                  <label>
-                    <input
-                      type="radio"
-                      name="rental-dates"
-                      value="custom"
-                      checked={rentalDatesOption === "custom"}
-                      onChange={() => setRentalDatesOption("custom")}
-                    />
-                    Custom Dates
-                  </label>
-                  {rentalDatesOption === "custom" && (
-                    <>
-                      <input
-                        type="date"
-                        className="input-border"
-                        value={customDateInput}
-                        onChange={(e) => setCustomDateInput(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="add-date"
-                        onClick={handleAddDate}
-                      >
-                        +
-                      </button>
-                    </>
-                  )}
-                  <label>
-                    <input
-                      type="radio"
-                      name="rental-dates"
-                      value="weekly"
-                      checked={rentalDatesOption === "weekly"}
-                      onChange={() => setRentalDatesOption("weekly")}
-                    />
-                    Weekly
-                  </label>
-                  {rentalDatesOption === "weekly" && (
-                    <>
-                      <select
-                        value={weeklyDay}
-                        className="input-border"
-                        onChange={(e) => setWeeklyDay(e.target.value)}
-                      >
-                        <option value="">Select Day</option>
-                        <option value="Monday">Monday</option>
-                        <option value="Tuesday">Tuesday</option>
-                        <option value="Wednesday">Wednesday</option>
-                        <option value="Thursday">Thursday</option>
-                        <option value="Friday">Friday</option>
-                        <option value="Saturday">Saturday</option>
-                        <option value="Sunday">Sunday</option>
-                      </select>
-                      <input
-                        type="date"
-                        className="input-border"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                      />
-                      <input
-                        type="date"
-                        className="input-border"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="add-date"
-                        onClick={handleAddDate}
-                      >
-                        +
-                      </button>
-                    </>
-                  )}
+
+              <div className="rental-dates">
+                <label>Rental Dates</label>
+                <div className="date-options">
+                  <input
+                    type="radio"
+                    id="custom-dates"
+                    name="rentalDates"
+                    checked={rentalDatesOption === "custom"}
+                    onChange={() => setRentalDatesOption("custom")}
+                  />
+                  <label htmlFor="custom-dates">Custom Dates</label>
+                  <input
+                    type="radio"
+                    id="weekly"
+                    name="rentalDates"
+                    checked={rentalDatesOption === "weekly"}
+                    onChange={() => setRentalDatesOption("weekly")}
+                  />
+                  <label htmlFor="weekly">Weekly</label>
                 </div>
-                <div className="dates-list">
-                  <h6>Selected Dates:</h6>
-                  <ul>
-                    {dates.map((date, index) => (
-                      <li key={index}>
-                        {date}
-                        <button
-                          type="button"
-                          className="add-date"
-                          onClick={() => handleRemoveDate(index)}
-                        >
-                          -
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+
+                {rentalDatesOption === "custom" && (
+                  <div>
+                    <input type="date" onChange={handleDateChange} />
+                    <div>
+                      {customDates.map((date, index) => (
+                        <div key={index}>
+                          {date}
+                          <button
+                            className="btn btn-danger"
+                            onClick={() => handleRemoveDate(date)}
+                          >
+                            -
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {rentalDatesOption === "weekly" && (
+                  <div>
+                    <label>Select Days:</label>
+                    <div className="day-selector">
+                      {["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"].map(
+                        (day) => (
+                          <span
+                            key={day}
+                            className={`day ${
+                              weeklyDays.includes(day) ? "selected" : ""
+                            }`}
+                            onClick={() => handleDayChange(day)}
+                          >
+                            {day}
+                          </span>
+                        )
+                      )}
+                    </div>
+                    <div className="time-inputs">
+                      <label>Start Date</label>
+                      <input
+                        type="date"
+                        value={dateRange.start}
+                        onChange={(e) =>
+                          setDateRange({ ...dateRange, start: e.target.value })
+                        }
+                        className="time-input"
+                      />
+                      <label>End Date</label>
+                      <input
+                        type="date"
+                        value={dateRange.end}
+                        onChange={(e) =>
+                          setDateRange({ ...dateRange, end: e.target.value })
+                        }
+                        className="time-input"
+                      />
+                    </div>
+                    <div>
+                      <h4>Selected Dates:</h4>
+                      <ul>
+                        {weeklyDays.map((day) => {
+                          const startDate = new Date(dateRange.start);
+                          const dayIndex = [
+                            "Mon",
+                            "Tues",
+                            "Wed",
+                            "Thurs",
+                            "Fri",
+                            "Sat",
+                            "Sun",
+                          ].indexOf(day);
+                          const dates = [];
+
+                          for (
+                            let d = startDate;
+                            d <= new Date(dateRange.end);
+                            d.setDate(d.getDate() + 1)
+                          ) {
+                            if (d.getDay() === (dayIndex + 1) % 7) {
+                              // Adjusting for JavaScript's getDay() (0 = Sun)
+                              dates.push(d.toISOString().split("T")[0]);
+                            }
+                          }
+
+                          return dates.map((date) => (
+                            <li key={date}>{date}</li>
+                          ));
+                        })}
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
+            <div className="terms-checkbox">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+              />
+              <label htmlFor="terms">
+                I agree on rental terms set by the owner.
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="profile">
+          <div className="profile-name">Ebe Dencel</div>
+          <div className="rating">Rating: ⭐⭐⭐⭐⭐</div>
+          <button className="btn btn-two" data="View Listings"></button>
+          <button className="btn btn-two" data="View Profile"></button>
+        </div>
+        <div>
+          <div className="item-specifications">
+            {specifications.map((spec, index) => (
+              <div key={index} className="specification">
+                <input
+                  type="text"
+                  placeholder="Title"
+                  className="spec-title"
+                  value={spec.title}
+                  onChange={(e) =>
+                    setSpecifications(
+                      specifications.map((s, i) =>
+                        i === index ? { ...s, title: e.target.value } : s
+                      )
+                    )
+                  }
+                />
+                <textarea
+                  placeholder="Item Description"
+                  className="item-description"
+                  value={spec.description}
+                  onChange={(e) =>
+                    setSpecifications(
+                      specifications.map((s, i) =>
+                        i === index ? { ...s, description: e.target.value } : s
+                      )
+                    )
+                  }
+                />
+                <button
+                  type="button" // Prevents form submission
+                  className="btn btn-danger"
+                  onClick={() => handleRemoveSpecification(index)}
+                >
+                  -
+                </button>
+              </div>
+            ))}
+          </div>
+          <button className="btn btn-primary" onClick={handleAddSpecification}>
+            +
+          </button>
         </div>
       </div>
       <Footer />

@@ -6,6 +6,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: white;
 }
 
 .nav-content {
@@ -84,41 +85,6 @@ nav {
   display: none;
 }
 
-.nav-icons .icon-link img {
-  transition: filter 0.3s ease;
-}
-
-.nav-icons .icon-link:hover {
-  background-color: var(--clr-secondary);
-}
-
-.nav-icons .icon-link:hover img {
-  filter: brightness(0) invert(0.9);
-}
-
-.nav-icons .nav-language .icon-link:hover img {
-  filter: none;
-}
-
-.nav-language .icon-link:hover {
-  background-color: var(--clr-secondary);
-}
-
-.nav-icons {
-  flex: wrap;
-  display: flex;
-  justify-content: flex-end;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.nav-language {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 10px;
-}
 
 /* Medium Devices */
 @media (max-width: 992px) {

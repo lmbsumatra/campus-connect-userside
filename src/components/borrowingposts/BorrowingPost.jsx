@@ -65,12 +65,11 @@ const BorrowingPost = ({ borrowingPosts }) => {
                 </h5>
               </div>
               <div className="d-flex justify-content-between">
-                <button className="btn btn-primary no-fill me-2">
-                  <span className="text-gradient">{post.actions.message}</span>
-                </button>
-                <button className="btn btn-primary no-fill">
-                  <span className="text-gradient">{post.actions.view}</span>
-                </button>
+                <button
+                  className="btn btn-two"
+                  data={post.actions.message}
+                ></button>
+                <button className="btn btn-one">{post.actions.view}</button>
               </div>
             </div>
             <div className="card-body d-flex flex-row">
@@ -81,20 +80,20 @@ const BorrowingPost = ({ borrowingPosts }) => {
                   </div>
                   <div className="d-flex align-items-center mb-1">
                     <span className="me-2">Duration</span>
-                    <button className="btn btn-tertiary no-fill">
-                      {post.rentalDuration}
+                    <button className="btn btn-six" data={post.rentalDuration}>
+                      
                     </button>
                   </div>
                   <div className="d-flex align-items-center mb-1">
                     <span className="me-2">Rental Date</span>
-                    <button className="btn btn-tertiary no-fill">
-                      {post.rentalDate}
+                    <button className="btn btn-six" data={post.rentalDate}>
+                      
                     </button>
                   </div>
                   <div className="d-flex align-items-center mb-1">
                     <span className="me-2">Delivery</span>
-                    <button className="btn btn-tertiary no-fill">
-                      {post.deliveryMethod}
+                    <button className="btn btn-six" data={post.deliveryMethod}>
+                      
                     </button>
                   </div>
                 </div>

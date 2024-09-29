@@ -1,5 +1,5 @@
 import React from "react";
-import UserIcon from "../../../assets/images/icons/user-icon.svg";
+import UserIcon from "../../../assets/images/icons/user.svg";
 import MyRentalsIcon from "../../../assets/images/icons/rental.svg";
 import MyItemsIcon from "../../../assets/images/icons/item.svg";
 import MyPostsIcon from "../../../assets/images/icons/post.svg";

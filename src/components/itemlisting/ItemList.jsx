@@ -41,11 +41,10 @@ const ItemList = ({ items = [] }) => {
                   </div>
                 </div>
                 <div className="d-flex justify-content-between">
-                  <button className="btn btn-primary no-fill me-2">
-                    <span className="text-gradient">Message</span>
+                  <button className="btn btn-two" data="Message">
                   </button>
-                  <button className="btn btn-primary filled">
-                    <span className="text-gradient">View</span>
+                  <button className="btn btn-one">
+                    View
                   </button>
                 </div>
               </div>

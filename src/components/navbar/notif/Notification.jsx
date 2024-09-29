@@ -1,5 +1,5 @@
 import React from 'react';
-import Bell from "../../../assets/images/icons/bell-icon.svg";
+import Bell from "../../../assets/images/icons/notif.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
 

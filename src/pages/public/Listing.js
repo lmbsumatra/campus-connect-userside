@@ -9,7 +9,7 @@ function Listings() {
   return (
     <div>
       <NavBar />
-      <div className="container mt-4">
+      <div className="custom-container">
         <div className="row">
           <div className="col-md-3">
             <h5>Filters</h5>

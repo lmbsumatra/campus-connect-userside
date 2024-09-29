@@ -16,7 +16,7 @@ export const items = [
 
 function ListingItem() {
   return (
-    <div className='container'>
+    <div className='custom-container'>
       <h2 className='mb-5'>Item Listings</h2>
       <div className='row'>
       {items.map(item => (
