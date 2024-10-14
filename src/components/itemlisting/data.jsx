@@ -34,4 +34,20 @@ export const items = [
     ownerImage: profilePhoto,
     rating: 2,
   },
+  {
+    image: item1,
+    title: "Wrench",
+    price: "₱ 500",
+    owner: "Ebe Dencel",
+    ownerImage: profilePhoto,
+    rating: 2,
+  },
+  {
+    image: item1,
+    title: "Wrench",
+    price: "₱ 500",
+    owner: "Ebe Dencel",
+    ownerImage: profilePhoto,
+    rating: 2,
+  },
 ];

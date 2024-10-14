@@ -5,7 +5,7 @@ import Footer from "../../../components/footer/Footer";
 import React, { useState } from "react";
 import { parseISO, eachWeekOfInterval, format, addDays } from "date-fns";
 // style
-import "./style.css";
+import "./postFormStyles.css";
 
 const PostForm = () => {
   const [images, setImages] = useState([]);
@@ -54,7 +54,6 @@ const PostForm = () => {
 
   return (
     <>
-      <NavBar />
       <div className="form-container custom-container">
         <h2>Create new post</h2>
         <div className="form-preview">
@@ -324,7 +323,6 @@ const PostForm = () => {
           />
         </div>
       </div>
-      <Footer />
     </>
   );
 };

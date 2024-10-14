@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 import MessageIcon from "../../../assets/images/icons/message.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
-import './style.css';
+import "./style.css";
 
 const Message = ({ showDropdown, toggleDropdown }) => {
   return (
@@ -15,7 +15,9 @@ const Message = ({ showDropdown, toggleDropdown }) => {
           <div className="triangle"></div>
           <div className="menu-header">
             <h5>Inbox</h5>
-            <button className="close-btn" onClick={toggleDropdown}>×</button>
+            <button className="close-btn" onClick={toggleDropdown}>
+              ×
+            </button>
           </div>
           <div className="menu-content">
             <div className="message-item">
@@ -41,6 +43,9 @@ const Message = ({ showDropdown, toggleDropdown }) => {
                 <p>Thank you for the quick response...</p>
                 <span>3 days ago</span>
               </div>
+            </div>
+            <div>
+              <a href="/messages">View All</a>
             </div>
           </div>
         </div>

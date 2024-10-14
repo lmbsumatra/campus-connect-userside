@@ -13,11 +13,14 @@ const FAB = ({ icon, onClick }) => {
   function createPost() {
     navigate("/new-post");
   }
+  function addItem() {
+    navigate("/add-item");
+  }
 
   return (
     <div className="fab-container">
       <div className={`fab-buttons ${showButtons ? "show" : ""}`}>
-        <button className="fab add-item" onClick={() => onClick("add-item")}>
+        <button className="fab add-item" onClick={addItem}>
           add
         </button>
         <button className="fab create-post" onClick={createPost}>

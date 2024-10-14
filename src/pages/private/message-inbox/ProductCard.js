@@ -1,5 +1,5 @@
 import React from 'react';
-import './style.css';
+import './inboxStyles.css';
 // import productImage from "../../assets/images/icons/product-image.png"; // Replace with actual product image path
 
 const ProductCard = () => {

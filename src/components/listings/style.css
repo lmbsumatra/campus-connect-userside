@@ -32,25 +32,21 @@
 /*   View Item     */
 /* * * * * * * * * */
 
-.view-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
 
-.item-profile, .user-info, .item-specs {
+.item-container, .user-info, .item-specs {
   margin-bottom: 30px;
-  border: 1px solid #ddd;
-  padding: 20px;
+  padding: 20px 10px;
   border-radius: 5px;
-  background-color: #f9f9f9;
+  background-color: white;
+  border-radius: 8px;
 }
 
 .item-image img {
   width: 100%;
   height: auto;
-  max-height: 400px; /* Adjust the max height to better fit your layout */
+  max-height: 400px; 
   object-fit: cover;
+  border-radius: 8px;
 }
 
 .item-desc p {
@@ -109,12 +105,6 @@
   color: #fff;
 } */
 
-.item-specs hr {
-  border: 0;
-  height: 3px;
-  background-color: #ddd;
-  margin: 20px 0;
-}
 
 
 

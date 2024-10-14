@@ -1,54 +1,100 @@
-import React from "react";
-import "./style.css";
+import React, { useState } from "react";
+import moreImg from "../../assets/images/icons/moreImg.png";
+import "./itemStyles.css";
+import { Link } from "react-router-dom";
 
-const StarRating = ({ rating }) => {
-  return (
-    <div className="star-rating">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <span key={star} className={`star-icon ${star > rating ? 'empty' : ''}`}>
-          <i className="fa-solid fa-star"></i>
-        </span>
-      ))}
-    </div>
-  );
-};
+const ItemList = ({ items = [], title }) => {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [showOptions, setShowOptions] = useState(null);
 
-const ItemList = ({ items = [] }) => {
+  const handleMouseEnter = (tags, index) => {
+    setSelectedIndex(index);
+  };
+
+  const handleMouseLeave = () => {
+    setSelectedIndex(null);
+  };
+
+  const handleMoreClick = (index) => {
+    if (showOptions === index) {
+      setShowOptions(null); // Close if already open
+    } else {
+      setShowOptions(index);
+    }
+  };
+
   return (
     <div className="custom-container item">
-      <h2 className="fs-2 fw-bold margin-top-adjustment">Top Listings</h2>
+      <h2 className="fs-2 fw-bold">{title}</h2>
       <div className="card-container">
         {items.length > 0 ? (
           items.map((item, index) => (
-            <div className="card" key={index}>
-              <div className="card-img-top">
-                <img src={item.image} alt="Item" />
-              </div>
-              <div className="card-body d-flex flex-column">
-                <div className="d-flex justify-content-between">
-                  <h5 className="fs-5">{item.title}</h5>
-                  <h3 className="fs-5">{item.price}</h3>
+            <Link to={`/rent/1`} key={index} className="card-link"> 
+              <div className="card card-variant-1">
+                <div className="card-img-top">
+                  <img src={item.image} alt="Card" />
                 </div>
-                <div className="d-flex align-items-center">
-                  <img
-                    src={item.ownerImage}
-                    alt=""
-                    className="icon-user me-2 mb-2"
-                  />
+                <div className="tags">
+                  <ul className="tag-list">
+                    {item.tags &&
+                      item.tags.slice(0, 1).map((tag, tagIndex) => (
+                        <li key={tagIndex} className="tag">
+                          {tag}
+                        </li>
+                      ))}
+                    {item.tags && item.tags.length > 1 && (
+                      <li
+                        className="tag more"
+                        onMouseEnter={() => handleMouseEnter(item.tags, index)}
+                        onMouseLeave={handleMouseLeave}
+                      >
+                        + More
+                      </li>
+                    )}
+                  </ul>
+                </div>
+                <div className="card-body d-flex">
                   <div>
-                    <h5 className="fs-6">{item.owner}</h5>
-                    <StarRating rating={item.rating || 0} />
+                    <p className="card-text fw-bold">{item.title}</p>
+                    <p className="card-text text-accent fw-bold">{item.price}</p>
                   </div>
+                  <img
+                    src={moreImg}
+                    className="icon more"
+                    alt="More options"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent the Link from triggering
+                      handleMoreClick(index);
+                    }}
+                    style={{ cursor: "pointer", width: "28px", height: "28px" }}
+                  />
                 </div>
-                <div className="d-flex justify-content-between">
-                  <button className="btn btn-two" data="Message">
-                  </button>
-                  <button className="btn btn-one">
-                    View
-                  </button>
-                </div>
+  
+                {selectedIndex === index && (
+                  <div className="popup">
+                    <div className="popup-content">
+                      <ul>
+                        {item.tags.map((tag, tagIndex) => (
+                          <li key={tagIndex}>{tag}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+  
+                {showOptions === index && (
+                  <div className="options">
+                    <div className="options-content">
+                      <ul>
+                        <li>Option 1</li>
+                        <li>Option 2</li>
+                        <li>Option 3</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            </Link>
           ))
         ) : (
           <p>No items to display</p>
@@ -56,6 +102,7 @@ const ItemList = ({ items = [] }) => {
       </div>
     </div>
   );
+  
 };
 
 export default ItemList;

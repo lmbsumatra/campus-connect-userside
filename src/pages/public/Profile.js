@@ -89,7 +89,6 @@ function MyPosts() {
 function Profile() {
   return (
     <div>
-      <NavBar />
       <div className="prof-container profile-page">
         <div className="profile-sidebar">
           <ul>
@@ -153,7 +152,6 @@ function Profile() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

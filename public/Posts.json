@@ -8,6 +8,9 @@
       "itemName": "Flute",
       "itemDescription": "A high-quality concert flute suitable for both beginners and professionals.",
       "itemImage": "../../assets/images/item/item_1.jpg",
+      "image": "../../assets/images/item/item_1.jpg",
+      "title": "Flute",
+      "price": "$10 per hour",
       "itemSpecifications": [
         "Brand: Yamaha",
         "Model: YFL-222",
@@ -23,7 +26,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#Flute", "#Music", "#InstrumentRental", "#Yamaha", "#ConcertFlute", "#BeginnerFriendly"]
     },
     {
       "id": 2,
@@ -33,6 +37,9 @@
       "itemName": "Guitar",
       "itemDescription": "An acoustic guitar with a rich sound and smooth playability.",
       "itemImage": "../../assets/images/item/item_2.jpg",
+      "image": "../../assets/images/item/item_2.jpg",
+      "title": "Guitar",
+      "price": "$15 per hour",
       "itemSpecifications": [
         "Brand: Fender",
         "Model: FA-125",
@@ -48,7 +55,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#Guitar", "#Acoustic", "#Fender", "#Music", "#InstrumentRental", "#RichSound"]
     },
     {
       "id": 3,
@@ -58,6 +66,9 @@
       "itemName": "Violin",
       "itemDescription": "A handcrafted violin with a warm and rich tone, perfect for performances.",
       "itemImage": "../../assets/images/item/item_3.jpg",
+      "image": "../../assets/images/item/item_3.jpg",
+      "title": "Violin",
+      "price": "$20 per hour",
       "itemSpecifications": [
         "Brand: Stentor",
         "Model: 1500",
@@ -73,7 +84,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#Violin", "#ClassicalMusic", "#Stentor", "#Handcrafted", "#InstrumentRental", "#PerformanceReady"]
     },
     {
       "id": 4,
@@ -83,6 +95,9 @@
       "itemName": "Trumpet",
       "itemDescription": "A professional-grade trumpet suitable for orchestras and solo performances.",
       "itemImage": "../../assets/images/item/item_4.jpg",
+      "image": "../../assets/images/item/item_4.jpg",
+      "title": "Trumpet",
+      "price": "$25 per hour",
       "itemSpecifications": [
         "Brand: Bach",
         "Model: TR300H2",
@@ -98,7 +113,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#Trumpet", "#Brass", "#Bach", "#Orchestra", "#InstrumentRental", "#ProfessionalGrade"]
     },
     {
       "id": 5,
@@ -108,6 +124,9 @@
       "itemName": "Piano",
       "itemDescription": "A digital piano with weighted keys, perfect for both practice and performances.",
       "itemImage": "../../assets/images/item/item_5.jpg",
+      "image": "../../assets/images/item/item_5.jpg",
+      "title": "Piano",
+      "price": "$30 per hour",
       "itemSpecifications": [
         "Brand: Casio",
         "Model: Privia PX-160",
@@ -123,7 +142,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#Piano", "#DigitalPiano", "#Casio", "#Practice", "#Performance", "#InstrumentRental"]
     },
     {
       "id": 6,
@@ -133,6 +153,9 @@
       "itemName": "Saxophone",
       "itemDescription": "An alto saxophone with a rich and expressive sound, suitable for jazz and classical music.",
       "itemImage": "../../assets/images/item/item_6.jpg",
+      "image": "../../assets/images/item/item_6.jpg",
+      "title": "Saxophone",
+      "price": "$18 per hour",
       "itemSpecifications": [
         "Brand: Yamaha",
         "Model: YAS-280",
@@ -148,7 +171,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#Saxophone", "#Jazz", "#Yamaha", "#AltoSax", "#InstrumentRental", "#ExpressiveSound"]
     },
     {
       "id": 7,
@@ -158,6 +182,9 @@
       "itemName": "Drum Set",
       "itemDescription": "A complete drum set with high-quality components, ideal for rock and jazz performances.",
       "itemImage": "../../assets/images/item/item_7.jpg",
+      "image": "../../assets/images/item/item_7.jpg",
+      "title": "Drum Set",
+      "price": "$40 per hour",
       "itemSpecifications": [
         "Brand: Pearl",
         "Model: Export Series",
@@ -173,7 +200,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#DrumSet", "#Percussion", "#Pearl", "#RockMusic", "#Jazz", "#InstrumentRental"]
     },
     {
       "id": 8,
@@ -183,6 +211,9 @@
       "itemName": "Clarinet",
       "itemDescription": "A professional-grade clarinet with a warm and rich tone, suitable for orchestral and solo performances.",
       "itemImage": "../../assets/images/item/item_8.jpg",
+      "image": "../../assets/images/item/item_8.jpg",
+      "title": "Clarinet",
+      "price": "$12 per hour",
       "itemSpecifications": [
         "Brand: Buffet Crampon",
         "Model: E11",
@@ -198,7 +229,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#Clarinet", "#BuffetCrampon", "#Orchestral", "#ProfessionalGrade", "#InstrumentRental", "#RichTone"]
     },
     {
       "id": 9,
@@ -208,6 +240,9 @@
       "itemName": "Cello",
       "itemDescription": "A full-size cello with a rich and powerful tone, perfect for orchestral performances.",
       "itemImage": "../../assets/images/item/item_9.jpg",
+      "image": "../../assets/images/item/item_9.jpg",
+      "title": "Cello",
+      "price": "$22 per hour",
       "itemSpecifications": [
         "Brand: Eastman Strings",
         "Model: VC305",
@@ -223,7 +258,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#Cello", "#Orchestral", "#EastmanStrings", "#FullSize", "#InstrumentRental", "#PowerfulSound"]
     },
     {
       "id": 10,
@@ -233,6 +269,9 @@
       "itemName": "Trombone",
       "itemDescription": "A high-quality trombone with a powerful and expressive sound, suitable for various genres.",
       "itemImage": "../../assets/images/item/item_10.jpg",
+      "image": "../../assets/images/item/item_10.jpg",
+      "title": "Trombone",
+      "price": "$17 per hour",
       "itemSpecifications": [
         "Brand: King",
         "Model: 606",
@@ -248,7 +287,8 @@
       "actions": {
         "message": "Message",
         "view": "View"
-      }
+      },
+      "tags": ["#Trombone", "#Brass", "#King", "#Music", "#InstrumentRental", "#ExpressiveSound"]
     }
   ]
 }

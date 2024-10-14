@@ -1,4 +1,4 @@
-import "./style.css";
+import "./categoriesStyle.css";
 
 const Categories = () => {
   const categories = ["CAFA", "CIE", "CIT", "CLA", "COE", "COS"];

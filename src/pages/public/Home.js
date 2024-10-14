@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-
 import NavBar from "../../components/navbar/navbar/NavBar";
 import Header from "../../components/header/Header";
 import Subheader from "../../components/subheader/Subheader";
@@ -11,54 +10,76 @@ import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
 import FAB from "../../components/fab/FAB";
 import Footer from "../../components/footer/Footer";
 
-
 import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
-
 
 const items = [
   {
     image: item1,
-    title: "Wrench",
-    price: "₱ 500",
-    owner: "Ebe Dencel",
+    title: "Hammer",
+    price: "₱ 600",
+    owner: "Alice Reyes",
     ownerImage: ownerImg,
-    rating: 3,
+    rating: 4,
+    tags: ["Tool", "Hardware", "Essential"],
   },
   {
     image: item1,
-    title: "Wrench",
-    price: "₱ 500",
-    owner: "Ebe Dencel",
-    ownerImage: ownerImg,
-    rating: 2,
-  },
-  {
-    image: item1,
-    title: "Wrench",
-    price: "₱ 500",
-    owner: "Ebe Dencel",
+    title: "Screwdriver",
+    price: "₱ 300",
+    owner: "John Doe",
     ownerImage: ownerImg,
     rating: 5,
+    tags: ["Tool", "Hardware", "Handy"],
   },
   {
     image: item1,
-    title: "Wrench",
-    price: "₱ 500",
-    owner: "Ebe Dencel",
+    title: "Pliers",
+    price: "₱ 450",
+    owner: "Maria Santos",
     ownerImage: ownerImg,
-    rating: 1,
+    rating: 3,
+    tags: ["Tool", "Hardware", "Essential"],
+  },
+  {
+    image: item1,
+    title: "Chisel",
+    price: "₱ 350",
+    owner: "Robert Garcia",
+    ownerImage: ownerImg,
+    rating: 2,
+    tags: ["Tool", "Hardware", "Precision"],
+  },
+  {
+    image: item1,
+    title: "Saw",
+    price: "₱ 700",
+    owner: "Liza Cruz",
+    ownerImage: ownerImg,
+    rating: 4,
+    tags: ["Tool", "Hardware", "Cutting"],
+  },
+  {
+    image: item1,
+    title: "Level",
+    price: "₱ 400",
+    owner: "Carlos Mendez",
+    ownerImage: ownerImg,
+    rating: 5,
+    tags: ["Tool", "Hardware", "Measurement", "Hardware", "Measurement", "Hardware", "Measurement"],
   },
 ];
+
 
 function Home() {
   const [borrowingPosts, setBorrowingPosts] = useState([]);
 
   useEffect(() => {
-    fetch('/Posts.json')
+    fetch("/Posts.json")
       .then((response) => response.json())
       .then((data) => setBorrowingPosts(data.borrowingPosts));
   }, []);
+
   const handleFabClick = (action) => {
     if (action === "add-item") {
       console.log("Add Item button clicked");
@@ -69,14 +90,12 @@ function Home() {
 
   return (
     <div>
-      <NavBar />
       <Header />
       <Subheader />
       <Categories />
-      <ItemList items={items} />
+      <ItemList items={items} title="Listings" />
       <Banner />
       <BorrowingPost borrowingPosts={borrowingPosts} />
-      <Footer />
       <FAB icon="+" onClick={handleFabClick} />
     </div>
   );

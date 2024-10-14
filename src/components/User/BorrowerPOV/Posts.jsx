@@ -1,5 +1,5 @@
 import React from "react";
-import "./style.css"; // Use the same CSS file
+import "./postStyles.css"; // Use the same CSS file
 import StarRating from "../../Rating/StarRating.jsx";
 
 import item1 from "../../../assets/images/item/item_1.jpg";

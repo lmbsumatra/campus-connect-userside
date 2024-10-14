@@ -1,0 +1,73 @@
+/* * * * * * * * * */
+/*  Navigation Bar */
+/* * * * * * * * * */
+nav {
+  display: flex;
+  align-items: center; /* Aligns items vertically */
+  justify-content: space-between; /* Space between logo and nav items */
+  padding: 10px; /* Added padding for better spacing */
+  background-color: white !important;
+}
+
+.nav-logo img {
+  height: 42px; /* Adjust height to fit */
+  margin-right: 20px; /* Space between logo and nav items */
+  width: auto;
+}
+
+.custom-nav-underline {
+  display: flex;
+  justify-content: center; /* Center the nav items */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1; /* Allow the nav to take available space */
+}
+
+.nav-icons {
+  display: flex;
+  align-items: center; 
+}
+
+/* Style for nav items */
+.nav-item {
+  display: flex;
+  align-items: center;
+  margin: 0 5px;
+}
+
+.custom-nav-underline .nav-link {
+  color: var(--clr-secondary);
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease, background 0.3s ease;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+
+.custom-nav-underline .nav-link.active {
+  background: var( --clr-primary-muted);
+  color: var(--clr-primary);
+}
+.custom-nav-underline .nav-link.active:hover {
+  background: var( --clr-primary-muted);
+  color: var(--clr-primary);
+}
+
+.custom-nav-underline .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  bottom: -10px;
+  height: 5px;
+  background: var(--clr-primary); 
+}
+
+.nav-item:hover .nav-link {
+  background-color: var(--clr-muted);
+}

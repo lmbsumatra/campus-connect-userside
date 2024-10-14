@@ -1,49 +1,49 @@
 // images, icons
-import Logo from "../../assets/images/icons/CC-LOGO-01.svg";
+import Logo from "../../assets/images/navbar/cc-logo-white.svg";
 // style, css
-import "./style.css";
+import "./footerStyles.css";
 
 const Footer = () => {
   return (
     <div className="custom-container">
       <div className="footer">
-        <div className="flag bg-main d-flex align-items-center">
-          <img src={Logo} alt="" />
+        <div className="flag d-flex align-items-center">
+          <img src={Logo} alt="Campus Connect Logo" />
           <h5 className="fs-5 fw-bold text-white">Campus Connect</h5>
         </div>
 
         <div className="footer-links">
           <div className="link-header">
-            <h5 className="fs-5 text-secondary">ABOUT</h5>
+            <h5 className="fs-5 text-accent fw-bold">ABOUT</h5>
             <ul>
               <li>
-                <a href="#" className="text-gradient">Our Story</a>
+                <a href="#" className="">Our Story</a>
               </li>
               <li>
-                <a href="#" className="text-gradient">Mission</a>
+                <a href="#" className="">Mission</a>
               </li>
               <li>
-                <a href="#" className="text-gradient">Benefits</a>
+                <a href="#" className="">Benefits</a>
               </li>
               <li>
-                <a href="#" className="text-gradient">Team</a>
+                <a href="#" className="">Team</a>
               </li>
             </ul>
           </div>
           <div className="link-header">
-            <h5 className="fs-5 text-secondary">LEGAL</h5>
+            <h5 className="fs-5 text-accent fw-bold">LEGAL</h5>
             <ul>
               <li>
-                <a href="#" className="text-gradient">Terms and Conditions</a>
+                <a href="#" className="">Terms and Conditions</a>
               </li>
               <li>
-                <a href="#" className="text-gradient">Privacy Policy</a>
+                <a href="#" className="">Privacy Policy</a>
               </li>
               <li>
-                <a href="#" className="text-gradient">Terms of Use</a>
+                <a href="#" className="">Terms of Use</a>
               </li>
               <li>
-                <a href="#" className="text-gradient">Do not Sell or Share My Personal Information</a>
+                <a href="#" className="">Do not Sell or Share My Personal Information</a>
               </li>
             </ul>
           </div>

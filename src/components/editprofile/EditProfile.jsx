@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import './style.css';
+import './ediProfileStyles.css';
 
 function EditProfile() {
   const [formData, setFormData] = useState({

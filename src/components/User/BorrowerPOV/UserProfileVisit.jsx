@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../BorrowerPOV/style.css";
+import "../BorrowerPOV/postStyles.css";
 import NavBar from "../../navbar/navbar/NavBar.jsx";
 import Footer from "../../footer/Footer.jsx";
 import StarRating from "../../Rating/StarRating.jsx";
@@ -9,25 +9,28 @@ import BorrowingPost from "./Posts.jsx";
 const UserProfileVisit = () => {
   const [activeTab, setActiveTab] = useState("about");
   const [borrowingPosts, setBorrowingPosts] = useState([]);
-  
+
   const user = users[0]; // Assuming you want to display the first user
 
   // Simulating fetching borrowing posts, replace this with actual data fetching
   useEffect(() => {
     // Replace with actual API endpoint or data source
-    fetch('/Posts.json')
-      .then(response => response.json())
-      .then(data => setBorrowingPosts(data.borrowingPosts));
+    fetch("/Posts.json")
+      .then((response) => response.json())
+      .then((data) => setBorrowingPosts(data.borrowingPosts));
   }, []);
 
   return (
     <div>
-      <NavBar />
       <div className="profile-container">
         <div className="profile-header">
           <div className="profile-banner"></div>
           <div className="profile-picture">
-            <img src={user.profilePhoto} alt="Profile" className="profile-photo" />
+            <img
+              src={user.profilePhoto}
+              alt="Profile"
+              className="profile-photo"
+            />
           </div>
           <div className="profile-info">
             <h2>{user.name}</h2>
@@ -57,19 +60,25 @@ const UserProfileVisit = () => {
           <div className="profile-content">
             <div className="filter-bttns">
               <button
-                className={`filter-bttn ${activeTab === "about" ? "active" : ""}`}
+                className={`filter-bttn ${
+                  activeTab === "about" ? "active" : ""
+                }`}
                 onClick={() => setActiveTab("about")}
               >
                 About
               </button>
               <button
-                className={`filter-bttn ${activeTab === "items" ? "active" : ""}`}
+                className={`filter-bttn ${
+                  activeTab === "items" ? "active" : ""
+                }`}
                 onClick={() => setActiveTab("items")}
               >
                 ({items.length}) Items
               </button>
               <button
-                className={`filter-bttn ${activeTab === "posts" ? "active" : ""}`}
+                className={`filter-bttn ${
+                  activeTab === "posts" ? "active" : ""
+                }`}
                 onClick={() => setActiveTab("posts")}
               >
                 ({borrowingPosts.length}) Posts
@@ -122,7 +131,6 @@ const UserProfileVisit = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

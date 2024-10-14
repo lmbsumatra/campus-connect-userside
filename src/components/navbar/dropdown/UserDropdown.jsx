@@ -20,26 +20,37 @@ const UserDropdown = ({ showDropdown, toggleDropdown, handleClick }) => {
             <img src={UserIcon} alt="User" className="profile-img" />
             <div className="profile-info">
               <h5>Justin Bieber</h5>
-              <h6>View Profile</h6>
+              <h6>
+                <a href="/profile">View Profile</a>
+              </h6>
             </div>
             <button className="close-btn" onClick={toggleDropdown}>
               &times; {/* Close icon */}
             </button>
           </div>
           <div className="dropdown-content">
-            <button className="dropdown-btn" onClick={() => console.log('My Rentals clicked')}>
+            <button
+              className="dropdown-btn"
+              onClick={() => console.log("My Rentals clicked")}
+            >
               <div className="icon">
                 <img src={MyRentalsIcon} alt="My Rentals" />
               </div>
               <h6>My Rentals</h6>
             </button>
-            <button className="dropdown-btn" onClick={() => console.log('My Items clicked')}>
+            <button
+              className="dropdown-btn"
+              onClick={() => console.log("My Items clicked")}
+            >
               <div className="icon">
                 <img src={MyItemsIcon} alt="My Items" />
               </div>
               <h6>My Items</h6>
             </button>
-            <button className="dropdown-btn" onClick={() => console.log('My Posts clicked')}>
+            <button
+              className="dropdown-btn"
+              onClick={() => console.log("My Posts clicked")}
+            >
               <div className="icon">
                 <img src={MyPostsIcon} alt="My Posts" />
               </div>

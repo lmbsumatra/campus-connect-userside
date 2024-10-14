@@ -1,16 +1,21 @@
 // modules
 import React from "react";
+import { useState } from "react";
+
 // styles
-import "./style.css";
+import "./postStyles.css";
 // images
 import item1 from "../../assets/images/item/item_1.jpg";
 import item2 from "../../assets/images/item/item_2.jpg";
 import item3 from "../../assets/images/item/item_3.jpg";
 import item4 from "../../assets/images/item/item_4.jpg";
 import item5 from "../../assets/images/item/item_5.jpg";
-import { useNavigate } from "react-router-dom";
+import moreImg from "../../assets/images/icons/moreImg.png";
+import { Link, useNavigate } from "react-router-dom";
 
-const BorrowingPost = ({ borrowingPosts }) => {
+const BorrowingPost = ({ borrowingPosts, title }) => {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [showOptions, setShowOptions] = useState(null);
   const navigate = useNavigate();
 
   const getItemImage = (itemImage) => {
@@ -34,81 +39,112 @@ const BorrowingPost = ({ borrowingPosts }) => {
     navigate(`/posts/${id}`);
   };
 
+  const handleMouseEnter = (tags, index) => {
+    setSelectedIndex(index);
+  };
+
+  const handleMouseLeave = () => {
+    setSelectedIndex(null);
+  };
+
+  const handleMoreClick = (index) => {
+    if (showOptions === index) {
+      setShowOptions(null); // Close if already open
+    } else {
+      setShowOptions(index);
+    }
+  };
+
   return (
-    <div className="custom-container post">
-      <h2 className="fs-2 fw-bold">New Borrowing Posts</h2>
-      <div className="card-container d-flex justify-content-center">
-        {borrowingPosts.map((post) => (
-          <div
-            className="card"
-            style={{ width: "500px", cursor: "pointer" }}
-            key={post.id}
-            onClick={() => handleCardClick(post.id)}
-          >
-            <div className="d-flex user-container align-items-center">
-              <div className="align-items-center">
-                <img
-                  src={getItemImage(post.itemImage)}
-                  alt=""
-                  className="icon-user me-2"
-                />
-                <h5 className="fs-6">
-                  {post.username} (
-                  <span>
-                    {post.userRating}
-                    <i
-                      className="fa-solid fa-star"
-                      style={{ color: "#ffd43b" }}
-                    ></i>
-                  </span>
-                  ) <span>is looking for</span>
-                </h5>
-              </div>
-              <div className="d-flex justify-content-between">
-                <button
-                  className="btn btn-two"
-                  data={post.actions.message}
-                ></button>
-                <button className="btn btn-one">{post.actions.view}</button>
-              </div>
-            </div>
-            <div className="card-body d-flex flex-row">
-              <div className="card-content">
-                <div className="pe-3">
-                  <div>
-                    <h5 className="fs-5">{post.itemName}</h5>
+    <div className="custom-container item">
+      <h2 className="fs-2 fw-bold">{title}</h2>
+      <div className="card-container">
+        {borrowingPosts.length > 0 ? (
+          borrowingPosts.map((item, index) => (
+            <Link to={`/lend/1`} key={index} className="card-link">
+              <div className="card card-variant-2" key={index}>
+                <div className="tags">
+                  <ul className="tag-list">
+                    {item.tags &&
+                      item.tags.slice(0, 2).map((tag, tagIndex) => (
+                        <li key={tagIndex} className="tag">
+                          {tag}
+                        </li>
+                      ))}
+                    {item.tags && item.tags.length > 1 && (
+                      <li
+                        className="tag more"
+                        onMouseEnter={() => handleMouseEnter(item.tags, index)}
+                        onMouseLeave={handleMouseLeave}
+                      >
+                        + More
+                      </li>
+                    )}
+                  </ul>
+                </div>
+                <div className="row">
+                  <div className="col-6">
+                    <div className="card-body">
+                      <p className="card-text fw-bold">{item.title}</p>
+                      <p className="card-text text-accent fw-bold">
+                        {item.price}
+                      </p>
+                      <div className="">
+                        <p className="card-text label">Rental Duration</p>
+                        <button className="btn btn-rounded thin">
+                          {item.rentalDuration}
+                        </button>
+                      </div>
+                      <div className="">
+                        <p className="card-text label">Rental Date</p>
+                        <button className="btn btn-rounded thin">
+                          {item.rentalDate}
+                        </button>
+                      </div>
+                      <img
+                        src={moreImg}
+                        className="icon more"
+                        alt="More options"
+                        onClick={() => handleMoreClick(index)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </div>
                   </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <span className="me-2">Duration</span>
-                    <button className="btn btn-six" data={post.rentalDuration}>
-                      
-                    </button>
-                  </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <span className="me-2">Rental Date</span>
-                    <button className="btn btn-six" data={post.rentalDate}>
-                      
-                    </button>
-                  </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <span className="me-2">Delivery</span>
-                    <button className="btn btn-six" data={post.deliveryMethod}>
-                      
-                    </button>
+                  <div className="col-6">
+                    <div className="card-img">
+                      <img src={getItemImage(item.itemImage)} alt="Card" />
+                    </div>
                   </div>
                 </div>
+                {selectedIndex === index && (
+                  <div className="popup">
+                    <div className="popup-content">
+                      <ul className="d-block">
+                        {item.tags.map((tag, tagIndex) => (
+                          <li key={tagIndex}>{tag}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {showOptions === index && (
+                  <div className="options">
+                    <div className="options-content">
+                      <ul>
+                        <li>Option 1</li>
+                        <li>Option 2</li>
+                        <li>Option 3</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div>
-                <img
-                  src={getItemImage(post.itemImage)}
-                  className="card-img-left"
-                  alt="..."
-                  style={{ width: "200px", objectFit: "cover" }}
-                />
-              </div>
-            </div>
-          </div>
-        ))}
+            </Link>
+          ))
+        ) : (
+          <p>No items to display</p>
+        )}
       </div>
     </div>
   );

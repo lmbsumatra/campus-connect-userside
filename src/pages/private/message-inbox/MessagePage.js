@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./style.css";
+import "./inboxStyles.css";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import NavBar from "../../../components/navbar/navbar/NavBar";
 import Footer from "../../../components/footer/Footer";
@@ -31,7 +31,6 @@ const MessagePage = () => {
 
   return (
     <>
-      <NavBar />
       <div className="message-page custom-container">
         <div className="message-content">
           <div className="inbox">
@@ -78,7 +77,6 @@ const MessagePage = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import './style.css';
+import './transactionStyles.css';
 
 const TransactionsTable = () => {
   const transactions = [

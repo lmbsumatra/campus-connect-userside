@@ -8,9 +8,14 @@
 /*       root      */
 /* * * * * * * * * */
 :root {
-  --clr-main: linear-gradient(to right, #2179c8, #c31f3b);
+  --clr-primary: #2179c8;
+  --clr-accent: #ff5400;
+  --clr-primary-darker: #1d63a0;
+  --clr-primary-lighter: rgb(40, 135, 218);
+  --clr-muted: rgb(241, 241, 241);
+  --clr-primary-muted: rgba(0, 123, 255, 0.1);
   --clr-main-darker: linear-gradient(to right, #1b62a0, #99182e);
-  --clr-main-reverse: linear-gradient(to left, #2179c8, #c31f3b);
+  /* --clr-main-reverse: linear-gradient(to left, #2179c8, #c31f3b); */
   /* --clr-primary: #1c1c1c; */
   --clr-secondary: #6c757d;
   --clr-light: #e0e0e0;
@@ -18,6 +23,7 @@
   --ff-serif: "Bellefair", serif;
   --ff-sans-cond: "Barlow Condensed", sans-serif;
   --ff-sans-normal: "Barlow", sans-serif;
+  --clr-black: #131313;
 }
 
 /* Text Colors */
@@ -40,7 +46,15 @@
 .fs-2 {
   font-size: 26px;
 }
-
+/* label for non inputs */
+.label {
+  font-size: 14px;
+  color: var(--clr-secondary);
+  font-weight: 400;
+  line-height: 1;
+  margin: 2px;
+  padding:0;
+}
 /* Background Colors */
 .bg-main {
   background: var(--clr-main);
@@ -48,6 +62,17 @@
 
 .bg-light {
   background-color: var(--clr-light);
+}
+
+.text-primary {
+  color: var(--clr-primary);
+}
+.text-accent {
+  color: var(--clr-accent);
+}
+
+.text-white {
+  color: white;
 }
 
 /* * * * * * * * * */
@@ -64,7 +89,6 @@
 html,
 body {
   height: 100%;
-  
 }
 
 body {
@@ -81,17 +105,7 @@ a {
   color: inherit;
 }
 
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
 
-.card-img {
-  padding: 10px;
-  border-radius: 13px !important;
-  overflow: hidden;
-}
 table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -105,171 +119,6 @@ textarea {
   font-size: inherit;
   line-height: inherit;
 }
-
-/* .btn.btn-primary {
-  border-radius: 8px;
-  padding: 7px 20px;
-  color: var(--clr-main);
-  border: solid 1px transparent;
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0)
-    ),
-    var(--clr-main);
-  background-origin: border-box;
-  background-clip: content-box, border-box;
-  box-shadow: 2px 1000px 1px #fff inset;
-  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
-}
-
-.btn.btn-primary.filled,
-.btn.btn-primary.no-fill:hover {
-  border: solid 1px transparent;
-  color: white;
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0)
-    ),
-    var(--clr-main-darker);
-  box-shadow: none;
-  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
-}
-
-.btn.btn-primary.filled .text-gradient,
-.btn.btn-primary.no-fill:hover .text-gradient {
-  -webkit-text-fill-color: white;
-  color: white;
-}
-
-.btn.btn-primary.filled:hover,
-.btn.btn-primary.no-fill {
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0)
-    ),
-    var(--clr-main);
-  box-shadow: 2px 1000px 1px #fff inset;
-  color: black;
-}
-
-.btn.btn-primary.filled:hover .text-gradient,
-.btn.btn-primary.no-fill .text-gradient {
-  background: var(--clr-main);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-}
-
-.btn.btn-secondary {
-  border-radius: 100rem;
-  padding: 7px 20px;
-  color: var(--clr-main);
-  border: solid 1px transparent;
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0)
-    ),
-    var(--clr-main);
-  background-origin: border-box;
-  background-clip: content-box, border-box;
-  box-shadow: 2px 1000px 1px #fff inset;
-  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
-}
-
-.btn.btn-secondary.filled,
-.btn.btn-secondary.no-fill:hover {
-  border: solid 1px transparent;
-  color: white;
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0)
-    ),
-    var(--clr-main-darker);
-  box-shadow: none;
-  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
-}
-
-.btn.btn-secondary.filled .text-gradient,
-.btn.btn-secondary.no-fill:hover .text-gradient {
-  -webkit-text-fill-color: white;
-  color: white;
-}
-
-.btn.btn-secondary.filled:hover,
-.btn.btn-secondary.no-fill {
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0)
-    ),
-    var(--clr-main);
-  box-shadow: 2px 1000px 1px #fff inset;
-  color: black;
-}
-
-.btn.btn-secondary.filled:hover .text-gradient,
-.btn.btn-secondary.no-fill .text-gradient {
-  background: var(--clr-main);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-}
-
-.btn.btn-tertiary {
-  border-radius: 0px;
-  padding: 3px 6px;
-  color: var(--clr-main);
-  border: solid 1px transparent;
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0)
-    ),
-    var(--clr-main);
-  background-origin: border-box;
-  background-clip: content-box, border-box;
-  box-shadow: 2px 1000px 1px #fff inset;
-  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
-}
-
-.btn.btn-tertiary.filled,
-.btn.btn-tertiary.no-fill:hover {
-  border: solid 1px transparent;
-  color: white;
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0)
-    ),
-    var(--clr-main-darker);
-  box-shadow: none;
-  transition: color 0.3s, background-image 0.3s, box-shadow 0.3s;
-}
-
-.btn.btn-tertiary.filled .text-gradient,
-.btn.btn-tertiary.no-fill:hover .text-gradient {
-  -webkit-text-fill-color: white;
-  color: white;
-}
-
-.btn.btn-tertiary.filled:hover,
-.btn.btn-tertiary.no-fill {
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0)
-    ),
-    var(--clr-main);
-  box-shadow: 2px 1000px 1px #fff inset;
-  color: black;
-}
-
-.btn.btn-tertiary.filled:hover .text-gradient,
-.btn.btn-tertiary.no-fill .text-gradient {
-  background: var(--clr-main);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-} */
 
 .button-container {
   margin-top: auto;
@@ -290,7 +139,12 @@ textarea {
 :focus {
   outline: none;
 }
-
+hr {
+  height: 0;
+  margin: 0;
+  padding: 0;
+  line-height: 0%;
+}
 .groupby {
   background-color: #f1f1f1;
   padding: 12px;
@@ -324,4 +178,19 @@ textarea {
     padding: 20px 25px;
     background-color: #f5f5f5 !important;
   }
+}
+
+.input-field label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+.card-link {
+  text-decoration: none; /* Remove underline */
+  color: inherit; /* Inherit text color */
+}
+
+.card-link:hover .card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add hover effect */
 }

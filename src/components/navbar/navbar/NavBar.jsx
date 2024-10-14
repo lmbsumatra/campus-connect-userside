@@ -1,30 +1,67 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Logo from "../../../assets/images/icons/CC-LOGO-01.svg";
+// React Imports
+import React, { useState, useEffect } from "react";
+
+// React Router
+import { useNavigate, useLocation } from "react-router-dom";
+
+// Assets
+import ccLogo from "../../../assets/images/navbar/cc-logo.png";
 import Language from "../../../assets/images/icons/language.svg";
+
+// Components
 import Notification from "../notif/Notification.jsx";
 import Message from "../inbox/Message.jsx";
 import UserDropdown from "../dropdown/UserDropdown.jsx";
-import "./style.css";
+
+// Pages
+import LoginSignUp from "../../../pages/public/login-signup/LoginSignup.js";
+
+// Styles
+import "./navbarStyles.css";
 
 const NavBar = () => {
+  // State variables
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginSignUp, setShowLoginSignUp] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation(); // Get the current location
 
+  // Update active tab based on the current location
+  useEffect(() => {
+    const path = location.pathname;
+    // Set the active tab based on the current path
+    if (path.includes("shop")) {
+      setActiveTab("shop");
+    } else if (path.includes("rent")) {
+      setActiveTab("rent");
+    } else if (path.includes("lend")) {
+      setActiveTab("lend");
+    } else {
+      setActiveTab("home");
+    }
+  }, [location]);
+
+  // Tab management
   function setTab(tab) {
     setActiveTab(tab);
     navigate(`/${tab}`);
   }
 
-  function handleClick() {
-    setIsLoggedIn(!isLoggedIn);
+  // Popup management
+  function handleLogin() {
+    setShowLoginSignUp(true);
   }
 
+  function handleRegister() {
+    setShowLoginSignUp(true);
+  }
+
+  // Toggle functions
   function toggleDropdown() {
     setShowDropdown(!showDropdown);
   }
@@ -39,22 +76,23 @@ const NavBar = () => {
 
   return (
     <div className="container fs-6">
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-        crossOrigin="anonymous"
-        referrerPolicy="no-referrer"
-      />
-
       <div className="nav-content">
-        <div className="nav-logo">
-          <img src={Logo} alt="Logo" />
-        </div>
-
         {!isLoggedIn ? (
-          <>
+          <nav>
+            <div className="nav-logo">
+              <a
+                className={`nav-link ${
+                  activeTab === "home" ? "active fw-bold" : ""
+                }`}
+                aria-current="page"
+                href="/home"
+                onClick={() => setTab("home")}
+              >
+                <img src={ccLogo} alt="Logo" />
+              </a>
+            </div>
             <ul className="nav custom-nav-underline">
+              {/* Nav items -- Home */}
               <li className="nav-item">
                 <a
                   className={`nav-link ${
@@ -64,49 +102,69 @@ const NavBar = () => {
                   href="/home"
                   onClick={() => setTab("home")}
                 >
-                  <span>Home</span>
-                  <i className="fa-solid fa-house"></i>
+                  Home
                 </a>
               </li>
+              {/* Nav items -- Shop */}
               <li className="nav-item">
                 <a
                   className={`nav-link ${
-                    activeTab === "listings" ? "active fw-bold" : ""
+                    activeTab === "shop" ? "active fw-bold" : ""
                   }`}
-                  href="/listings"
-                  onClick={() => setTab("listings")}
+                  aria-current="page"
+                  href="/shop"
+                  onClick={() => setTab("shop")}
                 >
-                  <span>Listings</span>
-                  <i className="fa-solid fa-list"></i>
+                  Shop
                 </a>
               </li>
+              {/* Nav items -- Rent */}
               <li className="nav-item">
                 <a
                   className={`nav-link ${
-                    activeTab === "posts" ? "active fw-bold" : ""
+                    activeTab === "rent" ? "active fw-bold" : ""
                   }`}
-                  href="/posts"
-                  onClick={() => setTab("posts")}
+                  aria-current="page"
+                  href="/rent"
+                  onClick={() => setTab("rent")}
                 >
-                  <span>Posts</span>
-                  <i className="fa-solid fa-plus"></i>
+                  Rent
+                </a>
+              </li>
+              {/* Nav items -- Lend */}
+              <li className="nav-item">
+                <a
+                  className={`nav-link ${
+                    activeTab === "lend" ? "active fw-bold" : ""
+                  }`}
+                  aria-current="page"
+                  href="/lend"
+                  onClick={() => setTab("lend")}
+                >
+                  Lend
                 </a>
               </li>
             </ul>
             <ul className="nav nav-icons">
-              <Notification
-                showNotifications={showNotifications}
-                toggleNotifications={toggleNotifications}
-              />
-              <Message
-                showDropdown={showMessages}
-                toggleDropdown={toggleMessages}
-              />
-              <UserDropdown
-                showDropdown={showDropdown}
-                toggleDropdown={toggleDropdown}
-                handleClick={handleClick}
-              />
+              <li className="nav-item">
+                <Notification
+                  showNotifications={showNotifications}
+                  toggleNotifications={toggleNotifications}
+                />
+              </li>
+              <li className="nav-item">
+                <Message
+                  showDropdown={showMessages}
+                  toggleDropdown={toggleMessages}
+                />
+              </li>
+              <li className="nav-item">
+                <UserDropdown
+                  showDropdown={showDropdown}
+                  toggleDropdown={toggleDropdown}
+                  handleClick={handleLogin}
+                />
+              </li>
               <li className="nav-item nav-language">
                 <a className="icon-link" href="">
                   <img src={Language} alt="Language Icon" />
@@ -114,17 +172,28 @@ const NavBar = () => {
                 <span>EN</span>
               </li>
             </ul>
-          </>
+          </nav>
         ) : (
-          <div>
+          <nav>
+            <div className="nav-logo">
+              <img src={ccLogo} alt="Logo" />
+            </div>
             <ul className="nav nav-icons">
               <li className="nav-item">
-                <button className="btn btn-three" onClick={handleClick}>
-                  <span className="text-gradient fw-bold">Log in</span>
+                <button
+                  className="btn btn-rounded secondary"
+                  onClick={handleLogin}
+                >
+                  Log in
                 </button>
               </li>
               <li className="nav-item">
-                <button className="btn btn-four">Register</button>
+                <button
+                  className="btn btn-rounded primary"
+                  onClick={handleRegister}
+                >
+                  Register
+                </button>
               </li>
               <li className="nav-item nav-language">
                 <a className="icon-link" href="">
@@ -133,9 +202,19 @@ const NavBar = () => {
                 <span>EN</span>
               </li>
             </ul>
-          </div>
+          </nav>
         )}
       </div>
+
+      {/* LoginSignUp popup */}
+      {showLoginSignUp && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <LoginSignUp />
+            <button onClick={() => setShowLoginSignUp(false)}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

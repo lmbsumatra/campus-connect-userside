@@ -1,0 +1,118 @@
+/* * * * * * * * * */
+/*     Posting     */
+/* * * * * * * * * */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+ .tags {
+  margin: 10px 0;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 -32px;
+}
+
+.tag {
+  color: var(--clr-secondary);
+  border-radius: 100px;
+  border: 1px solid var(--clr-secondary);
+  background-color: white;
+  border-radius: 12px;
+  padding: 2px 8px;
+  margin: 0 8px 8px 0;
+  font-size: 12px;
+}
+
+.tag.more {
+  color: var(--clr-primary);
+  border-radius: 100px;
+  border: 1px solid var(--clr-primary);
+}
+
+.card-variant-2 .popup {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: auto;
+  border-radius: 4px;
+  padding: 8px;
+  top: 45px;
+  left: 100px;
+  word-wrap: break-word;
+  overflow: auto;
+}
+
+.popup-content {
+  width: auto;
+}
+
+.popup-content ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.popup-content ul li {
+  color: white;
+  padding: 5px;
+  font-size: 14px;
+}
+.card-variant-2 .options {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.681);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 100px; /* Adjust as needed */
+  border-radius: 4px;
+  padding: 8px;
+  top: 256px; /* Adjust this to position correctly */
+  right: 300px;
+}
+
+.options::before {
+  content: "";
+  position: absolute;
+  top: -16px; /* Position it above the dropdown */
+  right: 10px; /* Align it with the dropdown */
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent transparent rgba(0, 0, 0, 0.681) transparent; /* Arrow color */
+}
+
+.options-content ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+
+.options-content ul li {
+  color: white;
+  padding: 5px;
+  font-size: 14px;
+  cursor: pointer; /* Change cursor to pointer for options */
+  display: block;
+}
+
+.options-content ul li:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Add hover effect */
+}
+
+img.icon.more {
+  width: 28px;
+  height: auto;
+  border-radius: 100%;
+  border: 1px solid var(--clr-muted);
+  margin: 0px;
+}
+img.icon.more:hover {
+  border-radius: 100%;
+  border: 1px solid var(--clr-primary);
+  margin: 0px;
+}

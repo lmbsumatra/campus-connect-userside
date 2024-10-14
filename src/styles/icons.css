@@ -12,3 +12,16 @@
     background-color: var(--clr-dark); /* Set your desired dark color here */
   }
   
+
+  img.icon.more {
+    width: 28px;
+    height: auto;
+    border-radius: 100%;
+    border: 1px solid var(--clr-muted);
+    margin: 0px;
+  }
+  img.icon.more:hover {
+    border-radius: 100%;
+    border: 1px solid var(--clr-primary);
+    margin: 0px;
+  }

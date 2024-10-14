@@ -1,0 +1,112 @@
+.auth-container {
+  max-width: 50%;
+  max-height: 90vh;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  overflow: scroll;
+}
+
+.tab-buttons {
+  display: flex;
+}
+
+.tab-buttons div {
+  flex: 1;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for background and text color */
+  text-align: center;
+  color: #999;
+  background-color: transparent; /* Default background */
+}
+
+.tab-buttons div.active {
+  color: #007bff; /* Active text color */
+  background-color: rgba(0, 123, 255, 0.1); /* Light background for active tab */
+  border-bottom: 5px solid var(--clr-primary);
+}
+
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-field {
+  position: relative;
+  margin-bottom: 15px;
+  background-color: none;
+  border-bottom: 1px solid #ccc;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+input {
+  box-shadow: none;
+  background-color: #f3f3f3;
+}
+
+.input-field input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-bottom: 5px solid #a7bdd1;
+}
+
+.input-field label {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  transition: all 0.2s ease;
+  color: #999; /* Default color */
+}
+
+.input-field input:focus + label,
+.input-field input:not(:placeholder-shown) + label {
+  top: 0px; /* Move label up */
+  font-size: 10px; /* Shrink label */
+  color: var(--clr-accent); /* Change color on focus */
+  
+}
+
+.input-field-img .upload-box {
+  cursor: pointer;
+}
+
+.preview {
+  margin-top: 10px;
+  max-width: 100px;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.action-buttons {
+  display: block;
+}
+
+
+.or-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.or-divider::before,
+.or-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ccc; /* Line color */
+  margin: 0 10px; /* Space between line and text */
+}
+
+.or-divider span {
+  color: #333; /* Text color */
+  font-weight: bold; /* Make text bold */
+  white-space: nowrap; /* Prevent line breaks */
+}
