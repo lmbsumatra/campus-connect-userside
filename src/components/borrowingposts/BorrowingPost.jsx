@@ -1,17 +1,12 @@
-// modules
-import React from "react";
-import { useState } from "react";
-
-// styles
+import React, { useState } from "react";
 import "./postStyles.css";
-// images
 import item1 from "../../assets/images/item/item_1.jpg";
 import item2 from "../../assets/images/item/item_2.jpg";
 import item3 from "../../assets/images/item/item_3.jpg";
 import item4 from "../../assets/images/item/item_4.jpg";
 import item5 from "../../assets/images/item/item_5.jpg";
 import moreImg from "../../assets/images/icons/moreImg.png";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const BorrowingPost = ({ borrowingPosts, title }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -36,7 +31,7 @@ const BorrowingPost = ({ borrowingPosts, title }) => {
   };
 
   const handleCardClick = (id) => {
-    navigate(`/posts/${id}`);
+    navigate(`/lend/1`);
   };
 
   const handleMouseEnter = (tags, index) => {
@@ -47,7 +42,8 @@ const BorrowingPost = ({ borrowingPosts, title }) => {
     setSelectedIndex(null);
   };
 
-  const handleMoreClick = (index) => {
+  const handleMoreClick = (index, e) => {
+    e.stopPropagation(); // Prevent the card from being clickable
     if (showOptions === index) {
       setShowOptions(null); // Close if already open
     } else {
@@ -61,8 +57,8 @@ const BorrowingPost = ({ borrowingPosts, title }) => {
       <div className="card-container">
         {borrowingPosts.length > 0 ? (
           borrowingPosts.map((item, index) => (
-            <Link to={`/lend/1`} key={index} className="card-link">
-              <div className="card card-variant-2" key={index}>
+            <div key={index} className="card-link" onClick={() => handleCardClick(item.id)}>
+              <div className="card card-variant-2">
                 <div className="tags">
                   <ul className="tag-list">
                     {item.tags &&
@@ -86,26 +82,20 @@ const BorrowingPost = ({ borrowingPosts, title }) => {
                   <div className="col-6">
                     <div className="card-body">
                       <p className="card-text fw-bold">{item.title}</p>
-                      <p className="card-text text-accent fw-bold">
-                        {item.price}
-                      </p>
-                      <div className="">
+                      <p className="card-text text-accent fw-bold">{item.price}</p>
+                      <div>
                         <p className="card-text label">Rental Duration</p>
-                        <button className="btn btn-rounded thin">
-                          {item.rentalDuration}
-                        </button>
+                        <button className="btn btn-rounded thin">{item.rentalDuration}</button>
                       </div>
-                      <div className="">
+                      <div>
                         <p className="card-text label">Rental Date</p>
-                        <button className="btn btn-rounded thin">
-                          {item.rentalDate}
-                        </button>
+                        <button className="btn btn-rounded thin">{item.rentalDate}</button>
                       </div>
                       <img
                         src={moreImg}
                         className="icon more"
                         alt="More options"
-                        onClick={() => handleMoreClick(index)}
+                        onClick={(e) => handleMoreClick(index, e)}
                         style={{ cursor: "pointer" }}
                       />
                     </div>
@@ -140,7 +130,7 @@ const BorrowingPost = ({ borrowingPosts, title }) => {
                   </div>
                 )}
               </div>
-            </Link>
+            </div>
           ))
         ) : (
           <p>No items to display</p>

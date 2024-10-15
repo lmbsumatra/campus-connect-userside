@@ -33,6 +33,7 @@ function App() {
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/login-signup" element={<LoginSignUp />} />
+        <Route path="/*" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/rent" element={<Rent />} />
         <Route path="/lend" element={<Lend />} />

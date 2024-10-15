@@ -71,8 +71,8 @@ ul {
   width: 100px; /* Adjust as needed */
   border-radius: 4px;
   padding: 8px;
-  top: 256px; /* Adjust this to position correctly */
-  right: 300px;
+  top: 250px; /* Adjust this to position correctly */
+  right: 320px;
 }
 
 .options::before {

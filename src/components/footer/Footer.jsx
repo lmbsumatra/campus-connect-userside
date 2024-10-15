@@ -5,7 +5,7 @@ import "./footerStyles.css";
 
 const Footer = () => {
   return (
-    <div className="custom-container">
+    <div className="custom-container d-block">
       <div className="footer">
         <div className="flag d-flex align-items-center">
           <img src={Logo} alt="Campus Connect Logo" />
@@ -49,6 +49,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
+      
       <hr />
       <div className="d-flex justify-content-center w-100">
         <span>©2024 Campus Connect. All Rights Reserved</span>

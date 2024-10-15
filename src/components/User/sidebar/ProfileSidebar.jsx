@@ -1,0 +1,54 @@
+import { Route, Routes, NavLink, Navigate } from "react-router-dom";
+
+import "./profileSidebarStyles.css";
+
+const ProfileSidebar = () => {
+  return (
+    <div className="profile-sidebar">
+      <ul>
+        <li>
+          <NavLink
+            to="my-posts"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            My Posts
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="my-listings"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            My Listings
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="my-rentals"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            My Rentals
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="transactions"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Transactions
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="edit-profile"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Edit Profile
+          </NavLink>
+        </li>
+      </ul>
+    </div>
+  );
+};
+
+export default ProfileSidebar;

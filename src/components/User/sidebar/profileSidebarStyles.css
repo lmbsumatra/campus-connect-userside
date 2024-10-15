@@ -1,0 +1,42 @@
+/* Main sidebar styling */
+.profile-sidebar {
+  background-color: white;
+  border-radius: 10px;
+  width: 121px;
+  height: auto;
+  overflow: hidden;
+}
+
+/* Style for the unordered list */
+.profile-sidebar ul {
+  list-style-type: none; 
+  padding: 0; 
+  margin: 0;
+  display: block;
+}
+
+.profile-sidebar li {
+  margin: 0; 
+}
+.profile-sidebar li .active{
+  margin: 0; 
+  border-left: 5px solid var(--clr-accent);
+}
+
+.profile-sidebar a {
+  text-decoration: none;
+  color: var(--clr-secondary); 
+  display: block; 
+  padding: 20px 10px; 
+  transition: background-color 0.3s;
+}
+
+.profile-sidebar .active {
+  font-weight: bold;
+  color: var(--clr-accent); 
+  background-color: var(--clr-muted); 
+}
+
+.profile-sidebar a:hover {
+  background-color: var(--clr-muted); 
+}

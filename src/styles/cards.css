@@ -2,7 +2,7 @@
   height: auto;
   width: 200px;
   border-radius: 8px;
-  box-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+  /* box-shadow: 0 0px 0px rgba(0, 0, 0, 0); */
   margin-bottom: 10px;
   padding: 8px;
 }

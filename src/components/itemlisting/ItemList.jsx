@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import moreImg from "../../assets/images/icons/moreImg.png";
 import "./itemStyles.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ItemList = ({ items = [], title }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
+  const navigate = useNavigate();
 
   const handleMouseEnter = (tags, index) => {
     setSelectedIndex(index);
@@ -15,12 +16,17 @@ const ItemList = ({ items = [], title }) => {
     setSelectedIndex(null);
   };
 
-  const handleMoreClick = (index) => {
+  const handleMoreClick = (index, e) => {
+    e.stopPropagation(); // Prevent the Link from triggering
     if (showOptions === index) {
       setShowOptions(null); // Close if already open
     } else {
       setShowOptions(index);
     }
+  };
+
+  const handleCardClick = (item) => {
+    navigate(`/rent/1`); // Navigate to the link when the card is clicked
   };
 
   return (
@@ -29,7 +35,7 @@ const ItemList = ({ items = [], title }) => {
       <div className="card-container">
         {items.length > 0 ? (
           items.map((item, index) => (
-            <Link to={`/rent/1`} key={index} className="card-link"> 
+            <div key={index} className="card-link" onClick={() => handleCardClick(item)}>
               <div className="card card-variant-1">
                 <div className="card-img-top">
                   <img src={item.image} alt="Card" />
@@ -62,14 +68,11 @@ const ItemList = ({ items = [], title }) => {
                     src={moreImg}
                     className="icon more"
                     alt="More options"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent the Link from triggering
-                      handleMoreClick(index);
-                    }}
+                    onClick={(e) => handleMoreClick(index, e)}
                     style={{ cursor: "pointer", width: "28px", height: "28px" }}
                   />
                 </div>
-  
+
                 {selectedIndex === index && (
                   <div className="popup">
                     <div className="popup-content">
@@ -81,7 +84,7 @@ const ItemList = ({ items = [], title }) => {
                     </div>
                   </div>
                 )}
-  
+
                 {showOptions === index && (
                   <div className="options">
                     <div className="options-content">
@@ -94,7 +97,7 @@ const ItemList = ({ items = [], title }) => {
                   </div>
                 )}
               </div>
-            </Link>
+            </div>
           ))
         ) : (
           <p>No items to display</p>
@@ -102,7 +105,6 @@ const ItemList = ({ items = [], title }) => {
       </div>
     </div>
   );
-  
 };
 
 export default ItemList;

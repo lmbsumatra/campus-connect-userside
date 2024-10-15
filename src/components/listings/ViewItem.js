@@ -94,8 +94,8 @@ function ViewItem() {
             </div>
             <span className="price">₱{selectedItem.price}/hr</span>
             <div className="mt-5 d-flex justify-content-end">
-              <button className="btn btn-primary no-fill me-2">Message</button>
-              <button className="btn btn-primary no-fill me-2">Borrow</button>
+              <button className="btn btn-rectangle secondary no-fill me-2">Message</button>
+              <button className="btn btn-rectangle primary no-fill me-2">Borrow</button>
             </div>
 
             <hr />
