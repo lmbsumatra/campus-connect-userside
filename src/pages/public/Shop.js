@@ -75,7 +75,7 @@ const items = [
 const Shop = () => {
   return (
     <>
-      <div className="custom-container">
+      <div className="container-content">
         <div className="row">
           <div className="col-md-2">
             <h5>Filters</h5>

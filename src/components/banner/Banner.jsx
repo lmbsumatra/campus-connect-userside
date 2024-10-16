@@ -37,7 +37,7 @@ const Banner = () => {
   ];
 
   return (
-    <div className="custom-container">
+    <div className="container-content">
       <Slider {...settings}>
         {slides.map((slide, index) => (
           <div key={index} className="banner">

@@ -5,7 +5,7 @@ import "./footerStyles.css";
 
 const Footer = () => {
   return (
-    <div className="custom-container d-block">
+    <div className="container-content d-block">
       <div className="footer">
         <div className="flag d-flex align-items-center">
           <img src={Logo} alt="Campus Connect Logo" />

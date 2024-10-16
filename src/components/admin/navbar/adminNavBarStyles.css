@@ -1,0 +1,28 @@
+.nav.nav-container {
+    height: 124px;
+    width: 100%;
+    /* background-color: var(--clr-muted); */
+    display: flex;
+    padding: 24px;
+    gap: 16px;
+}
+
+.searchbar {
+    flex:1 ;
+}
+
+.searchbar input {
+    width: 100%;
+    border: none;
+    height: 81px;
+    border-radius: 8px;
+    background-color: white;
+    padding: 24px;
+}
+
+.searchbar .search-icon {
+    position: absolute;
+    right: 120px;
+    top: 52px;
+    z-index: 1;
+}

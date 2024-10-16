@@ -1,35 +1,44 @@
-// src/App.js
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import React from "react";
 import "./App.css";
 import "../src/styles/buttons.css";
 import "../src/styles/icons.css";
 import "../src/styles/cards.css";
+import "../src/styles/containers.css";
 
-import Login from "./pages/public/login-signup/LoginSignup.js";
-import Home from "./pages/public/Home.js";
-import Profile from "./pages/public/Profile.js";
-import Posts from "./pages/public/Lend.js";
-import Post from "./components/post/Post.jsx";
-import PostForm from "./pages/private/new-post/PostForm.js";
-import MessagePage from "./pages/private/message-inbox/MessagePage.js";
-import RentProgress from "./components/myrentals/RentProgress.jsx";
-import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
-import Listings from "./pages/public/Rent.js";
-import ViewItem from "./components/listings/ViewItem";
-import AddItem from "./pages/private/AddItem.js";
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
-import NavBar from "./components/navbar/navbar/NavBar.jsx";
-import Shop from "./pages/public/Shop.js";
+import Home from "./pages/public/Home.js";
+import Profile from "./pages/private/users/Profile.js";
+import ViewPost from "./pages/private/users/ViewPost.js";
+import PostForm from "./pages/private/users/new-post/PostForm.js";
+import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
+import RentProgress from "./components/myrentals/MyRentals.jsx";
+import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
+import ViewItem from "./components/listings/ViewItem";
+import AddItem from "./pages/private/users/AddItem.js";
+import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
+import Footer from "./components/footer/Footer.jsx";
+import Admin from "./pages/private/admin/Admin.js";
+import AdminDashboard from "./pages/private/admin/dashboard/AdminDashboard.js";
 import Rent from "./pages/public/Rent.js";
 import Lend from "./pages/public/Lend.js";
-import ViewPost from "./pages/private/ViewPost.js";
-import Footer from "./components/footer/Footer.jsx";
+import Shop from "./pages/public/Shop.js";
 
 function App() {
   return (
     <BrowserRouter>
-      <NavBar /> {/* Include the Navbar */}
+      <Content />
+    </BrowserRouter>
+  );
+}
+
+function Content() {
+  const location = useLocation();
+  const showNavbarAndFooter = !location.pathname.startsWith('/admin');
+
+  return (
+    <>
+      {showNavbarAndFooter && <NavBar2 className="bg-dark" />}
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/login-signup" element={<LoginSignUp />} />
@@ -39,23 +48,25 @@ function App() {
         <Route path="/lend" element={<Lend />} />
         <Route path="/shop" element={<Shop />} />
 
-
         {/* PRIVATE ROUTES */}
         <Route path="/lend/:id" element={<ViewPost />} />
         <Route path="/rent/:id" element={<ViewItem />} />
-
         <Route path="/new-post" element={<PostForm />} />
         <Route path="/add-item" element={<AddItem />} />
-
-
         <Route path="/messages" element={<MessagePage />} />
+        {/* USER PROFILE */}
         <Route path="/profile/*" element={<Profile />} />
         <Route path="/rent-progress" element={<RentProgress />} />
         <Route path="/user/:id" element={<UserProfileVisit />} />
-        
+
+        {/* ADMIN ROUTES */}
+        <Route path="/admin" element={<Admin />}>
+          <Route path="*" element={<AdminDashboard />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+        </Route>
       </Routes>
-      <Footer /> {/* Include the Navbar */}
-    </BrowserRouter>
+      {showNavbarAndFooter && <Footer />}
+    </>
   );
 }
 

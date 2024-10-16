@@ -2,39 +2,82 @@
 /*  Navigation Bar */
 /* * * * * * * * * */
 nav {
-  display: flex;
-  align-items: center; /* Aligns items vertically */
-  justify-content: space-between; /* Space between logo and nav items */
-  padding: 10px; /* Added padding for better spacing */
   background-color: white !important;
+  width: 100%;
+  overflow: hidden;
+  /* padding: 10px 0; */
 }
 
+.nav-content {
+  max-width: 1200px; /* Prevents overflow */
+  margin: 0 auto; /* Centers the nav */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* * * * * * * * * */
+/*   Quick Links   */
+/* * * * * * * * * */
+nav .quick-links {
+  text-decoration: none;
+}
+
+.quick-links .link {
+  margin: 8px 4px;
+}
+
+.quick-links .link a {
+  font-size: 12px;
+  text-decoration: none;
+  color: var(--clr-secondary);
+  padding: 2px 4px;
+  background-color: var(--clr-muted);
+  border-radius: 4px;
+}
+
+/* * * * * * * * * */
+/*   Logo          */
+/* * * * * * * * * */
+
+nav .nav-logo {
+  height: auto;
+  width: auto;
+  display: flex;
+  align-items: center;
+  /* background-color: aqua; */
+}
 .nav-logo img {
-  height: 42px; /* Adjust height to fit */
-  margin-right: 20px; /* Space between logo and nav items */
+  height: 36px;
   width: auto;
 }
 
-.custom-nav-underline {
+/* * * * * * * * * */
+/*  Toolbar: Search, personal links  */
+/* * * * * * * * * */
+.nav-toolbar {
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.nav-toolbar .items {
   display: flex;
-  justify-content: center; /* Center the nav items */
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex: 1; /* Allow the nav to take available space */
+  justify-content: space-between;
+}
+
+.items .nav-searchbar {
+  flex: 1;
 }
 
 .nav-icons {
   display: flex;
-  align-items: center; 
+  align-items: center;
 }
 
-/* Style for nav items */
-.nav-item {
-  display: flex;
-  align-items: center;
-  margin: 0 5px;
-}
+
+
+
 
 .custom-nav-underline .nav-link {
   color: var(--clr-secondary);
@@ -50,11 +93,11 @@ nav {
 }
 
 .custom-nav-underline .nav-link.active {
-  background: var( --clr-primary-muted);
+  background: var(--clr-primary-muted);
   color: var(--clr-primary);
 }
 .custom-nav-underline .nav-link.active:hover {
-  background: var( --clr-primary-muted);
+  background: var(--clr-primary-muted);
   color: var(--clr-primary);
 }
 
@@ -65,9 +108,5 @@ nav {
   width: 100%;
   bottom: -10px;
   height: 5px;
-  background: var(--clr-primary); 
-}
-
-.nav-item:hover .nav-link {
-  background-color: var(--clr-muted);
+  background: var(--clr-primary);
 }

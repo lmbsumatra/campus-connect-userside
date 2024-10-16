@@ -34,7 +34,6 @@ const NavBar = () => {
   // Update active tab based on the current location
   useEffect(() => {
     const path = location.pathname;
-    // Set the active tab based on the current path
     if (path.includes("shop")) {
       setActiveTab("shop");
     } else if (path.includes("rent")) {
@@ -53,11 +52,7 @@ const NavBar = () => {
   }
 
   // Popup management
-  function handleLogin() {
-    setShowLoginSignUp(true);
-  }
-
-  function handleRegister() {
+  function handleAuth() {
     setShowLoginSignUp(true);
   }
 
@@ -77,133 +72,72 @@ const NavBar = () => {
   return (
     <div className="container fs-6">
       <div className="nav-content">
-        {!isLoggedIn ? (
-          <nav>
-            <div className="nav-logo">
-              <a
-                className={`nav-link ${
-                  activeTab === "home" ? "active fw-bold" : ""
-                }`}
-                aria-current="page"
-                href="/home"
-                onClick={() => setTab("home")}
-              >
-                <img src={ccLogo} alt="Logo" />
-              </a>
-            </div>
-            <ul className="nav custom-nav-underline">
-              {/* Nav items -- Home */}
-              <li className="nav-item">
-                <a
-                  className={`nav-link ${
-                    activeTab === "home" ? "active fw-bold" : ""
-                  }`}
-                  aria-current="page"
-                  href="/home"
-                  onClick={() => setTab("home")}
-                >
-                  Home
-                </a>
-              </li>
-              {/* Nav items -- Shop */}
-              <li className="nav-item">
-                <a
-                  className={`nav-link ${
-                    activeTab === "shop" ? "active fw-bold" : ""
-                  }`}
-                  aria-current="page"
-                  href="/shop"
-                  onClick={() => setTab("shop")}
-                >
-                  Shop
-                </a>
-              </li>
-              {/* Nav items -- Rent */}
-              <li className="nav-item">
-                <a
-                  className={`nav-link ${
-                    activeTab === "rent" ? "active fw-bold" : ""
-                  }`}
-                  aria-current="page"
-                  href="/rent"
-                  onClick={() => setTab("rent")}
-                >
-                  Rent
-                </a>
-              </li>
-              {/* Nav items -- Lend */}
-              <li className="nav-item">
-                <a
-                  className={`nav-link ${
-                    activeTab === "lend" ? "active fw-bold" : ""
-                  }`}
-                  aria-current="page"
-                  href="/lend"
-                  onClick={() => setTab("lend")}
-                >
-                  Lend
-                </a>
-              </li>
-            </ul>
-            <ul className="nav nav-icons">
-              <li className="nav-item">
-                <Notification
-                  showNotifications={showNotifications}
-                  toggleNotifications={toggleNotifications}
-                />
-              </li>
-              <li className="nav-item">
-                <Message
-                  showDropdown={showMessages}
-                  toggleDropdown={toggleMessages}
-                />
-              </li>
-              <li className="nav-item">
-                <UserDropdown
-                  showDropdown={showDropdown}
-                  toggleDropdown={toggleDropdown}
-                  handleClick={handleLogin}
-                />
-              </li>
-              <li className="nav-item nav-language">
-                <a className="icon-link" href="">
-                  <img src={Language} alt="Language Icon" />
-                </a>
-                <span>EN</span>
-              </li>
-            </ul>
-          </nav>
-        ) : (
-          <nav>
-            <div className="nav-logo">
+        <nav className="nav-content">
+          <div className="nav-logo">
+            <a
+              className={`nav-link ${activeTab === "home" ? "active fw-bold" : ""}`}
+              aria-current="page"
+              href="/home"
+              onClick={() => setTab("home")}
+            >
               <img src={ccLogo} alt="Logo" />
+            </a>
+          </div>
+          {!isLoggedIn ? (
+            <div className="input-group mb-3">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Username"
+                aria-label="Username"
+                aria-describedby="basic-addon1"
+              />
             </div>
-            <ul className="nav nav-icons">
-              <li className="nav-item">
-                <button
-                  className="btn btn-rounded secondary"
-                  onClick={handleLogin}
+          ) : null}
+          <ul className="nav nav-icons">
+            <li className="nav-item">
+              <Notification
+                showNotifications={showNotifications}
+                toggleNotifications={toggleNotifications}
+              />
+            </li>
+            <li className="nav-item">
+              <Message
+                showDropdown={showMessages}
+                toggleDropdown={toggleMessages}
+              />
+            </li>
+            <li className="nav-item">
+              <UserDropdown
+                showDropdown={showDropdown}
+                toggleDropdown={toggleDropdown}
+                handleClick={handleAuth}
+              />
+            </li>
+            <li className="nav-item nav-language">
+              <a className="icon-link" href="">
+                <img src={Language} alt="Language Icon" />
+              </a>
+              <span>EN</span>
+            </li>
+          </ul>
+        </nav>
+        <nav className="subnavbar">
+          <ul className="nav custom-nav-underline">
+            {["home", "shop", "rent", "lend"].map((tab) => (
+              <li className="nav-item" key={tab}>
+                <a
+                  className={`nav-link ${activeTab === tab ? "active fw-bold" : ""}`}
+                  aria-current="page"
+                  href={`/${tab}`}
+                  onClick={() => setTab(tab)}
                 >
-                  Log in
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className="btn btn-rounded primary"
-                  onClick={handleRegister}
-                >
-                  Register
-                </button>
-              </li>
-              <li className="nav-item nav-language">
-                <a className="icon-link" href="">
-                  <img src={Language} alt="Language Icon" />
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </a>
-                <span>EN</span>
               </li>
-            </ul>
-          </nav>
-        )}
+            ))}
+          </ul>
+        </nav>
       </div>
 
       {/* LoginSignUp popup */}

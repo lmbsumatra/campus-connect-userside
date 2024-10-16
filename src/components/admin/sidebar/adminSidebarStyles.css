@@ -1,0 +1,131 @@
+/* Admin side bar */
+.admin.sidebar {
+  height: 100vh;
+  width: 100px;
+  background-color: white;
+  padding: 24px 16px;
+  overflow-y: auto; /* Change this line */
+  white-space: nowrap;
+  transition: width 0.3s ease;
+  position: fixed;
+  z-index: 999;
+
+  &::-webkit-scrollbar {
+    display: none; 
+  }
+
+  scrollbar-width: none;
+  -ms-overflow-style: none; 
+}
+
+.admin.sidebar.expanded {
+  width: 281px;
+}
+.admin.sidebar.expanded .btn-expand {
+  transition: transform 0.3s ease;
+}
+
+.admin.sidebar.expanded .btn-expand {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+.admin-header {
+  padding: 24px 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: start;
+  align-items: center;
+}
+.admin-header img {
+  height: 48px;
+  width: auto;
+}
+
+ul.tabs {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.tabs > li {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.tab {
+  padding: 12px 16px;
+  display: block;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--clr-secondary);
+  display: flex;
+  justify-content: space-between;
+}
+
+.tab:hover {
+  background-color: var(--clr-muted);
+}
+
+.tab.active {
+  color: var(--clr-primary);
+  background-color: var(--clr-muted);
+}
+
+.expand-button {
+  display: none;
+  transition: transform 0.3s ease;
+}
+
+.tab:hover .expand-button {
+  display: block;
+}
+
+.tab.expand .expand-button {
+  display: block;
+  transform: rotate(180deg);
+}
+
+.tab.expand + .sub-tabs {
+  display: block;
+  transition: 2s ease;
+}
+
+.sub-tabs {
+  display: none;
+}
+
+.sub-tab {
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  margin-left: 36px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--clr-secondary);
+  display: flex;
+  justify-content: space-between;
+}
+
+.sub-tab:hover {
+  background-color: var(--clr-muted);
+}
+
+.sub-tab.active {
+  color: var(--clr-primary);
+  background-color: var(--clr-muted);
+}
+
+.btn-expand {
+  position: fixed;
+  top: 38px;
+  left: 72px;
+  transition: left 0.3s ease;
+  z-index: 999 !important;
+}
+
+.admin.sidebar.expanded .btn-expand {
+  left: 252px;
+  transition: left 0.3s ease;
+}

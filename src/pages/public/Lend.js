@@ -22,7 +22,7 @@ const Lend = () => {
   };
 
   return (
-    <div>
+    <div className="container-content">
       <BorrowingPost borrowingPosts={borrowingPosts} title="Lend" />
       <FAB icon="+" onClick={handleFabClick} />
     </div>

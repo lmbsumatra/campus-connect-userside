@@ -1,4 +1,7 @@
-/* Main sidebar styling */
+/************************/
+/*    Profile Sidebar   */
+/************************/
+
 .profile-sidebar {
   background-color: white;
   border-radius: 10px;
@@ -7,7 +10,6 @@
   overflow: hidden;
 }
 
-/* Style for the unordered list */
 .profile-sidebar ul {
   list-style-type: none; 
   padding: 0; 

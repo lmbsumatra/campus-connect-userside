@@ -1,7 +1,6 @@
 .icon-link > img {
     width: 40px;
     height: 40px;
-    filter: grayscale(100%), brightness(1);
   }
   
   .nav-icons .icon-link:hover img {

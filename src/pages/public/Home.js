@@ -66,10 +66,17 @@ const items = [
     owner: "Carlos Mendez",
     ownerImage: ownerImg,
     rating: 5,
-    tags: ["Tool", "Hardware", "Measurement", "Hardware", "Measurement", "Hardware", "Measurement"],
+    tags: [
+      "Tool",
+      "Hardware",
+      "Measurement",
+      "Hardware",
+      "Measurement",
+      "Hardware",
+      "Measurement",
+    ],
   },
 ];
-
 
 function Home() {
   const [borrowingPosts, setBorrowingPosts] = useState([]);
@@ -93,9 +100,13 @@ function Home() {
       <Header />
       <Subheader />
       <Categories />
-      <ItemList items={items} title="Listings" />
+      <div className="container-content">
+        <ItemList items={items} title="Listings" />
+      </div>
       <Banner />
-      <BorrowingPost borrowingPosts={borrowingPosts} />
+      <div className="container-content">
+        <BorrowingPost borrowingPosts={borrowingPosts} title="Posts" />
+      </div>
       <FAB icon="+" onClick={handleFabClick} />
     </div>
   );

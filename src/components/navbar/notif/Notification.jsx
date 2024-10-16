@@ -6,7 +6,7 @@ import "./style.css";
 const Notification = ({ showNotifications, toggleNotifications }) => {
   
   return (
-    <li className="nav-item">
+    <div className="">
       <a className="icon-link" href="#" onClick={toggleNotifications}>
         <img src={Bell} alt="Notification Icon" />
       </a>
@@ -28,7 +28,7 @@ const Notification = ({ showNotifications, toggleNotifications }) => {
           </div>
         </div>
       )}
-    </li>
+    </div>
   );
 };
 

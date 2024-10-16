@@ -8,7 +8,7 @@ import "./style.css";
 
 const UserDropdown = ({ showDropdown, toggleDropdown, handleClick }) => {
   return (
-    <li className="nav-item">
+    <div className="nav-item">
       <a className="icon-link" href="#" onClick={toggleDropdown}>
         <img src={UserIcon} alt="User Icon" className="user-icon" />
       </a>
@@ -65,7 +65,7 @@ const UserDropdown = ({ showDropdown, toggleDropdown, handleClick }) => {
           </div>
         </div>
       )}
-    </li>
+    </div>
   );
 };
 

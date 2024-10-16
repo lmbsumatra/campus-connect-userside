@@ -5,7 +5,7 @@ import "./style.css";
 
 const Message = ({ showDropdown, toggleDropdown }) => {
   return (
-    <li className="nav-item">
+    <div className="nav-item">
       <a className="icon-link" href="#" onClick={toggleDropdown}>
         <img src={MessageIcon} alt="Message Icon" className="message-icon" />
       </a>
@@ -50,7 +50,7 @@ const Message = ({ showDropdown, toggleDropdown }) => {
           </div>
         </div>
       )}
-    </li>
+    </div>
   );
 };
 

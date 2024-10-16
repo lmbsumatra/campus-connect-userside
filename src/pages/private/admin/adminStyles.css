@@ -1,0 +1,13 @@
+.admin-container {
+    display: flex;
+    background-color: #DFDFDF !important;
+    height: 100vh; /* Use viewport height for full coverage */
+}
+
+.admin-content {
+    width: auto;
+    padding-left: 126px; /* Adjust as needed */
+    height: 100%; /* Full height relative to its parent */
+    background-color: #DFDFDF !important; /* Keep this if needed */
+    flex: 1; /* Allow it to grow and fill space */
+}

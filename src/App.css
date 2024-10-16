@@ -25,20 +25,32 @@
   --ff-sans-normal: "Barlow", sans-serif;
   --clr-black: #131313;
 
-  --clr-buyer: linear-gradient(to right, #3C096C, #973AA8); /* Pink and peach */
---clr-seller: linear-gradient(to right, #641220, #DA1E37); /* Violet and pink */
---clr-owner: linear-gradient(to right, #2B9348, #BFD200); /* Blue and light cyan */
---clr-renter: linear-gradient(to right, #1E6091, #02C39A); /* Red and light peach */
---clr-rainbow: linear-gradient(to right, 
-  #ff0000, /* Red */
-  #ff7f00, /* Orange */
-  #ffff00, /* Yellow */
-  #00ff00, /* Green */
-  #00ffff, /* Cyan */
-  #0000ff, /* Blue */
-  #7f00ff  /* Violet */
-);
-  
+  --clr-buyer: linear-gradient(to right, #3c096c, #973aa8); /* Pink and peach */
+  --clr-seller: linear-gradient(
+    to right,
+    #641220,
+    #da1e37
+  ); /* Violet and pink */
+  --clr-owner: linear-gradient(
+    to right,
+    #2b9348,
+    #bfd200
+  ); /* Blue and light cyan */
+  --clr-renter: linear-gradient(
+    to right,
+    #1e6091,
+    #02c39a
+  ); /* Red and light peach */
+  --clr-rainbow: linear-gradient(
+    to right,
+    #ff0000,
+    /* Red */ #ff7f00,
+    /* Orange */ #ffff00,
+    /* Yellow */ #00ff00,
+    /* Green */ #00ffff,
+    /* Cyan */ #0000ff,
+    /* Blue */ #7f00ff /* Violet */
+  );
 }
 
 /* Text Colors */
@@ -177,14 +189,6 @@ hr {
   border-radius: 8px;
 }
 
-.custom-container {
-  padding: 3% 8%; /* Use percentage for responsiveness */
-  position: relative;
-  background-color: #f5f5f5 !important;
-}
-.custom-container .item {
-  margin-top: 10px;
-}
 /* Medium Devices */
 @media (max-width: 992px) {
   .custom-container {

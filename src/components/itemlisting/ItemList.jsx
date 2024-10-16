@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import moreImg from "../../assets/images/icons/moreImg.png";
 import "./itemStyles.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const ItemList = ({ items = [], title }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -29,13 +29,19 @@ const ItemList = ({ items = [], title }) => {
     navigate(`/rent/1`); // Navigate to the link when the card is clicked
   };
 
+  const location = useLocation();
+
   return (
-    <div className="custom-container item">
+    <div className="">
       <h2 className="fs-2 fw-bold">{title}</h2>
-      <div className="card-container">
+      <div className="card-container m-0">
         {items.length > 0 ? (
           items.map((item, index) => (
-            <div key={index} className="card-link" onClick={() => handleCardClick(item)}>
+            <div
+              key={index}
+              className="card-link"
+              onClick={() => handleCardClick(item)}
+            >
               <div className="card card-variant-1">
                 <div className="card-img-top">
                   <img src={item.image} alt="Card" />
@@ -62,7 +68,9 @@ const ItemList = ({ items = [], title }) => {
                 <div className="card-body d-flex">
                   <div>
                     <p className="card-text fw-bold">{item.title}</p>
-                    <p className="card-text text-accent fw-bold">{item.price}</p>
+                    <p className="card-text text-accent fw-bold">
+                      {item.price}
+                    </p>
                   </div>
                   <img
                     src={moreImg}

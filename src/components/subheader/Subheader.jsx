@@ -4,7 +4,7 @@ import "./style.css";
 const Subheader = () => {
   return (
     <div class="sub-header">
-      <div class="container main-features">
+      <div class="container max-xy main-features">
         <div class="feature">
           <h3 class="sub-title text-white">Easy Rentals</h3>
           <p class="sub-description text-light">

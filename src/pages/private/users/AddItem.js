@@ -3,16 +3,19 @@ import NavBar from "../../../components/navbar/navbar/NavBar";
 import Footer from "../../../components/footer/Footer";
 // modules
 import React, { useState } from "react";
-import { parseISO, eachWeekOfInterval, format, addDays } from "date-fns";
 // style
-import "./postFormStyles.css";
+import "../../../components/listings/style.css"
 
-const PostForm = () => {
+const AddItem = () => {
   const [images, setImages] = useState([]);
   const [rentalDurations, setRentalDurations] = useState([
     { from: "", fromTime: "", to: "", toTime: "" },
   ]);
   const [rentalRate, setRentalRate] = useState("");
+  const [lateCharges, setLateCharges] = useState("");
+  const [securityDeposit, setSecurityDeposit] = useState("");
+  const [repairReplacement, setRepairReplacement] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("pickup");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [specifications, setSpecifications] = useState([
     { title: "", description: "" },
@@ -22,12 +25,14 @@ const PostForm = () => {
   const [customDates, setCustomDates] = useState([]);
   const [weeklyDays, setWeeklyDays] = useState([]);
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleGroup = () => setIsExpanded(!isExpanded);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     setImages((prevImages) => [...prevImages, ...files]);
   };
-
   const handleAddSpecification = () => {
     setSpecifications([...specifications, { title: "", description: "" }]);
   };
@@ -55,7 +60,7 @@ const PostForm = () => {
   return (
     <>
       <div className="form-container custom-container">
-        <h2>Create new post</h2>
+        <h2>Add item</h2>
         <div className="form-preview">
           <div
             className="image-preview"
@@ -77,11 +82,9 @@ const PostForm = () => {
           />
           <div className="form-fields">
             <input type="text" placeholder="Item Name" className="borderless" />
+            <label>Price</label>
             <hr />
-            <div className="buttons">
-              <button className="btn btn-two" data="Message"></button>
-              <button className="btn btn-one">Borrow</button>
-            </div>
+            {/* Rental Duration and Dates, etc. */}
             <div className="groupby">
               <div className="rental-duration">
                 <label>Rental Duration</label>
@@ -160,8 +163,8 @@ const PostForm = () => {
                 {rentalDatesOption === "custom" && (
                   <div className="sub-groupby">
                     <input type="date" onChange={handleDateChange} />
+                    <label>Selected Dates:</label>
                     <div>
-                      <label>Selected Dates:</label>
                       {customDates.map((date, index) => (
                         <div key={index}>
                           {date}
@@ -251,6 +254,114 @@ const PostForm = () => {
                 )}
               </div>
             </div>
+
+            {/* Rental Rate Section */}
+            <div className="groupby  ">
+              <label>Rental Rate (per hour)</label>
+              <input
+                type="text"
+                value={rentalRate}
+                onChange={(e) => setRentalRate(e.target.value)}
+                placeholder="Add your price here per hour"
+              />
+            </div>
+
+            {/* Late Charges Section
+            <div className="groupby  ">
+              <label>Late Charges</label>
+              <input
+                type="text"
+                value={lateCharges}
+                onChange={(e) => setLateCharges(e.target.value)}
+                placeholder="Add if applicable"
+              />
+            </div>
+
+            Security Deposit Section
+            <div className="groupby  ">
+              <label>Security Deposit</label>
+              <input
+                type="text"
+                value={securityDeposit}
+                onChange={(e) => setSecurityDeposit(e.target.value)}
+                placeholder="Add if applicable"
+              />
+            </div>
+
+            Repair and Replacement Section
+            <div className="groupby  ">
+              <label>Repair and Replacement</label>
+              <input
+                type="text"
+                value={repairReplacement}
+                onChange={(e) => setRepairReplacement(e.target.value)}
+                placeholder="Add if applicable"
+              />
+            </div> */}
+
+            {/* Delivery Options */}
+            <div className="groupby  ">
+              <label>Delivery</label>
+              <div className="delivery-options">
+                <label>
+                  <input
+                    type="radio"
+                    name="delivery"
+                    value="pickup"
+                    checked={deliveryMethod === "pickup"}
+                    onChange={() => setDeliveryMethod("pickup")}
+                  />
+                  Pickup
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="delivery"
+                    value="meetup"
+                    checked={deliveryMethod === "meetup"}
+                    onChange={() => setDeliveryMethod("meetup")}
+                  />
+                  Meetup
+                </label>
+              </div>
+            </div>
+
+            <div className="groupby">
+              <div onClick={toggleGroup} style={{ cursor: "pointer" }}>
+                {isExpanded ? "v Hide Optional Fees" : "> Show Optional Fees"}
+              </div>
+              <div className={`optional-fees ${isExpanded ? "expanded" : ""}`}>
+                <div>
+                  <label>Late Charges</label>
+                  <input
+                    type="text"
+                    value={lateCharges}
+                    onChange={(e) => setLateCharges(e.target.value)}
+                    placeholder="Add if applicable"
+                  />
+                </div>
+                <div>
+                  <label>Security Deposit</label>
+                  <input
+                    type="text"
+                    value={securityDeposit}
+                    onChange={(e) => setSecurityDeposit(e.target.value)}
+                    placeholder="Add if applicable"
+                  />
+                </div>
+                <div>
+                  <label>Repair and Replacement</label>
+                  <input
+                    type="text"
+                    value={repairReplacement}
+                    onChange={(e) => setRepairReplacement(e.target.value)}
+                    placeholder="Add if applicable"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Agreement to Terms */}
             <div className="terms-checkbox">
               <input
                 type="checkbox"
@@ -263,12 +374,6 @@ const PostForm = () => {
               </label>
             </div>
           </div>
-        </div>
-        <div className="profile">
-          <div className="profile-name">Ebe Dencel</div>
-          <div className="rating">Rating: ⭐⭐⭐⭐⭐</div>
-          <button className="btn btn-two" data="View Listings"></button>
-          <button className="btn btn-two" data="View Profile"></button>
         </div>
         <div className="item-specifications">
           <label>Specifications</label>
@@ -327,4 +432,4 @@ const PostForm = () => {
   );
 };
 
-export default PostForm;
+export default AddItem;
