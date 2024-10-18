@@ -1,6 +1,3 @@
-// components
-import NavBar from "../../../../components/navbar/navbar/NavBar";
-import Footer from "../../../../components/footer/Footer";
 // modules
 import React, { useState } from "react";
 import { parseISO, eachWeekOfInterval, format, addDays } from "date-fns";
@@ -54,9 +51,9 @@ const PostForm = () => {
 
   return (
     <>
-      <div className="form-container custom-container">
+      <div className="container-content">
         <h2>Create new post</h2>
-        <div className="form-preview">
+        <div className="form-preview bg-white">
           <div
             className="image-preview"
             onClick={() => document.getElementById("imageInput").click()}
@@ -264,13 +261,13 @@ const PostForm = () => {
             </div>
           </div>
         </div>
-        <div className="profile">
+        <div className="profile bg-white">
           <div className="profile-name">Ebe Dencel</div>
           <div className="rating">Rating: ⭐⭐⭐⭐⭐</div>
           <button className="btn btn-two" data="View Listings"></button>
           <button className="btn btn-two" data="View Profile"></button>
         </div>
-        <div className="item-specifications">
+        <div className="item-specifications bg-white">
           <label>Specifications</label>
           <hr />
           <div>

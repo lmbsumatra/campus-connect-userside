@@ -4,12 +4,14 @@ import arrowDown from "../../../assets/images/icons/arrow-down.svg";
 import expandArrow from "../../../assets/images/icons/expandIcon.svg";
 import { useNavigate } from "react-router-dom";
 import ccLogo from "../../../assets/images/navbar/cc-logo.png";
+import dashboardIcon from "../../../assets/images/admin/sidebar/dashboard.svg";
 
 const AdminSidebar = () => {
   const [openTabs, setOpenTabs] = useState([]);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [activeSubTab, setActiveSubTab] = useState(null);
   const [expandSidebar, setExpandSidebar] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
   const handleExpandTab = (tab) => {
@@ -17,7 +19,6 @@ const AdminSidebar = () => {
       setOpenTabs((prev) =>
         prev.includes(tab) ? prev.filter((t) => t !== tab) : [...prev, tab]
       );
-
       setActiveTab(null);
       navigate("/dashboard");
     } else {
@@ -34,31 +35,51 @@ const AdminSidebar = () => {
   };
 
   const handleExpandSidebar = () => {
-    setExpandSidebar(!expandSidebar);
+    setExpandSidebar((prev) => !prev);
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!expandSidebar) {
+      setIsHovered(false);
+    }
   };
 
   return (
-    <div className={`admin sidebar ${expandSidebar ? "expanded" : ""}`}>
+    <div
+      className={`admin sidebar ${expandSidebar ? "expanded" : ""}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="admin-header">
         <img src={ccLogo} alt="Campus Connect Logo" />
-        <span>Admin</span>
+        {(expandSidebar || isHovered) && <span>Admin</span>}
       </div>
       {/* Tabs */}
       <div className="tabs">
-        <div onClick={() => handleExpandSidebar()}>
+        <div onClick={handleExpandSidebar}>
           <img
             src={expandArrow}
             alt="Expand sidebar button"
             className="btn-expand"
           />
         </div>
+        {/* Dashboard tab */}
         <div
           className={`tab ${activeTab === "dashboard" ? "active" : ""} ${
             openTabs.includes("dashboard") ? "expand" : ""
           }`}
           onClick={() => handleActiveTab(["dashboard", "/admin/dashboard"])}
         >
-          Dashboard
+          <img
+            src={dashboardIcon}
+            alt="Admin dashboard icon"
+            className="sidebar-icon"
+          />
+          {(expandSidebar || isHovered) && "Dashboard"}
         </div>
 
         {/* Users tab */}
@@ -69,10 +90,15 @@ const AdminSidebar = () => {
             }`}
             onClick={() => handleActiveTab(["users", "/admin/users"])}
           >
-            Users Management
+            <img
+              src={dashboardIcon}
+              alt="Admin dashboard icon"
+              className="sidebar-icon"
+            />
+            {(expandSidebar || isHovered) && "Users Management"}
             <img
               src={arrowDown}
-              className="expand-button"
+              className="expand-tab"
               onClick={() => handleExpandTab("users")}
               alt="Expand tab button"
             />
@@ -88,7 +114,12 @@ const AdminSidebar = () => {
                 handleActiveTab(["usersOverview", "/admin/user-overview"])
               }
             >
-              Users Overview
+              <div
+                className={`indication ${
+                  activeSubTab === "usersOverview" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Users Overview</>}
             </div>
             <div
               className={`sub-tab ${
@@ -101,7 +132,12 @@ const AdminSidebar = () => {
                 ])
               }
             >
-              Users Verification
+              <div
+                className={`indication ${
+                  activeSubTab === "usersVerification" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>User Verification</>}
             </div>
           </div>
         </div>
@@ -114,10 +150,15 @@ const AdminSidebar = () => {
             }`}
             onClick={() => handleActiveTab(["listings", "/admin/listings"])}
           >
-            Listing Management
+            <img
+              src={dashboardIcon}
+              alt="Admin dashboard icon"
+              className="sidebar-icon"
+            />
+            {(expandSidebar || isHovered) && "Listing Management"}
             <img
               src={arrowDown}
-              className="expand-button"
+              className="expand-tab"
               onClick={() => handleExpandTab("listings")}
               alt="Expand tab button"
             />
@@ -135,7 +176,12 @@ const AdminSidebar = () => {
                 handleActiveTab(["listingsOverview", "/admin/listing-overview"])
               }
             >
-              Listings Overview
+              <div
+                className={`indication ${
+                  activeSubTab === "listingsOverview" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Listing Overview</>}
             </div>
           </div>
         </div>
@@ -148,10 +194,15 @@ const AdminSidebar = () => {
             }`}
             onClick={() => handleActiveTab(["posts", "/admin/posts"])}
           >
-            Posts Management
+            <img
+              src={dashboardIcon}
+              alt="Admin dashboard icon"
+              className="sidebar-icon"
+            />
+            {(expandSidebar || isHovered) && "Posts Management"}
             <img
               src={arrowDown}
-              className="expand-button"
+              className="expand-tab"
               onClick={() => handleExpandTab("posts")}
               alt="Expand tab button"
             />
@@ -164,26 +215,36 @@ const AdminSidebar = () => {
                 activeSubTab === "postsOverview" ? "active" : ""
               }`}
               onClick={() =>
-                handleActiveTab(["postOverview", "/admin/post-overview"])
+                handleActiveTab(["postsOverview", "/admin/post-overview"])
               }
             >
-              Posts Overview
+              <div
+                className={`indication ${
+                  activeSubTab === "postsOverview" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Post Overview</>}
             </div>
           </div>
         </div>
-
-        {/* Sale tab */}
+        
+        {/* Sales tab */}
         <div>
           <div
             className={`tab ${activeTab === "sales" ? "active" : ""} ${
               openTabs.includes("sales") ? "expand" : ""
             }`}
-            onClick={() => handleActiveTab(["sales", "/admin/posts"])}
+            onClick={() => handleActiveTab(["sales", "/admin/sales"])}
           >
-            For Sale Management
+            <img
+              src={dashboardIcon}
+              alt="Admin dashboard icon"
+              className="sidebar-icon"
+            />
+            {(expandSidebar || isHovered) && "For Sale Management"}
             <img
               src={arrowDown}
-              className="expand-button"
+              className="expand-tab"
               onClick={() => handleExpandTab("sales")}
               alt="Expand tab button"
             />
@@ -199,35 +260,29 @@ const AdminSidebar = () => {
                 handleActiveTab(["salesOverview", "/admin/sales-overview"])
               }
             >
-              Sales Overview
+              <div
+                className={`indication ${
+                  activeSubTab === "salesOverview" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Sales Overview</>}
             </div>
           </div>
         </div>
 
-        {/* Transaction tab */}
-        <div>
-          <div
-            className={`tab ${activeTab === "transactions" ? "active" : ""} ${
-              openTabs.includes("transactions") ? "expand" : ""
-            }`}
-            onClick={() =>
-              handleActiveTab(["transactions", "/admin/transactions"])
-            }
-          >
-            Transaction Management
-          </div>
-        </div>
-
-        {/* Reports tab */}
-        <div>
-          <div
-            className={`tab ${activeTab === "reports" ? "active" : ""} ${
-              openTabs.includes("reports") ? "expand" : ""
-            }`}
-            onClick={() => handleActiveTab(["reports", "/admin/reports"])}
-          >
-            Reports Management
-          </div>
+        {/* Settings tab */}
+        <div
+          className={`tab ${activeTab === "settings" ? "active" : ""} ${
+            openTabs.includes("settings") ? "expand" : ""
+          }`}
+          onClick={() => handleActiveTab(["settings", "/admin/settings"])}
+        >
+          <img
+            src={dashboardIcon}
+            alt="Admin dashboard icon"
+            className="sidebar-icon"
+          />
+          {(expandSidebar || isHovered) && "Settings"}
         </div>
       </div>
     </div>

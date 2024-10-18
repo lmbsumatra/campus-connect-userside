@@ -59,9 +59,9 @@ const AddItem = () => {
 
   return (
     <>
-      <div className="form-container custom-container">
+      <div className="container-content">
         <h2>Add item</h2>
-        <div className="form-preview">
+        <div className="form-preview bg-white">
           <div
             className="image-preview"
             onClick={() => document.getElementById("imageInput").click()}
@@ -375,7 +375,7 @@ const AddItem = () => {
             </div>
           </div>
         </div>
-        <div className="item-specifications">
+        <div className="item-specifications bg-white">
           <label>Specifications</label>
           <hr />
           <div>

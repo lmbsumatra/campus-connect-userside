@@ -68,8 +68,8 @@ function ViewItem() {
 
   return (
     <div>
-      <div className="custom-container">
-        <div className="item-container row">
+      <div className="container-content">
+        <div className="item-container row bg-white">
           {/* image preview */}
           <div className="col-md-6 item-image">
             <img
@@ -180,7 +180,7 @@ function ViewItem() {
           </div>
         </div>
 
-        <div className="user-info mt-5">
+        <div className="user-info mt-5 bg-white">
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center">
               <img
@@ -212,7 +212,7 @@ function ViewItem() {
         </div>
 
         {/* item specs */}
-        <div className="item-specs mt-5">
+        <div className="item-specs mt-5 bg-white">
           <h4>Item Specifications</h4>
           <table className="specifications-table">
             <thead>

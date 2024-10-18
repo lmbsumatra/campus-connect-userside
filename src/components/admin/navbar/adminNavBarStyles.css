@@ -5,13 +5,14 @@
     display: flex;
     padding: 24px;
     gap: 16px;
+    align-items: center;
 }
 
 .searchbar {
     flex:1 ;
 }
 
-.searchbar input {
+.searchbar input, .toolbar {
     width: 100%;
     border: none;
     height: 81px;
@@ -20,9 +21,25 @@
     padding: 24px;
 }
 
+.toolbar {
+    width: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .searchbar .search-icon {
     position: absolute;
-    right: 120px;
+    right: 200px;
     top: 52px;
     z-index: 1;
+}
+
+.user-dropdown {
+    height: auto;
+    width: auto;
+    background-color: white;
+    position: absolute;
+    right: 20px;
+    top: 100px;
 }

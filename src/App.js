@@ -23,24 +23,30 @@ import AdminDashboard from "./pages/private/admin/dashboard/AdminDashboard.js";
 import Rent from "./pages/public/Rent.js";
 import Lend from "./pages/public/Lend.js";
 import Shop from "./pages/public/Shop.js";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import AdminSettings from "./pages/private/admin/settings/AdminSettings.js";
+import AdminLogin from "./pages/private/admin/login/AdminLogin.js";
 
 function App() {
   return (
     <BrowserRouter>
-      <Content />
+      <GoogleOAuthProvider clientId="">
+        <Content />
+      </GoogleOAuthProvider>
     </BrowserRouter>
   );
 }
 
 function Content() {
   const location = useLocation();
-  const showNavbarAndFooter = !location.pathname.startsWith('/admin');
+  const showNavbarAndFooter = !location.pathname.startsWith("/admin");
 
   return (
     <>
       {showNavbarAndFooter && <NavBar2 className="bg-dark" />}
       <Routes>
         {/* PUBLIC ROUTES */}
+        <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/login-signup" element={<LoginSignUp />} />
         <Route path="/*" element={<Home />} />
         <Route path="/home" element={<Home />} />
@@ -63,6 +69,7 @@ function Content() {
         <Route path="/admin" element={<Admin />}>
           <Route path="*" element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
       {showNavbarAndFooter && <Footer />}
