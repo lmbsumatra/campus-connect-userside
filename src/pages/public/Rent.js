@@ -5,11 +5,10 @@ import { Link, useLocation } from "react-router-dom";
 // Component Imports
 import NavBar from "../../components/navbar/navbar/NavBar";
 import ListingItem from "../../components/listings/ListingItem";
-import Footer from "../../components/footer/Footer";
 import ItemList from "../../components/itemlisting/ItemList";
 
 // Asset Imports
-import item1 from "../../assets/images/item/item_1.jpg";
+import item1 from "../../assets/images/item/item_1.jpg"
 import ownerImg from "../../assets/images/icons/user-icon.svg";
 
 // Data Constants

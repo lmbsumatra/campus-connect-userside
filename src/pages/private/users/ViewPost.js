@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 // import "./style.css";
 import { useParams } from "react-router-dom";
-import NavBar from "../../../components/navbar/navbar/NavBar";
-import Footer from "../../../components/footer/Footer";
 import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
 import itemImage from "../../../assets/images/item/item_1.jpg";
 

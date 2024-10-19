@@ -1,0 +1,78 @@
+/* * * * * * * * * */
+/*     Header      */
+/* * * * * * * * * */
+header {
+  background: url("../../../assets/images/header/header.jpg") no-repeat center center/cover;
+  height: 439px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.header-content {
+  max-width: 600px;
+  color: #fff;
+}
+
+.header-content h1 {
+  font-size: 36px;
+  margin-bottom: 16px;
+}
+
+.header-content p {
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+
+/* Main container for dropdown, search box, and button */
+.search-container {
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: white; 
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Dropdown menu */
+.search-dropdown {
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  height: 100%;
+  padding: 5px;
+  margin-right: 10px;
+  outline: none;
+  background-color: var(--clr-light);
+}
+
+/* Search box */
+.search-box {
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  margin-right: 10px;
+  flex: 2;
+  outline: none;
+  font-size: 16px;
+}
+
+/* Search button */
+.search-button {
+  background-color: var(--clr-main);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0px 15px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: var(--clr-dark);
+}

@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import "./inboxStyles.css";
 import UserIcon from "../../../../assets/images/icons/user-icon.svg";
-import NavBar from "../../../../components/navbar/navbar/NavBar";
-import Footer from "../../../../components/footer/Footer";
 import ProductCard from "./ProductCard";
 
 const messages = [

@@ -1,7 +1,6 @@
 import React from "react";
 import NavBar from "../../components/navbar/navbar/NavBar";
 import ListingItem from "../../components/listings/ListingItem";
-import Footer from "../../components/footer/Footer";
 import { Link } from "react-router-dom";
 import ItemList from "../../components/itemlisting/ItemList";
 

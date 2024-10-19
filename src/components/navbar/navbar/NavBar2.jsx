@@ -97,7 +97,7 @@ const NavBar2 = () => {
               </form>
             </div>
 
-            {!isLoggedIn ? (
+            {isLoggedIn ? (
               <div className="d-flex flex-end gap-2">
                 <Notification
                   showNotifications={showNotifications}
@@ -166,7 +166,7 @@ const NavBar2 = () => {
 
       {showLoginSignUp && (
         <div className="overlay">
-          <LoginSignUp tab={authTab} onClose={closeLoginSignUp} />
+          <LoginSignUp tab={"registerTab"} onClose={closeLoginSignUp} />
         </div>
       )}
     </div>

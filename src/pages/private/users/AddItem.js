@@ -1,6 +1,4 @@
-// components
-import NavBar from "../../../components/navbar/navbar/NavBar";
-import Footer from "../../../components/footer/Footer";
+
 // modules
 import React, { useState } from "react";
 // style

@@ -5,3 +5,53 @@
 5. npm install react-star-ratings
 6. npm install axios
 7. npm install stream-http https-browserify stream-browserify browserify-zlib
+
+
+
+BACKEND
+1. npm install sequelize mysql2
+2 npm install -g nodemon
+    a. add the ff line to package.json, under scripts
+    "start": "node index.js",  
+    "dev": "nodemon index.js"
+
+    b. run backend by "npm run dev"
+3. touch .env
+4. local .env file and add the following:
+    DB_HOST=localhost
+    DB_USER=your_username
+    DB_PASSWORD=your_password
+    DB_NAME=your_database
+    DB_PORT=3306  # or 3307 for the other instance
+5. make if u no have config/database.js // ewan need sa sequelize keme keme
+    const { Sequelize } = require('sequelize');
+    require('dotenv').config()
+
+    const sequelize = new Sequelize(
+        process.env.DB_NAME,
+        process.env.DB_USER,
+        process.env.DB_PASSWORD,
+        {
+            host: process.env.DB_HOST,
+            port: process.env.DB_PORT, // Include the port here
+            dialect: process.env.DB_DIALECT,
+            logging: false, // Set to true if you want to see SQL queries in the console
+        }
+    );
+
+    module.exports = sequelize;
+6. npm install bcrypt
+
+on using MVC:
+1. Create model
+2. Create controller and require the respective model
+3. Create route and require the respective controller
+4. add the route on index.js by:
+    const routeName = require('./path/of/route');
+    app.use(/url-you-want, routeName)
+
+Optional: 
+If encountered an error (may depend on what kind of error):
+1. Check if the user and password are correct
+2. Check if the db is created, has correct db name
+3. Check if you have multiple instances where mysqldb is running on two ports, then add the correce port.

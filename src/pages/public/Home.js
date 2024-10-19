@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 import NavBar from "../../components/navbar/navbar/NavBar";
-import Header from "../../components/header/Header";
+import Header from "../../components/users/header/Header"
 import Subheader from "../../components/subheader/Subheader";
 import Categories from "../../components/categories/Categories";
 import ItemList from "../../components/itemlisting/ItemList";
-import Banner from "../../components/banner/Banner";
+import Banner from "../../components/users/banner/Banner"
 import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
 import FAB from "../../components/fab/FAB";
-import Footer from "../../components/footer/Footer";
 
 import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";

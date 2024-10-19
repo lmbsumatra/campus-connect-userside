@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "../BorrowerPOV/postStyles.css";
-import NavBar from "../../navbar/navbar/NavBar.jsx";
-import Footer from "../../footer/Footer.jsx";
 import StarRating from "../../Rating/StarRating.jsx";
 import { items, users } from "../data.jsx";
 import BorrowingPost from "./Posts.jsx";

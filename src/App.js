@@ -17,7 +17,7 @@ import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx
 import ViewItem from "./components/listings/ViewItem";
 import AddItem from "./pages/private/users/AddItem.js";
 import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
-import Footer from "./components/footer/Footer.jsx";
+import Footer from "./components/users/footer/Footer.jsx";
 import Admin from "./pages/private/admin/Admin.js";
 import AdminDashboard from "./pages/private/admin/dashboard/AdminDashboard.js";
 import Rent from "./pages/public/Rent.js";

@@ -1,0 +1,31 @@
+create campus_connect_DB;
+
+use campus_connect_DB;
+
+// adding users table
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    middle_name VARCHAR(50),
+    last_name VARCHAR(50) NOT NULL,
+    role ENUM('admin', 'student') NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+// adding students table
+CREATE TABLE students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tup_id VARCHAR(15) UNIQUE,
+    user_id INT,
+    college ENUM('CAFA', 'CIE', 'CIT', 'CLA', 'COE', 'COS') NOT NULL,
+    scanned_id BLOB NOT NULL,
+    photo_with_id BLOB NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
