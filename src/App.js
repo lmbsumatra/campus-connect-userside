@@ -30,7 +30,7 @@ import AdminLogin from "./pages/private/admin/login/AdminLogin.js";
 function App() {
   return (
     <BrowserRouter>
-      <GoogleOAuthProvider clientId="">
+      <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
         <Content />
       </GoogleOAuthProvider>
     </BrowserRouter>

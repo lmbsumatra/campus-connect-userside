@@ -41,6 +41,8 @@ BACKEND
 
     module.exports = sequelize;
 6. npm install bcrypt
+// For google-auth
+7. npm install google-auth-library
 
 on using MVC:
 1. Create model

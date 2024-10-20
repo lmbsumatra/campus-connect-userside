@@ -96,6 +96,38 @@ const LoginSignUp = ({ tab, onClose }) => {
 
   const getBorderColor = (field) => (inputTriggers[field] ? "red" : "");
 
+  const responseMessage = async (response) => {
+    const token = response.credential;
+
+    // Send the token to your backend for verification
+    try {
+      const res = await fetch("http://localhost:3001/user/google-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }), // Send the ID token
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log("Google login successful:", data);
+        // Handle successful login, e.g., store token and navigate
+        navigate("/admin/dashboard");
+      } else {
+        const errorData = await res.json();
+        console.error("Google login failed:", errorData);
+        // alert("Google login failed: " + errorData.message);
+      }
+    } catch (error) {
+      console.error("Error logging in with Google:", error);
+    }
+  };
+  const errorMessage = (error) => {
+    console.log(error);
+  };
+
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitting registration form...");
@@ -159,7 +191,7 @@ const LoginSignUp = ({ tab, onClose }) => {
       } else {
         const errorData = await response.json();
         console.error("Login failed:", errorData);
-        alert("Login failed: " + errorData.message);
+        // alert("Login failed: " + errorData.message);
       }
     } catch (error) {
       console.error("Error logging in:", error);
@@ -186,7 +218,11 @@ const LoginSignUp = ({ tab, onClose }) => {
         </div>
       </div>
       <div className="auth-scrollable">
-        <form onSubmit={authTab === "loginTab" ? handleLoginSubmit : handleRegisterSubmit}>
+        <form
+          onSubmit={
+            authTab === "loginTab" ? handleLoginSubmit : handleRegisterSubmit
+          }
+        >
           {authTab === "loginTab" ? (
             <div className="auth-form">
               <h2>Welcome back</h2>
@@ -226,15 +262,19 @@ const LoginSignUp = ({ tab, onClose }) => {
                   Forgot Password
                 </button>
                 <GoogleLogin
-                  onSuccess={"responseMessage"}
-                  onError={"errorMessage"}
+                  onSuccess={responseMessage}
+                  onError={errorMessage}
+                   redirectUri="http://localhost:3000"
                 />
                 <div className="or-divider">
                   <span>or</span>
                 </div>
                 <p>
                   Don't have an account?{" "}
-                  <a onClick={() => handleTabClick("registerTab")} className="link">
+                  <a
+                    onClick={() => handleTabClick("registerTab")}
+                    className="link"
+                  >
                     Sign up here!
                   </a>
                 </p>
@@ -321,7 +361,9 @@ const LoginSignUp = ({ tab, onClose }) => {
                     <label>A photo holding your ID</label>
                     <div
                       className="upload-box"
-                      onClick={() => document.getElementById("uploadImageInput").click()}
+                      onClick={() =>
+                        document.getElementById("uploadImageInput").click()
+                      }
                     >
                       {uploadedImage ? (
                         <img
@@ -347,7 +389,9 @@ const LoginSignUp = ({ tab, onClose }) => {
                     <label>Scanned ID</label>
                     <div
                       className="upload-box"
-                      onClick={() => document.getElementById("uploadIdInput").click()}
+                      onClick={() =>
+                        document.getElementById("uploadIdInput").click()
+                      }
                     >
                       {uploadedId ? (
                         <img
@@ -432,7 +476,10 @@ const LoginSignUp = ({ tab, onClose }) => {
                 </div>
                 <p>
                   Already have an account?{" "}
-                  <a onClick={() => handleTabClick("loginTab")} className="link">
+                  <a
+                    onClick={() => handleTabClick("loginTab")}
+                    className="link"
+                  >
                     Log in here.
                   </a>
                 </p>

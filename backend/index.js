@@ -2,26 +2,43 @@ const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2");
 const sequelize = require("./config/database");
-const app = express();
 const studentAuthRoutes = require("./routes/StudentAuthRoute");
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }));
-const multer = require('multer');
+const dotenv = require("dotenv");
 
+dotenv.config();
+
+const app = express();
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Setup multer for handling multipart/form-data
+const multer = require("multer");
 const upload = multer();
-
-app.use(upload.none()); // This will parse incoming form data but not files
+app.use(upload.none());
 
 
 // CORS configuration
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    allowedHeaders: ["Content-Type", "X-Api-Key", "proxy"],
-  })
-);
+const corsOptions = {
+  origin: "http://localhost:3000",
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  next();
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
+
 // Routes
 app.use("/user", studentAuthRoutes);
 
@@ -29,8 +46,9 @@ app.use("/user", studentAuthRoutes);
 sequelize
   .sync()
   .then(() => {
-    app.listen(3001, () => {
-      console.log("Server is running on port 3001");
+    const PORT = process.env.PORT || 3001; // Use env variable for port
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   })
   .catch((error) => {
