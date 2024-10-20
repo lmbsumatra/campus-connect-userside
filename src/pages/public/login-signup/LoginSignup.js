@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./loginSignupStyle.css";
 import { GoogleLogin } from "@react-oauth/google";
@@ -11,6 +11,12 @@ const LoginSignUp = ({ tab, onClose }) => {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadedId, setUploadedId] = useState(null);
   const [selectedCollege, setSelectedCollege] = useState("Select your college");
+  const [imageTouched, setImageTouched] = useState(false);
+  const [idTouched, setIdTouched] = useState(false);
+  const [collegeTouched, setCollegeTouched] = useState(false);
+  const [inputWarning, setInputWarning] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const errorRef = useRef(null);
 
   // User data state
   const [userData, setUserData] = useState({
@@ -38,9 +44,16 @@ const LoginSignUp = ({ tab, onClose }) => {
     setAuthTab(tab);
   }, [tab]);
 
+  useEffect(() => {
+    console.log(selectedCollege);
+  }, [selectedCollege, inputWarning]);
+
   const handleTabClick = (tab) => {
     setAuthTab(tab);
     resetForm();
+    setErrorMessage();
+    setIdTouched(false);
+    setImageTouched(false);
   };
 
   const resetForm = () => {
@@ -60,7 +73,7 @@ const LoginSignUp = ({ tab, onClose }) => {
       password: false,
       firstName: false,
       lastName: false,
-      middleName: false,
+      // middleName: false,
       tupId: false,
       confirmPassword: false,
     });
@@ -70,15 +83,25 @@ const LoginSignUp = ({ tab, onClose }) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setImage(reader.result.split(",")[1]); // Save only the base64 part
+      reader.onloadend = () => setImage(reader.result.split(",")[1]);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSelectCollege = (eventKey) => {
-    setSelectedCollege(eventKey);
+  const handleImageClick = () => {
+    setImageTouched(true);
+    document.getElementById("uploadImageInput").click();
   };
 
+  const handleIdClick = () => {
+    setIdTouched(true);
+    document.getElementById("uploadIdInput").click();
+  };
+
+  const handleSelectCollege = (eventKey) => {
+    setSelectedCollege(eventKey);
+    setCollegeTouched(true);
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData((prevData) => ({ ...prevData, [name]: value }));
@@ -99,41 +122,65 @@ const LoginSignUp = ({ tab, onClose }) => {
   const responseMessage = async (response) => {
     const token = response.credential;
 
-    // Send the token to your backend for verification
     try {
       const res = await fetch("http://localhost:3001/user/google-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token }), // Send the ID token
-        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
       });
 
       if (res.ok) {
         const data = await res.json();
         console.log("Google login successful:", data);
-        // Handle successful login, e.g., store token and navigate
-        navigate("/admin/dashboard");
+        localStorage.setItem('token', data.token)
+        navigate("/");
       } else {
         const errorData = await res.json();
         console.error("Google login failed:", errorData);
-        // alert("Google login failed: " + errorData.message);
+        setErrorMessage(
+          errorData.message || "Google login failed. Please try again."
+        ); 
       }
     } catch (error) {
       console.error("Error logging in with Google:", error);
+      setErrorMessage(
+        "An unexpected error occurred during Google login. Please try again later."
+      );
     }
   };
-  const errorMessage = (error) => {
+
+  const errorGoogleMessage = (error) => {
     console.log(error);
+    setErrorMessage(
+      "An error occurred while processing the Google login. Please try again."
+    );
   };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting registration form...");
+    setErrorMessage("");
+
+    if (
+      !userData.firstName ||
+      !userData.lastName ||
+      !userData.email ||
+      !userData.password ||
+      !userData.confirmPassword ||
+      !userData.tupId ||
+      !selectedCollege ||
+      !uploadedId ||
+      !uploadedImage
+    ) {
+      setErrorMessage("Please fill in all required fields."); // Set error message for missing fields
+      errorRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to error message
+      return;
+    }
 
     if (userData.password !== userData.confirmPassword) {
-      alert("Passwords do not match");
+      setErrorMessage("Passwords do not match");
+      errorRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to error message
       return;
     }
 
@@ -158,19 +205,26 @@ const LoginSignUp = ({ tab, onClose }) => {
       if (response.ok) {
         const data = await response.json();
         console.log("User registered successfully:", data);
-        navigate("/success");
+        alert("Registered Successfully");
       } else {
         const errorData = await response.json();
         console.error("Registration failed:", errorData);
+        setErrorMessage(
+          errorData.message || "Registration failed. Please try again."
+        ); 
+        errorRef.current.scrollIntoView({ behavior: "smooth" });
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+      setErrorMessage("An unexpected error occurred. Please try again later."); 
+      errorRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
-
+  
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitting login form...");
+    setErrorMessage(""); 
 
     try {
       const response = await fetch("http://localhost:3001/user/login", {
@@ -187,14 +241,16 @@ const LoginSignUp = ({ tab, onClose }) => {
       if (response.ok) {
         const data = await response.json();
         console.log("Login successful:", data);
-        navigate("/dashboard"); // Redirect to a dashboard or home page
+        localStorage.setItem('token', data.token)
+        navigate("/");
       } else {
         const errorData = await response.json();
         console.error("Login failed:", errorData);
-        // alert("Login failed: " + errorData.message);
+        setErrorMessage(errorData.message || "Login failed. Please try again.");
       }
     } catch (error) {
       console.error("Error logging in:", error);
+      setErrorMessage("An unexpected error occurred. Please try again later.");
     }
   };
 
@@ -226,6 +282,13 @@ const LoginSignUp = ({ tab, onClose }) => {
           {authTab === "loginTab" ? (
             <div className="auth-form">
               <h2>Welcome back</h2>
+              <span
+                className={`${errorMessage ? "text-danger" : "text-secondary"}`}
+              >
+                {errorMessage
+                  ? errorMessage
+                  : "Please complete all required fields to log in."}
+              </span>
               <div>
                 <label>Email</label>
                 <input
@@ -263,8 +326,7 @@ const LoginSignUp = ({ tab, onClose }) => {
                 </button>
                 <GoogleLogin
                   onSuccess={responseMessage}
-                  onError={errorMessage}
-                   redirectUri="http://localhost:3000"
+                  onError={errorGoogleMessage}
                 />
                 <div className="or-divider">
                   <span>or</span>
@@ -282,7 +344,14 @@ const LoginSignUp = ({ tab, onClose }) => {
             </div>
           ) : (
             <div className="auth-form">
-              <h2>Connect and Earn</h2>
+              <h2 ref={errorRef}>Connect and Earn</h2>
+              <span
+                className={`${errorMessage ? "text-danger" : "text-secondary"}`}
+              >
+                {errorMessage
+                  ? errorMessage
+                  : "Please complete all required fields to register."}
+              </span>
               <section className="personal-details bordered-section">
                 <p>Personal Details</p>
                 <label>Input your complete name</label>
@@ -303,10 +372,10 @@ const LoginSignUp = ({ tab, onClose }) => {
                     name="middleName"
                     value={userData.middleName}
                     onChange={handleChange}
-                    onBlur={() => handleBlur("middleName")}
+                    // onBlur={() => handleBlur("middleName")}
                     placeholder="Middle name (optional)"
                     className="form-control"
-                    style={{ borderColor: getBorderColor("middleName") }}
+                    // style={{ borderColor: getBorderColor("middleName") }}
                   />
                   <input
                     type="text"
@@ -337,33 +406,44 @@ const LoginSignUp = ({ tab, onClose }) => {
                     required
                   />
                 </div>
-                <label>College</label>
-                <Dropdown onSelect={handleSelectCollege}>
-                  <Dropdown.Toggle
-                    id="college-dropdown"
-                    variant="success"
-                    className="w-100"
-                  >
-                    {selectedCollege}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item eventKey="CAFA">CAFA</Dropdown.Item>
-                    <Dropdown.Item eventKey="CIE">CIE</Dropdown.Item>
-                    <Dropdown.Item eventKey="CIT">CIT</Dropdown.Item>
-                    <Dropdown.Item eventKey="CLA">CLA</Dropdown.Item>
-                    <Dropdown.Item eventKey="COE">COE</Dropdown.Item>
-                    <Dropdown.Item eventKey="COS">COS</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+                <div>
+                  <label>College</label>
+                  <Dropdown onSelect={handleSelectCollege}>
+                    <Dropdown.Toggle
+                      id="college-dropdown"
+                      variant="success"
+                      className="w-100"
+                      style={{
+                        borderColor:
+                          collegeTouched === false &&
+                          selectedCollege === "Select your college"
+                            ? "red"
+                            : "",
+                      }}
+                    >
+                      {selectedCollege}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item eventKey="CAFA">CAFA</Dropdown.Item>
+                      <Dropdown.Item eventKey="CIE">CIE</Dropdown.Item>
+                      <Dropdown.Item eventKey="CIT">CIT</Dropdown.Item>
+                      <Dropdown.Item eventKey="CLA">CLA</Dropdown.Item>
+                      <Dropdown.Item eventKey="COE">COE</Dropdown.Item>
+                      <Dropdown.Item eventKey="COS">COS</Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </div>
 
                 <div className="image-upload-group">
                   <div>
                     <label>A photo holding your ID</label>
                     <div
                       className="upload-box"
-                      onClick={() =>
-                        document.getElementById("uploadImageInput").click()
-                      }
+                      onClick={handleImageClick}
+                      style={{
+                        borderColor:
+                          imageTouched && uploadedImage === null ? "red" : "",
+                      }}
                     >
                       {uploadedImage ? (
                         <img
@@ -389,9 +469,11 @@ const LoginSignUp = ({ tab, onClose }) => {
                     <label>Scanned ID</label>
                     <div
                       className="upload-box"
-                      onClick={() =>
-                        document.getElementById("uploadIdInput").click()
-                      }
+                      onClick={handleIdClick}
+                      style={{
+                        borderColor:
+                          idTouched && uploadedId === null ? "red" : "",
+                      }}
                     >
                       {uploadedId ? (
                         <img

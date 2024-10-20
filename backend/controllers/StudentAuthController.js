@@ -12,7 +12,7 @@ async function verify(token) {
   // Verify the ID token with Google's OAuth2 client
   const ticket = await client.verifyIdToken({
     idToken: token, // The ID token to verify
-    audience: process.env.GOOGLE_CLIENT_ID, 
+    audience: process.env.GOOGLE_CLIENT_ID,
   });
 
   // Return the decoded payload containing user information
@@ -86,7 +86,10 @@ exports.registerStudent = async (req, res) => {
     console.error("Registration error:", error);
     res
       .status(500)
-      .json({ message: "Error registering student", error: error.message });
+      .json({
+        message: "Failed registration. Please check your information",
+        error: error.message,
+      });
   }
 };
 
@@ -136,14 +139,16 @@ exports.googleLogin = async (req, res) => {
     // Check if the user exists
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ message: "User not found! Please register first." });
     }
 
     // If user exists, generate JWT token
     const jwtToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
-    res.status(200).json({ message: 'Login successful', token: jwtToken });
+    res.status(200).json({ message: "Login successful", token: jwtToken });
   } catch (error) {
     console.error("Google login error:", error);
-    res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({ message: "Invalid token" });
   }
 };

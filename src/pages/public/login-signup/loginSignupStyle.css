@@ -1,31 +1,36 @@
 .auth-container {
-  max-width: 664px; /* Define a max width */
+  max-width: 664px;
   margin: 20px auto;
-  padding: 20px;
+  padding: 8px;
   border-radius: 10px;
   background-color: white;
+  height: 90vh; 
+  overflow: hidden; 
+  position: relative;
 }
 
 .auth-scrollable {
-  max-height: 500px;
+  height: calc(100% - 100px);
   overflow-y: auto;
-  padding: 10px;
+  padding: 20px;
 }
 
 .close-button {
-  /* float: right; */
+  position: absolute;
+  top: 4px; 
+  right: 4px; 
   padding: 16px;
   height: 24px;
   width: 24px;
-  background-color: var(--clr-muted);
+  background-color: #333;
   border-radius: 100%;
   font-size: 24px;
   cursor: pointer;
-  color: #333;
+  color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
-  line-height: 2;
+
 }
 
 .tab-buttons {
