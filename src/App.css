@@ -10,6 +10,7 @@
 :root {
   --clr-primary: #2179c8;
   --clr-accent: #ff5400;
+  --clr-tertiary: #C31F3b;
   --clr-primary-darker: #1d63a0;
   --clr-primary-lighter: rgb(40, 135, 218);
   --clr-muted: rgb(241, 241, 241);

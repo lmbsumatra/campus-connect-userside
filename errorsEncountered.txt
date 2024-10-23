@@ -1,2 +1,6 @@
 1. m=credential_button_library:71 [GSI_LOGGER]: The given origin is not allowed for the given client ID.
     solution: https://stackoverflow.com/questions/68438293/the-given-origin-is-not-allowed-for-the-given-client-id-gsi
+
+2. Invalid options object. Dev Server has been initialized using an options object that does not match the API schema.
+- options.allowedHosts [0] should be a non-empty string.
+    solution: https://stackoverflow.com/questions/70374005/invalid-options-object-dev-server-has-been-initialized-using-an-options-object

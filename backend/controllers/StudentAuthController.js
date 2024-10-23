@@ -145,10 +145,53 @@ exports.googleLogin = async (req, res) => {
     }
 
     // If user exists, generate JWT token
-    const jwtToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    const jwtToken = jwt.sign(
+      { userId: user.user_id, role: user.role },
+      JWT_SECRET
+    );
+
     res.status(200).json({ message: "Login successful", token: jwtToken });
   } catch (error) {
     console.error("Google login error:", error);
     res.status(401).json({ message: "Invalid token" });
   }
 };
+
+exports.getUserInformation = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const student = await Student.findOne({ where: { user_id: userId } });
+    if (!student) {
+      return res.status(404).json({ message: "Student record not found" });
+    }
+
+    const user = await User.findByPk(student.user_id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User information retrieved successfully",
+      user: {
+        first_name: user.first_name,
+        middle_name: user.middle_name,
+        last_name: user.last_name,
+        email: user.email,
+        role: user.role,
+        password: user.password,
+        createdAt: user.createdAt
+      },
+      student: {
+        tup_id: student.tup_id,
+        college: student.college,
+        scanned_id: student.scanned_id.toString('base64'), // Convert Buffer to base64
+        photo_with_id: student.photo_with_id.toString('base64'), // Convert Buffer to base64
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving user information:", error);
+    res.status(500).json({ message: "Error retrieving user information", error: error.message });
+  }
+};
+

@@ -2,10 +2,10 @@ import React from "react";
 import NavBar from "../../components/navbar/navbar/NavBar";
 import ListingItem from "../../components/listings/ListingItem";
 import { Link } from "react-router-dom";
-import ItemList from "../../components/itemlisting/ItemList";
 
 import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
+import ItemSale from "../../components/itemsale/ItemSale";
 const items = [
   {
     image: item1,
@@ -104,7 +104,7 @@ const Shop = () => {
             </Link>
           </div>
           <div className="col-md-10">
-            <ItemList items={items}  title="Shop"/>
+            <ItemSale items={items}  title="Shop"/>
           </div>
         </div>
       </div>

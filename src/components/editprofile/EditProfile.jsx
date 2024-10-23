@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import "./ediProfileStyles.css";
+import React, { useState, useEffect } from "react";
+import FetchUserInfo from "../User/header/FetchUserInfo";
+import "./editProfileStyles.css";
 
 function EditProfile() {
   const [formData, setFormData] = useState({
@@ -13,9 +14,36 @@ function EditProfile() {
     birthday: "",
     username: "",
     email: "",
-    password: "",
-    confirmPassword: "",
   });
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
+  // useEffect(() => {}, [isModalOpen]);
+
+  useEffect(() => {
+    const setUserInfo = (data) => {
+      const { user, student } = data;
+      setFormData({
+        surname: user.last_name || "",
+        firstname: user.first_name || "",
+        middlename: user.middle_name || "",
+        year: student.year || "",
+        college: student.college || "",
+        course: student.course || "",
+        gender: user.gender || "",
+        birthday: user.birthday || "",
+        username: user.username || "",
+        email: user.email || "",
+      });
+    };
+
+    FetchUserInfo(setUserInfo, setErrorMessage);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -24,14 +52,55 @@ function EditProfile() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handlePasswordChange = (e) => {
+    setPasswordData({
+      ...passwordData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic here
+
+    // Validate password inputs
+    if (passwordData.newPassword !== passwordData.confirmNewPassword) {
+      setErrorMessage("New passwords do not match.");
+      return;
+    }
+
+    // Call the API to update the user's password
+    const response = await fetch("http://localhost:3001/user/updatePassword", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      }),
+    });
+
+    if (response.ok) {
+      setErrorMessage("");
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+      });
+      setModalOpen(false); // Close modal on success
+    } else {
+      const errorData = await response.json();
+      setErrorMessage(
+        errorData.message || "Password update failed. Please try again."
+      );
+    }
   };
 
   return (
     <div className="container rounded bg-white mt-2">
-      <form onSubmit={handleSubmit} className="edit-profile-form">
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      <form className="edit-profile-form">
         <div className="form-section personal-details">
           <h3 className="section-label">Personal Details</h3>
           <div className="details-grid">
@@ -112,7 +181,6 @@ function EditProfile() {
                 name="birthday"
                 value={formData.birthday}
                 onChange={handleChange}
-                placeholder="Example Input"
               />
             </div>
           </div>
@@ -142,24 +210,16 @@ function EditProfile() {
               />
             </div>
             <div className="form-group">
-              <label>Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Example Input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Confirm Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Example Input"
-              />
+              <label>Change Password</label>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  setModalOpen(true);
+                }}
+              >
+                Change Password
+              </button>
             </div>
           </div>
         </div>
@@ -175,10 +235,105 @@ function EditProfile() {
                 onChange={handleChange}
               />
             </div>
-            {/* Add any other verification inputs here */}
           </div>
         </div>
+
+        <button type="submit">Save Changes</button>
       </form>
+
+      {isModalOpen && (
+        <div className="change-pass-window">
+          <div className="change-pass-window-content">
+            <h3>Change Password</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Current Password</label>
+                <input
+                  type="password"
+                  name="currentPassword"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Enter Current Password"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>New Password</label>
+                <input
+                  type="password"
+                  name="newPassword"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Enter New Password"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Confirm New Password</label>
+                <input
+                  type="password"
+                  name="confirmNewPassword"
+                  value={passwordData.confirmNewPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Confirm New Password"
+                  required
+                />
+              </div>
+              <button type="submit">Submit</button>
+              <button type="button" onClick={() => setModalOpen(false)}>
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Change Password</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Current Password</label>
+                <input
+                  type="password"
+                  name="currentPassword"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Enter Current Password"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>New Password</label>
+                <input
+                  type="password"
+                  name="newPassword"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Enter New Password"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Confirm New Password</label>
+                <input
+                  type="password"
+                  name="confirmNewPassword"
+                  value={passwordData.confirmNewPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="Confirm New Password"
+                  required
+                />
+              </div>
+              <button type="submit">Submit</button>
+              <button type="button" onClick={() => setModalOpen(false)}>
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
