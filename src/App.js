@@ -27,6 +27,9 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import AdminSettings from "./pages/private/admin/settings/AdminSettings.js";
 import AdminLogin from "./pages/private/admin/login/AdminLogin.js";
 
+import PostDashboard from "./pages/private/admin/dashboard/PostManagement/PostDashboard.js";
+import PostOverview from "./pages/private/admin/dashboard/PostManagement/PostOverview.js";
+
 function App() {
   return (
     <BrowserRouter>
@@ -69,6 +72,8 @@ function Content() {
         <Route path="/admin" element={<Admin />}>
           <Route path="*" element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="posts" element={<PostDashboard />} />
+          <Route path="/admin/post-overview" element={<PostOverview />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>

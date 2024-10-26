@@ -1,0 +1,17 @@
+/* Thumbnail Placeholder */
+.thumbnail-placeholder {
+    width: 50px;
+    height: 50px;
+    background-color: #e0e0e0;
+  }
+  
+  /* Remove vertical borders in the table */
+  .table-bordered td,
+  .table-bordered th {
+    border: none;
+  }
+  
+  .table-bordered {
+    border: none;
+  }
+  

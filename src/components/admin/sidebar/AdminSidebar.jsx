@@ -186,7 +186,7 @@ const AdminSidebar = () => {
           </div>
         </div>
 
-        {/* Posts tab */}
+        {/* Posts Management Tab */}
         <div>
           <div
             className={`tab ${activeTab === "posts" ? "active" : ""} ${
@@ -208,24 +208,22 @@ const AdminSidebar = () => {
             />
           </div>
           <div
-            className={`sub-tabs ${openTabs.includes("posts") ? "show" : ""}`}
+              className={`sub-tabs ${openTabs.includes("posts") ? "show" : ""}`}
           >
-            <div
-              className={`sub-tab ${
-                activeSubTab === "postsOverview" ? "active" : ""
-              }`}
-              onClick={() =>
-                handleActiveTab(["postsOverview", "/admin/post-overview"])
-              }
-            >
-              <div
-                className={`indication ${
-                  activeSubTab === "postsOverview" ? "active" : ""
-                }`}
-              ></div>
-              {(expandSidebar || isHovered) && <>Post Overview</>}
-            </div>
+          <div className={`sub-tab ${activeSubTab === "postsOverview" ? "active" : ""}`}
+         onClick={() => handleActiveTab(["postsOverview", "/admin/post-overview"])}
+          >
+           <div className={`indication ${activeSubTab === "postsOverview" ? "active" : ""}`}
+          ></div>
+            {(expandSidebar || isHovered) && <>Posts</>}
           </div>
+          <div className={`sub-tab ${activeSubTab === "postsApproval" ? "active" : ""}`}
+          onClick={() => handleActiveTab(["postsApproval", "/admin/post-approval"])}>
+          <div className={`indication ${activeSubTab === "postsApproval" ? "active" : ""}`}>
+          </div>
+            {(expandSidebar || isHovered) && <>Posts Approval</>}
+          </div>
+        </div>
         </div>
         
         {/* Sales tab */}
