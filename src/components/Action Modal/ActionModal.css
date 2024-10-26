@@ -1,0 +1,27 @@
+.modal-body .border {
+    border-color: #e0e0e0;
+  }
+  
+  .modal-body h5 {
+    font-weight: bold;
+  }
+  
+  .badge {
+    font-size: 0.9rem;
+  }
+  
+  .text-primary {
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+
+.text-warning {
+    font-style: italic;
+  }
+  
