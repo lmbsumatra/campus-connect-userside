@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
 
 // Component Imports
-import StarRating from "../../../components/Rating/StarRating.jsx";
 import UserItemList from "../../../components/User/LendersPOV/UserItemList.jsx";
 import TransactionsTable from "../../../components/User/LendersPOV/Transactions.jsx";
 import ProfileSidebar from "../../../components/User/sidebar/ProfileSidebar.jsx";

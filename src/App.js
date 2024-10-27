@@ -20,7 +20,7 @@ import AddListing from "./pages/private/users/new-listing/AddListing.js";
 import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
 import Footer from "./components/users/footer/Footer.jsx";
 import Admin from "./pages/private/admin/Admin.js";
-import AdminDashboard from "./pages/private/admin/dashboard/AdminDashboard.js";
+import AdminDashboard from "./pages/private/admin/dashboard/admindashboard/AdminDashboard.js";
 import Rent from "./pages/public/Rent.js";
 import Lend from "./pages/public/Lend.js";
 import Shop from "./pages/public/Shop.js";
