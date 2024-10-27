@@ -54,8 +54,8 @@ module.exports = (sequelize) => {
     });
 
     Post.associate = (models) => {
-        Post.hasMany(models.PostRequestDate, {
-            foreignKey: 'post_id',
+        Post.hasMany(models.RentalDate, {
+            foreignKey: 'item_id',
             as: 'rental_dates',
         });
         Post.belongsTo(models.User, {

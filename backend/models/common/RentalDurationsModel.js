@@ -1,10 +1,9 @@
-// models/ListingRentalDuration.js
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    class ListingRentalDuration extends Model {}
+    class Duration extends Model {}
 
-    ListingRentalDuration.init({
+    Duration.init({
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -14,7 +13,7 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'listing_rental_dates',
+                model: 'dates',
                 key: 'id',
             },
             onDelete: 'CASCADE',
@@ -29,17 +28,17 @@ module.exports = (sequelize) => {
         },
     }, {
         sequelize,
-        modelName: 'ListingRentalDuration',
-        tableName: 'listing_rental_durations',
+        modelName: 'Duration',
+        tableName: 'durations',
         timestamps: false,
     });
 
-    ListingRentalDuration.associate = (models) => {
-        ListingRentalDuration.belongsTo(models.ListingRentalDate, {
+    Duration.associate = (models) => {
+        Duration.belongsTo(models.RentalDate, {
             foreignKey: 'date_id',
             as: 'date',
         });
     };
 
-    return ListingRentalDuration;
+    return Duration;
 };

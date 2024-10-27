@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import "./style.css";
+// import "./style.css"; // Uncomment if you have a CSS file to import
 import { useParams } from "react-router-dom";
 import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
 import itemImage from "../../../assets/images/item/item_1.jpg";
@@ -9,7 +9,7 @@ import axios from "axios";
 
 function ViewPost() {
   const { id } = useParams();
-  const [selectedPost, setselectedPost] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,13 +19,9 @@ function ViewPost() {
     const fetchItem = async () => {
       try {
         const response = await axios.get(`http://localhost:3001/posts/${id}`);
-        console.log("Response data:", response.data);
-
-        setselectedPost(response.data);
+        setSelectedPost(response.data);
 
         const fetchedTags = response.data.tags;
-        console.log("Fetched tags:", fetchedTags);
-
         let parsedTags = [];
         if (Array.isArray(fetchedTags)) {
           parsedTags = fetchedTags;
@@ -36,8 +32,6 @@ function ViewPost() {
             parsedTags = fetchedTags.split(",").map((tag) => tag.trim());
           }
         }
-        console.log("parsedTags tags:", parsedTags);
-
         setTags(parsedTags);
       } catch (err) {
         setError(err.message);
@@ -63,19 +57,12 @@ function ViewPost() {
 
   const {
     itemImage: itemImageUrl = itemImage,
-    itemCategory = "N/A",
-    title = "N/A",
-    rating = 0,
-    price = "0",
-    availableDates = [],
-    availableDuration = [],
-    lateCharges = "0",
-    securityDeposit = "0",
-    repairAndReplacement = "N/A",
+    post_item_name = "N/A",
+    rental_dates = [],
     userProfilePicture: userProfilePic = userProfilePicture,
-    userName = "Unknown User",
+    renter = {},
     userRating = 0,
-    itemDescription = "No description available.",
+    description = "No description available.",
   } = selectedPost;
 
   let specifications = {};
@@ -103,11 +90,7 @@ function ViewPost() {
       <div className="container-content">
         <div className="item-container row bg-white">
           <div className="col-md-6 item-image">
-            <img
-              src={itemImageUrl}
-              alt="Item"
-              className="img-container img-fluid"
-            />
+            <img src={itemImageUrl} alt="Item" className="img-container img-fluid" />
           </div>
 
           <div className="col-md-6 item-desc">
@@ -117,29 +100,25 @@ function ViewPost() {
             <div className="d-flex justify-content-between align-items-center mb-4">
               <p className="mb-0">
                 <i>Looking for </i>
-                <strong>{selectedPost.post_item_name}</strong>
+                <strong>{post_item_name}</strong>
               </p>
             </div>
             <div className="mt-5 d-flex justify-content-end">
-              <button className="btn btn-rectangle secondary no-fill me-2">
-                Message
-              </button>
-              <button className="btn btn-rectangle primary no-fill me-2">
-                Offer
-              </button>
+              <button className="btn btn-rectangle secondary no-fill me-2">Message</button>
+              <button className="btn btn-rectangle primary no-fill me-2">Offer</button>
             </div>
 
             <hr />
 
             <p>
               <strong>Request Dates</strong>
-              {selectedPost.rental_dates.map((dateObj) => (
+              {rental_dates.map((rental) => (
                 <button
-                  key={dateObj.rental_date}
+                  key={rental.date}
                   className="btn btn-rounded thin me-2 ms-2"
-                  onClick={() => setSelectedDate(dateObj.rental_date)}
+                  onClick={() => setSelectedDate(rental.date)}
                 >
-                  {formatDate(dateObj.rental_date)}
+                  {formatDate(rental.date)}
                 </button>
               ))}
             </p>
@@ -147,42 +126,16 @@ function ViewPost() {
             <div>
               <p>
                 <strong>Request Times</strong>{" "}
-                {selectedDate ? (
-                  formatDate(selectedDate)
-                ) : (
-                  <i>Please select a preferred date</i>
-                )}
-                :
+                {selectedDate ? formatDate(selectedDate) : <i>Please select a preferred date</i>}:
               </p>
-              {(selectedDate &&
-                selectedPost.rental_dates
-                  .find((date) => date.rental_date === selectedDate)
+              {selectedDate &&
+                rental_dates
+                  .find((rental) => rental.date === selectedDate)
                   ?.durations?.map((duration, index) => (
-                    <button
-                      key={index}
-                      className="btn btn-rounded thin me-2 ms-2"
-                    >
-                      {`${formatTimeTo12Hour(
-                        duration.rental_time_from
-                      )} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
+                    <button key={index} className="btn btn-rounded thin me-2 ms-2">
+                      {`${formatTimeTo12Hour(duration.rental_time_from)} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
                     </button>
-                  ))) || <p>No times available</p>}
-            </div>
-
-            <div>
-              <p>
-                <strong>Available Duration</strong> {selectedDate}:
-              </p>
-              <div>
-                {availableDuration.map((time, index) => (
-                  <button
-                    key={index}
-                    className="btn btn-rounded thin me-2 ms-2"
-                  >
-                    {time}
-                  </button>
-                ))}
-              </div>
+                  )) || <p>No times available</p>}
             </div>
           </div>
         </div>
@@ -190,17 +143,10 @@ function ViewPost() {
         <div className="user-info mt-5 bg-white">
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center">
-              <img
-                src={userProfilePic}
-                alt="Profile"
-                className="profile-pic me-2"
-              />
+              <img src={userProfilePic} alt="Profile" className="profile-pic me-2" />
               <div>
-                <a
-                  href={`/userprofile/${userName}`}
-                  className="text-dark small text-decoration-none"
-                >
-                  {selectedPost.renter.first_name}
+                <a href={`/userprofile/${renter.first_name}`} className="text-dark small text-decoration-none">
+                  {renter.first_name}
                 </a>
               </div>
             </div>
@@ -209,12 +155,8 @@ function ViewPost() {
               {"★".repeat(Math.floor(userRating))}
               {"☆".repeat(5 - Math.floor(userRating))}
             </div>
-            <button className="btn btn-rectangle secondary me-2">
-              View Listings
-            </button>
-            <button className="btn btn-rectangle secondary me-2">
-              View Profile
-            </button>
+            <button className="btn btn-rectangle secondary me-2">View Listings</button>
+            <button className="btn btn-rectangle secondary me-2">View Profile</button>
           </div>
         </div>
 
@@ -230,9 +172,7 @@ function ViewPost() {
             <tbody>
               {itemSpecifications.map((spec, index) => (
                 <tr key={index}>
-                  <td>
-                    <strong>{spec.label}</strong>
-                  </td>
+                  <td><strong>{spec.label}</strong></td>
                   <td>{spec.value}</td>
                 </tr>
               ))}
@@ -242,15 +182,13 @@ function ViewPost() {
           <hr />
 
           <h4>Item Description</h4>
-          <p>{selectedPost.description}</p>
+          <p>{description}</p>
           <div>
             <strong>Tags:</strong>
             {Array.isArray(tags) && tags.length > 0 ? (
               <div className="tags-container">
                 {tags.map((tag, index) => (
-                  <span key={index} className="badge bg-primary me-2">
-                    {tag}
-                  </span>
+                  <span key={index} className="badge bg-primary me-2">{tag}</span>
                 ))}
               </div>
             ) : (
