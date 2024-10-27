@@ -114,3 +114,22 @@
   padding: 0px 8px;
   font-size: 14px;
 }
+.btn.btn-rounded.thin.primary {
+  color: white;
+  border-radius: 100px;
+  border: 1px solid var(--clr-primary);
+  background-color: var(--clr-primary);
+  border-radius: 12px;
+  padding: 0px 8px;
+  font-size: 14px;
+}
+
+.btn.btn-rounded.thin.primary:hover {
+  color: var(--clr-secondary);
+  border-radius: 100px;
+  border: 1px solid var(--clr-primary-darker);
+  background-color: var(--clr-primary-darker);
+  border-radius: 12px;
+  padding: 0px 8px;
+  font-size: 14px;
+}

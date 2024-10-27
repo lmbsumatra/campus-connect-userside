@@ -2,14 +2,28 @@ import React, { useEffect, useState } from "react";
 import NavBar from "../../components/navbar/navbar/NavBar";
 import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
 import FAB from "../../components/fab/FAB";
+import axios from "axios";
 
 const Lend = () => {
-  const [borrowingPosts, setBorrowingPosts] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/Posts.json")
-      .then((response) => response.json())
-      .then((data) => setBorrowingPosts(data.borrowingPosts));
+    const fetchItem = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/posts/info`);
+        console.log("Response data:", response.data);
+
+        setPosts(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItem();
   }, []);
 
   const handleFabClick = (action) => {
@@ -22,7 +36,7 @@ const Lend = () => {
 
   return (
     <div className="container-content">
-      <BorrowingPost borrowingPosts={borrowingPosts} title="Lend" />
+      <BorrowingPost borrowingPosts={posts} title="Lend" />
       <FAB icon="+" onClick={handleFabClick} />
     </div>
   );

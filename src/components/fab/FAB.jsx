@@ -14,7 +14,7 @@ const FAB = ({ icon, onClick }) => {
     navigate("/new-post");
   }
   function addItem() {
-    navigate("/add-item");
+    navigate("/add-listing");
   }
 
   return (

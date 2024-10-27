@@ -3,6 +3,8 @@ const cors = require("cors");
 const mysql = require("mysql2");
 const sequelize = require("./config/database");
 const studentAuthRoutes = require("./routes/StudentAuthRoute");
+const listingRoutes = require("./routes/ListingRoute");
+const postRoutes = require("./routes/PostRoute");
 const dotenv = require("dotenv");
 
 dotenv.config();
@@ -17,7 +19,6 @@ app.use(express.urlencoded({ extended: true }));
 const multer = require("multer");
 const upload = multer();
 app.use(upload.none());
-
 
 // CORS configuration
 const corsOptions = {
@@ -41,6 +42,10 @@ app.use((err, req, res, next) => {
 
 // Routes
 app.use("/user", studentAuthRoutes);
+
+app.use("/listings", listingRoutes);
+
+app.use("/posts", postRoutes);
 
 // Sync database and start server
 sequelize

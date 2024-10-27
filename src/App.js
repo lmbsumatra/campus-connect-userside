@@ -11,11 +11,12 @@ import Home from "./pages/public/Home.js";
 import Profile from "./pages/private/users/Profile.js";
 import ViewPost from "./pages/private/users/ViewPost.js";
 import PostForm from "./pages/private/users/new-post/PostForm.js";
+import AddPost from "./pages/private/users/new-posting/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/MyRentals.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
 import ViewItem from "./components/listings/ViewItem";
-import AddItem from "./pages/private/users/AddItem.js";
+import AddListing from "./pages/private/users/new-listing/AddListing.js";
 import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
 import Footer from "./components/users/footer/Footer.jsx";
 import Admin from "./pages/private/admin/Admin.js";
@@ -62,8 +63,9 @@ function Content() {
         {/* PRIVATE ROUTES */}
         <Route path="/lend/:id" element={<ViewPost />} />
         <Route path="/rent/:id" element={<ViewItem />} />
-        <Route path="/new-post" element={<PostForm />} />
-        <Route path="/add-item" element={<AddItem />} />
+        <Route path="/new-post2" element={<PostForm />} />
+        <Route path="/new-post" element={<AddPost />} />
+        <Route path="/add-listing" element={<AddListing />} />
         <Route path="/messages" element={<MessagePage />} />
         {/* USER PROFILE */}
         <Route path="/profile/*" element={<Profile />} />

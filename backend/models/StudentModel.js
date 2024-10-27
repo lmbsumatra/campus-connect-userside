@@ -10,6 +10,14 @@ Student.init(
       autoIncrement: true,
       primaryKey: true,
     },
+    user_id: { 
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'users', 
+        key: 'user_id',
+      },
+    },
     tup_id: {
       type: DataTypes.STRING(15),
       unique: true,
@@ -34,7 +42,6 @@ Student.init(
   }
 );
 
-// Establishing relationship
-Student.belongsTo(User, { foreignKey: "user_id" });
+Student.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
 module.exports = Student;

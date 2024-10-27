@@ -1,89 +1,55 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 import NavBar from "../../components/navbar/navbar/NavBar";
-import Header from "../../components/users/header/Header"
+import Header from "../../components/users/header/Header";
 import Subheader from "../../components/subheader/Subheader";
 import Categories from "../../components/categories/Categories";
 import ItemList from "../../components/itemlisting/ItemList";
-import Banner from "../../components/users/banner/Banner"
+import Banner from "../../components/users/banner/Banner";
 import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
 import FAB from "../../components/fab/FAB";
 
 import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
 
-const items = [
-  {
-    image: item1,
-    title: "Hammer",
-    price: "₱ 600",
-    owner: "Alice Reyes",
-    ownerImage: ownerImg,
-    rating: 4,
-    tags: ["Tool", "Hardware", "Essential"],
-  },
-  {
-    image: item1,
-    title: "Screwdriver",
-    price: "₱ 300",
-    owner: "John Doe",
-    ownerImage: ownerImg,
-    rating: 5,
-    tags: ["Tool", "Hardware", "Handy"],
-  },
-  {
-    image: item1,
-    title: "Pliers",
-    price: "₱ 450",
-    owner: "Maria Santos",
-    ownerImage: ownerImg,
-    rating: 3,
-    tags: ["Tool", "Hardware", "Essential"],
-  },
-  {
-    image: item1,
-    title: "Chisel",
-    price: "₱ 350",
-    owner: "Robert Garcia",
-    ownerImage: ownerImg,
-    rating: 2,
-    tags: ["Tool", "Hardware", "Precision"],
-  },
-  {
-    image: item1,
-    title: "Saw",
-    price: "₱ 700",
-    owner: "Liza Cruz",
-    ownerImage: ownerImg,
-    rating: 4,
-    tags: ["Tool", "Hardware", "Cutting"],
-  },
-  {
-    image: item1,
-    title: "Level",
-    price: "₱ 400",
-    owner: "Carlos Mendez",
-    ownerImage: ownerImg,
-    rating: 5,
-    tags: [
-      "Tool",
-      "Hardware",
-      "Measurement",
-      "Hardware",
-      "Measurement",
-      "Hardware",
-      "Measurement",
-    ],
-  },
-];
-
 function Home() {
-  const [borrowingPosts, setBorrowingPosts] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("/Posts.json")
-      .then((response) => response.json())
-      .then((data) => setBorrowingPosts(data.borrowingPosts));
+    const fetchItem = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/posts/info`);
+        console.log("Response data:", response.data);
+
+        setPosts(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItem();
+  }, []);
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/listings/info`);
+        console.log("Response data:", response.data);
+
+        setListings(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItem();
   }, []);
 
   const handleFabClick = (action) => {
@@ -100,11 +66,11 @@ function Home() {
       <Subheader />
       <Categories />
       <div className="container-content">
-        <ItemList items={items} title="Listings" />
+        <ItemList listings={listings} title="Listings" />
       </div>
       <Banner />
       <div className="container-content">
-        <BorrowingPost borrowingPosts={borrowingPosts} title="Posts" />
+      <BorrowingPost borrowingPosts={posts} title="Lend" />
       </div>
       <FAB icon="+" onClick={handleFabClick} />
     </div>

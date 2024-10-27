@@ -7,7 +7,7 @@ import itemImage from "../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../utils/timeFormat";
 
-function ViewItem() {
+function ViewPost() {
   const { id } = useParams();
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -304,4 +304,4 @@ function ViewItem() {
   );
 }
 
-export default ViewItem;
+export default ViewPost;

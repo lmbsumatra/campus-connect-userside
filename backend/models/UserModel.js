@@ -34,4 +34,16 @@ const User = sequelize.define('users', {
     }
 });
 
+User.associate = (models) => {
+    User.hasMany(models.Listing, {
+        foreignKey: 'owner_id',
+        as: 'listings',
+    });
+    
+    User.hasOne(models.Student, { 
+        foreignKey: 'user_id',
+        as: 'student',
+    });
+};
+
 module.exports = User;

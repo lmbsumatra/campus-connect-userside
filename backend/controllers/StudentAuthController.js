@@ -174,6 +174,7 @@ exports.getUserInformation = async (req, res) => {
     res.status(200).json({
       message: "User information retrieved successfully",
       user: {
+        user_id: user.user_id,
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,

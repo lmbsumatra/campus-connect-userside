@@ -1,6 +1,7 @@
 // React Imports
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import axios from "axios";
 
 // Component Imports
 import NavBar from "../../components/navbar/navbar/NavBar";
@@ -8,76 +9,31 @@ import ListingItem from "../../components/listings/ListingItem";
 import ItemList from "../../components/itemlisting/ItemList";
 
 // Asset Imports
-import item1 from "../../assets/images/item/item_1.jpg"
+import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
 
-// Data Constants
-const items = [
-  {
-    image: item1,
-    title: "Hammer",
-    price: "₱ 600",
-    owner: "Alice Reyes",
-    ownerImage: ownerImg,
-    rating: 4,
-    tags: ["Tool", "Hardware", "Essential"],
-  },
-  {
-    image: item1,
-    title: "Screwdriver",
-    price: "₱ 300",
-    owner: "John Doe",
-    ownerImage: ownerImg,
-    rating: 5,
-    tags: ["Tool", "Hardware", "Handy"],
-  },
-  {
-    image: item1,
-    title: "Pliers",
-    price: "₱ 450",
-    owner: "Maria Santos",
-    ownerImage: ownerImg,
-    rating: 3,
-    tags: ["Tool", "Hardware", "Essential"],
-  },
-  {
-    image: item1,
-    title: "Chisel",
-    price: "₱ 350",
-    owner: "Robert Garcia",
-    ownerImage: ownerImg,
-    rating: 2,
-    tags: ["Tool", "Hardware", "Precision"],
-  },
-  {
-    image: item1,
-    title: "Saw",
-    price: "₱ 700",
-    owner: "Liza Cruz",
-    ownerImage: ownerImg,
-    rating: 4,
-    tags: ["Tool", "Hardware", "Cutting"],
-  },
-  {
-    image: item1,
-    title: "Level",
-    price: "₱ 400",
-    owner: "Carlos Mendez",
-    ownerImage: ownerImg,
-    rating: 5,
-    tags: [
-      "Tool",
-      "Hardware",
-      "Measurement",
-      "Hardware",
-      "Measurement",
-      "Hardware",
-      "Measurement",
-    ],
-  },
-];
 const Rent = () => {
   const location = useLocation();
+  // Data Constants
+  const [listings, setListings] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/listings/info`);
+        console.log("Response data:", response.data);
+
+        setListings(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItem();
+  }, []);
   return (
     <>
       <div className="container-content">
@@ -110,7 +66,7 @@ const Rent = () => {
             </Link>
           </div>
           <div className="col-md-10">
-            <ItemList items={items} title="Rent" />
+            <ItemList listings={listings} title="Rent" />
           </div>
         </div>
       </div>

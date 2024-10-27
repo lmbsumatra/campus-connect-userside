@@ -20,7 +20,7 @@ const NavBar2 = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem("token");
     setIsLoggedIn(!!token); // pansamantala lang, di ko pa magawa yung auth eh
     setShowLoginSignUp(false);
 
@@ -54,18 +54,20 @@ const NavBar2 = () => {
   };
 
   const handleAuth = (tab) => {
+    console.log("Auth tab selected:", tab);
     setAuthTab(tab);
     setShowLoginSignUp(true);
   };
 
   const closeLoginSignUp = () => {
+    console.log("Closing login/signup modal");
     setShowLoginSignUp(false);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Remove token on logout
+    localStorage.removeItem("token"); // Remove token on logout
     setIsLoggedIn(false); // Update logged-in state
-    navigate('/'); // Optionally redirect to home page
+    navigate("/"); // Optionally redirect to home page
   };
 
   return (
@@ -176,7 +178,8 @@ const NavBar2 = () => {
       </nav>
 
       {showLoginSignUp && (
-        <div className="overlay">
+        
+        <div className="bg-shadow">
           <LoginSignUp tab={authTab} onClose={closeLoginSignUp} />
         </div>
       )}

@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import moreImg from "../../assets/images/icons/moreImg.png";
 import "./itemStyles.css";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import item1 from "../../assets/images/item/item_1.jpg";
 
-const ItemList = ({ items = [], title }) => {
+const ItemList = ({ listings, title }) => {
+  console.log(listings);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
   const navigate = useNavigate();
 
-  const handleMouseEnter = (tags, index) => {
+  const handleMouseEnter = (index) => {
     setSelectedIndex(index);
   };
 
@@ -25,88 +27,100 @@ const ItemList = ({ items = [], title }) => {
     }
   };
 
-  const handleCardClick = (item) => {
-    navigate(`/rent/1`); // Navigate to the link when the card is clicked
+  const handleCardClick = ({id}) => {
+    navigate(`/rent/${id}`); // Navigate to the link when the card is clicked
   };
 
-  const location = useLocation();
-
   return (
-    <div className="">
+    <div>
       <h2 className="fs-2 fw-bold">{title}</h2>
       <div className="card-container m-0">
-        {items.length > 0 ? (
-          items.map((item, index) => (
-            <div
-              key={index}
-              className="card-link"
-              onClick={() => handleCardClick(item)}
-            >
-              <div className="card card-variant-1">
-                <div className="card-img-top">
-                  <img src={item.image} alt="Card" />
-                </div>
-                <div className="tags">
-                  <ul className="tag-list">
-                    {item.tags &&
-                      item.tags.slice(0, 1).map((tag, tagIndex) => (
-                        <li key={tagIndex} className="tag">
-                          {tag}
-                        </li>
-                      ))}
-                    {item.tags && item.tags.length > 1 && (
-                      <li
-                        className="tag more"
-                        onMouseEnter={() => handleMouseEnter(item.tags, index)}
-                        onMouseLeave={handleMouseLeave}
-                      >
-                        + More
-                      </li>
-                    )}
-                  </ul>
-                </div>
-                <div className="card-body d-flex">
-                  <div>
-                    <p className="card-text fw-bold">{item.title}</p>
-                    <p className="card-text text-accent fw-bold">
-                      {item.price}
-                    </p>
-                  </div>
-                  <img
-                    src={moreImg}
-                    className="icon more"
-                    alt="More options"
-                    onClick={(e) => handleMoreClick(index, e)}
-                    style={{ cursor: "pointer", width: "28px", height: "28px" }}
-                  />
-                </div>
+        {listings.length > 0 ? (
+          listings.map((item, index) => {
+            let tags = [];
+            try {
+              tags = JSON.parse(item.tags);
+            } catch (e) {
+              console.error("Error parsing tags:", e);
+              tags = []; // Fallback to an empty array if parsing fails
+            }
 
-                {selectedIndex === index && (
-                  <div className="popup">
-                    <div className="popup-content">
-                      <ul>
-                        {item.tags.map((tag, tagIndex) => (
-                          <li key={tagIndex}>{tag}</li>
+            return (
+              <div
+                key={index}
+                className="card-link"
+                onClick={() => handleCardClick(item)}
+              >
+                <div className="card card-variant-1">
+                  <div className="card-img-top">
+                    <img src={item1} alt="Card" />
+                  </div>
+                  <div className="tags">
+                    <ul className="tag-list">
+                      {Array.isArray(tags) &&
+                        tags.slice(0, 1).map((tag, tagIndex) => (
+                          <li key={tagIndex} className="tag">
+                            {tag}
+                          </li>
                         ))}
-                      </ul>
-                    </div>
+                      {Array.isArray(tags) && tags.length > 1 && (
+                        <li
+                          className="tag more"
+                          onMouseEnter={() => handleMouseEnter(index)}
+                          onMouseLeave={handleMouseLeave}
+                        >
+                          + More
+                        </li>
+                      )}
+                    </ul>
                   </div>
-                )}
+                  <div className="card-body d-flex">
+                    <div>
+                      <p className="card-text fw-bold">{item.listing_name}</p>
+                      <p className="card-text text-accent fw-bold">
+                        {item.rate}
+                      </p>
+                    </div>
+                    <img
+                      src={moreImg}
+                      className="icon more"
+                      alt="More options"
+                      onClick={(e) => handleMoreClick(index, e)}
+                      style={{
+                        cursor: "pointer",
+                        width: "28px",
+                        height: "28px",
+                      }}
+                    />
+                  </div>
 
-                {showOptions === index && (
-                  <div className="options">
-                    <div className="options-content">
-                      <ul>
-                        <li>Option 1</li>
-                        <li>Option 2</li>
-                        <li>Option 3</li>
-                      </ul>
+                  {selectedIndex === index && (
+                    <div className="popup">
+                      <div className="popup-content">
+                        <ul>
+                          {tags.map((tag, tagIndex) => (
+                            <li key={tagIndex}>{tag}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {showOptions === index && (
+                    <div className="options">
+                      <div className="options-content">
+                        <ul>
+                          <li>Option 1</li>
+                          <li>Option 2</li>
+                          <li>Option 3</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <p>No items to display</p>
         )}

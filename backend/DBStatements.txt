@@ -29,3 +29,71 @@ CREATE TABLE students (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE listings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    owner_id INT NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    listing_name VARCHAR(100) NOT NULL,
+    rate DECIMAL(10, 2) NOT NULL,
+    delivery_mode ENUM('pickup', 'delivery') DEFAULT 'pickup',
+    late_charges DECIMAL(10, 2) DEFAULT 0.00,
+    security_deposit DECIMAL(10, 2) DEFAULT 0.00,
+    repair_replacement TEXT,
+    specifications JSON,
+    description TEXT,
+    listing_condition TEXT NOT NULL,  
+    tags JSON,
+    status ENUM('available', 'rented', 'flagged', 'pending') NOT NULL, 
+    payment_mode ENUM('payment upon meetup', 'gcash') NOT NULL, 
+    images JSON,   // for comparison with date and time
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (owner_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE listing_rental_dates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    rental_date DATE NOT NULL,
+    FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE listing_rental_durations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date_id INT NOT NULL,
+    rental_time_from TIME NOT NULL,
+    rental_time_to TIME NOT NULL,
+    FOREIGN KEY (date_id) REFERENCES listing_rental_dates(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_item_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    category VARCHAR(100),
+    tags LONGTEXT,
+    status ENUM('posted', 'offered', 'flagged', 'pending') NOT NULL,
+    specifications LONGTEXT,
+    renter_id INT,
+    images LONGTEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE post_request_dates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    rental_date DATE NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE post_request_durations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date_id INT NOT NULL,
+    rental_time_from TIME NOT NULL,
+    rental_time_to TIME NOT NULL,
+    FOREIGN KEY (date_id) REFERENCES post_request_dates(id) ON DELETE CASCADE
+);
