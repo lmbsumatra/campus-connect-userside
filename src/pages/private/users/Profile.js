@@ -1,6 +1,9 @@
 // React Imports
 import React, { useState, useEffect } from "react";
 import { Route, Routes, NavLink, Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
+import axios from "axios";
 
 // Component Imports
 import UserItemList from "../../../components/User/LendersPOV/UserItemList.jsx";
@@ -25,24 +28,83 @@ function Transactions() {
 }
 
 function MyListings() {
+  const [listings, setListings] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Get token from localStorage
+  const token = localStorage.getItem('token'); // Replace 'token' with your actual token key
+  let userId;
+
+  if (token) {
+    const decoded = jwtDecode(token);
+    userId = decoded.userId; // Adjust this based on your token's payload structure
+  }
+
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/listings/info`);
+        const userListings = response.data.filter(listing => listing.owner_id === userId);
+        setListings(userListings);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      fetchItem();
+    }
+  }, [userId]);
+
   return (
     <div className="container rounded bg-white">
-      <ItemList items={items} />
+      <ItemList listings={listings} title="Rent" />
     </div>
   );
 }
 
+
 function MyPosts() {
-  const [borrowingPosts, setBorrowingPosts] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Get token from localStorage
+  const token = localStorage.getItem("token"); // Replace 'token' with your actual token key
+  let userId;
+
+  if (token) {
+    const decoded = jwtDecode(token);
+    userId = decoded.userId; // Adjust this based on your token's payload structure
+    console.log(userId)
+  }
+
   useEffect(() => {
-    fetch("/Posts.json")
-      .then((response) => response.json())
-      .then((data) => setBorrowingPosts(data.borrowingPosts));
-  }, []);
+    const fetchItem = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/posts/info`);
+        const userPosts = response.data.filter(
+          (post) => post.renter_id === userId
+        );
+        setPosts(userPosts);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      fetchItem();
+    }
+  }, [userId]);
 
   return (
     <div className="container rounded bg-white">
-      <BorrowingPost borrowingPosts={borrowingPosts} title="" />
+      <BorrowingPost borrowingPosts={posts} title="" />
     </div>
   );
 }

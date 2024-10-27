@@ -97,3 +97,40 @@ CREATE TABLE post_request_durations (
     rental_time_to TIME NOT NULL,
     FOREIGN KEY (date_id) REFERENCES post_request_dates(id) ON DELETE CASCADE
 );
+
+use campus_connect_db;
+
+CREATE TABLE dates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    date DATE NOT NULL,
+    item_type ENUM('listing', 'post', 'item_for_sale') NOT NULL
+);
+
+CREATE TABLE durations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date_id INT NOT NULL,
+    rental_time_from TIME NOT NULL,
+    rental_time_to TIME NOT NULL,
+    FOREIGN KEY (date_id) REFERENCES dates(id) ON DELETE CASCADE
+);
+
+
+INSERT INTO dates (item_id, date, item_type)
+SELECT id, rental_date, 'listing' FROM listing_rental_dates; 
+INSERT INTO dates (item_id, date, item_type)
+SELECT id, rental_date, 'post' FROM post_request_dates;  
+INSERT INTO dates (item_id, date, item_type)
+SELECT id, request_date, 'item_for_sale' FROM items_for_sale_requests; 
+
+INSERT INTO durations (date_id, rental_time_from, rental_time_to)
+SELECT date_id, rental_time_from, rental_time_to FROM listing_rental_durations; 
+INSERT INTO durations (date_id, rental_time_from, rental_time_to)
+SELECT date_id, rental_time_from, rental_time_to FROM post_request_durations; 
+INSERT INTO durations (date_id, rental_time_from, rental_time_to)
+SELECT r.date_id, r.rental_time_from, r.rental_time_to
+FROM post_request_durations r
+JOIN dates d ON r.date_id = d.id; 
+
+
+

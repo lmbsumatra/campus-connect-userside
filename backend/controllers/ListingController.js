@@ -1,22 +1,20 @@
 const Listing = require("../models/listing/ListingModel");
-const ListingRentalDate = require("../models/listing/ListingRentalDate");
-const ListingRentalDuration = require("../models/listing/ListingRentalDuration");
 const sequelize = require("../config/database");
 const { models } = require("../models/index");
 
-// Get all listings with rental dates and durations
+// Get all posts with rental dates and durations
 exports.getAllListings = async (req, res) => {
   try {
     const listings = await models.Listing.findAll({
-      attributes: ["id", "listing_name", "rate", "tags"],
+      attributes: ["id", "listing_name", "tags", "rate", "owner_id"],
       include: [
         {
-          model: models.ListingRentalDate,
+          model: models.RentalDate,
           as: "rental_dates",
           required: false,
           include: [
             {
-              model: models.ListingRentalDuration,
+              model: models.RentalDuration,
               as: "durations",
               required: false,
             },
@@ -26,42 +24,59 @@ exports.getAllListings = async (req, res) => {
     });
 
     res.status(200).json(listings);
+    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
-    console.error("Error fetching listings:", error);
+    console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
+// Create a post
 exports.createListing = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // Create the listing
+    // Ensure the listing data is available
+    if (!req.body.listing) {
+      throw new Error("Listing data is missing");
+    }
+
     const listing = await models.Listing.create(req.body.listing, {
       transaction,
     });
-    console.log(listing);
+    console.log("Created listing:", listing);
 
-    // Handle rental dates
     const rentalDates = req.body.rental_dates;
-    for (const date of rentalDates) {
-      // console.log("Processing rental date:", date);
 
+    // Check if rental_dates is provided and is an array
+    if (!Array.isArray(rentalDates)) {
+      throw new Error("Rental dates should be an array");
+    }
+
+    for (const date of rentalDates) {
       if (!date.date) {
         throw new Error("Rental date is missing");
       }
 
-      const rentalDate = await models.ListingRentalDate.create(
+      // Create rental date
+      const rentalDate = await models.RentalDate.create(
         {
-          listing_id: listing.id,
-          rental_date: date.date,
+          item_id: listing.id,
+          date: date.date,
+          item_type: "listing",
         },
         { transaction }
       );
+      console.log("Created rental date:", rentalDate);
 
-      if (date.times) {
+      // Ensure times is an array if present
+      if (date.times && Array.isArray(date.times)) {
         for (const time of date.times) {
-          await models.ListingRentalDuration.create(
+          if (!time.from || !time.to) {
+            throw new Error("Rental time is missing from or to fields");
+          }
+
+          await models.RentalDuration.create(
             {
               date_id: rentalDate.id,
               rental_time_from: time.from,
@@ -70,6 +85,8 @@ exports.createListing = async (req, res) => {
             { transaction }
           );
         }
+      } else {
+        console.warn(`No times provided for date: ${date.date}`);
       }
     }
 
@@ -87,23 +104,23 @@ exports.createListing = async (req, res) => {
     res.status(500).json({
       error: "Internal Server Error",
       message: error.message,
-      details:
-        "Failed to create listing. Please check the input data and try again.",
+      details: "Failed to create listing. Please check the input data and try again.",
     });
   }
 };
 
-// Get a single listing by ID with associated rental dates, durations, and owner info
+
+// Get a single post by ID with associated rental dates, durations, and renter info
 exports.getListingById = async (req, res) => {
   try {
-    const listing = await models.Listing.findByPk(req.params.id, {
+    const post = await models.Listing.findByPk(req.params.id, {
       include: [
         {
-          model: models.ListingRentalDate,
+          model: models.RentalDate,
           as: "rental_dates",
           include: [
             {
-              model: models.ListingRentalDuration,
+              model: models.RentalDuration,
               as: "durations",
             },
           ],
@@ -121,38 +138,38 @@ exports.getListingById = async (req, res) => {
       ],
     });
 
-    if (!listing) {
-      return res.status(404).json({ error: "Listing not found" });
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
     }
-    res.status(200).json(listing);
+    res.status(200).json(post);
   } catch (error) {
-    console.error("Error fetching listing:", error);
+    console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Update a listing
+// Update a post
 exports.updateListing = async (req, res) => {
   try {
-    const listing = await Listing.findByPk(req.params.id);
-    if (!listing) {
-      return res.status(404).json({ error: "Listing not found" });
+    const post = await Listing.findByPk(req.params.id);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
     }
-    await listing.update(req.body);
-    res.status(200).json(listing);
+    await post.update(req.body);
+    res.status(200).json(post);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
-// Delete a listing
+// Delete a post
 exports.deleteListing = async (req, res) => {
   try {
-    const listing = await Listing.findByPk(req.params.id);
-    if (!listing) {
-      return res.status(404).json({ error: "Listing not found" });
+    const post = await Listing.findByPk(req.params.id);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
     }
-    await listing.destroy();
+    await post.destroy();
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: error.message });

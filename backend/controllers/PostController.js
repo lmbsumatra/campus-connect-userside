@@ -1,24 +1,22 @@
 const Post = require("../models/post/PostModel");
-const PostRequestDate = require("../models/post/PostRequestDate");
-const PostRequestDuration = require("../models/post/PostRequestDuration");
 const sequelize = require("../config/database");
-const { models } = require('../models/index');
+const { models } = require("../models/index");
 
 // Get all posts with rental dates and durations
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await models.Post.findAll({
-      attributes: ['id', 'post_item_name', 'tags'],
+      attributes: ["id", "post_item_name", "tags", "renter_id"],
       include: [
         {
-          model: models.PostRequestDate,
-          as: "rental_dates", 
-          required: false, 
+          model: models.RentalDate,
+          as: "rental_dates",
+          required: false,
           include: [
             {
-              model: models.PostRequestDuration,
-              as: "durations", 
-              required: false, 
+              model: models.RentalDuration,
+              as: "durations",
+              required: false,
             },
           ],
         },
@@ -32,37 +30,35 @@ exports.getAllPosts = async (req, res) => {
   }
 };
 
+// Create a post
 exports.createPost = async (req, res) => {
-  const transaction = await sequelize.transaction(); 
+  const transaction = await sequelize.transaction();
 
   try {
-    // Create the listing
     const post = await models.Post.create(req.body.post, { transaction });
     console.log(post);
 
-    // Handle rental dates
-    const rentalDates = req.body.rental_dates; 
+    const rentalDates = req.body.rental_dates;
     for (const date of rentalDates) {
-      // console.log("Processing rental date:", date);
-
-      if (!date.date) { 
+      if (!date.date) {
         throw new Error("Rental date is missing");
       }
 
-      const rentalDate = await models.PostRequestDate.create(
+      const rentalDate = await models.RentalDate.create(
         {
-          post_id: post.id,
-          rental_date: date.date, 
+          item_id: post.id,
+          date: date.date,
+          item_type: "post",
         },
         { transaction }
       );
 
-      if (date.times) { 
+      if (date.times) {
         for (const time of date.times) {
-          await models.PostRequestDuration.create(
+          await models.RentalDuration.create(
             {
               date_id: rentalDate.id,
-              rental_time_from: time.from, 
+              rental_time_from: time.from,
               rental_time_to: time.to,
             },
             { transaction }
@@ -71,15 +67,15 @@ exports.createPost = async (req, res) => {
       }
     }
 
-    await transaction.commit(); 
+    await transaction.commit();
     res.status(201).json(post);
   } catch (error) {
-    await transaction.rollback(); 
+    await transaction.rollback();
 
     console.error("Error creating post:", {
       message: error.message,
       stack: error.stack,
-      body: req.body, 
+      body: req.body,
     });
 
     res.status(500).json({
@@ -91,28 +87,28 @@ exports.createPost = async (req, res) => {
   }
 };
 
-// Get a single listing by ID with associated rental dates, durations, and owner info
+// Get a single post by ID with associated rental dates, durations, and renter info
 exports.getPostById = async (req, res) => {
   try {
     const post = await models.Post.findByPk(req.params.id, {
       include: [
         {
-          model: models.PostRequestDate,
-          as: 'rental_dates',
+          model: models.RentalDate,
+          as: "rental_dates",
           include: [
             {
-              model: models.PostRequestDuration,
-              as: 'durations',
+              model: models.RentalDuration,
+              as: "durations",
             },
           ],
         },
         {
-          model: models.User, 
-          as: 'renter', 
+          model: models.User,
+          as: "renter",
           include: [
             {
               model: models.Student,
-              as: 'student', 
+              as: "student",
             },
           ],
         },
@@ -129,8 +125,6 @@ exports.getPostById = async (req, res) => {
   }
 };
 
-
-
 // Update a post
 exports.updatePost = async (req, res) => {
   try {
@@ -145,7 +139,7 @@ exports.updatePost = async (req, res) => {
   }
 };
 
-// Delete a lpost
+// Delete a post
 exports.deletePost = async (req, res) => {
   try {
     const post = await Post.findByPk(req.params.id);

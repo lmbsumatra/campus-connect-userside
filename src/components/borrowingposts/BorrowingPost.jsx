@@ -7,6 +7,7 @@ import item4 from "../../assets/images/item/item_4.jpg";
 import item5 from "../../assets/images/item/item_5.jpg";
 import moreImg from "../../assets/images/icons/moreImg.png";
 import "./postStyles.css";
+import { formatDate } from "../../utils/dateFormat";
 
 const BorrowingPost = ({ borrowingPosts, title }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -79,8 +80,8 @@ const BorrowingPost = ({ borrowingPosts, title }) => {
                       <div className="card-body">
                         <p className="card-text fw-bold">{item.post_item_name}</p>
                         <div>
-                          <p className="card-text label">Rental Duration</p>
-                          <button className="btn btn-rounded thin">{item.rental_dates.length > 0 ? item.rental_dates[0].rental_date : "N/A"}</button>
+                          <p className="card-text label">Rental Date</p>
+                          <button className="btn btn-rounded thin">{item.rental_dates.length > 0 ? formatDate(item.rental_dates[0].date) : "N/A"}</button>
                         </div>
                         <img
                           src={moreImg}
