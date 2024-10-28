@@ -6,7 +6,7 @@ import { HandleSpecifications } from "./HandleSpecifications";
 import { UserToolbar } from "./UserToolbar";
 import { HandleCustomDateAndTime } from "./HandleCustomDateAndTime";
 import { HandleWeeklyDateAndTime } from "./HandleWeeklyDateAndTime";
-import FetchUserInfo from "../../../../components/User/header/FetchUserInfo";
+import FetchUserInfo from "../../../../utils/FetchUserInfo";
 import axios from "axios";
 
 const AddListing = () => {

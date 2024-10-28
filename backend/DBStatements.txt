@@ -134,3 +134,9 @@ JOIN dates d ON r.date_id = d.id;
 
 
 
+drop table listing_rental_dates;
+drop table listing_rental_durations;
+drop table post_request_dates;
+drop table post_request_durations;
+
+ALTER TABLE posts MODIFY status ENUM('posted', 'pending', 'flagged', 'removed', 'offered');

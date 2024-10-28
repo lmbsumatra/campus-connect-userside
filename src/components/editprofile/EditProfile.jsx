@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import FetchUserInfo from "../User/header/FetchUserInfo";
+import FetchUserInfo from "../../utils/FetchUserInfo";
 import "./editProfileStyles.css";
 
 function EditProfile() {
@@ -14,6 +14,7 @@ function EditProfile() {
     birthday: "",
     username: "",
     email: "",
+    tup_id: "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -39,10 +40,12 @@ function EditProfile() {
         birthday: user.birthday || "",
         username: user.username || "",
         email: user.email || "",
+        tup_id: student.tup_id || "",
       });
     };
 
     FetchUserInfo(setUserInfo, setErrorMessage);
+    
   }, []);
 
   const handleChange = (e) => {
@@ -135,16 +138,6 @@ function EditProfile() {
               />
             </div>
             <div className="form-group">
-              <label>Year</label>
-              <input
-                type="text"
-                name="year"
-                value={formData.year}
-                onChange={handleChange}
-                placeholder="Example Input"
-              />
-            </div>
-            <div className="form-group">
               <label>College</label>
               <input
                 type="text"
@@ -165,22 +158,13 @@ function EditProfile() {
               />
             </div>
             <div className="form-group">
-              <label>Gender</label>
+              <label>TUP ID</label>
               <input
                 type="text"
-                name="gender"
-                value={formData.gender}
+                name="tup_id"
+                value={formData.tup_id}
                 onChange={handleChange}
                 placeholder="Example Input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Birthday</label>
-              <input
-                type="date"
-                name="birthday"
-                value={formData.birthday}
-                onChange={handleChange}
               />
             </div>
           </div>
@@ -189,16 +173,6 @@ function EditProfile() {
         <div className="form-section account-details">
           <h3 className="section-label">Account Details</h3>
           <div className="details-grid">
-            <div className="form-group">
-              <label>Username</label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Example Input"
-              />
-            </div>
             <div className="form-group">
               <label>Email</label>
               <input
@@ -238,7 +212,7 @@ function EditProfile() {
           </div>
         </div>
 
-        <button type="submit">Save Changes</button>
+        <button className="btn btn-rectangle primary"type="submit">Save Changes</button>
       </form>
 
       {isModalOpen && (

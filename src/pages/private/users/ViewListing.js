@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import "./style.css";
+import "../../../components/itemlisting/itemStyles.css";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import userProfilePicture from "../../assets/images/icons/user-icon.svg";
-import itemImage from "../../assets/images/item/item_1.jpg";
-import { formatDate } from "../../utils/dateFormat";
-import { formatTimeTo12Hour } from "../../utils/timeFormat";
+import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
+import itemImage from "../../../assets/images/item/item_1.jpg";
+import { formatDate } from "../../../utils/dateFormat";
+import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 
-function ViewItem() {
+function ViewListing() {
   const { id } = useParams();
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -189,4 +189,4 @@ function ViewItem() {
   );
 }
 
-export default ViewItem;
+export default ViewListing;

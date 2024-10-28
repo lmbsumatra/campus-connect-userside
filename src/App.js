@@ -15,7 +15,7 @@ import AddPost from "./pages/private/users/new-posting/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/MyRentals.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
-import ViewItem from "./components/listings/ViewItem";
+import ViewItem from "./pages/private/users/ViewListing.js";
 import AddListing from "./pages/private/users/new-listing/AddListing.js";
 import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
 import Footer from "./components/users/footer/Footer.jsx";
@@ -29,9 +29,9 @@ import AdminSettings from "./pages/private/admin/settings/AdminSettings.js";
 import AdminLogin from "./pages/private/admin/login/AdminLogin.js";
 
 //Post Management Dashboard - ADMIN
-import PostDashboard from "./pages/private/admin/dashboard/PostManagement/PostDashboard.js";
-import PostOverview from "./pages/private/admin/dashboard/PostManagement/PostOverview.js";
-import PostApproval from "./pages/private/admin/dashboard/PostManagement/PostApproval.js";
+import PostDashboard from "./pages/private/admin/PostManagement/PostDashboard.js";
+import PostOverview from "./pages/private/admin/PostManagement/PostOverview.js";
+import PostApproval from "./pages/private/admin/PostManagement/PostApproval.js";
 
 function App() {
   return (
@@ -67,6 +67,7 @@ function Content() {
         <Route path="/new-post" element={<AddPost />} />
         <Route path="/add-listing" element={<AddListing />} />
         <Route path="/messages" element={<MessagePage />} />
+
         {/* USER PROFILE */}
         <Route path="/profile/*" element={<Profile />} />
         <Route path="/rent-progress" element={<RentProgress />} />
@@ -77,8 +78,8 @@ function Content() {
           <Route path="*" element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="posts" element={<PostDashboard />} />
-          <Route path="/admin/post-overview" element={<PostOverview />} />
-          <Route path="/admin/post-approval" element={<PostApproval />} />
+          <Route path="post-overview" element={<PostOverview />} />
+          <Route path="post-approval" element={<PostApproval />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>

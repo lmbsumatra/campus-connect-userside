@@ -133,3 +133,50 @@
   padding: 0px 8px;
   font-size: 14px;
 }
+
+/**********************************************************/
+.btn.btn-action.view {
+  width: auto;
+  height: 27px;
+  background-color: rgb(146, 255, 160);
+  color: #026800;
+  padding: 4px 8px;
+  line-height: 0;
+  font-weight: 500;
+  border-radius: 100px;
+}
+.btn.btn-action.view:hover {
+  background-color: rgb(115, 223, 129);
+  color: #026800;
+}
+
+.btn.btn-action.edit {
+  width: auto;
+  height: 27px;
+  background-color: rgb(146, 181, 255);
+  color: #000a68;
+  padding: 4px 8px;
+  line-height: 0;
+  font-weight: 500;
+  border-radius: 100px;
+}
+.btn.btn-action.edit:hover {
+  background-color: rgb(108, 144, 221);
+  color: #000a68;
+}
+
+
+.btn.btn-action.delete {
+  width: auto;
+  height: 27px;
+  background-color: rgb(255, 146, 146);
+  color: #680000;
+  padding: 4px 8px;
+  line-height: 0;
+  font-weight: 500;
+  border-radius: 100px;
+}
+.btn.btn-action.delete:hover {
+  background-color: rgb(223, 116, 116);
+  color: #680000;
+}
