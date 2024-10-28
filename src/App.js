@@ -33,6 +33,9 @@ import PostDashboard from "./pages/private/admin/PostManagement/PostDashboard.js
 import PostOverview from "./pages/private/admin/PostManagement/PostOverview.js";
 import PostApproval from "./pages/private/admin/PostManagement/PostApproval.js";
 
+import ForSaleManagement from "./pages/private/admin/SaleManagement/ForSaleManagement.js";
+import SaleOverview from "./pages/private/admin/SaleManagement/SaleOverview.js";
+
 function App() {
   return (
     <BrowserRouter>
@@ -80,6 +83,8 @@ function Content() {
           <Route path="posts" element={<PostDashboard />} />
           <Route path="post-overview" element={<PostOverview />} />
           <Route path="post-approval" element={<PostApproval />} />
+          <Route path="sales" element={<ForSaleManagement />} />
+          <Route path="sales-overview" element={<SaleOverview />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
