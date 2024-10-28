@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './postDashboard.css';
-import ViewItem from '../../../../../components/listings/ViewItem';
-import ActionModal from '../../../../../components/Action Modal/ActionModal';
+import ViewItem from '../../users/ViewListing';
+import ActionModal from '../../../../components/Action Modal/ActionModal';
 
 const PostApproval = () => {
   const [showModal, setShowModal] = useState(false);

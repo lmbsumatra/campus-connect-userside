@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import profilePhoto from "../../../assets/images/icons/user-icon.svg";
 import editIcon from "../../../assets/images/icons/edit.png";
 import "./profileHeaderStyles.css";
-import FetchUserInfo from "./FetchUserInfo";
+import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { formatDate } from "../../../utils/dateFormat";
 
 // Define the fetchUserInfo function here or import it from another file

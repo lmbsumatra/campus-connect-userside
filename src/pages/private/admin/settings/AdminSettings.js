@@ -43,7 +43,7 @@ const AdminSettings = () => {
         </button>
 
         {showCreateAcctWindow && (
-          <div className="modal show overlay" style={{ display: "block" }}>
+          <div className="modal show bg-shadow" style={{ display: "block" }}>
             <div className="modal-dialog">
               <div className="modal-content">
                 <div className="modal-header">

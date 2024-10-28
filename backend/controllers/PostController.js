@@ -6,7 +6,7 @@ const { models } = require("../models/index");
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await models.Post.findAll({
-      attributes: ["id", "post_item_name", "tags", "renter_id"],
+      attributes: ["id", "post_item_name", "tags", "renter_id", "category", "created_at", "status"],
       include: [
         {
           model: models.RentalDate,
@@ -19,6 +19,11 @@ exports.getAllPosts = async (req, res) => {
               required: false,
             },
           ],
+        },
+        {
+          model: models.User,
+          as: "renter",
+          attributes: ["first_name", "last_name"],
         },
       ],
     });
