@@ -7,6 +7,7 @@ const listingRoutes = require("./routes/ListingRoute");
 const postRoutes = require("./routes/PostRoute");
 const dotenv = require("dotenv");
 const cloudinary = require("./config/cloudinary");
+const adminAuthRoutes = require("./routes/AdminAuthRoutes");
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use((err, req, res, next) => {
 
 // Routes
 app.use("/user", studentAuthRoutes);
+app.use("/admin", adminAuthRoutes);
 
 app.use("/listings", listingRoutes);
 
