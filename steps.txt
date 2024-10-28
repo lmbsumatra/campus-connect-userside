@@ -43,6 +43,10 @@ BACKEND
 6. npm install bcrypt
 // For google-auth
 7. npm install google-auth-library
+// for images get and upload
+8. npm install cloudinary
+9. npm install cloudinary multer-storage-cloudinary
+10. npm install multer
 
 on using MVC:
 1. Create model

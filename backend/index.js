@@ -6,6 +6,7 @@ const studentAuthRoutes = require("./routes/StudentAuthRoute");
 const listingRoutes = require("./routes/ListingRoute");
 const postRoutes = require("./routes/PostRoute");
 const dotenv = require("dotenv");
+const cloudinary = require("./config/cloudinary");
 
 dotenv.config();
 
@@ -14,11 +15,6 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Setup multer for handling multipart/form-data
-const multer = require("multer");
-const upload = multer();
-app.use(upload.none());
 
 // CORS configuration
 const corsOptions = {
@@ -59,3 +55,4 @@ sequelize
   .catch((error) => {
     console.error("Unable to connect to the database:", error);
   });
+

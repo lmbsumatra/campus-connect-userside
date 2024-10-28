@@ -140,3 +140,8 @@ drop table post_request_dates;
 drop table post_request_durations;
 
 ALTER TABLE posts MODIFY status ENUM('posted', 'pending', 'flagged', 'removed', 'offered');
+
+ALTER TABLE students 
+    MODIFY scanned_id VARCHAR(255) NOT NULL,
+    MODIFY photo_with_id VARCHAR(255) NOT NULL;
+

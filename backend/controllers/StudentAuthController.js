@@ -5,22 +5,25 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const cloudinary = require("cloudinary").v2;
 
 const bcrypt = require("bcrypt");
+const { rollbackUpload } = require("../config/multer");
 
 async function verify(token) {
-  // Verify the ID token with Google's OAuth2 client
   const ticket = await client.verifyIdToken({
-    idToken: token, // The ID token to verify
+    idToken: token, 
     audience: process.env.GOOGLE_CLIENT_ID,
   });
 
-  // Return the decoded payload containing user information
   return ticket.getPayload();
 }
 
+// Register a new student
 exports.registerStudent = async (req, res) => {
-  const t = await sequelize.transaction(); // Start a new transaction
+  const t = await sequelize.transaction(); 
+  let publicIds = []; 
+
   try {
     const {
       first_name,
@@ -30,93 +33,72 @@ exports.registerStudent = async (req, res) => {
       password,
       tup_id,
       college,
-      scanned_id,
-      photo_with_id,
     } = req.body;
 
-    // Check for missing required fields
-    if (!first_name)
-      return res.status(400).json({ message: "First name is required" });
-    if (!last_name)
-      return res.status(400).json({ message: "Last name is required" });
-    if (!email) return res.status(400).json({ message: "Email is required" });
-    if (!password)
-      return res.status(400).json({ message: "Password is required" });
-    if (!tup_id) return res.status(400).json({ message: "TUP ID is required" });
-    if (!college)
-      return res.status(400).json({ message: "College is required" });
+    const { scanned_id, photo_with_id } = req.files;
 
-    // Hash the password
+    if (!first_name || !last_name || !email || !password || !tup_id || !college || !scanned_id || !photo_with_id)
+      return res.status(400).json({ message: "All fields are required" });
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user
+    publicIds.push(scanned_id[0].filename, photo_with_id[0].filename);
+
     const newUser = await User.create(
-      {
-        first_name,
-        middle_name,
-        last_name,
-        role: "student",
-        email,
-        password: hashedPassword,
-      },
+      { first_name, middle_name, last_name, role: "student", email, password: hashedPassword },
       { transaction: t }
-    ); // Include transaction
+    );
 
     // Create a new student record
     const newStudent = await Student.create(
       {
         tup_id,
-        user_id: newUser.user_id, // Link to the new user
+        user_id: newUser.user_id,
         college,
-        scanned_id,
-        photo_with_id,
+        scanned_id: scanned_id[0].path,
+        photo_with_id: photo_with_id[0].path,
       },
       { transaction: t }
-    ); // Include transaction
+    );
 
-    // Commit the transaction
-    await t.commit();
+    await t.commit(); 
     res.status(201).json({
       message: "Student registered successfully",
       student: newStudent,
     });
   } catch (error) {
-    // Rollback the transaction if any error occurs
-    await t.rollback();
+    await t.rollback(); 
+
+    await rollbackUpload(publicIds);
+
     console.error("Registration error:", error);
-    res
-      .status(500)
-      .json({
-        message: "Failed registration. Please check your information",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Failed registration. Please check your information",
+      error: error.message,
+    });
   }
 };
+
 
 // Login a student
 exports.loginStudent = async (req, res) => {
   const { email, password } = req.body;
-
-  // Check for missing fields
   if (!email) return res.status(400).json({ message: "Email is required" });
   if (!password)
     return res.status(400).json({ message: "Password is required" });
 
   try {
-    // Find user by email
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Compare the provided password with the hashed password
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       { userId: user.user_id, role: user.role },
       JWT_SECRET
@@ -135,8 +117,6 @@ exports.googleLogin = async (req, res) => {
   try {
     const payload = await verify(token);
     const email = payload.email;
-
-    // Check if the user exists
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res
@@ -144,7 +124,6 @@ exports.googleLogin = async (req, res) => {
         .json({ message: "User not found! Please register first." });
     }
 
-    // If user exists, generate JWT token
     const jwtToken = jwt.sign(
       { userId: user.user_id, role: user.role },
       JWT_SECRET
@@ -181,18 +160,20 @@ exports.getUserInformation = async (req, res) => {
         email: user.email,
         role: user.role,
         password: user.password,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
       },
       student: {
         tup_id: student.tup_id,
         college: student.college,
-        scanned_id: student.scanned_id.toString('base64'), // Convert Buffer to base64
-        photo_with_id: student.photo_with_id.toString('base64'), // Convert Buffer to base64
+        scanned_id: student.scanned_id, 
+        photo_with_id: student.photo_with_id,
       },
     });
   } catch (error) {
     console.error("Error retrieving user information:", error);
-    res.status(500).json({ message: "Error retrieving user information", error: error.message });
+    res.status(500).json({
+      message: "Error retrieving user information",
+      error: error.message,
+    });
   }
 };
-

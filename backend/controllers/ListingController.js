@@ -36,7 +36,6 @@ exports.createListing = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // Ensure the listing data is available
     if (!req.body.listing) {
       throw new Error("Listing data is missing");
     }
@@ -48,7 +47,6 @@ exports.createListing = async (req, res) => {
 
     const rentalDates = req.body.rental_dates;
 
-    // Check if rental_dates is provided and is an array
     if (!Array.isArray(rentalDates)) {
       throw new Error("Rental dates should be an array");
     }
@@ -58,7 +56,6 @@ exports.createListing = async (req, res) => {
         throw new Error("Rental date is missing");
       }
 
-      // Create rental date
       const rentalDate = await models.RentalDate.create(
         {
           item_id: listing.id,
@@ -69,7 +66,6 @@ exports.createListing = async (req, res) => {
       );
       console.log("Created rental date:", rentalDate);
 
-      // Ensure times is an array if present
       if (date.times && Array.isArray(date.times)) {
         for (const time of date.times) {
           if (!time.from || !time.to) {

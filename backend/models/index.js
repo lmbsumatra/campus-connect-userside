@@ -13,7 +13,7 @@ const models = {
   Post,
   Student,
   User,
-  RentalDate, // Update this to match the initialized model name
+  RentalDate, 
   RentalDuration,
 };
 

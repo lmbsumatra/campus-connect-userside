@@ -82,12 +82,9 @@ const LoginSignUp = ({ tab, onClose }) => {
   const handleImageUpload = (e, setImage) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImage(reader.result.split(",")[1]);
-      reader.readAsDataURL(file);
+      setImage(file); 
     }
   };
-
   const handleImageClick = () => {
     setImageTouched(true);
     document.getElementById("uploadImageInput").click();
@@ -134,14 +131,14 @@ const LoginSignUp = ({ tab, onClose }) => {
       if (res.ok) {
         const data = await res.json();
         console.log("Google login successful:", data);
-        localStorage.setItem('token', data.token)
+        localStorage.setItem("token", data.token);
         navigate("/");
       } else {
         const errorData = await res.json();
         console.error("Google login failed:", errorData);
         setErrorMessage(
           errorData.message || "Google login failed. Please try again."
-        ); 
+        );
       }
     } catch (error) {
       console.error("Error logging in with Google:", error);
@@ -211,20 +208,20 @@ const LoginSignUp = ({ tab, onClose }) => {
         console.error("Registration failed:", errorData);
         setErrorMessage(
           errorData.message || "Registration failed. Please try again."
-        ); 
+        );
         errorRef.current.scrollIntoView({ behavior: "smooth" });
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      setErrorMessage("An unexpected error occurred. Please try again later."); 
+      setErrorMessage("An unexpected error occurred. Please try again later.");
       errorRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
-  
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitting login form...");
-    setErrorMessage(""); 
+    setErrorMessage("");
 
     try {
       const response = await fetch("http://localhost:3001/user/login", {
@@ -241,7 +238,7 @@ const LoginSignUp = ({ tab, onClose }) => {
       if (response.ok) {
         const data = await response.json();
         console.log("Login successful:", data);
-        localStorage.setItem('token', data.token)
+        localStorage.setItem("token", data.token);
         navigate("/");
       } else {
         const errorData = await response.json();
@@ -447,7 +444,7 @@ const LoginSignUp = ({ tab, onClose }) => {
                     >
                       {uploadedImage ? (
                         <img
-                          src={`data:image/png;base64,${uploadedImage}`}
+                          src={URL.createObjectURL(uploadedImage)}
                           alt="Uploaded Image"
                           className="preview"
                         />
@@ -477,7 +474,7 @@ const LoginSignUp = ({ tab, onClose }) => {
                     >
                       {uploadedId ? (
                         <img
-                          src={`data:image/png;base64,${uploadedId}`}
+                          src={URL.createObjectURL(uploadedId)}
                           alt="Uploaded ID"
                           className="preview"
                         />

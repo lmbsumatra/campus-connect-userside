@@ -28,6 +28,7 @@ function EditProfile() {
 
   useEffect(() => {
     const setUserInfo = (data) => {
+      console.log(data);
       const { user, student } = data;
       setFormData({
         surname: user.last_name || "",
@@ -41,11 +42,12 @@ function EditProfile() {
         username: user.username || "",
         email: user.email || "",
         tup_id: student.tup_id || "",
+        scanned_id: student.scanned_id || "",
+        photo_with_id: student.photo_with_id || "",
       });
     };
 
     FetchUserInfo(setUserInfo, setErrorMessage);
-    
   }, []);
 
   const handleChange = (e) => {
@@ -207,60 +209,27 @@ function EditProfile() {
                 type="file"
                 name="verificationImage"
                 onChange={handleChange}
-              />
+              /><div>
+              <label>Photo with ID</label>
+              <div>
+                <img src={formData.photo_with_id}   style={{height: '100px', width: 'auto'}}/>
+              </div>
+            </div>
+            <div>
+              <label>Scanned ID</label>
+              <div>
+                <img src={formData.scanned_id}  style={{height: '100px', width: 'auto'}}/>
+              </div>
+            </div>
+            
             </div>
           </div>
         </div>
 
-        <button className="btn btn-rectangle primary"type="submit">Save Changes</button>
+        <button className="btn btn-rectangle primary" type="submit">
+          Save Changes
+        </button>
       </form>
-
-      {isModalOpen && (
-        <div className="change-pass-window">
-          <div className="change-pass-window-content">
-            <h3>Change Password</h3>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Current Password</label>
-                <input
-                  type="password"
-                  name="currentPassword"
-                  value={passwordData.currentPassword}
-                  onChange={handlePasswordChange}
-                  placeholder="Enter Current Password"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>New Password</label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  value={passwordData.newPassword}
-                  onChange={handlePasswordChange}
-                  placeholder="Enter New Password"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Confirm New Password</label>
-                <input
-                  type="password"
-                  name="confirmNewPassword"
-                  value={passwordData.confirmNewPassword}
-                  onChange={handlePasswordChange}
-                  placeholder="Confirm New Password"
-                  required
-                />
-              </div>
-              <button type="submit">Submit</button>
-              <button type="button" onClick={() => setModalOpen(false)}>
-                Cancel
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
       {isModalOpen && (
         <div className="modal">
