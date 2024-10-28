@@ -25,6 +25,8 @@ const upload = multer({ storage: storage }).fields([
   { name: "photo_with_id" },
 ]);
 
+const upload_prof = multer({ storage: storage }).single("profile_pic");
+
 const rollbackUpload = async (publicIds) => {
   try {
     await Promise.all(
@@ -35,4 +37,4 @@ const rollbackUpload = async (publicIds) => {
   }
 };
 
-module.exports = { upload, rollbackUpload };
+module.exports = { upload_prof, upload, rollbackUpload };

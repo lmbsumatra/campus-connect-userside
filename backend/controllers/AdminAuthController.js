@@ -22,8 +22,11 @@ async function verify(token) {
 
 // Register Admin
 exports.registerAdmin = async (req, res) => {
+  console.log("File:", req.file);
+  console.log("Body:", req.body);
   const t = await sequelize.transaction();
   let publicIds = []; 
+
   try {
     const {
       first_name,
@@ -33,28 +36,26 @@ exports.registerAdmin = async (req, res) => {
       password,
     } = req.body;
 
-    const { profile_pic } = req.files;
+    const profile_pic = req.file;
 
-    // Check for missing required fields
-    if (!first_name || !last_name || !email || !password || !profile_pic)
+    if (!first_name || !last_name || !email || !password || !profile_pic) {
       return res.status(400).json({ message: "All fields are required" });
+    }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    publicIds.push(profile_pic[0].filename);
+    const profilePicPath = profile_pic.path || profile_pic.filename; 
+    publicIds.push(profilePicPath); 
 
     const newUser = await User.create(
       { first_name, middle_name, last_name, role: "student", email, password: hashedPassword },
       { transaction: t }
     );
 
-    // Create a new admin record
     const newAdmin = await Admin.create(
       {
-        profile_pic,
+        profile_pic: profilePicPath,
         user_id: newUser.user_id,
-        profile_pic: profile_pic[0].path,
       },
       { transaction: t }
     );
@@ -66,11 +67,9 @@ exports.registerAdmin = async (req, res) => {
       admin: newAdmin,
     });
   } catch (error) {
-    // Rollback the transaction if any error occurs
     await t.rollback(); 
 
-    await rollbackUpload(publicIds);
-
+    await rollbackUpload(publicIds); 
     console.error("Registration error:", error);
     res.status(500).json({
       message: "Failed registration. Please check your information",
@@ -78,6 +77,7 @@ exports.registerAdmin = async (req, res) => {
     });
   }
 };
+
 
 // // Login an admin
 // exports.loginAdmin = async (req, res) => {
