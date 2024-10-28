@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../LendersPOV/transactionStyles.css"  ;
 import ListView from "../../../assets/images/icons/list.png";
 import GridView from "../../../assets/images/icons/grid.png";
-import StarRating from "../../rating/StarRating";
+import StarRating from "../../Rating/StarRating";
 
 
 const UserItemList = ({ items = [] }) => {
