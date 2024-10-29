@@ -48,7 +48,7 @@ exports.registerAdmin = async (req, res) => {
     publicIds.push(profilePicPath); 
 
     const newUser = await User.create(
-      { first_name, middle_name, last_name, role: "student", email, password: hashedPassword },
+      { first_name, middle_name, last_name, role: "admin", email, password: hashedPassword },
       { transaction: t }
     );
 
