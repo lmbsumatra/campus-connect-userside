@@ -29,7 +29,7 @@ const MessagePage = () => {
 
   return (
     <>
-      <div className="message-page custom-container">
+      <div className="message-page container-content">
         <div className="message-content">
           <div className="inbox">
             <h3>Messages</h3>

@@ -3,9 +3,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './postDashboard.css';
 import ViewItem from '../../users/ViewListing';
 import ActionModal from '../../../../components/Action Modal/ActionModal';
-import ViewPost from '../../users/ViewPost';
+import EditProfile from '../../../../components/editprofile/EditProfile';
 
-const PostApproval = () => {
+const UserVerification = () => {
   const [showModal, setShowModal] = useState(false);
 
   const handleOpenModal = () => setShowModal(true);
@@ -22,8 +22,8 @@ const PostApproval = () => {
   };
 
   return (
-    <div className="container my-2">
-      <ViewPost />
+    <div className="admin-content-container">
+      <EditProfile />
       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
         <button 
           className="btn btn-rectangle primary no-fill my-3 me-4 btn-lg" 
@@ -45,4 +45,4 @@ const PostApproval = () => {
   );
 };
 
-export default PostApproval;
+export default UserVerification;

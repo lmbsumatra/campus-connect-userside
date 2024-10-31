@@ -93,10 +93,10 @@ const NavBar2 = () => {
           </div>
 
           <div className="nav-toolbar d-flex justify-content-between w-100 gap-5">
-            <div className="nav-logo gap-3">
+            <a className="nav-logo gap-3 text-decoration-none" href="/home">
               <img src={ccLogo} alt="Logo" />
               <span className="fw-bold">Campus Connect</span>
-            </div>
+            </a>
 
             <div className="nav-searchbar w-50">
               <form role="search">

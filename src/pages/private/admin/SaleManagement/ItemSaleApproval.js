@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './postDashboard.css';
-import ViewItem from '../../users/ViewListing';
+// import './postDashboard.css';
+import ViewItem from '../../users/ViewItem';
 import ActionModal from '../../../../components/Action Modal/ActionModal';
-import ViewPost from '../../users/ViewPost';
 
-const PostApproval = () => {
+const ItemForSaleApproval = ({id}) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleOpenModal = () => setShowModal(true);
@@ -22,8 +21,8 @@ const PostApproval = () => {
   };
 
   return (
-    <div className="container my-2">
-      <ViewPost />
+    <div className="admin-content-container">
+      <ViewItem id={id}/>
       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
         <button 
           className="btn btn-rectangle primary no-fill my-3 me-4 btn-lg" 
@@ -45,4 +44,4 @@ const PostApproval = () => {
   );
 };
 
-export default PostApproval;
+export default ItemForSaleApproval;

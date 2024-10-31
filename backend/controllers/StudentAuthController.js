@@ -6,23 +6,45 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const cloudinary = require("cloudinary").v2;
+const { models } = require("../models/index");
 
 const bcrypt = require("bcrypt");
 const { rollbackUpload } = require("../config/multer");
 
 async function verify(token) {
   const ticket = await client.verifyIdToken({
-    idToken: token, 
+    idToken: token,
     audience: process.env.GOOGLE_CLIENT_ID,
   });
 
   return ticket.getPayload();
 }
 
+exports.getAllStudents = async (req, res) => {
+  try {
+    const users = await models.User.findAll({
+      attributes: ["user_id", "first_name", "last_name", "createdAt"],
+      include: [
+        {
+          model: models.Student,
+          as: "student",
+          attributes: ["college"],
+        },
+      ],
+    });
+
+    res.status(200).json(users);
+    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Register a new student
 exports.registerStudent = async (req, res) => {
-  const t = await sequelize.transaction(); 
-  let publicIds = []; 
+  const t = await sequelize.transaction();
+  let publicIds = [];
 
   try {
     const {
@@ -37,7 +59,16 @@ exports.registerStudent = async (req, res) => {
 
     const { scanned_id, photo_with_id } = req.files;
 
-    if (!first_name || !last_name || !email || !password || !tup_id || !college || !scanned_id || !photo_with_id)
+    if (
+      !first_name ||
+      !last_name ||
+      !email ||
+      !password ||
+      !tup_id ||
+      !college ||
+      !scanned_id ||
+      !photo_with_id
+    )
       return res.status(400).json({ message: "All fields are required" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -45,7 +76,14 @@ exports.registerStudent = async (req, res) => {
     publicIds.push(scanned_id[0].filename, photo_with_id[0].filename);
 
     const newUser = await User.create(
-      { first_name, middle_name, last_name, role: "student", email, password: hashedPassword },
+      {
+        first_name,
+        middle_name,
+        last_name,
+        role: "student",
+        email,
+        password: hashedPassword,
+      },
       { transaction: t }
     );
 
@@ -61,13 +99,13 @@ exports.registerStudent = async (req, res) => {
       { transaction: t }
     );
 
-    await t.commit(); 
+    await t.commit();
     res.status(201).json({
       message: "Student registered successfully",
       student: newStudent,
     });
   } catch (error) {
-    await t.rollback(); 
+    await t.rollback();
 
     await rollbackUpload(publicIds);
 
@@ -78,7 +116,6 @@ exports.registerStudent = async (req, res) => {
     });
   }
 };
-
 
 // Login a student
 exports.loginStudent = async (req, res) => {
@@ -165,7 +202,7 @@ exports.getUserInformation = async (req, res) => {
       student: {
         tup_id: student.tup_id,
         college: student.college,
-        scanned_id: student.scanned_id, 
+        scanned_id: student.scanned_id,
         photo_with_id: student.photo_with_id,
       },
     });

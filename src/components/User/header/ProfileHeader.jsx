@@ -4,10 +4,12 @@ import editIcon from "../../../assets/images/icons/edit.png";
 import "./profileHeaderStyles.css";
 import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { formatDate } from "../../../utils/dateFormat";
+import { useNavigate } from "react-router-dom";
 
 // Define the fetchUserInfo function here or import it from another file
 
 const ProfileHeader = () => {
+  const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null);
   const [selectedOption, setSelectedOption] = useState("Renter");
   const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
@@ -35,9 +37,16 @@ const ProfileHeader = () => {
     }
   };
 
+  const handleEditButton = () => {
+    navigate("/profile/edit-profile");
+  };
+
   return (
     <div className="profile-header">
-      <div className="profile-banner" style={{ background: getBackgroundColor() }}>
+      <div
+        className="profile-banner"
+        style={{ background: getBackgroundColor() }}
+      >
         <div className="profile-picture">
           <div className="holder">
             <img src={profilePhoto} alt="Profile" className="profile-photo" />
@@ -46,7 +55,10 @@ const ProfileHeader = () => {
         <div>
           {userInfo.user ? (
             <>
-              <h4 className="text-white">{userInfo.user.first_name} {userInfo.user.last_name || "User Name"}</h4>
+              <h4 className="text-white">
+                {userInfo.user.first_name}{" "}
+                {userInfo.user.last_name || "User Name"}
+              </h4>
               <div className="profile-info d-flex">
                 <div className="d-block">
                   <span className="label">College</span>
@@ -54,9 +66,15 @@ const ProfileHeader = () => {
                   <span className="label">Joined</span>
                 </div>
                 <div className="d-block">
-                  <span className="value">{userInfo.student.college || "N/A"}</span>
-                  <span className="value">{userInfo.student.rating || "N/A"}</span>
-                  <span className="value">{formatDate(userInfo.user.createdAt) || "N/A"}</span>
+                  <span className="value">
+                    {userInfo.student.college || "N/A"}
+                  </span>
+                  <span className="value">
+                    {userInfo.student.rating || "N/A"}
+                  </span>
+                  <span className="value">
+                    {formatDate(userInfo.user.createdAt) || "N/A"}
+                  </span>
                 </div>
               </div>
             </>
@@ -65,7 +83,10 @@ const ProfileHeader = () => {
           )}
           {errorMessage && <p className="error-message">{errorMessage}</p>}
           <div>
-            <button className="btn btn-rectangle secondary white my-2">
+            <button
+              className="btn btn-rectangle secondary white my-2"
+              onClick={handleEditButton}
+            >
               <img src={editIcon} alt="Edit" />
               Edit
             </button>

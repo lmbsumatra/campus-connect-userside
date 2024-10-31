@@ -4,6 +4,8 @@ import "./forSaleManagement.css";
 import useFetchAllPostsData from "../../../../utils/FetchAllPostsData";
 import { formatDate } from "../../../../utils/dateFormat";
 import SortFilterComponent from "../../../../components/SortAndFilter/SortFilterComponent";
+import useFetchAllItemsForSaleData from "../../../../utils/FetchAllItemsForSaleData";
+import { useNavigate } from "react-router-dom";
 
 const SaleOverview = () => {
   const [sortOption, setSortOption] = useState('');
@@ -20,21 +22,22 @@ const SaleOverview = () => {
     "Action",
   ];
 
-  const { posts, error, loading } = useFetchAllPostsData();
+  const { items, error, loading } = useFetchAllItemsForSaleData();
+  const navigate = useNavigate();
 
   if (loading) return <p>Loading posts...</p>;
   if (error) return <p>Error: {error}</p>;
 
-  const handleView = (postId) => {
-    console.log(`Editing post with ID: ${postId}`);
+  const handleView = (itemId) => {
+    navigate(`/admin/sales/item-approval/${itemId}`)
   };
 
-  const handleEdit = (postId) => {
-    console.log(`Editing post with ID: ${postId}`);
+  const handleEdit = (itemId) => {
+    console.log(`Editing item with ID: ${itemId}`);
   };
 
-  const handleDelete = (postId) => {
-    console.log(`Deleting post with ID: ${postId}`);
+  const handleDelete = (itemId) => {
+    console.log(`Deleting item with ID: ${itemId}`);
   };
 
   const getStatusInfo = (status) => {
@@ -55,33 +58,33 @@ const SaleOverview = () => {
   };
 
   // Prepare data for TableComponent
-  const data = posts.map((post) => {
-    const { label, className } = getStatusInfo(post.status);
+  const data = items.map((item) => {
+    const { label, className } = getStatusInfo(items.status);
     return [
       <div className="thumbnail-placeholder"></div>,
-      post.post_item_name,
-      post.category,
+      item.post_item_name,
+      item.category,
       <>
-        {post.renter.first_name} {post.renter.last_name}
+        {item.seller.first_name} {item.seller.last_name}
       </>,
-      formatDate(post.created_at),
+      formatDate(item.created_at),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
         <button
           className="btn btn-action view"
-          onClick={() => handleView(post.id)}
+          onClick={() => handleView(item.id)}
         >
           View
         </button>
         <button
           className="btn btn-action edit"
-          onClick={() => handleEdit(post.id)}
+          onClick={() => handleEdit(item.id)}
         >
           Edit
         </button>
         <button
           className="btn btn-action delete"
-          onClick={() => handleDelete(post.id)}
+          onClick={() => handleDelete(item.id)}
         >
           Delete
         </button>
@@ -91,14 +94,14 @@ const SaleOverview = () => {
 
   // Function to filter and sort the posts
   const getFilteredAndSortedData = () => {
-    let filteredData = posts;
+    let filteredData = items;
 
     if (statusFilter) {
-      filteredData = filteredData.filter(post => post.status === statusFilter);
+      filteredData = filteredData.filter(item => item.status === statusFilter);
     }
 
     if (categoryFilter) {
-      filteredData = filteredData.filter(post => post.category === categoryFilter);
+      filteredData = filteredData.filter(item => item.category === categoryFilter);
     }
 
     if (sortOption) {

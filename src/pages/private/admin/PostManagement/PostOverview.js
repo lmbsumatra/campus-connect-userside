@@ -4,6 +4,7 @@ import "./postDashboard.css";
 import useFetchAllPostsData from "../../../../utils/FetchAllPostsData";
 import { formatDate } from "../../../../utils/dateFormat";
 import SortFilterComponent from "../../../../components/SortAndFilter/SortFilterComponent";
+import { useNavigate } from "react-router-dom";
 
 const PostDashboard = () => {
   const [sortOption, setSortOption] = useState('');
@@ -21,12 +22,13 @@ const PostDashboard = () => {
   ];
 
   const { posts, error, loading } = useFetchAllPostsData();
+  const navigate = useNavigate();
 
   if (loading) return <p>Loading posts...</p>;
   if (error) return <p>Error: {error}</p>;
 
   const handleView = (postId) => {
-    console.log(`Editing post with ID: ${postId}`);
+    navigate(`/admin/posts/post-approval/${postId}`)
   };
 
   const handleEdit = (postId) => {

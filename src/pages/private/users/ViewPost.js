@@ -8,6 +8,7 @@ import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import axios from "axios";
 
 function ViewPost() {
+  
   const { id } = useParams();
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -87,8 +88,8 @@ function ViewPost() {
 
   return (
     <div>
-      <div className="container-content">
-        <div className="item-container row bg-white">
+      <div className="">
+        <div className="py-4 px-2 m-0 rounded row bg-white">
           <div className="col-md-6 item-image">
             <img src={itemImageUrl} alt="Item" className="img-container img-fluid" />
           </div>
@@ -160,7 +161,7 @@ function ViewPost() {
           </div>
         </div>
 
-        <div className="item-specs mt-5 bg-white">
+        <div className="item-specs mt-5 p-4 bg-white">
           <h4>Item Specifications</h4>
           <table className="specifications-table">
             <thead>

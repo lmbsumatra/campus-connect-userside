@@ -8,6 +8,7 @@ const postRoutes = require("./routes/PostRoute");
 const dotenv = require("dotenv");
 const cloudinary = require("./config/cloudinary");
 const adminAuthRoutes = require("./routes/AdminAuthRoutes");
+const itemForSaleRoutes = require("./routes/ItemForSaleRoute")
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.use("/admin", adminAuthRoutes);
 app.use("/listings", listingRoutes);
 
 app.use("/posts", postRoutes);
+app.use("/item-for-sale", itemForSaleRoutes)
 
 // Sync database and start server
 sequelize

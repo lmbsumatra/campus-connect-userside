@@ -52,28 +52,55 @@ const AddListing = () => {
   const toggleGroup = () => setIsExpanded(!isExpanded);
 
   const handleSubmit = async () => {
-    console.log(listingData.dateAndTime);
     try {
-      const response = await axios.post("http://localhost:3001/listings/add", {
-        listing: {
-          owner_id: userInfo.user.user_id,
-          category: userInfo.student.college,
-          listing_name: listingData.name,
-          rate: listingData.rate,
-          delivery_mode: listingData.deliveryMode,
-          late_charges: listingData.lateCharges,
-          security_deposit: listingData.securityDeposit,
-          repair_replacement: listingData.repairReplacement,
-          specifications: listingData.specifications,
-          description: listingData.description,
-          listing_condition: listingData.condition,
-          tags: [...listingData.tags],
-          status: listingData.status,
-          payment_mode: listingData.paymentMode,
-          images: JSON.stringify(listingData.images),
-        },
-        rental_dates: listingData.dateAndTime,
-      });
+      let response;
+
+      // Determine the endpoint based on isForSale state
+      const endpoint = isForSale
+        ? "http://localhost:3001/item-for-sale/add"
+        : "http://localhost:3001/listings/add";
+
+      // Create the payload based on isForSale state
+      const payload = isForSale
+        ? {
+            item: {
+              seller_id: userInfo.user.user_id,
+              category: userInfo.student.college,
+              item_for_sale_name: listingData.name, 
+              price: listingData.rate,
+              delivery_mode: listingData.deliveryMode,
+              item_condition: listingData.condition,
+              payment_mode: listingData.paymentMode,
+              tags: [...listingData.tags], 
+              description: listingData.description,
+              images: JSON.stringify(listingData.images), 
+              status: listingData.status,
+              specifications: listingData.specifications,
+            },
+            rental_dates: listingData.dateAndTime, 
+          }
+        : {
+            listing: {
+              owner_id: userInfo.user.user_id,
+              category: userInfo.student.college,
+              listing_name: listingData.name, // For rentals
+              rate: listingData.rate,
+              delivery_mode: listingData.deliveryMode,
+              late_charges: listingData.lateCharges,
+              security_deposit: listingData.securityDeposit,
+              repair_replacement: listingData.repairReplacement,
+              specifications: listingData.specifications,
+              description: listingData.description,
+              listing_condition: listingData.condition,
+              tags: [...listingData.tags],
+              status: listingData.status,
+              payment_mode: listingData.paymentMode,
+              images: JSON.stringify(listingData.images),
+            },
+            rental_dates: listingData.dateAndTime,
+          };
+
+      response = await axios.post(endpoint, payload);
 
       console.log(response.data);
       alert("Listing created successfully!");
@@ -110,6 +137,12 @@ const AddListing = () => {
     }));
   };
 
+  const [isForSale, setIsForSale] = useState(false);
+
+  const toggleStatus = () => {
+    setIsForSale((prevStatus) => !prevStatus);
+  };
+
   return (
     <div className="container-content">
       <h2>Add item</h2>
@@ -118,10 +151,24 @@ const AddListing = () => {
         <ImageUpload
           listingData={listingData}
           setListingData={setListingData}
+          isForSale={isForSale}
         />
 
         <div className="form-fields bg-white p-3 rounded">
-          <button className="btn btn-rounded thin">CIT</button>
+          <div className="d-flex justify-content-between">
+            <button className="btn btn-rounded thin">CIT</button>
+            <div className="toggle-container">
+              <label className="toggle">
+                <input
+                  type="checkbox"
+                  checked={isForSale}
+                  onChange={toggleStatus}
+                />
+                <span className="slider round"></span>
+              </label>
+              <span>{isForSale ? "For Sale" : "For Rent"}</span>
+            </div>
+          </div>
           <input
             type="text"
             placeholder="Item Name"
@@ -231,56 +278,59 @@ const AddListing = () => {
                 </label>
               </form>
             </div>
-
-            <div className="groupby">
-              <div onClick={toggleGroup} style={{ cursor: "pointer" }}>
-                {isExpanded ? "v Hide Optional Fees" : "> Show Optional Fees"}
+            {!isForSale && (
+              <div className="groupby">
+                <div onClick={toggleGroup} style={{ cursor: "pointer" }}>
+                  {isExpanded ? "v Hide Optional Fees" : "> Show Optional Fees"}
+                </div>
+                <div
+                  className={`optional-fees ${isExpanded ? "expanded" : ""}`}
+                >
+                  <div>
+                    <label>Late Charges</label>
+                    <input
+                      type="text"
+                      value={listingData.lateCharges}
+                      onChange={(e) =>
+                        setListingData({
+                          ...listingData,
+                          lateCharges: e.target.value,
+                        })
+                      }
+                      placeholder="Add if applicable"
+                    />
+                  </div>
+                  <div>
+                    <label>Security Deposit</label>
+                    <input
+                      type="text"
+                      value={listingData.securityDeposit}
+                      onChange={(e) =>
+                        setListingData({
+                          ...listingData,
+                          securityDeposit: e.target.value,
+                        })
+                      }
+                      placeholder="Add if applicable"
+                    />
+                  </div>
+                  <div>
+                    <label>Repair and Replacement</label>
+                    <input
+                      type="text"
+                      value={listingData.repairReplacement}
+                      onChange={(e) =>
+                        setListingData({
+                          ...listingData,
+                          repairReplacement: e.target.value,
+                        })
+                      }
+                      placeholder="Add if applicable"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className={`optional-fees ${isExpanded ? "expanded" : ""}`}>
-                <div>
-                  <label>Late Charges</label>
-                  <input
-                    type="text"
-                    value={listingData.lateCharges}
-                    onChange={(e) =>
-                      setListingData({
-                        ...listingData,
-                        lateCharges: e.target.value,
-                      })
-                    }
-                    placeholder="Add if applicable"
-                  />
-                </div>
-                <div>
-                  <label>Security Deposit</label>
-                  <input
-                    type="text"
-                    value={listingData.securityDeposit}
-                    onChange={(e) =>
-                      setListingData({
-                        ...listingData,
-                        securityDeposit: e.target.value,
-                      })
-                    }
-                    placeholder="Add if applicable"
-                  />
-                </div>
-                <div>
-                  <label>Repair and Replacement</label>
-                  <input
-                    type="text"
-                    value={listingData.repairReplacement}
-                    onChange={(e) =>
-                      setListingData({
-                        ...listingData,
-                        repairReplacement: e.target.value,
-                      })
-                    }
-                    placeholder="Add if applicable"
-                  />
-                </div>
-              </div>
-            </div>
+            )}
 
             <div>
               <label>Condition</label>

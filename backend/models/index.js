@@ -7,6 +7,7 @@ const RentalDate = require("./common/RentalDatesModel")(sequelize);
 const RentalDuration = require("./common/RentalDurationsModel")(sequelize);
 const Student = require("./StudentModel"); 
 const User = require("./UserModel");
+const ItemForSale = require('./item-for-sale/ItemForSaleModel')(sequelize)
 
 const models = {
   Listing,
@@ -15,6 +16,7 @@ const models = {
   User,
   RentalDate, 
   RentalDuration,
+  ItemForSale
 };
 
 Object.values(models).forEach((model) => {

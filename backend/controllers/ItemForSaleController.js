@@ -3,17 +3,29 @@ const sequelize = require("../config/database");
 const { models } = require("../models/index");
 
 // Get all posts with rental dates and durations
-exports.getAllListings = async (req, res) => {
+exports.getAllApprovedItemForSale = async (req, res) => {
   try {
-    const listings = await models.Listing.findAll({
-      attributes: ["id", "listing_name", "tags", "rate", "owner_id", "category", "created_at"],
+    const items = await models.ItemForSale.findAll({
+      attributes: [
+        "id",
+        "item_for_sale_name",
+        "tags",
+        "price",
+        "seller_id",
+        "created_at",
+        "status",
+        "category"
+      ],
+      where: {
+        status: "posted",
+      },
       include: [
         {
           model: models.RentalDate,
-          as: "rental_dates",
+          as: "available_dates",
           required: false,
           where: {
-            item_type: "listing", 
+            item_type: "item_for_sale",
           },
           include: [
             {
@@ -25,13 +37,58 @@ exports.getAllListings = async (req, res) => {
         },
         {
           model: models.User,
-          as: "owner",
+          as: "seller",
           attributes: ["first_name", "last_name"],
         },
       ],
     });
 
-    res.status(200).json(listings);
+    res.status(200).json(items);
+    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAllItemForSale = async (req, res) => {
+  try {
+    const items = await models.ItemForSale.findAll({
+      attributes: [
+        "id",
+        "item_for_sale_name",
+        "tags",
+        "price",
+        "seller_id",
+        "created_at",
+        "status",
+        "category",
+      ],
+      include: [
+        {
+          model: models.RentalDate,
+          as: "available_dates",
+          required: false,
+          where: {
+            item_type: "item_for_sale",
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              required: false,
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "seller",
+          attributes: ["first_name", "last_name"],
+        },
+      ],
+    });
+
+    res.status(200).json(items);
     // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -40,18 +97,18 @@ exports.getAllListings = async (req, res) => {
 };
 
 // Create a post
-exports.createListing = async (req, res) => {
+exports.createItemForSale = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    if (!req.body.listing) {
+    if (!req.body.item) {
       throw new Error("Listing data is missing");
     }
 
-    const listing = await models.Listing.create(req.body.listing, {
+    const item = await models.ItemForSale.create(req.body.item, {
       transaction,
     });
-    console.log("Created listing:", listing);
+    console.log("Created item:", item);
 
     const rentalDates = req.body.rental_dates;
 
@@ -66,9 +123,9 @@ exports.createListing = async (req, res) => {
 
       const rentalDate = await models.RentalDate.create(
         {
-          item_id: listing.id,
+          item_id: item.id,
           date: date.date,
-          item_type: "listing",
+          item_type: "item_for_sale",
         },
         { transaction }
       );
@@ -95,7 +152,7 @@ exports.createListing = async (req, res) => {
     }
 
     await transaction.commit();
-    res.status(201).json(listing);
+    res.status(201).json(item);
   } catch (error) {
     await transaction.rollback();
 
@@ -108,20 +165,21 @@ exports.createListing = async (req, res) => {
     res.status(500).json({
       error: "Internal Server Error",
       message: error.message,
-      details: "Failed to create listing. Please check the input data and try again.",
+      details:
+        "Failed to create listing. Please check the input data and try again.",
     });
   }
 };
 
-
 // Get a single post by ID with associated rental dates, durations, and renter info
-exports.getListingById = async (req, res) => {
+exports.getItemForSaleById = async (req, res) => {
   try {
-    const post = await models.Listing.findByPk(req.params.id, {
+    const item = await models.ItemForSale.findByPk(req.params.id, {
       include: [
         {
           model: models.RentalDate,
-          as: "rental_dates",
+          as: "available_dates",
+          where: { item_type: "item_for_sale" },
           include: [
             {
               model: models.RentalDuration,
@@ -131,7 +189,7 @@ exports.getListingById = async (req, res) => {
         },
         {
           model: models.User,
-          as: "owner",
+          as: "seller",
           include: [
             {
               model: models.Student,
@@ -142,10 +200,10 @@ exports.getListingById = async (req, res) => {
       ],
     });
 
-    if (!post) {
+    if (!item) {
       return res.status(404).json({ error: "Post not found" });
     }
-    res.status(200).json(post);
+    res.status(200).json(item);
   } catch (error) {
     console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
@@ -153,27 +211,27 @@ exports.getListingById = async (req, res) => {
 };
 
 // Update a post
-exports.updateListing = async (req, res) => {
+exports.updateItemForSale = async (req, res) => {
   try {
-    const post = await Listing.findByPk(req.params.id);
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+    const item = await models.ItemForSale.findByPk(req.params.id);
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
     }
     await post.update(req.body);
-    res.status(200).json(post);
+    res.status(200).json(item);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
 // Delete a post
-exports.deleteListing = async (req, res) => {
+exports.deleteItemForSale = async (req, res) => {
   try {
-    const post = await Listing.findByPk(req.params.id);
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+    const item = await Listing.findByPk(req.params.id);
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
     }
-    await post.destroy();
+    await item.destroy();
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -103,7 +103,7 @@ function EditProfile() {
   };
 
   return (
-    <div className="container rounded bg-white mt-2">
+    <div className="rounded bg-white mt-2">
       {errorMessage && <p className="error-message">{errorMessage}</p>}
       <form className="edit-profile-form">
         <div className="form-section personal-details">
@@ -209,19 +209,25 @@ function EditProfile() {
                 type="file"
                 name="verificationImage"
                 onChange={handleChange}
-              /><div>
-              <label>Photo with ID</label>
+              />
               <div>
-                <img src={formData.photo_with_id}   style={{height: '100px', width: 'auto'}}/>
+                <label>Photo with ID</label>
+                <div>
+                  <img
+                    src={formData.photo_with_id}
+                    style={{ height: "100px", width: "auto" }}
+                  />
+                </div>
               </div>
-            </div>
-            <div>
-              <label>Scanned ID</label>
               <div>
-                <img src={formData.scanned_id}  style={{height: '100px', width: 'auto'}}/>
+                <label>Scanned ID</label>
+                <div>
+                  <img
+                    src={formData.scanned_id}
+                    style={{ height: "100px", width: "auto" }}
+                  />
+                </div>
               </div>
-            </div>
-            
             </div>
           </div>
         </div>
@@ -232,8 +238,8 @@ function EditProfile() {
       </form>
 
       {isModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="change-pass-window">
+          <div className="change-pass-window-content">
             <h3>Change Password</h3>
             <form onSubmit={handleSubmit}>
               <div className="form-group">

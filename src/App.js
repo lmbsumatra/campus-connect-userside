@@ -15,7 +15,7 @@ import AddPost from "./pages/private/users/new-posting/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/MyRentals.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
-import ViewItem from "./pages/private/users/ViewListing.js";
+import ViewListing from "./pages/private/users/ViewListing.js";
 import AddListing from "./pages/private/users/new-listing/AddListing.js";
 import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
 import Footer from "./components/users/footer/Footer.jsx";
@@ -27,6 +27,7 @@ import Shop from "./pages/public/Shop.js";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import AdminSettings from "./pages/private/admin/settings/AdminSettings.js";
 import AdminLogin from "./pages/private/admin/login/AdminLogin.js";
+import ViewItem from "./pages/private/users/ViewItem.js"
 
 //Post Management Dashboard - ADMIN
 import PostDashboard from "./pages/private/admin/PostManagement/PostDashboard.js";
@@ -35,6 +36,13 @@ import PostApproval from "./pages/private/admin/PostManagement/PostApproval.js";
 
 import ForSaleManagement from "./pages/private/admin/SaleManagement/ForSaleManagement.js";
 import SaleOverview from "./pages/private/admin/SaleManagement/SaleOverview.js";
+import ItemForSaleApproval from "./pages/private/admin/SaleManagement/ItemSaleApproval.js";
+import ListingDashboard from "./pages/private/admin/listing-management/ListingDashboard.js";
+import ListingOverview from "./pages/private/admin/listing-management/ListingOverview.js";
+import ListingApproval from "./pages/private/admin/listing-management/ListingApproval.js";
+import UserDashboard from "./pages/private/admin/user-management/UserDashboard.js";
+import UserOverview from "./pages/private/admin/user-management/UserOverview.js";
+import UserVerification from "./pages/private/admin/user-management/UserVerification.js";
 
 function App() {
   return (
@@ -64,8 +72,10 @@ function Content() {
         <Route path="/shop" element={<Shop />} />
 
         {/* PRIVATE ROUTES */}
-        <Route path="/lend/:id" element={<ViewPost />} />
-        <Route path="/rent/:id" element={<ViewItem />} />
+        <Route path="/lend/:id" element={<div className="container-content"><ViewPost /></div>} />
+        <Route path="/rent/:id" element={<div className="container-content"><ViewListing /></div>} />
+        <Route path="/item-for-sale/:id" element={<div className="container-content"><ViewItem/></div>} />
+
         <Route path="/new-post2" element={<PostForm />} />
         <Route path="/new-post" element={<AddPost />} />
         <Route path="/add-listing" element={<AddListing />} />
@@ -80,11 +90,23 @@ function Content() {
         <Route path="/admin" element={<Admin />}>
           <Route path="*" element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          {/* USER MANAGEMENT */}
+          <Route path="users" element={<UserDashboard />} />
+          <Route path="users/user-overview" element={<UserOverview />} />
+          <Route path="users/user-verification/:id" element={<UserVerification />} />
+          {/* LISTING */}
+          <Route path="listings" element={<ListingDashboard />} />
+          <Route path="listings/listing-overview" element={<ListingOverview/>} />
+          <Route path="listings/listing-approval/:id" element={<ListingApproval />} />
+          {/* POSTS */}
           <Route path="posts" element={<PostDashboard />} />
-          <Route path="post-overview" element={<PostOverview />} />
-          <Route path="post-approval" element={<PostApproval />} />
+          <Route path="posts/post-overview" element={<PostOverview />} />
+          <Route path="posts/post-approval/:id" element={<PostApproval />} />
+          {/* ITEM FOR SALE */}
           <Route path="sales" element={<ForSaleManagement />} />
-          <Route path="sales-overview" element={<SaleOverview />} />
+          <Route path="sales/sales-overview" element={<SaleOverview />} />
+          <Route path="sales/item-approval/:id" element={<ItemForSaleApproval />} />
+          {/* ADMIN MANAGEMENT */}
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>

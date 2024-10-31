@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import TableComponent from "../../../../components/Table/TableComponent";
-import "./forSaleManagement.css"
+import "./forSaleManagement.css";
 import SortFilterComponent from "../../../../components/SortAndFilter/SortFilterComponent"; // Import the SortFilterComponent
 import useFetchAllPostsData from "../../../../utils/FetchAllPostsData";
 import { formatDate } from "../../../../utils/dateFormat";
+import useFetchAllItemsForSaleData from "../../../../utils/FetchAllItemsForSaleData";
+import { useNavigate } from "react-router-dom";
 
 const ForSaleManagement = () => {
-  const [sortOption, setSortOption] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  
+  const [sortOption, setSortOption] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const navigate = useNavigate();
+
   const headers = [
     "Thumbnail",
     "Title",
@@ -20,13 +23,14 @@ const ForSaleManagement = () => {
     "Action",
   ];
 
-  const { posts, error, loading } = useFetchAllPostsData();
+  const { items, error, loading } = useFetchAllItemsForSaleData();
+  console.log(items);
 
   if (loading) return <p>Loading posts...</p>;
   if (error) return <p>Error: {error}</p>;
-
+  
   const handleView = (postId) => {
-    console.log(`Editing post with ID: ${postId}`);
+    navigate(`/admin/sales/item-approval/${postId}`);
   };
 
   const handleEdit = (postId) => {
@@ -55,33 +59,33 @@ const ForSaleManagement = () => {
   };
 
   // Prepare data for TableComponent
-  const data = posts.map((post) => {
-    const { label, className } = getStatusInfo(post.status);
+  const data = items.map((item) => {
+    const { label, className } = getStatusInfo(item.status);
     return [
       <div className="thumbnail-placeholder"></div>,
-      post.post_item_name,
-      post.category,
+      item.item_for_sale_name,
+      item.category,
       <>
-        {post.renter.first_name} {post.renter.last_name}
+        {item.seller.first_name} {item.seller.last_name}
       </>,
-      formatDate(post.created_at),
+      formatDate(item.created_at),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
-      <button
+        <button
           className="btn btn-action view"
-          onClick={() => handleView(post.id)}
+          onClick={() => handleView(item.id)}
         >
           View
         </button>
         <button
           className="btn btn-action edit"
-          onClick={() => handleEdit(post.id)}
+          onClick={() => handleEdit(item.id)}
         >
           Edit
         </button>
         <button
           className="btn btn-action delete"
-          onClick={() => handleDelete(post.id)}
+          onClick={() => handleDelete(item.id)}
         >
           Delete
         </button>
@@ -89,28 +93,32 @@ const ForSaleManagement = () => {
     ];
   });
 
-   // Function to filter and sort the posts
-   const getFilteredAndSortedData = () => {
-    let filteredData = posts;
+  // Function to filter and sort the posts
+  const getFilteredAndSortedData = () => {
+    let filteredData = items;
 
     if (statusFilter) {
-      filteredData = filteredData.filter(post => post.status === statusFilter);
+      filteredData = filteredData.filter(
+        (post) => post.status === statusFilter
+      );
     }
 
     if (categoryFilter) {
-      filteredData = filteredData.filter(post => post.category === categoryFilter);
+      filteredData = filteredData.filter(
+        (post) => post.category === categoryFilter
+      );
     }
 
     if (sortOption) {
       filteredData = [...filteredData].sort((a, b) => {
         switch (sortOption) {
-          case 'title':
+          case "title":
             return a.post_item_name.localeCompare(b.post_item_name);
-          case 'renter':
+          case "renter":
             return `${a.renter.first_name} ${a.renter.last_name}`.localeCompare(
               `${b.renter.first_name} ${b.renter.last_name}`
             );
-          case 'date':
+          case "date":
             return new Date(a.created_at) - new Date(b.created_at);
           default:
             return 0;
@@ -121,18 +129,16 @@ const ForSaleManagement = () => {
     return filteredData;
   };
 
-
   return (
     <div className="admin-content-container">
       <div className="row">
-        
         {/* Left Side: Recent Posts */}
         <div className="col-lg-8">
           <div className="recent-posts-header p-3 mb-3">
             <h4>Recent Sale</h4>
-            
+
             {/* Sorting and Filtering Component */}
-              <SortFilterComponent
+            <SortFilterComponent
               sortOption={sortOption}
               onSortChange={setSortOption}
               statusFilter={statusFilter}

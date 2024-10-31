@@ -7,7 +7,7 @@ import itemImage from "../../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 
-function ViewListing() {
+function ViewItem() {
   const { id } = useParams();
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -19,7 +19,7 @@ function ViewListing() {
     const fetchItem = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/listings/${id}`
+          `http://localhost:3001/item-for-sale/${id}`
         );
         setSelectedItem(response.data);
 
@@ -60,8 +60,8 @@ function ViewListing() {
   const {
     itemImage: itemImageUrl = itemImage,
     rating = 0,
-    rate = "0",
-    rental_dates = [],
+    price = "0",
+    available_dates = [],
     userProfilePicture: userProfilePic = userProfilePicture,
     userName = "Unknown User",
     userRating = 0,
@@ -91,7 +91,7 @@ function ViewListing() {
   return (
     <div>
       <div className="">
-        <div className="py-4 px-2 m-0 rounded row bg-white">
+        <div className="py-4 px-2  m-0 rounded row bg-white">
           <div className="col-md-6 item-image">
             <img
               src={itemImageUrl}
@@ -106,13 +106,13 @@ function ViewListing() {
             </button>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <p className="mb-0">
-                <strong>{selectedItem.listing_name}</strong>
+                <strong>{selectedItem.item_for_sale_name}</strong>
               </p>
               <p className="mb-0">
                 <strong>{rating}</strong>
               </p>
             </div>
-            <span className="price">₱{rate}/hr</span>
+            <span className="price">₱{price}/hr</span>
             <div className="mt-5 d-flex justify-content-end">
               <button className="btn btn-rectangle secondary no-fill me-2">
                 Message
@@ -126,13 +126,13 @@ function ViewListing() {
 
             <p>
               <strong>Available Dates</strong>
-              {rental_dates.map((rental) => (
+              {available_dates.map((date) => (
                 <button
-                  key={rental.id}
+                  key={date.id}
                   className="btn btn-rounded thin me-2 ms-2"
-                  onClick={() => setSelectedDate(rental.date)}
+                  onClick={() => setSelectedDate(date.date)}
                 >
-                  {formatDate(rental.date)}
+                  {formatDate(date.date)}
                 </button>
               ))}
             </p>
@@ -148,7 +148,7 @@ function ViewListing() {
                 :
               </p>
               {(selectedDate &&
-                rental_dates
+                available_dates
                   .find((rental) => rental.date === selectedDate)
                   ?.durations?.map((duration) => (
                     <button
@@ -161,19 +161,6 @@ function ViewListing() {
                     </button>
                   ))) || <p>No times available</p>}
             </div>
-
-            <p>
-              <strong>Late Charges:</strong> ₱{selectedItem.late_charges}/hr
-            </p>
-            <p>
-              <strong>Security Deposit:</strong> ₱
-              {selectedItem.security_deposit}
-            </p>
-            <p>
-              <strong>Repair and Replacement:</strong>{" "}
-              {selectedItem.repair_replacement}
-            </p>
-
             <div>
               <p>
                 <strong>Payment Mode:</strong>
@@ -239,7 +226,7 @@ function ViewListing() {
           </div>
         </div>
 
-        <div className="item-specs mt-5 p-4 bg-white">
+        <div className="item-specs mt-5  p-4 bg-white">
           <h4>Item Specifications</h4>
           <table className="specifications-table">
             <thead>
@@ -284,4 +271,4 @@ function ViewListing() {
   );
 }
 
-export default ViewListing;
+export default ViewItem;

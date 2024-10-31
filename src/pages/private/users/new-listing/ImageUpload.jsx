@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 
-export const ImageUpload = ({ listingData = { images: [] }, setListingData }) => {
+import itemForSaleIcon from "../../../../assets/images/card/sale.png";
+
+export const ImageUpload = ({
+  listingData = { images: [] },
+  setListingData,
+  isForSale,
+}) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageURLs, setImageURLs] = useState([]);
 
@@ -13,7 +19,7 @@ export const ImageUpload = ({ listingData = { images: [] }, setListingData }) =>
     }));
 
     setCurrentImageIndex((prevIndex) => Math.min(prevIndex, files.length - 1));
-    e.target.value = ""; 
+    e.target.value = "";
   };
 
   const handleRemoveImage = (index) => {
@@ -51,6 +57,14 @@ export const ImageUpload = ({ listingData = { images: [] }, setListingData }) =>
           className="image-preview"
           onClick={() => document.getElementById("imageInput").click()}
         >
+          {isForSale && (
+            <img
+              src={itemForSaleIcon}
+              className="sale-icon"
+              alt="Item for sale icon/indication"
+            />
+          )}
+
           {listingData.images.length === 0 ? (
             "Click here to add an image."
           ) : (

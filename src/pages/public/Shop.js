@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import NavBar from "../../components/navbar/navbar/NavBar";
 import ListingItem from "../../components/listings/ListingItem";
 import { Link } from "react-router-dom";
@@ -6,72 +6,30 @@ import { Link } from "react-router-dom";
 import item1 from "../../assets/images/item/item_1.jpg";
 import ownerImg from "../../assets/images/icons/user-icon.svg";
 import ItemSale from "../../components/itemsale/ItemSale";
-const items = [
-  {
-    image: item1,
-    title: "Hammer",
-    price: "₱ 600",
-    owner: "Alice Reyes",
-    ownerImage: ownerImg,
-    rating: 4,
-    tags: ["Tool", "Hardware", "Essential"],
-  },
-  {
-    image: item1,
-    title: "Screwdriver",
-    price: "₱ 300",
-    owner: "John Doe",
-    ownerImage: ownerImg,
-    rating: 5,
-    tags: ["Tool", "Hardware", "Handy"],
-  },
-  {
-    image: item1,
-    title: "Pliers",
-    price: "₱ 450",
-    owner: "Maria Santos",
-    ownerImage: ownerImg,
-    rating: 3,
-    tags: ["Tool", "Hardware", "Essential"],
-  },
-  {
-    image: item1,
-    title: "Chisel",
-    price: "₱ 350",
-    owner: "Robert Garcia",
-    ownerImage: ownerImg,
-    rating: 2,
-    tags: ["Tool", "Hardware", "Precision"],
-  },
-  {
-    image: item1,
-    title: "Saw",
-    price: "₱ 700",
-    owner: "Liza Cruz",
-    ownerImage: ownerImg,
-    rating: 4,
-    tags: ["Tool", "Hardware", "Cutting"],
-  },
-  {
-    image: item1,
-    title: "Level",
-    price: "₱ 400",
-    owner: "Carlos Mendez",
-    ownerImage: ownerImg,
-    rating: 5,
-    tags: [
-      "Tool",
-      "Hardware",
-      "Measurement",
-      "Hardware",
-      "Measurement",
-      "Hardware",
-      "Measurement",
-    ],
-  },
-];
+import axios from "axios";
 
 const Shop = () => {
+  const [items, setItems] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/item-for-sale/`
+        );
+        console.log("Response data:", response.data);
+
+        setItems(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItem();
+  }, []);
   return (
     <>
       <div className="container-content">
@@ -104,7 +62,7 @@ const Shop = () => {
             </Link>
           </div>
           <div className="col-md-10">
-            <ItemSale items={items}  title="Shop"/>
+            <ItemSale items={items} title="Shop"  className="col-md-10"/>
           </div>
         </div>
       </div>

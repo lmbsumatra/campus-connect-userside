@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./adminSidebarStyles.css";
 import arrowDown from "../../../assets/images/icons/arrow-down.svg";
 import expandArrow from "../../../assets/images/icons/expandIcon.svg";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ccLogo from "../../../assets/images/navbar/cc-logo.png";
 import dashboardIcon from "../../../assets/images/admin/sidebar/dashboard.svg";
 
@@ -13,6 +13,46 @@ const AdminSidebar = () => {
   const [expandSidebar, setExpandSidebar] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const path = location.pathname;
+
+    // Default to dashboard
+    setActiveTab("dashboard");
+    setActiveSubTab(null);
+
+    if (path.includes("/admin/users")) {
+      setActiveTab("users");
+      
+      if (path.includes("/admin/users/user-overview")) {
+        setActiveSubTab("usersOverview");
+      } else if (path.includes("user-verification")) {
+        setActiveSubTab("usersVerification");
+      }
+    } else if (path.includes("/admin/listings")) {
+      setActiveTab("listings");
+      
+      if (path.includes("listing-overview")) {
+        setActiveSubTab("listingsOverview");
+      } else if (path.includes("listing-approval")) {
+        setActiveSubTab("listingApproval");
+      }
+    } else if (path.includes("/admin/posts")) {
+      setActiveTab("posts");
+      
+      if (path.includes("post-overview")) {
+        setActiveSubTab("postsOverview");
+      } else if (path.includes("post-approval")) {
+        setActiveSubTab("postsApproval");
+      }
+    } else if (path.includes("/admin/sales")) {
+      setActiveTab("sales");
+      setActiveSubTab("salesOverview");
+    } else if (path.includes("/admin/settings")) {
+      setActiveTab("settings");
+    }
+  }, [location]);
 
   const handleExpandTab = (tab) => {
     if (activeTab === tab) {
@@ -55,8 +95,10 @@ const AdminSidebar = () => {
       onMouseLeave={handleMouseLeave}
     >
       <div className="admin-header">
-        <img src={ccLogo} alt="Campus Connect Logo" />
-        {(expandSidebar || isHovered) && <span>Admin</span>}
+        <a href="/admin/dashboard">
+          <img src={ccLogo} alt="Campus Connect Logo" />
+          {(expandSidebar || isHovered) && "Admin"}
+        </a>
       </div>
       {/* Tabs */}
       <div className="tabs">
@@ -111,7 +153,7 @@ const AdminSidebar = () => {
                 activeSubTab === "usersOverview" ? "active" : ""
               }`}
               onClick={() =>
-                handleActiveTab(["usersOverview", "/admin/user-overview"])
+                handleActiveTab(["usersOverview", "/admin/users/user-overview"])
               }
             >
               <div
@@ -128,7 +170,7 @@ const AdminSidebar = () => {
               onClick={() =>
                 handleActiveTab([
                   "usersVerification",
-                  "/admin/user-verification",
+                  "/admin/users/user-verification",
                 ])
               }
             >
@@ -173,7 +215,7 @@ const AdminSidebar = () => {
                 activeSubTab === "listingsOverview" ? "active" : ""
               }`}
               onClick={() =>
-                handleActiveTab(["listingsOverview", "/admin/listing-overview"])
+                handleActiveTab(["listingsOverview", "/admin/listings/listing-overview"])
               }
             >
               <div
@@ -182,6 +224,21 @@ const AdminSidebar = () => {
                 }`}
               ></div>
               {(expandSidebar || isHovered) && <>Listing Overview</>}
+            </div>
+            <div
+              className={`sub-tab ${
+                activeSubTab === "listingApproval" ? "active" : ""
+              }`}
+              onClick={() =>
+                handleActiveTab(["listingApproval", "/admin/listings/listing-approval"])
+              }
+            >
+              <div
+                className={`indication ${
+                  activeSubTab === "listingApproval" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Listing Approval</>}
             </div>
           </div>
         </div>
@@ -208,24 +265,41 @@ const AdminSidebar = () => {
             />
           </div>
           <div
-              className={`sub-tabs ${openTabs.includes("posts") ? "show" : ""}`}
+            className={`sub-tabs ${openTabs.includes("posts") ? "show" : ""}`}
           >
-          <div className={`sub-tab ${activeSubTab === "postsOverview" ? "active" : ""}`}
-         onClick={() => handleActiveTab(["postsOverview", "/admin/post-overview"])}
-          >
-           <div className={`indication ${activeSubTab === "postsOverview" ? "active" : ""}`}
-          ></div>
-            {(expandSidebar || isHovered) && <>Posts</>}
-          </div>
-          <div className={`sub-tab ${activeSubTab === "postsApproval" ? "active" : ""}`}
-          onClick={() => handleActiveTab(["postsApproval", "/admin/post-approval"])}>
-          <div className={`indication ${activeSubTab === "postsApproval" ? "active" : ""}`}>
-          </div>
-            {(expandSidebar || isHovered) && <>Posts Approval</>}
+            <div
+              className={`sub-tab ${
+                activeSubTab === "postsOverview" ? "active" : ""
+              }`}
+              onClick={() =>
+                handleActiveTab(["postsOverview", "/admin/posts/post-overview"])
+              }
+            >
+              <div
+                className={`indication ${
+                  activeSubTab === "postsOverview" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Posts</>}
+            </div>
+            <div
+              className={`sub-tab ${
+                activeSubTab === "postsApproval" ? "active" : ""
+              }`}
+              onClick={() =>
+                handleActiveTab(["postsApproval", "/admin/posts/post-approval"])
+              }
+            >
+              <div
+                className={`indication ${
+                  activeSubTab === "postsApproval" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Posts Approval</>}
+            </div>
           </div>
         </div>
-        </div>
-        
+
         {/* Sales tab */}
         <div>
           <div
@@ -255,7 +329,7 @@ const AdminSidebar = () => {
                 activeSubTab === "salesOverview" ? "active" : ""
               }`}
               onClick={() =>
-                handleActiveTab(["salesOverview", "/admin/sales-overview"])
+                handleActiveTab(["salesOverview", "/admin/sales/sales-overview"])
               }
             >
               <div

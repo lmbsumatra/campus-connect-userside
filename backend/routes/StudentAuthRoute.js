@@ -13,5 +13,9 @@ router.get(
   authenticateToken,
   studentAuthController.getUserInformation
 );
+router.get(
+  "/",
+  studentAuthController.getAllStudents
+);
 
 module.exports = router;
