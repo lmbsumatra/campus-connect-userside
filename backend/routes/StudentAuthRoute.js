@@ -18,4 +18,6 @@ router.get(
   studentAuthController.getAllStudents
 );
 
+router.post("/change-password", authenticateToken, studentAuthController.userChangePassword)
+
 module.exports = router;

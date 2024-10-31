@@ -67,14 +67,11 @@ function EditProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate password inputs
     if (passwordData.newPassword !== passwordData.confirmNewPassword) {
       setErrorMessage("New passwords do not match.");
       return;
     }
-
-    // Call the API to update the user's password
-    const response = await fetch("http://localhost:3001/user/updatePassword", {
+    const response = await fetch("http://localhost:3001/user/change-password", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -93,7 +90,7 @@ function EditProfile() {
         newPassword: "",
         confirmNewPassword: "",
       });
-      setModalOpen(false); // Close modal on success
+      setModalOpen(false);
     } else {
       const errorData = await response.json();
       setErrorMessage(

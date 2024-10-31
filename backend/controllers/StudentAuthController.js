@@ -214,3 +214,40 @@ exports.getUserInformation = async (req, res) => {
     });
   }
 };
+
+
+exports.userChangePassword = async (req, res) => {
+  const userId = req.user.userId;
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    const student = await Student.findOne({ where: { user_id: userId } });
+    if (!student) {
+      return res.status(404).json({ message: "Student record not found" });
+    }
+
+    const user = await User.findByPk(student.user_id);
+    console.log(user)
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Current password is incorrect." });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully." });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({
+      message: "Error changing password",
+      error: error.message,
+    });
+  }
+};
+
