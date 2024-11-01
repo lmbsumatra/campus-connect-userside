@@ -27,9 +27,9 @@ import Shop from "./pages/public/Shop.js";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import AdminSettings from "./pages/private/admin/settings/AdminSettings.js";
 import AdminLogin from "./pages/private/admin/login/AdminLogin.js";
-import ViewItem from "./pages/private/users/ViewItem.js"
+import ViewItem from "./pages/private/users/ViewItem.js";
 
-//Post Management Dashboard - ADMIN
+// Post Management Dashboard - ADMIN
 import PostDashboard from "./pages/private/admin/PostManagement/PostDashboard.js";
 import PostOverview from "./pages/private/admin/PostManagement/PostOverview.js";
 import PostApproval from "./pages/private/admin/PostManagement/PostApproval.js";
@@ -44,13 +44,18 @@ import UserDashboard from "./pages/private/admin/user-management/UserDashboard.j
 import UserOverview from "./pages/private/admin/user-management/UserOverview.js";
 import UserVerification from "./pages/private/admin/user-management/UserVerification.js";
 
+import ProtectedRoute from "./components/Protected Route/ProtectedRoute.js";
+import { AuthProvider } from "./context/AuthContext.js";
+
 function App() {
   return (
-    <BrowserRouter>
-      <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
-        <Content />
-      </GoogleOAuthProvider>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
+          <Content />
+        </GoogleOAuthProvider>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
@@ -72,10 +77,30 @@ function Content() {
         <Route path="/shop" element={<Shop />} />
 
         {/* PRIVATE ROUTES */}
-        <Route path="/lend/:id" element={<div className="container-content"><ViewPost /></div>} />
-        <Route path="/rent/:id" element={<div className="container-content"><ViewListing /></div>} />
-        <Route path="/item-for-sale/:id" element={<div className="container-content"><ViewItem/></div>} />
-
+        <Route
+          path="/lend/:id"
+          element={
+            <div className="container-content">
+              <ViewPost />
+            </div>
+          }
+        />
+        <Route
+          path="/rent/:id"
+          element={
+            <div className="container-content">
+              <ViewListing />
+            </div>
+          }
+        />
+        <Route
+          path="/item-for-sale/:id"
+          element={
+            <div className="container-content">
+              <ViewItem />
+            </div>
+          }
+        />
         <Route path="/new-post2" element={<PostForm />} />
         <Route path="/new-post" element={<AddPost />} />
         <Route path="/add-listing" element={<AddListing />} />
@@ -87,27 +112,58 @@ function Content() {
         <Route path="/user/:id" element={<UserProfileVisit />} />
 
         {/* ADMIN ROUTES */}
-        <Route path="/admin" element={<Admin />}>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+              <Admin />
+            </ProtectedRoute>
+          }
+        >
           <Route path="*" element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+
           {/* USER MANAGEMENT */}
           <Route path="users" element={<UserDashboard />} />
           <Route path="users/user-overview" element={<UserOverview />} />
-          <Route path="users/user-verification/:id" element={<UserVerification />} />
-          {/* LISTING */}
+          <Route
+            path="users/user-verification/:id"
+            element={<UserVerification />}
+          />
+
+          {/* LISTINGS */}
           <Route path="listings" element={<ListingDashboard />} />
-          <Route path="listings/listing-overview" element={<ListingOverview/>} />
-          <Route path="listings/listing-approval/:id" element={<ListingApproval />} />
+          <Route
+            path="listings/listing-overview"
+            element={<ListingOverview />}
+          />
+          <Route
+            path="listings/listing-approval/:id"
+            element={<ListingApproval />}
+          />
+
           {/* POSTS */}
           <Route path="posts" element={<PostDashboard />} />
           <Route path="posts/post-overview" element={<PostOverview />} />
           <Route path="posts/post-approval/:id" element={<PostApproval />} />
+
           {/* ITEM FOR SALE */}
           <Route path="sales" element={<ForSaleManagement />} />
           <Route path="sales/sales-overview" element={<SaleOverview />} />
-          <Route path="sales/item-approval/:id" element={<ItemForSaleApproval />} />
+          <Route
+            path="sales/item-approval/:id"
+            element={<ItemForSaleApproval />}
+          />
+
           {/* ADMIN MANAGEMENT */}
-          <Route path="settings" element={<AdminSettings />} />
+          <Route
+            path="settings"
+            element={
+              <ProtectedRoute allowedRoles={["superadmin"]}>
+                <AdminSettings />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
       {showNavbarAndFooter && <Footer />}
