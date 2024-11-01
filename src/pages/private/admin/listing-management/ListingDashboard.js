@@ -6,6 +6,7 @@ import useFetchAllPostsData from "../../../../utils/FetchAllPostsData";
 import { formatDate } from "../../../../utils/dateFormat";
 import useFetchAllListingsData from "../../../../utils/FetchAllListingsData";
 import { useNavigate } from "react-router-dom";
+import { ItemStatus } from "../../../../utils/Status";
 
 const ListingDashboard = () => {
   const [sortOption, setSortOption] = useState('');
@@ -40,26 +41,10 @@ const ListingDashboard = () => {
     console.log(`Deleting listing with ID: ${itemId}`);
   };
 
-  const getStatusInfo = (status) => {
-    switch (status) {
-      case "posted":
-        return { label: "Posted", className: "bg-success text-white" };
-      case "flagged":
-        return { label: "Flagged", className: "bg-warning text-dark" };
-      case "offered":
-        return { label: "Offered", className: "bg-info text-white" };
-      case "pending":
-        return { label: "Pending", className: "bg-secondary text-white" };
-      case "removed":
-        return { label: "Removed", className: "bg-danger text-white" };
-      default:
-        return { label: "Unknown", className: "bg-light text-dark" };
-    }
-  };
 
   // Prepare data for TableComponent
   const data = listings.map((listing) => {
-    const { label, className } = getStatusInfo(listing.status);
+    const { label, className } = ItemStatus(listing.status);
     return [
       <div className="thumbnail-placeholder"></div>,
       listing.listing_name,

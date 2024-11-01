@@ -6,7 +6,7 @@ const { models } = require("../models/index");
 exports.getAllListings = async (req, res) => {
   try {
     const listings = await models.Listing.findAll({
-      attributes: ["id", "listing_name", "tags", "rate", "owner_id", "category", "created_at"],
+      attributes: ["id", "listing_name", "tags", "rate", "owner_id", "category", "created_at", "status"],
       include: [
         {
           model: models.RentalDate,
@@ -176,6 +176,27 @@ exports.deleteListing = async (req, res) => {
     await post.destroy();
     res.status(204).send();
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update the status of a listing
+exports.updateStatus = async (req, res) => {
+  console.log(req.body)
+  const { status } = req.body; 
+
+  try {
+    const listing = await models.Listing.findByPk(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ error: "Listing not found" });
+    }
+
+    listing.status = status;
+    await listing.save();
+
+    res.status(200).json(listing); 
+  } catch (error) {
+    console.error("Error updating listing status:", error);
     res.status(500).json({ error: error.message });
   }
 };

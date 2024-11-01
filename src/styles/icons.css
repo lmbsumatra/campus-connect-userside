@@ -1,3 +1,6 @@
+/* * * * * * * * * */
+/*      Icons      */
+/* * * * * * * * * */
 .icon-link > img {
   width: 40px;
   height: 40px;
@@ -8,7 +11,7 @@
 }
 
 .nav-icons .icon-link {
-  background-color: var(--clr-dark); /* Set your desired dark color here */
+  background-color: var(--clr-dark); 
 }
 
 img.icon.more {

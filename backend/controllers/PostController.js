@@ -157,3 +157,24 @@ exports.deletePost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Update the status of a listing
+exports.updateStatus = async (req, res) => {
+  console.log(req.body)
+  const { status } = req.body; 
+
+  try {
+    const post = await models.Post.findByPk(req.params.id);
+    if (!post) {
+      return res.status(404).json({ error: "Listing not found" });
+    }
+
+    post.status = status;
+    await post.save(); 
+
+    res.status(200).json(post); 
+  } catch (error) {
+    console.error("Error updating listing status:", error);
+    res.status(500).json({ error: error.message });
+  }
+};

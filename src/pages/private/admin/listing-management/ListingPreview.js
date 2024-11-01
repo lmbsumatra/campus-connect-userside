@@ -1,49 +1,14 @@
-import React, { useState, useEffect } from "react";
-import "../../../components/itemlisting/itemStyles.css";
+import React, { useState } from "react";
+import "../../../../components/itemlisting/itemStyles.css";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
-import itemImage from "../../../assets/images/item/item_1.jpg";
-import { formatDate } from "../../../utils/dateFormat";
-import { formatTimeTo12Hour } from "../../../utils/timeFormat";
+import FetchListingData from "../../../../utils/FetchListingData";
+import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";
+import itemImage from "../../../../assets/images/item/item_1.jpg";
+import { formatDate } from "../../../../utils/dateFormat";
+import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 
-function ViewItem() {
-  const { id } = useParams();
-  const [selectedItem, setSelectedItem] = useState(null);
+function ListingPreview({ selectedItem, loading, error, tags }) {
   const [selectedDate, setSelectedDate] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [tags, setTags] = useState([]);
-
-  useEffect(() => {
-    const fetchItem = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/item-for-sale/${id}`
-        );
-        setSelectedItem(response.data);
-
-        const fetchedTags = response.data.tags;
-        let parsedTags = [];
-        if (Array.isArray(fetchedTags)) {
-          parsedTags = fetchedTags;
-        } else if (typeof fetchedTags === "string") {
-          try {
-            parsedTags = JSON.parse(fetchedTags);
-          } catch (parseError) {
-            parsedTags = fetchedTags.split(",").map((tag) => tag.trim());
-          }
-        }
-        setTags(parsedTags);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItem();
-  }, [id]);
 
   if (loading) {
     return <p>Loading...</p>;
@@ -60,8 +25,8 @@ function ViewItem() {
   const {
     itemImage: itemImageUrl = itemImage,
     rating = 0,
-    price = "0",
-    available_dates = [],
+    rate = "0",
+    rental_dates = [],
     userProfilePicture: userProfilePic = userProfilePicture,
     userName = "Unknown User",
     userRating = 0,
@@ -91,7 +56,7 @@ function ViewItem() {
   return (
     <div>
       <div className="">
-        <div className="py-4 px-2  m-0 rounded row bg-white">
+        <div className="py-4 px-2 m-0 rounded row bg-white">
           <div className="col-md-6 item-image">
             <img
               src={itemImageUrl}
@@ -106,14 +71,13 @@ function ViewItem() {
             </button>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <p className="mb-0">
-              <i>Item for sale </i>
-                <strong>{selectedItem.item_for_sale_name}</strong>
+                <strong>{selectedItem.listing_name}</strong>
               </p>
               <p className="mb-0">
                 <strong>{rating}</strong>
               </p>
             </div>
-            <span className="price">₱{price}/hr</span>
+            <span className="price">₱{rate}/hr</span>
             <div className="mt-5 d-flex justify-content-end">
               <button className="btn btn-rectangle secondary no-fill me-2">
                 Message
@@ -127,13 +91,13 @@ function ViewItem() {
 
             <p>
               <strong>Available Dates</strong>
-              {available_dates.map((date) => (
+              {rental_dates.map((rental) => (
                 <button
-                  key={date.id}
+                  key={rental.id}
                   className="btn btn-rounded thin me-2 ms-2"
-                  onClick={() => setSelectedDate(date.date)}
+                  onClick={() => setSelectedDate(rental.date)}
                 >
-                  {formatDate(date.date)}
+                  {formatDate(rental.date)}
                 </button>
               ))}
             </p>
@@ -149,7 +113,7 @@ function ViewItem() {
                 :
               </p>
               {(selectedDate &&
-                available_dates
+                rental_dates
                   .find((rental) => rental.date === selectedDate)
                   ?.durations?.map((duration) => (
                     <button
@@ -162,6 +126,19 @@ function ViewItem() {
                     </button>
                   ))) || <p>No times available</p>}
             </div>
+
+            <p>
+              <strong>Late Charges:</strong> ₱{selectedItem.late_charges}/hr
+            </p>
+            <p>
+              <strong>Security Deposit:</strong> ₱
+              {selectedItem.security_deposit}
+            </p>
+            <p>
+              <strong>Repair and Replacement:</strong>{" "}
+              {selectedItem.repair_replacement}
+            </p>
+
             <div>
               <p>
                 <strong>Payment Mode:</strong>
@@ -227,7 +204,7 @@ function ViewItem() {
           </div>
         </div>
 
-        <div className="item-specs mt-5  p-4 bg-white">
+        <div className="item-specs mt-5 p-4 bg-white">
           <h4>Item Specifications</h4>
           <table className="specifications-table">
             <thead>
@@ -272,4 +249,4 @@ function ViewItem() {
   );
 }
 
-export default ViewItem;
+export default ListingPreview;

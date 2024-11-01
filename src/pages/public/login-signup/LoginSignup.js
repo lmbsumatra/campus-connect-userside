@@ -170,14 +170,14 @@ const LoginSignUp = ({ tab, onClose }) => {
       !uploadedId ||
       !uploadedImage
     ) {
-      setErrorMessage("Please fill in all required fields."); // Set error message for missing fields
-      errorRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to error message
+      setErrorMessage("Please fill in all required fields."); 
+      errorRef.current.scrollIntoView({ behavior: "smooth" });
       return;
     }
 
     if (userData.password !== userData.confirmPassword) {
       setErrorMessage("Passwords do not match");
-      errorRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to error message
+      errorRef.current.scrollIntoView({ behavior: "smooth" });
       return;
     }
 
@@ -369,10 +369,8 @@ const LoginSignUp = ({ tab, onClose }) => {
                     name="middleName"
                     value={userData.middleName}
                     onChange={handleChange}
-                    // onBlur={() => handleBlur("middleName")}
                     placeholder="Middle name (optional)"
                     className="form-control"
-                    // style={{ borderColor: getBorderColor("middleName") }}
                   />
                   <input
                     type="text"

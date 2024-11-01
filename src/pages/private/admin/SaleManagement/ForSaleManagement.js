@@ -6,6 +6,7 @@ import useFetchAllPostsData from "../../../../utils/FetchAllPostsData";
 import { formatDate } from "../../../../utils/dateFormat";
 import useFetchAllItemsForSaleData from "../../../../utils/FetchAllItemsForSaleData";
 import { useNavigate } from "react-router-dom";
+import { ItemStatus } from "../../../../utils/Status";
 
 const ForSaleManagement = () => {
   const [sortOption, setSortOption] = useState("");
@@ -41,26 +42,10 @@ const ForSaleManagement = () => {
     console.log(`Deleting post with ID: ${postId}`);
   };
 
-  const getStatusInfo = (status) => {
-    switch (status) {
-      case "posted":
-        return { label: "Posted", className: "bg-success text-white" };
-      case "flagged":
-        return { label: "Flagged", className: "bg-warning text-dark" };
-      case "offered":
-        return { label: "Offered", className: "bg-info text-white" };
-      case "pending":
-        return { label: "Pending", className: "bg-secondary text-white" };
-      case "removed":
-        return { label: "Removed", className: "bg-danger text-white" };
-      default:
-        return { label: "Unknown", className: "bg-light text-dark" };
-    }
-  };
 
   // Prepare data for TableComponent
   const data = items.map((item) => {
-    const { label, className } = getStatusInfo(item.status);
+    const { label, className } = ItemStatus(item.status);
     return [
       <div className="thumbnail-placeholder"></div>,
       item.item_for_sale_name,

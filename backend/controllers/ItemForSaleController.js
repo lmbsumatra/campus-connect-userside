@@ -17,7 +17,7 @@ exports.getAllApprovedItemForSale = async (req, res) => {
         "category"
       ],
       where: {
-        status: "posted",
+        status: "approved",
       },
       include: [
         {
@@ -234,6 +234,27 @@ exports.deleteItemForSale = async (req, res) => {
     await item.destroy();
     res.status(204).send();
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.updateStatus = async (req, res) => {
+  console.log(req.body)
+  const { status } = req.body; 
+
+  try {
+    const item_for_sale = await models.ItemForSale.findByPk(req.params.id);
+    if (!item_for_sale) {
+      return res.status(404).json({ error: "Listing not found" });
+    }
+
+    item_for_sale.status = status;
+    await item_for_sale.save(); 
+
+    res.status(200).json(item_for_sale);
+  } catch (error) {
+    console.error("Error updating listing status:", error);
     res.status(500).json({ error: error.message });
   }
 };

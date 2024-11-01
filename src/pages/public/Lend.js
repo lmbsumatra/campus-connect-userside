@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../../components/navbar/navbar/NavBar";
 import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
 import FAB from "../../components/fab/FAB";
 import axios from "axios";

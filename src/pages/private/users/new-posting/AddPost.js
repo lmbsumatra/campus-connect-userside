@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-// style
+
 import "./addPostStyles.css";
 import { ImageUpload } from "./ImageUpload";
 import { HandleSpecifications } from "./HandleSpecifications";

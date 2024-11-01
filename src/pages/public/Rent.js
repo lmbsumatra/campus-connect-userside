@@ -4,13 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 
 // Component Imports
-import NavBar from "../../components/navbar/navbar/NavBar";
-import ListingItem from "../../components/listings/ListingItem";
 import ItemList from "../../components/itemlisting/ItemList";
-
-// Asset Imports
-import item1 from "../../assets/images/item/item_1.jpg";
-import ownerImg from "../../assets/images/icons/user-icon.svg";
 
 const Rent = () => {
   const location = useLocation();

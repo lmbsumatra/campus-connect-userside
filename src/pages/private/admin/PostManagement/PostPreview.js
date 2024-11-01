@@ -1,47 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import "../../../../components/itemlisting/itemStyles.css";
 import { useParams } from "react-router-dom";
-import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
-import itemImage from "../../../assets/images/item/item_1.jpg";
-import { formatDate } from "../../../utils/dateFormat";
-import { formatTimeTo12Hour } from "../../../utils/timeFormat";
-import axios from "axios";
+import FetchListingData from "../../../../utils/FetchListingData";
+import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";
+import itemImage from "../../../../assets/images/item/item_1.jpg";
+import { formatDate } from "../../../../utils/dateFormat";
+import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 
-function ViewPost() {
-  
-  const { id } = useParams();
-  const [selectedPost, setSelectedPost] = useState(null);
+function PostPreview({ selectedItem, loading, error, tags }) {
   const [selectedDate, setSelectedDate] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [tags, setTags] = useState([]);
-
-  useEffect(() => {
-    const fetchItem = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3001/posts/${id}`);
-        setSelectedPost(response.data);
-
-        const fetchedTags = response.data.tags;
-        let parsedTags = [];
-        if (Array.isArray(fetchedTags)) {
-          parsedTags = fetchedTags;
-        } else if (typeof fetchedTags === "string") {
-          try {
-            parsedTags = JSON.parse(fetchedTags);
-          } catch (parseError) {
-            parsedTags = fetchedTags.split(",").map((tag) => tag.trim());
-          }
-        }
-        setTags(parsedTags);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItem();
-  }, [id]);
 
   if (loading) {
     return <p>Loading...</p>;
@@ -51,31 +18,32 @@ function ViewPost() {
     return <p>Error: {error}</p>;
   }
 
-  if (!selectedPost) {
+  if (!selectedItem) {
     return <p>Item not found</p>;
   }
 
   const {
     itemImage: itemImageUrl = itemImage,
-    post_item_name = "N/A",
+    rating = 0,
+    rate = "0",
     rental_dates = [],
     userProfilePicture: userProfilePic = userProfilePicture,
-    renter = {},
+    userName = "Unknown User",
     userRating = 0,
     description = "No description available.",
-  } = selectedPost;
+  } = selectedItem;
 
   let specifications = {};
 
-  if (typeof selectedPost.specifications === "string") {
+  if (typeof selectedItem.specifications === "string") {
     try {
-      specifications = JSON.parse(selectedPost.specifications);
+      specifications = JSON.parse(selectedItem.specifications);
     } catch (error) {
       console.error("Error parsing specifications:", error);
       specifications = {};
     }
-  } else if (typeof selectedPost.specifications === "object") {
-    specifications = selectedPost.specifications;
+  } else if (typeof selectedItem.specifications === "object") {
+    specifications = selectedItem.specifications;
   }
 
   const itemSpecifications = Object.entries(specifications).map(
@@ -95,12 +63,12 @@ function ViewPost() {
 
           <div className="col-md-6 item-desc">
             <button className="btn btn-rounded thin">
-              {selectedPost.category}
+              {selectedItem.category}
             </button>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <p className="mb-0">
                 <i>Looking for </i>
-                <strong>{post_item_name}</strong>
+                <strong>{selectedItem.post_item_name}</strong>
               </p>
             </div>
             <div className="mt-5 d-flex justify-content-end">
@@ -145,8 +113,8 @@ function ViewPost() {
             <div className="d-flex align-items-center">
               <img src={userProfilePic} alt="Profile" className="profile-pic me-2" />
               <div>
-                <a href={`/userprofile/${renter.first_name}`} className="text-dark small text-decoration-none">
-                  {renter.first_name}
+                <a href={`/userprofile/${selectedItem.renter.first_name}`} className="text-dark small text-decoration-none">
+                  {selectedItem.renter.first_name}
                 </a>
               </div>
             </div>
@@ -201,4 +169,4 @@ function ViewPost() {
   );
 }
 
-export default ViewPost;
+export default PostPreview;

@@ -174,3 +174,5 @@ CREATE TABLE items_for_sale (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+alter table listings modify column status enum('pending','approved', 'declined', 'removed', 'revoked', 'flagged');

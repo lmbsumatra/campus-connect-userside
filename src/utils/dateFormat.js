@@ -6,5 +6,5 @@ export const formatDate = (dateString) => {
   }
   
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  return date.toLocaleDateString(undefined, options); // Format date to "Month Day, Year"
+  return date.toLocaleDateString(undefined, options); 
 };

@@ -1,3 +1,6 @@
+/* * * * * * * * * */
+/*       Cards     */
+/* * * * * * * * * */
 .card {
   height: auto;
   width: 200px;
@@ -9,16 +12,14 @@
 }
 
 .card:hover {
-  border: 1px solid var(--clr-primary); /* Default hover color */
+  border: 1px solid var(--clr-primary);
 }
 
-/* Common styles for card images */
 .card-img-top {
   border-radius: 4px;
   overflow: hidden;
 }
 
-/* Common styles for card body */
 .card-body {
   display: flex;
   justify-content: space-between;
@@ -58,7 +59,6 @@
 
 /* Variant 2 styles */
 
-/* Card layout for variant 2 */
 .card.card-variant-2 {
   padding: 10px;
   width: 370px;
@@ -66,19 +66,16 @@
   justify-content: space-between;
 }
 
-/* Card hover effect */
 .card.card-variant-2:hover {
   border: 1px solid var(--clr-accent);
 }
 
-/* Adjusting card-body style */
 .card-variant-2 .card-body {
   width: auto;
   padding-right: 10px;
   display: block;
 }
 
-/* Image container */
 .card-variant-2 .card-img {
   width: auto;
   height: 100%;
@@ -114,7 +111,7 @@
 }
 
 .card:hover {
-  border: 1px solid var(--clr-primary); /* Default hover color */
+  border: 1px solid var(--clr-primary); 
 }
 
 /* Common styles for card images */

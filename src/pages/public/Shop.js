@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../../components/navbar/navbar/NavBar";
-import ListingItem from "../../components/listings/ListingItem";
 import { Link } from "react-router-dom";
-
-import item1 from "../../assets/images/item/item_1.jpg";
-import ownerImg from "../../assets/images/icons/user-icon.svg";
 import ItemSale from "../../components/itemsale/ItemSale";
 import axios from "axios";
 
