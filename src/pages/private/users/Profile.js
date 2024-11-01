@@ -79,7 +79,6 @@ function MyPosts() {
   if (token) {
     const decoded = jwtDecode(token);
     userId = decoded.userId; // Adjust this based on your token's payload structure
-    console.log(userId)
   }
 
   useEffect(() => {

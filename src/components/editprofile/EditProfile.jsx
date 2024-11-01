@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import FetchUserInfo from "../../utils/FetchUserInfo";
 import "./editProfileStyles.css";
+import { useAuth } from "../../context/AuthContext";
 
 function EditProfile() {
   const [formData, setFormData] = useState({
@@ -18,6 +19,8 @@ function EditProfile() {
   });
 
   const [errorMessage, setErrorMessage] = useState("");
+  const { user } = useAuth();
+  const token = user.token;
   const [isModalOpen, setModalOpen] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -45,8 +48,14 @@ function EditProfile() {
         photo_with_id: student.photo_with_id || "",
       });
     };
-
-    FetchUserInfo(setUserInfo, setErrorMessage);
+    const fetchData = async () => {
+      if (token) {
+        const { user, student, errorMessage } = await FetchUserInfo(token);
+        setUserInfo({ user, student });
+        setErrorMessage(errorMessage);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleChange = (e) => {

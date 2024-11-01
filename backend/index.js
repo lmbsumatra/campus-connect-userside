@@ -47,6 +47,7 @@ app.use("/listings", listingRoutes);
 app.use("/posts", postRoutes);
 app.use("/item-for-sale", itemForSaleRoutes)
 
+
 // Sync database and start server
 sequelize
   .sync()

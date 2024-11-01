@@ -2,9 +2,10 @@ import { Outlet, Navigate } from "react-router-dom";
 import AdminSidebar from "../../../components/admin/sidebar/AdminSidebar";
 import AdminNavBar from "../../../components/admin/navbar/AdminNavBar";
 import "./adminStyles.css";
+import { useAuth } from "../../../context/AuthContext";
 
 const Admin = () => {
-  const  isAdminLoggedIn  = false
+  const isAdminLoggedIn = false;
 
   if (isAdminLoggedIn) {
     return <Navigate to="/admin/dashboard" />;

@@ -61,3 +61,6 @@ If encountered an error (may depend on what kind of error):
 1. Check if the user and password are correct
 2. Check if the db is created, has correct db name
 3. Check if you have multiple instances where mysqldb is running on two ports, then add the correce port.
+
+Followed for student protected routes
+https://dev.to/bladearya/how-to-set-up-protected-how-to-protect-routes-for-different-user-roles-with-restricted-access-59j5

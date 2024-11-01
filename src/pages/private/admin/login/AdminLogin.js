@@ -1,6 +1,7 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css"; // Ensure Bootstrap CSS is imported
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../../context/AuthContext";
 
 const AdminLogin = () => {
   const navigate = useNavigate();

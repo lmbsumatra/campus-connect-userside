@@ -141,7 +141,9 @@ exports.loginStudent = async (req, res) => {
       JWT_SECRET
     );
 
-    res.status(200).json({ message: "Login successful", token });
+    console.log(token);
+
+    res.status(200).json({ message: "Login successful", token, role: user.role });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });
@@ -165,8 +167,9 @@ exports.googleLogin = async (req, res) => {
       { userId: user.user_id, role: user.role },
       JWT_SECRET
     );
+    console.log(token);
 
-    res.status(200).json({ message: "Login successful", token: jwtToken });
+    res.status(200).json({ message: "Login successful", token: jwtToken, role: user.role });
   } catch (error) {
     console.error("Google login error:", error);
     res.status(401).json({ message: "Invalid token" });
@@ -215,7 +218,6 @@ exports.getUserInformation = async (req, res) => {
   }
 };
 
-
 exports.userChangePassword = async (req, res) => {
   const userId = req.user.userId;
   const { currentPassword, newPassword } = req.body;
@@ -227,14 +229,16 @@ exports.userChangePassword = async (req, res) => {
     }
 
     const user = await User.findByPk(student.user_id);
-    console.log(user)
+    console.log(user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     const passwordMatch = await bcrypt.compare(currentPassword, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({ message: "Current password is incorrect." });
+      return res
+        .status(401)
+        .json({ message: "Current password is incorrect." });
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
@@ -250,4 +254,3 @@ exports.userChangePassword = async (req, res) => {
     });
   }
 };
-

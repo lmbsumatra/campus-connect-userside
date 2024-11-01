@@ -6,6 +6,7 @@ import Message from "../inbox/Message.jsx";
 import UserDropdown from "../dropdown/UserDropdown.jsx";
 import LoginSignUp from "../../../pages/public/login-signup/LoginSignup.js";
 import "./navbarStyles.css";
+import { useAuth } from "../../../context/AuthContext.js";
 
 const NavBar2 = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -18,10 +19,11 @@ const NavBar2 = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-
+const { logout } = useAuth();
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token); // pansamantala lang, di ko pa magawa yung auth eh
+    
+    const user = localStorage.getItem("user");
+    setIsLoggedIn(!!user); // pansamantala lang, di ko pa magawa yung auth eh
     setShowLoginSignUp(false);
 
     const path = location.pathname;
@@ -65,7 +67,7 @@ const NavBar2 = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Remove token on logout
+    logout(); // Remove token on logout
     setIsLoggedIn(false); // Update logged-in state
     navigate("/"); // Optionally redirect to home page
   };
@@ -178,7 +180,6 @@ const NavBar2 = () => {
       </nav>
 
       {showLoginSignUp && (
-        
         <div className="bg-shadow">
           <LoginSignUp tab={authTab} onClose={closeLoginSignUp} />
         </div>

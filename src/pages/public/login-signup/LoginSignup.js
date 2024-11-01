@@ -4,8 +4,10 @@ import "./loginSignupStyle.css";
 import { GoogleLogin } from "@react-oauth/google";
 import { Dropdown } from "react-bootstrap";
 import PasswordMeter from "../../../components/common/PasswordMeter";
+import { useAuth } from "../../../context/AuthContext";
 
 const LoginSignUp = ({ tab, onClose }) => {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [authTab, setAuthTab] = useState(tab);
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -17,6 +19,7 @@ const LoginSignUp = ({ tab, onClose }) => {
   const [inputWarning, setInputWarning] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const errorRef = useRef(null);
+  
 
   // User data state
   const [userData, setUserData] = useState({
@@ -131,7 +134,8 @@ const LoginSignUp = ({ tab, onClose }) => {
       if (res.ok) {
         const data = await res.json();
         console.log("Google login successful:", data);
-        localStorage.setItem("token", data.token);
+        // localStorage.setItem("token", data.token);
+        login(data.token, data.role)
         navigate("/");
       } else {
         const errorData = await res.json();
@@ -238,7 +242,8 @@ const LoginSignUp = ({ tab, onClose }) => {
       if (response.ok) {
         const data = await response.json();
         console.log("Login successful:", data);
-        localStorage.setItem("token", data.token);
+        // localStorage.setItem("token", data.token);
+        login(data.token, data.role)
         navigate("/");
       } else {
         const errorData = await response.json();

@@ -5,19 +5,28 @@ import "./profileHeaderStyles.css";
 import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { formatDate } from "../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 
 // Define the fetchUserInfo function here or import it from another file
 
 const ProfileHeader = () => {
+  const { user } = useAuth();
+  const token = user.token;
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null);
   const [selectedOption, setSelectedOption] = useState("Renter");
   const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
 
   useEffect(() => {
-    FetchUserInfo(setUserInfo, setErrorMessage);
-  }, []);
-
+    const fetchData = async () => {
+      if (token) {
+        const { user, student, errorMessage } = await FetchUserInfo(token);
+        setUserInfo({ user, student });
+        setErrorMessage(errorMessage);
+      }
+    };
+    fetchData();
+  }, [token]);
   const handleChange = (event) => {
     setSelectedOption(event.target.value);
   };

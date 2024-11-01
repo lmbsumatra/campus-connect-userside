@@ -46,16 +46,17 @@ import UserVerification from "./pages/private/admin/user-management/UserVerifica
 
 import ProtectedRoute from "./components/Protected Route/ProtectedRoute.js";
 import { AuthProvider } from "./context/AuthContext.js";
+import StudentProtectedRoute from "./components/Protected Route/StudentProtectedRoute.js";
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
-          <Content />
-        </GoogleOAuthProvider>
-      </BrowserRouter>
-    </AuthProvider>
+    <BrowserRouter>
+      <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
+        <Content />
+      </GoogleOAuthProvider>
+    </BrowserRouter>
+     </AuthProvider> 
   );
 }
 
@@ -81,7 +82,9 @@ function Content() {
           path="/lend/:id"
           element={
             <div className="container-content">
-              <ViewPost />
+              <StudentProtectedRoute allowedRoles="student">
+                <ViewPost />
+              </StudentProtectedRoute>
             </div>
           }
         />
@@ -89,7 +92,9 @@ function Content() {
           path="/rent/:id"
           element={
             <div className="container-content">
-              <ViewListing />
+              <StudentProtectedRoute allowedRoles="student">
+                <ViewListing />
+              </StudentProtectedRoute>
             </div>
           }
         />
@@ -97,26 +102,77 @@ function Content() {
           path="/item-for-sale/:id"
           element={
             <div className="container-content">
-              <ViewItem />
+              <StudentProtectedRoute allowedRoles="student">
+                <ViewItem />
+              </StudentProtectedRoute>
             </div>
           }
         />
-        <Route path="/new-post2" element={<PostForm />} />
-        <Route path="/new-post" element={<AddPost />} />
-        <Route path="/add-listing" element={<AddListing />} />
-        <Route path="/messages" element={<MessagePage />} />
+        <Route
+          path="/new-post2"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <PostForm />
+            </StudentProtectedRoute>
+          }
+        />
+        <Route
+          path="/new-post"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <AddPost />
+            </StudentProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-listing"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <AddListing />
+            </StudentProtectedRoute>
+          }
+        />
+        <Route
+          path="/messages"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <MessagePage />
+            </StudentProtectedRoute>
+          }
+        />
 
         {/* USER PROFILE */}
-        <Route path="/profile/*" element={<Profile />} />
-        <Route path="/rent-progress" element={<RentProgress />} />
-        <Route path="/user/:id" element={<UserProfileVisit />} />
+        <Route
+          path="/profile/*"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <Profile />
+            </StudentProtectedRoute>
+          }
+        />
+        <Route
+          path="/rent-progress"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <RentProgress />
+            </StudentProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/:id"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <UserProfileVisit />
+            </StudentProtectedRoute>
+          }
+        />
 
         {/* ADMIN ROUTES */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
-              <Admin />
+            <Admin />
             </ProtectedRoute>
           }
         >
