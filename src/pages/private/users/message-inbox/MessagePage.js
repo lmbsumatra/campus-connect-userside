@@ -25,33 +25,44 @@ const messages = [
 ];
 
 const MessagePage = () => {
-  const [activeChat, setActiveChat] = useState(messages[0]);
+  const [activeChat, setActiveChat] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const handleResize = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+
+  // Add event listener for window resize
+  React.useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <>
-      <div className="message-page container-content">
-        <div className="message-content">
-          <div className="inbox">
-            <h3>Messages</h3>
-            {messages.map((chat, index) => (
-              <div
-                key={index}
-                className={`inbox-item ${
-                  activeChat.userName === chat.userName ? "active" : ""
-                }`}
-                onClick={() => setActiveChat(chat)}
-              >
-                <img src="" alt="User Icon" className="user-icon" />
-                <div className="message-info">
-                  <h5>{chat.userName}</h5>
-                  <p>{chat.preview}</p>
-                </div>
-                <span>{chat.date}</span>
+    <div className="container-content message-page">
+      <div className="message-content">
+      <div className={`inbox ${isMobile && activeChat !== null ? 'd-none' : ''}`}>
+          <h3>Messages</h3>
+          {messages.map((chat, index) => (
+            <div
+              key={index}
+              className="inbox-item"
+              onClick={() => setActiveChat(chat)}
+            >
+              <img src={UserIcon} alt="User Icon" className="user-icon" />
+              <div className="message-info">
+                <h5>{chat.userName}</h5>
+                <p>{chat.preview}</p>
               </div>
-            ))}
-          </div>
+              <span>{chat.date}</span>
+            </div>
+          ))}
+        </div>
+        {activeChat && (
           <div className="chat-box">
             <div className="chat-header">
+              <button className="back-button" onClick={() => setActiveChat(null)}>
+                Back
+              </button>
               <h4>{activeChat.userName}</h4>
             </div>
             <div className="chat-content">
@@ -73,9 +84,9 @@ const MessagePage = () => {
               <button>Send</button>
             </div>
           </div>
-        </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

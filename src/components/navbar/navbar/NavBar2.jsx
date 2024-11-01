@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ccLogo from "../../../assets/images/navbar/cc-logo.png";
 import Notification from "../notif/Notification.jsx";
@@ -11,19 +11,18 @@ import { useAuth } from "../../../context/AuthContext.js";
 const NavBar2 = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginSignUp, setShowLoginSignUp] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
   const [activeTab, setActiveTab] = useState("");
   const [authTab, setAuthTab] = useState("loginTab");
+  const [openPopup, setOpenPopup] = useState(null); // Use a single state for popups
 
   const navigate = useNavigate();
   const location = useLocation();
-const { logout } = useAuth();
+  const { logout } = useAuth();
+  const popupRef = useRef(null); // Ref to detect clicks outside
+
   useEffect(() => {
-    
     const user = localStorage.getItem("user");
-    setIsLoggedIn(!!user); // pansamantala lang, di ko pa magawa yung auth eh
+    setIsLoggedIn(!!user);
     setShowLoginSignUp(false);
 
     const path = location.pathname;
@@ -43,16 +42,8 @@ const { logout } = useAuth();
     navigate(`/${tab}`);
   };
 
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
-
-  const toggleNotifications = () => {
-    setShowNotifications(!showNotifications);
-  };
-
-  const toggleMessages = () => {
-    setShowMessages(!showMessages);
+  const togglePopup = (popup) => {
+    setOpenPopup((prev) => (prev === popup ? null : popup)); // Toggle the popup
   };
 
   const handleAuth = (tab) => {
@@ -67,30 +58,37 @@ const { logout } = useAuth();
   };
 
   const handleLogout = () => {
-    logout(); // Remove token on logout
-    setIsLoggedIn(false); // Update logged-in state
-    navigate("/"); // Optionally redirect to home page
+    logout();
+    setIsLoggedIn(false);
+    navigate("/");
   };
 
+  const handleClickOutside = (event) => {
+    if (popupRef.current && !popupRef.current.contains(event.target)) {
+      setOpenPopup(null); // Close the popup if clicked outside
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div>
+    <div ref={popupRef}>
       <nav className="nav bg-white">
         <div className="nav-content d-block">
           <div className="d-flex">
             <ul className="quick-links m-0 p-0 d-flex">
-              {["Privacy Policy", "About us", "Contact", "Ask Question"].map(
-                (link) => (
-                  <li className="link" key={link}>
-                    <a
-                      className="quick-links active"
-                      href={`/${link}`}
-                      onClick={() => setTab(link)}
-                    >
-                      {link}
-                    </a>
-                  </li>
-                )
-              )}
+              {["Privacy Policy", "About us", "Contact", "Ask Question"].map((link) => (
+                <li className="link" key={link}>
+                  <a className="quick-links active" href={`/${link}`} onClick={() => setTab(link)}>
+                    {link}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -102,44 +100,33 @@ const { logout } = useAuth();
 
             <div className="nav-searchbar w-50">
               <form role="search">
-                <input
-                  className="form-control me-2"
-                  type="search"
-                  placeholder="Search"
-                  aria-label="Search"
-                />
+                <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
               </form>
             </div>
 
             {isLoggedIn ? (
               <div className="d-flex flex-end gap-2">
                 <Notification
-                  showNotifications={showNotifications}
-                  toggleNotifications={toggleNotifications}
+                  showNotifications={openPopup === 'notifications'}
+                  toggleNotifications={() => togglePopup('notifications')}
                 />
                 <Message
-                  showDropdown={showMessages}
-                  toggleDropdown={toggleMessages}
+                  showDropdown={openPopup === 'messages'}
+                  toggleDropdown={() => togglePopup('messages')}
                 />
                 <UserDropdown
-                  showDropdown={showDropdown}
-                  toggleDropdown={toggleDropdown}
+                  showDropdown={openPopup === 'dropdown'}
+                  toggleDropdown={() => togglePopup('dropdown')}
                   handleClick={handleAuth}
-                  handleLogout={handleLogout} // Pass the handleLogout function
+                  handleLogout={handleLogout}
                 />
               </div>
             ) : (
               <div className="d-flex flex-end gap-2">
-                <button
-                  className="btn btn-rounded secondary"
-                  onClick={() => handleAuth("loginTab")}
-                >
+                <button className="btn btn-rounded secondary" onClick={() => handleAuth("loginTab")}>
                   Log in
                 </button>
-                <button
-                  className="btn btn-rounded primary"
-                  onClick={() => handleAuth("registerTab")}
-                >
+                <button className="btn btn-rounded primary" onClick={() => handleAuth("registerTab")}>
                   Register
                 </button>
               </div>
@@ -151,22 +138,12 @@ const { logout } = useAuth();
               {[
                 { name: "Discover", path: "/", icon: "fas fa-binoculars" },
                 { name: "Shop", path: "/shop", icon: "fas fa-shopping-cart" },
-                {
-                  name: "Looking for...",
-                  path: "/rent",
-                  icon: "fas fa-search",
-                },
-                {
-                  name: "Lend a hand",
-                  path: "/lend",
-                  icon: "fas fa-hands-helping",
-                },
+                { name: "Looking for...", path: "/rent", icon: "fas fa-search" },
+                { name: "Lend a hand", path: "/lend", icon: "fas fa-hands-helping" },
               ].map(({ name, path, icon }) => (
                 <li className="nav-item" key={name}>
                   <a
-                    className={`nav-link ${
-                      activeTab === name ? "active fw-bold" : ""
-                    }`}
+                    className={`nav-link ${activeTab === name ? "active fw-bold" : ""}`}
                     href={path}
                     onClick={() => setTab(name)}
                   >

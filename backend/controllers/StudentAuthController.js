@@ -141,7 +141,7 @@ exports.loginStudent = async (req, res) => {
       JWT_SECRET
     );
 
-    console.log(token);
+    // console.log(token);
 
     res.status(200).json({ message: "Login successful", token, role: user.role });
   } catch (error) {
@@ -167,7 +167,7 @@ exports.googleLogin = async (req, res) => {
       { userId: user.user_id, role: user.role },
       JWT_SECRET
     );
-    console.log(token);
+    // console.log(token);
 
     res.status(200).json({ message: "Login successful", token: jwtToken, role: user.role });
   } catch (error) {
@@ -229,7 +229,7 @@ exports.userChangePassword = async (req, res) => {
     }
 
     const user = await User.findByPk(student.user_id);
-    console.log(user);
+    // console.log(user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

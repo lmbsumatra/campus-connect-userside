@@ -3,17 +3,18 @@
   height: 100vh;
 }
 
-
 .message-content {
   display: flex;
-  width: 100%;
+  flex: 1;
 }
 
 .inbox {
-  width: 30%;
-  
+  width: 100%;
+  max-width: 400px; /* Limit width for better mobile view */
   padding: 20px;
   background-color: #fff;
+  border-right: 1px solid #ddd; /* Right border for separation */
+  overflow-y: auto; /* Enable scrolling for long message lists */
 }
 
 .inbox h3 {
@@ -30,8 +31,7 @@
   transition: background-color 0.3s;
 }
 
-.inbox-item:hover,
-.inbox-item.active {
+.inbox-item:hover {
   background-color: #e0e7ff;
 }
 
@@ -63,19 +63,29 @@
 }
 
 .chat-box {
-  width: 70%;
+  flex: 1; /* Takes the remaining space */
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  border-left: 1px solid #ddd; /* Optional left border for separation */
+  overflow: hidden; /* Hides overflow */
 }
 
 .chat-header {
-  padding: 20px;
+  padding: 10px;
   border-bottom: 1px solid #ddd;
   background-color: #e0e7ff;
+  display: flex;
+  align-items: center;
+}
+
+.back-button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: transparent;
+  color: #007bff;
+  cursor: pointer;
 }
 
 .chat-content {
@@ -124,7 +134,7 @@
 
 .chat-input {
   display: flex;
-  padding: 20px;
+  padding: 10px;
   border-top: 1px solid #ddd;
   background-color: #fff;
 }
@@ -149,4 +159,41 @@
 
 .chat-input button:hover {
   background-color: #0056b3;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .message-content {
+    flex-direction: column; /* Stack vertically on mobile */
+  }
+
+  .inbox {
+    width: 100%; /* Full width on mobile */
+    border-right: none; /* Remove right border */
+  }
+
+  .chat-box {
+    width: 100%; /* Full width on mobile */
+    border-left: none; /* Remove left border */
+  }
+}
+
+.d-none {
+  display: none;
+}
+
+/* Larger devices */
+@media (min-width: 769px) {
+  .message-content {
+    flex-direction: row; /* Side by side on larger devices */
+  }
+}
+
+.select-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 16px;
+  color: #666;
 }

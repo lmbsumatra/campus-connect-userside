@@ -1,12 +1,47 @@
 import "./adminNavBarStyles.css";
 import searchIcon from "../../../assets/images/icons/search.svg";
-import userIcon from "../../../assets/images/icons/user-icon.svg";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import UserDropdown from "../dropdown/UserDropdown";
+import Notification from "../notif/Notification";
+
 const AdminNavBar = () => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const handleShopUserDropdown = () => {
-    setShowUserDropdown(!showUserDropdown);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const userDropdownRef = useRef(null);
+  const notificationsRef = useRef(null);
+
+  const toggleUserDropdown = () => {
+    setShowNotifications(false); // Close notifications if open
+    setShowUserDropdown((prev) => !prev);
   };
+
+  const toggleNotifications = () => {
+    setShowUserDropdown(false); // Close user dropdown if open
+    setShowNotifications((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    console.log("User logged out");
+    // Add logout logic here
+  };
+
+  const handleClickOutside = (event) => {
+    if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+      setShowUserDropdown(false);
+    }
+    if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+      setShowNotifications(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="nav nav-container">
       <div className="searchbar">
@@ -14,20 +49,15 @@ const AdminNavBar = () => {
         <img src={searchIcon} alt="Search icon" className="search-icon" />
       </div>
       <div className="toolbar d-flex">
-        <div className="">
-          <img src={userIcon} alt="Admin user icon" className="admin icon" />
+        <div ref={notificationsRef} onClick={toggleNotifications}>
+          <Notification showNotifications={showNotifications} />
         </div>
-        <div className="">
-          <img
-            src={userIcon}
-            alt="Admin user icon"
-            className="admin icon"
-            onClick={() => handleShopUserDropdown()}
+        <div ref={userDropdownRef} onClick={toggleUserDropdown}>
+          <UserDropdown
+            showDropdown={showUserDropdown}
           />
         </div>
       </div>
-
-      {showUserDropdown && <div className="user-dropdown">admin</div>}
     </div>
   );
 };

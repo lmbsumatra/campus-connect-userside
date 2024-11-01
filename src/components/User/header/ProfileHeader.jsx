@@ -4,7 +4,7 @@ import editIcon from "../../../assets/images/icons/edit.png";
 import "./profileHeaderStyles.css";
 import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { formatDate } from "../../../utils/dateFormat";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 
 // Define the fetchUserInfo function here or import it from another file
@@ -49,6 +49,16 @@ const ProfileHeader = () => {
   const handleEditButton = () => {
     navigate("/profile/edit-profile");
   };
+
+  const [isTransactionPage, setTransactionPage] = useState(false);
+  const location = useLocation();
+  useEffect(() => {
+    if (location.pathname === "/profile/transactions") {
+      setTransactionPage(true);
+    } else {
+      setTransactionPage(false);
+    }
+  }, [location.pathname]);
 
   return (
     <div className="profile-header">
@@ -101,15 +111,17 @@ const ProfileHeader = () => {
             </button>
           </div>
         </div>
-        <div className="select-option">
-          <span className="text-white mx-3">As a</span>
-          <select value={selectedOption} onChange={handleChange}>
-            <option value="Renter">Renter</option>
-            <option value="Owner">Owner</option>
-            <option value="Seller">Seller</option>
-            <option value="Buyer">Buyer</option>
-          </select>
-        </div>
+        {isTransactionPage && (
+          <div className="select-option">
+            <span className="text-white mx-3">As a</span>
+            <select value={selectedOption} onChange={handleChange}>
+              <option value="Renter">Renter</option>
+              <option value="Owner">Owner</option>
+              <option value="Seller">Seller</option>
+              <option value="Buyer">Buyer</option>
+            </select>
+          </div>
+        )}
       </div>
     </div>
   );

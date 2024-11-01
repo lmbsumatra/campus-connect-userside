@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import FetchUserInfo from "../../utils/FetchUserInfo";
 import "./editProfileStyles.css";
 import { useAuth } from "../../context/AuthContext";
+import showPassword from "../../assets/images/icons/eye-open.svg";
+import hidePassword from "../../assets/images/icons/eye-closed.svg";
+import PasswordMeter from "../common/PasswordMeter";
 
 function EditProfile() {
   const [formData, setFormData] = useState({
@@ -28,6 +31,7 @@ function EditProfile() {
     confirmNewPassword: "",
   });
   // useEffect(() => {}, [isModalOpen]);
+  const [isShowPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const setUserInfo = (data) => {
@@ -83,7 +87,7 @@ function EditProfile() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         currentPassword: passwordData.currentPassword,
@@ -107,9 +111,13 @@ function EditProfile() {
     }
   };
 
+  const handleShowPassword = () => {
+    setShowPassword(!isShowPassword);
+  };
+
   return (
     <div className="rounded bg-white mt-2">
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      
       <form className="edit-profile-form">
         <div className="form-section personal-details">
           <h3 className="section-label">Personal Details</h3>
@@ -246,42 +254,65 @@ function EditProfile() {
         <div className="change-pass-window">
           <div className="change-pass-window-content">
             <h3>Change Password</h3>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Current Password</label>
                 <input
-                  type="password"
+                  type={isShowPassword ? "text" : "password"}
                   name="currentPassword"
                   value={passwordData.currentPassword}
                   onChange={handlePasswordChange}
                   placeholder="Enter Current Password"
                   required
                 />
+                <div className="pass-icon" onClick={handleShowPassword}>
+                  <img
+                    src={`${isShowPassword ? showPassword : hidePassword}`}
+                  />
+                </div>
               </div>
               <div className="form-group">
                 <label>New Password</label>
                 <input
-                  type="password"
+                  type={isShowPassword ? "text" : "password"}
                   name="newPassword"
                   value={passwordData.newPassword}
                   onChange={handlePasswordChange}
                   placeholder="Enter New Password"
                   required
                 />
+                <div className="pass-icon" onClick={handleShowPassword}>
+                  <img
+                    src={`${isShowPassword ? showPassword : hidePassword}`}
+                  />
+                </div>
+                <PasswordMeter password={passwordData.newPassword} />
               </div>
               <div className="form-group">
                 <label>Confirm New Password</label>
                 <input
-                  type="password"
+                  type={isShowPassword ? "text" : "password"}
                   name="confirmNewPassword"
                   value={passwordData.confirmNewPassword}
                   onChange={handlePasswordChange}
                   placeholder="Confirm New Password"
                   required
                 />
+                <div className="pass-icon" onClick={handleShowPassword}>
+                  <img
+                    src={`${isShowPassword ? showPassword : hidePassword}`}
+                  />
+                </div>
               </div>
-              <button type="submit">Submit</button>
-              <button type="button" onClick={() => setModalOpen(false)}>
+              <button className="btn btn-rectangle primary" type="submit">
+                Submit
+              </button>
+              <button
+                className="btn btn-rectangle muted"
+                type="button"
+                onClick={() => setModalOpen(false)}
+              >
                 Cancel
               </button>
             </form>

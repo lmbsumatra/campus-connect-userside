@@ -5,7 +5,17 @@
   padding: 7px 28px;
   transition: background-color 0.3s, color 0.3s;
 }
-
+.btn.btn-rectangle.muted {
+  background-color: white;
+  color: var(--clr-secondary) !important;
+  border: solid 1px var(--clr-secondary);
+  border-radius: 4px;
+}
+.btn.btn-rectangle.muted:hover {
+  background-color: var(--clr-secondary);
+  color: white !important;
+  border: solid 1px var(--clr-secondary);
+}
 .btn.btn-rectangle.secondary {
   background-color: white;
   color: var(--clr-primary) !important;
