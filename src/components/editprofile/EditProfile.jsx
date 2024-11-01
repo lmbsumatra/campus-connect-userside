@@ -28,7 +28,6 @@ function EditProfile() {
 
   useEffect(() => {
     const setUserInfo = (data) => {
-      console.log(data);
       const { user, student } = data;
       setFormData({
         surname: user.last_name || "",
