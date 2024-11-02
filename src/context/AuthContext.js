@@ -3,30 +3,53 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
+  const [studentUser, setStudentUser] = useState(null);
+  const [adminUser, setAdminUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser)); 
-      console.log("Restored user from localStorage:", JSON.parse(storedUser));
+    
+    const storedAdminUser = localStorage.getItem("adminUser");
+
+    if (storedAdminUser) {
+      setAdminUser(JSON.parse(storedAdminUser)); 
+      console.log("Restored admin from localStorage:", JSON.parse(storedAdminUser));
+    }
+  }, []);
+  useEffect(() => {
+    const storedStudentUser = localStorage.getItem("studentUser");
+    if (storedStudentUser) {
+      setStudentUser(JSON.parse(storedStudentUser)); 
+      console.log("Restored student from localStorage:", JSON.parse(storedStudentUser));
     }
   }, []);
 
-  const login = (token, role, userId) => {
+  const loginStudent = (token, role, userId) => {
     const newUser = { role, token, userId };
-    setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+    setStudentUser(newUser);
+    localStorage.setItem("studentUser", JSON.stringify(newUser));
     console.log("User logged in:", newUser);
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
+  const logoutStudent = () => {
+    setStudentUser(null);
+    localStorage.removeItem("studentUser");
+  };
+
+  const loginAdmin = (token, role, userId) => {
+    const newUser = { role, token, userId };
+    setAdminUser(newUser);
+    localStorage.setItem("adminUser", JSON.stringify(newUser));
+    console.log("Admin logged in:", newUser);
+  };
+
+  const logoutAdmin = () => {
+    setAdminUser(null);
+    localStorage.removeItem("adminUser");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ adminUser, studentUser, loginStudent, logoutStudent, loginAdmin, logoutAdmin }}>
       {children}
     </AuthContext.Provider>
   );

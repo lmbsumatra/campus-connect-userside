@@ -17,9 +17,9 @@ const NavBar2 = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { studentUser, logout } = useAuth();
   const popupRef = useRef(null); 
-  const role = user?.role; 
+  const role = studentUser?.role; 
 
   useEffect(() => {
     setIsLoggedIn(!!(role === 'student'));
@@ -35,7 +35,7 @@ const NavBar2 = () => {
     } else {
       setActiveTab("Discover");
     }
-  }, [location, user]); 
+  }, [location, studentUser]); 
 
   const setTab = (tab) => {
     setActiveTab(tab);

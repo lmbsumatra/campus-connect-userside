@@ -3,7 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const StudentProtectedRoute = ({ allowedRoles, children }) => {
-  const { user } = useAuth();
+  const { studentUser } = useAuth();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,11 +18,12 @@ const StudentProtectedRoute = ({ allowedRoles, children }) => {
     return <div>Loading...</div>; 
   }
 
-  if (user === null) {
+  if (studentUser === null) {
     return <Navigate to="/" />; 
   }
 
-  const { role } = user;
+  const { role } = studentUser;
+  console.log(studentUser)
 
   if (!allowedRoles.includes(role)) {
     return <Navigate to="/" />;

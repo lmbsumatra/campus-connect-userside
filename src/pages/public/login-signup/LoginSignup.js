@@ -7,7 +7,7 @@ import PasswordMeter from "../../../components/common/PasswordMeter";
 import { useAuth } from "../../../context/AuthContext";
 
 const LoginSignUp = ({ tab, onClose }) => {
-  const { login } = useAuth();
+  const { loginStudent } = useAuth();
   const navigate = useNavigate();
   const [authTab, setAuthTab] = useState(tab);
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -135,7 +135,7 @@ const LoginSignUp = ({ tab, onClose }) => {
         const data = await res.json();
         console.log("Google login successful:", data);
         // localStorage.setItem("token", data.token);
-        login(data.token, data.role, data.userId)
+        loginStudent(data.token, data.role, data.userId)
         navigate("/");
       } else {
         const errorData = await res.json();
@@ -243,7 +243,7 @@ const LoginSignUp = ({ tab, onClose }) => {
         const data = await response.json();
         console.log("Login successful:", data);
         // localStorage.setItem("token", data.token);
-        login(data.token, data.role, data.userId)
+        loginStudent(data.token, data.role, data.userId)
         navigate("/");
       } else {
         const errorData = await response.json();

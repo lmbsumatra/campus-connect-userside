@@ -6,6 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const cloudinary = require("cloudinary").v2;
+const { Op } = require('sequelize');
 
 const bcrypt = require("bcrypt");
 const { rollbackUpload } = require("../config/multer");
@@ -89,7 +90,9 @@ exports.loginAdmin = async (req, res) => {
 
   try {
     // Find user by email
-    const user = await User.findOne({ where: { email, role: "admin" } });
+    const user = await User.findOne({ where: { email, role: {
+      [Op.or]: ["admin", "superadmin"], // nilagyan ko lang superadmin
+    }, } });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -107,7 +110,7 @@ exports.loginAdmin = async (req, res) => {
       JWT_SECRET
     );
 
-    res.status(200).json({ message: "Login successful", token });
+    res.status(200).json({ message: "Login successful", token , role:user.role});
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });

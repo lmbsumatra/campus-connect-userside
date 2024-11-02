@@ -5,7 +5,7 @@ import { useAuth } from "../../../../context/AuthContext";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { loginAdmin } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
 
    // User data state
@@ -66,8 +66,8 @@ const AdminLogin = () => {
         const data = await response.json();
         console.log("Login successful:", data);
         // localStorage.setItem("token", data.token);
-        login(data.token, data.role)
-        navigate("/"); // naliligaw ata ako?
+        loginAdmin(data.token, data.role)
+        navigate("/admin/dashboard"); // naliligaw ata ako? // sana hindi na
       } else {
         const errorData = await response.json();
         console.error("Login failed:", errorData);

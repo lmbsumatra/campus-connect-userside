@@ -3,10 +3,12 @@ import searchIcon from "../../../assets/images/icons/search.svg";
 import { useState, useEffect, useRef } from "react";
 import UserDropdown from "../dropdown/UserDropdown";
 import Notification from "../notif/Notification";
+import { useAuth } from "../../../context/AuthContext";
 
 const AdminNavBar = () => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const {logoutAdmin} =useAuth();
 
   const userDropdownRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -48,6 +50,10 @@ const AdminNavBar = () => {
         <input placeholder="Search here..." />
         <img src={searchIcon} alt="Search icon" className="search-icon" />
       </div>
+      <div>
+  <button onClick={() => logoutAdmin()}>logout</button>
+</div>
+
       <div className="toolbar d-flex">
         <div ref={notificationsRef} onClick={toggleNotifications}>
           <Notification showNotifications={showNotifications} />

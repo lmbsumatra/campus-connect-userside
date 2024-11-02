@@ -22,8 +22,8 @@ function EditProfile() {
   });
 
   const [errorMessage, setErrorMessage] = useState("");
-  const { user } = useAuth();
-  const token = user.token;
+  const { studentUser } = useAuth();
+  const token = studentUser.token;
   const [isModalOpen, setModalOpen] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",

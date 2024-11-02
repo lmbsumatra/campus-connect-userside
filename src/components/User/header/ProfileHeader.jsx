@@ -10,8 +10,8 @@ import { useAuth } from "../../../context/AuthContext";
 // Define the fetchUserInfo function here or import it from another file
 
 const ProfileHeader = () => {
-  const { user } = useAuth();
-  const token = user.token;
+  const { studentUser } = useAuth();
+  const token = studentUser.token;
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null);
   const [selectedOption, setSelectedOption] = useState("Renter");
