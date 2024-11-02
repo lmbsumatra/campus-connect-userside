@@ -27,7 +27,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       delivery_mode: {
-        type: DataTypes.ENUM("pickup", "delivery"),
+        type: DataTypes.ENUM("pickup", "meetup"),
         defaultValue: "pickup",
       },
       specifications: {
@@ -44,7 +44,7 @@ module.exports = (sequelize) => {
         type: DataTypes.JSON,
       },
       status: {
-        type: DataTypes.ENUM("available", "rented", "flagged", "pending"),
+        type: DataTypes.ENUM('pending','approved','declined','removed','revoked','flagged'),
         allowNull: false,
       },
       payment_mode: {

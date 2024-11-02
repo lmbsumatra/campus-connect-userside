@@ -8,15 +8,15 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser)); // Restore user from local storage
+      setUser(JSON.parse(storedUser)); 
       console.log("Restored user from localStorage:", JSON.parse(storedUser));
     }
   }, []);
 
-  const login = (token, role) => {
-    const newUser = { role, token };
+  const login = (token, role, userId) => {
+    const newUser = { role, token, userId };
     setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser)); // Save user as JSON string
+    localStorage.setItem("user", JSON.stringify(newUser));
     console.log("User logged in:", newUser);
   };
 

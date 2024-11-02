@@ -8,6 +8,7 @@ import { HandleCustomDateAndTime } from "./HandleCustomDateAndTime";
 import { HandleWeeklyDateAndTime } from "./HandleWeeklyDateAndTime";
 import FetchUserInfo from "../../../../utils/FetchUserInfo";
 import axios from "axios";
+import { useAuth } from "../../../../context/AuthContext";
 
 const AddListing = () => {
   const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
@@ -26,13 +27,22 @@ const AddListing = () => {
     description: "",
     condition: "",
     tags: [],
-    status: "available",
+    status: "pending",
     paymentMode: "",
     dateAndTime: [],
   });
+  const { user } = useAuth();
+  const token = user.token;
 
   useEffect(() => {
-    FetchUserInfo(setUserInfo, setErrorMessage);
+    const fetchData = async () => {
+      if (token) {
+        const { user, student, errorMessage } = await FetchUserInfo(token);
+        setUserInfo({ user, student });
+        setErrorMessage(errorMessage);
+      }
+    };
+    fetchData();
   }, [userInfo]);
 
   useEffect(() => {
@@ -48,6 +58,7 @@ const AddListing = () => {
   const [newTag, setNewTag] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [settingDateOption, SetSettingDateOption] = useState("custom");
+  
 
   const toggleGroup = () => setIsExpanded(!isExpanded);
 

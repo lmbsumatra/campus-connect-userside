@@ -17,12 +17,12 @@ const NavBar2 = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
-  const popupRef = useRef(null); // Ref to detect clicks outside
+  const { user, logout } = useAuth();
+  const popupRef = useRef(null); 
+  const role = user?.role; 
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    setIsLoggedIn(!!user);
+    setIsLoggedIn(!!(role === 'student'));
     setShowLoginSignUp(false);
 
     const path = location.pathname;
@@ -35,7 +35,7 @@ const NavBar2 = () => {
     } else {
       setActiveTab("Discover");
     }
-  }, [location]);
+  }, [location, user]); 
 
   const setTab = (tab) => {
     setActiveTab(tab);
@@ -43,7 +43,7 @@ const NavBar2 = () => {
   };
 
   const togglePopup = (popup) => {
-    setOpenPopup((prev) => (prev === popup ? null : popup)); // Toggle the popup
+    setOpenPopup((prev) => (prev === popup ? null : popup)); 
   };
 
   const handleAuth = (tab) => {
@@ -82,13 +82,19 @@ const NavBar2 = () => {
         <div className="nav-content d-block">
           <div className="d-flex">
             <ul className="quick-links m-0 p-0 d-flex">
-              {["Privacy Policy", "About us", "Contact", "Ask Question"].map((link) => (
-                <li className="link" key={link}>
-                  <a className="quick-links active" href={`/${link}`} onClick={() => setTab(link)}>
-                    {link}
-                  </a>
-                </li>
-              ))}
+              {["Privacy Policy", "About us", "Contact", "Ask Question"].map(
+                (link) => (
+                  <li className="link" key={link}>
+                    <a
+                      className="quick-links active"
+                      href={`/${link}`}
+                      onClick={() => setTab(link)}
+                    >
+                      {link}
+                    </a>
+                  </li>
+                )
+              )}
             </ul>
           </div>
 
@@ -100,33 +106,44 @@ const NavBar2 = () => {
 
             <div className="nav-searchbar w-50">
               <form role="search">
-                <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+                <input
+                  className="form-control me-2"
+                  type="search"
+                  placeholder="Search"
+                  aria-label="Search"
+                />
               </form>
             </div>
 
             {isLoggedIn ? (
               <div className="d-flex flex-end gap-2">
                 <Notification
-                  showNotifications={openPopup === 'notifications'}
-                  toggleNotifications={() => togglePopup('notifications')}
+                  showNotifications={openPopup === "notifications"}
+                  toggleNotifications={() => togglePopup("notifications")}
                 />
                 <Message
-                  showDropdown={openPopup === 'messages'}
-                  toggleDropdown={() => togglePopup('messages')}
+                  showDropdown={openPopup === "messages"}
+                  toggleDropdown={() => togglePopup("messages")}
                 />
                 <UserDropdown
-                  showDropdown={openPopup === 'dropdown'}
-                  toggleDropdown={() => togglePopup('dropdown')}
+                  showDropdown={openPopup === "dropdown"}
+                  toggleDropdown={() => togglePopup("dropdown")}
                   handleClick={handleAuth}
                   handleLogout={handleLogout}
                 />
               </div>
             ) : (
               <div className="d-flex flex-end gap-2">
-                <button className="btn btn-rounded secondary" onClick={() => handleAuth("loginTab")}>
+                <button
+                  className="btn btn-rounded secondary"
+                  onClick={() => handleAuth("loginTab")}
+                >
                   Log in
                 </button>
-                <button className="btn btn-rounded primary" onClick={() => handleAuth("registerTab")}>
+                <button
+                  className="btn btn-rounded primary"
+                  onClick={() => handleAuth("registerTab")}
+                >
                   Register
                 </button>
               </div>
@@ -138,12 +155,22 @@ const NavBar2 = () => {
               {[
                 { name: "Discover", path: "/", icon: "fas fa-binoculars" },
                 { name: "Shop", path: "/shop", icon: "fas fa-shopping-cart" },
-                { name: "Looking for...", path: "/rent", icon: "fas fa-search" },
-                { name: "Lend a hand", path: "/lend", icon: "fas fa-hands-helping" },
+                {
+                  name: "Looking for...",
+                  path: "/rent",
+                  icon: "fas fa-search",
+                },
+                {
+                  name: "Lend a hand",
+                  path: "/lend",
+                  icon: "fas fa-hands-helping",
+                },
               ].map(({ name, path, icon }) => (
                 <li className="nav-item" key={name}>
                   <a
-                    className={`nav-link ${activeTab === name ? "active fw-bold" : ""}`}
+                    className={`nav-link ${
+                      activeTab === name ? "active fw-bold" : ""
+                    }`}
                     href={path}
                     onClick={() => setTab(name)}
                   >

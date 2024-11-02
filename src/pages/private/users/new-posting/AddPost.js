@@ -17,7 +17,7 @@ const AddPost = () => {
     description: "",
     category: "",
     tags: [],
-    status: "available",
+    status: "approved",
     images: [],
     renter_id: "",
     specifications: [],
@@ -98,7 +98,7 @@ const AddPost = () => {
 
   return (
     <div className="container-content">
-      <h2>Add item</h2>
+      <h2>Create Post</h2>
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className="form-preview">
         <ImageUpload

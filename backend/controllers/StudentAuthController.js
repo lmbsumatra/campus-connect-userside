@@ -143,7 +143,7 @@ exports.loginStudent = async (req, res) => {
 
     // console.log(token);
 
-    res.status(200).json({ message: "Login successful", token, role: user.role });
+    res.status(200).json({ message: "Login successful", token, role: user.role, userId: user.user_id });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });
@@ -169,7 +169,7 @@ exports.googleLogin = async (req, res) => {
     );
     // console.log(token);
 
-    res.status(200).json({ message: "Login successful", token: jwtToken, role: user.role });
+    res.status(200).json({ message: "Login successful", token: jwtToken, role: user.role, userId: user.user_id });
   } catch (error) {
     console.error("Google login error:", error);
     res.status(401).json({ message: "Invalid token" });

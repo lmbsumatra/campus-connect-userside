@@ -7,26 +7,23 @@ const StudentProtectedRoute = ({ allowedRoles, children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate a delay (e.g., for fetching user data)
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); // Adjust the delay as needed
+    }, 1000); 
 
-    return () => clearTimeout(timer); // Cleanup on unmount
+    return () => clearTimeout(timer);
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Show a loading indicator
+    return <div>Loading...</div>; 
   }
 
-  // After loading, check if user is null
   if (user === null) {
-    return <Navigate to="/" />; // Redirect to login if not logged in
+    return <Navigate to="/" />; 
   }
 
   const { role } = user;
 
-  // Check if the user's role is allowed
   if (!allowedRoles.includes(role)) {
     return <Navigate to="/" />;
   }

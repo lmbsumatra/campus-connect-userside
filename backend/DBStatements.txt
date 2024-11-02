@@ -176,3 +176,29 @@ CREATE TABLE items_for_sale (
 );
 
 alter table listings modify column status enum('pending','approved', 'declined', 'removed', 'revoked', 'flagged');
+
+CREATE TABLE rental_transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    owner_id INT NOT NULL,
+    renter_id INT NOT NULL,
+    item_id INT NOT NULL,
+    post_id INT,
+    status ENUM('Requested', 'Accepted', 'Declined', 'HandedOver', 'Returned', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Requested',
+    delivery_method ENUM('pickup', 'meetup') NOT NULL,
+    rental_date_id INT NOT NULL,
+    rental_time_id INT NOT NULL,
+    payment_status ENUM('Pending', 'Completed', 'Refunded') NOT NULL DEFAULT 'Pending',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (owner_id) REFERENCES users(user_id),
+    FOREIGN KEY (renter_id) REFERENCES users(user_id),
+    FOREIGN KEY (item_id) REFERENCES listings(id),
+    FOREIGN KEY (post_id) REFERENCES posts(id),
+    FOREIGN KEY (rental_date_id) REFERENCES dates(id),
+    FOREIGN KEY (rental_time_id) REFERENCES durations(id)
+);
+
+use campus_connect_db;
+ALTER TABLE rental_transactions
+ADD COLUMN has_review_rating BOOLEAN;
+
