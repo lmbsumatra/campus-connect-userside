@@ -1,14 +1,12 @@
 // src/pages/RentProgress.js
 import React from "react";
-import NavBar from "../../components/navbar/navbar/NavBar";
-import Footer from "../../components/footer/Footer";
 import "./RentProgress.css"; // Import the CSS file
 import item1 from "../../assets/images/item/item_1.jpg"; // Import the image
 
 function RentProgress() {
   return (
     <div>
-      <div className="rent-progress">
+      <div className="rent-progress ">
         <div className="progress-container">
           <h2>Transaction ID: JSX123445</h2>
           <span className="status">Status: Completed</span>

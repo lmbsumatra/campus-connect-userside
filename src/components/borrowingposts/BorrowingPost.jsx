@@ -78,10 +78,12 @@ const BorrowingPost = ({ borrowingPosts, title }) => {
                   <div className="row">
                     <div className="col-6">
                       <div className="card-body">
-                        <p className="card-text fw-bold">{item.post_item_name}</p>
+                        <div>
+                        <p className="card-text fw-bold ellipsis">{item.post_item_name}</p>
                         <div>
                           <p className="card-text label">Rental Date</p>
                           <button className="btn btn-rounded thin">{item.rental_dates.length > 0 ? formatDate(item.rental_dates[0].date) : "N/A"}</button>
+                        </div>
                         </div>
                         <img
                           src={moreImg}

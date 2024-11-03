@@ -13,7 +13,7 @@ import ViewPost from "./pages/private/users/ViewPost.js";
 import PostForm from "./pages/private/users/new-post/PostForm.js";
 import AddPost from "./pages/private/users/new-posting/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
-import RentProgress from "./components/myrentals/MyRentals.jsx";
+import RentProgress from "./components/myrentals/RentProgress.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
 import ViewListing from "./pages/private/users/ViewListing.js";
 import AddListing from "./pages/private/users/new-listing/AddListing.js";

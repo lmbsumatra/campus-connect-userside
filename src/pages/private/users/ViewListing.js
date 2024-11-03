@@ -11,8 +11,9 @@ import { useAuth } from "../../../context/AuthContext";
 
 function ViewListing() {
   const { id } = useParams();
-  const { selectedItem, loading, error, tags } = FetchListingData({ id });
-  const { user } = useAuth();
+  const { selectedItem, loading, error, tags } = FetchListingData({id}); // Ensure this is a custom hook or function
+  const { studentUser } = useAuth();
+  console.log(selectedItem, loading, error, tags)
 
   const [rentalDetails, setRentalDetails] = useState({
     selectedDate: null,
@@ -34,13 +35,13 @@ function ViewListing() {
       alert("You must agree to the rental terms.");
       return;
     }
-    console.log(selectedItem.delivery_mode);
+
     try {
       const response = await axios.post(
         "http://localhost:3001/rental-transaction/add",
         {
           owner_id: selectedItem.owner_id,
-          renter_id: user.userId,
+          renter_id: studentUser.userId,
           item_id: selectedItem.id,
           rental_date_id: rentalDetails.rental_date_id,
           rental_time_id: rentalDetails.rental_time_id,
@@ -53,7 +54,7 @@ function ViewListing() {
         alert("Rental request submitted successfully!");
       }
     } catch (error) {
-      console.error("Error creating rental:", error.details);
+      console.error("Error creating rental:", error);
       alert("Failed to create rental request. Please try again.");
     }
   };
@@ -62,12 +63,9 @@ function ViewListing() {
   if (error) return <p>Error: {error}</p>;
   if (!selectedItem) return <p>Item not found</p>;
 
- 
-
-  const specifications =
-    typeof selectedItem.specifications === "string"
-      ? JSON.parse(selectedItem.specifications) || {}
-      : selectedItem.specifications || {};
+  const specifications = typeof selectedItem.specifications === "string"
+    ? JSON.parse(selectedItem.specifications) || {}
+    : selectedItem.specifications || {};
 
   const itemSpecifications = Object.entries(specifications).map(
     ([key, value]) => ({
@@ -91,7 +89,7 @@ function ViewListing() {
           <button className="btn btn-rounded thin">
             {selectedItem.category}
           </button>
-          <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="d-flex justify-content-between align-items-center">
             <p className="mb-0">
               <strong>{selectedItem.listing_name}</strong>
             </p>
@@ -100,7 +98,7 @@ function ViewListing() {
             </p>
           </div>
           <span className="price">₱{selectedItem.rate}/hr</span>
-          <div className="mt-5 d-flex justify-content-end">
+          <div className="d-flex justify-content-end">
             <button className="btn btn-rectangle secondary no-fill me-2">
               Message
             </button>
@@ -126,7 +124,7 @@ function ViewListing() {
                   setRentalDetails((prev) => ({
                     ...prev,
                     selectedDate: rental.date,
-                    rental_date_id: rental.id, // Set rental_date_id here
+                    rental_date_id: rental.id,
                   }))
                 }
               >
@@ -160,7 +158,7 @@ function ViewListing() {
                       setRentalDetails((prev) => ({
                         ...prev,
                         selectedTime: duration.rental_time_from,
-                        rental_time_id: duration.id, // Set rental_time_id here
+                        rental_time_id: duration.id,
                       }))
                     }
                   >
@@ -224,7 +222,7 @@ function ViewListing() {
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             <img
-              src={selectedItem.userProfilePic}
+              src={selectedItem.userProfilePic || userProfilePicture}
               alt="Profile"
               className="profile-pic me-2"
             />

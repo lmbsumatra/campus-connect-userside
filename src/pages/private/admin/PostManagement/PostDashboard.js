@@ -40,6 +40,7 @@ const PostDashboard = () => {
     console.log(`Deleting post with ID: ${postId}`);
   };
 
+
   // Prepare data for TableComponent
   const data = posts.map((post) => {
     const { label, className } = ItemStatus(post.status);
@@ -48,7 +49,7 @@ const PostDashboard = () => {
       post.post_item_name,
       post.category,
       <>
-        {post.renter.first_name} {post.renter.last_name}
+        {post.renter?.first_name} {post.renter?.last_name}
       </>,
       formatDate(post.created_at),
       <span className={`badge ${className}`}>{label}</span>,

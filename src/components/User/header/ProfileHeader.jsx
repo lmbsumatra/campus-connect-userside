@@ -10,23 +10,28 @@ import { useAuth } from "../../../context/AuthContext";
 // Define the fetchUserInfo function here or import it from another file
 
 const ProfileHeader = () => {
-  const { studentUser } = useAuth();
-  const token = studentUser.token;
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState(null);
   const [selectedOption, setSelectedOption] = useState("Renter");
   const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
+  const { studentUser } = useAuth();
+  const token = studentUser.token;
+
+  const {
+    user,
+    student,
+    errorMessage: fetchErrorMessage,
+  } = FetchUserInfo(token);
+  const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (token) {
-        const { user, student, errorMessage } = await FetchUserInfo(token);
-        setUserInfo({ user, student });
+    if (user.user_id && student.college) {
+      setUserInfo({ user, student });
         setErrorMessage(errorMessage);
-      }
-    };
-    fetchData();
-  }, [token]);
+    }
+  }, [user, student]);
+
+
+
   const handleChange = (event) => {
     setSelectedOption(event.target.value);
   };

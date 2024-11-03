@@ -8,9 +8,11 @@ const useFetchAllPostsData = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
+      
       try {
         const response = await axios.get(`http://localhost:3001/posts/info`);
         setPosts(response.data);
+        console.log(response.data)
       } catch (err) {
         setError(err.message);
       } finally {

@@ -1,59 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
 import itemImage from "../../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
-import axios from "axios";
+import FetchPostData from "../../../utils/FetchPostData";
 
 function ViewPost() {
-  
   const { id } = useParams();
-  const [selectedPost, setSelectedPost] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [tags, setTags] = useState([]);
 
-  useEffect(() => {
-    const fetchItem = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3001/posts/${id}`);
-        setSelectedPost(response.data);
+  const { selectedPost, loading, error, tags } = FetchPostData({id});
 
-        const fetchedTags = response.data.tags;
-        let parsedTags = [];
-        if (Array.isArray(fetchedTags)) {
-          parsedTags = fetchedTags;
-        } else if (typeof fetchedTags === "string") {
-          try {
-            parsedTags = JSON.parse(fetchedTags);
-          } catch (parseError) {
-            parsedTags = fetchedTags.split(",").map((tag) => tag.trim());
-          }
-        }
-        setTags(parsedTags);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItem();
-  }, [id]);
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
-
-  if (!selectedPost) {
-    return <p>Item not found</p>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!selectedPost) return <p>Item not found</p>;
 
   const {
     itemImage: itemImageUrl = itemImage,
@@ -66,7 +27,6 @@ function ViewPost() {
   } = selectedPost;
 
   let specifications = {};
-
   if (typeof selectedPost.specifications === "string") {
     try {
       specifications = JSON.parse(selectedPost.specifications);
@@ -94,16 +54,16 @@ function ViewPost() {
           </div>
 
           <div className="col-md-6 item-desc">
-            <button className="btn btn-rounded thin">
+            <button className="btn btn-rounded thin" disabled>
               {selectedPost.category}
             </button>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <p className="mb-0">
+            <div className="d-flex justify-content-between align-items-center m-0 p-0 ">
+              <p className="">
                 <i>Looking for </i>
                 <strong>{post_item_name}</strong>
               </p>
             </div>
-            <div className="mt-5 d-flex justify-content-end">
+            <div className="d-flex justify-content-end">
               <button className="btn btn-rectangle secondary no-fill me-2">Message</button>
               <button className="btn btn-rectangle primary no-fill me-2">Offer</button>
             </div>
@@ -146,7 +106,7 @@ function ViewPost() {
               <img src={userProfilePic} alt="Profile" className="profile-pic me-2" />
               <div>
                 <a href={`/userprofile/${renter.first_name}`} className="text-dark small text-decoration-none">
-                  {renter.first_name}
+                  {renter.first_name} {renter.last_name}
                 </a>
               </div>
             </div>

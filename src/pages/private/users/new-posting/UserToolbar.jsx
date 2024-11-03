@@ -7,7 +7,7 @@ export const UserToolbar = ({ userInfo }) => {
             <img src={""} alt="Profile" className="profile-pic me-2" />
             <div>
               <a href={``} className="text-dark small text-decoration-none">
-                {userInfo.user.first_name}
+                {userInfo.user.first_name} {userInfo.user.last_name}
               </a>
             </div>
           </div>

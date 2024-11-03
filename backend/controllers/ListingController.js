@@ -48,6 +48,8 @@ exports.createListing = async (req, res) => {
       throw new Error("Listing data is missing");
     }
 
+    req.body.listing.status = "pending";
+
     const listing = await models.Listing.create(req.body.listing, {
       transaction,
     });
@@ -112,6 +114,7 @@ exports.createListing = async (req, res) => {
     });
   }
 };
+
 
 
 // Get a single post by ID with associated rental dates, durations, and renter info

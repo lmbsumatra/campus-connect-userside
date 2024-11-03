@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const FetchPostData = ({ id }) => {
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tags, setTags] = useState([]);
@@ -13,7 +13,7 @@ const FetchPostData = ({ id }) => {
         const response = await axios.get(
           `http://localhost:3001/posts/${id}`
         );
-        setSelectedItem(response.data);
+        setSelectedPost(response.data);
 
         const fetchedTags = response.data.tags;
         let parsedTags = [];
@@ -39,9 +39,9 @@ const FetchPostData = ({ id }) => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
-  if (!selectedItem) return <p>Item not found</p>;
+  if (!selectedPost) return <p>Item not found</p>;
 
-  return { selectedItem, loading, error, tags };
+  return { selectedPost, loading, error, tags };
 };
 
 export default FetchPostData;

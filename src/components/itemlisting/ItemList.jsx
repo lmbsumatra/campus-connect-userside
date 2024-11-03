@@ -76,7 +76,7 @@ const ItemList = ({ listings, title }) => {
                   </div>
                   <div className="card-body d-flex">
                     <div>
-                      <p className="card-text fw-bold">{item.listing_name}</p>
+                      <p className="card-text fw-bold ellipsis">{item.listing_name}</p>
                       <p className="card-text text-accent fw-bold">
                         {item.rate}
                       </p>

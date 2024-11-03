@@ -8,10 +8,9 @@ import { HandleCustomDateAndTime } from "./HandleCustomDateAndTime";
 import { HandleWeeklyDateAndTime } from "./HandleWeeklyDateAndTime";
 import FetchUserInfo from "../../../../utils/FetchUserInfo";
 import axios from "axios";
+import { useAuth } from "../../../../context/AuthContext";
 
 const AddPost = () => {
-  const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
-  const [errorMessage, setErrorMessage] = useState(null);
   const [postData, setPostData] = useState({
     post_item_name: "",
     description: "",
@@ -21,22 +20,25 @@ const AddPost = () => {
     images: [],
     renter_id: "",
     specifications: [],
-    dateAndTime: []
+    dateAndTime: [],
   });
 
-  useEffect(() => {
-    FetchUserInfo(setUserInfo, setErrorMessage);
-  }, [userInfo]);
+  const { studentUser } = useAuth();
+  const token = studentUser.token;
+
+  const { user, student, errorMessage: fetchErrorMessage } = FetchUserInfo(token);
+  const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);
+
 
   useEffect(() => {
-    if (userInfo.user.user_id && userInfo.student.college) {
+    if (user.user_id && student.college) {
       setPostData((prevData) => ({
         ...prevData,
-        renter_id: userInfo.user.user_id,
-        category: userInfo.student.college,
+        renter_id: user.user_id,
+        category: student.college,
       }));
     }
-  }, [userInfo]);
+  }, [user, student]);
 
   const [newTag, setNewTag] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -48,7 +50,6 @@ const AddPost = () => {
     try {
       const response = await axios.post("http://localhost:3001/posts/create", {
         post: {
-          
           post_item_name: postData.post_item_name,
           description: postData.description,
           category: postData.category,
@@ -100,91 +101,88 @@ const AddPost = () => {
     <div className="container-content">
       <h2>Create Post</h2>
       {errorMessage && <div className="error-message">{errorMessage}</div>}
-      <div className="form-preview">
-        <ImageUpload
-          postData={postData}
-          setPostData={setPostData}
-        />
+      <div className="py-4 px-2 m-0 rounded row bg-white">
+        <div className="form-preview w-100">
+          <ImageUpload postData={postData} setPostData={setPostData} />
 
-        <div className="form-fields bg-white p-3 rounded">
-          <button className="btn btn-rounded thin">CIT</button>
-          <input
-            type="text"
-            placeholder="Item Name"
-            className="borderless"
-            value={postData.post_item_name}
-            onChange={(e) =>
-              setPostData({ ...postData, post_item_name: e.target.value })
-            }
-          />
-          <hr />
+          <div className="form-fields bg-white p-3 rounded">
+            <button className="btn btn-rounded thin">CIT</button>
+            <input
+              type="text"
+              placeholder="Item Name"
+              className="borderless"
+              value={postData.post_item_name}
+              onChange={(e) =>
+                setPostData({ ...postData, post_item_name: e.target.value })
+              }
+            />
+            <hr />
 
-          <div className="groupby bg-white p-0">
-            <div className="rental-dates d-block">
-              <label>Rental Dates</label>
-              <input
-                type="radio"
-                id="custom-dates"
-                name="rentalDates"
-                checked={settingDateOption === "custom"}
-                onChange={() => SetSettingDateOption("custom")}
-              />
-              <label htmlFor="custom-dates">Custom Dates</label>
-              <input
-                type="radio"
-                id="weekly"
-                name="rentalDates"
-                checked={settingDateOption === "weekly"}
-                onChange={() => SetSettingDateOption("weekly")}
-              />
-              <label htmlFor="weekly">Weekly</label>
-            </div>
-
-            {settingDateOption === "custom" && (
-              <HandleCustomDateAndTime
-                postData={postData}
-                setPostData={setPostData}
-              />
-            )}
-
-            {settingDateOption === "weekly" && (
-              <HandleWeeklyDateAndTime
-                postData={postData}
-                setPostData={setPostData}
-              />
-            )}
-
-      
-            <div>
-              <label>Tags</label>
-              <div className="tag-input">
+            <div className="groupby bg-white p-0">
+              <div className="rental-dates d-block">
+                <label>Rental Dates</label>
                 <input
-                  type="text"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  placeholder="Add a tag"
-                  className="borderless"
+                  type="radio"
+                  id="custom-dates"
+                  name="rentalDates"
+                  checked={settingDateOption === "custom"}
+                  onChange={() => SetSettingDateOption("custom")}
                 />
-                <button onClick={handleAddTag}>Add Tag</button>
+                <label htmlFor="custom-dates">Custom Dates</label>
+                <input
+                  type="radio"
+                  id="weekly"
+                  name="rentalDates"
+                  checked={settingDateOption === "weekly"}
+                  onChange={() => SetSettingDateOption("weekly")}
+                />
+                <label htmlFor="weekly">Weekly</label>
               </div>
-              <div className="tags-list">
-                {postData.tags.map((tag, index) => (
-                  <div key={index} className="tag-display">
-                    {tag}
-                    <button onClick={() => handleRemoveTag(tag)}>Remove</button>
-                  </div>
-                ))}
+
+              {settingDateOption === "custom" && (
+                <HandleCustomDateAndTime
+                  postData={postData}
+                  setPostData={setPostData}
+                />
+              )}
+
+              {settingDateOption === "weekly" && (
+                <HandleWeeklyDateAndTime
+                  postData={postData}
+                  setPostData={setPostData}
+                />
+              )}
+
+              <div>
+                <label>Tags</label>
+                <div className="tag-input">
+                  <input
+                    type="text"
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    placeholder="Add a tag"
+                    className="borderless"
+                  />
+                  <button onClick={handleAddTag}>Add Tag</button>
+                </div>
+                <div className="tags-list">
+                  {postData.tags.map((tag, index) => (
+                    <div key={index} className="tag-display">
+                      {tag}
+                      <button onClick={() => handleRemoveTag(tag)}>
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <UserToolbar userInfo={userInfo} />
-      <HandleSpecifications
-        postData={postData}
-        setPostData={setPostData}
-      />
+      <UserToolbar userInfo={{ user, student }} />
+      <HandleSpecifications postData={postData} setPostData={setPostData} />
       <button className="btn btn-primary" onClick={handleSubmit}>
         Submit
       </button>

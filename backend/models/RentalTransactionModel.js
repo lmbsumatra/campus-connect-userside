@@ -58,10 +58,13 @@ module.exports = (sequelize) => {
         type: DataTypes.ENUM("Pending", "Completed", "Refunded"),
         allowNull: false,
         defaultValue: "Pending",
+      },owner_confirmed: {  // New field for owner confirmation
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
-      cancellation_reason: {
-        type: DataTypes.TEXT,
-        allowNull: true,
+      renter_confirmed: {  // New field for renter confirmation
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
       
     },

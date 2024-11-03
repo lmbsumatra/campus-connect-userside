@@ -202,3 +202,7 @@ use campus_connect_db;
 ALTER TABLE rental_transactions
 ADD COLUMN has_review_rating BOOLEAN;
 
+
+ALTER TABLE rental_transactions
+ADD COLUMN owner_confirmed BOOLEAN DEFAULT FALSE,
+ADD COLUMN renter_confirmed BOOLEAN DEFAULT FALSE;

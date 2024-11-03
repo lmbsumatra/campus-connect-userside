@@ -90,7 +90,7 @@ const ItemSale = ({ items, title }) => {
                   </div>
                   <div className="card-body d-flex">
                     <div>
-                      <p className="card-text fw-bold">{item.item_for_sale_name}</p>
+                      <p className="card-text fw-bold ellipsis">{item.item_for_sale_name}</p>
                       <p className="card-text text-accent fw-bold">
                         {item.price}
                       </p>

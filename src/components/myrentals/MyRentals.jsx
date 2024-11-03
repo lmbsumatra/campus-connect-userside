@@ -1,61 +1,67 @@
-import React, { useState, useEffect } from "react";
-// MyRentals
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import useFetchRentalTransactionsByUserId from "../../utils/useFetchRentalTransactionsByUserId";
 import RentalFilters from "../../components/myrentals/RentalFilters";
 import RentalItem from "../../components/myrentals/RentalItem";
-import { rentalItems, filterOptions } from "../../components/myrentals/data";
-import ReviewModal from "../../components/modalReview/ReviewModal";
+import { useAuth } from "../../context/AuthContext";
 
 const MyRentals = () => {
-  const [activeFilter, setActiveFilter] = useState("Request");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const { studentUser } = useAuth();
+  const userId = studentUser.userId;
+  const [activeFilter, setActiveFilter] = useState("All");
+
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  // Fetch rental transactions
+  const {
+    transactions: rentalItems,
+    error,
+    loading,
+  } = useFetchRentalTransactionsByUserId(userId);
 
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
   };
 
-  const openModal = (item) => {
-    setSelectedItem(item);
-    setIsModalOpen(true);
+  const openRentProgress = (rentalId) => {
+    navigate(`/rent-progress/${rentalId}`); // Navigate with rental ID
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedItem(null);
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  const filterOptions = [
+    { name: "All", statuses: [] }, // To include all items when "All" is selected
+    { name: "Requests", statuses: ["Requested"] },
+    { name: "To Hand Over", statuses: ["Accepted"] },
+    { name: "To Return", statuses: ["HandedOver"] },
+    { name: "Completed", statuses: ["Returned"] },
+    { name: "To Review", statuses: ["Completed"] },
+    { name: "Cancelled", statuses: ["Cancelled", "Declined"] },
+  ];
+
+  const filteredItems = rentalItems.filter(item => {
+    if (activeFilter === "All") return true; // Show all items for "All" filter
+    const filterOption = filterOptions.find(option => option.name === activeFilter);
+    return filterOption && filterOption.statuses.includes(item.status);
+  });
 
   return (
     <div className="container rounded bg-white">
       <div className="my-rentals">
         <RentalFilters
-          filterOptions={filterOptions}
+          filterOptions={filterOptions.map(option => option.name)} // Just show filter names
           activeFilter={activeFilter}
           onFilterClick={handleFilterClick}
         />
         <div className="rental-items">
-          {rentalItems
-            .filter(
-              (item) =>
-                activeFilter === "All" ||
-                item.status === activeFilter ||
-                (activeFilter === "Request" && item.status === "Pending")
-            )
-            .map((item) => (
-              <RentalItem key={item.id} item={item} onOpenModal={openModal} />
-            ))}
+          {filteredItems.map((item) => (
+            <div key={item.id} /*onClick={() => openRentProgress(item.id)}*/>
+              <RentalItem item={item} />
+            </div>
+          ))}
+          {filteredItems.length === 0 && <p>No rentals found.</p>}
         </div>
-        {selectedItem && (
-          <ReviewModal
-            isOpen={isModalOpen}
-            onClose={closeModal}
-            item={{
-              ...selectedItem,
-              rentalPeriod: `${selectedItem.requestDate} - ${selectedItem.returnDate}`,
-              rentalRate: "10php",
-              ownerName: "Owner name", // Placeholder, replace with actual data
-            }}
-          />
-        )}
       </div>
     </div>
   );

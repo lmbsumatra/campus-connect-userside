@@ -14,7 +14,7 @@ exports.getAllApprovedItemForSale = async (req, res) => {
         "seller_id",
         "created_at",
         "status",
-        "category"
+        "category",
       ],
       where: {
         status: "approved",
@@ -104,7 +104,7 @@ exports.createItemForSale = async (req, res) => {
     if (!req.body.item) {
       throw new Error("Listing data is missing");
     }
-
+    req.body.item.status = "pending";
     const item = await models.ItemForSale.create(req.body.item, {
       transaction,
     });
@@ -238,10 +238,9 @@ exports.deleteItemForSale = async (req, res) => {
   }
 };
 
-
 exports.updateStatus = async (req, res) => {
-  console.log(req.body)
-  const { status } = req.body; 
+  console.log(req.body);
+  const { status } = req.body;
 
   try {
     const item_for_sale = await models.ItemForSale.findByPk(req.params.id);
@@ -250,7 +249,7 @@ exports.updateStatus = async (req, res) => {
     }
 
     item_for_sale.status = status;
-    await item_for_sale.save(); 
+    await item_for_sale.save();
 
     res.status(200).json(item_for_sale);
   } catch (error) {

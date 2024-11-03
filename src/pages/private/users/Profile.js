@@ -17,6 +17,7 @@ import MyRentals from "../../../components/myrentals/MyRentals.jsx";
 
 // Data Imports
 import { items } from "../../../components/itemlisting/data.jsx";
+import RentProgress from "../../../components/myrentals/RentProgress.jsx";
 
 // Component Definitions
 function Transactions() {

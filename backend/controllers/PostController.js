@@ -40,8 +40,8 @@ exports.createPost = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
+    req.body.post.status = "pending";
     const post = await models.Post.create(req.body.post, { transaction });
-    console.log(post);
 
     const rentalDates = req.body.rental_dates;
     for (const date of rentalDates) {
