@@ -2,12 +2,11 @@
 /*  Login/Signup   */
 /* * * * * * * * * */
 .auth-container {
-  max-width: 664px;
-  margin: 20px auto;
+  width: auto;
   padding: 8px;
   border-radius: 10px;
   background-color: white;
-  height: 90vh; 
+  height: auto; 
   overflow: hidden; 
   position: relative;
 }
@@ -152,3 +151,6 @@
   cursor: pointer;
 } */
 
+.auth-form {
+  width: 100%;
+}

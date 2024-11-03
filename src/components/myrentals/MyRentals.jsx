@@ -28,7 +28,6 @@ const MyRentals = () => {
   };
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
 
   const filterOptions = [
     { name: "All", statuses: [] }, // To include all items when "All" is selected
@@ -50,21 +49,25 @@ const MyRentals = () => {
     <div className="container rounded bg-white">
       <div className="my-rentals">
         <RentalFilters
-          filterOptions={filterOptions.map(option => option.name)} // Just show filter names
+          filterOptions={filterOptions.map(option => option.name)}
           activeFilter={activeFilter}
           onFilterClick={handleFilterClick}
         />
         <div className="rental-items">
-          {filteredItems.map((item) => (
-            <div key={item.id} onClick={() => openRentProgress(item.id)}>
-              <RentalItem item={item} onButtonClick={(e) => e.stopPropagation()}/>
-            </div>
-          ))}
-          {filteredItems.length === 0 && <p>No rentals found.</p>}
+          {filteredItems.length > 0 ? (
+            filteredItems.map((item) => (
+              <div key={item.id} onClick={() => openRentProgress(item.id)}>
+                <RentalItem item={item} onButtonClick={(e) => e.stopPropagation()} />
+              </div>
+            ))
+          ) : (
+            <p>No transactions available. </p>
+          )}
         </div>
       </div>
     </div>
   );
+  
 };
 
 export default MyRentals;

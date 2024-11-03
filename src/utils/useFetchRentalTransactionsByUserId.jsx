@@ -7,12 +7,20 @@ const useFetchRentalTransactionsByUserId = (userId) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) return; // If no userId is provided, don't fetch
+    if (!userId) {
+      setLoading(false); // If no userId is provided, set loading to false
+      return;
+    }
 
     const fetchTransactions = async () => {
       try {
         const response = await axios.get(`http://localhost:3001/rental-transaction/user/${userId}`);
-        setTransactions(response.data);
+        if (response.data && Array.isArray(response.data)) {
+          setTransactions(response.data);
+        } else {
+          setTransactions([]); // Set to an empty array if no valid data
+          setError("No transactions found."); // Set an error message
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -21,7 +29,7 @@ const useFetchRentalTransactionsByUserId = (userId) => {
     };
 
     fetchTransactions();
-  }, [userId]); // Fetch when userId changes
+  }, [userId]);
 
   return { transactions, error, loading };
 };
