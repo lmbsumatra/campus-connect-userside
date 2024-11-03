@@ -1,5 +1,8 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css'
+import 'swiper/swiper-bundle.css';
 import "../adminDashboardStyles.css";
 
 const AdminDashboard = () => {
@@ -26,33 +29,47 @@ const AdminDashboard = () => {
     { title: 'Active Users', value: '100k', icon: require('../../../../../assets/images/icons/user2.png'), color: '#C31F3B' },
     { title: 'Active Listings', value: '100k', icon: require('../../../../../assets/images/icons/listing.png'), color: '#ED4700' },
     { title: 'Up Posts', value: '50k', icon: require('../../../../../assets/images/icons/posts.png'), color: '#D06400' },
-    { title: 'Average Transactions', value: '20k', icon: require('../../../../../assets/images/icons/transact.png'), color: '#026800' },
+    { title: 'Average Transactions', value: '20k', icon: require('../../../../../assets/images/icons/transact.png'), color: '#026800'},
     { title: 'Reports', value: '10k', icon: require('../../../../../assets/images/icons/report.png'), color: '#2E3192' },
   ];
 
   return (
     <div className="dashboard">
       <div className="status-section">
-        {statusCards.map((card, index) => (
-          <div key={index} className="status-card">
-            <div className="status-content">
-              <img src={card.icon} alt={card.title} className="status-icon" />
-              <div>
-                <h6>{card.title}</h6>
-                <span 
-                  className="status-value" 
-                  style={{ color: card.color }} // Apply the color here
-                >
-                  {card.value}
-                </span>
+        {/* Swiper for swipeable cards */}
+        <Swiper spaceBetween={10}
+                slidesPerView={1}
+                pagination={{ clickable: true }}
+                breakpoints={{
+                    480: { slidesPerView: 1 },  // For mobile screens
+                    768: { slidesPerView: 3 },  // For tablets
+                    1024: { slidesPerView: 5 }, // For desktop
+  }}
+  >
+          {statusCards.map((card, index) => (
+            <SwiperSlide key={index}>
+              <div className="status-card">
+                <div className="status-content">
+                  <img src={card.icon} alt={card.title} className="status-icon" />
+                  <div>
+                    <h6>{card.title}</h6>
+                    <span 
+                      className="status-value" 
+                      style={{ color: card.color }} 
+                    >
+                      {card.value}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
 
       <div className="recent-activities-section">
         <h3 className="section-title">Recent Activities</h3>
+        <div className="activities-table-container">
         <table className="activities-table">
           <thead>
             <tr>
@@ -150,6 +167,7 @@ const AdminDashboard = () => {
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <div className="charts-section">

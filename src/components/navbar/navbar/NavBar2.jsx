@@ -17,7 +17,7 @@ const NavBar2 = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { studentUser, logout } = useAuth();
+  const { studentUser, logoutStudent } = useAuth();
   const popupRef = useRef(null); 
   const role = studentUser?.role; 
 
@@ -58,7 +58,7 @@ const NavBar2 = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    logoutStudent();
     setIsLoggedIn(false);
     navigate("/");
   };

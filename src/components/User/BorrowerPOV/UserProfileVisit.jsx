@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../BorrowerPOV/postStyles.css";
-import StarRating from "../../Rating/StarRating.jsx"
+import StarRating from "../../rating/StarRating.jsx";
 import { items, users } from "../data.jsx";
 import BorrowingPost from "./Posts.jsx";
 

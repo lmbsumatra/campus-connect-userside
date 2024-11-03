@@ -14,3 +14,15 @@
     background-color: #DFDFDF !important; 
     flex: 1; 
 }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-container {
+        flex-direction: column;
+    }
+
+    .admin-content {
+        padding-left: 0; /* Remove left padding when sidebar is hidden */
+    }
+}
+
