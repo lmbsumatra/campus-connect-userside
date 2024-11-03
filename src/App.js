@@ -48,15 +48,16 @@ import ProtectedRoute from "./components/Protected Route/ProtectedRoute.js";
 import { AuthProvider } from "./context/AuthContext.js";
 import StudentProtectedRoute from "./components/Protected Route/StudentProtectedRoute.js";
 
+
 function App() {
   return (
     <AuthProvider>
-    <BrowserRouter>
-      <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
-        <Content />
-      </GoogleOAuthProvider>
-    </BrowserRouter>
-     </AuthProvider> 
+      <BrowserRouter>
+        <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
+          <Content />
+        </GoogleOAuthProvider>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
@@ -172,7 +173,7 @@ function Content() {
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
-            <Admin />
+              <Admin />
             </ProtectedRoute>
           }
         >
@@ -212,14 +213,7 @@ function Content() {
           />
 
           {/* ADMIN MANAGEMENT */}
-          <Route
-            path="settings"
-            element={
-              <ProtectedRoute allowedRoles={["superadmin"]}>
-                <AdminSettings />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="settings" element={<AdminSettings />}/>
         </Route>
       </Routes>
       {showNavbarAndFooter && <Footer />}

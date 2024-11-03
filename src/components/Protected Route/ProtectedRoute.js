@@ -3,10 +3,11 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const ProtectedRoute = ({ allowedRoles }) => {
-  const { user } = useAuth();
-
+  const { adminUser } = useAuth();
+  console.log("Current adminUser:", adminUser);
+  
   // Check if the user is logged in and has an allowed role
-  const hasAccess = user && allowedRoles.includes(user.role);
+  const hasAccess = adminUser && allowedRoles.includes(adminUser.role);
 
   // If not logged in or no access, redirect to admin login
   if (!hasAccess) {

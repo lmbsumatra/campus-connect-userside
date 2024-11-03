@@ -110,7 +110,7 @@ exports.loginAdmin = async (req, res) => {
       JWT_SECRET
     );
 
-    res.status(200).json({ message: "Login successful", token , role:user.role});
+    res.status(200).json({ message: "Login successful", token, role: user.role, userId: user.user_id });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });
