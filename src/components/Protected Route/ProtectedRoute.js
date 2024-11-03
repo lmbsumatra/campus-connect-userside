@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-const ProtectedRoute = ({ allowedRoles }) => {
+const ProtectedRoute = ({ allowedRoles, children }) => {
   const { adminUser } = useAuth();
   console.log("Current adminUser:", adminUser);
   
@@ -15,7 +15,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
   }
 
   // Render the outlet (the child routes)
-  return <Outlet />;
+    return children; 
 };
 
 export default ProtectedRoute;

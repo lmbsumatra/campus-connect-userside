@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./adminSettingStyles.css";
 import PasswordMeter from "../../../../components/common/PasswordMeter";
+import { useAuth } from "../../../../context/AuthContext";
 
 const AdminSettings = ({ tab, onClose }) => {
   const navigate = useNavigate();
+  const { adminUser } = useAuth(); // Get the adminUser from context
   const [showCreateAcctWindow, setShowCreateAcctWindow] = useState(false);
 
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -158,12 +160,15 @@ const AdminSettings = ({ tab, onClose }) => {
   return (
     <div className="admin-content-container">
       <div className="admin content">
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowCreateAcctWindow(!showCreateAcctWindow)}
-        >
-          Create Account
-        </button>
+             {/* Conditionally render the Create Account button based on user role */}
+        {adminUser?.role === "superadmin" && ( // Check if the user is superadmin
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowCreateAcctWindow(!showCreateAcctWindow)}
+          >
+            Create Account
+          </button>
+        )}
 
         {showCreateAcctWindow && (
           <div className="modal show bg-shadow" style={{ display: "block" }}>

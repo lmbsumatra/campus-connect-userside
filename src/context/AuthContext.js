@@ -5,7 +5,11 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   // const [user, setUser] = useState(null);
   const [studentUser, setStudentUser] = useState(null);
-  const [adminUser, setAdminUser] = useState(null);
+   const [adminUser, setAdminUser] = useState(() => {
+    // Retrieve the adminUser from local storage
+    const savedUser = localStorage.getItem("adminUser");
+    return savedUser ? JSON.parse(savedUser) : null; // Parse the stored JSON string
+  });
 
   useEffect(() => {
     
