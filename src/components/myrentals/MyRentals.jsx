@@ -56,8 +56,8 @@ const MyRentals = () => {
         />
         <div className="rental-items">
           {filteredItems.map((item) => (
-            <div key={item.id} /*onClick={() => openRentProgress(item.id)}*/>
-              <RentalItem item={item} />
+            <div key={item.id} onClick={() => openRentProgress(item.id)}>
+              <RentalItem item={item} onButtonClick={(e) => e.stopPropagation()}/>
             </div>
           ))}
           {filteredItems.length === 0 && <p>No rentals found.</p>}

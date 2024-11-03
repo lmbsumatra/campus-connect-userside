@@ -22,12 +22,12 @@ function RentalFilters({ filterOptions, activeFilter, onFilterClick }) {
           </button>
         ))}
       </div>
-      <button
+      {/* <button
         className="filter-button view-progress-button"
         onClick={handleViewProgressClick}
       >
         View Transaction Details &gt;&gt;
-      </button>
+      </button> */}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { formatDate } from "../../utils/dateFormat";
 import axios from "axios"; // Make sure axios is installed
 import { useAuth } from "../../context/AuthContext";
 
-function RentalItem({ item }) {
+function RentalItem({ item, onButtonClick }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { studentUser } = useAuth(); // Replace this with the actual user ID from your auth context or props
   const { userId } = studentUser;
@@ -147,7 +147,7 @@ function RentalItem({ item }) {
         )}
         {item.owner && (
           <p>
-            Lender: {item.owner.first_name} {item.owner.last_name}
+            Owner: {item.owner.first_name} {item.owner.last_name}
           </p>
         )}
         {item.RentalDate && (
@@ -168,7 +168,11 @@ function RentalItem({ item }) {
               className={`btn btn-rectangle ${
                 button.primary ? "primary" : "secondary"
               }`}
-              onClick={button.onClick}
+              onClick={(e) => {
+                onButtonClick(e); // Prevent outer click
+                button.onClick(); // Call button's onClick function
+              }}
+
               disabled={button.disabled}
             >
               {button.label}

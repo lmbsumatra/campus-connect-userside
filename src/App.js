@@ -152,7 +152,7 @@ function Content() {
           }
         />
         <Route
-          path="/rent-progress"
+          path="/rent-progress/:id"
           element={
             <StudentProtectedRoute allowedRoles="student">
               <RentProgress />

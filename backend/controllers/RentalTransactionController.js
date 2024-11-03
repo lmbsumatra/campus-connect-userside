@@ -78,15 +78,49 @@ exports.getAllRentalTransactions = async (req, res) => {
 
 // Get a specific rental transaction by ID
 exports.getRentalTransactionById = async (req, res) => {
+  const { id } = req.params;
   try {
-    const rental = await models.RentalTransaction.findByPk(req.params.id, {
-      include: ["Borrower", "Lender", "Item", "LookingForPost"],
+    const rental = await models.RentalTransaction.findByPk(id, {
+      include: [
+        {
+          model: models.User,
+          as: "owner",
+          attributes: ["user_id", "first_name", "last_name", "email"],
+        },
+        {
+          model: models.User,
+          as: "renter",
+          attributes: ["user_id", "first_name", "last_name", "email"],
+        },
+        {
+          model: models.Listing,
+          attributes: ["id", "listing_name", "description", "rate"],
+        },
+        { model: models.Post, attributes: ["id", "post_item_name"] },
+        { model: models.RentalDate, attributes: ["id", "date"] },
+        {
+          model: models.RentalDuration,
+          attributes: ["id", "rental_time_from", "rental_time_to"],
+        },
+      ],
     });
-    if (!rental)
+
+    if (!rental) {
       return res.status(404).json({ error: "Rental transaction not found" });
-    res.json(rental);
+    }
+
+    res.json({
+      success: true,
+      rental,
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching rental transaction:", error);
+
+    res.status(500).json({
+      error:
+        "An unexpected error occurred while fetching the rental transaction.",
+      details: error.message,
+    });
   }
 };
 
@@ -219,7 +253,7 @@ exports.handOverRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
   console.log(id, userId);
-  
+
   try {
     const rental = await models.RentalTransaction.findByPk(id);
 
@@ -236,7 +270,9 @@ exports.handOverRentalTransaction = async (req, res) => {
 
     // Check if rental status is 'Accepted'
     if (rental.status !== "Accepted") {
-      return res.status(400).json({ error: "Only Accepted rentals can be handed over." });
+      return res
+        .status(400)
+        .json({ error: "Only Accepted rentals can be handed over." });
     }
 
     // Update the confirmation status
@@ -260,12 +296,11 @@ exports.handOverRentalTransaction = async (req, res) => {
   }
 };
 
-
 exports.returnRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
   console.log(id, userId);
-  
+
   try {
     const rental = await models.RentalTransaction.findByPk(id);
 
@@ -282,7 +317,9 @@ exports.returnRentalTransaction = async (req, res) => {
 
     // Check if rental status is 'HandOver'
     if (rental.status !== "HandedOver") {
-      return res.status(400).json({ error: "Only handed over rentals can be returned." });
+      return res
+        .status(400)
+        .json({ error: "Only handed over rentals can be returned." });
     }
 
     // Update the confirmation status
@@ -307,12 +344,11 @@ exports.returnRentalTransaction = async (req, res) => {
   }
 };
 
-
 exports.completeRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
   console.log(id, userId);
-  
+
   try {
     const rental = await models.RentalTransaction.findByPk(id);
 
@@ -329,7 +365,9 @@ exports.completeRentalTransaction = async (req, res) => {
 
     // Check if rental status is 'Returned'
     if (rental.status !== "Returned") {
-      return res.status(400).json({ error: "Only returned rentals can be completed." });
+      return res
+        .status(400)
+        .json({ error: "Only returned rentals can be completed." });
     }
 
     // Update the confirmation status
@@ -407,4 +445,3 @@ exports.cancelRentalTransaction = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
