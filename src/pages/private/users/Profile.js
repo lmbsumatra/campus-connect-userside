@@ -18,6 +18,8 @@ import MyRentals from "../../../components/myrentals/MyRentals.jsx";
 // Data Imports
 import { items } from "../../../components/itemlisting/data.jsx";
 import RentProgress from "../../../components/myrentals/RentProgress.jsx";
+import { useAuth } from "../../../context/AuthContext.js";
+import ItemSale from "../../../components/itemsale/ItemSale.jsx";
 
 // Component Definitions
 function Transactions() {
@@ -33,20 +35,16 @@ function MyListings() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Get token from localStorage
-  const token = localStorage.getItem('token'); // Replace 'token' with your actual token key
-  let userId;
-
-  if (token) {
-    const decoded = jwtDecode(token);
-    userId = decoded.userId; // Adjust this based on your token's payload structure
-  }
+  const { studentUser } = useAuth();
+  const { userId } = studentUser;
 
   useEffect(() => {
     const fetchItem = async () => {
       try {
         const response = await axios.get(`http://localhost:3001/listings/info`);
-        const userListings = response.data.filter(listing => listing.owner_id === userId);
+        const userListings = response.data.filter(
+          (listing) => listing.owner_id === userId
+        );
         setListings(userListings);
       } catch (err) {
         setError(err.message);
@@ -67,20 +65,14 @@ function MyListings() {
   );
 }
 
-
 function MyPosts() {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Get token from localStorage
-  const token = localStorage.getItem("token"); // Replace 'token' with your actual token key
-  let userId;
+  const { studentUser } = useAuth();
+  const { userId } = studentUser;
 
-  if (token) {
-    const decoded = jwtDecode(token);
-    userId = decoded.userId; // Adjust this based on your token's payload structure
-  }
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -104,7 +96,42 @@ function MyPosts() {
 
   return (
     <div className="container rounded bg-white">
-      <BorrowingPost borrowingPosts={posts} title="" />
+      <BorrowingPost borrowingPosts={posts} title="Looking for..." />
+    </div>
+  );
+}
+function MyForSale() {
+  const [forsales, setForSales] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const { studentUser } = useAuth();
+  const { userId } = studentUser;
+
+
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/item-for-sale/info`);
+        const userForsale = response.data.filter(
+          (forsale) => forsale.seller_id === userId
+        );
+        setForSales(userForsale);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      fetchItem();
+    }
+  }, [userId]);
+
+  return (
+    <div className="container rounded bg-white">
+      <ItemSale items={forsales} title="Sell"  className="col-md-10"/>
     </div>
   );
 }
@@ -127,6 +154,7 @@ function Profile() {
             <Route path="transactions" element={<Transactions />} />
             <Route path="my-listings" element={<MyListings />} />
             <Route path="my-posts" element={<MyPosts />} />
+            <Route path="my-forsale-items" element={<MyForSale />} />
             <Route path="/" element={<Navigate to="my-listings" />} />
           </Routes>
         </div>

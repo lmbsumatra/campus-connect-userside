@@ -7,7 +7,7 @@ import itemImage from "../../../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 
-function PostPreview({ selectedItem, loading, error, tags }) {
+function PostPreview({ selectedPost, loading, error, tags }) {
   const [selectedDate, setSelectedDate] = useState(null);
 
   if (loading) {
@@ -18,7 +18,7 @@ function PostPreview({ selectedItem, loading, error, tags }) {
     return <p>Error: {error}</p>;
   }
 
-  if (!selectedItem) {
+  if (!selectedPost) {
     return <p>Item not found</p>;
   }
 
@@ -31,19 +31,19 @@ function PostPreview({ selectedItem, loading, error, tags }) {
     userName = "Unknown User",
     userRating = 0,
     description = "No description available.",
-  } = selectedItem;
+  } = selectedPost;
 
   let specifications = {};
 
-  if (typeof selectedItem.specifications === "string") {
+  if (typeof selectedPost.specifications === "string") {
     try {
-      specifications = JSON.parse(selectedItem.specifications);
+      specifications = JSON.parse(selectedPost.specifications);
     } catch (error) {
       console.error("Error parsing specifications:", error);
       specifications = {};
     }
-  } else if (typeof selectedItem.specifications === "object") {
-    specifications = selectedItem.specifications;
+  } else if (typeof selectedPost.specifications === "object") {
+    specifications = selectedPost.specifications;
   }
 
   const itemSpecifications = Object.entries(specifications).map(
@@ -63,12 +63,12 @@ function PostPreview({ selectedItem, loading, error, tags }) {
 
           <div className="col-md-6 item-desc">
             <button className="btn btn-rounded thin">
-              {selectedItem.category}
+              {selectedPost.category}
             </button>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <p className="mb-0">
                 <i>Looking for </i>
-                <strong>{selectedItem.post_item_name}</strong>
+                <strong>{selectedPost.post_item_name}</strong>
               </p>
             </div>
             <div className="mt-5 d-flex justify-content-end">
@@ -113,8 +113,8 @@ function PostPreview({ selectedItem, loading, error, tags }) {
             <div className="d-flex align-items-center">
               <img src={userProfilePic} alt="Profile" className="profile-pic me-2" />
               <div>
-                <a href={`/userprofile/${selectedItem.renter.first_name}`} className="text-dark small text-decoration-none">
-                  {selectedItem.renter.first_name}
+                <a href={`/userprofile/${selectedPost.renter.first_name}`} className="text-dark small text-decoration-none">
+                  {selectedPost.renter.first_name}
                 </a>
               </div>
             </div>

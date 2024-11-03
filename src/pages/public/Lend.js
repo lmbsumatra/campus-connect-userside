@@ -11,7 +11,7 @@ const Lend = () => {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/posts/info`);
+        const response = await axios.get(`http://localhost:3001/posts/`);
         console.log("Response data:", response.data);
 
         setPosts(response.data);

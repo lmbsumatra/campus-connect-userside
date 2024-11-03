@@ -8,15 +8,19 @@ const FetchPostData = ({ id }) => {
   const [tags, setTags] = useState([]);
 
   useEffect(() => {
+    // Function to fetch post data
     const fetchItem = async () => {
+      setLoading(true); // Ensure loading starts when fetch begins
+      setError(null); // Reset error state before fetch
+
       try {
-        const response = await axios.get(
-          `http://localhost:3001/posts/${id}`
-        );
+        const response = await axios.get(`http://localhost:3001/posts/${id}`);
         setSelectedPost(response.data);
 
+        // Process tags from the response
         const fetchedTags = response.data.tags;
         let parsedTags = [];
+        
         if (Array.isArray(fetchedTags)) {
           parsedTags = fetchedTags;
         } else if (typeof fetchedTags === "string") {
@@ -26,20 +30,20 @@ const FetchPostData = ({ id }) => {
             parsedTags = fetchedTags.split(",").map((tag) => tag.trim());
           }
         }
+
         setTags(parsedTags);
       } catch (err) {
-        setError(err.message);
+        // Handle different error types if necessary
+        setError(err.response ? err.response.data.message : err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchItem();
+    if (id) {
+      fetchItem(); // Only fetch if id is provided
+    }
   }, [id]);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!selectedPost) return <p>Item not found</p>;
 
   return { selectedPost, loading, error, tags };
 };

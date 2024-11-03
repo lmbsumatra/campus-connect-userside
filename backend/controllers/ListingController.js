@@ -2,6 +2,45 @@ const Listing = require("../models/listing/ListingModel");
 const sequelize = require("../config/database");
 const { models } = require("../models/index");
 
+
+exports.getAllApprovedListing = async (req, res) => {
+  try {
+    const items = await models.Listing.findAll({
+     
+      where: {
+        status: "approved",
+      },
+      include: [
+        {
+          model: models.RentalDate,
+          as: "rental_dates",
+          required: false,
+          where: {
+            item_type: "listing",
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              required: false,
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "owner",
+          attributes: ["first_name", "last_name"],
+        },
+      ],
+    });
+
+    res.status(200).json(items);
+    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 // Get all posts with rental dates and durations
 exports.getAllListings = async (req, res) => {
   try {
@@ -114,8 +153,6 @@ exports.createListing = async (req, res) => {
     });
   }
 };
-
-
 
 // Get a single post by ID with associated rental dates, durations, and renter info
 exports.getListingById = async (req, res) => {

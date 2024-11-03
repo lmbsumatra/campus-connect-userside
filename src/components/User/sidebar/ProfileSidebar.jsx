@@ -24,12 +24,21 @@ const ProfileSidebar = () => {
         </li>
         <li>
           <NavLink
+            to="my-forsale-items"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            My For Sales
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
             to="my-rentals"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
             My Rentals
           </NavLink>
         </li>
+
         <li>
           <NavLink
             to="transactions"

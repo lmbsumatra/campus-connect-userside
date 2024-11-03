@@ -2,6 +2,45 @@ const Post = require("../models/post/PostModel");
 const sequelize = require("../config/database");
 const { models } = require("../models/index");
 
+
+exports.getAllApprovedPost = async (req, res) => {
+  try {
+    const items = await models.Post.findAll({
+     
+      where: {
+        status: "approved",
+      },
+      include: [
+        {
+          model: models.RentalDate,
+          as: "rental_dates",
+          required: false,
+          where: {
+            item_type: "post",
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              required: false,
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "renter",
+          attributes: ["first_name", "last_name"],
+        },
+      ],
+    });
+
+    res.status(200).json(items);
+    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 // Get all posts with rental dates and durations
 exports.getAllPosts = async (req, res) => {
   try {

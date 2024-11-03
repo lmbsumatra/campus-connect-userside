@@ -15,7 +15,7 @@ const Rent = () => {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/listings/info`);
+        const response = await axios.get(`http://localhost:3001/listings/`);
         console.log("Response data:", response.data);
 
         setListings(response.data);

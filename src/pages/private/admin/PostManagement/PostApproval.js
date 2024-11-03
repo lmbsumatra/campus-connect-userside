@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./postDashboard.css";
-import ViewItem from "../../users/ViewListing";
 import ActionModal from "../../../../components/Action Modal/ActionModal";
-import ViewPost from "../../users/ViewPost";
 import FetchPostData from "../../../../utils/FetchPostData";
 import { useParams } from "react-router-dom";
 import { ItemStatus } from "../../../../utils/Status";
@@ -12,12 +10,11 @@ import PostPreview from "./PostPreview";
 const PostApproval = () => {
   const [showModal, setShowModal] = useState(false);
   const { id } = useParams();
-  const [status, setStatus] = useState(null); // Store current status
+  const [status, setStatus] = useState(null);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
-  // Custom labels for the modal
   const formLabels = {
     approvalLabel: "Are you sure you want to approve the post?",
     reasonForDenialLabel: "Reason(s) for Denial",
@@ -26,7 +23,16 @@ const PostApproval = () => {
     actionLabel: "Action",
     additionalReasonLabel: "Reason",
   };
-  const { selectedItem, loading, error, tags } = FetchPostData({ id });
+  
+  const { selectedPost, loading, error, tags } = FetchPostData({ id });
+  
+  if (loading) return <p>Loading...</p>; // Show loading state
+  if (error) return <p>{error}</p>; // Show error message
+
+  if (!selectedPost) {
+    return <p>Item not found.</p>; // Show item not found message if no post data
+  }
+
   const handleStatusChange = async (selectedAction, reason) => {
     try {
       await fetch(`http://localhost:3001/posts/${id}`, {
@@ -34,29 +40,26 @@ const PostApproval = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: selectedAction }), // Update to new status
+        body: JSON.stringify({ status: selectedAction }),
       });
-      setStatus(selectedAction); // Update local status
-      console.log(
-        `Status updated to: ${selectedAction} with reason: ${reason}`
-      );
+      setStatus(selectedAction);
+      console.log(`Status updated to: ${selectedAction} with reason: ${reason}`);
     } catch (error) {
       console.error("Error updating status:", error);
     } finally {
-      handleCloseModal(); // Close modal after operation
+      handleCloseModal();
     }
   };
-  const { label, className } = ItemStatus(selectedItem?.status);
+
+  const { label, className } = ItemStatus(selectedPost?.status);
+
   return (
     <div className="admin-content-container">
       <span>
         Status: <span className={`badge ${className} ms-2`}>{label}</span>
       </span>
-      {/* Display current status */}
       <PostPreview
-        selectedItem={selectedItem}
-        loading={loading}
-        error={error}
+        selectedPost={selectedPost}
         tags={tags}
       />
       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -68,14 +71,13 @@ const PostApproval = () => {
           Action
         </button>
       </div>
-      {/* Action Modal */}
       <ActionModal
         show={showModal}
         onHide={handleCloseModal}
         title="Actions for Post"
         formLabels={formLabels}
-        onConfirm={handleStatusChange} // Pass the single handler
-        status={selectedItem?.status || status} // Ensure it reflects current status
+        onConfirm={handleStatusChange}
+        status={selectedPost?.status || status}
       />
     </div>
   );
