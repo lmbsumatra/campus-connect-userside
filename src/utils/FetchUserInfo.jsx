@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
 
-const FetchUserInfo = (token) => {
+const FetchUserInfo = ({userId}) => {
   const [user, setUser] = useState({});
   const [student, setStudent] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  console.log("fetch", userId)
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       setLoading(true);
-      setErrorMessage(""); // Reset error message on new fetch
+      setErrorMessage("");
 
       try {
-        const res = await fetch(`http://localhost:3001/user/info`, {
+        const res = await fetch(`http://localhost:3001/user/info/${userId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -35,10 +35,10 @@ const FetchUserInfo = (token) => {
       }
     };
 
-    if (token) {
+    if (userId) {
       fetchUserInfo();
     }
-  }, [token]);
+  }, [userId]);
 
   return { user, student, errorMessage, loading };
 };

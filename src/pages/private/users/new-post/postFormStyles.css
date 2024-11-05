@@ -292,7 +292,7 @@ label {
 }
 
 .item-specs-description {
-  resize: horizontal;
+  resize: vertical;
 }
 
 .optional-fees {
@@ -358,3 +358,5 @@ label {
     margin-bottom: 20px; /* Space below the image */
   }
 }
+
+

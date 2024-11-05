@@ -43,6 +43,7 @@ export const HandleSpecifications = ({
                 type="text"
                 placeholder="Key"
                 value={key}
+                className='spec-title'
                 onChange={(e) => {
                   const newKey = e.target.value;
                   setListingData((prev) => {
@@ -57,6 +58,7 @@ export const HandleSpecifications = ({
               <textarea
                 placeholder="Value"
                 value={value}
+                className='item-specs-description'
                 onChange={(e) =>
                   setListingData((prev) => ({
                     ...prev,
@@ -74,15 +76,17 @@ export const HandleSpecifications = ({
             </div>
           ))}
         </div>
-        <div>
+        <div className='d-flex align-content-vertically'>
           <input
             type="text"
+            className='spec-title'
             placeholder="New Specification Key"
             value={newSpecKey}
             onChange={(e) => setNewSpecKey(e.target.value)}
           />
           <textarea
             placeholder="New Specification Value"
+            className='item-specs-description'
             value={newSpecValue}
             onChange={(e) => setNewSpecValue(e.target.value)}
           />

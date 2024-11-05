@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import "./addPostStyles.css"
 
 export const HandleSpecifications = ({
   postData = { specifications: {}, description: "" },
@@ -36,13 +37,14 @@ export const HandleSpecifications = ({
       <div className="item-specifications bg-white">
         <label>Specifications</label>
         <hr />
-        <div>
+        <div className='d-flex'>
           {Object.entries(postData.specifications).map(([key, value]) => (
             <div key={key} className="specification">
               <input
                 type="text"
                 placeholder="Key"
                 value={key}
+                className="spec-title"
                 onChange={(e) => {
                   const newKey = e.target.value;
                   setPostData((prev) => {
@@ -57,6 +59,7 @@ export const HandleSpecifications = ({
               <textarea
                 placeholder="Value"
                 value={value}
+                className="item-specs-description"
                 onChange={(e) =>
                   setPostData((prev) => ({
                     ...prev,
@@ -74,15 +77,17 @@ export const HandleSpecifications = ({
             </div>
           ))}
         </div>
-        <div>
+        <div className="d-flex align-content-vertically">
           <input
             type="text"
             placeholder="New Specification Key"
             value={newSpecKey}
+            className="spec-title"
             onChange={(e) => setNewSpecKey(e.target.value)}
           />
           <textarea
             placeholder="New Specification Value"
+            className='item-specs-description'
             value={newSpecValue}
             onChange={(e) => setNewSpecValue(e.target.value)}
           />

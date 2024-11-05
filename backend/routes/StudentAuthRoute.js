@@ -9,8 +9,7 @@ router.post("/register", upload, studentAuthController.registerStudent);
 router.post("/login", studentAuthController.loginStudent);
 router.post("/google-login", studentAuthController.googleLogin);
 router.get(
-  "/info",
-  authenticateToken,
+  "/info/:userId",
   studentAuthController.getUserInformation
 );
 router.get(

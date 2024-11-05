@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import React from "react";
 import "./App.css";
 import "../src/styles/buttons.css";
@@ -8,7 +14,7 @@ import "../src/styles/containers.css";
 
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
 import Home from "./pages/public/Home.js";
-import Profile from "./pages/private/users/Profile.js";
+import Profile from "./pages/private/users/student-profile/Profile.js";
 import ViewPost from "./pages/private/users/ViewPost.js";
 import PostForm from "./pages/private/users/new-post/PostForm.js";
 import AddPost from "./pages/private/users/new-posting/AddPost.js";
@@ -42,12 +48,17 @@ import ListingOverview from "./pages/private/admin/listing-management/ListingOve
 import ListingApproval from "./pages/private/admin/listing-management/ListingApproval.js";
 import UserDashboard from "./pages/private/admin/user-management/UserDashboard.js";
 import UserOverview from "./pages/private/admin/user-management/UserOverview.js";
-import UserVerification from "./pages/private/admin/user-management/UserVerification.js";
+import UserVerification from "./pages/private/admin/user-management/student-profile/UserVerification.js";
 
 import ProtectedRoute from "./components/Protected Route/ProtectedRoute.js";
 import { AuthProvider } from "./context/AuthContext.js";
 import StudentProtectedRoute from "./components/Protected Route/StudentProtectedRoute.js";
-
+import EditProfile from "./components/editprofile/EditProfile.jsx";
+import MyForSale from "./pages/private/users/student-profile/MyForSale.jsx";
+import MyPosts from "./pages/private/users/student-profile/MyPosts.jsx";
+import MyListings from "./pages/private/users/student-profile/MyListings.jsx";
+import MyTransactions from "./pages/private/users/student-profile/MyTransactions.jsx";
+import MyRentals from "./components/myrentals/MyRentals.jsx";
 
 function App() {
   return (
@@ -79,6 +90,8 @@ function Content() {
         <Route path="/shop" element={<Shop />} />
 
         {/* PRIVATE ROUTES */}
+
+        {/* PRIVATE STUDENT ROUTES */}
         <Route
           path="/lend/:id"
           element={
@@ -177,7 +190,7 @@ function Content() {
             </ProtectedRoute>
           }
         >
-          <Route path="*" element={<AdminDashboard />} />
+          <Route index element={<Navigate to="/admin/dashboard" />} />
           <Route path="dashboard" element={<AdminDashboard />} />
 
           {/* USER MANAGEMENT */}
@@ -186,7 +199,15 @@ function Content() {
           <Route
             path="users/user-verification/:id"
             element={<UserVerification />}
-          />
+          >
+            <Route path="edit-profile" element={<EditProfile />} />
+            <Route path="my-rentals" element={<MyRentals />} />
+            <Route path="transactions" element={<MyTransactions />} />
+            <Route path="my-listings" element={<MyListings />} />
+            <Route path="my-posts" element={<MyPosts />} />
+            <Route path="my-forsale-items" element={<MyForSale />} />
+            <Route index path="*"  element={<MyListings />}/>
+          </Route>
 
           {/* LISTINGS */}
           <Route path="listings" element={<ListingDashboard />} />
@@ -213,7 +234,8 @@ function Content() {
           />
 
           {/* ADMIN MANAGEMENT */}
-          <Route path="settings" element={<AdminSettings />}/>
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="*" element={<Navigate to="/admin/dashboard" />} />
         </Route>
       </Routes>
       {showNavbarAndFooter && <Footer />}

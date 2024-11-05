@@ -9,18 +9,17 @@ import { useAuth } from "../../../context/AuthContext";
 
 // Define the fetchUserInfo function here or import it from another file
 
-const ProfileHeader = () => {
+const ProfileHeader = ({userId}) => {
   const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState("Renter");
   const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
-  const { studentUser } = useAuth();
-  const token = studentUser.token;
+  console.log("Header",userId)
 
   const {
     user,
     student,
     errorMessage: fetchErrorMessage,
-  } = FetchUserInfo(token);
+  } = FetchUserInfo({userId});
   const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);
 
   useEffect(() => {

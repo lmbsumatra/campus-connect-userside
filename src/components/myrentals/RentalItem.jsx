@@ -73,10 +73,10 @@ function RentalItem({ item, onButtonClick }) {
       {
         label:
           item.owner_id === userId && item.owner_confirmed
-            ? "Confirm Hand Over"
+            ? "Handed Over"
             : item.renter_id === userId && item.renter_confirmed
-            ? "Confirm Hand Over"
-            : "Hand Over",
+            ? "Handed Over"
+            : "Confirm Hand Over",
         onClick: () => updateRentalStatus("hand-over"),
         primary: true,
         disabled:
@@ -95,8 +95,8 @@ function RentalItem({ item, onButtonClick }) {
         label:
           (item.owner_id === userId && item.owner_confirmed) ||
           (item.renter_id === userId && item.renter_confirmed)
-            ? "Confirmed Return"
-            : "Return",
+            ? "Returned"
+            : "Confirm Return",
         onClick: () => updateRentalStatus("return"),
         primary: true,
         disabled:

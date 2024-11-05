@@ -155,7 +155,7 @@ const AddPost = () => {
 
               <div>
                 <label>Tags</label>
-                <div className="tag-input">
+                <div className="tag-input d-flex">
                   <input
                     type="text"
                     value={newTag}
@@ -163,14 +163,15 @@ const AddPost = () => {
                     placeholder="Add a tag"
                     className="borderless"
                   />
-                  <button onClick={handleAddTag}>Add Tag</button>
+                  <div><button className="btn btn-primary"onClick={handleAddTag}>+</button></div>
+                  
                 </div>
                 <div className="tags-list">
                   {postData.tags.map((tag, index) => (
                     <div key={index} className="tag-display">
                       {tag}
-                      <button onClick={() => handleRemoveTag(tag)}>
-                        Remove
+                      <button className="btn btn-danger" onClick={() => handleRemoveTag(tag)}>
+                        -
                       </button>
                     </div>
                   ))}

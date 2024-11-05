@@ -63,12 +63,12 @@ function ViewItem() {
         </div>
         <div className="col-md-6 item-desc">
           <button className="btn btn-rounded thin">{selectedItem.category}</button>
-          <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="d-flex justify-content-between align-items-center">
             <p className="mb-0"><i>Item for sale </i><strong>{selectedItem.item_for_sale_name}</strong></p>
             <p className="mb-0"><strong>{rating}</strong></p>
           </div>
           <span className="price">₱{price}/hr</span>
-          <div className="mt-5 d-flex justify-content-end">
+          <div className="d-flex justify-content-end">
             <button className="btn btn-rectangle secondary no-fill me-2">Message</button>
             <button className="btn btn-rectangle primary no-fill me-2">Borrow</button>
           </div>

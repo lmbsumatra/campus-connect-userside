@@ -4,11 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import UserDropdown from "../dropdown/UserDropdown";
 import Notification from "../notif/Notification";
 import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const AdminNavBar = () => {
+  const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const {logoutAdmin} =useAuth();
+  const { logoutAdmin } = useAuth();
+  const [openPopup, setOpenPopup] = useState(null);
+  const togglePopup = (popup) => {
+    setOpenPopup((prev) => (prev === popup ? null : popup));
+  };
 
   const userDropdownRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -24,15 +30,21 @@ const AdminNavBar = () => {
   };
 
   const handleLogout = () => {
-    console.log("User logged out");
-    // Add logout logic here
+    logoutAdmin();
+    navigate("/admin-login");
   };
 
   const handleClickOutside = (event) => {
-    if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+    if (
+      userDropdownRef.current &&
+      !userDropdownRef.current.contains(event.target)
+    ) {
       setShowUserDropdown(false);
     }
-    if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+    if (
+      notificationsRef.current &&
+      !notificationsRef.current.contains(event.target)
+    ) {
       setShowNotifications(false);
     }
   };
@@ -50,17 +62,15 @@ const AdminNavBar = () => {
         <input placeholder="Search here..." />
         <img src={searchIcon} alt="Search icon" className="search-icon" />
       </div>
-      <div>
-  <button onClick={() => logoutAdmin()}>logout</button>
-</div>
-
       <div className="toolbar d-flex">
         <div ref={notificationsRef} onClick={toggleNotifications}>
           <Notification showNotifications={showNotifications} />
         </div>
         <div ref={userDropdownRef} onClick={toggleUserDropdown}>
           <UserDropdown
-            showDropdown={showUserDropdown}
+            showDropdown={openPopup === "dropdown"}
+            toggleDropdown={() => togglePopup("dropdown")}
+            handleLogout={handleLogout}
           />
         </div>
       </div>

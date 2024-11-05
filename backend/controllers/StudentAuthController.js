@@ -143,7 +143,14 @@ exports.loginStudent = async (req, res) => {
 
     // console.log(token);
 
-    res.status(200).json({ message: "Login successful", token, role: user.role, userId: user.user_id });
+    res
+      .status(200)
+      .json({
+        message: "Login successful",
+        token,
+        role: user.role,
+        userId: user.user_id,
+      });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });
@@ -169,7 +176,14 @@ exports.googleLogin = async (req, res) => {
     );
     // console.log(token);
 
-    res.status(200).json({ message: "Login successful", token: jwtToken, role: user.role, userId: user.user_id });
+    res
+      .status(200)
+      .json({
+        message: "Login successful",
+        token: jwtToken,
+        role: user.role,
+        userId: user.user_id,
+      });
   } catch (error) {
     console.error("Google login error:", error);
     res.status(401).json({ message: "Invalid token" });
@@ -177,8 +191,8 @@ exports.googleLogin = async (req, res) => {
 };
 
 exports.getUserInformation = async (req, res) => {
-  const userId = req.user.userId;
-
+  console.log("print this", req.params.userId);
+  const userId = req.params.userId;
   try {
     const student = await Student.findOne({ where: { user_id: userId } });
     if (!student) {
