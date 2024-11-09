@@ -8,7 +8,7 @@ const Categories = () => {
         {categories.map((cat, index) => (
           <div className="category" key={index}>
             <img
-              src={require(`../../assets/images/categories/IMG_${
+              src={require(`../../../assets/images/categories/IMG_${
                 index + 1
               }.png`)}
               alt={`${cat} Category Icon`}

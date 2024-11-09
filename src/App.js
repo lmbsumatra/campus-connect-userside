@@ -53,7 +53,7 @@ import UserVerification from "./pages/private/admin/user-management/student-prof
 import ProtectedRoute from "./components/Protected Route/ProtectedRoute.js";
 import { AuthProvider } from "./context/AuthContext.js";
 import StudentProtectedRoute from "./components/Protected Route/StudentProtectedRoute.js";
-import EditProfile from "./components/editprofile/EditProfile.jsx";
+import EditProfile from "./pages/private/users/student-profile/EditProfile.jsx";
 import MyForSale from "./pages/private/users/student-profile/MyForSale.jsx";
 import MyPosts from "./pages/private/users/student-profile/MyPosts.jsx";
 import MyListings from "./pages/private/users/student-profile/MyListings.jsx";
@@ -123,14 +123,6 @@ function Content() {
                 <ViewItem />
               </StudentProtectedRoute>
             </div>
-          }
-        />
-        <Route
-          path="/new-post2"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <PostForm />
-            </StudentProtectedRoute>
           }
         />
         <Route

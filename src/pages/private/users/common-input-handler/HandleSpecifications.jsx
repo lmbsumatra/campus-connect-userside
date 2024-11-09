@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 
 export const HandleSpecifications = ({
-  listingData = { specifications: {}, description: "" },
-  setListingData,
+  data = { specifications: {}, description: "" },
+  setData,
 }) => {
+
+  console.log(data.specifications)
   const [newSpecKey, setNewSpecKey] = useState(""); 
   const [newSpecValue, setNewSpecValue] = useState("");
 
@@ -13,7 +15,7 @@ export const HandleSpecifications = ({
       return;
     }
 
-    setListingData((prev) => ({
+    setData((prev) => ({
       ...prev,
       specifications: { ...prev.specifications, [newSpecKey]: newSpecValue },
     }));
@@ -23,9 +25,9 @@ export const HandleSpecifications = ({
   };
 
   const handleRemoveSpecification = (key) => {
-    const newSpecifications = { ...listingData.specifications };
+    const newSpecifications = { ...data.specifications };
     delete newSpecifications[key];
-    setListingData((prev) => ({
+    setData((prev) => ({
       ...prev,
       specifications: newSpecifications,
     }));
@@ -37,7 +39,7 @@ export const HandleSpecifications = ({
         <label>Specifications</label>
         <hr />
         <div>
-          {Object.entries(listingData.specifications).map(([key, value]) => (
+          {Object.entries(data.specifications).map(([key, value]) => (
             <div key={key} className="specification">
               <input
                 type="text"
@@ -46,7 +48,7 @@ export const HandleSpecifications = ({
                 className='spec-title'
                 onChange={(e) => {
                   const newKey = e.target.value;
-                  setListingData((prev) => {
+                  setData((prev) => {
                     const updatedSpecs = { ...prev.specifications };
                     const newValue = updatedSpecs[key];
                     delete updatedSpecs[key];
@@ -60,7 +62,7 @@ export const HandleSpecifications = ({
                 value={value}
                 className='item-specs-description'
                 onChange={(e) =>
-                  setListingData((prev) => ({
+                  setData((prev) => ({
                     ...prev,
                     specifications: { ...prev.specifications, [key]: e.target.value },
                   }))
@@ -100,9 +102,9 @@ export const HandleSpecifications = ({
         <textarea
           placeholder="Item Description"
           className="item-description"
-          value={listingData.description}
+          value={data.description}
           onChange={(e) =>
-            setListingData({ ...listingData, description: e.target.value })
+            setData({ ...data, description: e.target.value })
           }
         />
       </div>

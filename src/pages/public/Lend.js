@@ -1,30 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
-import FAB from "../../components/fab/FAB";
-import axios from "axios";
+import FAB from "../../components/common/fab/FAB";
+import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
 
 const Lend = () => {
-  const [posts, setPosts] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const baseUrl = "http://localhost:3001";
 
-  useEffect(() => {
-    const fetchItem = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3001/posts/`);
-        console.log("Response data:", response.data);
+  // Fetch borrowing posts (approved posts for lending)
+  const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseUrl}/posts/info`);
 
-        setPosts(response.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItem();
-  }, []);
-
+  // Handle Floating Action Button (FAB) click
   const handleFabClick = (action) => {
     if (action === "add-item") {
       console.log("Add Item button clicked");
@@ -35,7 +20,12 @@ const Lend = () => {
 
   return (
     <div className="container-content">
+      {/* Display Borrowing Posts */}
+      {errorPosts && <p>Error loading borrowing posts: {errorPosts}</p>}
+      {loadingPosts && <p>Loading borrowing posts...</p>}
       <BorrowingPost borrowingPosts={posts} title="Lend" />
+
+      {/* Floating Action Button (FAB) */}
       <FAB icon="+" onClick={handleFabClick} />
     </div>
   );

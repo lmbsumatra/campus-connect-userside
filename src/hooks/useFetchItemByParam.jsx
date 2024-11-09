@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const FetchPostData = ({ id }) => {
-  const [selectedPost, setSelectedPost] = useState(null);
+const useFetchItemByParam = (url) => {
+  const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tags, setTags] = useState([]);
@@ -14,8 +14,8 @@ const FetchPostData = ({ id }) => {
       setError(null); // Reset error state before fetch
 
       try {
-        const response = await axios.get(`http://localhost:3001/posts/${id}`);
-        setSelectedPost(response.data);
+        const response = await axios.get(url);
+        setSelectedItem(response.data);
 
         // Process tags from the response
         const fetchedTags = response.data.tags;
@@ -40,12 +40,12 @@ const FetchPostData = ({ id }) => {
       }
     };
 
-    if (id) {
+    if (url) {
       fetchItem(); // Only fetch if id is provided
     }
-  }, [id]);
+  }, [url]);
 
-  return { selectedPost, loading, error, tags };
+  return { selectedItem, loading, error, tags };
 };
 
-export default FetchPostData;
+export default useFetchItemByParam;

@@ -5,13 +5,20 @@ import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
 import itemImage from "../../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
-import FetchItemForSaleData from "../../../utils/FetchItemForSaleData";
+import useFetchItemByParam from "../../../hooks/useFetchItemByParam";
 
 function ViewItem() {
+  // Retrieve the post ID from the URL params
   const { id } = useParams();
-  const { selectedItem, loading, error, tags } = FetchItemForSaleData({ id }); // Use the component
-
+  
+  // State to manage the selected rental date
   const [selectedDate, setSelectedDate] = useState(null);
+
+  // Base API URL
+  const baseUrl = "http://localhost:3001";
+  
+  // Fetch the selected post using the custom hook
+  const { selectedItem, loading, error, tags } = useFetchItemByParam(`${baseUrl}/item-for-sale/${id}`);
 
   if (loading) {
     return <p>Loading...</p>;
@@ -31,11 +38,14 @@ function ViewItem() {
     price = "0",
     available_dates = [],
     userProfilePicture: userProfilePic = userProfilePicture,
-    userName = "Unknown User",
-    userRating = 0,
+    seller = {},
     description = "No description available.",
   } = selectedItem;
 
+  const userName = `${seller.first_name || "Unknown"} ${seller.last_name || "User"}`;
+  const userRating = seller.rating || 0;
+
+  // Parse specifications
   let specifications = {};
   if (typeof selectedItem.specifications === "string") {
     try {
@@ -48,25 +58,34 @@ function ViewItem() {
     specifications = selectedItem.specifications;
   }
 
-  const itemSpecifications = Object.entries(specifications).map(
-    ([key, value]) => ({
-      label: key || "N/A",
-      value: value || "N/A",
-    })
-  );
+  const itemSpecifications = Object.entries(specifications).map(([key, value]) => ({
+    label: key || "N/A",
+    value: value || "N/A",
+  }));
 
   return (
     <div>
+      {/* Item Details Section */}
       <div className="py-4 px-2 m-0 rounded row bg-white">
         <div className="col-md-6 item-image">
           <img src={itemImageUrl} alt="Item" className="img-container img-fluid" />
         </div>
         <div className="col-md-6 item-desc">
+          {/* Category Button */}
           <button className="btn btn-rounded thin">{selectedItem.category}</button>
+
+          {/* Item Name and Rating */}
           <div className="d-flex justify-content-between align-items-center">
-            <p className="mb-0"><i>Item for sale </i><strong>{selectedItem.item_for_sale_name}</strong></p>
-            <p className="mb-0"><strong>{rating}</strong></p>
+            <p className="mb-0">
+              <i>Item for sale </i>
+              <strong>{selectedItem.item_for_sale_name}</strong>
+            </p>
+            <p className="mb-0">
+              <strong>{rating}</strong>
+            </p>
           </div>
+
+          {/* Price and Action Buttons */}
           <span className="price">₱{price}/hr</span>
           <div className="d-flex justify-content-end">
             <button className="btn btn-rectangle secondary no-fill me-2">Message</button>
@@ -75,27 +94,47 @@ function ViewItem() {
 
           <hr />
 
+          {/* Available Dates Section */}
           <p>
             <strong>Available Dates</strong>
-            {available_dates.map((date) => (
-              <button key={date.id} className="btn btn-rounded thin me-2 ms-2" onClick={() => setSelectedDate(date.date)}>
-                {formatDate(date.date)}
-              </button>
-            ))}
+            {available_dates.length > 0 ? (
+              available_dates.map((date) => (
+                <button
+                  key={date.id}
+                  className="btn btn-rounded thin me-2 ms-2"
+                  onClick={() => setSelectedDate(date.date)}
+                >
+                  {formatDate(date.date)}
+                </button>
+              ))
+            ) : (
+              <i>No available dates</i>
+            )}
           </p>
 
+          {/* Available Times Section */}
           <div>
             <p>
-              <strong>Available Times</strong> {selectedDate ? formatDate(selectedDate) : <i>Please select a preferred date</i>}:
+              <strong>Available Times</strong>{" "}
+              {selectedDate ? formatDate(selectedDate) : <i>Please select a preferred date</i>}:
             </p>
-            {(selectedDate &&
-              available_dates.find((rental) => rental.date === selectedDate)?.durations?.map((duration) => (
-                <button key={duration.id} className="btn btn-rounded thin me-2 ms-2">
-                  {`${formatTimeTo12Hour(duration.rental_time_from)} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
-                </button>
-              ))) || <p>No times available</p>}
+            {selectedDate && available_dates.length > 0 ? (
+              available_dates
+                .find((rental) => rental.date === selectedDate)
+                ?.durations?.map((duration) => (
+                  <button
+                    key={duration.id}
+                    className="btn btn-rounded thin me-2 ms-2"
+                  >
+                    {`${formatTimeTo12Hour(duration.rental_time_from)} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
+                  </button>
+                ))
+            ) : (
+              <p>No times available</p>
+            )}
           </div>
 
+          {/* Payment and Delivery Mode */}
           <div>
             <p>
               <strong>Payment Mode:</strong>
@@ -113,6 +152,7 @@ function ViewItem() {
             </p>
           </div>
 
+          {/* Rental Agreement */}
           <div className="form-check">
             <input className="form-check-input" type="checkbox" id="flexCheckDefault" />
             <label className="form-check-label" htmlFor="flexCheckDefault">
@@ -122,13 +162,14 @@ function ViewItem() {
         </div>
       </div>
 
+      {/* User Info Section */}
       <div className="user-info mt-5 bg-white">
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             <img src={userProfilePic} alt="Profile" className="profile-pic me-2" />
             <div>
-              <a href={`/userprofile/${userName}`} className="text-dark small text-decoration-none">
-              {selectedItem.seller.first_name}  {selectedItem.seller.last_name}
+              <a href={`/userprofile/${seller.id}`} className="text-dark small text-decoration-none">
+                {userName}
               </a>
             </div>
           </div>
@@ -142,6 +183,7 @@ function ViewItem() {
         </div>
       </div>
 
+      {/* Item Specifications Section */}
       <div className="item-specs mt-5 p-4 bg-white">
         <h4>Item Specifications</h4>
         <table className="specifications-table">
@@ -152,12 +194,18 @@ function ViewItem() {
             </tr>
           </thead>
           <tbody>
-            {itemSpecifications.map((spec, index) => (
-              <tr key={index}>
-                <td><strong>{spec.label}</strong></td>
-                <td>{spec.value}</td>
+            {itemSpecifications.length > 0 ? (
+              itemSpecifications.map((spec, index) => (
+                <tr key={index}>
+                  <td><strong>{spec.label}</strong></td>
+                  <td>{spec.value}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="2">No specifications available</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
 
@@ -165,6 +213,8 @@ function ViewItem() {
 
         <h4>Item Description</h4>
         <p>{description}</p>
+
+        {/* Tags Section */}
         <div>
           <strong>Tags:</strong>
           {Array.isArray(tags) && tags.length > 0 ? (

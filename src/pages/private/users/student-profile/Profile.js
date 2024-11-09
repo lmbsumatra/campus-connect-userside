@@ -7,7 +7,7 @@ import axios from "axios";
 
 // Component Imports
 import ProfileSidebar from "../../../../components/User/sidebar/ProfileSidebar.jsx";
-import EditProfile from "../../../../components/editprofile/EditProfile.jsx";
+import EditProfile from "./EditProfile.jsx";
 import ProfileHeader from "../../../../components/User/header/ProfileHeader.jsx";
 import MyRentals from "../../../../components/myrentals/MyRentals.jsx";
 

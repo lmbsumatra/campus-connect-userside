@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export const HandleCustomDateAndTime = ({ listingData, setListingData }) => {
+export const HandleCustomDateAndTime = ({ data, setData }) => {
   const [customDates, setCustomDates] = useState({});
   const [newFrom, setNewFrom] = useState("");
   const [newTo, setNewTo] = useState("");
@@ -11,8 +11,8 @@ export const HandleCustomDateAndTime = ({ listingData, setListingData }) => {
       date,
       times,
     }));
-    setListingData((prev) => ({ ...prev, dateAndTime }));
-  }, [customDates, setListingData]);
+    setData((prev) => ({ ...prev, dateAndTime }));
+  }, [customDates, setData]);
 
   const handleToggleActiveDate = (date) => {
     setActiveDate(activeDate === date ? null : date);

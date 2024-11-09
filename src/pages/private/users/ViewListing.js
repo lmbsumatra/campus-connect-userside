@@ -1,20 +1,25 @@
+// React imports
 import React, { useState } from "react";
-import "../../../components/itemlisting/itemStyles.css";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
-import itemImage from "../../../assets/images/item/item_1.jpg";
+
+// Custom hooks and utility functions
 import { formatDate } from "../../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
-import FetchListingData from "../../../utils/FetchListingData";
+import useFetchItemByParam from "../../../hooks/useFetchItemByParam";
 import { useAuth } from "../../../context/AuthContext";
 
-function ViewListing() {
-  const { id } = useParams();
-  const { selectedItem, loading, error, tags } = FetchListingData({id}); // Ensure this is a custom hook or function
-  const { studentUser } = useAuth();
-  console.log(selectedItem, loading, error, tags)
+// Assets
+import "../../../components/itemlisting/itemStyles.css";
+import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
+import itemImage from "../../../assets/images/item/item_1.jpg";
 
+function ViewListing() {
+  // Retrieve the post ID from the URL params
+  const { id } = useParams();
+
+  // State to manage the selected rental date and time
+  const [selectedDate, setSelectedDate] = useState(null);
   const [rentalDetails, setRentalDetails] = useState({
     selectedDate: null,
     selectedTime: null,
@@ -23,14 +28,26 @@ function ViewListing() {
     agreedToTerms: false,
   });
 
+  // Base API URL
+  const baseUrl = "http://localhost:3001";
+
+  // Fetch the selected post using the custom hook
+  const { selectedItem, loading, error, tags } = useFetchItemByParam(`${baseUrl}/listings/${id}`);
+  
+  // Retrieve student user details from authentication context
+  const { studentUser } = useAuth();
+
+  // Handle rental request submission
   const handleRentalRequest = async () => {
     const { selectedDate, selectedTime, agreedToTerms } = rentalDetails;
 
+    // Check if both date and time are selected
     if (!selectedDate || !selectedTime) {
       alert("Please select both a date and a time.");
       return;
     }
 
+    // Ensure user agrees to terms
     if (!agreedToTerms) {
       alert("You must agree to the rental terms.");
       return;
@@ -59,10 +76,12 @@ function ViewListing() {
     }
   };
 
+  // Loading, error, and fallback handling
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!selectedItem) return <p>Item not found</p>;
 
+  // Parse item specifications (handle both string and object formats)
   const specifications = typeof selectedItem.specifications === "string"
     ? JSON.parse(selectedItem.specifications) || {}
     : selectedItem.specifications || {};
@@ -74,8 +93,10 @@ function ViewListing() {
     })
   );
 
+  // Render the component
   return (
     <div>
+      {/* Item Details Section */}
       <div className="py-4 px-2 m-0 rounded row bg-white">
         <div className="col-md-6 item-image">
           <img
@@ -86,9 +107,12 @@ function ViewListing() {
         </div>
 
         <div className="col-md-6 item-desc">
+          {/* Category Button */}
           <button className="btn btn-rounded thin">
             {selectedItem.category}
           </button>
+
+          {/* Item Name and Rating */}
           <div className="d-flex justify-content-between align-items-center">
             <p className="mb-0">
               <strong>{selectedItem.listing_name}</strong>
@@ -97,6 +121,8 @@ function ViewListing() {
               <strong>{selectedItem.rating}</strong>
             </p>
           </div>
+
+          {/* Item Rate and Action Buttons */}
           <span className="price">₱{selectedItem.rate}/hr</span>
           <div className="d-flex justify-content-end">
             <button className="btn btn-rectangle secondary no-fill me-2">
@@ -112,6 +138,7 @@ function ViewListing() {
 
           <hr />
 
+          {/* Rental Dates Section */}
           <p>
             <strong>Available Dates</strong>
             {selectedItem.rental_dates.map((rental) => (
@@ -133,14 +160,11 @@ function ViewListing() {
             ))}
           </p>
 
+          {/* Available Times Section */}
           <div>
             <p>
               <strong>Available Times</strong>{" "}
-              {rentalDetails.selectedDate ? (
-                formatDate(rentalDetails.selectedDate)
-              ) : (
-                <i>Please select a preferred date</i>
-              )}
+              {rentalDetails.selectedDate ? formatDate(rentalDetails.selectedDate) : <i>Please select a preferred date</i>}
               :
             </p>
             {(rentalDetails.selectedDate &&
@@ -162,13 +186,12 @@ function ViewListing() {
                       }))
                     }
                   >
-                    {`${formatTimeTo12Hour(
-                      duration.rental_time_from
-                    )} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
+                    {`${formatTimeTo12Hour(duration.rental_time_from)} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
                   </button>
                 ))) || <p>No times available</p>}
           </div>
 
+          {/* Terms and Agreement Section */}
           <div className="form-check">
             <input
               className="form-check-input"
@@ -187,6 +210,7 @@ function ViewListing() {
             </label>
           </div>
 
+          {/* Additional Information */}
           <p>
             <strong>Late Charges:</strong> ₱{selectedItem.late_charges}/hr
           </p>
@@ -197,13 +221,12 @@ function ViewListing() {
             <strong>Repair and Replacement:</strong> {selectedItem.repair_replacement}
           </p>
 
+          {/* Payment and Delivery Mode */}
           <div>
             <p>
               <strong>Payment Mode:</strong>
               <button className="btn btn-rounded primary thin ms-2">
-                {selectedItem.payment_mode === "payment upon meetup"
-                  ? "Upon meetup"
-                  : "Gcash"}
+                {selectedItem.payment_mode === "payment upon meetup" ? "Upon meetup" : "Gcash"}
               </button>
             </p>
           </div>
@@ -218,6 +241,7 @@ function ViewListing() {
         </div>
       </div>
 
+      {/* User Info Section */}
       <div className="user-info mt-5 bg-white">
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
@@ -249,6 +273,7 @@ function ViewListing() {
         </div>
       </div>
 
+      {/* Item Specifications Section */}
       <div className="item-specs mt-5 p-4 bg-white">
         <h4>Item Specifications</h4>
         <table className="specifications-table">
@@ -272,6 +297,7 @@ function ViewListing() {
 
         <hr />
 
+        {/* Item Description and Tags */}
         <h4>Item Description</h4>
         <p>{selectedItem.description}</p>
         <div>

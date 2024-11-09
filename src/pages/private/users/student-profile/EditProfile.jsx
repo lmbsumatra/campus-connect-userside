@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import FetchUserInfo from "../../utils/FetchUserInfo";
+import FetchUserInfo from "../../../../utils/FetchUserInfo";
 import "./editProfileStyles.css";
-import { useAuth } from "../../context/AuthContext";
-import showPassword from "../../assets/images/icons/eye-open.svg";
-import hidePassword from "../../assets/images/icons/eye-closed.svg";
-import PasswordMeter from "../common/PasswordMeter";
+import { useAuth } from "../../../../context/AuthContext";
+import showPassword from "../../../../assets/images/icons/eye-open.svg";
+import hidePassword from "../../../../assets/images/icons/eye-closed.svg";
+import PasswordMeter from "../../../../components/common/PasswordMeter";
 
 function EditProfile() {
   const [formData, setFormData] = useState({

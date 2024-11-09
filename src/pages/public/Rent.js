@@ -1,39 +1,31 @@
 // React Imports
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "axios";
 
 // Component Imports
 import ItemList from "../../components/itemlisting/ItemList";
 
+// Hook Imports
+import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
+
 const Rent = () => {
   const location = useLocation();
+
   // Data Constants
-  const [listings, setListings] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const fetchItem = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3001/listings/`);
-        console.log("Response data:", response.data);
+  const baseUrl = "http://localhost:3001";
 
-        setListings(response.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch listings data (approved items for rent)
+  const { items: listings, loading: loadingListings, error: errorListings } = useFetchApprovedItems(`${baseUrl}/listings/info`);
 
-    fetchItem();
-  }, []);
   return (
     <>
       <div className="container-content">
         <div className="row">
+          {/* Filters Sidebar */}
           <div className="col-md-2">
             <h5>Filters</h5>
+
+            {/* Category Filter */}
             <div className="mb-3">
               <label className="form-label">By Category</label>
               <select className="form-select">
@@ -45,6 +37,8 @@ const Rent = () => {
                 <option value="CAFA">CAFA</option>
               </select>
             </div>
+
+            {/* Rate Filter */}
             <div className="mb-3">
               <label className="form-label">By Rate</label>
               <select className="form-select">
@@ -55,11 +49,20 @@ const Rent = () => {
                 <option value="5">5 star</option>
               </select>
             </div>
+
+            {/* Add New Item Button */}
             <Link to="/add-item" className="btn btn-primary no-fill">
               Add New Item
             </Link>
           </div>
+
+          {/* Listings Display */}
           <div className="col-md-10">
+            {/* Loading and Error Handling for Listings */}
+            {loadingListings && <p>Loading listings...</p>}
+            {errorListings && <p>Error loading listings: {errorListings}</p>}
+            
+            {/* Render the listings */}
             <ItemList listings={listings} title="Rent" />
           </div>
         </div>

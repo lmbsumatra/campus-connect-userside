@@ -1,18 +1,22 @@
-import React, { useEffect, useState } from "react";
+// Import necessary libraries and components
+import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-import "./addPostStyles.css";
-import { ImageUpload } from "./ImageUpload";
-import { HandleSpecifications } from "./HandleSpecifications";
-import { UserToolbar } from "./UserToolbar";
-import { HandleCustomDateAndTime } from "./HandleCustomDateAndTime";
-import { HandleWeeklyDateAndTime } from "./HandleWeeklyDateAndTime";
-import FetchUserInfo from "../../../../utils/FetchUserInfo";
 import axios from "axios";
 import { useAuth } from "../../../../context/AuthContext";
 
+// Import custom components
+import "./addPostStyles.css";
+import { ImageUpload } from "../common-input-handler/ImageUpload";
+import { HandleSpecifications } from "../common-input-handler/HandleSpecifications";
+import { UserToolbar } from "../common-input-handler/UserToolbar";
+import { HandleCustomDateAndTime } from "../common-input-handler/HandleCustomDateAndTime";
+import { HandleWeeklyDateAndTime } from "../common-input-handler/HandleWeeklyDateAndTime";
+import FetchUserInfo from "../../../../utils/FetchUserInfo";
+
+// AddPost Component
 const AddPost = () => {
+  // Define the state for form data, error handling, etc.
   const [postData, setPostData] = useState({
     post_item_name: "",
     description: "",
@@ -25,18 +29,13 @@ const AddPost = () => {
     dateAndTime: [],
   });
 
-  const { studentUser } = useAuth();
-  const {userId} = studentUser;
+  const { studentUser } = useAuth();  // Access current user context
+  const { userId } = studentUser;
 
-  const {
-    user,
-    student,
-    errorMessage: fetchErrorMessage,
-  } = FetchUserInfo({userId});
-  const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);
+  const { user, student, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
+  const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);  // Error message state
 
-
-
+  // Sync post data with user and student info when they change
   useEffect(() => {
     if (user.user_id && student.college) {
       setPostData((prevData) => ({
@@ -47,12 +46,15 @@ const AddPost = () => {
     }
   }, [user, student]);
 
-  const [newTag, setNewTag] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [settingDateOption, SetSettingDateOption] = useState("custom");
+  // Other form-related state
+  const [newTag, setNewTag] = useState("");  // For adding new tags
+  const [isExpanded, setIsExpanded] = useState(false);  // Toggle for expanded fields
+  const [settingDateOption, SetSettingDateOption] = useState("custom");  // Date option (custom or weekly)
 
+  // Toggle the expanded state for extra form fields
   const toggleGroup = () => setIsExpanded(!isExpanded);
 
+  // Handle form submission (post creation)
   const handleSubmit = async () => {
     try {
       const response = await axios.post("http://localhost:3001/posts/create", {
@@ -96,13 +98,8 @@ const AddPost = () => {
     }
   };
 
-  const handlePaymentChange = (event) => {
-    setPostData((prevData) => ({
-      ...prevData,
-      paymentMode: event.target.value,
-    }));
-  };
-
+  
+  // Add a tag to the post data
   const handleAddTag = () => {
     const trimmedTag = newTag.trim();
     if (trimmedTag !== "") {
@@ -110,12 +107,13 @@ const AddPost = () => {
         ...prevData,
         tags: [...prevData.tags, trimmedTag],
       }));
-      setNewTag("");
+      setNewTag("");  // Clear input after adding tag
     } else {
       alert("Tag cannot be empty!");
     }
   };
 
+  // Remove a specific tag from the post data
   const handleRemoveTag = (tagToRemove) => {
     setPostData((prevData) => ({
       ...prevData,
@@ -125,15 +123,21 @@ const AddPost = () => {
 
   return (
     <div className="container-content">
-      {/* ToastContainer at the root level */}
+      {/* ToastContainer to show notifications globally */}
       <ToastContainer />
+
+      {/* Title and Error Message */}
       <h2>Create Post</h2>
       {errorMessage && <div className="error-message">{errorMessage}</div>}
+
+      {/* Form Container */}
       <div className="py-4 px-2 m-0 rounded row bg-white">
         <div className="form-preview w-100">
+          {/* Image Upload Section */}
           <ImageUpload postData={postData} setPostData={setPostData} />
 
           <div className="form-fields bg-white p-3 rounded">
+            {/* Post Item Name */}
             <button className="btn btn-rounded thin">CIT</button>
             <input
               type="text"
@@ -146,6 +150,7 @@ const AddPost = () => {
             />
             <hr />
 
+            {/* Rental Dates Section */}
             <div className="groupby bg-white p-0">
               <div className="rental-dates d-block">
                 <label>Rental Dates</label>
@@ -167,20 +172,17 @@ const AddPost = () => {
                 <label htmlFor="weekly">Weekly</label>
               </div>
 
+              {/* Custom Date and Time Selection */}
               {settingDateOption === "custom" && (
-                <HandleCustomDateAndTime
-                  postData={postData}
-                  setPostData={setPostData}
-                />
+                <HandleCustomDateAndTime data={postData} setData={setPostData} />
               )}
 
+              {/* Weekly Date and Time Selection */}
               {settingDateOption === "weekly" && (
-                <HandleWeeklyDateAndTime
-                  postData={postData}
-                  setPostData={setPostData}
-                />
+                <HandleWeeklyDateAndTime data={postData} setData={setPostData} />
               )}
 
+              {/* Tags Section */}
               <div>
                 <label>Tags</label>
                 <div className="tag-input d-flex">
@@ -191,9 +193,11 @@ const AddPost = () => {
                     placeholder="Add a tag"
                     className="borderless"
                   />
-                  <div><button className="btn btn-primary"onClick={handleAddTag}>+</button></div>
-                  
+                  <button className="btn btn-primary" onClick={handleAddTag}>
+                    +
+                  </button>
                 </div>
+                {/* Display Added Tags */}
                 <div className="tags-list">
                   {postData.tags.map((tag, index) => (
                     <div key={index} className="tag-display">
@@ -210,8 +214,11 @@ const AddPost = () => {
         </div>
       </div>
 
+      {/* User Toolbar and Specifications */}
       <UserToolbar userInfo={{ user, student }} />
-      <HandleSpecifications postData={postData} setPostData={setPostData} />
+      <HandleSpecifications data={postData} setData={setPostData} />
+
+      {/* Submit Button */}
       <button className="btn btn-primary" onClick={handleSubmit}>
         Submit
       </button>

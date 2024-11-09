@@ -24,6 +24,7 @@ const PostDashboard = () => {
 
   const { posts, error, loading } = useFetchAllPostsData();
   const navigate = useNavigate();
+  console.log(posts.renter)
 
   if (loading) return <p>Loading posts...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -47,7 +48,7 @@ const PostDashboard = () => {
       post.post_item_name,
       post.category,
       <>
-        {post.renter.first_name} {post.renter.last_name}
+        {post.renter?.first_name || ""} {post.renter?.last_name || ""}
       </>,
       formatDate(post.created_at),
       <span className={`badge ${className}`}>{label}</span>,

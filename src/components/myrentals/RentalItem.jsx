@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ReviewModal from "../modalReview/ReviewModal";
+import ReviewModal from "../User/modalReview/ReviewModal";
 import "./MyRental.css";
 import itemImage from "../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../utils/dateFormat";

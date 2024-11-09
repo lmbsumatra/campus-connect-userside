@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import userProfilePicture from "../../assets/images/icons/user-icon.svg";
 import itemImage from "../../assets/images/item/item_1.jpg";
-import { formatDate } from "../../utils/dateFormat";
-import { formatTimeTo12Hour } from "../../utils/timeFormat";
+import { formatDate } from "../../../utils/dateFormat";
+import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 
 function ViewPost() {
   const { id } = useParams();
