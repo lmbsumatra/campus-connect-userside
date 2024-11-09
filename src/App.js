@@ -59,15 +59,18 @@ import MyPosts from "./pages/private/users/student-profile/MyPosts.jsx";
 import MyListings from "./pages/private/users/student-profile/MyListings.jsx";
 import MyTransactions from "./pages/private/users/student-profile/MyTransactions.jsx";
 import MyRentals from "./components/myrentals/MyRentals.jsx";
+import { SocketProvider } from "./context/SocketContext.js";
 
 function App() {
   return (
     <AuthProvider>
+      <SocketProvider>
       <BrowserRouter>
         <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
           <Content />
         </GoogleOAuthProvider>
       </BrowserRouter>
+      </SocketProvider>
     </AuthProvider>
   );
 }

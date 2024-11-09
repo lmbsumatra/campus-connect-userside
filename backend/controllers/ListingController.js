@@ -1,6 +1,7 @@
 const Listing = require("../models/listing/ListingModel");
 const sequelize = require("../config/database");
 const { models } = require("../models/index");
+const {notifyAdmins} = require('../socket')
 
 
 exports.getAllApprovedListing = async (req, res) => {
@@ -78,8 +79,9 @@ exports.getAllListings = async (req, res) => {
   }
 };
 
-// Create a post
-exports.createListing = async (req, res) => {
+
+// Create listing
+exports.createListing = async (req, res, next) => {
   const transaction = await sequelize.transaction();
 
   try {
@@ -87,11 +89,8 @@ exports.createListing = async (req, res) => {
       throw new Error("Listing data is missing");
     }
 
-    req.body.listing.status = "pending";
-
-    const listing = await models.Listing.create(req.body.listing, {
-      transaction,
-    });
+    req.body.listing.status = "pending";  // Initially setting the listing status to "pending"
+    const listing = await models.Listing.create(req.body.listing, { transaction });
     console.log("Created listing:", listing);
 
     const rentalDates = req.body.rental_dates;
@@ -136,9 +135,36 @@ exports.createListing = async (req, res) => {
     }
 
     await transaction.commit();
+
+     // Fetch the owner's name using the owner_id from the listing
+     const owner = await models.User.findOne({
+      where: { user_id: req.body.listing.owner_id }, 
+      attributes: ["user_id", "first_name", "last_name"], 
+    });
+
+    // Notification after successful commit
+    const notification = {
+      type: "new-listing",
+      title: "New Listing Created",
+      message: `created new listing "${listing.listing_name}"`,
+      timestamp: new Date(),
+      listingId: listing.id,
+      category: listing.category,
+      owner: {
+        id: owner.user_id,  // Use user_id here
+        name: `${owner.first_name} ${owner.last_name}` || "Unknown", 
+      }
+    }      
+
+    // Call the notifyAdmins function from socket.js
+    req.notifyAdmins(notification)
+
     res.status(201).json(listing);
   } catch (error) {
-    await transaction.rollback();
+    // Only attempt rollback if the transaction hasn't been committed
+    if (transaction.finished !== 'commit') {
+      await transaction.rollback();
+    }
 
     console.error("Error creating listing:", {
       message: error.message,
@@ -153,6 +179,8 @@ exports.createListing = async (req, res) => {
     });
   }
 };
+
+
 
 // Get a single post by ID with associated rental dates, durations, and renter info
 exports.getListingById = async (req, res) => {

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import "./addPostStyles.css";
 import { ImageUpload } from "./ImageUpload";
@@ -24,10 +26,15 @@ const AddPost = () => {
   });
 
   const { studentUser } = useAuth();
-  const token = studentUser.token;
+  const {userId} = studentUser;
 
-  const { user, student, errorMessage: fetchErrorMessage } = FetchUserInfo(token);
+  const {
+    user,
+    student,
+    errorMessage: fetchErrorMessage,
+  } = FetchUserInfo({userId});
   const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);
+
 
 
   useEffect(() => {
@@ -63,10 +70,29 @@ const AddPost = () => {
       });
 
       console.log(response.data);
-      alert("Post created successfully!");
+      //toast success notification
+      toast.success('Post created successfully!', {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
     } catch (error) {
       console.error("Error creating post:", error);
-      setErrorMessage("Failed to create post.");
+    setErrorMessage("Failed to create post.");
+    // toast error notification
+    toast.error('Failed to create post. Please try again.', {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    })
     }
   };
 
@@ -99,6 +125,8 @@ const AddPost = () => {
 
   return (
     <div className="container-content">
+      {/* ToastContainer at the root level */}
+      <ToastContainer />
       <h2>Create Post</h2>
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className="py-4 px-2 m-0 rounded row bg-white">

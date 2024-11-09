@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const ListingController = require('../controllers/ListingController')
 
-
 router.post('/add', ListingController.createListing);
 router.get('/', ListingController.getAllApprovedListing);
 router.get('/info', ListingController.getAllListings);

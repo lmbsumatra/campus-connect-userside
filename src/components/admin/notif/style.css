@@ -1,88 +1,134 @@
+/* Notification icon styles */
 .notification-item .icon-link img {
-    width: 24px;
-    height: 24px;
-  }
-  
+  width: 24px;
+  height: 24px;
+}
+
+/* Notification container styles */
+.notifications {
+  position: absolute;
+  top: 65px;
+  right: 140px;
+  width: 300px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  z-index: 1000;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Notification header */
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Notification title */
+.notifications-header h5 {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Close button style */
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Close button focus style */
+.close-btn:focus {
+  outline: 2px solid #007bff; /* Example focus state */
+}
+
+/* Notification list container */
+.notification-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Notification item styles */
+.notification-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #333;
+  transition: background 0.3s;
+}
+
+/* Hover effect on notification item */
+.notification-item:hover {
+  background-color: #f9f9f9;
+}
+
+/* Avatar image style */
+.notification-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+/* Notification content (text) styles */
+.notification-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Notification content paragraph style */
+.notification-content p {
+  margin: 0 0 5px;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Notification timestamp style */
+.notification-content span {
+  font-size: 12px;
+  color: #777;
+}
+
+/* Mobile responsive styling */
+@media (max-width: 600px) {
+  /* Adjust notification container on mobile */
   .notifications {
-    position: absolute;
-    top: 65px;
-    right: 140px;
-    width: 300px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    z-index: 1000;
-    overflow: hidden;
+    top: 0;
+    right: 0;
+    width: 100vw;
+    height:  60vh;
+    border-radius: 0; /* Remove rounded corners */
+    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent background */
   }
-  
-  .notifications-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .notifications-header h5 {
-    margin: 0;
-    font-size: 16px;
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-  }
-  
-  .notification-list {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-  
-  .notification-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    text-decoration: none;
-    color: #333;
-    transition: background 0.3s;
-  }
-  
-  .notification-item:hover {
-    background-color: #f9f9f9;
-  }
-  
-  .notification-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-  }
-  
-  .notification-content {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .notification-content p {
-    margin: 0 0 5px;
-    font-size: 14px;
-  }
-  
-  .notification-content span {
-    font-size: 12px;
-    color: #777;
-  }
-  
-  @media (max-width: 600px) {
-    .notifications {
-      top: 0;
-      right: 0;
-      width: 100vw;
-      height: 100vh;
-      border-radius: 0; /* Remove rounded corners */
-    }
-  }
-  
+}
+
+/* Notification badge on the bell icon */
+.icon-link {
+  position: relative;
+}
+
+.icon-link::after {
+  content: attr(data-count); /* Dynamically update the count */
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px 10px;
+  font-size: 12px;
+  display: none; /* Hide by default */
+}
+
+/* Display the badge only if there are notifications */
+.icon-link[data-count]:not([data-count="0"])::after {
+  display: block;
+}

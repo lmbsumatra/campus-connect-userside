@@ -1,17 +1,21 @@
-import "./adminNavBarStyles.css";
-import searchIcon from "../../../assets/images/icons/search.svg";
 import { useState, useEffect, useRef } from "react";
-import UserDropdown from "../dropdown/UserDropdown";
-import Notification from "../notif/Notification";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import io from "socket.io-client";
+import searchIcon from "../../../assets/images/icons/search.svg";
+import UserDropdown from "../dropdown/UserDropdown";
+import Notification from "../notif/Notification";
+import "./adminNavBarStyles.css";
 
 const AdminNavBar = () => {
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const { logoutAdmin } = useAuth();
+  const [notifications, setNotifications] = useState([]);
   const [openPopup, setOpenPopup] = useState(null);
+  const socketRef = useRef(null);
+
   const togglePopup = (popup) => {
     setOpenPopup((prev) => (prev === popup ? null : popup));
   };
@@ -20,13 +24,13 @@ const AdminNavBar = () => {
   const notificationsRef = useRef(null);
 
   const toggleUserDropdown = () => {
-    setShowNotifications(false); // Close notifications if open
+    setShowNotifications(false); 
     setShowUserDropdown((prev) => !prev);
   };
 
   const toggleNotifications = () => {
-    setShowUserDropdown(false); // Close user dropdown if open
-    setShowNotifications((prev) => !prev);
+    setShowUserDropdown(false); 
+    setShowNotifications((prev) => !prev); 
   };
 
   const handleLogout = () => {
@@ -49,6 +53,24 @@ const AdminNavBar = () => {
     }
   };
 
+  // Socket connection and event handling
+  useEffect(() => {
+    socketRef.current = io("http://localhost:3001");
+
+    socketRef.current.emit("admin-connect");
+
+    socketRef.current.on("new-listing-notification", (notification) => {
+      setNotifications((prevNotifications) => [
+        ...prevNotifications,
+        notification,
+      ]);
+    });
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -64,7 +86,11 @@ const AdminNavBar = () => {
       </div>
       <div className="toolbar d-flex">
         <div ref={notificationsRef} onClick={toggleNotifications}>
-          <Notification showNotifications={showNotifications} />
+          <Notification
+            showNotifications={showNotifications}
+            toggleNotifications={toggleNotifications}
+            notifications={notifications} 
+          />
         </div>
         <div ref={userDropdownRef} onClick={toggleUserDropdown}>
           <UserDropdown
