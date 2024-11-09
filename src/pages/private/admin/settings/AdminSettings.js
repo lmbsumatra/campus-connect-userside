@@ -4,11 +4,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./adminSettingStyles.css";
 import PasswordMeter from "../../../../components/common/PasswordMeter";
 import { useAuth } from "../../../../context/AuthContext";
+import AdminChangePassword from "./AdminChangePassword";
+import AdminViewAccounts from "./AdminViewAccounts"; // Import the new component
 
 const AdminSettings = ({ tab, onClose }) => {
   const navigate = useNavigate();
   const { adminUser } = useAuth(); // Get the adminUser from context
   const [showCreateAcctWindow, setShowCreateAcctWindow] = useState(false);
+  const [showAccounts, setShowAccounts] = useState(false);
 
   const [uploadedImage, setUploadedImage] = useState(null);
   const [authTab, setAuthTab] = useState(tab);
@@ -93,7 +96,7 @@ const AdminSettings = ({ tab, onClose }) => {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-  
+
     if (
       !userData.firstName ||
       !userData.lastName ||
@@ -106,38 +109,38 @@ const AdminSettings = ({ tab, onClose }) => {
       errorRef.current.scrollIntoView({ behavior: "smooth" });
       return;
     }
-  
+
     if (userData.password !== userData.confirmPassword) {
       setErrorMessage("Passwords do not match");
       errorRef.current.scrollIntoView({ behavior: "smooth" });
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("first_name", userData.firstName);
     formData.append("middle_name", userData.middleName);
     formData.append("last_name", userData.lastName);
     formData.append("email", userData.email);
     formData.append("password", userData.password);
-    formData.append("profile_pic", uploadedImage); 
+    formData.append("profile_pic", uploadedImage);
     formData.append("role", "Admin");
-  
+
     // Log FormData entries for debugging
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-  
+
     try {
       const response = await fetch("http://localhost:3001/admin/register", {
         method: "POST",
         body: formData,
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log("User registered successfully:", data);
         alert("Registered Successfully");
-  
+
         // Reset the form and close the modal
         resetForm();
         setShowCreateAcctWindow(false);
@@ -155,15 +158,36 @@ const AdminSettings = ({ tab, onClose }) => {
       errorRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
-  
+
+  const [showChangePassword, setShowChangePassword] = useState(false); //change pass
 
   return (
     <div className="admin-content-container">
       <div className="admin content">
-             {/* Conditionally render the Create Account button based on user role */}
+        <button
+          className="btn btn-secondary mb-2"
+          onClick={() => setShowAccounts(!showAccounts)}
+        >
+          {showAccounts ? "Hide Accounts" : "View Admin Accounts"}
+        </button>
+        {showAccounts && <AdminViewAccounts />}
+
+        <div>
+          <button
+            className="btn btn-secondary mb-2"
+            onClick={() => setShowChangePassword(true)}
+          >
+            Change Password
+          </button>
+
+          {showChangePassword && (
+            <AdminChangePassword onClose={() => setShowChangePassword(false)} />
+          )}
+        </div>
+        {/* Conditionally render the Create Account button based on user role */}
         {adminUser?.role === "superadmin" && ( // Check if the user is superadmin
           <button
-            className="btn btn-primary"
+            className="btn btn-primary mt-2"
             onClick={() => setShowCreateAcctWindow(!showCreateAcctWindow)}
           >
             Create Account

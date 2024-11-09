@@ -6,36 +6,29 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const cloudinary = require("cloudinary").v2;
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 
 const bcrypt = require("bcrypt");
 const { rollbackUpload } = require("../config/multer");
 
 async function verify(token) {
   const ticket = await client.verifyIdToken({
-    idToken: token, 
+    idToken: token,
     audience: process.env.GOOGLE_CLIENT_ID,
   });
 
   return ticket.getPayload();
 }
 
-
 // Register Admin
 exports.registerAdmin = async (req, res) => {
   console.log("File:", req.file);
   console.log("Body:", req.body);
   const t = await sequelize.transaction();
-  let publicIds = []; 
+  let publicIds = [];
 
   try {
-    const {
-      first_name,
-      middle_name,
-      last_name,
-      email,
-      password,
-    } = req.body;
+    const { first_name, middle_name, last_name, email, password } = req.body;
 
     const profile_pic = req.file;
 
@@ -45,11 +38,18 @@ exports.registerAdmin = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const profilePicPath = profile_pic.path || profile_pic.filename; 
-    publicIds.push(profilePicPath); 
+    const profilePicPath = profile_pic.path || profile_pic.filename;
+    publicIds.push(profilePicPath);
 
     const newUser = await User.create(
-      { first_name, middle_name, last_name, role: "admin", email, password: hashedPassword },
+      {
+        first_name,
+        middle_name,
+        last_name,
+        role: "admin",
+        email,
+        password: hashedPassword,
+      },
       { transaction: t }
     );
 
@@ -68,9 +68,9 @@ exports.registerAdmin = async (req, res) => {
       admin: newAdmin,
     });
   } catch (error) {
-    await t.rollback(); 
+    await t.rollback();
 
-    await rollbackUpload(publicIds); 
+    await rollbackUpload(publicIds);
     console.error("Registration error:", error);
     res.status(500).json({
       message: "Failed registration. Please check your information",
@@ -79,20 +79,25 @@ exports.registerAdmin = async (req, res) => {
   }
 };
 
-
 // Login an admin
 exports.loginAdmin = async (req, res) => {
   const { email, password } = req.body;
 
   // Check for missing fields
   if (!email) return res.status(400).json({ message: "Email is required" });
-  if (!password) return res.status(400).json({ message: "Password is required" });
+  if (!password)
+    return res.status(400).json({ message: "Password is required" });
 
   try {
     // Find user by email
-    const user = await User.findOne({ where: { email, role: {
-      [Op.or]: ["admin", "superadmin"], // nilagyan ko lang superadmin
-    }, } });
+    const user = await User.findOne({
+      where: {
+        email,
+        role: {
+          [Op.or]: ["admin", "superadmin"], // nilagyan ko lang superadmin
+        },
+      },
+    });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -110,9 +115,79 @@ exports.loginAdmin = async (req, res) => {
       JWT_SECRET
     );
 
-    res.status(200).json({ message: "Login successful", token, role: user.role, userId: user.user_id });
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      role: user.role,
+      userId: user.user_id,
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });
+  }
+};
+
+// Change Password for Admin
+exports.adminChangePassword = async (req, res) => {
+  const adminId = req.user.userId; // Assume userId is available in req.user from the auth middleware
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    // Find the admin user
+    const admin = await User.findOne({
+      where: { user_id: adminId, role: { [Op.or]: ["admin", "superadmin"] } },
+    });
+    if (!admin) {
+      return res.status(404).json({ message: "Admin user not found" });
+    }
+
+    // Check if the current password is correct
+    const isMatch = await bcrypt.compare(currentPassword, admin.password);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({ message: "Current password is incorrect." });
+    }
+
+    // Hash the new password and save it
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    admin.password = hashedNewPassword;
+    await admin.save();
+
+    res.status(200).json({ message: "Password updated successfully." });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res
+      .status(500)
+      .json({ message: "Error changing password", error: error.message });
+  }
+};
+
+// Get all admin and superadmin accounts
+exports.getAllAdminAccounts = async (req, res) => {
+  try {
+    // Fetch all users with the role of admin or superadmin
+    const users = await User.findAll({
+      where: {
+        role: {
+          [Op.or]: ["admin", "superadmin"],
+        },
+      },
+      attributes: [
+        "user_id",
+        "first_name",
+        "last_name",
+        "email",
+        "role",
+        "createdAt",
+      ],
+    });
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching admin accounts:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching admin accounts", error: error.message });
   }
 };
