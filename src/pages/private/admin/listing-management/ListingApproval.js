@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./listingDashboard.css";
-import ActionModal from "../../../../components/Action Modal/ActionModal";
+import ActionModal from "../../../../components/admin/Action Modal/ActionModal";
 import FetchListingData from "../../../../utils/FetchListingData";
 import { useParams } from "react-router-dom";
 import ListingPreview from "./ListingPreview";

@@ -4,7 +4,7 @@ import "../postDashboard.css";
 import ProfileSidebar from "../../../../../components/User/sidebar/ProfileSidebar";
 import ProfileHeader from "../../../../../components/User/header/ProfileHeader";
 import { Outlet, useParams } from "react-router-dom";
-import ActionModal from "../../../../../components/Action Modal/ActionModal";
+import ActionModal from "../../../../../components/admin/Action Modal/ActionModal";
 
 const UserVerification = () => {
   const { id } = useParams();

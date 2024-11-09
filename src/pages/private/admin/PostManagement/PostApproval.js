@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./postDashboard.css";
-import ActionModal from "../../../../components/Action Modal/ActionModal";
+import ActionModal from "../../../../components/admin/Action Modal/ActionModal";
 import FetchPostData from "../../../../utils/FetchPostData";
 import { useParams } from "react-router-dom";
 import { ItemStatus } from "../../../../utils/Status";
