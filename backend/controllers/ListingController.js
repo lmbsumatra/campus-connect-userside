@@ -3,7 +3,7 @@ const sequelize = require("../config/database");
 const { models } = require("../models/index");
 const {notifyAdmins} = require('../socket')
 
-
+// Get all approved listing: displayed in home, listings page
 exports.getAllApprovedListing = async (req, res) => {
   try {
     const items = await models.Listing.findAll({
@@ -42,7 +42,56 @@ exports.getAllApprovedListing = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-// Get all posts with rental dates and durations
+
+// Get all approved listings for a specific user (by userId)
+exports.getApprovedListingsByUser = async (req, res) => {
+  try {
+    // Extract userId from query params or route parameters
+    const { userId } = req.query; // or req.params if userId is in URL params
+
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const items = await models.Listing.findAll({
+      where: {
+        status: "approved",
+        owner_id: userId, // Filter by userId
+      },
+      include: [
+        {
+          model: models.RentalDate,
+          as: "rental_dates",
+          required: false,
+          where: {
+            item_type: "listing",
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              required: false,
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "owner",
+          attributes: ["first_name", "last_name"],
+        },
+      ],
+    });
+
+    // Return the filtered listings
+    res.status(200).json(items);
+  } catch (error) {
+    console.error("Error fetching listings:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all posts with rental dates and durations: displayed in admin
 exports.getAllListings = async (req, res) => {
   try {
     const listings = await models.Listing.findAll({
@@ -79,8 +128,7 @@ exports.getAllListings = async (req, res) => {
   }
 };
 
-
-// Create listing
+// Create listing: student side
 exports.createListing = async (req, res, next) => {
   const transaction = await sequelize.transaction();
 
@@ -180,9 +228,7 @@ exports.createListing = async (req, res, next) => {
   }
 };
 
-
-
-// Get a single post by ID with associated rental dates, durations, and renter info
+// Get a single post by ID with associated rental dates, durations, and renter info: 
 exports.getListingById = async (req, res) => {
   try {
     const post = await models.Listing.findByPk(req.params.id, {

@@ -10,19 +10,28 @@ import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 // Assets
 import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
 import itemImage from "../../../assets/images/item/item_1.jpg";
+import { useAuth } from "../../../context/AuthContext";
+import UserToolbar from "../../../components/users/user-toolbar/UserToolbar";
 
 function ViewPost() {
+  const { studentUser } = useAuth();
+  const { userId } = studentUser;
   // Retrieve the post ID from the URL params
   const { id } = useParams();
-  
+
   // State to manage the selected rental date
   const [selectedDate, setSelectedDate] = useState(null);
 
   // Base API URL
   const baseUrl = "http://localhost:3001";
-  
+
   // Fetch the selected post using the custom hook
-  const { selectedItem: selectedPost, loading, error, tags } = useFetchItemByParam(`${baseUrl}/posts/${id}`);
+  const {
+    selectedItem: selectedPost,
+    loading,
+    error,
+    tags,
+  } = useFetchItemByParam(`${baseUrl}/posts/${id}`);
 
   // Loading and error handling
   if (loading) return <p>Loading...</p>;
@@ -40,6 +49,8 @@ function ViewPost() {
     description = "No description available.",
   } = selectedPost;
 
+  const isProfileVisit = userId === renter.user_id ? true : false;
+  
   // Parse item specifications (handle both string and object formats)
   let specifications = {};
   if (typeof selectedPost.specifications === "string") {
@@ -66,7 +77,11 @@ function ViewPost() {
       {/* Item Header Section */}
       <div className="py-4 px-2 m-0 rounded row bg-white">
         <div className="col-md-6 item-image">
-          <img src={itemImageUrl} alt="Item" className="img-container img-fluid" />
+          <img
+            src={itemImageUrl}
+            alt="Item"
+            className="img-container img-fluid"
+          />
         </div>
 
         <div className="col-md-6 item-desc">
@@ -80,8 +95,12 @@ function ViewPost() {
             </p>
           </div>
           <div className="d-flex justify-content-end">
-            <button className="btn btn-rectangle secondary no-fill me-2">Message</button>
-            <button className="btn btn-rectangle primary no-fill me-2">Offer</button>
+            <button className="btn btn-rectangle secondary no-fill me-2">
+              Message
+            </button>
+            <button className="btn btn-rectangle primary no-fill me-2">
+              Offer
+            </button>
           </div>
 
           <hr />
@@ -103,41 +122,40 @@ function ViewPost() {
           {/* Request Times Section */}
           <div>
             <p>
-              <strong>Request Times</strong> {selectedDate ? formatDate(selectedDate) : <i>Please select a preferred date</i>}:
+              <strong>Request Times</strong>{" "}
+              {selectedDate ? (
+                formatDate(selectedDate)
+              ) : (
+                <i>Please select a preferred date</i>
+              )}
+              :
             </p>
-            {selectedDate &&
+            {(selectedDate &&
               rental_dates
                 .find((rental) => rental.date === selectedDate)
                 ?.durations?.map((duration, index) => (
-                  <button key={index} className="btn btn-rounded thin me-2 ms-2">
-                    {`${formatTimeTo12Hour(duration.rental_time_from)} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
+                  <button
+                    key={index}
+                    className="btn btn-rounded thin me-2 ms-2"
+                  >
+                    {`${formatTimeTo12Hour(
+                      duration.rental_time_from
+                    )} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
                   </button>
-                )) || <p>No times available</p>}
+                ))) || <p>No times available</p>}
           </div>
         </div>
       </div>
 
-      {/* User Information Section */}
-      <div className="user-info mt-5 bg-white">
-        <div className="d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            <img src={userProfilePic} alt="Profile" className="profile-pic me-2" />
-            <div>
-              <a href={`/userprofile/${renter.first_name}`} className="text-dark small text-decoration-none">
-                {renter.first_name} {renter.last_name}
-              </a>
-            </div>
-          </div>
-          <div className="rating">
-            <span>Rating:</span>
-            {"★".repeat(Math.floor(userRating))}
-            {"☆".repeat(5 - Math.floor(userRating))}
-          </div>
-          <button className="btn btn-rectangle secondary me-2">View Listings</button>
-          <button className="btn btn-rectangle secondary me-2">View Profile</button>
-        </div>
-      </div>
-
+      <UserToolbar
+        userProfilePic={userProfilePic}
+        user={renter}
+        isProfileVisit={isProfileVisit}
+        userRating={userRating}
+        buttonText1="View Posts"
+        buttonText2="View Profile"
+        activeTab="Posts"
+      />
       {/* Item Specifications Section */}
       <div className="item-specs mt-5 p-4 bg-white">
         <h4>Item Specifications</h4>
@@ -151,7 +169,9 @@ function ViewPost() {
           <tbody>
             {itemSpecifications.map((spec, index) => (
               <tr key={index}>
-                <td><strong>{spec.label}</strong></td>
+                <td>
+                  <strong>{spec.label}</strong>
+                </td>
                 <td>{spec.value}</td>
               </tr>
             ))}
@@ -170,7 +190,9 @@ function ViewPost() {
           {Array.isArray(tags) && tags.length > 0 ? (
             <div className="tags-container">
               {tags.map((tag, index) => (
-                <span key={index} className="badge bg-primary me-2">{tag}</span>
+                <span key={index} className="badge bg-primary me-2">
+                  {tag}
+                </span>
               ))}
             </div>
           ) : (

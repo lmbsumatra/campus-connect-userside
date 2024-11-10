@@ -1,130 +1,103 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../BorrowerPOV/postStyles.css";
-import StarRating from "../../Rating/StarRating.jsx";
-import { items, users } from "../data.jsx";
-import BorrowingPost from "./Posts.jsx";
+import BorrowingPost from "../../../components/borrowingposts/BorrowingPost";
+import ProfileHeader from "../header/ProfileHeader.jsx";
+import useFetchApprovedItemsByUserId from "../../../hooks/useFetchApprovedItemsByUserId.jsx";
+import { useLocation, useParams } from "react-router-dom";
+import ItemList from "../../itemlisting/ItemList.jsx";
+import ItemSale from "../../itemsale/ItemSale.jsx";
 
 const UserProfileVisit = () => {
-  const [activeTab, setActiveTab] = useState("about");
-  const [borrowingPosts, setBorrowingPosts] = useState([]);
-
-  const user = users[0]; // Assuming you want to display the first user
-
-  // Simulating fetching borrowing posts, replace this with actual data fetching
-  useEffect(() => {
-    // Replace with actual API endpoint or data source
-    fetch("/Posts.json")
-      .then((response) => response.json())
-      .then((data) => setBorrowingPosts(data.borrowingPosts));
-  }, []);
+  const location = useLocation();
+  const baseUrl = "http://localhost:3001";
+  const { id } = useParams();
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  const userId = params.get("userId");
+  console.log(userId);
+  const [activeTab, setActiveTab] = useState(location.state || "Listings");
+  const {
+    items: listings,
+    loading: loadingListings,
+    error: errorListings,
+  } = useFetchApprovedItemsByUserId(
+    `${baseUrl}/listings/approved/user?userId=${userId}`
+  );
+  const {
+    items: posts,
+    loading: loadingPosts,
+    error: errorPosts,
+  } = useFetchApprovedItemsByUserId(
+    `${baseUrl}/posts/approved/user?userId=${userId}`
+  );
+  const {
+    items: itemsForSale,
+    loading: loadingItemsForSale,
+    error: errorItemsForSale,
+  } = useFetchApprovedItemsByUserId(
+    `${baseUrl}/item-for-sale/approved/user?userId=${userId}`
+  );
 
   return (
-    <div>
-      <div className="profile-container">
-        <div className="profile-header">
-          <div className="profile-banner"></div>
-          <div className="profile-picture">
-            <img
-              src={user.profilePhoto}
-              alt="Profile"
-              className="profile-photo"
-            />
-          </div>
-          <div className="profile-info">
-            <h2>{user.name}</h2>
-            <div className="profile-details">
-              <div>
-                <span className="profile-label">College</span>
-                <span className="profile-value">{user.college}</span>
-              </div>
-              <div>
-                <span className="profile-label">Rating</span>
-                <span className="profile-value">
-                  <StarRating rating={user.rating} />
-                </span>
-              </div>
-              <div className="profile-bio">
-                <span className="profile-label">Bio</span>
-                <span className="profile-value">{user.bio}</span>
-              </div>
-              <div>
-                <span className="profile-label">Joined</span>
-                <span className="profile-value">{user.joined}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="prof-content-wrapper">
+    <div className="container-content">
+      <div className="profile-container d-flex flex-column gap-3">
+        <ProfileHeader
+          userId={userId}
+          isProfileVisit={true}
+          className="m-0 p-0"
+        />
+        <div className="prof-content-wrapper bg-white rounded p-3">
           <div className="profile-content">
             <div className="filter-bttns">
               <button
                 className={`filter-bttn ${
-                  activeTab === "about" ? "active" : ""
+                  activeTab === "Listings" ? "active" : ""
                 }`}
-                onClick={() => setActiveTab("about")}
+                onClick={() => setActiveTab("Listings")}
               >
-                About
+                Listings ({listings && listings.length})
               </button>
               <button
                 className={`filter-bttn ${
-                  activeTab === "items" ? "active" : ""
+                  activeTab === "Posts" ? "active" : ""
                 }`}
-                onClick={() => setActiveTab("items")}
+                onClick={() => setActiveTab("Posts")}
               >
-                ({items.length}) Items
+                Posts ({posts && posts.length})
               </button>
               <button
                 className={`filter-bttn ${
-                  activeTab === "posts" ? "active" : ""
+                  activeTab === "For Sale" ? "active" : ""
                 }`}
-                onClick={() => setActiveTab("posts")}
+                onClick={() => setActiveTab("For Sale")}
               >
-                ({borrowingPosts.length}) Posts
+                For Sale ({itemsForSale && itemsForSale.length})
               </button>
             </div>
-            {activeTab === "about" && (
-              <div>
-                <h3>About</h3>
-                <p>Details about the user...</p>
-              </div>
+            {activeTab === "Listings" && (
+              <>
+                {loadingListings && <p>Loading...</p>}
+                {errorListings && <p>Error fetching listings: </p>}
+                <ItemList listings={listings} title="Rent" />
+              </>
             )}
-            {activeTab === "items" && (
-              <div className="item-list">
-                {items.map((item, index) => (
-                  <div className="card" key={index}>
-                    <div className="card-img-top">
-                      <img src={item.image} alt={item.title} />
-                    </div>
-                    <div className="card-body d-flex flex-column">
-                      <div className="d-flex justify-content-between">
-                        <h5 className="fs-5">{item.title}</h5>
-                        <h3 className="fs-5">{item.price}</h3>
-                      </div>
-                      <div className="d-flex align-items-center mt-auto">
-                        <img
-                          src={item.ownerImage}
-                          alt={item.owner}
-                          className="icon-user me-2 mb-2"
-                        />
-                        <div>
-                          <h5 className="fs-6">{item.owner}</h5>
-                          <StarRating rating={item.rating || 0} />
-                        </div>
-                      </div>
-                      <div className="button-container d-flex justify-content-end">
-                        <button className="btn btn-primary no-fill me-2">
-                          <span className="text-gradient">View</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            {activeTab === "Posts" && (
+              <>
+                {loadingPosts && <p>Loading...</p>}
+                {errorPosts && <p>Error fetching posts:{errorPosts} </p>}
+                <BorrowingPost borrowingPosts={posts} title="Looking for..." />
+              </>
             )}
-            {activeTab === "posts" && (
-              <div>
-                <BorrowingPost borrowingPosts={borrowingPosts} />
-              </div>
+            {activeTab === "For Sale" && (
+              <>
+                {loadingItemsForSale && <p>Loading...</p>}
+                {errorItemsForSale && <p>Error fetching items: </p>}
+                <ItemSale
+                  items={itemsForSale}
+                  title="Sell"
+                  className="col-md-10"
+                />
+              </>
             )}
           </div>
         </div>

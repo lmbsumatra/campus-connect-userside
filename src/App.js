@@ -65,11 +65,11 @@ function App() {
   return (
     <AuthProvider>
       <SocketProvider>
-      <BrowserRouter>
-        <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
-          <Content />
-        </GoogleOAuthProvider>
-      </BrowserRouter>
+        <BrowserRouter>
+          <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
+            <Content />
+          </GoogleOAuthProvider>
+        </BrowserRouter>
       </SocketProvider>
     </AuthProvider>
   );
@@ -168,7 +168,7 @@ function Content() {
           }
         />
         <Route
-          path="/user/:id"
+          path="/user"
           element={
             <StudentProtectedRoute allowedRoles="student">
               <UserProfileVisit />
@@ -201,7 +201,7 @@ function Content() {
             <Route path="my-listings" element={<MyListings />} />
             <Route path="my-posts" element={<MyPosts />} />
             <Route path="my-forsale-items" element={<MyForSale />} />
-            <Route index path="*"  element={<MyListings />}/>
+            <Route index path="*" element={<MyListings />} />
           </Route>
 
           {/* LISTINGS */}

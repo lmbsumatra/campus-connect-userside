@@ -51,6 +51,54 @@ exports.getAllApprovedItemForSale = async (req, res) => {
   }
 };
 
+// Get all approved posts for a specific user (by userId)
+exports.getApprovedItemsForSaleByUser = async (req, res) => {
+  try {
+    // Extract userId from query params or route parameters
+    const { userId } = req.query; // or req.params if userId is in URL params
+
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const items = await models.ItemForSale.findAll({
+      where: {
+        status: "approved",
+        seller_id: userId, // Filter by userId
+      },
+      include: [
+        {
+          model: models.RentalDate,
+          as: "available_dates",
+          required: false,
+          where: {
+            item_type: "item-for-sale",
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              required: false,
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "seller",
+          attributes: ["first_name", "last_name"],
+        },
+      ],
+    });
+
+    // Return the filtered listings
+    res.status(200).json(items);
+  } catch (error) {
+    console.error("Error fetching listings:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.getAllItemForSale = async (req, res) => {
   try {
     const items = await models.ItemForSale.findAll({

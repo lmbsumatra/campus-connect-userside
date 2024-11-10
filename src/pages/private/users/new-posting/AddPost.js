@@ -9,7 +9,7 @@ import { useAuth } from "../../../../context/AuthContext";
 import "./addPostStyles.css";
 import { ImageUpload } from "../common-input-handler/ImageUpload";
 import { HandleSpecifications } from "../common-input-handler/HandleSpecifications";
-import { UserToolbar } from "../common-input-handler/UserToolbar";
+import UserToolbar from "../../../../components/users/user-toolbar/UserToolbar";
 import { HandleCustomDateAndTime } from "../common-input-handler/HandleCustomDateAndTime";
 import { HandleWeeklyDateAndTime } from "../common-input-handler/HandleWeeklyDateAndTime";
 import FetchUserInfo from "../../../../utils/FetchUserInfo";
@@ -215,7 +215,16 @@ const AddPost = () => {
       </div>
 
       {/* User Toolbar and Specifications */}
-      <UserToolbar userInfo={{ user, student }} />
+      <UserToolbar
+        userProfilePic={''}
+        user={user}
+        isProfileVisit={false}
+        userRating={''}
+        buttonText1="View Posts"
+        buttonText2="View Profile"
+        activeTab="Posts"
+        isDisabled={true}
+      />
       <HandleSpecifications data={postData} setData={setPostData} />
 
       {/* Submit Button */}

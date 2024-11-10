@@ -9,27 +9,24 @@ import { useAuth } from "../../../context/AuthContext";
 
 // Define the fetchUserInfo function here or import it from another file
 
-const ProfileHeader = ({userId}) => {
+const ProfileHeader = ({ userId, isProfileVisit }) => {
   const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState("Renter");
   const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
-  console.log("Header",userId)
 
   const {
     user,
     student,
     errorMessage: fetchErrorMessage,
-  } = FetchUserInfo({userId});
+  } = FetchUserInfo({ userId });
   const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);
 
   useEffect(() => {
     if (user.user_id && student.college) {
       setUserInfo({ user, student });
-        setErrorMessage(errorMessage);
+      setErrorMessage(errorMessage);
     }
   }, [user, student]);
-
-
 
   const handleChange = (event) => {
     setSelectedOption(event.target.value);
@@ -105,15 +102,27 @@ const ProfileHeader = ({userId}) => {
             <p className="text-white">Loading user info...</p>
           )}
           {errorMessage && <p className="error-message">{errorMessage}</p>}
-          <div>
-            <button
-              className="btn btn-rectangle secondary white my-2"
-              onClick={handleEditButton}
-            >
-              <img src={editIcon} alt="Edit" />
-              Edit
-            </button>
-          </div>
+          {isProfileVisit ? (
+            <div>
+              <button
+                className="btn btn-rectangle secondary white my-2"
+                // onClick={handleEditButton}
+              >
+                <img src={editIcon} alt="Message button" />
+                Message
+              </button>
+            </div>
+          ) : (
+            <div>
+              <button
+                className="btn btn-rectangle secondary white my-2"
+                onClick={handleEditButton}
+              >
+                <img src={editIcon} alt="Edit" />
+                Edit
+              </button>
+            </div>
+          )}
         </div>
         {isTransactionPage && (
           <div className="select-option">

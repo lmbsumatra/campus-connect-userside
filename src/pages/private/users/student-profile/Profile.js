@@ -1,6 +1,12 @@
 // React Imports
 import React, { useState, useEffect } from "react";
-import { Route, Routes, NavLink, Navigate } from "react-router-dom";
+import {
+  Route,
+  Routes,
+  NavLink,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 import axios from "axios";
@@ -19,10 +25,10 @@ import MyListings from "./MyListings.jsx";
 import MyTransactions from "./MyTransactions.jsx";
 
 function Profile() {
+  const location = useLocation();
   const { studentUser } = useAuth();
 
-  const { userId } = studentUser || {}; // Safe check for `userId`
-  console.log("THIS", userId);
+  const { userId } = studentUser || {}; 
   if (!userId) {
     return <div>Loading user information...</div>; // Handle loading state if no userId
   }
@@ -33,7 +39,11 @@ function Profile() {
       )}
 
       <div className="profile-content m-0 p-0 lh-0 w-50">
-        <ProfileHeader userId={userId} className="m-0 p-0" />
+        <ProfileHeader
+          userId={userId}
+          isProfileVisit={false}
+          className="m-0 p-0"
+        />
         <div className="m-0 p-0">
           <Routes>
             <Route path="edit-profile" element={<EditProfile />} />

@@ -5,8 +5,23 @@ import MyItemsIcon from "../../../assets/images/icons/item.svg";
 import MyPostsIcon from "../../../assets/images/icons/post.svg";
 import LogoutIcon from "../../../assets/images/icons/logout.svg";
 import "./style.css";
+import { useAuth } from "../../../context/AuthContext";
+import FetchUserInfo from "../../../utils/FetchUserInfo";
 
-const UserDropdown = ({ showDropdown, toggleDropdown, handleClick, handleLogout }) => {
+const UserDropdown = ({
+  showDropdown,
+  toggleDropdown,
+  handleClick,
+  handleLogout,
+}) => {
+  const { studentUser } = useAuth();
+  const { userId } = studentUser;
+  const {
+    user,
+    student,
+    errorMessage: fetchErrorMessage,
+  } = FetchUserInfo({ userId });
+  console.log(user)
   return (
     <div className="nav-item">
       <a className="icon-link" href="#" onClick={toggleDropdown}>
@@ -18,8 +33,10 @@ const UserDropdown = ({ showDropdown, toggleDropdown, handleClick, handleLogout 
           <div className="triangle"></div>
           <div className="dropdown-header">
             <img src={UserIcon} alt="User" className="profile-img" />
-            <div className="profile-info">
-              <h5>Justin Bieber</h5>
+            <div className="profile-info d-flex flex-column gap-1 align-items-start justify-content-start">
+              <h5 className="">
+                {user?.first_name} {user?.last_name}
+              </h5>
               <h6>
                 <a href="/profile">View Profile</a>
               </h6>
@@ -56,7 +73,13 @@ const UserDropdown = ({ showDropdown, toggleDropdown, handleClick, handleLogout 
               </div>
               <h6>My Posts</h6>
             </button>
-            <button className="dropdown-btn" onClick={() => { toggleDropdown(); handleLogout(); }}>
+            <button
+              className="dropdown-btn"
+              onClick={() => {
+                toggleDropdown();
+                handleLogout();
+              }}
+            >
               <div className="icon">
                 <img src={LogoutIcon} alt="Logout" />
               </div>
