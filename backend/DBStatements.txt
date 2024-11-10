@@ -206,3 +206,12 @@ ADD COLUMN has_review_rating BOOLEAN;
 ALTER TABLE rental_transactions
 ADD COLUMN owner_confirmed BOOLEAN DEFAULT FALSE,
 ADD COLUMN renter_confirmed BOOLEAN DEFAULT FALSE;
+
+alter table durations add column status enum('available', 'requested','rented') not null default 'available';
+
+alter table durations modify column status enum('available', 'requested', 'rented') not null default 'available';
+
+alter table dates add column status enum('available','rented') not null default 'available';
+
+alter table listings modify column status enum('pending','approved','declined','removed','revoked','flagged', 'unavailable') not null default 'pending';
+
