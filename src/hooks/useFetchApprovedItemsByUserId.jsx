@@ -11,7 +11,6 @@ const useFetchApprovedItemsByUserId = (url) => {
     const fetchItems = async () => {
       try {
         const response = await axios.get(url);
-        console.log('Listings Response data:', response.data);
         setItems(response.data); // Set listings data
       } catch (err) {
         setError(err.message); // Handle error

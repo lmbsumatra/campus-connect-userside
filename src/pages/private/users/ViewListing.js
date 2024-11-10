@@ -56,7 +56,6 @@ function ViewListing() {
       alert("You must agree to the rental terms.");
       return;
     }
-
     try {
       const response = await axios.post(
         "http://localhost:3001/rental-transaction/add",
@@ -76,7 +75,14 @@ function ViewListing() {
       }
     } catch (error) {
       console.error("Error creating rental:", error);
-      alert("Failed to create rental request. Please try again.");
+
+      // Check if the error response exists and contains the expected error message
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(error.response.data.error); // Display the error message from the backend
+      } else {
+        // Default error message if it's an unknown error or no specific error message
+        alert("Failed to create rental request. Please try again.");
+      }
     }
   };
 

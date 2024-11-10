@@ -25,11 +25,11 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
-      rental_date_id: { 
+      rental_date_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      rental_time_id: { 
+      rental_time_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
@@ -58,15 +58,17 @@ module.exports = (sequelize) => {
         type: DataTypes.ENUM("Pending", "Completed", "Refunded"),
         allowNull: false,
         defaultValue: "Pending",
-      },owner_confirmed: {  // New field for owner confirmation
+      },
+      owner_confirmed: {
+        // New field for owner confirmation
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      renter_confirmed: {  // New field for renter confirmation
+      renter_confirmed: {
+        // New field for renter confirmation
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      
     },
     {
       sequelize,
@@ -87,8 +89,14 @@ module.exports = (sequelize) => {
     });
     RentalTransaction.belongsTo(models.Listing, { foreignKey: "item_id" });
     RentalTransaction.belongsTo(models.Post, { foreignKey: "post_id" });
-    RentalTransaction.belongsTo(models.RentalDate, { foreignKey: "rental_date_id" }); // Assuming RentalDate is the model for your dates
-    RentalTransaction.belongsTo(models.RentalDuration, { foreignKey: "rental_time_id" }); // Assuming RentalTime is the model for your times
+    RentalTransaction.belongsTo(models.RentalDate, {
+      foreignKey: "rental_date_id",
+    }); 
+    
+    RentalTransaction.belongsTo(models.RentalDuration, {
+      foreignKey: "rental_time_id",
+    }); 
+
   };
 
   return RentalTransaction;

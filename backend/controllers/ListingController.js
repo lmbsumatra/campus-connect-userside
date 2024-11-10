@@ -6,10 +6,10 @@ const {notifyAdmins} = require('../socket')
 // Get all approved listing: displayed in home, listings page
 exports.getAllApprovedListing = async (req, res) => {
   try {
+    // Fetch all approved listings
     const items = await models.Listing.findAll({
-     
       where: {
-        status: "approved",
+        status: "approved", // Filter for approved items
       },
       include: [
         {
@@ -18,12 +18,16 @@ exports.getAllApprovedListing = async (req, res) => {
           required: false,
           where: {
             item_type: "listing",
+            status: "available", // Filter for available dates
           },
           include: [
             {
               model: models.RentalDuration,
               as: "durations",
               required: false,
+              where: {
+                status: "available", // Filter for available durations
+              },
             },
           ],
         },
@@ -36,12 +40,12 @@ exports.getAllApprovedListing = async (req, res) => {
     });
 
     res.status(200).json(items);
-    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    console.error("Error fetching listings:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Get all approved listings for a specific user (by userId)
 exports.getApprovedListingsByUser = async (req, res) => {
@@ -240,8 +244,14 @@ exports.getListingById = async (req, res) => {
             {
               model: models.RentalDuration,
               as: "durations",
+              where: {
+                status: "available",  // Filter durations by "available" status
+              },
             },
           ],
+          where: {
+            status: "available",  // Filter rental dates by "available" status
+          },
         },
         {
           model: models.User,

@@ -40,6 +40,13 @@ const UserToolbar = ({
       : `/user?userId=${user?.user_id}`;
     navigate(destination, { state: activeTab });
   };
+
+  const handleNavigateToProfile = () => {
+    const destination = isProfileVisit
+    ? `/profile/`
+    : `/user?userId=${user?.user_id}`;
+  navigate(destination);
+  };
   return (
     <div className="user-info mt-5 bg-white">
       <div className="d-flex justify-content-between align-items-center">
@@ -75,6 +82,7 @@ const UserToolbar = ({
         <button
           className="btn btn-rectangle secondary me-2"
           disabled={isDisabled}
+          onClick={() => handleNavigateToProfile()}
         >
           {buttonText2}
         </button>

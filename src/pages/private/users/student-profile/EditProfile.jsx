@@ -7,6 +7,7 @@ import hidePassword from "../../../../assets/images/icons/eye-closed.svg";
 import PasswordMeter from "../../../../components/common/PasswordMeter";
 
 function EditProfile() {
+
   const [formData, setFormData] = useState({
     surname: "",
     firstname: "",
@@ -31,9 +32,10 @@ function EditProfile() {
   });
   const [isShowPassword, setShowPassword] = useState(false);
   const { studentUser } = useAuth();
+  const userId = studentUser.userId;
   const token = studentUser.token;
 
-  const { user, student, errorMessage: fetchErrorMessage } = FetchUserInfo(token);
+  const { user, student, errorMessage: fetchErrorMessage } = FetchUserInfo({userId});
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
