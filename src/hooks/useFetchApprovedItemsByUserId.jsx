@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 // Custom hook to fetch listings
-const useFetchApprovedItems = (url) => {
+const useFetchApprovedItemsByUserId = (url) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,4 +25,4 @@ const useFetchApprovedItems = (url) => {
   return { items, loading, error };
 };
 
-export default useFetchApprovedItems;
+export default useFetchApprovedItemsByUserId;

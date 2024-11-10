@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from "react";
 
-//  Styles 
+//  Styles
 import "./addListingStyles.css";
 
-//  Components 
+//  Components
 import { ImageUpload } from "../common-input-handler/ImageUpload";
 import { HandleSpecifications } from "../common-input-handler/HandleSpecifications";
-import { UserToolbar } from "../common-input-handler/UserToolbar";
 import { HandleCustomDateAndTime } from "../common-input-handler/HandleCustomDateAndTime";
 import { HandleWeeklyDateAndTime } from "../common-input-handler/HandleWeeklyDateAndTime";
 
-//  Contexts and Utilities 
+//  Contexts and Utilities
 import { useAuth } from "../../../../context/AuthContext";
 import FetchUserInfo from "../../../../utils/FetchUserInfo";
 import { useSocket } from "../../../../context/SocketContext";
 
-//  Libraries 
+//  Libraries
 import axios from "axios";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import UserToolbar from "../../../../components/users/user-toolbar/UserToolbar";
 
 const AddListing = () => {
-  //  Contexts & State 
+  //  Contexts & State
   const { studentUser } = useAuth();
   const { userId } = studentUser;
   const socket = useSocket();
@@ -52,13 +52,13 @@ const AddListing = () => {
     dateAndTime: [],
   });
 
-  //  Local State for Form Handling 
+  //  Local State for Form Handling
   const [newTag, setNewTag] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [settingDateOption, SetSettingDateOption] = useState("custom");
   const [isForSale, setIsForSale] = useState(false);
 
-  //  Side Effects 
+  //  Side Effects
   useEffect(() => {
     if (user.user_id && student.college) {
       setListingData((prevData) => ({
@@ -75,15 +75,13 @@ const AddListing = () => {
     }
   }, [socket]);
 
-  //  Toggle Functions 
+  //  Toggle Functions
   const toggleGroup = () => setIsExpanded(!isExpanded);
   const toggleStatus = () => setIsForSale((prevStatus) => !prevStatus);
 
-  //  Toast Notifications 
+  //  Toast Notifications
   const handleSubmit = async () => {
     try {
-      console.log('user:', user);
-      console.log('student:', student);
 
       const endpoint = isForSale
         ? "http://localhost:3001/item-for-sale/add"
@@ -131,8 +129,24 @@ const AddListing = () => {
       const response = await axios.post(endpoint, payload);
       console.log(response.data);
 
+      // Send notification after successful creation
+      const notificationData = {
+        type: isForSale ? "new-item-for-sale" : "new-listing",
+        title: isForSale ? "New Item For Sale" : "New Listing Created",
+        message: `New ${isForSale ? 'item' : 'listing'} "${listingData.name}" requires approval`,
+        timestamp: new Date(),
+        listingId: response.data.id,
+        category: student.college,
+        owner: {
+          id: user.user_id,
+          name: `${user.first_name} ${user.last_name}`,
+        }
+      };
+
+      socket.emit("new-listing", notificationData);
+
       // Toast notification on success
-      toast.success(`${isForSale ? 'Item' : 'Listing'} created successfully!`, {
+      toast.success('Listing created successfully!', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -143,9 +157,10 @@ const AddListing = () => {
       });
     } catch (error) {
       console.error("Error creating listing:", error);
-      setErrorMessage(`Failed to create ${isForSale ? 'item' : 'listing'}.`);
-  
-      toast.error(`Failed to create ${isForSale ? 'item' : 'listing'}. Please try again.`, {
+      setErrorMessage("Failed to create listing.");
+
+      // Toast notification on error
+      toast.error('Failed to create listing. Please try again.', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -158,7 +173,7 @@ const AddListing = () => {
     }
   };
 
-  //  Tag Handlers 
+  //  Tag Handlers
   const handleAddTag = () => {
     const trimmedTag = newTag.trim();
     if (trimmedTag) {
@@ -168,7 +183,7 @@ const AddListing = () => {
       }));
       setNewTag("");
     } else {
-      toast.warning('Tag cannot be empty!', {
+      toast.warning("Tag cannot be empty!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -187,15 +202,15 @@ const AddListing = () => {
     }));
   };
 
-   //  Handle Payment Method Change 
-   const handlePaymentChange = (e) => {
+  //  Handle Payment Method Change
+  const handlePaymentChange = (e) => {
     setListingData({
       ...listingData,
       paymentMode: e.target.value,
     });
   };
 
-  //  Form Layout and Fields 
+  //  Form Layout and Fields
   return (
     <div className="container-content">
       {/* ToastContainer for Notifications */}
@@ -274,11 +289,17 @@ const AddListing = () => {
               </div>
 
               {settingDateOption === "custom" && (
-                <HandleCustomDateAndTime data={listingData} setData={setListingData} />
+                <HandleCustomDateAndTime
+                  data={listingData}
+                  setData={setListingData}
+                />
               )}
 
               {settingDateOption === "weekly" && (
-                <HandleWeeklyDateAndTime data={listingData} setData={setListingData} />
+                <HandleWeeklyDateAndTime
+                  data={listingData}
+                  setData={setListingData}
+                />
               )}
 
               {/* Delivery Mode */}
@@ -326,7 +347,9 @@ const AddListing = () => {
                     <input
                       type="radio"
                       value="payment upon meetup"
-                      checked={listingData.paymentMode === "payment upon meetup"}
+                      checked={
+                        listingData.paymentMode === "payment upon meetup"
+                      }
                       onChange={handlePaymentChange}
                     />
                     payment upon meetup
@@ -348,9 +371,13 @@ const AddListing = () => {
               {!isForSale && (
                 <div className="groupby">
                   <div onClick={toggleGroup} style={{ cursor: "pointer" }}>
-                    {isExpanded ? "v Hide Optional Fees" : "> Show Optional Fees"}
+                    {isExpanded
+                      ? "v Hide Optional Fees"
+                      : "> Show Optional Fees"}
                   </div>
-                  <div className={`optional-fees ${isExpanded ? "expanded" : ""}`}>
+                  <div
+                    className={`optional-fees ${isExpanded ? "expanded" : ""}`}
+                  >
                     <div>
                       <label>Late Charges</label>
                       <input
@@ -425,7 +452,9 @@ const AddListing = () => {
                     className="borderless"
                   />
                   <div>
-                    <button className="btn btn-primary" onClick={handleAddTag}>+</button>
+                    <button className="btn btn-primary" onClick={handleAddTag}>
+                      +
+                    </button>
                   </div>
                 </div>
                 <div className="tags-list">
@@ -466,14 +495,20 @@ const AddListing = () => {
         </div>
       </div>
 
-      {/* User Toolbar */}
-      <UserToolbar userInfo={{ user, student }} />
+      {/* User Toolbar and Specifications */}
+      <UserToolbar
+        userProfilePic={""}
+        user={user}
+        isProfileVisit={false}
+        userRating={""}
+        buttonText1="View Posts"
+        buttonText2="View Profile"
+        activeTab="Posts"
+        isDisabled={true}
+      />
 
       {/* Specifications */}
-      <HandleSpecifications
-        data={listingData}
-        setData={setListingData}
-      />
+      <HandleSpecifications data={listingData} setData={setListingData} />
 
       {/* Submit Button */}
       <button className="btn btn-primary" onClick={handleSubmit}>

@@ -47,7 +47,6 @@ const AdminLogin = () => {
 
   const handleAdminLogin = async (e) => {
     e.preventDefault();
-    console.log("Submitting login form...");
     setErrorMessage("");
 
     try {
@@ -64,10 +63,7 @@ const AdminLogin = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Login successful:", data);
-        // localStorage.setItem("token", data.token);
         loginAdmin(data.token, data.role, data.userId);
-        console.log("Navigating to admin dashboard...");
         navigate("/admin/dashboard"); // naliligaw ata ako? // sana hindi na
       } else {
         const errorData = await response.json();

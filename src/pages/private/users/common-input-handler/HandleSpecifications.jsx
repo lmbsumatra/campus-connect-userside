@@ -5,7 +5,6 @@ export const HandleSpecifications = ({
   setData,
 }) => {
 
-  console.log(data.specifications)
   const [newSpecKey, setNewSpecKey] = useState(""); 
   const [newSpecValue, setNewSpecValue] = useState("");
 

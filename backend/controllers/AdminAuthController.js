@@ -22,8 +22,6 @@ async function verify(token) {
 
 // Register Admin
 exports.registerAdmin = async (req, res) => {
-  console.log("File:", req.file);
-  console.log("Body:", req.body);
   const t = await sequelize.transaction();
   let publicIds = [];
 

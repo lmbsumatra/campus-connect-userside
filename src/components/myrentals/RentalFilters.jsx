@@ -10,7 +10,7 @@ function RentalFilters({ filterOptions, activeFilter, onFilterClick }) {
   };
 
   return (
-    <div className="rental-filters">
+    <div className="rental-filters overflow-x-auto no-scrollbars">
       <div className="filter-buttons">
         {filterOptions.map((filter) => (
           <button

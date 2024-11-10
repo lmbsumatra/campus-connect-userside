@@ -81,18 +81,21 @@ const ForSaleManagement = () => {
         .toLowerCase();
 
       filteredData = filteredData.filter((item) => {
-        // Normalize and check each field
-        const normalizedPostItemName = item.post_item_name?.toLowerCase() || "";
+        const normalizedPostItemName =
+          item.item_for_sale_name?.toLowerCase() || "";
         const normalizedCategory = item.category?.toLowerCase() || "";
         const fullSellerName = `${item.seller?.first_name || ""} ${
           item.seller?.last_name || ""
         }`.toLowerCase();
 
-        // Return true if any field contains the search query
+        // Format the date (assuming created_at is the date field)
+        const normalizedDate = formatDate(item.created_at).toLowerCase(); // Adjust based on your date format
+
         return (
-          normalizedPostItemName.includes(normalizedSearchQuery) ||
-          normalizedCategory.includes(normalizedSearchQuery) ||
-          fullSellerName.includes(normalizedSearchQuery)
+          normalizedPostItemName.includes(normalizedSearchQuery) || // Include Title in search
+          normalizedCategory.includes(normalizedSearchQuery) || // Category search
+          fullSellerName.includes(normalizedSearchQuery) || // Seller name search
+          normalizedDate.includes(normalizedSearchQuery) // Date search
         );
       });
     }

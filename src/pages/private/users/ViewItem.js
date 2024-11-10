@@ -6,8 +6,12 @@ import itemImage from "../../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import useFetchItemByParam from "../../../hooks/useFetchItemByParam";
+import UserToolbar from "../../../components/users/user-toolbar/UserToolbar";
+import { useAuth } from "../../../context/AuthContext";
 
 function ViewItem() {
+  const { studentUser } = useAuth();
+  const { userId } = studentUser;
   // Retrieve the post ID from the URL params
   const { id } = useParams();
   
@@ -62,6 +66,8 @@ function ViewItem() {
     label: key || "N/A",
     value: value || "N/A",
   }));
+
+  const isProfileVisit = userId === seller.user_id ? true : false;
 
   return (
     <div>
@@ -163,25 +169,15 @@ function ViewItem() {
       </div>
 
       {/* User Info Section */}
-      <div className="user-info mt-5 bg-white">
-        <div className="d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            <img src={userProfilePic} alt="Profile" className="profile-pic me-2" />
-            <div>
-              <a href={`/userprofile/${seller.id}`} className="text-dark small text-decoration-none">
-                {userName}
-              </a>
-            </div>
-          </div>
-          <div className="rating">
-            <span>Rating:</span>
-            {"★".repeat(Math.floor(userRating))}
-            {"☆".repeat(5 - Math.floor(userRating))}
-          </div>
-          <button className="btn btn-rectangle secondary me-2">View Listings</button>
-          <button className="btn btn-rectangle secondary me-2">View Profile</button>
-        </div>
-      </div>
+      <UserToolbar
+        userProfilePic={userProfilePic}
+        user={seller}
+        isProfileVisit={isProfileVisit}
+        userRating={userRating}
+        buttonText1="View For Sale"
+        buttonText2="View Profile"
+        activeTab="For Sale"
+      />
 
       {/* Item Specifications Section */}
       <div className="item-specs mt-5 p-4 bg-white">

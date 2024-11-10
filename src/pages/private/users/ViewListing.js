@@ -13,6 +13,7 @@ import { useAuth } from "../../../context/AuthContext";
 import "../../../components/itemlisting/itemStyles.css";
 import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
 import itemImage from "../../../assets/images/item/item_1.jpg";
+import UserToolbar from "../../../components/users/user-toolbar/UserToolbar";
 
 function ViewListing() {
   // Retrieve the post ID from the URL params
@@ -32,10 +33,13 @@ function ViewListing() {
   const baseUrl = "http://localhost:3001";
 
   // Fetch the selected post using the custom hook
-  const { selectedItem, loading, error, tags } = useFetchItemByParam(`${baseUrl}/listings/${id}`);
-  
+  const { selectedItem, loading, error, tags } = useFetchItemByParam(
+    `${baseUrl}/listings/${id}`
+  );
+
   // Retrieve student user details from authentication context
   const { studentUser } = useAuth();
+  const { userId } = studentUser;
 
   // Handle rental request submission
   const handleRentalRequest = async () => {
@@ -52,7 +56,6 @@ function ViewListing() {
       alert("You must agree to the rental terms.");
       return;
     }
-
     try {
       const response = await axios.post(
         "http://localhost:3001/rental-transaction/add",
@@ -72,7 +75,14 @@ function ViewListing() {
       }
     } catch (error) {
       console.error("Error creating rental:", error);
-      alert("Failed to create rental request. Please try again.");
+
+      // Check if the error response exists and contains the expected error message
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(error.response.data.error); // Display the error message from the backend
+      } else {
+        // Default error message if it's an unknown error or no specific error message
+        alert("Failed to create rental request. Please try again.");
+      }
     }
   };
 
@@ -82,9 +92,10 @@ function ViewListing() {
   if (!selectedItem) return <p>Item not found</p>;
 
   // Parse item specifications (handle both string and object formats)
-  const specifications = typeof selectedItem.specifications === "string"
-    ? JSON.parse(selectedItem.specifications) || {}
-    : selectedItem.specifications || {};
+  const specifications =
+    typeof selectedItem.specifications === "string"
+      ? JSON.parse(selectedItem.specifications) || {}
+      : selectedItem.specifications || {};
 
   const itemSpecifications = Object.entries(specifications).map(
     ([key, value]) => ({
@@ -93,17 +104,15 @@ function ViewListing() {
     })
   );
 
+  const isProfileVisit = userId === selectedItem.owner.user_id ? true : false;
+
   // Render the component
   return (
     <div>
       {/* Item Details Section */}
       <div className="py-4 px-2 m-0 rounded row bg-white">
         <div className="col-md-6 item-image">
-          <img
-            src={itemImage}
-            alt="Item"
-            className="img-container img-fluid"
-          />
+          <img src={itemImage} alt="Item" className="img-container img-fluid" />
         </div>
 
         <div className="col-md-6 item-desc">
@@ -132,7 +141,7 @@ function ViewListing() {
               className="btn btn-rectangle primary no-fill me-2"
               onClick={handleRentalRequest}
             >
-              Borrow
+              Rent
             </button>
           </div>
 
@@ -164,7 +173,11 @@ function ViewListing() {
           <div>
             <p>
               <strong>Available Times</strong>{" "}
-              {rentalDetails.selectedDate ? formatDate(rentalDetails.selectedDate) : <i>Please select a preferred date</i>}
+              {rentalDetails.selectedDate ? (
+                formatDate(rentalDetails.selectedDate)
+              ) : (
+                <i>Please select a preferred date</i>
+              )}
               :
             </p>
             {(rentalDetails.selectedDate &&
@@ -186,7 +199,9 @@ function ViewListing() {
                       }))
                     }
                   >
-                    {`${formatTimeTo12Hour(duration.rental_time_from)} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
+                    {`${formatTimeTo12Hour(
+                      duration.rental_time_from
+                    )} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
                   </button>
                 ))) || <p>No times available</p>}
           </div>
@@ -218,7 +233,8 @@ function ViewListing() {
             <strong>Security Deposit:</strong> ₱{selectedItem.security_deposit}
           </p>
           <p>
-            <strong>Repair and Replacement:</strong> {selectedItem.repair_replacement}
+            <strong>Repair and Replacement:</strong>{" "}
+            {selectedItem.repair_replacement}
           </p>
 
           {/* Payment and Delivery Mode */}
@@ -226,7 +242,9 @@ function ViewListing() {
             <p>
               <strong>Payment Mode:</strong>
               <button className="btn btn-rounded primary thin ms-2">
-                {selectedItem.payment_mode === "payment upon meetup" ? "Upon meetup" : "Gcash"}
+                {selectedItem.payment_mode === "payment upon meetup"
+                  ? "Upon meetup"
+                  : "Gcash"}
               </button>
             </p>
           </div>
@@ -242,36 +260,15 @@ function ViewListing() {
       </div>
 
       {/* User Info Section */}
-      <div className="user-info mt-5 bg-white">
-        <div className="d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            <img
-              src={selectedItem.userProfilePic || userProfilePicture}
-              alt="Profile"
-              className="profile-pic me-2"
-            />
-            <div>
-              <a
-                href={`/userprofile/${selectedItem.owner_id}`}
-                className="text-dark small text-decoration-none"
-              >
-                {selectedItem.owner?.first_name} {selectedItem.owner?.last_name}
-              </a>
-            </div>
-          </div>
-          <div className="rating">
-            <span>Rating:</span>
-            {"★".repeat(Math.floor(selectedItem.userRating))}
-            {"☆".repeat(5 - Math.floor(selectedItem.userRating))}
-          </div>
-          <button className="btn btn-rectangle secondary me-2">
-            View Listings
-          </button>
-          <button className="btn btn-rectangle secondary me-2">
-            View Profile
-          </button>
-        </div>
-      </div>
+      <UserToolbar
+        userProfilePic={selectedItem.userProfilePic || userProfilePicture}
+        user={selectedItem?.owner}
+        isProfileVisit={isProfileVisit}
+        userRating={selectedItem.userRating}
+        buttonText1="View Listings"
+        buttonText2="View Profile"
+        activeTab="Listings"
+      />
 
       {/* Item Specifications Section */}
       <div className="item-specs mt-5 p-4 bg-white">

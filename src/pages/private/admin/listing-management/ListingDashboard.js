@@ -71,7 +71,6 @@ const ListingDashboard = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Function to filter listings based on search query
   const getFilteredData = () => {
     let filteredData = originalData;
 
@@ -88,16 +87,20 @@ const ListingDashboard = () => {
           `${listing.owner.first_name} ${listing.owner.last_name}`.toLowerCase();
         const normalizedListingName = listing.listing_name.toLowerCase();
         const normalizedCategory = listing.category.toLowerCase();
+        const normalizedDateAdded = formatDate(
+          listing.created_at
+        ).toLowerCase(); // Format the date and convert to lowercase
 
         return (
-          normalizedListingName.includes(normalizedSearchQuery) ||
-          normalizedCategory.includes(normalizedSearchQuery) ||
-          fullOwnerName.includes(normalizedSearchQuery)
+          normalizedListingName.includes(normalizedSearchQuery) || // Title search
+          normalizedCategory.includes(normalizedSearchQuery) || // Category search
+          fullOwnerName.includes(normalizedSearchQuery) || // Owner search
+          normalizedDateAdded.includes(normalizedSearchQuery) // Date Added search
         );
       });
     }
 
-    // Apply Category filter
+    // Apply Category filter (if implemented in filterOptions)
     if (filterOptions["Category"]) {
       filteredData = filteredData.filter(
         (listing) => listing.category === filterOptions["Category"]

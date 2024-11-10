@@ -23,7 +23,6 @@ const StudentProtectedRoute = ({ allowedRoles, children }) => {
   }
 
   const { role } = studentUser;
-  console.log(studentUser)
 
   if (!allowedRoles.includes(role)) {
     return <Navigate to="/" />;

@@ -99,14 +99,17 @@ const UserOverview = () => {
       filteredData = filteredData.filter((user) => {
         const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
         const college = user.student?.college.toLowerCase() || "";
+        const normalizedDateAdded = formatDate(user.createdAt).toLowerCase(); // Normalize the Date Added to lowercase
 
         return (
-          fullName.includes(normalizedSearchQuery) ||
-          college.includes(normalizedSearchQuery)
+          fullName.includes(normalizedSearchQuery) || // Search for Name
+          college.includes(normalizedSearchQuery) || // Search for College
+          normalizedDateAdded.includes(normalizedSearchQuery) // Search for Date Added
         );
       });
     }
 
+    // Apply filters for College and Status (if set)
     if (filterOptions["College"]) {
       filteredData = filteredData.filter(
         (user) => user.student?.college === filterOptions["College"]

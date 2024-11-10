@@ -3,6 +3,7 @@ import moreImg from "../../assets/images/icons/moreImg.png";
 import "./itemSaleStyles.css";
 import { useNavigate } from "react-router-dom";
 import itemForSaleIcon from "../../assets/images/card/sale.png";
+import item1 from "../../assets/images/item/item_1.jpg";
 
 const ItemSale = ({ items, title }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -67,7 +68,7 @@ const ItemSale = ({ items, title }) => {
                     onMouseLeave={handleSaleMouseLeave}
                   />
                   <div className="card-img-top">
-                    <img src={item.image} alt="Card" />
+                    <img src={item1} alt="Card" />
                   </div>
                   <div className="tags">
                     <ul className="tag-list">

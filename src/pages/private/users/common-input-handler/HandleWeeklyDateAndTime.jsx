@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export const HandleWeeklyDateAndTime = ({ listingData, setListingData }) => {
+export const HandleWeeklyDateAndTime = ({ data, setData }) => {
   const [weeklyDays, setWeeklyDays] = useState([]);
   const [activeWeeklyDay, setActiveWeeklyDay] = useState(null);
   const [weeklyRentalTimes, setWeeklyRentalTimes] = useState({});
@@ -25,8 +25,8 @@ export const HandleWeeklyDateAndTime = ({ listingData, setListingData }) => {
       }
     });
 
-    setListingData((prev) => ({ ...prev, dateAndTime }));
-  }, [weeklyRentalTimes, weeklyDays, dateRange, setListingData]);
+    setData((prev) => ({ ...prev, dateAndTime }));
+  }, [weeklyRentalTimes, weeklyDays, dateRange, setData]);
 
   const handleDayChange = (day) => {
     setWeeklyDays((prev) =>

@@ -11,4 +11,7 @@ router.put('/:id', PostContoller.updatePost);
 router.delete('/:id', PostContoller.deletePost);
 router.patch('/:id', PostContoller.updateStatus);
 
+// get by query [post?query=value]
+router.get('/approved/user', PostContoller.getApprovedPostsByUser);
+
 module.exports = router;

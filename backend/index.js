@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2");
 const sequelize = require("./config/database");
+
+// routes
 const studentAuthRoutes = require("./routes/StudentAuthRoute");
 const listingRoutes = require("./routes/ListingRoute");
 const postRoutes = require("./routes/PostRoute");
@@ -12,6 +14,15 @@ const itemForSaleRoutes = require("./routes/ItemForSaleRoute");
 const rentalTransactionRoutes = require("./routes/RentalTransactionRoute");
 const http = require("http");
 const { initializeSocket } = require("./socket");
+
+// cron
+const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
+const cron = require("node-cron");
+
+// cron.schedule("1 * * * * * *", async () => {
+//   console.log("Running cron job to auto-decline expired rentals...");
+//   await autoDeclineExpired(); // Call the function to decline expired rentals
+// });
 
 dotenv.config();
 

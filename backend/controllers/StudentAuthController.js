@@ -141,7 +141,6 @@ exports.loginStudent = async (req, res) => {
       JWT_SECRET
     );
 
-    // console.log(token);
 
     res
       .status(200)
@@ -174,7 +173,6 @@ exports.googleLogin = async (req, res) => {
       { userId: user.user_id, role: user.role },
       JWT_SECRET
     );
-    // console.log(token);
 
     res
       .status(200)
@@ -191,7 +189,6 @@ exports.googleLogin = async (req, res) => {
 };
 
 exports.getUserInformation = async (req, res) => {
-  console.log("print this", req.params.userId);
   const userId = req.params.userId;
   try {
     const student = await Student.findOne({ where: { user_id: userId } });
@@ -243,7 +240,6 @@ exports.userChangePassword = async (req, res) => {
     }
 
     const user = await User.findByPk(student.user_id);
-    // console.log(user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

@@ -11,4 +11,8 @@ router.put('/:id', ItemForSaleController.updateItemForSale);
 router.delete('/:id', ItemForSaleController.deleteItemForSale);
 router.patch('/:id', ItemForSaleController.updateStatus);
 
+// get by query [item-for-sale?query=value]
+router.get('/approved/user', ItemForSaleController.getApprovedItemsForSaleByUser);
+
+
 module.exports = router;

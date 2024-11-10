@@ -41,6 +41,55 @@ exports.getAllApprovedPost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get all approved posts for a specific user (by userId)
+exports.getApprovedPostsByUser = async (req, res) => {
+  try {
+    // Extract userId from query params or route parameters
+    const { userId } = req.query; // or req.params if userId is in URL params
+
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const items = await models.Post.findAll({
+      where: {
+        status: "approved",
+        renter_id: userId, // Filter by userId
+      },
+      include: [
+        {
+          model: models.RentalDate,
+          as: "rental_dates",
+          required: false,
+          where: {
+            item_type: "post",
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              required: false,
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "renter",
+          attributes: ["first_name", "last_name"],
+        },
+      ],
+    });
+
+    // Return the filtered listings
+    res.status(200).json(items);
+  } catch (error) {
+    console.error("Error fetching listings:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get all posts with rental dates and durations
 exports.getAllPosts = async (req, res) => {
   try {
@@ -199,7 +248,6 @@ exports.deletePost = async (req, res) => {
 
 // Update the status of a listing
 exports.updateStatus = async (req, res) => {
-  console.log(req.body)
   const { status } = req.body; 
 
   try {

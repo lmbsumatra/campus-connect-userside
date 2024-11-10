@@ -26,6 +26,11 @@ module.exports = (sequelize) => {
             type: DataTypes.TIME,
             allowNull: false,
         },
+        status: { 
+            type: DataTypes.ENUM('available', 'rented'), 
+            allowNull: false,
+            defaultValue: 'available', 
+        },
     }, {
         sequelize,
         modelName: 'Duration',

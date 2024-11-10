@@ -2,7 +2,6 @@ const { models } = require("../models/index");
 const { Op } = require("sequelize");
 
 exports.createRentalTransaction = async (req, res) => {
-  console.log(req.body);
   try {
     const {
       owner_id,
@@ -26,6 +25,14 @@ exports.createRentalTransaction = async (req, res) => {
       });
     }
 
+    // Check if owner_id is the same as renter_id
+    if (owner_id === renter_id) {
+      return res.status(400).json({
+        error: "The owner cannot rent the item to themselves.",
+      });
+    }
+
+    // Create the rental transaction
     const rentalData = {
       owner_id,
       renter_id,
@@ -37,7 +44,69 @@ exports.createRentalTransaction = async (req, res) => {
     };
 
     const rental = await models.RentalTransaction.create(rentalData);
-    console.log(rental);
+
+    // After creating the rental transaction, update the duration's status to 'requested'
+    const duration = await models.RentalDuration.findOne({
+      where: {
+        date_id: rental_date_id,
+        id: rental_time_id, // Assuming rental_time_id corresponds to Duration ID
+      },
+    });
+
+    if (duration) {
+      // Set the status to 'requested'
+      await duration.update({ status: "requested" });
+
+      // Check if all durations for this date are rented
+      const allDurationsRented = await models.RentalDuration.count({
+        where: {
+          date_id: rental_date_id,
+          status: { [Op.ne]: "available" }, // Check for rented or requested
+        },
+      });
+
+      const totalDurationsForDate = await models.RentalDuration.count({
+        where: {
+          date_id: rental_date_id,
+        },
+      });
+
+      if (allDurationsRented === totalDurationsForDate) {
+        // Update the date status to 'rented'
+        const rentalDate = await models.RentalDate.findByPk(rental_date_id);
+        if (rentalDate) {
+          await rentalDate.update({ status: "rented" });
+        }
+      }
+
+      // Check if all dates for the item are rented
+      const allDatesRented = await models.RentalDate.count({
+        where: {
+          item_id: item_id,
+          status: "rented",
+        },
+      });
+
+      const totalDatesForItem = await models.RentalDate.count({
+        where: {
+          item_id: item_id,
+        },
+      });
+
+      if (allDatesRented === totalDatesForItem) {
+        // Update the item status to 'unavailable'
+        const item = await models.Listing.findByPk(item_id);
+        if (item) {
+          await item.update({ status: "unavailable" });
+        }
+      }
+    } else {
+      return res.status(404).json({
+        error: "The specified rental duration was not found.",
+      });
+    }
+
+    // Respond with the created rental transaction
     res.status(201).json(rental);
   } catch (error) {
     console.error("Error creating rental transaction:", error);
@@ -155,6 +224,7 @@ exports.getTransactionsByUserId = async (req, res) => {
           attributes: ["id", "rental_time_from", "rental_time_to"],
         },
       ],
+      order: [["createdAt", "DESC"]], // Order by createdAt in descending order
     });
 
     // If no rentals are found, provide a detailed message
@@ -226,7 +296,6 @@ exports.deleteRentalTransaction = async (req, res) => {
 exports.acceptRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body;
-  console.log(id, userId);
   try {
     const rental = await models.RentalTransaction.findByPk(id);
 
@@ -252,7 +321,6 @@ exports.acceptRentalTransaction = async (req, res) => {
 exports.handOverRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);
@@ -299,7 +367,6 @@ exports.handOverRentalTransaction = async (req, res) => {
 exports.returnRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);
@@ -347,7 +414,6 @@ exports.returnRentalTransaction = async (req, res) => {
 exports.completeRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);
@@ -395,7 +461,6 @@ exports.completeRentalTransaction = async (req, res) => {
 exports.declineRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body;
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);
@@ -422,7 +487,6 @@ exports.declineRentalTransaction = async (req, res) => {
 exports.cancelRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body;
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);

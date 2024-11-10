@@ -35,7 +35,6 @@ const AdminChangePassword = ({ onClose }) => {
 
       if (response.ok) {
         setSuccessMessage("Password changed successfully.");
-        console.log("Success Message: ", successMessage); // Log here
         setTimeout(() => {
           onClose(); // Close modal after showing the success message
         }, 2000);

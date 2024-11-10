@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import item1 from "../../assets/images/item/item_1.jpg";
 
 const ItemList = ({ listings, title }) => {
-  console.log(listings);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
   const navigate = useNavigate();
