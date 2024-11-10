@@ -97,7 +97,14 @@ const ListingDashboard = () => {
       });
     }
 
-    // Apply filters for status or other columns
+    // Apply Category filter
+    if (filterOptions["Category"]) {
+      filteredData = filteredData.filter(
+        (listing) => listing.category === filterOptions["Category"]
+      );
+    }
+
+    // Apply Status filter
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(
         (listing) => listing.status === filterOptions["Status"]

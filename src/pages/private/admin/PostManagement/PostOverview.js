@@ -74,7 +74,6 @@ const PostDashboard = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Apply filters first
   const getFilteredData = () => {
     let filteredData = originalData;
 
@@ -101,13 +100,14 @@ const PostDashboard = () => {
       });
     }
 
-    // Apply filters from the filter options (e.g., Status, Category)
+    // Apply Category filter
     if (filterOptions["Category"]) {
       filteredData = filteredData.filter(
         (post) => post.category === filterOptions["Category"]
       );
     }
 
+    // Apply Status filter
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(
         (post) => post.status === filterOptions["Status"]
@@ -117,7 +117,6 @@ const PostDashboard = () => {
     return filteredData;
   };
 
-  // Apply sorting on filtered data
   const sortedData = () => {
     let sorted = [...getFilteredData()];
 
@@ -136,6 +135,20 @@ const PostDashboard = () => {
             ? new Date(b.created_at) - new Date(a.created_at)
             : new Date(a.created_at) - new Date(b.created_at)
         );
+      }
+
+      // Add sorting logic for Renter column
+      if (sortOptions["Renter"]) {
+        sorted = sorted.sort((a, b) => {
+          const renterA =
+            `${a.renter?.first_name} ${a.renter?.last_name}`.toLowerCase();
+          const renterB =
+            `${b.renter?.first_name} ${b.renter?.last_name}`.toLowerCase();
+
+          return sortOptions["Renter"] === "asc"
+            ? renterA.localeCompare(renterB)
+            : renterB.localeCompare(renterA);
+        });
       }
     }
 

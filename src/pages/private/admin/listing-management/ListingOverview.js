@@ -6,6 +6,7 @@ import { formatDate } from "../../../../utils/dateFormat";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import { useNavigate } from "react-router-dom";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
+import { ItemStatus } from "../../../../utils/Status";
 
 const ListingOverview = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,20 +49,8 @@ const ListingOverview = () => {
   };
 
   const getStatusInfo = (status) => {
-    switch (status) {
-      case "posted":
-        return { label: "Posted", className: "bg-success text-white" };
-      case "flagged":
-        return { label: "Flagged", className: "bg-warning text-dark" };
-      case "offered":
-        return { label: "Offered", className: "bg-info text-white" };
-      case "pending":
-        return { label: "Pending", className: "bg-secondary text-white" };
-      case "removed":
-        return { label: "Removed", className: "bg-danger text-white" };
-      default:
-        return { label: "Unknown", className: "bg-light text-dark" };
-    }
+    const { label, className } = ItemStatus(status);
+    return { label, className };
   };
 
   const handleSortChange = (column, order) => {

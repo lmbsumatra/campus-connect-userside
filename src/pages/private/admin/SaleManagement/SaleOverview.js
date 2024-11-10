@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TableComponent from "../../../../components/Table/TableComponent";
-import "./forSaleManagement.css";
+import "./forSaleManagement.css"; // Make sure this CSS file has similar styles to postDashboard.css
 import useFetchAllItemsForSaleData from "../../../../utils/FetchAllItemsForSaleData";
 import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
@@ -29,12 +29,15 @@ const SaleOverview = () => {
   const { items, error, loading } = useFetchAllItemsForSaleData();
   const navigate = useNavigate();
 
-  // Set original data when items are fetched
   useEffect(() => {
     if (items.length) {
       setOriginalData(items);
     }
   }, [items]);
+
+  // Handle Loading and Errors
+  if (loading) return <p>Loading items...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   const handleView = (itemId) => {
     navigate(`/admin/sales/item-approval/${itemId}`);
@@ -57,43 +60,34 @@ const SaleOverview = () => {
     if (order === "default") {
       setSortOptions({});
     } else {
-      setSortOptions((prevSortOptions) => {
-        const newSortOptions = { [column]: order };
-        return newSortOptions;
-      });
+      setSortOptions({ [column]: order });
     }
   };
 
   const handleFilterChange = (column, value) => {
-    setFilterOptions((prevFilters) => {
-      return { ...prevFilters, [column]: value };
-    });
+    setFilterOptions({ ...filterOptions, [column]: value });
   };
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Apply filters first
   const getFilteredData = () => {
     let filteredData = originalData;
 
-    // Apply search filter
     if (searchQuery) {
-      // Normalize the search query by trimming and reducing multiple spaces to a single space
       const normalizedSearchQuery = searchQuery
         .trim()
-        .replace(/\s+/g, " ") // Replace multiple spaces with a single space
-        .toLowerCase(); // Convert search query to lowercase
+        .replace(/\s+/g, " ")
+        .toLowerCase();
 
       filteredData = filteredData.filter((item) => {
-        // Normalize the fields (post_item_name, category, and seller's name)
-        const normalizedPostItemName = item.post_item_name.toLowerCase();
-        const normalizedCategory = item.category.toLowerCase();
-        const fullSellerName =
-          `${item.seller.first_name} ${item.seller.last_name}`.toLowerCase();
+        const normalizedPostItemName = item.post_item_name?.toLowerCase() || "";
+        const normalizedCategory = item.category?.toLowerCase() || "";
+        const fullSellerName = `${item.seller?.first_name || ""} ${
+          item.seller?.last_name || ""
+        }`.toLowerCase();
 
-        // Check if any of the fields match the normalized search query
         return (
           normalizedPostItemName.includes(normalizedSearchQuery) ||
           normalizedCategory.includes(normalizedSearchQuery) ||
@@ -102,7 +96,6 @@ const SaleOverview = () => {
       });
     }
 
-    // Apply filters from the filter options (e.g., Status, Category)
     if (filterOptions["Category"]) {
       filteredData = filteredData.filter(
         (item) => item.category === filterOptions["Category"]
@@ -118,7 +111,6 @@ const SaleOverview = () => {
     return filteredData;
   };
 
-  // Apply sorting on filtered data
   const sortedData = () => {
     let sorted = [...getFilteredData()];
 
@@ -126,8 +118,8 @@ const SaleOverview = () => {
       if (sortOptions["Title"]) {
         sorted = sorted.sort((a, b) =>
           sortOptions["Title"] === "asc"
-            ? a.post_item_name.localeCompare(b.post_item_name)
-            : b.post_item_name.localeCompare(a.post_item_name)
+            ? a.item_for_sale_name.localeCompare(b.item_for_sale_name)
+            : b.item_for_sale_name.localeCompare(a.item_for_sale_name)
         );
       }
 
@@ -138,15 +130,26 @@ const SaleOverview = () => {
             : new Date(a.created_at) - new Date(b.created_at)
         );
       }
+
+      if (sortOptions["Renter"]) {
+        sorted = sorted.sort((a, b) => {
+          const renterA =
+            `${a.seller.first_name} ${a.seller.last_name}`.toLowerCase();
+          const renterB =
+            `${b.seller.first_name} ${b.seller.last_name}`.toLowerCase();
+
+          return sortOptions["Renter"] === "asc"
+            ? renterA.localeCompare(renterB)
+            : renterB.localeCompare(renterA);
+        });
+      }
     }
 
     return sorted;
   };
 
-  // Get the sorted and filtered data
   const sortedFilteredData = sortedData();
 
-  // Pagination logic
   const totalItems = sortedFilteredData.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -159,7 +162,7 @@ const SaleOverview = () => {
     const { label, className } = getStatusInfo(item.status);
     return [
       <div className="thumbnail-placeholder"></div>,
-      item.post_item_name,
+      item.item_for_sale_name,
       item.category,
       <>
         {item.seller.first_name} {item.seller.last_name}
@@ -193,19 +196,20 @@ const SaleOverview = () => {
     <div className="admin-content-container">
       <div className="row">
         <div className="col-lg-12">
-          <div className="recent-posts-header p-3 mb-3">
-            <h4>Recent Sales</h4>
-
+          {" "}
+          {/* Adjusted to full-width like PostDashboard */}
+          <div className="recent-items-header p-3 mb-3">
+            {" "}
+            {/* Updated class name */}
+            <h4>Recent Sale</h4>
             {/* Loading or Error Message */}
-            {loading && <p>Loading posts...</p>}
+            {loading && <p>Loading items...</p>}
             {error && <p>Error: {error}</p>}
-
             {/* Search Bar Component */}
             <SearchBarComponent
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
             />
-
             {/* Table Component */}
             <TableComponent
               headers={headers}
@@ -213,7 +217,6 @@ const SaleOverview = () => {
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
             />
-
             {/* Pagination Component */}
             <PaginationComponent
               currentPage={currentPage}

@@ -5,16 +5,16 @@ import useFetchAllItemsForSaleData from "../../../../utils/FetchAllItemsForSaleD
 import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
 import { ItemStatus } from "../../../../utils/Status";
-import SearchBarComponent from "../../../../components/Search/SearchBarComponent"; // Import SearchBar
-import PaginationComponent from "../../../../components/Pagination/PaginationComponent"; // Import Pagination Component
+import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
+import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 
 const ForSaleManagement = () => {
-  const [searchQuery, setSearchQuery] = useState(""); // Search query state
-  const [sortOptions, setSortOptions] = useState({}); // Sort options state
-  const [filterOptions, setFilterOptions] = useState({}); // Filter options state
-  const [currentPage, setCurrentPage] = useState(1); // Current page state
-  const [itemsPerPage] = useState(10); // Items per page
-  const [originalData, setOriginalData] = useState([]); // State for storing original data
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOptions, setSortOptions] = useState({});
+  const [filterOptions, setFilterOptions] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [originalData, setOriginalData] = useState([]);
 
   const headers = [
     "Thumbnail",
@@ -71,26 +71,24 @@ const ForSaleManagement = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Function to filter items based on search query
   const getFilteredData = () => {
     let filteredData = originalData;
 
-    // Apply search filter
     if (searchQuery) {
-      // Normalize the search query by trimming and reducing multiple spaces to a single space
       const normalizedSearchQuery = searchQuery
         .trim()
-        .replace(/\s+/g, " ") // Replace multiple spaces with a single space
-        .toLowerCase(); // Convert search query to lowercase
+        .replace(/\s+/g, " ")
+        .toLowerCase();
 
       filteredData = filteredData.filter((item) => {
-        // Normalize the fields (post_item_name, category, and seller's name)
-        const normalizedPostItemName = item.post_item_name.toLowerCase();
-        const normalizedCategory = item.category.toLowerCase();
-        const fullSellerName =
-          `${item.seller.first_name} ${item.seller.last_name}`.toLowerCase();
+        // Normalize and check each field
+        const normalizedPostItemName = item.post_item_name?.toLowerCase() || "";
+        const normalizedCategory = item.category?.toLowerCase() || "";
+        const fullSellerName = `${item.seller?.first_name || ""} ${
+          item.seller?.last_name || ""
+        }`.toLowerCase();
 
-        // Check if any of the fields match the normalized search query
+        // Return true if any field contains the search query
         return (
           normalizedPostItemName.includes(normalizedSearchQuery) ||
           normalizedCategory.includes(normalizedSearchQuery) ||
@@ -99,7 +97,12 @@ const ForSaleManagement = () => {
       });
     }
 
-    // Apply filters for status or other columns
+    if (filterOptions["Category"]) {
+      filteredData = filteredData.filter(
+        (item) => item.category === filterOptions["Category"]
+      );
+    }
+
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(
         (item) => item.status === filterOptions["Status"]
@@ -128,6 +131,19 @@ const ForSaleManagement = () => {
             : new Date(a.created_at) - new Date(b.created_at)
         );
       }
+
+      if (sortOptions["Renter"]) {
+        sorted = sorted.sort((a, b) => {
+          const renterA =
+            `${a.seller.first_name} ${a.seller.last_name}`.toLowerCase();
+          const renterB =
+            `${b.seller.first_name} ${b.seller.last_name}`.toLowerCase();
+
+          return sortOptions["Renter"] === "asc"
+            ? renterA.localeCompare(renterB)
+            : renterB.localeCompare(renterA);
+        });
+      }
     }
 
     return sorted;
@@ -135,7 +151,6 @@ const ForSaleManagement = () => {
 
   const sortedFilteredData = sortedData();
 
-  // Pagination logic
   const totalItems = sortedFilteredData.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -181,26 +196,19 @@ const ForSaleManagement = () => {
   return (
     <div className="admin-content-container">
       <div className="row">
-        {/* Left Side: Recent Items for Sale */}
         <div className="col-lg-8">
           <div className="recent-items-header p-3 mb-3">
             <h4>Recent Sale</h4>
-
-            {/* Search Bar Component */}
             <SearchBarComponent
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
             />
-
-            {/* Table Component */}
             <TableComponent
               headers={headers}
               data={data}
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
             />
-
-            {/* Pagination Component */}
             <PaginationComponent
               currentPage={currentPage}
               totalPages={totalPages}
@@ -208,10 +216,7 @@ const ForSaleManagement = () => {
             />
           </div>
         </div>
-
-        {/* Right Side: Widgets */}
         <div className="col-lg-4">
-          {/* New Sale Widget */}
           <div className="mb-3 p-3 bg-white rounded shadow-sm">
             <h5>New Sale</h5>
             <div className="new-posts d-flex">
@@ -221,8 +226,6 @@ const ForSaleManagement = () => {
               <button className="btn btn-light btn-sm">+</button>
             </div>
           </div>
-
-          {/* Listing Growth Widget */}
           <div className="mb-3 p-3 bg-white rounded shadow-sm">
             <h5>Listing Growth</h5>
             <div className="d-flex align-items-center">
@@ -231,8 +234,6 @@ const ForSaleManagement = () => {
             </div>
             <small className="text-muted">Monthly Growth</small>
           </div>
-
-          {/* Top Sale Widget */}
           <div className="p-3 bg-white rounded shadow-sm">
             <h5>Top Sale</h5>
             <div className="top-posts">

@@ -59,11 +59,12 @@ const TableComponent = ({
             onChange={(e) => onFilterChange(header, e.target.value)}
           >
             <option value="">All</option>
-            <option value="Posted">Posted</option>
-            <option value="Pending">Pending</option>
-            <option value="Removed">Removed</option>
-            <option value="Flagged">Flagged</option>
-            <option value="Offered">Offered</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="declined">Declined</option>
+            <option value="removed">Removed</option>
+            <option value="revoked">Revoked</option>
+            <option value="flagged">Flagged</option>
           </select>
         );
       default:
