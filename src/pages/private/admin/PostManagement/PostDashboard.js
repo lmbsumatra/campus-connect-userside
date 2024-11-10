@@ -83,16 +83,18 @@ const PostDashboard = () => {
     // Apply search filter
     if (normalizedSearchQuery) {
       filteredData = filteredData.filter((post) => {
-        // Normalize the fields
+        // Normalize the fields for comparison
         const normalizedPostItemName = post.post_item_name.toLowerCase();
         const normalizedCategory = post.category.toLowerCase();
         const fullRenterName =
           `${post.renter?.first_name} ${post.renter?.last_name}`.toLowerCase();
+        const normalizedDateAdded = formatDate(post.created_at).toLowerCase(); // Format the date and convert to lowercase
 
         return (
-          normalizedPostItemName.includes(normalizedSearchQuery) ||
-          normalizedCategory.includes(normalizedSearchQuery) ||
-          fullRenterName.includes(normalizedSearchQuery)
+          normalizedPostItemName.includes(normalizedSearchQuery) || // Title search
+          normalizedCategory.includes(normalizedSearchQuery) || // Category search
+          fullRenterName.includes(normalizedSearchQuery) || // Renter search
+          normalizedDateAdded.includes(normalizedSearchQuery) // Date Added search
         );
       });
     }

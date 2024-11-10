@@ -79,7 +79,6 @@ const UserDashboard = () => {
   };
 
   // Function to filter users based on search query
-
   const getFilteredData = () => {
     let filteredData = originalData;
 
@@ -94,27 +93,26 @@ const UserDashboard = () => {
       filteredData = filteredData.filter((user) => {
         const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
         const college = user.student?.college.toLowerCase() || "";
+        const normalizedDateAdded = formatDate(user.createdAt).toLowerCase(); // Normalize the Date Added to lowercase
 
         return (
-          fullName.includes(normalizedSearchQuery) ||
-          college.includes(normalizedSearchQuery)
+          fullName.includes(normalizedSearchQuery) || // Search for Name
+          college.includes(normalizedSearchQuery) || // Search for College
+          normalizedDateAdded.includes(normalizedSearchQuery) // Search for Date Added
         );
       });
     }
 
-    // Apply filters for status or other columns
-    if (filterOptions["Status"]) {
+    // Apply filters for College and Status (if set)
+    if (filterOptions["College"]) {
       filteredData = filteredData.filter(
-        (user) => user.status === filterOptions["Status"]
+        (user) => user.student?.college === filterOptions["College"]
       );
     }
 
-    // Apply the filter for "College" column if present
-    if (filterOptions["College"]) {
-      filteredData = filteredData.filter((user) =>
-        user.student?.college
-          .toLowerCase()
-          .includes(filterOptions["College"].toLowerCase())
+    if (filterOptions["Status"]) {
+      filteredData = filteredData.filter(
+        (user) => user.status === filterOptions["Status"]
       );
     }
 
@@ -210,6 +208,10 @@ const UserDashboard = () => {
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
             />
+
+            {/* Show loading or error message */}
+            {loading && <p>Loading ...</p>}
+            {error && <p>Error: {error}</p>}
 
             {/* Pagination Component */}
             <PaginationComponent
