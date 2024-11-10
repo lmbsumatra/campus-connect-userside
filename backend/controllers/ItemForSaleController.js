@@ -200,6 +200,32 @@ exports.createItemForSale = async (req, res) => {
     }
 
     await transaction.commit();
+    // Fetch the owner's name using the owner_id from the listing
+    const seller = await models.User.findOne({
+      where: { user_id: req.body.item.seller_id }, 
+      // attributes: ["user_id", "first_name", "last_name"], 
+    });
+
+    console.log(seller)
+
+    // Notification after successful commit
+    const notification = {
+      type: "new-listing",
+      title: "New Listing Created",
+      message: `created new listing "${item.item_for_sale_name}"`,
+      timestamp: new Date(),
+      listingId: item.id,
+      category: item.category,
+      owner: {
+        id: seller.user_id,  // Use user_id here
+        name: `${seller.first_name} ${seller.last_name}` || "Unknown", 
+      }
+    }    
+    
+    console.log(notification)
+
+    // Call the notifyAdmins function from socket.js
+    req.notifyAdmins(notification)
     res.status(201).json(item);
   } catch (error) {
     await transaction.rollback();

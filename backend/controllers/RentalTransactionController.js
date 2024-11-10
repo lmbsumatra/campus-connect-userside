@@ -491,21 +491,88 @@ exports.cancelRentalTransaction = async (req, res) => {
   try {
     const rental = await models.RentalTransaction.findByPk(id);
 
-    if (!rental)
+    if (!rental) {
       return res.status(404).json({ error: "Rental transaction not found." });
-    if (rental.renter_id !== userId)
+    }
+
+    if (rental.renter_id !== userId) {
       return res
         .status(403)
         .json({ error: "Only the renter can cancel this transaction." });
-    if (rental.status !== "Requested")
-      return res
-        .status(400)
-        .json({ error: "Only Requested rentals can be cancelled." });
+    }
 
-    rental.status = "Cancelled"; // Update status to Cancelled
+    if (rental.status !== "Requested") {
+      return res.status(400).json({ error: "Only Requested rentals can be cancelled." });
+    }
+
+    // Retrieve rental date and time info
+    const { rental_date_id, rental_time_id, item_id } = rental;
+
+    // Set rental status to 'Cancelled'
+    rental.status = "Cancelled";
+
+    // Get the rental duration and revert its status to 'available'
+    const duration = await models.RentalDuration.findOne({
+      where: {
+        date_id: rental_date_id,
+        id: rental_time_id,
+      },
+    });
+
+    if (duration) {
+      await duration.update({ status: "available" });
+
+      // Check if all durations for this date are now available
+      const allDurationsAvailable = await models.RentalDuration.count({
+        where: {
+          date_id: rental_date_id,
+          status: "available",
+        },
+      });
+
+      const totalDurationsForDate = await models.RentalDuration.count({
+        where: { date_id: rental_date_id },
+      });
+
+      if (allDurationsAvailable === totalDurationsForDate) {
+        // Update the date status to 'available' if all durations are free
+        const rentalDate = await models.RentalDate.findByPk(rental_date_id);
+        if (rentalDate) {
+          await rentalDate.update({ status: "available" });
+        }
+      }
+
+      // Check if all dates for the item are now available
+      const allDatesAvailable = await models.RentalDate.count({
+        where: {
+          item_id: item_id,
+          status: "available",
+        },
+      });
+
+      const totalDatesForItem = await models.RentalDate.count({
+        where: { item_id: item_id },
+      });
+
+      if (allDatesAvailable === totalDatesForItem) {
+        // Update the item status to 'available'
+        const item = await models.Listing.findByPk(item_id);
+        if (item) {
+          await item.update({ status: "available" });
+        }
+      }
+    } else {
+      return res.status(404).json({ error: "Rental duration not found." });
+    }
+
+    // Save the rental transaction with the updated status
     await rental.save();
+
+    // Return the updated rental data
     res.json(rental);
   } catch (error) {
+    console.error("Error canceling rental transaction:", error);
     res.status(500).json({ error: error.message });
   }
 };
+

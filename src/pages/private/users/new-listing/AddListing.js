@@ -126,6 +126,8 @@ const AddListing = () => {
             rental_dates: listingData.dateAndTime,
           };
 
+          console.log(payload)
+
       const response = await axios.post(endpoint, payload);
 
       // Send notification after successful creation
