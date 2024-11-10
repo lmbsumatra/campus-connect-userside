@@ -55,11 +55,21 @@ const AdminNavBar = () => {
 
   // Socket connection and event handling
   useEffect(() => {
+     // Establish socket connection
     socketRef.current = io("http://localhost:3001");
 
+    // Emit the 'admin-connect' event to notify the server this admin is connected
     socketRef.current.emit("admin-connect");
 
+    // Listen for 'listing notification' from the server
     socketRef.current.on("new-listing-notification", (notification) => {
+      setNotifications((prevNotifications) => [
+        ...prevNotifications,
+        notification,
+      ]);
+    });
+    // Listen for item-for-sale notification from the server
+    socketRef.current.on("new-item-for-sale-notification", (notification) => {
       setNotifications((prevNotifications) => [
         ...prevNotifications,
         notification,
