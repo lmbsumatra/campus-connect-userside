@@ -1,7 +1,7 @@
 const Listing = require("../models/listing/ListingModel");
 const sequelize = require("../config/database");
 const { models } = require("../models/index");
-const {notifyAdmins} = require('../socket')
+const {notifyAdmins} = require('../socket.js')
 
 // Get all approved listing: displayed in home, listings page
 exports.getAllApprovedListing = async (req, res) => {
@@ -137,88 +137,115 @@ exports.createListing = async (req, res, next) => {
   const transaction = await sequelize.transaction();
 
   try {
-    if (!req.body.listing) {
-      throw new Error("Listing data is missing");
+    if (!req.body.listing && !req.body.item) {
+      throw new Error("Listing or Item data is missing");
     }
 
-    req.body.listing.status = "pending";  // Initially setting the listing status to "pending"
-    const listing = await models.Listing.create(req.body.listing, { transaction });
-    console.log("Created listing:", listing);
+    let createdItem;
+    let itemType = 'listing';
 
-    const rentalDates = req.body.rental_dates;
-
-    if (!Array.isArray(rentalDates)) {
-      throw new Error("Rental dates should be an array");
+    // Create listing or item for sale
+    if (req.body.listing) {
+      req.body.listing.status = "pending";  // Initially setting the listing status to "pending"
+      createdItem = await models.Listing.create(req.body.listing, { transaction });
+      itemType = 'listing';
+    } else {
+      createdItem = await models.ItemForSale.create(req.body.item, { transaction });
+      itemType = 'item-for-sale';
     }
+    console.log(`Created ${itemType}:`, createdItem);
 
-    for (const date of rentalDates) {
-      if (!date.date) {
-        throw new Error("Rental date is missing");
-      }
-
-      const rentalDate = await models.RentalDate.create(
-        {
-          item_id: listing.id,
-          date: date.date,
-          item_type: "listing",
-        },
-        { transaction }
-      );
-      console.log("Created rental date:", rentalDate);
-
-      if (date.times && Array.isArray(date.times)) {
-        for (const time of date.times) {
-          if (!time.from || !time.to) {
-            throw new Error("Rental time is missing from or to fields");
-          }
-
-          await models.RentalDuration.create(
-            {
-              date_id: rentalDate.id,
-              rental_time_from: time.from,
-              rental_time_to: time.to,
-            },
-            { transaction }
-          );
+    // Handle rental dates and durations if provided
+    const rentalDates = req.body.rental_dates || [];
+    if (Array.isArray(rentalDates)) {
+      for (const date of rentalDates) {
+        if (!date.date) {
+          throw new Error("Rental date is missing");
         }
-      } else {
-        console.warn(`No times provided for date: ${date.date}`);
+
+        const rentalDate = await models.RentalDate.create(
+          {
+            item_id: createdItem.id,
+            date: date.date,
+            item_type: itemType,
+          },
+          { transaction }
+        );
+        console.log("Created rental date:", rentalDate);
+
+        if (date.times && Array.isArray(date.times)) {
+          for (const time of date.times) {
+            if (!time.from || !time.to) {
+              throw new Error("Rental time is missing from or to fields");
+            }
+
+            await models.RentalDuration.create(
+              {
+                date_id: rentalDate.id,
+                rental_time_from: time.from,
+                rental_time_to: time.to,
+              },
+              { transaction }
+            );
+          }
+        } else {
+          console.warn(`No times provided for date: ${date.date}`);
+        }
       }
     }
+    console.log("Rental dates processed successfully.");
 
+
+    // Commit the transaction
     await transaction.commit();
 
-     // Fetch the owner's name using the owner_id from the listing
-     const owner = await models.User.findOne({
-      where: { user_id: req.body.listing.owner_id }, 
-      attributes: ["user_id", "first_name", "last_name"], 
+    // Get owner info
+    const owner = await models.User.findOne({
+      where: { user_id: req.body.item ? req.body.item.seller_id : req.body.listing.owner_id },
+      attributes: ["user_id", "first_name", "last_name"],
     });
 
-    // Notification after successful commit
+    const ownerName = owner ? `${owner.first_name} ${owner.last_name}` : "Unknown";
+
+    // Create notification object
     const notification = {
-      type: "new-listing",
-      title: "New Listing Created",
-      message: `created new listing "${listing.listing_name}"`,
+      type: itemType === 'item-for-sale' ? "new-item-for-sale" : "new-listing",
+      title: `New ${itemType === 'item-for-sale' ? "Item For Sale" : "Listing"} awaiting approval`,
+      message: `created new ${itemType === 'item-for-sale' ? "item" : "listing"} "${
+        itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name
+      }"`,
       timestamp: new Date(),
-      listingId: listing.id,
-      category: listing.category,
+      listingId: createdItem.id,
+      category: createdItem.category,
       owner: {
-        id: owner.user_id,  // Use user_id here
-        name: `${owner.first_name} ${owner.last_name}` || "Unknown", 
+        id: owner.user_id,
+        name: ownerName,
       }
-    }      
+    };
+    // Just before calling req.notifyAdmins
+    console.log("ItemType:", itemType);
+    console.log("CreatedItem:", {
+      id: createdItem.id,
+      name: itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name,
+     category: createdItem.category
+    });
+    console.log("Owner:", {
+      id: owner.user_id,
+      name: ownerName
+    });
+    console.log("Final notification object:", notification);
+    console.log(notification.type)
+    // Notify admins using socket
+    req.notifyAdmins(notification);  // This should trigger the socket event on the backend
+    console.log("Notification object:", notification);
 
-    // Call the notifyAdmins function from socket.js
-    req.notifyAdmins(notification)
-
-    res.status(201).json(listing);
+    res.status(201).json(createdItem);
   } catch (error) {
-    // Only attempt rollback if the transaction hasn't been committed
     if (transaction.finished !== 'commit') {
       await transaction.rollback();
     }
 
-    console.error("Error creating listing:", {
+    console.error("Error creating listing/item:", {
       message: error.message,
       stack: error.stack,
       body: req.body,
@@ -227,7 +254,7 @@ exports.createListing = async (req, res, next) => {
     res.status(500).json({
       error: "Internal Server Error",
       message: error.message,
-      details: "Failed to create listing. Please check the input data and try again.",
+      details: "Failed to create listing or item. Please check the input data and try again.",
     });
   }
 };

@@ -14,18 +14,46 @@ const Admin = () => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    // Initialize socket connection when the component mounts
-    const newSocket = io("http://localhost:3001"); // Use your backend server URL
+    console.log("Initializing admin socket connection...");
+    const newSocket = io("http://localhost:3001");
     setSocket(newSocket);
-
-    // Listen for new listing notifications
-    newSocket.on("new-listing-notification", (notification) => {
-      // Trigger the toast notification for new listing
-      toast.info(`${notification.title}: ${notification.message}`);
+  
+    console.log("Emitting admin-connect...");
+    newSocket.emit("admin-connect");
+  
+    newSocket.on("connect", () => {
+      console.log("Socket connected with ID:", newSocket.id);
     });
-
+  
+    newSocket.on("new-listing-notification", (notification) => {
+      console.log("Received listing notification in admin:", notification);
+      toast.info(
+        <span>
+          <strong>{notification.title}</strong>: <em>{notification.owner.name}</em> {notification.message}
+        </span>
+      );
+    });
+  
+    newSocket.on("new-item-for-sale-notification", (notification) => {
+      console.log("Received item-for-sale notification in admin:", notification);
+      toast.info(
+        <span>
+          <strong>{notification.title}</strong>: <em>{notification.owner.name}</em> {notification.message}
+        </span>
+      );
+    });
+  
+    newSocket.on("disconnect", () => {
+      console.log("Socket disconnected");
+    });
+  
+    newSocket.on("error", (error) => {
+      console.error("Socket error:", error);
+    });
+  
     return () => {
-      newSocket.disconnect(); // Clean up on component unmount
+      console.log("Cleaning up socket connection...");
+      newSocket.disconnect();
     };
   }, []);
 
@@ -50,7 +78,7 @@ const Admin = () => {
       <main className="w-100">
         <div className="admin-content">
           <AdminNavBar />
-          <ToastContainer position="top-right" autoClose={5000} />
+          <ToastContainer position="bottom-right" autoClose={5000} />
           <Outlet />
         </div>
       </main>
