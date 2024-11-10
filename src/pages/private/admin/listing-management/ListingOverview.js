@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TableComponent from "../../../../components/Table/TableComponent";
 import "./listingDashboard.css";
-import useFetchAllPostsData from "../../../../utils/FetchAllPostsData";
-import { formatDate } from "../../../../utils/dateFormat";
-import SortFilterComponent from "../../../../components/SortAndFilter/SortFilterComponent";
 import useFetchAllListingsData from "../../../../utils/FetchAllListingsData";
+import { formatDate } from "../../../../utils/dateFormat";
+import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import { useNavigate } from "react-router-dom";
+import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 
 const ListingOverview = () => {
-  const [sortOption, setSortOption] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOptions, setSortOptions] = useState({});
+  const [filterOptions, setFilterOptions] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [listingsPerPage] = useState(10);
+  const [originalData, setOriginalData] = useState([]);
 
   const headers = [
     "Thumbnail",
@@ -25,19 +28,23 @@ const ListingOverview = () => {
   const { listings, error, loading } = useFetchAllListingsData();
   const navigate = useNavigate();
 
-  if (loading) return <p>Loading posts...</p>;
-  if (error) return <p>Error: {error}</p>;
+  // useEffect hook to set original data
+  useEffect(() => {
+    if (listings.length) {
+      setOriginalData(listings);
+    }
+  }, [listings]);
 
   const handleView = (listingId) => {
-    navigate(`/admin/listings/listing-approval/${listingId}`)
+    navigate(`/admin/listings/listing-approval/${listingId}`);
   };
 
   const handleEdit = (listingId) => {
-    console.log(`Editing post with ID: ${listingId}`);
+    console.log(`Editing listing with ID: ${listingId}`);
   };
 
   const handleDelete = (listingId) => {
-    console.log(`Deleting post with ID: ${listingId}`);
+    console.log(`Deleting listing with ID: ${listingId}`);
   };
 
   const getStatusInfo = (status) => {
@@ -57,8 +64,111 @@ const ListingOverview = () => {
     }
   };
 
-  // Prepare data for TableComponent
-  const data = listings.map((listing) => {
+  const handleSortChange = (column, order) => {
+    if (order === "default") {
+      setSortOptions({});
+    } else {
+      setSortOptions((prevSortOptions) => {
+        const newSortOptions = { [column]: order };
+        return newSortOptions;
+      });
+    }
+  };
+
+  const handleFilterChange = (column, value) => {
+    setFilterOptions((prevFilters) => {
+      return { ...prevFilters, [column]: value };
+    });
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Apply filters first
+  const getFilteredData = () => {
+    let filteredData = originalData;
+
+    // Normalize the search query by trimming and reducing multiple spaces to a single space
+    const normalizedSearchQuery = searchQuery
+      .trim()
+      .replace(/\s+/g, " ") // Replace multiple spaces with a single space
+      .toLowerCase(); // Make the search query lowercase
+
+    // Apply search filter
+    if (normalizedSearchQuery) {
+      filteredData = filteredData.filter((listing) => {
+        const fullOwnerName =
+          `${listing.owner.first_name} ${listing.owner.last_name}`.toLowerCase();
+        const normalizedListingName = listing.listing_name.toLowerCase();
+        const normalizedCategory = listing.category.toLowerCase();
+
+        return (
+          normalizedListingName.includes(normalizedSearchQuery) ||
+          normalizedCategory.includes(normalizedSearchQuery) ||
+          fullOwnerName.includes(normalizedSearchQuery)
+        );
+      });
+    }
+
+    // Apply Category filter (if implemented in filterOptions)
+    if (filterOptions["Category"]) {
+      filteredData = filteredData.filter(
+        (listing) => listing.category === filterOptions["Category"]
+      );
+    }
+
+    // Apply Status filter
+    if (filterOptions["Status"]) {
+      filteredData = filteredData.filter(
+        (listing) => listing.status === filterOptions["Status"]
+      );
+    }
+
+    return filteredData;
+  };
+
+  // Filter the data
+  const filteredData = getFilteredData();
+
+  // Apply sorting on filtered data
+  const sortedData = () => {
+    let sorted = [...filteredData];
+
+    if (Object.keys(sortOptions).length > 0) {
+      if (sortOptions["Title"]) {
+        sorted = sorted.sort((a, b) =>
+          sortOptions["Title"] === "asc"
+            ? a.listing_name.localeCompare(b.listing_name)
+            : b.listing_name.localeCompare(a.listing_name)
+        );
+      }
+
+      if (sortOptions["Date Added"]) {
+        sorted = sorted.sort((a, b) =>
+          sortOptions["Date Added"] === "newest"
+            ? new Date(b.created_at) - new Date(a.created_at)
+            : new Date(a.created_at) - new Date(b.created_at)
+        );
+      }
+    }
+
+    return sorted;
+  };
+
+  // Get the sorted data
+  const sortedFilteredData = sortedData();
+
+  // Pagination logic: slice the sorted and filtered data
+  const totalListings = sortedFilteredData.length;
+  const totalPages = Math.ceil(totalListings / listingsPerPage);
+
+  const displayedData = sortedFilteredData.slice(
+    (currentPage - 1) * listingsPerPage,
+    currentPage * listingsPerPage
+  );
+
+  const data = displayedData.map((listing) => {
     const { label, className } = getStatusInfo(listing.status);
     return [
       <div className="thumbnail-placeholder"></div>,
@@ -70,7 +180,7 @@ const ListingOverview = () => {
       formatDate(listing.created_at),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
-      <button
+        <button
           className="btn btn-action view"
           onClick={() => handleView(listing.id)}
         >
@@ -92,61 +202,36 @@ const ListingOverview = () => {
     ];
   });
 
-
-  // Function to filter and sort the posts
-  const getFilteredAndSortedData = () => {
-    let filteredData = listings;
-
-    if (statusFilter) {
-      filteredData = filteredData.filter(listing => listing.status === statusFilter);
-    }
-
-    if (categoryFilter) {
-      filteredData = filteredData.filter(listing => listing.category === categoryFilter);
-    }
-
-    if (sortOption) {
-      filteredData = [...filteredData].sort((a, b) => {
-        switch (sortOption) {
-          case 'title':
-            return a.post_item_name.localeCompare(b.post_item_name);
-          case 'renter':
-            return `${a.renter.first_name} ${a.renter.last_name}`.localeCompare(
-              `${b.renter.first_name} ${b.renter.last_name}`
-            );
-          case 'date':
-            return new Date(a.created_at) - new Date(b.created_at);
-          default:
-            return 0;
-        }
-      });
-    }
-
-    return filteredData;
-  };
-
-
   return (
     <div className="admin-content-container">
       <div className="row">
-        {/* Left Side: Recent Posts */}
         <div className="col-lg-12">
           <div className="recent-posts-header p-3 mb-3">
             <h4>Recent Listings</h4>
 
-            {/* Sorting and Filtering Component */}
-            <SortFilterComponent
-              sortOption={sortOption}
-              onSortChange={setSortOption}
-              statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
-              categoryFilter={categoryFilter}
-              onCategoryFilterChange={setCategoryFilter}
+            {/* Show loading or error message */}
+            {loading && <p>Loading posts...</p>}
+            {error && <p>Error: {error}</p>}
+
+            {/* Search Bar Component */}
+            <SearchBarComponent
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
             />
+
+            {/* Table Component */}
             <TableComponent
               headers={headers}
               data={data}
-              // statusColumnIndex={5}
+              onSortChange={handleSortChange}
+              onFilterChange={handleFilterChange}
+            />
+
+            {/* Pagination Component */}
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           </div>
         </div>

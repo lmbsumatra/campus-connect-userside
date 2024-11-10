@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TableComponent from "../../../../components/Table/TableComponent";
 import "./postDashboard.css";
-import SortFilterComponent from "../../../../components/SortAndFilter/SortFilterComponent"; // Import the SortFilterComponent
-import useFetchAllPostsData from "../../../../utils/FetchAllPostsData";
-import { formatDate } from "../../../../utils/dateFormat";
 import useFetchAllUsersData from "../../../../utils/FetchAllUsersData";
+import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
+import SearchBarComponent from "../../../../components/Search/SearchBarComponent"; // Import the SearchBarComponent
+import PaginationComponent from "../../../../components/Pagination/PaginationComponent"; // Pagination Component
 
 const UserDashboard = () => {
-  const [sortOption, setSortOption] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // Search query state
+  const [sortOptions, setSortOptions] = useState({});
+  const [filterOptions, setFilterOptions] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
+  const [originalData, setOriginalData] = useState([]);
 
   const headers = [
     "Thumbnail",
@@ -24,8 +27,11 @@ const UserDashboard = () => {
   const { users, error, loading } = useFetchAllUsersData();
   const navigate = useNavigate();
 
-  if (loading) return <p>Loading users...</p>;
-  if (error) return <p>Error: {error}</p>;
+  useEffect(() => {
+    if (users.length) {
+      setOriginalData(users);
+    }
+  }, [users]);
 
   const handleView = (userId) => {
     navigate(`/admin/users/user-verification/${userId}`);
@@ -56,8 +62,101 @@ const UserDashboard = () => {
     }
   };
 
-  // Prepare data for TableComponent
-  const data = users.map((user) => {
+  const handleSortChange = (column, order) => {
+    if (order === "default") {
+      setSortOptions({});
+    } else {
+      setSortOptions({ [column]: order });
+    }
+  };
+
+  const handleFilterChange = (column, value) => {
+    setFilterOptions((prev) => ({ ...prev, [column]: value }));
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Function to filter users based on search query
+
+  const getFilteredData = () => {
+    let filteredData = originalData;
+
+    // Normalize the search query by trimming and reducing multiple spaces to a single space
+    const normalizedSearchQuery = searchQuery
+      .trim()
+      .replace(/\s+/g, " ") // Replace multiple spaces with a single space
+      .toLowerCase(); // Make the search query lowercase
+
+    // Apply search query
+    if (normalizedSearchQuery) {
+      filteredData = filteredData.filter((user) => {
+        const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+        const college = user.student?.college.toLowerCase() || "";
+
+        return (
+          fullName.includes(normalizedSearchQuery) ||
+          college.includes(normalizedSearchQuery)
+        );
+      });
+    }
+
+    // Apply filters for status or other columns
+    if (filterOptions["Status"]) {
+      filteredData = filteredData.filter(
+        (user) => user.status === filterOptions["Status"]
+      );
+    }
+
+    // Apply the filter for "College" column if present
+    if (filterOptions["College"]) {
+      filteredData = filteredData.filter((user) =>
+        user.student?.college
+          .toLowerCase()
+          .includes(filterOptions["College"].toLowerCase())
+      );
+    }
+
+    return filteredData;
+  };
+
+  const sortedData = () => {
+    let sorted = [...getFilteredData()];
+
+    if (Object.keys(sortOptions).length > 0) {
+      if (sortOptions["User"]) {
+        sorted = sorted.sort((a, b) =>
+          sortOptions["User"] === "asc"
+            ? a.first_name.localeCompare(b.first_name)
+            : b.first_name.localeCompare(a.first_name)
+        );
+      }
+
+      if (sortOptions["Date Added"]) {
+        sorted = sorted.sort((a, b) =>
+          sortOptions["Date Added"] === "newest"
+            ? new Date(b.createdAt) - new Date(a.createdAt)
+            : new Date(a.createdAt) - new Date(b.createdAt)
+        );
+      }
+    }
+
+    return sorted;
+  };
+
+  const sortedFilteredData = sortedData();
+
+  // Pagination logic
+  const totalItems = sortedFilteredData.length;
+  const totalPages = Math.ceil(totalItems / usersPerPage);
+
+  const displayedData = sortedFilteredData.slice(
+    (currentPage - 1) * usersPerPage,
+    currentPage * usersPerPage
+  );
+
+  const data = displayedData.map((user) => {
     const { label, className } = getStatusInfo(user.status);
     return [
       <div className="thumbnail-placeholder"></div>,
@@ -90,72 +189,43 @@ const UserDashboard = () => {
     ];
   });
 
-  // Function to filter and sort the users
-  const getFilteredAndSortedData = () => {
-    let filteredData = users;
-
-    if (statusFilter) {
-      filteredData = filteredData.filter(
-        (user) => user.status === statusFilter
-      );
-    }
-
-    if (categoryFilter) {
-      filteredData = filteredData.filter(
-        (user) => user.category === categoryFilter
-      );
-    }
-
-    if (sortOption) {
-      filteredData = [...filteredData].sort((a, b) => {
-        switch (sortOption) {
-          case "title":
-            return a.post_item_name.localeCompare(b.post_item_name);
-          case "renter":
-            return `${a.renter.first_name} ${a.renter.last_name}`.localeCompare(
-              `${b.renter.first_name} ${b.renter.last_name}`
-            );
-          case "date":
-            return new Date(a.created_at) - new Date(b.created_at);
-          default:
-            return 0;
-        }
-      });
-    }
-
-    return filteredData;
-  };
   return (
     <div className="admin-content-container">
       <div className="row">
-        {/* Left Side: Recent Posts */}
+        {/* Left Side: Recent Users */}
         <div className="col-lg-8">
-          <div className="recent-posts-header p-3 mb-3">
+          <div className="recent-users-header p-3 mb-3">
             <h4>Recent Users</h4>
 
-            {/* Sorting and Filtering Component */}
-            <SortFilterComponent
-              sortOption={sortOption}
-              onSortChange={setSortOption}
-              statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
-              categoryFilter={categoryFilter}
-              onCategoryFilterChange={setCategoryFilter}
+            {/* Search Bar Component */}
+            <SearchBarComponent
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
             />
+
+            {/* Table Component */}
             <TableComponent
               headers={headers}
               data={data}
-              // statusColumnIndex={5}
+              onSortChange={handleSortChange}
+              onFilterChange={handleFilterChange}
+            />
+
+            {/* Pagination Component */}
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           </div>
         </div>
 
         {/* Right Side: Widgets */}
         <div className="col-lg-4">
-          {/* New Posts Widget */}
+          {/* New Users Widget */}
           <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>New Posts</h5>
-            <div className="new-posts d-flex">
+            <h5>New Users</h5>
+            <div className="new-users d-flex">
               <div className="profile-pic-placeholder me-2"></div>
               <div className="profile-pic-placeholder me-2"></div>
               <div className="profile-pic-placeholder me-2"></div>
@@ -163,9 +233,9 @@ const UserDashboard = () => {
             </div>
           </div>
 
-          {/* Listing Growth Widget */}
+          {/* Growth Widget */}
           <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>Listing Growth</h5>
+            <h5>Growth</h5>
             <div className="d-flex align-items-center">
               <h2>100+</h2>
               <span className="ms-2 text-success">+2.45%</span>
@@ -173,10 +243,10 @@ const UserDashboard = () => {
             <small className="text-muted">Monthly Growth</small>
           </div>
 
-          {/* Top Posts Widget */}
+          {/* Top Users Widget */}
           <div className="p-3 bg-white rounded shadow-sm">
-            <h5>Top Posts</h5>
-            <div className="top-posts">
+            <h5>Top Users</h5>
+            <div className="top-users">
               <div className="d-flex align-items-center mb-2">
                 <div className="profile-pic-placeholder me-2"></div>
                 <span>Jane Smith</span>
