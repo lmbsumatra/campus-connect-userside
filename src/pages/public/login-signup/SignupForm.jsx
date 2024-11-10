@@ -65,7 +65,6 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
   }, [tab]);
 
   useEffect(() => {
-    console.log(selectedCollege);
   }, [selectedCollege, inputWarning]);
 
   const handleImageUpload = (e, setImage) => {

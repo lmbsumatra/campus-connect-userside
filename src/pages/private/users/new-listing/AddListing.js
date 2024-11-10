@@ -82,8 +82,6 @@ const AddListing = () => {
   //  Toast Notifications
   const handleSubmit = async () => {
     try {
-      console.log("user:", user);
-      console.log("student:", student);
 
       const endpoint = isForSale
         ? "http://localhost:3001/item-for-sale/add"
@@ -129,7 +127,6 @@ const AddListing = () => {
           };
 
       const response = await axios.post(endpoint, payload);
-      console.log(response.data);
 
       // Send notification after successful creation
       const notificationData = {

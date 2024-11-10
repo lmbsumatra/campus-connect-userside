@@ -79,7 +79,6 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
 
   // Handle errors during Google login
   const errorGoogleMessage = (error) => {
-    console.log(error);
     setErrorMessage("An error occurred while processing the Google login. Please try again.");
   };
 

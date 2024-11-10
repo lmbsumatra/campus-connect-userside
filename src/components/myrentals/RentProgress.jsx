@@ -14,10 +14,8 @@ function RentProgress({  }) {
   useEffect(() => {
     const fetchTransaction = async () => {
       try {
-        console.log(id)
         const response = await axios.get(`http://localhost:3001/rental-transaction/${id}`);
         setTransaction(response.data);
-        console.log(response.data)
       } catch (err) {
         setError(err.response ? err.response.data.error : "An error occurred while fetching the transaction.");
       }

@@ -248,7 +248,6 @@ exports.deletePost = async (req, res) => {
 
 // Update the status of a listing
 exports.updateStatus = async (req, res) => {
-  console.log(req.body)
   const { status } = req.body; 
 
   try {

@@ -71,7 +71,6 @@ const AddPost = () => {
         rental_dates: postData.dateAndTime,
       });
 
-      console.log(response.data);
       //toast success notification
       toast.success('Post created successfully!', {
       position: "top-right",

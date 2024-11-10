@@ -14,7 +14,6 @@ const UserProfileVisit = () => {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const userId = params.get("userId");
-  console.log(userId);
   const [activeTab, setActiveTab] = useState(location.state || "Listings");
   const {
     items: listings,

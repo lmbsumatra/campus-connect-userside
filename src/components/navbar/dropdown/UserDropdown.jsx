@@ -21,7 +21,6 @@ const UserDropdown = ({
     student,
     errorMessage: fetchErrorMessage,
   } = FetchUserInfo({ userId });
-  console.log(user)
   return (
     <div className="nav-item">
       <a className="icon-link" href="#" onClick={toggleDropdown}>

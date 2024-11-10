@@ -4,7 +4,6 @@ import { useAuth } from "../../context/AuthContext";
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const { adminUser } = useAuth();
-  console.log("Current adminUser:", adminUser);
 
   // Check if the user is logged in and has an allowed role
   const hasAccess = adminUser && allowedRoles.includes(adminUser.role);

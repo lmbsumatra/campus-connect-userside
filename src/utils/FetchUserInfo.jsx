@@ -5,7 +5,6 @@ const FetchUserInfo = ({userId}) => {
   const [student, setStudent] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
-  console.log("fetch", userId)
 
   useEffect(() => {
     const fetchUserInfo = async () => {

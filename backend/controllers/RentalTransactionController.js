@@ -2,7 +2,6 @@ const { models } = require("../models/index");
 const { Op } = require("sequelize");
 
 exports.createRentalTransaction = async (req, res) => {
-  console.log(req.body);
   try {
     const {
       owner_id,
@@ -37,7 +36,6 @@ exports.createRentalTransaction = async (req, res) => {
     };
 
     const rental = await models.RentalTransaction.create(rentalData);
-    console.log(rental);
     res.status(201).json(rental);
   } catch (error) {
     console.error("Error creating rental transaction:", error);
@@ -226,7 +224,6 @@ exports.deleteRentalTransaction = async (req, res) => {
 exports.acceptRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body;
-  console.log(id, userId);
   try {
     const rental = await models.RentalTransaction.findByPk(id);
 
@@ -252,7 +249,6 @@ exports.acceptRentalTransaction = async (req, res) => {
 exports.handOverRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);
@@ -299,7 +295,6 @@ exports.handOverRentalTransaction = async (req, res) => {
 exports.returnRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);
@@ -347,7 +342,6 @@ exports.returnRentalTransaction = async (req, res) => {
 exports.completeRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);
@@ -395,7 +389,6 @@ exports.completeRentalTransaction = async (req, res) => {
 exports.declineRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body;
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);
@@ -422,7 +415,6 @@ exports.declineRentalTransaction = async (req, res) => {
 exports.cancelRentalTransaction = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.body;
-  console.log(id, userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id);

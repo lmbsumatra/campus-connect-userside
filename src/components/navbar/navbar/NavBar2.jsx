@@ -47,13 +47,11 @@ const NavBar2 = () => {
   };
 
   const handleAuth = (tab) => {
-    console.log("Auth tab selected:", tab);
     setAuthTab(tab);
     setShowLoginSignUp(true);
   };
 
   const closeLoginSignUp = () => {
-    console.log("Closing login/signup modal");
     setShowLoginSignUp(false);
   };
 

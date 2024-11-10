@@ -127,7 +127,7 @@ const AdminSettings = ({ tab, onClose }) => {
 
     // Log FormData entries for debugging
     for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
+      // console.log(`${key}: ${value}`);
     }
 
     try {
@@ -138,7 +138,6 @@ const AdminSettings = ({ tab, onClose }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("User registered successfully:", data);
         alert("Registered Successfully");
 
         // Reset the form and close the modal

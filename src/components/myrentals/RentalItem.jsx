@@ -18,8 +18,7 @@ function RentalItem({ item, onButtonClick }) {
     setIsModalOpen(false);
   };
 
-  // API call function
-  console.log(item.owner_id);
+  // API call function;
   const updateRentalStatus = async (action) => {
     try {
       const response = await axios.post(
@@ -27,7 +26,6 @@ function RentalItem({ item, onButtonClick }) {
         { userId }
       );
 
-      console.log(response.data);
       // Optionally update the local state to reflect changes
       // For example, you can use a state management solution or pass a function to update the parent's state
     } catch (error) {
