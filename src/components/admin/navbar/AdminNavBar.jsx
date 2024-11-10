@@ -1,36 +1,36 @@
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import io from "socket.io-client";
+import useSocket from "../../../hooks/useSocket"; 
 import searchIcon from "../../../assets/images/icons/search.svg";
 import UserDropdown from "../dropdown/UserDropdown";
 import Notification from "../notif/Notification";
+import { useAuth } from "../../../context/AuthContext"; 
 import "./adminNavBarStyles.css";
 
 const AdminNavBar = () => {
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const { logoutAdmin } = useAuth();
   const [notifications, setNotifications] = useState([]);
+  const socket = useSocket("http://localhost:3001");
+  const { logoutAdmin } = useAuth(); 
   const [openPopup, setOpenPopup] = useState(null);
-  const socketRef = useRef(null);
+
+  const notificationsRef = useRef(null); // Define ref for notifications
+  const userDropdownRef = useRef(null); // Define ref for user dropdown
 
   const togglePopup = (popup) => {
     setOpenPopup((prev) => (prev === popup ? null : popup));
   };
 
-  const userDropdownRef = useRef(null);
-  const notificationsRef = useRef(null);
-
   const toggleUserDropdown = () => {
-    setShowNotifications(false); 
+    setShowNotifications(false);
     setShowUserDropdown((prev) => !prev);
   };
 
   const toggleNotifications = () => {
-    setShowUserDropdown(false); 
-    setShowNotifications((prev) => !prev); 
+    setShowUserDropdown(false);
+    setShowNotifications((prev) => !prev);
   };
 
   const handleLogout = () => {
@@ -38,55 +38,35 @@ const AdminNavBar = () => {
     navigate("/admin-login");
   };
 
-  const handleClickOutside = (event) => {
-    if (
-      userDropdownRef.current &&
-      !userDropdownRef.current.contains(event.target)
-    ) {
-      setShowUserDropdown(false);
-    }
-    if (
-      notificationsRef.current &&
-      !notificationsRef.current.contains(event.target)
-    ) {
-      setShowNotifications(false);
-    }
-  };
-
-  // Socket connection and event handling
   useEffect(() => {
-     // Establish socket connection
-    socketRef.current = io("http://localhost:3001");
+    if (socket) {
+      // Emit the 'admin-connect' event to notify the server this admin is connected
+      socket.emit("admin-connect");
 
-    // Emit the 'admin-connect' event to notify the server this admin is connected
-    socketRef.current.emit("admin-connect");
+      // Listen for 'listing notification' from the server
+      socket.on("new-listing-notification", (notification) => {
+        setNotifications((prevNotifications) => [
+          ...prevNotifications,
+          notification,
+        ]);
+      });
 
-    // Listen for 'listing notification' from the server
-    socketRef.current.on("new-listing-notification", (notification) => {
-      setNotifications((prevNotifications) => [
-        ...prevNotifications,
-        notification,
-      ]);
-    });
-    // Listen for item-for-sale notification from the server
-    socketRef.current.on("new-item-for-sale-notification", (notification) => {
-      setNotifications((prevNotifications) => [
-        ...prevNotifications,
-        notification,
-      ]);
-    });
+      // Listen for item-for-sale notification from the server
+      socket.on("new-item-for-sale-notification", (notification) => {
+        setNotifications((prevNotifications) => [
+          ...prevNotifications,
+          notification,
+        ]);
+      });
 
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+      // Cleanup socket listeners on component unmount
+      return () => {
+        socket.off("new-listing-notification");
+        socket.off("new-item-for-sale-notification");
+        socket.disconnect();
+      };
+    }
+  }, [socket]); // Only run effect when the socket is available
 
   return (
     <div className="nav nav-container">
@@ -99,7 +79,7 @@ const AdminNavBar = () => {
           <Notification
             showNotifications={showNotifications}
             toggleNotifications={toggleNotifications}
-            notifications={notifications} 
+            notifications={notifications}
           />
         </div>
         <div ref={userDropdownRef} onClick={toggleUserDropdown}>

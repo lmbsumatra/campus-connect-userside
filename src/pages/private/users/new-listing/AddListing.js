@@ -131,24 +131,10 @@ const AddListing = () => {
       const response = await axios.post(endpoint, payload);
       console.log(response.data);
 
-      // Send notification after successful creation
-      const notificationData = {
-        type: isForSale ? "new-item-for-sale" : "new-listing",
-        title: isForSale ? "New Item For Sale" : "New Listing Created",
-        message: `New ${isForSale ? 'item' : 'listing'} "${listingData.name}" requires approval`,
-        timestamp: new Date(),
-        listingId: response.data.id,
-        category: student.college,
-        owner: {
-          id: user.user_id,
-          name: `${user.first_name} ${user.last_name}`,
-        }
-      };
-
-      socket.emit("new-listing", notificationData);
-
       // Toast notification on success
-      toast.success('Listing created successfully!', {
+      toast.success(
+      `${isForSale ? 'Item' : 'Listing'} created successfully!`,
+      {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -156,24 +142,24 @@ const AddListing = () => {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-      });
-    } catch (error) {
-      console.error("Error creating listing:", error);
-      setErrorMessage("Failed to create listing.");
+      }
+    );
+  } catch (error) {
+    console.error("Error creating listing:", error);
+    setErrorMessage("Failed to create listing.");
 
-      // Toast notification on error
+    // Toast notification on error
       toast.error('Failed to create listing. Please try again.', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-  
-      });
-    }
-  };
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  }
+};
 
   //  Tag Handlers
   const handleAddTag = () => {
