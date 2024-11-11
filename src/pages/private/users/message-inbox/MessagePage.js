@@ -6,7 +6,8 @@ import { useAuth } from "../../../../context/AuthContext";
 import ProductCard from "./ProductCard"; // Assuming this component is used for product display
 
 const MessagePage = ({ currentUser }) => {
-  const [conversation, setConversation] = useState([]);
+  console.log(currentUser)
+  const [conversation, setConversation] = useState();
   const [activeChat, setActiveChat] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [newMessage, setNewMessage] = useState("");
@@ -26,33 +27,32 @@ const MessagePage = ({ currentUser }) => {
   }, []);
 
   // Fetch user data when the conversation changes
-  useEffect(() => {
-    if (!conversation || conversation.length === 0 || !conversation[0].member) return;
+  // useEffect(() => {
+  //   if (!conversation || conversation.length === 0 || !conversation[0].member) return;
 
-    const friendId = conversation[0].member.find((m) => m !== currentUser.userId);
+  //   const friendId = conversation[0].member.find((m) => m !== currentUser.userId);
 
-    if (!friendId) {
-      console.log("Friend ID is missing");
-      return;
-    }
+  //   if (!friendId) {
+  //     console.log("Friend ID is missing");
+  //     return;
+  //   }
 
-    const getUser = async () => {
-      try {
-        const res = await axios.get(`http://localhost:3001/user?userId=` + friendId);
-        console.log("Fetched user data:", res.data);
-        if (res.data && res.data.first_name) {
-          setUser(res.data);
-        } else {
-          console.log("User data is incomplete or missing first_name");
-        }
-      } catch (err) {
-        console.log("Error fetching user data:", err);
-      }
-    };
+  //   const getUser = async () => {
+  //     try {
+  //       const res = await axios.get(`http://localhost:3001/user?userId=` + friendId);
+  //       console.log("Fetched user data:", res.data);
+  //       if (res.data && res.data.first_name) {
+  //         setUser(res.data);
+  //       } else {
+  //         console.log("User data is incomplete or missing first_name");
+  //       }
+  //     } catch (err) {
+  //       console.log("Error fetching user data:", err);
+  //     }
+  //   };
 
-    getUser();
-  }, [conversation, currentUser]);
-
+  //   getUser();
+  // }, [conversation, currentUser]);
   // Fetch conversations on userId change
   useEffect(() => {
     if (!userId) {
@@ -62,19 +62,26 @@ const MessagePage = ({ currentUser }) => {
 
     const getConversations = async () => {
       try {
-        const res = await axios.get(`http://localhost:3001/conversations/` + userId);
+        const res = await axios.get(
+          `http://localhost:3001/api/conversations/` + userId
+        );
         console.log("Fetched conversations: ", res.data);
-        if (Array.isArray(res.data)) {
-          setConversation(res.data);
-        } else {
-          console.error("Error: Response is not an array", res.data);
-        }
+        setConversation(res.data);
+        console.log("this", conversation?.user?.user_id);
+        setIsLoading(false);
+
+        // if (Array.isArray(res.data)) {
+        //   setConversation(res.data.conversations);
+        // } else {
+        //   console.error("Error: Response is not an array", res.data);
+        // }
       } catch (err) {
         console.log("Error fetching conversations:", err);
       }
     };
-
-    getConversations();
+    if (userId) {
+      getConversations();
+    }
   }, [userId]);
 
   const handleMessageChange = (e) => {
@@ -93,37 +100,70 @@ const MessagePage = ({ currentUser }) => {
   };
 
   const handleConversationClick = (conversation) => {
-    setActiveChat({
-      ...conversation,
-      messages: conversation.messages || [],
-    });
+    setActiveChat(conversation);
+
+    console.log(conversation);
   };
 
   return (
     <div className="container-content message-page">
       <div className="message-content">
-        <div className={`inbox ${isMobile && activeChat !== null ? "d-none" : ""}`}>
+        <div
+          className={`inbox ${isMobile && activeChat !== null ? "d-none" : ""}`}
+        >
           <h3>Messages</h3>
-          {conversation && conversation.length > 0 ? (
-            conversation.map((chat) => (
-              <div key={chat.id} className="inbox-item" onClick={() => handleConversationClick(chat)}>
-                <img src={UserIcon} alt="User Icon" className="user-icon" />
-                <div className="message-info">
-                  <h5>{isLoading ? "Loading..." : user ? user.first_name : "No User Found"}</h5>
-                  <p>{chat.preview}</p>
-                </div>
-                <span>{chat.date}</span>
+          {conversation ? (
+            <>
+              <div>
+                Conversations Count: {conversation.conversations.length}
               </div>
-            ))
+              {conversation.conversations.length > 0 ? (
+                conversation.conversations.map((chat) => {
+                  // Determine the user's first name based on user_id in the conversation
+                  const chatUserId = chat.user_id;
+                  const isCurrentUser =
+                    chatUserId === conversation.user.user_id; // check if the user in chat is the current user
+                  const displayName = !isCurrentUser
+                    ? "You"
+                    : chat.otherUser.first_name; // You can customize this based on your logic
+
+                  return (
+                    <div
+                      key={chat.id}
+                      className="inbox-item"
+                      onClick={() =>
+                        handleConversationClick(chat)
+                      }
+                    >
+                      <img
+                        src={UserIcon}
+                        alt="User Icon"
+                        className="user-icon"
+                      />
+                      <div className="message-info">
+                        <h5>{isLoading ? "Loading..." : displayName}</h5>
+                        <p>{chat.preview}</p>
+                      </div>
+                      <span>{chat.date}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <p>No conversations available.</p>
+              )}
+            </>
           ) : (
-            <p>No conversations available.</p>
+            <p>Loading conversations...</p>
           )}
         </div>
 
         {activeChat && (
           <div className="chat-box">
             <div className="chat-header">
-              <button className="back-button" onClick={() => setActiveChat(null)}>
+              <button
+                className="back-button"
+                onClick={() => setActiveChat(null)}
+              >
                 Back
               </button>
               <h4>{user ? user.first_name : "Loading..."}</h4>
@@ -134,17 +174,18 @@ const MessagePage = ({ currentUser }) => {
                   <div
                     key={index}
                     className={`chat-message ${
-                      message.sender === activeChat.userName ? "received" : "sent"
+                      message.sender === String(userId) // string kasi sa db eh
+                        ? "sent"
+                        : "received"
                     }`}
                   >
-                    <p>{message.content}</p>
-                    <span>{message.time}</span>
+                    <p>{message.text}</p>
+                    <span>{message.createdAt}</span>
                   </div>
                 ))
               ) : (
                 <p>No messages yet.</p>
               )}
-              {/* <ProductCard /> */}
             </div>
             <div className="chat-input">
               <input

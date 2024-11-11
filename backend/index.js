@@ -87,8 +87,8 @@ app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 
 //messsaging
-app.use("/conversations", conversationRoutes);
-app.use("/messages", messageRoutes);
+// app.use("/conversations", conversationRoutes);
+// app.use("/messages", messageRoutes);
 
 
 // Sync database and start server
