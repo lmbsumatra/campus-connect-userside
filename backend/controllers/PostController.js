@@ -42,18 +42,68 @@ exports.getAllApprovedPost = async (req, res) => {
   }
 };
 
+// Get a single approved post by ID with associated rental dates, durations, and renter info
+exports.getAvailablePostById = async (req, res) => {
+  try {
+    const post = await models.Post.findOne({
+      where: {
+        id: req.params.id,
+        status: "approved", // Ensures only "approved" items are fetched
+      },
+      include: [
+        {
+          model: models.RentalDate,
+          as: "rental_dates",
+          where: {
+            status: "available", // Ensures only "available" rental dates are included
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              where: {
+                status: "available", // Ensures only "available" rental durations are included
+              },
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "renter",
+          include: [
+            {
+              model: models.Student,
+              as: "student",
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found why" });
+    }
+
+    res.status(200).json(post);
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get all approved posts for a specific user (by userId)
-exports.getApprovedPostsByUser = async (req, res) => {
+exports.getAvailablePostsByUser = async (req, res) => {
+  console.log("userId", req.query)
   try {
     // Extract userId from query params or route parameters
     const { userId } = req.query; // or req.params if userId is in URL params
-
+   
     // Validate userId
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
     }
 
-    const items = await models.Post.findAll({
+    const posts = await models.Post.findAll({
       where: {
         status: "approved",
         renter_id: userId, // Filter by userId
@@ -64,7 +114,7 @@ exports.getApprovedPostsByUser = async (req, res) => {
           as: "rental_dates",
           required: false,
           where: {
-            item_type: "post",
+            item_type: "item-for-sale",
           },
           include: [
             {
@@ -83,9 +133,9 @@ exports.getApprovedPostsByUser = async (req, res) => {
     });
 
     // Return the filtered listings
-    res.status(200).json(items);
+    res.status(200).json(posts);
   } catch (error) {
-    console.error("Error fetching listings:", error);
+    console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };

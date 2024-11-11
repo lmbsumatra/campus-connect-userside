@@ -20,22 +20,23 @@ const UserProfileVisit = () => {
     loading: loadingListings,
     error: errorListings,
   } = useFetchApprovedItemsByUserId(
-    `${baseUrl}/listings/approved/user?userId=${userId}`
+    `${baseUrl}/listings/all/available/user?userId=${userId}`
   );
   const {
     items: posts,
     loading: loadingPosts,
     error: errorPosts,
   } = useFetchApprovedItemsByUserId(
-    `${baseUrl}/posts/approved/user?userId=${userId}`
+    `${baseUrl}/posts/all/available/user?userId=${userId}`
   );
   const {
     items: itemsForSale,
     loading: loadingItemsForSale,
     error: errorItemsForSale,
   } = useFetchApprovedItemsByUserId(
-    `${baseUrl}/item-for-sale/approved/user?userId=${userId}`
+    `${baseUrl}/item-for-sale/all/available/user?userId=${userId}`
   );
+
 
   return (
     <div className="container-content">

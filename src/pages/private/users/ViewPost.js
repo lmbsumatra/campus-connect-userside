@@ -31,7 +31,7 @@ function ViewPost() {
     loading,
     error,
     tags,
-  } = useFetchItemByParam(`${baseUrl}/posts/${id}`);
+  } = useFetchItemByParam(`${baseUrl}/posts/available/${id}`);
 
   // Loading and error handling
   if (loading) return <p>Loading...</p>;

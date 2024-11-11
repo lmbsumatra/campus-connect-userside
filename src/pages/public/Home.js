@@ -17,10 +17,10 @@ function Home() {
   const baseUrl = "http://localhost:3001";
 
   // Fetch listings data (approved items for sale or rent)
-  const { items: listings, loading: loadingListings, error: errorListings } = useFetchApprovedItems(`${baseUrl}/listings/info`);
+  const { items: listings, loading: loadingListings, error: errorListings } = useFetchApprovedItems(`${baseUrl}/listings/available`);
   
   // Fetch borrowing posts data (approved posts for lending)
-  const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseUrl}/posts/info`);
+  const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseUrl}/posts/approved`);
 
   // Handle click on FAB (Floating Action Button) for different actions
   const handleFabClick = (action) => {

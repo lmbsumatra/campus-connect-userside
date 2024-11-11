@@ -522,43 +522,35 @@ exports.cancelRentalTransaction = async (req, res) => {
     if (duration) {
       await duration.update({ status: "available" });
 
-      // Check if all durations for this date are now available
-      const allDurationsAvailable = await models.RentalDuration.count({
+      // Check if at least one duration for this date is now available
+      const anyDurationsAvailable = await models.RentalDuration.count({
         where: {
           date_id: rental_date_id,
           status: "available",
         },
       });
 
-      const totalDurationsForDate = await models.RentalDuration.count({
-        where: { date_id: rental_date_id },
-      });
-
-      if (allDurationsAvailable === totalDurationsForDate) {
-        // Update the date status to 'available' if all durations are free
+      if (anyDurationsAvailable > 0) {
+        // Update the date status to 'available' if at least one duration is free
         const rentalDate = await models.RentalDate.findByPk(rental_date_id);
         if (rentalDate) {
           await rentalDate.update({ status: "available" });
         }
       }
 
-      // Check if all dates for the item are now available
-      const allDatesAvailable = await models.RentalDate.count({
+      // Check if at least one date for the item is available
+      const anyDatesAvailable = await models.RentalDate.count({
         where: {
           item_id: item_id,
           status: "available",
         },
       });
 
-      const totalDatesForItem = await models.RentalDate.count({
-        where: { item_id: item_id },
-      });
-
-      if (allDatesAvailable === totalDatesForItem) {
-        // Update the item status to 'available'
+      if (anyDatesAvailable > 0) {
+        // Update the item status to 'available' if at least one date is available
         const item = await models.Listing.findByPk(item_id);
         if (item) {
-          await item.update({ status: "available" });
+          await item.update({ status: "approved" });
         }
       }
     } else {
@@ -575,4 +567,5 @@ exports.cancelRentalTransaction = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 

@@ -3,7 +3,7 @@ const sequelize = require("../config/database");
 const { models } = require("../models/index");
 
 // Get all posts with rental dates and durations
-exports.getAllApprovedItemForSale = async (req, res) => {
+exports.getAllAvailableItemForSale = async (req, res) => {
   try {
     const items = await models.ItemForSale.findAll({
       attributes: [
@@ -51,12 +51,62 @@ exports.getAllApprovedItemForSale = async (req, res) => {
   }
 };
 
+// Get a single approved item by ID with associated rental dates, durations, and renter info
+exports.getAvailableItemForSaleById = async (req, res) => {
+  try {
+    const item = await models.ItemForSale.findOne({
+      where: {
+        id: req.params.id,
+        status: "approved", // Ensures only "approved" items are fetched
+      },
+      include: [
+        {
+          model: models.RentalDate,
+          as: "available_dates",
+          where: {
+            status: "available", // Ensures only "available" rental dates are included
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              where: {
+                status: "available", // Ensures only "available" rental durations are included
+              },
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "seller",
+          include: [
+            {
+              model: models.Student,
+              as: "student",
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!item) {
+      return res.status(404).json({ error: "Item not found why" });
+    }
+
+    res.status(200).json(item);
+  } catch (error) {
+    console.error("Error fetching item:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get all approved posts for a specific user (by userId)
-exports.getApprovedItemsForSaleByUser = async (req, res) => {
+exports.getAvailableItemsForSaleByUser = async (req, res) => {
+  console.log("userId", req.query)
   try {
     // Extract userId from query params or route parameters
     const { userId } = req.query; // or req.params if userId is in URL params
-
+   
     // Validate userId
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
@@ -202,11 +252,11 @@ exports.createItemForSale = async (req, res) => {
     await transaction.commit();
     // Fetch the owner's name using the owner_id from the listing
     const seller = await models.User.findOne({
-      where: { user_id: req.body.item.seller_id }, 
-      // attributes: ["user_id", "first_name", "last_name"], 
+      where: { user_id: req.body.item.seller_id },
+      // attributes: ["user_id", "first_name", "last_name"],
     });
 
-    console.log(seller)
+    console.log(seller);
 
     // Notification after successful commit
     const notification = {
@@ -217,15 +267,15 @@ exports.createItemForSale = async (req, res) => {
       listingId: item.id,
       category: item.category,
       owner: {
-        id: seller.user_id,  // Use user_id here
-        name: `${seller.first_name} ${seller.last_name}` || "Unknown", 
-      }
-    }    
-    
-    console.log(notification)
+        id: seller.user_id, // Use user_id here
+        name: `${seller.first_name} ${seller.last_name}` || "Unknown",
+      },
+    };
+
+    console.log(notification);
 
     // Call the notifyAdmins function from socket.js
-    req.notifyAdmins(notification)
+    req.notifyAdmins(notification);
     res.status(201).json(item);
   } catch (error) {
     await transaction.rollback();

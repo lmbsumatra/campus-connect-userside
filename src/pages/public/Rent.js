@@ -15,7 +15,7 @@ const Rent = () => {
   const baseUrl = "http://localhost:3001";
 
   // Fetch listings data (approved items for rent)
-  const { items: listings, loading: loadingListings, error: errorListings } = useFetchApprovedItems(`${baseUrl}/listings/info`);
+  const { items: listings, loading: loadingListings, error: errorListings } = useFetchApprovedItems(`${baseUrl}/listings/available`);
 
   return (
     <>

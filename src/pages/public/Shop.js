@@ -14,10 +14,10 @@ const Shop = () => {
   const baseUrl = "http://localhost:3001";
 
   // Construct URL for Fetching Data
-  const fetchUrl = `${baseUrl}/item-for-sale/info?category=${categoryFilter}&rate=${rateFilter}`;
+  // const fetchUrl = `${baseUrl}/item-for-sale/info?category=${categoryFilter}&rate=${rateFilter}`;
 
   // Fetch Listings Data (approved items for sale or rent)
-  const { items, loading, error } = useFetchApprovedItems(fetchUrl);
+  const { items, loading, error } = useFetchApprovedItems(`${baseUrl}/item-for-sale/available`);
 
   // Event Handlers for Filters
   const handleCategoryChange = (e) => setCategoryFilter(e.target.value);
