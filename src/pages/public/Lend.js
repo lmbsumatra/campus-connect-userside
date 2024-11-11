@@ -7,7 +7,7 @@ const Lend = () => {
   const baseUrl = "http://localhost:3001";
 
   // Fetch borrowing posts (approved posts for lending)
-  const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseUrl}/posts/info`);
+  const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseUrl}/posts/approved`);
 
   // Handle Floating Action Button (FAB) click
   const handleFabClick = (action) => {

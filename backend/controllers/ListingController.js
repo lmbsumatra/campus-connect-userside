@@ -4,7 +4,7 @@ const { models } = require("../models/index");
 const {notifyAdmins} = require('../socket.js')
 
 // Get all approved listing: displayed in home, listings page
-exports.getAllApprovedListing = async (req, res) => {
+exports.getAllAvailableListing = async (req, res) => {
   try {
     // Fetch all approved listings
     const items = await models.Listing.findAll({
@@ -46,9 +46,57 @@ exports.getAllApprovedListing = async (req, res) => {
   }
 };
 
+// Get a single approved listing by ID with associated rental dates, durations, and renter info
+exports.getAvailableListingById = async (req, res) => {
+  try {
+    const listing = await models.Listing.findOne({
+      where: {
+        id: req.params.id,
+        status: "approved", // Ensures only "approved" items are fetched
+      },
+      include: [
+        {
+          model: models.RentalDate,
+          as: "rental_dates",
+          where: {
+            status: "available", // Ensures only "available" rental dates are included
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              where: {
+                status: "available", // Ensures only "available" rental durations are included
+              },
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "owner",
+          include: [
+            {
+              model: models.Student,
+              as: "student",
+            },
+          ],
+        },
+      ],
+    });
 
-// Get all approved listings for a specific user (by userId)
-exports.getApprovedListingsByUser = async (req, res) => {
+    if (!listing) {
+      return res.status(404).json({ error: "Listing not found why" });
+    }
+
+    res.status(200).json(listing);
+  } catch (error) {
+    console.error("Error fetching listing:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all approved listings for a specific user (by userId): kapag profile visit ganern
+exports.getAvailableListingsByUser = async (req, res) => {
   try {
     // Extract userId from query params or route parameters
     const { userId } = req.query; // or req.params if userId is in URL params
@@ -89,6 +137,55 @@ exports.getApprovedListingsByUser = async (req, res) => {
 
     // Return the filtered listings
     res.status(200).json(items);
+  } catch (error) {
+    console.error("Error fetching listings:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all approved listing for a specific user (by userId)
+exports.getAvailableListingsByUser = async (req, res) => {
+  console.log("userId", req.query)
+  try {
+    // Extract userId from query params or route parameters
+    const { userId } = req.query; // or req.params if userId is in URL params
+   
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const listings = await models.Listing.findAll({
+      where: {
+        status: "approved",
+        owner_id: userId, // Filter by userId
+      },
+      include: [
+        {
+          model: models.RentalDate,
+          as: "rental_dates",
+          required: false,
+          where: {
+            item_type: "item-for-sale",
+          },
+          include: [
+            {
+              model: models.RentalDuration,
+              as: "durations",
+              required: false,
+            },
+          ],
+        },
+        {
+          model: models.User,
+          as: "owner",
+          attributes: ["first_name", "last_name"],
+        },
+      ],
+    });
+
+    // Return the filtered listings
+    res.status(200).json(listings);
   } catch (error) {
     console.error("Error fetching listings:", error);
     res.status(500).json({ error: error.message });

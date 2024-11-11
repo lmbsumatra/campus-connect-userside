@@ -34,7 +34,7 @@ function ViewListing() {
 
   // Fetch the selected post using the custom hook
   const { selectedItem, loading, error, tags } = useFetchItemByParam(
-    `${baseUrl}/listings/${id}`
+    `${baseUrl}/listings/available/${id}`
   );
 
   // Retrieve student user details from authentication context

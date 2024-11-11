@@ -22,7 +22,7 @@ function ViewItem() {
   const baseUrl = "http://localhost:3001";
   
   // Fetch the selected post using the custom hook
-  const { selectedItem, loading, error, tags } = useFetchItemByParam(`${baseUrl}/item-for-sale/${id}`);
+  const { selectedItem, loading, error, tags } = useFetchItemByParam(`${baseUrl}/item-for-sale/available/${id}`);
 
   if (loading) {
     return <p>Loading...</p>;
