@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
+
 const User = sequelize.define('users', {
     user_id: { 
         type: DataTypes.INTEGER,
@@ -34,6 +35,8 @@ const User = sequelize.define('users', {
     }
 });
 
+
+
 User.associate = (models) => {
     User.hasMany(models.Listing, {
         foreignKey: 'owner_id',
@@ -43,6 +46,12 @@ User.associate = (models) => {
     User.hasOne(models.Student, { 
         foreignKey: 'user_id',
         as: 'student',
+    });
+
+    // Ensure that the 'user_id' exists in the Conversation model
+    User.hasMany(models.Conversation, { 
+        foreignKey: 'user_id', 
+        as: 'conversations' 
     });
 };
 

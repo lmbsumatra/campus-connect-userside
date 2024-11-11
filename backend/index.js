@@ -23,6 +23,8 @@ const cron = require("node-cron");
 //   console.log("Running cron job to auto-decline expired rentals...");
 //   await autoDeclineExpired(); // Call the function to decline expired rentals
 // });
+const conversationRoutes = require("./routes/ConversationRoute")
+const messageRoutes = require("./routes/MessageRoute")
 
 dotenv.config();
 
@@ -68,6 +70,26 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");
 });
+
+
+// Routes
+app.use("/user", studentAuthRoutes);
+app.use("/admin", adminAuthRoutes);
+
+app.use("/listings", listingRoutes);
+
+app.use("/posts", postRoutes);
+app.use("/item-for-sale", itemForSaleRoutes);
+app.use("/rental-transaction", rentalTransactionRoutes);
+
+//messsaging
+app.use("/api/conversations", conversationRoutes);
+app.use("/api/messages", messageRoutes);
+
+//messsaging
+app.use("/conversations", conversationRoutes);
+app.use("/messages", messageRoutes);
+
 
 // Sync database and start server
 sequelize
