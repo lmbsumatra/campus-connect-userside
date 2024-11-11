@@ -128,10 +128,15 @@ exports.createPost = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    req.body.post.status = "pending";
-    const post = await models.Post.create(req.body.post, { transaction });
+    // Validate the post data
+    if (!req.body.post) {
+      throw new Error("Post data is missing");
+    }
 
-    const rentalDates = req.body.rental_dates;
+    req.body.post.status = "pending"; // Initially setting the post status to "pending"
+    const createdPost = await models.Post.create(req.body.post, { transaction });
+
+    const rentalDates = req.body.rental_dates || [];
     for (const date of rentalDates) {
       if (!date.date) {
         throw new Error("Rental date is missing");
@@ -139,15 +144,20 @@ exports.createPost = async (req, res) => {
 
       const rentalDate = await models.RentalDate.create(
         {
-          item_id: post.id,
+          item_id: createdPost.id,
           date: date.date,
           item_type: "post",
         },
         { transaction }
       );
 
-      if (date.times) {
+      // Handle rental times if provided
+      if (date.times && Array.isArray(date.times)) {
         for (const time of date.times) {
+          if (!time.from || !time.to) {
+            throw new Error("Rental time is missing from or to fields");
+          }
+
           await models.RentalDuration.create(
             {
               date_id: rentalDate.id,
@@ -157,13 +167,45 @@ exports.createPost = async (req, res) => {
             { transaction }
           );
         }
+      } else {
+        console.warn(`No times provided for date: ${date.date}`);
       }
     }
 
+    // Commit the transaction
     await transaction.commit();
-    res.status(201).json(post);
+
+    // Fetch renter info
+    const renter = await models.User.findOne({
+      where: { user_id: req.body.post.renter_id },
+      attributes: ["user_id", "first_name", "last_name"],
+    });
+
+    const renterName = renter ? `${renter.first_name} ${renter.last_name}` : "Unknown";
+
+    // Create notification object
+    const notificationData = {
+      type: "new-post",
+      title: "New Post awaiting approval",
+      message: ` is looking for "${createdPost.post_item_name}"`,
+      timestamp: new Date(),
+      postId: createdPost.id,
+      category: createdPost.category,
+      renter: {
+        id: renter.user_id,
+        name: renterName,
+      },
+    };
+
+    // Notify admins using socket
+    req.notifyAdmins(notificationData);
+
+    res.status(201).json(createdPost);
+
   } catch (error) {
-    await transaction.rollback();
+    if (transaction.finished !== 'commit') {
+      await transaction.rollback();
+    }
 
     console.error("Error creating post:", {
       message: error.message,
@@ -174,8 +216,7 @@ exports.createPost = async (req, res) => {
     res.status(500).json({
       error: "Internal Server Error",
       message: error.message,
-      details:
-        "Failed to create post. Please check the input data and try again.",
+      details: "Failed to create post. Please check the input data and try again.",
     });
   }
 };

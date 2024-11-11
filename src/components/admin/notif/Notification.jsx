@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; 
 import Bell from "../../../assets/images/icons/notif.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
@@ -39,8 +39,17 @@ const Notification = ({ showNotifications, toggleNotifications, notifications })
                 <a href="#" key={index} className="notification-item">
                   <img src={UserIcon} className="notification-avatar" alt="User Avatar" />
                   <div className="notification-content">
-                  <p><strong>{notification.owner.name}</strong> {notification.message}</p>
-                  <span>{new Date(notification.timestamp).toLocaleString()}</span>
+                    <p>
+                      <strong>
+                        {/* Render owner or renter name based on notification type */}
+                        {notification.type === 'new-listing' || notification.type === 'new-item-for-sale'
+                          ? notification.owner?.name || "Owner Unknown"
+                          : notification.renter?.name || "Renter Unknown"}
+                      </strong> 
+                      {/* Render appropriate message based on notification type */}
+                      <em>{notification.message}</em>
+                    </p>
+                    <span>{new Date(notification.timestamp).toLocaleString()}</span>
                   </div>
                 </a>
               ))

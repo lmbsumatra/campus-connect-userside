@@ -153,8 +153,7 @@ exports.createListing = async (req, res, next) => {
       createdItem = await models.ItemForSale.create(req.body.item, { transaction });
       itemType = 'item-for-sale';
     }
-    console.log(`Created ${itemType}:`, createdItem);
-
+    
     // Handle rental dates and durations if provided
     const rentalDates = req.body.rental_dates || [];
     if (Array.isArray(rentalDates)) {
@@ -193,7 +192,6 @@ exports.createListing = async (req, res, next) => {
         }
       }
     }
-    console.log("Rental dates processed successfully.");
 
 
     // Commit the transaction
@@ -211,7 +209,7 @@ exports.createListing = async (req, res, next) => {
     const notification = {
       type: itemType === 'item-for-sale' ? "new-item-for-sale" : "new-listing",
       title: `New ${itemType === 'item-for-sale' ? "Item For Sale" : "Listing"} awaiting approval`,
-      message: `created new ${itemType === 'item-for-sale' ? "item" : "listing"} "${
+      message: ` created new ${itemType === 'item-for-sale' ? "item" : "listing"} "${
         itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name
       }"`,
       timestamp: new Date(),
@@ -233,11 +231,9 @@ exports.createListing = async (req, res, next) => {
       id: owner.user_id,
       name: ownerName
     });
-    console.log("Final notification object:", notification);
-    console.log(notification.type)
+
     // Notify admins using socket
     req.notifyAdmins(notification);  // This should trigger the socket event on the backend
-    console.log("Notification object:", notification);
 
     res.status(201).json(createdItem);
   } catch (error) {

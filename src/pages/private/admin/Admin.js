@@ -21,7 +21,7 @@ const Admin = () => {
       socket.on("connect", () => {
         console.log("Socket connected with ID:", socket.id);
       });
-
+       // listener for new-listi notifications
       socket.on("new-listing-notification", (notification) => {
         console.log("Received listing notification in admin:", notification);
         toast.info(
@@ -31,11 +31,22 @@ const Admin = () => {
         );
       });
 
+       // listener for new-item-for-sale notifications
       socket.on("new-item-for-sale-notification", (notification) => {
         console.log("Received item-for-sale notification in admin:", notification);
         toast.info(
           <span>
             <strong>{notification.title}</strong>: <em>{notification.owner.name}</em> {notification.message}
+          </span>
+        );
+      });
+
+      // listener for new post notifications
+      socket.on("new-post-notification", (notificationData) => {
+        console.log("Received post notification in admin:", notificationData);
+        toast.info(
+          <span>
+            <strong>{notificationData.title}</strong>: {notificationData.renter.name}<em>{notificationData.message}</em>
           </span>
         );
       });

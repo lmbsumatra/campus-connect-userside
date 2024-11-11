@@ -43,7 +43,7 @@ const AdminNavBar = () => {
       // Emit the 'admin-connect' event to notify the server this admin is connected
       socket.emit("admin-connect");
 
-      // Listen for 'listing notification' from the server
+      // Listen for 'listing notification'
       socket.on("new-listing-notification", (notification) => {
         setNotifications((prevNotifications) => [
           ...prevNotifications,
@@ -51,7 +51,7 @@ const AdminNavBar = () => {
         ]);
       });
 
-      // Listen for item-for-sale notification from the server
+      // Listen for item-for-sale notification 
       socket.on("new-item-for-sale-notification", (notification) => {
         setNotifications((prevNotifications) => [
           ...prevNotifications,
@@ -59,10 +59,19 @@ const AdminNavBar = () => {
         ]);
       });
 
+        // Listen for new post notifications
+        socket.on("new-post-notification", (notificationData) => {
+          setNotifications((prevNotifications) => [
+            ...prevNotifications,
+            notificationData,
+          ]);
+        });
+
       // Cleanup socket listeners on component unmount
       return () => {
         socket.off("new-listing-notification");
         socket.off("new-item-for-sale-notification");
+        socket.off("new-post-notification");
         socket.disconnect();
       };
     }

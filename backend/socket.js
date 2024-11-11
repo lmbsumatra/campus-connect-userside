@@ -19,16 +19,24 @@ function initializeSocket(server) {
       console.log("Admin connected. Current admin sockets:", Array.from(adminSockets));
     });
 
-    // Handle listing and item-for-sale notifications
+    // Handle listing notifications
     socket.on("new-listing", (notification) => {
       console.log("Received new listing notification:", notification);
       console.log("Current admin sockets when receiving listing:", Array.from(adminSockets));
       notifyAdmins(notification);
     });
 
+    // Handle item-for-sale notifications
     socket.on("new-item-for-sale", (notification) => {
       console.log("Received new item-for-sale notification:", notification);
       console.log("Current admin sockets when receiving item-for-sale:", Array.from(adminSockets));
+      notifyAdmins(notification);
+    });
+
+    // Handle post notifications (new addition)
+    socket.on("new-post", (notification) => {
+      console.log("Received new post notification:", notification);
+      console.log("Current admin sockets when receiving post:", Array.from(adminSockets));
       notifyAdmins(notification);
     });
 
@@ -46,7 +54,9 @@ function initializeSocket(server) {
     
     const eventName = notification.type === "new-item-for-sale"
       ? "new-item-for-sale-notification"
-      : "new-listing-notification";
+      : notification.type === "new-post"
+      ? "new-post-notification" // Event for new posts
+      : "new-listing-notification"; // Default to listing notification
   
     // Emit notification to all connected admins
     adminSockets.forEach(socketId => {
@@ -54,6 +64,7 @@ function initializeSocket(server) {
       io.to(socketId).emit(eventName, notification);
     });
   };
+
   return { io, notifyAdmins };
 }
 
