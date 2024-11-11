@@ -27,7 +27,7 @@ module.exports = (sequelize) => {
             allowNull: false,
         },
         status: { 
-            type: DataTypes.ENUM('available', 'rented'), 
+            type: DataTypes.ENUM('available','requested', 'rented'), 
             allowNull: false,
             defaultValue: 'available', 
         },

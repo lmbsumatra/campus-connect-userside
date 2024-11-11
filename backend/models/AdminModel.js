@@ -19,13 +19,14 @@ Admin.init(
       },
     },
     profile_pic: {
-      type: DataTypes.BLOB,
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
   },
   {
     sequelize,
     modelName: "Admin",
+    tableName: "admins"
   }
 );
 

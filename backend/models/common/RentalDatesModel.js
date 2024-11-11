@@ -21,6 +21,11 @@ module.exports = (sequelize) => {
             type: DataTypes.ENUM('listing', 'post', 'item_for_sale'),
             allowNull: false,
         },
+        status: {
+            type: DataTypes.ENUM('available', 'rented'),
+            defaultValue: 'available',
+            allowNull: false,
+        },
     }, {
         sequelize,
         modelName: 'RentalDate',

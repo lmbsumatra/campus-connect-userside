@@ -31,7 +31,7 @@ module.exports = (sequelize) => {
             type: DataTypes.JSON,
         },
         status: {
-            type: DataTypes.ENUM('posted', 'offered', 'flagged', 'pending'),
+            type: DataTypes.ENUM('pending','approved','declined','removed','revoked','flagged'),
             allowNull: false,
         },
         images: {

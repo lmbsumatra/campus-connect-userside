@@ -52,7 +52,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       images: {
-        type: DataTypes.JSON,
+        type: DataTypes.TEXT,
       },
       created_at: {
         type: DataTypes.DATE,

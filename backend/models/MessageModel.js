@@ -21,6 +21,7 @@ Message.init(
   {
     sequelize,
     modelName: "Message",
+    tableName: "messages",
     timestamps: true,
   }
 );

@@ -24,21 +24,22 @@ Student.init(
       allowNull: false,
     },
     college: {
-      type: DataTypes.ENUM("CIT", "CAFA", "COS"),
+      type: DataTypes.ENUM("CAFA","CIE","CIT","CLA","COE","COS"),
       allowNull: false,
     },
     scanned_id: {
-      type: DataTypes.BLOB,
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
     photo_with_id: {
-      type: DataTypes.BLOB,
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
   },
   {
     sequelize,
     modelName: "Student",
+    tableName: "students"
   }
 );
 

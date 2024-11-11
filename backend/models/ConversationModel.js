@@ -11,10 +11,16 @@ Conversation.init(
       type: DataTypes.JSON, // JSON field to store an array of user IDs
       allowNull: false,
     },
+
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
   },
   {
     sequelize,
     modelName: "Conversation",
+    tableName: "conversations",
     timestamps: true,
     
   }
