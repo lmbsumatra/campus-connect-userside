@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import itemForSaleIcon from "../../assets/images/card/sale.png";
 import item1 from "../../assets/images/item/item_1.jpg";
 
-const ItemSale = ({ items, title }) => {
+const ItemSale = ({ items, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
   const [showSalePopup, setShowSalePopup] = useState(false);
@@ -35,7 +35,7 @@ const ItemSale = ({ items, title }) => {
     setShowOptions(showOptions === index ? null : index);
   };
 
-  const handleCardClick = ({id}) => {
+  const handleCardClick = ({ id }) => {
     navigate(`/item-for-sale/${id}`);
   };
 
@@ -91,7 +91,9 @@ const ItemSale = ({ items, title }) => {
                   </div>
                   <div className="card-body d-flex">
                     <div>
-                      <p className="card-text fw-bold ellipsis">{item.item_for_sale_name}</p>
+                      <p className="card-text fw-bold ellipsis">
+                        {item.item_for_sale_name}
+                      </p>
                       <p className="card-text text-accent fw-bold">
                         {item.price}
                       </p>
@@ -101,9 +103,22 @@ const ItemSale = ({ items, title }) => {
                       className="icon more"
                       alt="More options"
                       onClick={(e) => handleMoreClick(index, e)}
-                      style={{ cursor: "pointer", width: "28px", height: "28px" }}
+                      style={{
+                        cursor: "pointer",
+                        width: "28px",
+                        height: "28px",
+                      }}
                     />
                   </div>
+                  {isProfileVisit === false && (
+                    <div className="d-flex justify-content-end">
+                      <span className={`status-indication ${item.status}`}>
+                        {" "}
+                        {item.status.charAt(0).toUpperCase() +
+                          item.status.slice(1).toLowerCase()}{" "}
+                      </span>
+                    </div>
+                  )}
 
                   {selectedIndex === index && (
                     <div className="popup">

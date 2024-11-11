@@ -190,3 +190,44 @@
   background-color: rgb(223, 116, 116);
   color: #680000;
 }
+
+
+
+/* buttons for transactions */
+
+/* Button Styles for Owner */
+.btn.btn-rectangle.btn-owner-primary {
+  background-color: var(--clr-owner-txt) !important; /* Customize for owner primary button */
+  color: white;
+  border: solid 1px var(--clr-owner-txt);
+  border-radius: 4px;
+}
+
+.btn.btn-rectangle.btn-owner-secondary {
+  border-color: var(--clr-owner-txt);
+  color: var(--clr-owner-txt);
+}
+
+/* Button Styles for Renter */
+.btn.btn-rectangle.btn-renter-primary {
+  background-color: var(--clr-renter-txt) !important; /* Customize for owner primary button */
+  color: white;
+  border: solid 1px var(--clr-renter-txt);
+  border-radius: 4px;
+}
+
+.btn.btn-rectangle.btn-renter-secondary {
+  border-color: var(--clr-renter-txt);
+  color: var(--clr-renter-txt);
+}
+
+/* Default Button Styles */
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #f4f4f4;
+  color: #007bff;
+}

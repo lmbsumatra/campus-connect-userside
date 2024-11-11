@@ -3,13 +3,14 @@ import ReviewModal from "../User/modalReview/ReviewModal";
 import "./MyRental.css";
 import itemImage from "../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../utils/dateFormat";
-import axios from "axios"; // Make sure axios is installed
+import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 
-function RentalItem({ item, onButtonClick }) {
+function RentalItem({ item, onButtonClick, selectedOption }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { studentUser } = useAuth(); // Replace this with the actual user ID from your auth context or props
+  const { studentUser } = useAuth();
   const { userId } = studentUser;
+
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
@@ -18,16 +19,13 @@ function RentalItem({ item, onButtonClick }) {
     setIsModalOpen(false);
   };
 
-  // API call function;
+  // API call function
   const updateRentalStatus = async (action) => {
     try {
       const response = await axios.post(
         `http://localhost:3001/rental-transaction/user/${item.id}/${action}`,
         { userId }
       );
-
-      // Optionally update the local state to reflect changes
-      // For example, you can use a state management solution or pass a function to update the parent's state
     } catch (error) {
       console.error("Error updating rental status:", error);
     }
@@ -36,7 +34,6 @@ function RentalItem({ item, onButtonClick }) {
   // Define button configurations based on status
   const buttonConfig = {
     Requested: [
-      // Buttons for the owner
       ...(item.owner_id === userId
         ? [
             {
@@ -51,7 +48,6 @@ function RentalItem({ item, onButtonClick }) {
             },
           ]
         : []),
-      // Button for the renter
       ...(item.renter_id === userId
         ? [
             {
@@ -70,11 +66,15 @@ function RentalItem({ item, onButtonClick }) {
     Accepted: [
       {
         label:
-          item.owner_id === userId && item.owner_confirmed
-            ? "Handed Over"
-            : item.renter_id === userId && item.renter_confirmed
-            ? "Handed Over"
-            : "Confirm Hand Over",
+        item.owner_id === userId && item.owner_confirmed
+          ? "Handed Over" // If Owner confirmed, show "Handed Over"
+          : item.renter_id === userId && item.renter_confirmed
+          ? "Received" // If Renter confirmed, show "Handed Over"
+          : item.owner_id === userId
+          ? "Confirm Hand Over" // If Owner has not confirmed, show "Confirm Hand Over"
+          : item.renter_id === userId
+          ? "Confirm Item Receive" // If Renter has not confirmed, show "Confirm Hand Over"
+          : "Confirm Hand Over", // Default fallback for any other situation
         onClick: () => updateRentalStatus("hand-over"),
         primary: true,
         disabled:
@@ -91,10 +91,15 @@ function RentalItem({ item, onButtonClick }) {
     HandedOver: [
       {
         label:
-          (item.owner_id === userId && item.owner_confirmed) ||
-          (item.renter_id === userId && item.renter_confirmed)
-            ? "Returned"
-            : "Confirm Return",
+        item.owner_id === userId && item.owner_confirmed
+          ? "Received" 
+          : item.renter_id === userId && item.renter_confirmed
+          ? "Returned" 
+          : item.owner_id === userId
+          ? "Confirm Receive" 
+          : item.renter_id === userId
+          ? "Confirm Return" 
+          : "Confirm Return", 
         onClick: () => updateRentalStatus("return"),
         primary: true,
         disabled:
@@ -133,17 +138,28 @@ function RentalItem({ item, onButtonClick }) {
     Cancelled: [],
   };
 
+  // Define button color based on selected option (Owner or Renter)
+  const getButtonColor = (primary) => {
+    console.log(primary)
+    if (selectedOption === "Owner") {
+      return primary ? "btn-owner-primary" : "btn-owner-secondary";
+    } else if (selectedOption === "Renter") {
+      return primary ? "btn-renter-primary" : "btn-renter-secondary";
+    }
+    return primary ? "btn-primary" : "btn-secondary";
+  };
+
   return (
     <div className="rental-item">
       <img src={itemImage} alt={item.title} className="rental-item-image" />
       <div className="rental-item-content">
         <h3>Item: {item.Listing.listing_name}</h3>
-        {item.renter && (
+        {item.renter_id !== userId && (
           <p>
             Renter: {item.renter.first_name} {item.renter.last_name}
           </p>
         )}
-        {item.owner && (
+        {item.owner_id !== userId && (
           <p>
             Owner: {item.owner.first_name} {item.owner.last_name}
           </p>
@@ -161,20 +177,19 @@ function RentalItem({ item, onButtonClick }) {
 
         <div className="action-buttons">
           {buttonConfig[item.status]?.map((button, index) => (
+            <>
             <button
               key={index}
-              className={`btn btn-rectangle ${
-                button.primary ? "primary" : "secondary"
-              }`}
+              className={`btn btn-rectangle ${getButtonColor(button.primary)} `}
               onClick={(e) => {
                 onButtonClick(e); // Prevent outer click
                 button.onClick(); // Call button's onClick function
               }}
-
               disabled={button.disabled}
             >
               {button.label}
             </button>
+            </>
           ))}
         </div>
       </div>

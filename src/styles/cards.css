@@ -63,7 +63,7 @@
 }
 
 .card.card-variant-2:hover {
-  border: 1px solid var(--clr-accent);
+  border: 1px solid var(--clr-primary);
 }
 
 .card-variant-2 .card-body {
@@ -163,7 +163,7 @@
 }
 
 .card.card-variant-2:hover {
-  border: 1px solid var(--clr-accent);
+  border: 1px solid var(--clr-primary);
 }
 
 .card-variant-2 .card-body {
@@ -208,7 +208,7 @@
 }
 
 .card.card-variant-3:hover {
-  border: 1px solid var(--clr-tertiary); 
+  border: 1px solid var(--clr-primary);
 }
 
 
@@ -217,4 +217,5 @@
   height: 36px;
   padding: 4px;
   right: 8px;
+  top: 8px;
 }

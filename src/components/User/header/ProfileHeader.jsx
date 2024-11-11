@@ -5,20 +5,12 @@ import "./profileHeaderStyles.css";
 import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { formatDate } from "../../../utils/dateFormat";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../../context/AuthContext";
 
-// Define the fetchUserInfo function here or import it from another file
-
-const ProfileHeader = ({ userId, isProfileVisit }) => {
+const ProfileHeader = ({ userId, isProfileVisit, selectedOption, onOptionChange }) => {
   const navigate = useNavigate();
-  const [selectedOption, setSelectedOption] = useState("Renter");
   const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
 
-  const {
-    user,
-    student,
-    errorMessage: fetchErrorMessage,
-  } = FetchUserInfo({ userId });
+  const { user, student, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
   const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);
 
   useEffect(() => {
@@ -27,10 +19,6 @@ const ProfileHeader = ({ userId, isProfileVisit }) => {
       setErrorMessage(errorMessage);
     }
   }, [user, student]);
-
-  const handleChange = (event) => {
-    setSelectedOption(event.target.value);
-  };
 
   const getBackgroundColor = () => {
     switch (selectedOption) {
@@ -43,7 +31,7 @@ const ProfileHeader = ({ userId, isProfileVisit }) => {
       case "Buyer":
         return "var(--clr-buyer)";
       default:
-        return "transparent";
+        return "var(--clr-primary)";
     }
   };
 
@@ -63,10 +51,7 @@ const ProfileHeader = ({ userId, isProfileVisit }) => {
 
   return (
     <div className="profile-header">
-      <div
-        className="profile-banner"
-        style={{ background: getBackgroundColor() }}
-      >
+      <div className="profile-banner" style={{ background: getBackgroundColor() }}>
         <div className="profile-picture">
           <div className="holder">
             <img src={profilePhoto} alt="Profile" className="profile-photo" />
@@ -76,8 +61,7 @@ const ProfileHeader = ({ userId, isProfileVisit }) => {
           {userInfo.user ? (
             <>
               <h4 className="text-white">
-                {userInfo.user.first_name}{" "}
-                {userInfo.user.last_name || "User Name"}
+                {userInfo.user.first_name} {userInfo.user.last_name || "User Name"}
               </h4>
               <div className="profile-info d-flex">
                 <div className="d-block">
@@ -86,15 +70,9 @@ const ProfileHeader = ({ userId, isProfileVisit }) => {
                   <span className="label">Joined</span>
                 </div>
                 <div className="d-block">
-                  <span className="value">
-                    {userInfo.student.college || "N/A"}
-                  </span>
-                  <span className="value">
-                    {userInfo.student.rating || "N/A"}
-                  </span>
-                  <span className="value">
-                    {formatDate(userInfo.user.createdAt) || "N/A"}
-                  </span>
+                  <span className="value">{userInfo.student.college || "N/A"}</span>
+                  <span className="value">{userInfo.student.rating || "N/A"}</span>
+                  <span className="value">{formatDate(userInfo.user.createdAt) || "N/A"}</span>
                 </div>
               </div>
             </>
@@ -104,20 +82,14 @@ const ProfileHeader = ({ userId, isProfileVisit }) => {
           {errorMessage && <p className="error-message">{errorMessage}</p>}
           {isProfileVisit ? (
             <div>
-              <button
-                className="btn btn-rectangle secondary white my-2"
-                // onClick={handleEditButton}
-              >
+              <button className="btn btn-rectangle secondary white my-2">
                 <img src={editIcon} alt="Message button" />
                 Message
               </button>
             </div>
           ) : (
             <div>
-              <button
-                className="btn btn-rectangle secondary white my-2"
-                onClick={handleEditButton}
-              >
+              <button className="btn btn-rectangle secondary white my-2" onClick={handleEditButton}>
                 <img src={editIcon} alt="Edit" />
                 Edit
               </button>
@@ -126,8 +98,8 @@ const ProfileHeader = ({ userId, isProfileVisit }) => {
         </div>
         {isTransactionPage && (
           <div className="select-option">
-            <span className="text-white mx-3">As a</span>
-            <select value={selectedOption} onChange={handleChange}>
+            <span className="text-white mx-3">As {selectedOption === "Owner" ? "an" : "a"}</span>
+            <select value={selectedOption} onChange={(e) => onOptionChange(e.target.value)}>
               <option value="Renter">Renter</option>
               <option value="Owner">Owner</option>
               <option value="Seller">Seller</option>

@@ -29,32 +29,36 @@
   transition: color 0.3s, font-weight 0.3s;
 }
 
-.filter-button:hover,
+/* .filter-button:hover,
 .filter-button.active {
   background: var(--clr-main);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight: bold; /* Bold text on hover and active */
+  font-weight: bold; 
 }
-
-.filter-button.active::before,
+ */
 .filter-button.active::before {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: 0px; /* Position the line below the text */
+  bottom: 0px; 
   transform: translateX(-50%);
   width: 70%;
   height: 3px;
-  background-color: #2179c8;
+  background-color: var(--underline-color);
   border-radius: 3px;
   transition: all 0.3s;
+  font-weight: bold;
+} 
+
+.active {
+  font-weight: bold;
 }
 
 .filter-button:hover::before,
 .filter-button.active::before {
   opacity: 1;
-  background: var(--clr-main); /* Apply the gradient to the bar */
+  background: var(--underline-color); /* Apply the gradient to the bar */
 }
 
 .rental-items {

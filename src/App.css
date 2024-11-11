@@ -10,7 +10,7 @@
 :root {
   --clr-primary: #2179c8;
   --clr-accent: #ff5400;
-  --clr-tertiary: #C31F3b;
+  --clr-tertiary: #c31f3b;
   --clr-primary-darker: #1d63a0;
   --clr-primary-lighter: rgb(40, 135, 218);
   --clr-muted: rgb(241, 241, 241);
@@ -32,16 +32,26 @@
     #641220,
     #da1e37
   ); /* Violet and pink */
+
   --clr-owner: linear-gradient(
     to right,
     #2b9348,
     #bfd200
   ); /* Blue and light cyan */
+
   --clr-renter: linear-gradient(
     to right,
     #1e6091,
     #02c39a
   ); /* Red and light peach */
+
+  --clr-buyer-txt: #3c096c;
+  --clr-seller-txt: #641220;
+
+  --clr-owner-txt: #2b9348;
+
+  --clr-renter-txt: #1e6091;
+
   --clr-rainbow: linear-gradient(
     to right,
     #ff0000,
@@ -191,10 +201,10 @@ hr {
 }
 
 .ellipsis {
-  white-space: nowrap;      
-  overflow: hidden;    
-  text-overflow: ellipsis;   
-  width: 100px;             
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100px;
 }
 
 /* Medium Devices */
@@ -243,6 +253,6 @@ hr {
 }
 
 .no-scrollbars {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

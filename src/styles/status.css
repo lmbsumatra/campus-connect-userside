@@ -1,0 +1,32 @@
+.status-indication {
+    font-size: 12px;
+    font-weight: 500;
+}
+.pending {
+    color: orange;
+  }
+  
+  .approved {
+    color: green;
+  }
+  
+  .declined {
+    color: red;
+  }
+  
+  .removed {
+    color: gray;
+  }
+  
+  .revoked {
+    color: purple;
+  }
+  
+  .flagged {
+    color: blue;
+  }
+  
+  .unavailable {
+    color: darkgray;
+  }
+  

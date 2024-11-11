@@ -4,7 +4,7 @@ import "./itemStyles.css";
 import { useNavigate } from "react-router-dom";
 import item1 from "../../assets/images/item/item_1.jpg";
 
-const ItemList = ({ listings, title }) => {
+const ItemList = ({ listings, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const ItemList = ({ listings, title }) => {
     }
   };
 
-  const handleCardClick = ({id}) => {
+  const handleCardClick = ({ id }) => {
     navigate(`/rent/${id}`); // Navigate to the link when the card is clicked
   };
 
@@ -50,7 +50,7 @@ const ItemList = ({ listings, title }) => {
                 className="card-link"
                 onClick={() => handleCardClick(item)}
               >
-                <div className="card card-variant-1">
+                <div className={`card card-variant-1`}>
                   <div className="card-img-top">
                     <img src={item1} alt="Card" />
                   </div>
@@ -75,7 +75,9 @@ const ItemList = ({ listings, title }) => {
                   </div>
                   <div className="card-body d-flex">
                     <div>
-                      <p className="card-text fw-bold ellipsis">{item.listing_name}</p>
+                      <p className="card-text fw-bold ellipsis">
+                        {item.listing_name}
+                      </p>
                       <p className="card-text text-accent fw-bold">
                         {item.rate}
                       </p>
@@ -114,6 +116,18 @@ const ItemList = ({ listings, title }) => {
                           <li>Option 3</li>
                         </ul>
                       </div>
+                    </div>
+                  )}
+
+                  {isProfileVisit === false && (
+                    <div className="d-flex justify-content-end">
+                      <span
+                        className={`status-indication ${item.status}`}
+                      >
+                        {" "}
+                        {item.status.charAt(0).toUpperCase() +
+                          item.status.slice(1).toLowerCase()}{" "}
+                      </span>
                     </div>
                   )}
                 </div>

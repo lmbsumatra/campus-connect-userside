@@ -11,6 +11,7 @@ import "../src/styles/buttons.css";
 import "../src/styles/icons.css";
 import "../src/styles/cards.css";
 import "../src/styles/containers.css";
+import "../src/styles/status.css";
 
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
 import Home from "./pages/public/Home.js";

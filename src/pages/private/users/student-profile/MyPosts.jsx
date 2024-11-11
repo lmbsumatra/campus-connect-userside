@@ -34,7 +34,7 @@ function MyPosts() {
   
     return (
       <div className="container rounded bg-white">
-        <BorrowingPost borrowingPosts={posts} title="Looking for..." />
+        <BorrowingPost borrowingPosts={posts} title="Looking for..." isProfileVisit={false} />
       </div>
     );
   }

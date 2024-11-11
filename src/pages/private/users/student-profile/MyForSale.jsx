@@ -35,7 +35,12 @@ function MyForSale() {
 
   return (
     <div className="container rounded bg-white">
-      <ItemSale items={forsales} title="Sell" className="col-md-10" />
+      <ItemSale
+        items={forsales}
+        title="Sell"
+        isProfileVisit={false}
+        className="col-md-10"
+      />
     </div>
   );
 }

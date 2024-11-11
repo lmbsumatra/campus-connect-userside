@@ -33,7 +33,7 @@ function MyListings() {
   
     return (
       <div className="container rounded bg-white">
-        <ItemList listings={listings} title="Rent" />
+        <ItemList listings={listings} title="Rent" isProfileVisit={false}/>
       </div>
     );
   }
