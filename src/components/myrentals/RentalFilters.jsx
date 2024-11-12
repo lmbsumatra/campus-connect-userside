@@ -6,49 +6,40 @@ function RentalFilters({
   activeFilter,
   onFilterClick,
   selectedOption,
+  countTransactions,
 }) {
   const navigate = useNavigate();
-
-  const handleViewProgressClick = () => {
-    navigate("/rent-progress");
-  };
 
   // Get dynamic filter text color based on the selected option
   const getDynamicFilterTextColor = () => {
     switch (selectedOption) {
       case "Renter":
-        return "var(--clr-renter-txt)"; // Set your custom color variable for Renter
+        return "var(--clr-renter-txt)";
       case "Owner":
-        return "var(--clr-owner-txt)";  // Set your custom color variable for Owner
+        return "var(--clr-owner-txt)";
       case "Seller":
-        return "var(--clr-seller-txt)";  // Set your custom color variable for Seller
+        return "var(--clr-seller-txt)";
       case "Buyer":
-        return "var(--clr-buyer-txt)";   // Set your custom color variable for Buyer
+        return "var(--clr-buyer-txt)";
       default:
-        return "var(--clr-default-txt)"; // Default color
+        return "var(--clr-default-txt)";
     }
   };
 
-  
-
   return (
-    <div className="rental-filters overflow-x-auto no-scrollbars">
-      <div className="filter-buttons">
+    <div className="rental-filters">
+      <div className="filter-buttons no-scrollbars">
         {filterOptions.map((filter) => (
           <button
             key={filter}
-            className={`filter-button ${
-              activeFilter === filter ? "active" : ""
-            }`}
+            className={`filter-button ${activeFilter === filter ? "active" : ""}`}
             onClick={() => onFilterClick(filter)}
             style={{
-              // Dynamically set the color based on the selected option
               color: getDynamicFilterTextColor(),
-              // Use CSS variable for dynamic underline color
               "--underline-color": activeFilter === filter ? getDynamicFilterTextColor() : "#ccc",
             }}
           >
-            {filter}
+            {filter} <span className={`transaction-indicator ${!countTransactions[filter] && 'not-active'}`}>{countTransactions[filter] !== undefined && countTransactions[filter]}</span>
           </button>
         ))}
       </div>

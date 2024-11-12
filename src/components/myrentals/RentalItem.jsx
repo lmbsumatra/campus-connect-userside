@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ReviewModal from "../User/modalReview/ReviewModal";
 import "./MyRental.css";
 import itemImage from "../../assets/images/item/item_1.jpg";
@@ -32,115 +32,117 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
   };
 
   // Define button configurations based on status
-  const buttonConfig = {
-    Requested: [
-      ...(item.owner_id === userId
-        ? [
-            {
-              label: "Accept",
-              onClick: () => updateRentalStatus("accept"),
-              primary: true,
-            },
-            {
-              label: "Decline",
-              onClick: () => updateRentalStatus("decline"),
-              primary: true,
-            },
-          ]
-        : []),
-      ...(item.renter_id === userId
-        ? [
-            {
-              label: "Cancel",
-              onClick: () => updateRentalStatus("cancel"),
-              primary: true,
-            },
-          ]
-        : []),
-      {
-        label: "Message",
-        onClick: () => console.log("Message Sent"),
-        primary: false,
-      },
-    ],
-    Accepted: [
-      {
-        label:
-        item.owner_id === userId && item.owner_confirmed
-          ? "Handed Over" // If Owner confirmed, show "Handed Over"
-          : item.renter_id === userId && item.renter_confirmed
-          ? "Received" // If Renter confirmed, show "Handed Over"
-          : item.owner_id === userId
-          ? "Confirm Hand Over" // If Owner has not confirmed, show "Confirm Hand Over"
-          : item.renter_id === userId
-          ? "Confirm Item Receive" // If Renter has not confirmed, show "Confirm Hand Over"
-          : "Confirm Hand Over", // Default fallback for any other situation
-        onClick: () => updateRentalStatus("hand-over"),
-        primary: true,
-        disabled:
-          item.owner_id === userId
-            ? item.owner_confirmed
-            : item.renter_confirmed,
-      },
-      {
-        label: "Message",
-        onClick: () => console.log("Message Sent"),
-        primary: false,
-      },
-    ],
-    HandedOver: [
-      {
-        label:
-        item.owner_id === userId && item.owner_confirmed
-          ? "Received" 
-          : item.renter_id === userId && item.renter_confirmed
-          ? "Returned" 
-          : item.owner_id === userId
-          ? "Confirm Receive" 
-          : item.renter_id === userId
-          ? "Confirm Return" 
-          : "Confirm Return", 
-        onClick: () => updateRentalStatus("return"),
-        primary: true,
-        disabled:
-          item.owner_id === userId
-            ? item.owner_confirmed
-            : item.renter_confirmed,
-      },
-      {
-        label: "Message",
-        onClick: () => console.log("Message Sent"),
-        primary: false,
-      },
-    ],
-    Returned: [
-      {
-        label:
-          (item.owner_id === userId && item.owner_confirmed) ||
-          (item.renter_id === userId && item.renter_confirmed)
-            ? "Completed"
-            : "Complete",
-        onClick: () => updateRentalStatus("completed"),
-        primary: true,
-        disabled:
-          item.owner_id === userId
-            ? item.owner_confirmed
-            : item.renter_confirmed,
-      },
-      {
-        label: "Message",
-        onClick: () => console.log("Message Sent"),
-        primary: false,
-      },
-    ],
-    Completed: [{ label: "Review", onClick: handleOpenModal, primary: true }],
-    Reviewed: [],
-    Cancelled: [],
-  };
+  const buttonConfig = useMemo(
+    () => ({
+      Requested: [
+        ...(item.owner_id === userId
+          ? [
+              {
+                label: "Accept",
+                onClick: () => updateRentalStatus("accept"),
+                primary: true,
+              },
+              {
+                label: "Decline",
+                onClick: () => updateRentalStatus("decline"),
+                primary: true,
+              },
+            ]
+          : []),
+        ...(item.renter_id === userId
+          ? [
+              {
+                label: "Cancel",
+                onClick: () => updateRentalStatus("cancel"),
+                primary: true,
+              },
+            ]
+          : []),
+        {
+          label: "Message",
+          onClick: () => console.log("Message Sent"),
+          primary: false,
+        },
+      ],
+      Accepted: [
+        {
+          label:
+            item.owner_id === userId && item.owner_confirmed
+              ? "Handed Over" // If Owner confirmed, show "Handed Over"
+              : item.renter_id === userId && item.renter_confirmed
+              ? "Received" // If Renter confirmed, show "Handed Over"
+              : item.owner_id === userId
+              ? "Confirm Hand Over" // If Owner has not confirmed, show "Confirm Hand Over"
+              : item.renter_id === userId
+              ? "Confirm Item Receive" // If Renter has not confirmed, show "Confirm Hand Over"
+              : "Confirm Hand Over", // Default fallback for any other situation
+          onClick: () => updateRentalStatus("hand-over"),
+          primary: true,
+          disabled:
+            item.owner_id === userId
+              ? item.owner_confirmed
+              : item.renter_confirmed,
+        },
+        {
+          label: "Message",
+          onClick: () => console.log("Message Sent"),
+          primary: false,
+        },
+      ],
+      HandedOver: [
+        {
+          label:
+            item.owner_id === userId && item.owner_confirmed
+              ? "Received"
+              : item.renter_id === userId && item.renter_confirmed
+              ? "Returned"
+              : item.owner_id === userId
+              ? "Confirm Receive"
+              : item.renter_id === userId
+              ? "Confirm Return"
+              : "Confirm Return",
+          onClick: () => updateRentalStatus("return"),
+          primary: true,
+          disabled:
+            item.owner_id === userId
+              ? item.owner_confirmed
+              : item.renter_confirmed,
+        },
+        {
+          label: "Message",
+          onClick: () => console.log("Message Sent"),
+          primary: false,
+        },
+      ],
+      Returned: [
+        {
+          label:
+            (item.owner_id === userId && item.owner_confirmed) ||
+            (item.renter_id === userId && item.renter_confirmed)
+              ? "Completed"
+              : "Complete",
+          onClick: () => updateRentalStatus("completed"),
+          primary: true,
+          disabled:
+            item.owner_id === userId
+              ? item.owner_confirmed
+              : item.renter_confirmed,
+        },
+        {
+          label: "Message",
+          onClick: () => console.log("Message Sent"),
+          primary: false,
+        },
+      ],
+      Completed: [{ label: "Review", onClick: handleOpenModal, primary: true }],
+      Reviewed: [],
+      Cancelled: [],
+    }),
+    [item, userId]
+  );
 
   // Define button color based on selected option (Owner or Renter)
   const getButtonColor = (primary) => {
-    console.log(primary)
     if (selectedOption === "Owner") {
       return primary ? "btn-owner-primary" : "btn-owner-secondary";
     } else if (selectedOption === "Renter") {
@@ -149,11 +151,15 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
     return primary ? "btn-primary" : "btn-secondary";
   };
 
+  useEffect(() => {
+    console.log("Primary color value:", selectedOption);
+  }, [selectedOption]);
+
   return (
     <div className="rental-item">
       <img src={itemImage} alt={item.title} className="rental-item-image" />
       <div className="rental-item-content">
-        <h3>Item: {item.Listing.listing_name}</h3>
+        <h4>Item: {item.Listing.listing_name}</h4>
         {item.renter_id !== userId && (
           <p>
             Renter: {item.renter.first_name} {item.renter.last_name}
@@ -175,20 +181,22 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
         {item.reason && <p>Reason: {item.reason}</p>}
         <p>Status: {item.status}</p>
 
-        <div className="action-buttons">
+        <div className="action-buttons d-flex gap-2">
           {buttonConfig[item.status]?.map((button, index) => (
             <>
-            <button
-              key={index}
-              className={`btn btn-rectangle ${getButtonColor(button.primary)} `}
-              onClick={(e) => {
-                onButtonClick(e); // Prevent outer click
-                button.onClick(); // Call button's onClick function
-              }}
-              disabled={button.disabled}
-            >
-              {button.label}
-            </button>
+              <button
+                key={index}
+                className={`btn btn-rectangle ${getButtonColor(
+                  button.primary
+                )} `}
+                onClick={(e) => {
+                  onButtonClick(e); // Prevent outer click
+                  button.onClick(); // Call button's onClick function
+                }}
+                disabled={button.disabled}
+              >
+                {button.label}
+              </button>
             </>
           ))}
         </div>

@@ -5,13 +5,32 @@ import "./profileHeaderStyles.css";
 import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { formatDate } from "../../../utils/dateFormat";
 import { useLocation, useNavigate } from "react-router-dom";
+import useFetchRentalTransactionsByUserId from "../../../utils/useFetchRentalTransactionsByUserId";
 
-const ProfileHeader = ({ userId, isProfileVisit, selectedOption, onOptionChange }) => {
+const ProfileHeader = ({
+  userId,
+  isProfileVisit,
+  selectedOption,
+  onOptionChange,
+}) => {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
 
-  const { user, student, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
+  const {
+    user,
+    student,
+    errorMessage: fetchErrorMessage,
+  } = FetchUserInfo({
+    userId,
+  });
   const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);
+
+  // Fetch rental transactions
+  const {
+    transactions: rentalItems,
+    error,
+    loading,
+  } = useFetchRentalTransactionsByUserId(userId);
 
   useEffect(() => {
     if (user.user_id && student.college) {
@@ -19,6 +38,31 @@ const ProfileHeader = ({ userId, isProfileVisit, selectedOption, onOptionChange 
       setErrorMessage(errorMessage);
     }
   }, [user, student]);
+
+  const countTransactions = {
+    Renter: 0,
+    Owner: 0,
+    Seller: 0,
+    Buyer: 0,
+  };
+
+  if (rentalItems && rentalItems.length > 0) {
+    rentalItems.forEach((transaction) => {
+      // Count transactions for each role
+      if (transaction.owner_id === userId) {
+        countTransactions.Owner++;
+      }
+      if (transaction.renter_id === userId) {
+        countTransactions.Renter++;
+      }
+      if (transaction.seller_id === userId) {
+        countTransactions.Seller++;
+      }
+      if (transaction.buyer_id === userId) {
+        countTransactions.Buyer++;
+      }
+    });
+  }
 
   const getBackgroundColor = () => {
     switch (selectedOption) {
@@ -41,6 +85,7 @@ const ProfileHeader = ({ userId, isProfileVisit, selectedOption, onOptionChange 
 
   const [isTransactionPage, setTransactionPage] = useState(false);
   const location = useLocation();
+
   useEffect(() => {
     if (location.pathname === "/profile/transactions") {
       setTransactionPage(true);
@@ -49,9 +94,20 @@ const ProfileHeader = ({ userId, isProfileVisit, selectedOption, onOptionChange 
     }
   }, [location.pathname]);
 
+  const [isExpanded, setIsExpanded] = useState(false);
+  const handleDropDown = () => {
+    setIsExpanded((prev) => !prev);
+  };
+  useEffect(() => {
+    console.log(isExpanded);
+  }, [isExpanded]);
+
   return (
     <div className="profile-header">
-      <div className="profile-banner" style={{ background: getBackgroundColor() }}>
+      <div
+        className="profile-banner"
+        style={{ background: getBackgroundColor() }}
+      >
         <div className="profile-picture">
           <div className="holder">
             <img src={profilePhoto} alt="Profile" className="profile-photo" />
@@ -61,7 +117,8 @@ const ProfileHeader = ({ userId, isProfileVisit, selectedOption, onOptionChange 
           {userInfo.user ? (
             <>
               <h4 className="text-white">
-                {userInfo.user.first_name} {userInfo.user.last_name || "User Name"}
+                {userInfo.user.first_name}{" "}
+                {userInfo.user.last_name || "User Name"}
               </h4>
               <div className="profile-info d-flex">
                 <div className="d-block">
@@ -70,9 +127,15 @@ const ProfileHeader = ({ userId, isProfileVisit, selectedOption, onOptionChange 
                   <span className="label">Joined</span>
                 </div>
                 <div className="d-block">
-                  <span className="value">{userInfo.student.college || "N/A"}</span>
-                  <span className="value">{userInfo.student.rating || "N/A"}</span>
-                  <span className="value">{formatDate(userInfo.user.createdAt) || "N/A"}</span>
+                  <span className="value">
+                    {userInfo.student.college || "N/A"}
+                  </span>
+                  <span className="value">
+                    {userInfo.student.rating || "N/A"}
+                  </span>
+                  <span className="value">
+                    {formatDate(userInfo.user.createdAt) || "N/A"}
+                  </span>
                 </div>
               </div>
             </>
@@ -89,7 +152,10 @@ const ProfileHeader = ({ userId, isProfileVisit, selectedOption, onOptionChange 
             </div>
           ) : (
             <div>
-              <button className="btn btn-rectangle secondary white my-2" onClick={handleEditButton}>
+              <button
+                className="btn btn-rectangle secondary white my-2"
+                onClick={handleEditButton}
+              >
                 <img src={editIcon} alt="Edit" />
                 Edit
               </button>
@@ -97,14 +163,33 @@ const ProfileHeader = ({ userId, isProfileVisit, selectedOption, onOptionChange 
           )}
         </div>
         {isTransactionPage && (
-          <div className="select-option">
-            <span className="text-white mx-3">As {selectedOption === "Owner" ? "an" : "a"}</span>
-            <select value={selectedOption} onChange={(e) => onOptionChange(e.target.value)}>
-              <option value="Renter">Renter</option>
-              <option value="Owner">Owner</option>
-              <option value="Seller">Seller</option>
-              <option value="Buyer">Buyer</option>
-            </select>
+          <div className="select-option" onClick={() => handleDropDown()}>
+            <span className="text-white mx-3">
+              As {selectedOption === "Owner" ? "an" : "a"}
+            </span>
+            <div className={`custom-dropdown ${isExpanded ? "active" : ""}`}>
+              {/* Define the options in an array */}
+              {["Renter", "Owner", "Seller", "Buyer"]
+                .sort((a, b) => (a === selectedOption ? -1 : 1)) // Sort selected option to the top
+                .map((option) => (
+                  <div
+                    key={option}
+                    className={`dropdown-item ${
+                      option === selectedOption ? "selected" : ""
+                    }`}
+                    onClick={() => onOptionChange(option)}
+                  >
+                    {option}
+                    <span
+                      className={`transaction-indicator ${
+                        !countTransactions[option] ? "not-active" : ""
+                      }`}
+                    >
+                      {countTransactions[option]}
+                    </span>
+                  </div>
+                ))}
+            </div>
           </div>
         )}
       </div>
