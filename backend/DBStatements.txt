@@ -215,3 +215,37 @@ alter table dates add column status enum('available','rented') not null default 
 
 alter table listings modify column status enum('pending','approved','declined','removed','revoked','flagged', 'unavailable') not null default 'pending';
 
+CREATE TABLE review_and_rates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  reviewer_id INT NOT NULL,                         
+  reviewee_id INT,                                  
+  item_id INT,                                     
+  review_type ENUM('item', 'owner', 'renter', 'seller', 'buyer') NOT NULL, 
+  transaction_id INT NOT NULL,               
+  rate INT,                                        
+  review TEXT,                                     
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,   
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (reviewer_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (reviewee_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE buy_and_sell_transactions (
+  id INT(11) AUTO_INCREMENT PRIMARY KEY,         
+  buyer_id INT(11) NOT NULL,                     
+  seller_id INT(11) NOT NULL,                    
+  item_id INT(11) NOT NULL,                      
+  post_id INT(11),                                
+  status ENUM('Requested', 'Accepted', 'Declined', 'Cancelled', 'HandOver', 'Review') NOT NULL,  
+  payment_status ENUM('Pending', 'Completed', 'Refunded') NOT NULL, 
+  delivery_method ENUM('pickup', 'meetup') NOT NULL,  
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  has_review_rating TINYINT(1) DEFAULT 0,     
+  seller_confirmed TINYINT(1) DEFAULT 0, 
+  buyer_confirmed TINYINT(1) DEFAULT 0,    
+  FOREIGN KEY (buyer_id) REFERENCES users(user_id) ON DELETE CASCADE, 
+  FOREIGN KEY (seller_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (item_id) REFERENCES items_for_sale(id) ON DELETE CASCADE,
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE 
+);

@@ -11,6 +11,7 @@ const ItemForSale = require('./item-for-sale/ItemForSaleModel')(sequelize)
 const RentalTransaction = require('./RentalTransactionModel')(sequelize)
 const Conversation = require('./ConversationModel');
 const Message = require('./MessageModel');
+const ReviewAndRate = require("./ReviewAndRateModel")(sequelize)
 
 const models = {
   Listing,
@@ -23,6 +24,7 @@ const models = {
   RentalTransaction,
   Conversation,
   Message,
+  ReviewAndRate
 };
 
 Object.values(models).forEach((model) => {

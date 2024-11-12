@@ -134,11 +134,27 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
           primary: false,
         },
       ],
-      Completed: [{ label: "Review", onClick: handleOpenModal, primary: true }],
+      Completed: [
+        {
+          label:
+            (item.owner_id === userId && item.owner_confirmed) ||
+            (item.renter_id === userId && item.renter_confirmed)
+              ? "Reviewed"
+              : "Review",
+          onClick: handleOpenModal,
+          primary: true,
+          disabled:
+            item.owner_id === userId
+              ? item.owner_confirmed
+              : item.renter_confirmed,
+        },
+      ],
       Reviewed: [],
       Cancelled: [],
     }),
-    [item, userId]
+
+    [userId],
+    console.log("Rental Item Page: check dependencies on fetch...")
   );
 
   // Define button color based on selected option (Owner or Renter)
@@ -150,10 +166,6 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
     }
     return primary ? "btn-primary" : "btn-secondary";
   };
-
-  useEffect(() => {
-    console.log("Primary color value:", selectedOption);
-  }, [selectedOption]);
 
   return (
     <div className="rental-item">
@@ -190,6 +202,7 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
                   button.primary
                 )} `}
                 onClick={(e) => {
+                  e.stopPropagation();
                   onButtonClick(e); // Prevent outer click
                   button.onClick(); // Call button's onClick function
                 }}
@@ -205,6 +218,8 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         item={item}
+        selectedOption={selectedOption}
+        userId={userId}
       />
     </div>
   );

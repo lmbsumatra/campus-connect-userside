@@ -215,7 +215,7 @@ exports.getTransactionsByUserId = async (req, res) => {
         },
         {
           model: models.Listing,
-          attributes: ["id", "listing_name", "description"],
+          attributes: ["id", "listing_name", "description", "rate"],
         },
         { model: models.Post, attributes: ["id", "post_item_name"] },
         { model: models.RentalDate, attributes: ["id", "date"] },

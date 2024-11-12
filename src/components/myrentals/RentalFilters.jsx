@@ -29,19 +29,29 @@ function RentalFilters({
   return (
     <div className="rental-filters">
       <div className="filter-buttons no-scrollbars">
-        {filterOptions.map((filter) => (
-          <button
-            key={filter}
-            className={`filter-button ${activeFilter === filter ? "active" : ""}`}
-            onClick={() => onFilterClick(filter)}
-            style={{
-              color: getDynamicFilterTextColor(),
-              "--underline-color": activeFilter === filter ? getDynamicFilterTextColor() : "#ccc",
-            }}
-          >
-            {filter} <span className={`transaction-indicator ${!countTransactions[filter] && 'not-active'}`}>{countTransactions[filter] !== undefined && countTransactions[filter]}</span>
-          </button>
-        ))}
+        {filterOptions.map((filter) => {
+          // Get count and color for the current filter
+          const { count, color } = countTransactions[filter] || { count: 0, color: "gray" };
+
+          return (
+            <button
+              key={filter}
+              className={`filter-button ${activeFilter === filter ? "active" : ""}`}
+              onClick={() => onFilterClick(filter)}
+              style={{
+                color: getDynamicFilterTextColor(),
+                "--underline-color": activeFilter === filter ? getDynamicFilterTextColor() : "#ccc",
+                // backgroundColor: color, // Set the background color based on the confirmation state
+                // borderColor: color,     // Optionally set the border color as well
+              }}
+            >
+              {filter} 
+              <span className={`transaction-indicator `} style={{backgroundColor: color}}>
+                {count} {/* Only show the count if greater than 0 */}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

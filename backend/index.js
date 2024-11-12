@@ -2,13 +2,14 @@ const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2");
 const sequelize = require("./config/database");
+const dotenv = require("dotenv");
+const cloudinary = require("./config/cloudinary");
 
 // routes
 const studentAuthRoutes = require("./routes/StudentAuthRoute");
 const listingRoutes = require("./routes/ListingRoute");
 const postRoutes = require("./routes/PostRoute");
-const dotenv = require("dotenv");
-const cloudinary = require("./config/cloudinary");
+const reviewAndRateRoutes = require("./routes/ReviewAndRateRoutes.js");
 const adminAuthRoutes = require("./routes/AdminAuthRoutes");
 const itemForSaleRoutes = require("./routes/ItemForSaleRoute");
 const rentalTransactionRoutes = require("./routes/RentalTransactionRoute");
@@ -23,8 +24,8 @@ const cron = require("node-cron");
 //   console.log("Running cron job to auto-decline expired rentals...");
 //   await autoDeclineExpired(); // Call the function to decline expired rentals
 // });
-const conversationRoutes = require("./routes/ConversationRoute")
-const messageRoutes = require("./routes/MessageRoute")
+const conversationRoutes = require("./routes/ConversationRoute");
+const messageRoutes = require("./routes/MessageRoute");
 
 dotenv.config();
 
@@ -64,13 +65,13 @@ app.use("/listings", listingRoutes); // Listings route that will trigger notific
 app.use("/posts", postRoutes);
 app.use("/item-for-sale", itemForSaleRoutes);
 app.use("/rental-transaction", rentalTransactionRoutes);
+app.use("/review-and-rate", reviewAndRateRoutes);
 
 // Error handling middleware for unexpected errors
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");
 });
-
 
 // Routes
 app.use("/user", studentAuthRoutes);
@@ -89,7 +90,6 @@ app.use("/api/messages", messageRoutes);
 //messsaging
 // app.use("/conversations", conversationRoutes);
 // app.use("/messages", messageRoutes);
-
 
 // Sync database and start server
 sequelize
