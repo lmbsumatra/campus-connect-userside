@@ -56,6 +56,7 @@ const AddPost = () => {
 
   // Handle form submission (post creation)
   const handleSubmit = async () => {
+    console.log(postData)
     try {
       const response = await axios.post("http://localhost:3001/posts/create", {
         post: {
@@ -70,6 +71,8 @@ const AddPost = () => {
         },
         rental_dates: postData.dateAndTime,
       });
+
+      
 
       //toast success notification
       toast.success('Post created successfully!', {

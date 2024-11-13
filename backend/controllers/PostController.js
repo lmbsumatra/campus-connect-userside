@@ -175,6 +175,10 @@ exports.getAllPosts = async (req, res) => {
 
 // Create a post
 exports.createPost = async (req, res) => {
+  const rentalDates = req.body.rental_dates || [];  // Default to an empty array if no rental_dates are provided
+
+  console.log("Rental Dates received:", rentalDates);  // Log the entire rental_dates object to debug input data
+
   const transaction = await sequelize.transaction();
 
   try {
@@ -186,11 +190,13 @@ exports.createPost = async (req, res) => {
     req.body.post.status = "pending"; // Initially setting the post status to "pending"
     const createdPost = await models.Post.create(req.body.post, { transaction });
 
-    const rentalDates = req.body.rental_dates || [];
+    // Process rental dates if provided
     for (const date of rentalDates) {
-      if (!date.date) {
-        throw new Error("Rental date is missing");
+      if (!date || !date.date) {
+        throw new Error("Rental date is missing or invalid");
       }
+
+      console.log("Processing rental date:", date.date);  // Log each rental date being processed
 
       const rentalDate = await models.RentalDate.create(
         {
@@ -205,7 +211,7 @@ exports.createPost = async (req, res) => {
       if (date.times && Array.isArray(date.times)) {
         for (const time of date.times) {
           if (!time.from || !time.to) {
-            throw new Error("Rental time is missing from or to fields");
+            throw new Error("Rental time is missing 'from' or 'to' fields");
           }
 
           await models.RentalDuration.create(
@@ -218,11 +224,11 @@ exports.createPost = async (req, res) => {
           );
         }
       } else {
-        console.warn(`No times provided for date: ${date.date}`);
+        console.warn(`No rental times provided for date: ${date.date}`);  // Warn if times are not provided
       }
     }
 
-    // Commit the transaction
+    // Commit the transaction after all rental dates are processed
     await transaction.commit();
 
     // Fetch renter info
@@ -233,26 +239,30 @@ exports.createPost = async (req, res) => {
 
     const renterName = renter ? `${renter.first_name} ${renter.last_name}` : "Unknown";
 
-    // Create notification object
-    const notificationData = {
-      type: "new-post",
-      title: "New Post awaiting approval",
-      message: ` is looking for "${createdPost.post_item_name}"`,
-      timestamp: new Date(),
-      postId: createdPost.id,
-      category: createdPost.category,
-      renter: {
-        id: renter.user_id,
-        name: renterName,
-      },
-    };
 
-    // Notify admins using socket
-    req.notifyAdmins(notificationData);
-
+    // Respond with the created post
     res.status(201).json(createdPost);
 
+        // Create notification object
+        const notificationData = {
+          type: "new-post",
+          title: "New Post awaiting approval",
+          message: ` is looking for "${createdPost.post_item_name}"`,
+          timestamp: new Date(),
+          postId: createdPost.id,
+          category: createdPost.category,
+          renter: {
+            id: renter.user_id,
+            name: renterName,
+          },
+        };
+    
+        // Notify admins using socket (Assuming `req.notifyAdmins` is defined elsewhere in the code)
+        req.notifyAdmins(notificationData);
+    
+
   } catch (error) {
+    // Rollback transaction in case of error
     if (transaction.finished !== 'commit') {
       await transaction.rollback();
     }
@@ -270,6 +280,7 @@ exports.createPost = async (req, res) => {
     });
   }
 };
+
 
 // Get a single post by ID with associated rental dates, durations, and renter info
 exports.getPostById = async (req, res) => {

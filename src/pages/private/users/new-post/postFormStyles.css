@@ -360,3 +360,39 @@ label {
 }
 
 
+
+
+/* Time picker container */
+.time-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Style for the clickable area (mimicking a custom button) */
+.time-picker-clickable-area {
+  cursor: pointer;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 16px;
+  color: #333;
+}
+
+.time-picker-clickable-area:focus {
+  outline: 2px solid #007bff; /* Optional: show focus state when the div is clicked */
+}
+
+/* Hidden time input but functional when triggered */
+.time-input {
+  position: absolute;
+  top: -9999px; /* Hide the input element completely */
+}
+
+/* Optional: Show custom time picker UI when div is clicked */
+.time-picker-container .time-input:focus {
+  top: auto;
+  position: static;
+}
