@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
+import createPostIcon from "../../../assets/images/fab/POSTS.svg"
+import addItemIcon from "../../../assets/images/fab/RENTALS.svg"
 
 const FAB = ({ icon, onClick }) => {
   const [showButtons, setShowButtons] = useState(false);
@@ -21,10 +23,10 @@ const FAB = ({ icon, onClick }) => {
     <div className="fab-container">
       <div className={`fab-buttons ${showButtons ? "show" : ""}`}>
         <button className="fab add-item" onClick={addItem}>
-          add
+          <img src={createPostIcon} alt ="Create post icon"/>
         </button>
         <button className="fab create-post" onClick={createPost}>
-          create
+        <img src={addItemIcon} alt ="Create post icon"/>
         </button>
       </div>
       <button className="fab" onClick={handleShow}>

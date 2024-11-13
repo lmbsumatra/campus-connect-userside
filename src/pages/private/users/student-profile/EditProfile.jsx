@@ -123,7 +123,7 @@ function EditProfile() {
     <div className="rounded bg-white mt-2">
       <form className="edit-profile-form">
         <div className="form-section personal-details">
-          <h3 className="section-label">Personal Details</h3>
+          <h3 className="section-label">Edit Personal Details</h3>
           <div className="details-grid">
             {["surname", "firstname", "middlename", "college", "course", "tup_id"].map((field) => (
               <div className="form-group" key={field}>
@@ -141,7 +141,7 @@ function EditProfile() {
         </div>
 
         <div className="form-section account-details">
-          <h3 className="section-label">Account Details</h3>
+          <h3 className="section-label">Edit Account Details</h3>
           <div className="details-grid">
             <div className="form-group">
               <label>Email</label>
@@ -167,7 +167,7 @@ function EditProfile() {
         </div>
 
         <div className="form-section verification">
-          <h3 className="section-label">Verification</h3>
+          <h3 className="section-label">Update Verification</h3>
           <div className="verification-grid">
             <div className="form-group">
               <label>Upload Image</label>

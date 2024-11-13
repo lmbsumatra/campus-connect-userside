@@ -47,14 +47,6 @@ const ProfileSidebar = () => {
             Transactions
           </NavLink>
         </li>
-        <li>
-          <NavLink
-            to="edit-profile"
-            className={({ isActive }) => (isActive ? "active" : "")}
-          >
-            Edit Profile
-          </NavLink>
-        </li>
       </ul>
     </div>
   );

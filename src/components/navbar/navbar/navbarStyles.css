@@ -110,3 +110,33 @@ nav .nav-logo {
   height: 5px;
   background: var(--clr-primary);
 }
+
+
+.nav-searchbar {
+  position: relative;
+}
+
+.input-container {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px; /* Adjust based on your icon size */
+  transform: translateY(-50%);
+  pointer-events: none; /* Make sure the icon doesn't block input interaction */
+  width: 24px;
+  height: auto;
+}
+
+.search-icon img {
+  width: 24px;
+  height: auto;
+}
+
+.form-control {
+  padding-left: 30px; /* Space for the icon */
+  width: 100%;
+}

@@ -10,17 +10,6 @@ const Header = () => {
           for students like you.
         </p>
       </div>
-      <div className="search-container">
-        <select className="search-dropdown">
-          <option value="option1">Explore</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
-        </select>
-        <input type="text" className="search-box" placeholder="Search..." />
-        <a href="#" className="search-button">
-          <i className="fa-solid fa-search"></i>
-        </a>
-      </div>
     </header>
   );
 };

@@ -4,6 +4,7 @@ import "./itemSaleStyles.css";
 import { useNavigate } from "react-router-dom";
 import itemForSaleIcon from "../../assets/images/card/sale.png";
 import item1 from "../../assets/images/item/item_1.jpg";
+import flagIcon from "../../assets/images/card/flag.svg";
 
 const ItemSale = ({ items, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -98,17 +99,14 @@ const ItemSale = ({ items, title, isProfileVisit }) => {
                         {item.price}
                       </p>
                     </div>
+                    
                     <img
-                      src={moreImg}
-                      className="icon more"
-                      alt="More options"
-                      onClick={(e) => handleMoreClick(index, e)}
-                      style={{
-                        cursor: "pointer",
-                        width: "28px",
-                        height: "28px",
-                      }}
-                    />
+                          src={flagIcon}
+                          className="icon flag-item variant-1"
+                          alt="More options"
+                          onClick={(e) => handleMoreClick(index, e)}
+                          style={{ cursor: "pointer" }}
+                        />
                   </div>
                   {isProfileVisit === false && (
                     <div className="d-flex justify-content-end">

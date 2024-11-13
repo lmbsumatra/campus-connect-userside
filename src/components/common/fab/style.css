@@ -38,7 +38,15 @@
   margin-bottom: 8px;
 }
 
-.fab.add-item,
+.fab.add-item {
+  background: white;
+}
+
+
 .fab.create-post {
-  background: var(--clr-main);
+  background: white;
+}
+.fab.add-item img, .fab.create-post img{
+  width: 36px;
+  height: auto;
 }

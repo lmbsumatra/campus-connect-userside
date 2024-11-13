@@ -3,6 +3,7 @@ import moreImg from "../../assets/images/icons/moreImg.png";
 import "./itemStyles.css";
 import { useNavigate } from "react-router-dom";
 import item1 from "../../assets/images/item/item_1.jpg";
+import flagIcon from "../../assets/images/card/flag.svg";
 
 const ItemList = ({ listings, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -83,16 +84,12 @@ const ItemList = ({ listings, title, isProfileVisit }) => {
                       </p>
                     </div>
                     <img
-                      src={moreImg}
-                      className="icon more"
-                      alt="More options"
-                      onClick={(e) => handleMoreClick(index, e)}
-                      style={{
-                        cursor: "pointer",
-                        width: "28px",
-                        height: "28px",
-                      }}
-                    />
+                          src={flagIcon}
+                          className="icon flag-item variant-1"
+                          alt="More options"
+                          onClick={(e) => handleMoreClick(index, e)}
+                          style={{ cursor: "pointer" }}
+                        />
                   </div>
 
                   {selectedIndex === index && (

@@ -59,9 +59,6 @@ const Shop = () => {
               <option value="5">5 star</option>
             </select>
           </div>
-          <Link to="/add-item" className="btn btn-primary no-fill">
-            Add New Item
-          </Link>
         </div>
 
         {/* Item Display Section */}

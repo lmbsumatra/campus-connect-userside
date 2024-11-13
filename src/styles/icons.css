@@ -34,3 +34,36 @@ img.icon.more:hover {
   margin: 0px;
 }
 
+.icon.flag-item {
+  position: absolute;
+  background-color: none;
+  left: 24px;
+  top: 200px;
+  right: 0px;
+  display: inline-block; 
+  transition: opacity 0.3s ease; 
+  filter: grayscale(100%); 
+  opacity: 50%;
+}
+
+
+.icon.flag-item:hover {
+  filter: brightness(100%);
+  opacity: 100%;
+}
+
+.icon.flag-item.variant-1 {
+  position: absolute;
+  background-color: none;
+  left: 183px;
+  top: 200px;
+  display: inline-block; 
+  transition: opacity 0.3s ease; 
+  filter: grayscale(100%); 
+  opacity: 50%;
+}
+
+.icon.flag-item.variant-1:hover {
+  filter: brightness(100%);
+  opacity: 100%;
+}

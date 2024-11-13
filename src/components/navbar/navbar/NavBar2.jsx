@@ -7,6 +7,7 @@ import UserDropdown from "../dropdown/UserDropdown.jsx";
 import LoginSignUp from "../../../pages/public/login-signup/LoginSignup.js";
 import "./navbarStyles.css";
 import { useAuth } from "../../../context/AuthContext.js";
+import searchIcon from "../../../assets/images/navbar/search.svg";
 
 const NavBar2 = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -101,15 +102,21 @@ const NavBar2 = () => {
             </a>
 
             <div className="nav-searchbar w-50">
-              <form role="search">
-                <input
-                  className="form-control me-2"
-                  type="search"
-                  placeholder="Search"
-                  aria-label="Search"
-                />
-              </form>
-            </div>
+  <form role="search">
+    <div className="input-container">
+      <input
+        className="form-control me-2"
+        type="search"
+        placeholder="Search"
+        aria-label="Search"
+      />
+      <div className="search-icon">
+        <img src={searchIcon} alt="Search icon" />
+      </div>
+    </div>
+  </form>
+</div>
+
 
             {isLoggedIn ? (
               <div className="d-flex flex-end gap-2">

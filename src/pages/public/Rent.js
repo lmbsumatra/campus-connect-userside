@@ -49,11 +49,6 @@ const Rent = () => {
                 <option value="5">5 star</option>
               </select>
             </div>
-
-            {/* Add New Item Button */}
-            <Link to="/add-item" className="btn btn-primary no-fill">
-              Add New Item
-            </Link>
           </div>
 
           {/* Listings Display */}

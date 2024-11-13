@@ -16,6 +16,7 @@ const ProfileHeader = ({
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
 
+
   const {
     user,
     student,
@@ -154,7 +155,7 @@ const ProfileHeader = ({
             <div>
               <button
                 className="btn btn-rectangle secondary white my-2"
-                onClick={handleEditButton}
+                onClick={handleEditButton} disabled={location.pathname === "/profile/edit-profile"}
               >
                 <img src={editIcon} alt="Edit" />
                 Edit

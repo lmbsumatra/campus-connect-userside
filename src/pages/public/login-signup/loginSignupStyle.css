@@ -154,3 +154,62 @@
 .auth-form {
   width: 100%;
 }
+
+.password-field-container {
+  position: relative;
+  width: 100%;
+}
+
+.input-container {
+  position: relative;
+}
+
+.form-control {
+  padding-right: 40px; /* Space for the icon inside the input */
+  width: 100%; /* Make the input take up the full width */
+}
+
+.login.pass-icon {
+  position: absolute;
+  right: 0px; /* Adjust position of the icon within the input */
+  top: -7px;
+  line-height: 0;
+  cursor: pointer;
+  z-index: 10; /* Make sure the icon is above the input */
+}
+
+.login.pass-icon img {
+  height: 36px;
+  width: auto;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  line-height: 0;
+}
+
+.login.pass-icon img:hover {
+  background-color: var(--clr-muted);
+}
+
+
+.signup.pass-icon {
+  position: absolute;
+  right: 0px; /* Adjust position of the icon within the input */
+  top: -28px;
+  line-height: 0;
+  cursor: pointer;
+  z-index: 10; /* Make sure the icon is above the input */
+}
+
+.signup.pass-icon img {
+  height: 36px;
+  width: auto;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  line-height: 0;
+}
+
+.signup.pass-icon img:hover {
+  background-color: var(--clr-muted);
+}

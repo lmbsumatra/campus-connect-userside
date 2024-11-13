@@ -4,10 +4,17 @@ import { useNavigate } from "react-router-dom";
 import "./loginSignupStyle.css";
 import { GoogleLogin } from "@react-oauth/google"; // Google Login library
 import { useAuth } from "../../../context/AuthContext"; // Authentication context
+import showPassword from "../../../assets/images/icons/eye-open.svg";
+import hidePassword from "../../../assets/images/icons/eye-closed.svg";
 
 const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
   const { loginStudent } = useAuth(); // Access login function from AuthContext
   const navigate = useNavigate();
+  const [isShowPassword, setShowPassword] = useState(false);
+
+  const handleShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const [userData, setUserData] = useState({
     email: "",
@@ -138,20 +145,27 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
           </div>
 
           {/* Password input */}
-          <div>
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={userData.password}
-              onChange={handlePasswordChange}
-              onBlur={() => handleBlur("password")}
-              className="form-control rounded"
-              style={{ borderColor: getBorderColor("password") }}
-              placeholder="Password"
-              required
-            />
-          </div>
+          <div className="password-field-container">
+  <label>Password</label>
+  <div className="input-container">
+    <input
+      type={isShowPassword ? "text" : "password"} 
+      name="password"
+      value={userData.password}
+      onChange={handlePasswordChange}
+      onBlur={() => handleBlur("password")}
+      className="form-control rounded"
+      style={{ borderColor: getBorderColor("password") }}
+      placeholder="Password"
+      required
+    />
+    
+  </div>
+  <div className="login pass-icon" onClick={handleShowPassword}>
+      <img src={isShowPassword ? showPassword : hidePassword} alt="Toggle password visibility" />
+    </div>
+</div>
+
 
           {/* Action buttons */}
           <div className="action-buttons d-block">

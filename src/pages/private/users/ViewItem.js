@@ -214,11 +214,11 @@ function ViewItem() {
         <div>
           <strong>Tags:</strong>
           {Array.isArray(tags) && tags.length > 0 ? (
-            <div className="tags-container">
+            <div className="tags-container d-flex gap-2">
               {tags.map((tag, index) => (
-                <span key={index} className="badge bg-primary me-2">
+                <button key={index} className="btn btn-rounded thin" disabled>
                   {tag}
-                </span>
+                </button>
               ))}
             </div>
           ) : (

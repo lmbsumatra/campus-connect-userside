@@ -8,6 +8,7 @@ import item5 from "../../assets/images/item/item_5.jpg";
 import moreImg from "../../assets/images/icons/moreImg.png";
 import "./postStyles.css";
 import { formatDate } from "../../utils/dateFormat";
+import flagIcon from "../../assets/images/card/flag.svg";
 
 const BorrowingPost = ({ borrowingPosts, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -115,8 +116,8 @@ const BorrowingPost = ({ borrowingPosts, title, isProfileVisit }) => {
                           </div>
                         </div>
                         <img
-                          src={moreImg}
-                          className="icon more"
+                          src={flagIcon}
+                          className="icon flag-item"
                           alt="More options"
                           onClick={(e) => handleMoreClick(index, e)}
                           style={{ cursor: "pointer" }}
@@ -136,17 +137,6 @@ const BorrowingPost = ({ borrowingPosts, title, isProfileVisit }) => {
                           {tags.map((tag, tagIndex) => (
                             <li key={tagIndex}>{tag}</li>
                           ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                  {showOptions === index && (
-                    <div className="options">
-                      <div className="options-content">
-                        <ul>
-                          <li>Option 1</li>
-                          <li>Option 2</li>
-                          <li>Option 3</li>
                         </ul>
                       </div>
                     </div>
