@@ -63,7 +63,7 @@ export const HandleWeeklyDateAndTime = ({ data, setData }) => {
   return (
     <div className="sub-groupby">
       <label>Select Days:</label>
-      <div className="day-selector">
+      <div className="day-selector no-scrollbars">
         {["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"].map((day) => (
           <span
             key={day}
@@ -123,7 +123,7 @@ export const HandleWeeklyDateAndTime = ({ data, setData }) => {
                     <div className="d-block">
                       <label>Times:</label>
                       {weeklyRentalTimes[day]?.times?.map((timeObj, timeIndex) => (
-                        <div key={timeIndex} className="time-input d-flex align-items-center">
+                        <div key={timeIndex} className=" d-flex align-items-center">
                           <span>{`${timeObj.from} - ${timeObj.to}`}</span>
                           <button
                             className="btn btn-danger ms-2"
@@ -133,20 +133,22 @@ export const HandleWeeklyDateAndTime = ({ data, setData }) => {
                           </button>
                         </div>
                       ))}
-                      <div className="d-flex align-items-center mt-2">
+                      <div className="d-flex align-items-center">
+                      <label>From:</label>
                         <input
                           type="time"
                           placeholder="From"
                           value={newFrom}
                           onChange={(e) => setNewFrom(e.target.value)}
-                          className="no-border"
+                          className="time-inputs no-border"
                         />
+                        <label>To:</label>
                         <input
                           type="time"
                           placeholder="To"
                           value={newTo}
                           onChange={(e) => setNewTo(e.target.value)}
-                          className="no-border"
+                          className="time-inputs no-border"
                         />
                         <button
                           className="btn btn-primary ms-2"

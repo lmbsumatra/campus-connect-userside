@@ -23,7 +23,7 @@ exports.getAllAvailableItemForSale = async (req, res) => {
         {
           model: models.RentalDate,
           as: "available_dates",
-          required: false,
+          required: true,
           where: {
             item_type: "item_for_sale",
           },
@@ -31,7 +31,7 @@ exports.getAllAvailableItemForSale = async (req, res) => {
             {
               model: models.RentalDuration,
               as: "durations",
-              required: false,
+              required: true,
             },
           ],
         },
@@ -298,12 +298,11 @@ exports.createItemForSale = async (req, res) => {
 // Get a single post by ID with associated rental dates, durations, and renter info
 exports.getItemForSaleById = async (req, res) => {
   try {
-    const item = await models.ItemForSale.findByPk(req.params.id, {
+    const post = await models.ItemForSale.findByPk(req.params.id, {
       include: [
         {
           model: models.RentalDate,
           as: "available_dates",
-          where: { item_type: "item_for_sale" },
           include: [
             {
               model: models.RentalDuration,
@@ -322,17 +321,23 @@ exports.getItemForSaleById = async (req, res) => {
           ],
         },
       ],
+      where: {
+        // Assuming you have a column 'item_type' in your Listing model
+        item_type: "item_for_sale",  // Filter for listings only
+      },
     });
 
-    if (!item) {
+    if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
-    res.status(200).json(item);
+
+    res.status(200).json(post);
   } catch (error) {
     console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Update a post
 exports.updateItemForSale = async (req, res) => {

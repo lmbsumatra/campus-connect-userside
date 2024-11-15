@@ -7,10 +7,12 @@ export const HandleCustomDateAndTime = ({ data, setData }) => {
   const [activeDate, setActiveDate] = useState(null);
 
   useEffect(() => {
-    const dateAndTime = Object.entries(customDates).map(([date, { times }]) => ({
-      date,
-      times,
-    }));
+    const dateAndTime = Object.entries(customDates).map(
+      ([date, { times }]) => ({
+        date,
+        times,
+      })
+    );
     setData((prev) => ({ ...prev, dateAndTime }));
   }, [customDates, setData]);
 
@@ -23,7 +25,7 @@ export const HandleCustomDateAndTime = ({ data, setData }) => {
     if (!customDates[value]) {
       setCustomDates((prev) => ({
         ...prev,
-        [value]: { times: [] }
+        [value]: { times: [] },
       }));
     }
   };
@@ -59,9 +61,11 @@ export const HandleCustomDateAndTime = ({ data, setData }) => {
   };
 
   return (
-    <div className="sub-groupby">
-      <input type="date" onChange={handleDateChange} />
-      <label>Selected Dates:</label>
+    <div className="sub-groupby ">
+      <div className="date-inputs">
+        <label>Selected Dates:</label>
+        <input type="date" onChange={handleDateChange}className="date-input" />
+      </div>
       <div className="d-block">
         {Object.entries(customDates).map(([date, { times }]) => (
           <div key={date} className="date-entry">
@@ -78,10 +82,13 @@ export const HandleCustomDateAndTime = ({ data, setData }) => {
               -
             </button>
             {activeDate === date && (
-              <div className="d-block">
+              <div className="d-block ">
                 <label>Times:</label>
                 {times.map((timeObj, timeIndex) => (
-                  <div key={timeIndex} className="time-input d-flex align-items-center">
+                  <div
+                    key={timeIndex}
+                    className=" d-flex align-items-center"
+                  >
                     <span>{`${timeObj.from} - ${timeObj.to}`}</span>
                     <button
                       className="btn btn-danger ms-2"
@@ -91,18 +98,22 @@ export const HandleCustomDateAndTime = ({ data, setData }) => {
                     </button>
                   </div>
                 ))}
-                <div className="d-flex align-items-center mt-2">
+                <div className="d-flex align-items-center">
+                  <label>From: </label>
                   <input
                     type="time"
                     placeholder="From"
                     value={newFrom}
                     onChange={(e) => setNewFrom(e.target.value)}
+                    className="time-inputs"
                   />
+                  <label className="d-flex">To: </label>
                   <input
                     type="time"
                     placeholder="To"
                     value={newTo}
                     onChange={(e) => setNewTo(e.target.value)}
+                    className="time-inputs"
                   />
                   <button
                     className="btn btn-primary ms-2"

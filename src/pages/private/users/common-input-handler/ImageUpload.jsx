@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import itemForSaleIcon from "../../../../assets/images/card/sale.png";
 
 export const ImageUpload = ({
-  listingData = { images: [] },
-  setListingData,
+  data = { images: [] },
+  setData,
   isForSale,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -13,7 +13,7 @@ export const ImageUpload = ({
   const handleAddImage = (e) => {
     const files = Array.from(e.target.files);
 
-    setListingData((prevData) => ({
+    setData((prevData) => ({
       ...prevData,
       images: [...prevData.images, ...files],
     }));
@@ -23,7 +23,7 @@ export const ImageUpload = ({
   };
 
   const handleRemoveImage = (index) => {
-    setListingData((prevData) => {
+    setData((prevData) => {
       const newImages = prevData.images.filter((_, i) => i !== index);
       const newImageURLs = imageURLs.filter((_, i) => i !== index);
 
@@ -33,7 +33,7 @@ export const ImageUpload = ({
     });
 
     setCurrentImageIndex((prevIndex) => {
-      if (listingData.images.length === 1) return 0;
+      if (data.images.length === 1) return 0;
       if (index < prevIndex) return prevIndex - 1;
       if (index === prevIndex && prevIndex > 0) return prevIndex - 1;
       return prevIndex;
@@ -65,12 +65,12 @@ export const ImageUpload = ({
             />
           )}
 
-          {listingData.images.length === 0 ? (
+          {data.images.length === 0 ? (
             "Click here to add an image."
           ) : (
             <>
               <img
-                src={URL.createObjectURL(listingData.images[currentImageIndex])}
+                src={URL.createObjectURL(data.images[currentImageIndex])}
                 alt="Preview"
               />
               <div className="overlay">
@@ -91,7 +91,7 @@ export const ImageUpload = ({
         />
       </div>
       <div className="small-image-previews">
-        {listingData.images.map((image, index) => (
+        {data.images.map((image, index) => (
           <div key={index} className="small-image-container">
             <img
               src={URL.createObjectURL(image)}

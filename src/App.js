@@ -63,12 +63,13 @@ import MyRentals from "./components/myrentals/MyRentals.jsx";
 import { SocketProvider } from "./context/SocketContext.js";
 
 function App() {
+  console.log(baseApi);
   return (
     <AuthProvider>
       <SocketProvider>
         <BrowserRouter>
           <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
-            <Content />
+            <Content baseApi={baseApi} />
           </GoogleOAuthProvider>
         </BrowserRouter>
       </SocketProvider>
@@ -238,5 +239,10 @@ function Content() {
     </>
   );
 }
+
+const baseApiUrl = window.location.hostname;
+const baseApiPort = 3001;
+
+export const baseApi = `http://${baseApiUrl}:${baseApiPort}`;
 
 export default App;

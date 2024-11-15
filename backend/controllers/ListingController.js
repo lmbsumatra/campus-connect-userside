@@ -15,7 +15,7 @@ exports.getAllAvailableListing = async (req, res) => {
         {
           model: models.RentalDate,
           as: "rental_dates",
-          required: false,
+          required: true,
           where: {
             item_type: "listing",
             status: "available", // Filter for available dates
@@ -24,7 +24,7 @@ exports.getAllAvailableListing = async (req, res) => {
             {
               model: models.RentalDuration,
               as: "durations",
-              required: false,
+              required: true,
               where: {
                 status: "available", // Filter for available durations
               },
@@ -364,14 +364,8 @@ exports.getListingById = async (req, res) => {
             {
               model: models.RentalDuration,
               as: "durations",
-              where: {
-                status: "available",  // Filter durations by "available" status
-              },
             },
           ],
-          where: {
-            status: "available",  // Filter rental dates by "available" status
-          },
         },
         {
           model: models.User,
@@ -384,17 +378,23 @@ exports.getListingById = async (req, res) => {
           ],
         },
       ],
+      where: {
+        // Assuming you have a column 'item_type' in your Listing model
+        item_type: "listing",  // Filter for listings only
+      },
     });
 
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
+
     res.status(200).json(post);
   } catch (error) {
     console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Update a post
 exports.updateListing = async (req, res) => {
@@ -439,6 +439,7 @@ exports.updateStatus = async (req, res) => {
     await listing.save();
 
     res.status(200).json(listing); 
+    console.log(listing)
   } catch (error) {
     console.error("Error updating listing status:", error);
     res.status(500).json({ error: error.message });

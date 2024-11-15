@@ -211,8 +211,8 @@ const AddListing = () => {
         <div className="form-preview w-100">
           {/* Image Upload Component */}
           <ImageUpload
-            listingData={listingData}
-            setListingData={setListingData}
+            data={listingData}
+            setData={setListingData}
             isForSale={isForSale}
           />
 

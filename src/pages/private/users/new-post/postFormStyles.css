@@ -79,15 +79,18 @@ h2 {
   border: 1px solid #ccc; /* Border for the parent container */
   border-radius: 5px;
   overflow: hidden;
+  justify-content: space-between;
 }
 .time-inputs label {
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center; /* Centers text vertically */
   height: 100%;
   width: 40px; /* Adjust width as needed */
   margin: 0; /* Ensure no margin */
   padding: 0; /* Ensure no padding */
+  text-wrap: nowrap;
+  
 }
 
 .time-input {
@@ -159,7 +162,7 @@ label {
 
 .date-inputs label {
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center; /* Centers text vertically */
   height: 100%;
   margin: 0; /* Ensure no margin */

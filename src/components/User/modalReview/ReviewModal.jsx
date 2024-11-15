@@ -265,9 +265,9 @@ ReviewModal.propTypes = {
     }),
   }).isRequired,
   selectedOption: PropTypes.oneOf(["Owner", "Renter"]).isRequired,
-  handleCloseModal: PropTypes.func.isRequired,
-  transactionId: PropTypes.number.isRequired,
-  reviewerId: PropTypes.number.isRequired,
+  // handleCloseModal: PropTypes.func.isRequired,
+  // transactionId: PropTypes.number.isRequired,
+  // reviewerId: PropTypes.number.isRequired,
 };
 
 export default ReviewModal;

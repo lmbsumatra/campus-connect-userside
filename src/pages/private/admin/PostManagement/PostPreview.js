@@ -113,8 +113,8 @@ function PostPreview({ selectedPost, loading, error, tags }) {
             <div className="d-flex align-items-center">
               <img src={userProfilePic} alt="Profile" className="profile-pic me-2" />
               <div>
-                <a href={`/userprofile/${selectedPost.renter.first_name}`} className="text-dark small text-decoration-none">
-                  {selectedPost.renter.first_name}
+                <a href={`/userprofile/${selectedPost?.renter?.first_name}`} className="text-dark small text-decoration-none">
+                  {selectedPost?.renter?.first_name}
                 </a>
               </div>
             </div>

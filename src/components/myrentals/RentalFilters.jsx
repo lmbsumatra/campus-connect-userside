@@ -7,6 +7,7 @@ function RentalFilters({
   onFilterClick,
   selectedOption,
   countTransactions,
+  onTabChange, // Fix prop name here
 }) {
   const navigate = useNavigate();
 
@@ -31,22 +32,30 @@ function RentalFilters({
       <div className="filter-buttons no-scrollbars">
         {filterOptions.map((filter) => {
           // Get count and color for the current filter
-          const { count, color } = countTransactions[filter] || { count: 0, color: "gray" };
+          const { count, color } = countTransactions[filter] || {
+            count: 0,
+            color: "gray",
+          };
 
           return (
             <button
               key={filter}
               className={`filter-button ${activeFilter === filter ? "active" : ""}`}
-              onClick={() => onFilterClick(filter)}
+              onClick={() => {
+                onFilterClick(filter); // Update filter
+                onTabChange(filter); // Change tab when a filter is clicked
+              }}
               style={{
                 color: getDynamicFilterTextColor(),
-                "--underline-color": activeFilter === filter ? getDynamicFilterTextColor() : "#ccc",
-                // backgroundColor: color, // Set the background color based on the confirmation state
-                // borderColor: color,     // Optionally set the border color as well
+                "--underline-color":
+                  activeFilter === filter ? getDynamicFilterTextColor() : "#ccc",
               }}
             >
-              {filter} 
-              <span className={`transaction-indicator `} style={{backgroundColor: color}}>
+              {filter}
+              <span
+                className="transaction-indicator"
+                style={{ backgroundColor: color }}
+              >
                 {count} {/* Only show the count if greater than 0 */}
               </span>
             </button>

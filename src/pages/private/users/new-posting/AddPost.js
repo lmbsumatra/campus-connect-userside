@@ -1,7 +1,7 @@
 // Import necessary libraries and components
 import React, { useState, useEffect } from "react";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useAuth } from "../../../../context/AuthContext";
 
@@ -29,11 +29,15 @@ const AddPost = () => {
     dateAndTime: [],
   });
 
-  const { studentUser } = useAuth();  // Access current user context
+  const { studentUser } = useAuth(); // Access current user context
   const { userId } = studentUser;
 
-  const { user, student, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
-  const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);  // Error message state
+  const {
+    user,
+    student,
+    errorMessage: fetchErrorMessage,
+  } = FetchUserInfo({ userId });
+  const [errorMessage, setErrorMessage] = useState(fetchErrorMessage); // Error message state
 
   // Sync post data with user and student info when they change
   useEffect(() => {
@@ -47,9 +51,9 @@ const AddPost = () => {
   }, [user, student]);
 
   // Other form-related state
-  const [newTag, setNewTag] = useState("");  // For adding new tags
-  const [isExpanded, setIsExpanded] = useState(false);  // Toggle for expanded fields
-  const [settingDateOption, SetSettingDateOption] = useState("custom");  // Date option (custom or weekly)
+  const [newTag, setNewTag] = useState(""); // For adding new tags
+  const [isExpanded, setIsExpanded] = useState(false); // Toggle for expanded fields
+  const [settingDateOption, SetSettingDateOption] = useState("custom"); // Date option (custom or weekly)
 
   // Toggle the expanded state for extra form fields
   const toggleGroup = () => setIsExpanded(!isExpanded);
@@ -75,32 +79,31 @@ const AddPost = () => {
       
 
       //toast success notification
-      toast.success('Post created successfully!', {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
+      toast.success("Post created successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     } catch (error) {
       console.error("Error creating post:", error);
-    setErrorMessage("Failed to create post.");
-    // toast error notification
-    toast.error('Failed to create post. Please try again.', {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    })
+      setErrorMessage("Failed to create post.");
+      // toast error notification
+      toast.error("Failed to create post. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
-  
   // Add a tag to the post data
   const handleAddTag = () => {
     const trimmedTag = newTag.trim();
@@ -109,7 +112,7 @@ const AddPost = () => {
         ...prevData,
         tags: [...prevData.tags, trimmedTag],
       }));
-      setNewTag("");  // Clear input after adding tag
+      setNewTag(""); // Clear input after adding tag
     } else {
       alert("Tag cannot be empty!");
     }
@@ -136,7 +139,7 @@ const AddPost = () => {
       <div className="py-4 px-2 m-0 rounded row bg-white">
         <div className="form-preview w-100">
           {/* Image Upload Section */}
-          <ImageUpload postData={postData} setPostData={setPostData} />
+          <ImageUpload data={postData} setData={setPostData} />
 
           <div className="form-fields bg-white p-3 rounded">
             {/* Post Item Name */}
@@ -156,32 +159,42 @@ const AddPost = () => {
             <div className="groupby bg-white p-0">
               <div className="rental-dates d-block">
                 <label>Rental Dates</label>
-                <input
-                  type="radio"
-                  id="custom-dates"
-                  name="rentalDates"
-                  checked={settingDateOption === "custom"}
-                  onChange={() => SetSettingDateOption("custom")}
-                />
-                <label htmlFor="custom-dates">Custom Dates</label>
-                <input
-                  type="radio"
-                  id="weekly"
-                  name="rentalDates"
-                  checked={settingDateOption === "weekly"}
-                  onChange={() => SetSettingDateOption("weekly")}
-                />
-                <label htmlFor="weekly">Weekly</label>
+                <div className="d-flex gap-2">
+                  <input
+                    type="radio"
+                    id="custom-dates"
+                    name="rentalDates"
+                    checked={settingDateOption === "custom"}
+                    onChange={() => SetSettingDateOption("custom")}
+                  />
+                  <label htmlFor="custom-dates">Custom Dates</label>
+                </div>
+                <div className="d-flex gap-2">
+                  <input
+                    type="radio"
+                    id="weekly"
+                    name="rentalDates"
+                    checked={settingDateOption === "weekly"}
+                    onChange={() => SetSettingDateOption("weekly")}
+                  />
+                  <label htmlFor="weekly">Weekly</label>
+                </div>
               </div>
 
               {/* Custom Date and Time Selection */}
               {settingDateOption === "custom" && (
-                <HandleCustomDateAndTime data={postData} setData={setPostData} />
+                <HandleCustomDateAndTime
+                  data={postData}
+                  setData={setPostData}
+                />
               )}
 
               {/* Weekly Date and Time Selection */}
               {settingDateOption === "weekly" && (
-                <HandleWeeklyDateAndTime data={postData} setData={setPostData} />
+                <HandleWeeklyDateAndTime
+                  data={postData}
+                  setData={setPostData}
+                />
               )}
 
               {/* Tags Section */}
@@ -204,7 +217,10 @@ const AddPost = () => {
                   {postData.tags.map((tag, index) => (
                     <div key={index} className="tag-display">
                       {tag}
-                      <button className="btn btn-danger" onClick={() => handleRemoveTag(tag)}>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => handleRemoveTag(tag)}
+                      >
                         -
                       </button>
                     </div>
@@ -218,10 +234,10 @@ const AddPost = () => {
 
       {/* User Toolbar and Specifications */}
       <UserToolbar
-        userProfilePic={''}
+        userProfilePic={""}
         user={user}
         isProfileVisit={false}
-        userRating={''}
+        userRating={""}
         buttonText1="View Posts"
         buttonText2="View Profile"
         activeTab="Posts"

@@ -129,7 +129,7 @@ exports.loginStudent = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
+    console.log(user)
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {

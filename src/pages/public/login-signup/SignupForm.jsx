@@ -7,9 +7,13 @@ import "./loginSignupStyle.css";
 import showPassword from "../../../assets/images/icons/eye-open.svg";
 import hidePassword from "../../../assets/images/icons/eye-closed.svg";
 
-
 // Helper function to validate form fields and check for empty required fields
-const validateRequiredFields = (userData, uploadedId, uploadedImage, selectedCollege) => {
+const validateRequiredFields = (
+  userData,
+  uploadedId,
+  uploadedImage,
+  selectedCollege
+) => {
   return (
     !userData.firstName ||
     !userData.lastName ||
@@ -77,8 +81,7 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
     setAuthTab(tab);
   }, [tab]);
 
-  useEffect(() => {
-  }, [selectedCollege, inputWarning]);
+  useEffect(() => {}, [selectedCollege, inputWarning]);
 
   const handleImageUpload = (e, setImage) => {
     const file = e.target.files[0];
@@ -119,13 +122,19 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
 
   const getBorderColor = (field) => (inputTriggers[field] ? "red" : "");
 
-
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
 
     // Validate form fields
-    if (validateRequiredFields(userData, uploadedId, uploadedImage, selectedCollege)) {
+    if (
+      validateRequiredFields(
+        userData,
+        uploadedId,
+        uploadedImage,
+        selectedCollege
+      )
+    ) {
       setErrorMessage("Please fill in all required fields.");
       errorRef.current.scrollIntoView({ behavior: "smooth" });
       return;
@@ -160,7 +169,9 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
         alert("Registered Successfully");
       } else {
         const errorData = await response.json();
-        setErrorMessage(errorData.message || "Registration failed. Please try again.");
+        setErrorMessage(
+          errorData.message || "Registration failed. Please try again."
+        );
         errorRef.current.scrollIntoView({ behavior: "smooth" });
       }
     } catch (error) {
@@ -174,10 +185,12 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
       <form onSubmit={handleRegisterSubmit}>
         <div className="auth-form">
           <h2 ref={errorRef}>Connect and Earn</h2>
-          <span className={`${errorMessage ? "text-danger" : "text-secondary"}`}>
+          <span
+            className={`${errorMessage ? "text-danger" : "text-secondary"}`}
+          >
             {errorMessage || "Please complete all required fields to register."}
           </span>
-          
+
           {/* Personal Details Section */}
           <section className="personal-details bordered-section">
             <p>Personal Details</p>
@@ -241,7 +254,8 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
                   className="w-100"
                   style={{
                     borderColor:
-                      collegeTouched === false && selectedCollege === "Select your college"
+                      collegeTouched === false &&
+                      selectedCollege === "Select your college"
                         ? "red"
                         : "",
                   }}
@@ -249,12 +263,24 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
                   {selectedCollege}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item eventKey="CAFA">College of Architecture Fine Arts</Dropdown.Item>
-                  <Dropdown.Item eventKey="CIE">College of Industrial Education</Dropdown.Item>
-                  <Dropdown.Item eventKey="CIT">College of Industrial Technology</Dropdown.Item>
-                  <Dropdown.Item eventKey="CLA">College of Liberal Arts</Dropdown.Item>
-                  <Dropdown.Item eventKey="COE">College of Engineering</Dropdown.Item>
-                  <Dropdown.Item eventKey="COS">College of Science</Dropdown.Item>
+                  <Dropdown.Item eventKey="CAFA">
+                    College of Architecture Fine Arts
+                  </Dropdown.Item>
+                  <Dropdown.Item eventKey="CIE">
+                    College of Industrial Education
+                  </Dropdown.Item>
+                  <Dropdown.Item eventKey="CIT">
+                    College of Industrial Technology
+                  </Dropdown.Item>
+                  <Dropdown.Item eventKey="CLA">
+                    College of Liberal Arts
+                  </Dropdown.Item>
+                  <Dropdown.Item eventKey="COE">
+                    College of Engineering
+                  </Dropdown.Item>
+                  <Dropdown.Item eventKey="COS">
+                    College of Science
+                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </div>
@@ -266,7 +292,8 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
                   className="upload-box"
                   onClick={handleImageClick}
                   style={{
-                    borderColor: imageTouched && uploadedImage === null ? "red" : "",
+                    borderColor:
+                      imageTouched && uploadedImage === null ? "red" : "",
                   }}
                 >
                   {uploadedImage ? (
@@ -339,45 +366,57 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
             </div>
 
             <div className="input-group">
-  <span className="input-group-text">Password</span>
-  <div className="input-container">
-    <input
-      type={isShowPassword ? "text" : "password"} 
-      name="password"
-      value={userData.password}
-      onChange={handlePasswordChange}
-      onFocus={() => setInputTriggers((prev) => ({ ...prev, password: false }))}
-      onBlur={() => handleBlur("password")}
-      className="form-control"
-      style={{ borderColor: getBorderColor("password") }}
-      required
-    />
-    <div className="signup pass-icon" onClick={handleShowPassword}>
-      <img src={isShowPassword ? showPassword : hidePassword} alt="Toggle password visibility" />
-    </div>
-  </div>
-</div>
-{userData.password && <PasswordMeter password={userData.password} />}
+              <span className="input-group-text" >Password</span>
+              {/* <div className="input-container"> */}
+                <input
+                  type={isShowPassword ? "text" : "password"}
+                  name="password"
+                  value={userData.password}
+                  onChange={handlePasswordChange}
+                  onFocus={() =>
+                    setInputTriggers((prev) => ({ ...prev, password: false }))
+                  }
+                  onBlur={() => handleBlur("password")}
+                  className="form-control"
+                  style={{ borderColor: getBorderColor("password") }}
+                  required
+                />
+                <div className="signup pass-icon" onClick={handleShowPassword}>
+                  <img
+                    src={isShowPassword ? showPassword : hidePassword}
+                    alt="Toggle password visibility"
+                  />
+                </div>
+              {/* </div> */}
+            </div>
+            {userData.password && (
+              <PasswordMeter password={userData.password} />
+            )}
 
-<div className="input-group">
-  <span className="input-group-text">Confirm Password</span>
-  <div className="input-container">
-    <input
-      type={isShowConfirmPassword ? "text" : "password"} 
-      name="confirmPassword"
-      value={userData.confirmPassword}
-      onChange={handleChange}
-      onBlur={() => handleBlur("confirmPassword")}
-      className="form-control"
-      style={{ borderColor: getBorderColor("confirmPassword") }}
-      required
-    />
-    <div className="signup pass-icon" onClick={handleShowConfirmPassword}>
-      <img src={isShowConfirmPassword ? showPassword : hidePassword} alt="Toggle password visibility" />
-    </div>
-  </div>
-</div>
-
+            <div className="input-group">
+              <span className="input-group-text">Confirm Password</span>
+              {/* <div className="input-container"> */}
+                <input
+                  type={isShowConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={userData.confirmPassword}
+                  onChange={handleChange}
+                  onBlur={() => handleBlur("confirmPassword")}
+                  className="form-control"
+                  style={{ borderColor: getBorderColor("confirmPassword") }}
+                  required
+                />
+                <div
+                  className="signup pass-icon"
+                  onClick={handleShowConfirmPassword}
+                >
+                  <img
+                    src={isShowConfirmPassword ? showPassword : hidePassword}
+                    alt="Toggle password visibility"
+                  />
+                </div>
+              {/* </div> */}
+            </div>
           </section>
 
           {/* Submit Button */}

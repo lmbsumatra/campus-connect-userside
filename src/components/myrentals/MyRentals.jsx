@@ -5,13 +5,12 @@ import RentalFilters from "../../components/myrentals/RentalFilters";
 import RentalItem from "../../components/myrentals/RentalItem";
 import { useAuth } from "../../context/AuthContext";
 
-const MyRentals = ({ selectedOption }) => {
+const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   const { studentUser } = useAuth();
   const userId = studentUser.userId;
-  const [activeFilter, setActiveFilter] = useState("All");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [activeFilter, setActiveFilter] = useState(selectedTab || "Requests");
+  const navigate = useNavigate();
 
-  // Fetch rental transactions
   const {
     transactions: rentalItems,
     error,
@@ -20,96 +19,72 @@ const MyRentals = ({ selectedOption }) => {
 
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
+    onTabChange(filter); // Call handleTabChange when filter is clicked
   };
 
   const openRentProgress = (rentalId) => {
-    navigate(`/rent-progress/${rentalId}`); // Navigate with rental ID
+    navigate(`/rent-progress/${rentalId}`);
   };
 
   if (loading) return <p>Loading...</p>;
 
   const filterOptions = [
-    { name: "All", statuses: [] }, // To include all items when "All" is selected
     { name: "Requests", statuses: ["Requested"] },
-    {
-      name: selectedOption === "Owner" ? "To Hand Over" : "To Receive",
-      statuses: ["Accepted"],
-    },
-    {
-      name: selectedOption === "Renter" ? "To Return" : "To Receive",
-      statuses: ["HandedOver"],
-    },
+    { name: selectedOption === "Owner" ? "To Hand Over" : "To Receive", statuses: ["Accepted"] },
+    { name: selectedOption === "Renter" ? "To Return" : "To Receive", statuses: ["HandedOver"] },
     { name: "Completed", statuses: ["Returned"] },
     { name: "To Review", statuses: ["Completed"] },
     { name: "Cancelled", statuses: ["Cancelled", "Declined"] },
   ];
 
-  // Filter the rental transactions based on the selectedOption (owner/renter)
   const filteredItems = rentalItems.filter((item) => {
     if (selectedOption === "Owner" && item.owner_id !== userId) return false;
     if (selectedOption === "Renter" && item.renter_id !== userId) return false;
 
     if (activeFilter === "All") return true; // Show all items for "All" filter
-    const filterOption = filterOptions.find(
-      (option) => option.name === activeFilter
-    );
+    const filterOption = filterOptions.find(option => option.name === activeFilter);
     return filterOption && filterOption.statuses.includes(item.status);
   });
 
   const countByStatus = () => {
     const counts = filterOptions.reduce((acc, option) => {
-      // Filter rental items first by selectedOption (Owner/Renter)
       const filtered = rentalItems.filter((item) => {
-        // Filter based on selectedOption (Owner or Renter)
-        if (selectedOption === "Owner" && item.owner_id !== userId)
-          return false;
-        if (selectedOption === "Renter" && item.renter_id !== userId)
-          return false;
-
-        // Then filter based on the status for the current filter option
-        if (option.statuses.length && !option.statuses.includes(item.status))
-          return false;
-
+        if (selectedOption === "Owner" && item.owner_id !== userId) return false;
+        if (selectedOption === "Renter" && item.renter_id !== userId) return false;
+        if (option.statuses.length && !option.statuses.includes(item.status)) return false;
         return true;
       });
 
-      // Calculate the count of the filtered items
       let count = filtered.length;
 
-      // Subtract "Reviewed" items only if the option name is "Review"
       if (option.name === "To Review") {
-        // Filter out items where either the owner or renter is confirmed
         const reviewedCount = filtered.filter(
-          (item) => (userId === item.owner_id && item.owner_confirmed) || 
+          (item) => (userId === item.owner_id && item.owner_confirmed) ||
                     (userId === item.renter_id && item.renter_confirmed)
         ).length;
         count -= reviewedCount;
       }
-      
-      // Assign colors based on confirmation status
-      let statusColor;
 
+      let statusColor;
       if (option.name === "To Review" && count === 0) {
-        statusColor = "gray"; // If "To Review" and count is 0, set color to gray
+        statusColor = "gray";
       } else if (option.name === "Request" && count > 0) {
         statusColor = "orange";
       } else if (option.name === "All" || option.name === "Cancelled") {
         statusColor = "white";
       } else {
         statusColor = filtered.reduce((color, item) => {
-          // Logic for coloring the item: green for confirmed, orange for pending
           if (
             (selectedOption === "Owner" && item.owner_confirmed) ||
             (selectedOption === "Renter" && item.renter_confirmed) || (option.name === "To Review")
           ) {
-            return "orange"; // Confirmed color
+            return "orange";
           } else {
-            return "red"; // Pending color
+            return "red";
           }
-        }, "gray"); // Default color if no confirmation state is found
+        }, "gray");
       }
 
-      // Update the accumulator to include both count and color
       acc[option.name] = { count, color: statusColor };
       return acc;
     }, {});
@@ -126,6 +101,8 @@ const MyRentals = ({ selectedOption }) => {
           onFilterClick={handleFilterClick}
           selectedOption={selectedOption}
           countTransactions={countByStatus()}
+          selectedTab={selectedTab}
+          onTabChange={onTabChange} // Pass the handleTabChange to RentalFilters
         />
         <div className="rental-items">
           {filteredItems.length > 0 ? (

@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const cloudinary = require("cloudinary").v2;
 const { Op } = require("sequelize");
 
 const bcrypt = require("bcrypt");

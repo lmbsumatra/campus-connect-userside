@@ -1,9 +1,10 @@
 const { Server } = require("socket.io");
-
+const { getServerUrl } = require('./getServerUrl.js');
+console.log(getServerUrl)
 function initializeSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: ["http://localhost:3000", getServerUrl],
       methods: ["GET", "POST"]
     }
   });

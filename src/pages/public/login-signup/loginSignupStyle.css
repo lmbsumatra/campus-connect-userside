@@ -191,14 +191,13 @@
   background-color: var(--clr-muted);
 }
 
-
 .signup.pass-icon {
   position: absolute;
-  right: 0px; /* Adjust position of the icon within the input */
+  right: 0px; 
   top: -28px;
   line-height: 0;
   cursor: pointer;
-  z-index: 10; /* Make sure the icon is above the input */
+  z-index: 10;
 }
 
 .signup.pass-icon img {

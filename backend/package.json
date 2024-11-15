@@ -25,6 +25,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.11.3",
     "node-cron": "^3.0.3",
+    "recharts": "^2.13.3",
     "sequelize": "^6.37.5",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
