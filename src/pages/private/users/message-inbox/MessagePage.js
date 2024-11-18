@@ -175,7 +175,7 @@ const handleConversationClick = (conversation) => {
                   const isCurrentUser =
                     chatUserId === conversation.user.user_id; // check if the user in chat is the current user
                   const displayName = !isCurrentUser
-                    ? "You"
+                    ? "Other User"
                     : chat.otherUser.first_name; // You can customize this based on your logic
 
                   return (
