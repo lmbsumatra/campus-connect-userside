@@ -83,13 +83,12 @@ app.use("/posts", postRoutes);
 app.use("/item-for-sale", itemForSaleRoutes);
 app.use("/rental-transaction", rentalTransactionRoutes);
 
-//messsaging
+
+// messsaging
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 
-//messsaging
-// app.use("/conversations", conversationRoutes);
-// app.use("/messages", messageRoutes);
+
 
 // Sync database and start server
 sequelize

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Conversation = require("../models/ConversationModel");
 const sequelize = require("../config/database");  // Import sequelize instance from the config file
-
+const Message = require ("../models/MessageModel")
 // add lang
 
 const {models} = require("../models/index")
@@ -30,7 +30,7 @@ router.get("/:id", async (req, res) => {
 
     try {
         // Log the user ID for debugging
-        console.log(`Fetching conversations for user ID: ${userId}`);
+        console.log("Fetching conversations for user ID: ${userId}");
 
         // Using sequelize.query() to run a raw SQL query
         const query = `
@@ -111,7 +111,48 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+// Additional route to handle sending a message in a conversation
+router.post("/:conversationId/message", async (req, res) => {
+    const { conversationId } = req.params; // Get the conversation ID from the URL params
+    const { sender, text } = req.body; // Get sender and message text from the request body
+  
+    try {
+      // Ensure the conversation exists
+      const conversation = await Conversation.findByPk(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+  
+      // Create the new message
+      const newMessage = await Message.create({
+        conversationId,
+        sender,
+        text,
+      });
+  
+      // Return the new message or updated conversation (optional)
+      res.status(200).json(newMessage);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+  
+  // Get all messages in a conversation
+router.get("/:conversationId/messages", async (req, res) => {
+    try {
+        const conversationId = req.params.conversationId;
 
+        // Fetch messages for the given conversation
+        const messages = await models.Message.findAll({
+            where: { conversationId },
+            order: [["createdAt", "ASC"]], // Order by creation date
+        });
+
+        res.status(200).json(messages);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // Get all conversations
 // router.get("/", async (req, res) => {

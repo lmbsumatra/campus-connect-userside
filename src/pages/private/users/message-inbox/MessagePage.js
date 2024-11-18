@@ -16,6 +16,7 @@ const MessagePage = ({ currentUser }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+
   // Handle window resize event
   useEffect(() => {
     const handleResize = () => {
@@ -54,6 +55,7 @@ const MessagePage = ({ currentUser }) => {
   //   getUser();
   // }, [conversation, currentUser]);
   // Fetch conversations on userId change
+  
   useEffect(() => {
     if (!userId) {
       console.log("User ID is missing");
@@ -84,26 +86,75 @@ const MessagePage = ({ currentUser }) => {
     }
   }, [userId]);
 
+  useEffect(() => {
+    if (activeChat) {
+        const fetchNewMessages = async () => {
+            try {
+                const res = await axios.get(
+                    `http://localhost:3001/api/conversations/${activeChat.id}/messages`
+                );
+                const newMessages = res.data;
+
+                // Only add new messages that are not already in the active chat
+                const updatedMessages = [...activeChat.messages];
+                newMessages.forEach((msg) => {
+                    if (!updatedMessages.some((m) => m.id === msg.id)) {
+                        updatedMessages.push(msg);
+                    }
+                });
+
+                setActiveChat((prevChat) => ({
+                    ...prevChat,
+                    messages: updatedMessages,
+                }));
+            } catch (err) {
+                console.error("Error fetching new messages:", err);
+            }
+        };
+
+        // Poll for new messages every 5 seconds
+        const intervalId = setInterval(fetchNewMessages, 5000);
+
+        return () => clearInterval(intervalId); // Cleanup on unmount
+    }
+}, [activeChat]);  // Dependency on activeChat to trigger the effect when it changes
+
+
   const handleMessageChange = (e) => {
     setNewMessage(e.target.value);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (newMessage.trim()) {
-      const updatedMessages = [
-        ...activeChat.messages,
-        { sender: "User name 1", time: "7:45", content: newMessage },
-      ];
-      setActiveChat({ ...activeChat, messages: updatedMessages });
-      setNewMessage("");
+        try {
+            const messageData = {
+                sender: String(userId),  // Ensure sender is a string to match DB type
+                text: newMessage.trim(),
+            };
+
+            const res = await axios.post(
+                `http://localhost:3001/api/conversations/${activeChat.id}/message`, 
+                messageData
+            );
+
+            // Update the active chat with the new message
+            setActiveChat((prevChat) => ({
+                ...prevChat,
+                messages: [...prevChat.messages, res.data],
+            }));
+
+            setNewMessage(""); // Clear input field after sending
+        } catch (err) {
+            console.error("Error sending message:", err);
+        }
     }
-  };
+};
 
-  const handleConversationClick = (conversation) => {
-    setActiveChat(conversation);
 
-    console.log(conversation);
-  };
+const handleConversationClick = (conversation) => {
+  setActiveChat(conversation);
+};
+
 
   return (
     <div className="container-content message-page">
