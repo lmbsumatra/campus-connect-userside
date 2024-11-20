@@ -7,6 +7,12 @@ import { useNavigate } from "react-router-dom";
 import { ItemStatus } from "../../../../utils/Status";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent"; // Import SearchBar
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent"; // Import Pagination Component
+import {
+  ListingsGrowth,
+  ListingsByCategory,
+  ListingStatusDistribution,
+  TopUsersForListings,
+} from "../../../../components/Analytics/ListingAnalyticsComponent";
 
 const ListingDashboard = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
@@ -219,38 +225,10 @@ const ListingDashboard = () => {
 
         {/* Right Side: Widgets */}
         <div className="col-lg-4">
-          {/* New Listings Widget */}
-          <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>New Listings</h5>
-            <div className="new-listings d-flex">
-              <div className="profile-pic-placeholder me-2"></div>
-              <div className="profile-pic-placeholder me-2"></div>
-              <div className="profile-pic-placeholder me-2"></div>
-              <button className="btn btn-light btn-sm">+</button>
-            </div>
-          </div>
-
-          {/* Listing Growth Widget */}
-          <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>Listing Growth</h5>
-            <div className="d-flex align-items-center">
-              <h2>100+</h2>
-              <span className="ms-2 text-success">+2.45%</span>
-            </div>
-            <small className="text-muted">Monthly Growth</small>
-          </div>
-
-          {/* Top Listings Widget */}
-          <div className="p-3 bg-white rounded shadow-sm">
-            <h5>Top Listings</h5>
-            <div className="top-listings">
-              <div className="d-flex align-items-center mb-2">
-                <div className="profile-pic-placeholder me-2"></div>
-                <span>Jane Smith</span>
-                <span className="ms-auto text-warning">4.9 ★</span>
-              </div>
-            </div>
-          </div>
+          <ListingsGrowth listings={listings} />
+          <ListingsByCategory listings={listings} />
+          <ListingStatusDistribution listings={listings} />
+          <TopUsersForListings listings={listings} />
         </div>
       </div>
     </div>
