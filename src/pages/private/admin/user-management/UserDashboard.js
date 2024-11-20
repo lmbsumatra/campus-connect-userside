@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import TableComponent from "../../../../components/Table/TableComponent";
-import "./postDashboard.css";
+import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
+import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import useFetchAllUsersData from "../../../../utils/FetchAllUsersData";
 import { formatDate } from "../../../../utils/dateFormat";
-import { useNavigate } from "react-router-dom";
-import SearchBarComponent from "../../../../components/Search/SearchBarComponent"; // Import the SearchBarComponent
-import PaginationComponent from "../../../../components/Pagination/PaginationComponent"; // Pagination Component
+import "./postDashboard.css";
+import {
+  UserAnalytics,
+  ActiveUsersByCollege,
+  VerificationRate,
+} from "../../../../components/Analytics/UserAnalyticsComponents";
 
 const UserDashboard = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
@@ -14,6 +19,7 @@ const UserDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
+  const navigate = useNavigate();
 
   const headers = [
     "Thumbnail",
@@ -25,7 +31,6 @@ const UserDashboard = () => {
   ];
 
   const { users, error, loading } = useFetchAllUsersData();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (users.length) {
@@ -78,32 +83,28 @@ const UserDashboard = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Function to filter users based on search query
   const getFilteredData = () => {
     let filteredData = originalData;
 
-    // Normalize the search query by trimming and reducing multiple spaces to a single space
     const normalizedSearchQuery = searchQuery
       .trim()
-      .replace(/\s+/g, " ") // Replace multiple spaces with a single space
-      .toLowerCase(); // Make the search query lowercase
+      .replace(/\s+/g, " ")
+      .toLowerCase();
 
-    // Apply search query
     if (normalizedSearchQuery) {
       filteredData = filteredData.filter((user) => {
         const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
         const college = user.student?.college.toLowerCase() || "";
-        const normalizedDateAdded = formatDate(user.createdAt).toLowerCase(); // Normalize the Date Added to lowercase
+        const normalizedDateAdded = formatDate(user.createdAt).toLowerCase();
 
         return (
-          fullName.includes(normalizedSearchQuery) || // Search for Name
-          college.includes(normalizedSearchQuery) || // Search for College
-          normalizedDateAdded.includes(normalizedSearchQuery) // Search for Date Added
+          fullName.includes(normalizedSearchQuery) ||
+          college.includes(normalizedSearchQuery) ||
+          normalizedDateAdded.includes(normalizedSearchQuery)
         );
       });
     }
 
-    // Apply filters for College and Status (if set)
     if (filterOptions["College"]) {
       filteredData = filteredData.filter(
         (user) => user.student?.college === filterOptions["College"]
@@ -145,7 +146,6 @@ const UserDashboard = () => {
 
   const sortedFilteredData = sortedData();
 
-  // Pagination logic
   const totalItems = sortedFilteredData.length;
   const totalPages = Math.ceil(totalItems / usersPerPage);
 
@@ -190,72 +190,29 @@ const UserDashboard = () => {
   return (
     <div className="admin-content-container">
       <div className="row">
-        {/* Left Side: Recent Users */}
         <div className="col-lg-8">
-          <div className="recent-users-header p-3 mb-3">
-            <h4>Recent Users</h4>
-
-            {/* Search Bar Component */}
-            <SearchBarComponent
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-            />
-
-            {/* Table Component */}
-            <TableComponent
-              headers={headers}
-              data={data}
-              onSortChange={handleSortChange}
-              onFilterChange={handleFilterChange}
-            />
-
-            {/* Show loading or error message */}
-            {loading && <p>Loading ...</p>}
-            {error && <p>Error: {error}</p>}
-
-            {/* Pagination Component */}
-            <PaginationComponent
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          </div>
+          <SearchBarComponent
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+          <TableComponent
+            headers={headers}
+            data={data}
+            onSortChange={handleSortChange}
+            onFilterChange={handleFilterChange}
+          />
+          {loading && <p>Loading ...</p>}
+          {error && <p>Error: {error}</p>}
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
-
-        {/* Right Side: Widgets */}
         <div className="col-lg-4">
-          {/* New Users Widget */}
-          <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>New Users</h5>
-            <div className="new-users d-flex">
-              <div className="profile-pic-placeholder me-2"></div>
-              <div className="profile-pic-placeholder me-2"></div>
-              <div className="profile-pic-placeholder me-2"></div>
-              <button className="btn btn-light btn-sm">+</button>
-            </div>
-          </div>
-
-          {/* Growth Widget */}
-          <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>Growth</h5>
-            <div className="d-flex align-items-center">
-              <h2>100+</h2>
-              <span className="ms-2 text-success">+2.45%</span>
-            </div>
-            <small className="text-muted">Monthly Growth</small>
-          </div>
-
-          {/* Top Users Widget */}
-          <div className="p-3 bg-white rounded shadow-sm">
-            <h5>Top Users</h5>
-            <div className="top-users">
-              <div className="d-flex align-items-center mb-2">
-                <div className="profile-pic-placeholder me-2"></div>
-                <span>Jane Smith</span>
-                <span className="ms-auto text-warning">4.9 ★</span>
-              </div>
-            </div>
-          </div>
+          <UserAnalytics users={users} />
+          <ActiveUsersByCollege users={users} />
+          <VerificationRate users={users} />
         </div>
       </div>
     </div>
