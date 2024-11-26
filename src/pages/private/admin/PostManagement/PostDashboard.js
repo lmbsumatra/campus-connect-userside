@@ -7,6 +7,12 @@ import { useNavigate } from "react-router-dom";
 import { ItemStatus } from "../../../../utils/Status";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent"; // Import SearchBar
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent"; // Import Pagination Component
+import {
+  TopPostUsers,
+  PostStatusDistribution,
+  PostsByCategory,
+  PostsGrowth,
+} from "../../../../components/Analytics/PostAnalyticsComponent";
 
 const PostDashboard = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
@@ -232,38 +238,11 @@ const PostDashboard = () => {
 
         {/* Right Side: Widgets */}
         <div className="col-lg-4">
-          {/* New Posts Widget */}
-          <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>New Posts</h5>
-            <div className="new-posts d-flex">
-              <div className="profile-pic-placeholder me-2"></div>
-              <div className="profile-pic-placeholder me-2"></div>
-              <div className="profile-pic-placeholder me-2"></div>
-              <button className="btn btn-light btn-sm">+</button>
-            </div>
-          </div>
-
-          {/* Listing Growth Widget */}
-          <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>Listing Growth</h5>
-            <div className="d-flex align-items-center">
-              <h2>100+</h2>
-              <span className="ms-2 text-success">+2.45%</span>
-            </div>
-            <small className="text-muted">Monthly Growth</small>
-          </div>
-
-          {/* Top Posts Widget */}
-          <div className="p-3 bg-white rounded shadow-sm">
-            <h5>Top Posts</h5>
-            <div className="top-posts">
-              <div className="d-flex align-items-center mb-2">
-                <div className="profile-pic-placeholder me-2"></div>
-                <span>Jane Smith</span>
-                <span className="ms-auto text-warning">4.9 ★</span>
-              </div>
-            </div>
-          </div>
+          {/* Analytics Widgets */}
+          <PostsByCategory posts={posts} />
+          <PostsGrowth posts={posts} />
+          <PostStatusDistribution posts={posts} />
+          <TopPostUsers posts={posts} />
         </div>
       </div>
     </div>

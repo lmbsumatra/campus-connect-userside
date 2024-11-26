@@ -7,6 +7,12 @@ import { useNavigate } from "react-router-dom";
 import { ItemStatus } from "../../../../utils/Status";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
+import {
+  ItemsByCategory,
+  ListingGrowth,
+  ItemStatusDistribution,
+  TopSellers,
+} from "../../../../components/Analytics/SaleAnalyticsComponents";
 
 const ForSaleManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -220,33 +226,11 @@ const ForSaleManagement = () => {
           </div>
         </div>
         <div className="col-lg-4">
-          <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>New Sale</h5>
-            <div className="new-posts d-flex">
-              <div className="profile-pic-placeholder me-2"></div>
-              <div className="profile-pic-placeholder me-2"></div>
-              <div className="profile-pic-placeholder me-2"></div>
-              <button className="btn btn-light btn-sm">+</button>
-            </div>
-          </div>
-          <div className="mb-3 p-3 bg-white rounded shadow-sm">
-            <h5>Listing Growth</h5>
-            <div className="d-flex align-items-center">
-              <h2>100+</h2>
-              <span className="ms-2 text-success">+2.45%</span>
-            </div>
-            <small className="text-muted">Monthly Growth</small>
-          </div>
-          <div className="p-3 bg-white rounded shadow-sm">
-            <h5>Top Sale</h5>
-            <div className="top-posts">
-              <div className="d-flex align-items-center mb-2">
-                <div className="profile-pic-placeholder me-2"></div>
-                <span>Jane Smith</span>
-                <span className="ms-auto text-warning">4.9 ★</span>
-              </div>
-            </div>
-          </div>
+          {/* Analytics Widgets */}
+          <ItemsByCategory items={items} />
+          <ListingGrowth items={items} />
+          <ItemStatusDistribution items={items} />
+          <TopSellers items={items} />
         </div>
       </div>
     </div>

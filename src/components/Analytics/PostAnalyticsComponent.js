@@ -11,7 +11,7 @@ import {
   ArcElement,
 } from "chart.js";
 
-// Register required components for Chart.js
+// Register required Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -22,42 +22,10 @@ ChartJS.register(
   ArcElement
 );
 
-export const ListingsGrowth = ({ listings }) => {
-  const growthData = listings.reduce((acc, listing) => {
-    const month = new Date(listing.created_at).toLocaleString("default", {
-      month: "short",
-    });
-    acc[month] = (acc[month] || 0) + 1;
-    return acc;
-  }, {});
-
-  const chartData = {
-    labels: Object.keys(growthData),
-    datasets: [
-      {
-        label: "Listings Added",
-        data: Object.values(growthData),
-        backgroundColor: "rgba(54, 162, 235, 0.6)",
-      },
-    ],
-  };
-
-  return (
-    <div className="p-3 bg-white rounded shadow-sm mb-2">
-      <h5>Listings Growth</h5>
-      <div style={{ height: "200px" }}>
-        <Bar
-          data={chartData}
-          options={{ responsive: true, maintainAspectRatio: false }}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const ListingsByCategory = ({ listings }) => {
-  const categoryData = listings.reduce((acc, listing) => {
-    const category = listing.category || "Unknown";
+// 1. Posts by Category
+export const PostsByCategory = ({ posts }) => {
+  const categoryData = posts.reduce((acc, post) => {
+    const category = post.category || "Unknown";
     acc[category] = (acc[category] || 0) + 1;
     return acc;
   }, {});
@@ -81,7 +49,7 @@ export const ListingsByCategory = ({ listings }) => {
 
   return (
     <div className="p-3 bg-white rounded shadow-sm mb-2">
-      <h5>Listings by Category</h5>
+      <h5>Posts by Category</h5>
       <div style={{ height: "300px" }}>
         <Pie data={chartData} />
       </div>
@@ -89,9 +57,44 @@ export const ListingsByCategory = ({ listings }) => {
   );
 };
 
-export const ListingStatusDistribution = ({ listings }) => {
-  const statusData = listings.reduce((acc, listing) => {
-    const status = listing.status || "Unknown";
+// 2. Posts Growth
+export const PostsGrowth = ({ posts }) => {
+  const growthData = posts.reduce((acc, post) => {
+    const month = new Date(post.created_at).toLocaleString("default", {
+      month: "short",
+    });
+    acc[month] = (acc[month] || 0) + 1;
+    return acc;
+  }, {});
+
+  const chartData = {
+    labels: Object.keys(growthData),
+    datasets: [
+      {
+        label: "Posts Created",
+        data: Object.values(growthData),
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+      },
+    ],
+  };
+
+  return (
+    <div className="p-3 bg-white rounded shadow-sm mb-2">
+      <h5>Posts Growth</h5>
+      <div style={{ height: "200px" }}>
+        <Bar
+          data={chartData}
+          options={{ responsive: true, maintainAspectRatio: false }}
+        />
+      </div>
+    </div>
+  );
+};
+
+// 3. Post Status Distribution
+export const PostStatusDistribution = ({ posts }) => {
+  const statusData = posts.reduce((acc, post) => {
+    const status = post.status || "Unknown";
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
@@ -113,30 +116,30 @@ export const ListingStatusDistribution = ({ listings }) => {
 
   return (
     <div className="p-3 bg-white rounded shadow-sm mb-2">
-      <h5>Listing Status Distribution</h5>
+      <h5>Post Status Distribution</h5>
       <div style={{ height: "300px" }}>
         <Doughnut data={chartData} />
       </div>
     </div>
   );
 };
-
-export const TopUsersForListings = ({ listings }) => {
+//TOP USER FOR POSTS
+export const TopPostUsers = ({ posts }) => {
   const [timeRange, setTimeRange] = useState("monthly");
   const [topUsers, setTopUsers] = useState([]);
 
   useEffect(() => {
-    //console.log("Listings Data:", listings);
-    const filteredListings = filterListingsByTimeRange(listings, timeRange);
-    const approvedListings = filteredListings.filter(
-      (listing) => listing.status === "approved"
+    //console.log("Posts Data:", posts);
+    const filteredPosts = filterPostsByTimeRange(posts, timeRange);
+    const approvedPosts = filteredPosts.filter(
+      (posts) => posts.status === "approved"
     );
-    const userActivity = calculateTopUsers(approvedListings);
+    const userActivity = calculateTopUsers(approvedPosts);
     setTopUsers(userActivity); // No need to slice here; calculateTopUsers already limits to top 5
-  }, [timeRange, listings]);
+  }, [timeRange, posts]);
 
-  // Filter listings by time range
-  const filterListingsByTimeRange = (listings, range) => {
+  // Filter posts by time range
+  const filterPostsByTimeRange = (posts, range) => {
     const now = new Date();
 
     switch (range) {
@@ -144,8 +147,8 @@ export const TopUsersForListings = ({ listings }) => {
         now.setHours(7, 0, 0, 0);
         const todayStart = new Date(now);
         const todayEnd = new Date(now.setHours(23, 59, 59, 999));
-        return listings.filter((listing) => {
-          const createdAt = new Date(listing.created_at);
+        return posts.filter((posts) => {
+          const createdAt = new Date(posts.created_at);
           return createdAt >= todayStart && createdAt <= todayEnd;
         });
 
@@ -154,34 +157,34 @@ export const TopUsersForListings = ({ listings }) => {
         const diffToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
         const sundayStart = new Date(now.setDate(now.getDate() - diffToSunday));
         sundayStart.setHours(0, 0, 0, 0);
-        return listings.filter((listing) => {
-          const createdAt = new Date(listing.created_at);
+        return posts.filter((posts) => {
+          const createdAt = new Date(posts.created_at);
           return createdAt >= sundayStart;
         });
 
       case "monthly":
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         firstDayOfMonth.setHours(0, 0, 0, 0);
-        return listings.filter((listing) => {
-          const createdAt = new Date(listing.created_at);
+        return posts.filter((posts) => {
+          const createdAt = new Date(posts.created_at);
           return createdAt >= firstDayOfMonth;
         });
 
       default:
-        return listings;
+        return posts;
     }
   };
 
   // Calculate the top users
-  const calculateTopUsers = (approvedListings) => {
+  const calculateTopUsers = (approvedposts) => {
     const userCounts = {};
 
-    approvedListings.forEach((listing) => {
-      if (listing.owner_id && listing.owner) {
-        const userId = listing.owner_id;
+    approvedposts.forEach((posts) => {
+      if (posts.renter_id && posts.renter) {
+        const userId = posts.renter_id;
 
         // Combine first_name and last_name to create the full name
-        const fullName = `${listing.owner.first_name} ${listing.owner.last_name}`;
+        const fullName = `${posts.renter.first_name} ${posts.renter.last_name}`;
 
         if (!userCounts[userId]) {
           userCounts[userId] = { count: 0, name: fullName };
@@ -189,7 +192,7 @@ export const TopUsersForListings = ({ listings }) => {
 
         userCounts[userId].count++;
       } else {
-        console.log("Missing owner_id or owner data for listing:", listing);
+        console.log("Missing owner_id or owner data for listing:", posts);
       }
     });
 
@@ -201,7 +204,7 @@ export const TopUsersForListings = ({ listings }) => {
 
   return (
     <div className="p-3 bg-white rounded shadow-sm mb-2">
-      <h5>Top Users of Listings</h5>
+      <h5>Top Users of Posts</h5>
       <select
         value={timeRange}
         onChange={(e) => setTimeRange(e.target.value)}
@@ -219,12 +222,12 @@ export const TopUsersForListings = ({ listings }) => {
               className="list-group-item d-flex justify-content-between"
             >
               <span>{user.name}</span>
-              <span>{user.count} Approved Listings</span>
+              <span>{user.count} Approved Posts</span>
             </li>
           ))}
         </ol>
       ) : (
-        <p>No approved listings available for the selected time range.</p>
+        <p>No approved posts available for the selected time range.</p>
       )}
     </div>
   );
