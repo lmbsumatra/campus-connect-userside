@@ -55,6 +55,7 @@ exports.getAvailablePostById = async (req, res) => {
           as: "rental_dates",
           where: {
             status: "available", // Ensures only "available" rental dates are included
+            item_type: "post",
           },
           include: [
             {

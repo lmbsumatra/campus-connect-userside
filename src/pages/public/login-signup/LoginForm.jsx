@@ -1,5 +1,5 @@
 // React Imports
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./loginSignupStyle.css";
 import { GoogleLogin } from "@react-oauth/google"; // Google Login library
@@ -77,16 +77,22 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
         navigate("/"); // Navigate to home after login
       } else {
         const errorData = await res.json();
-        setErrorMessage(errorData.message || "Google login failed. Please try again.");
+        setErrorMessage(
+          errorData.message || "Google login failed. Please try again."
+        );
       }
     } catch (error) {
-      setErrorMessage("An unexpected error occurred during Google login. Please try again later.");
+      setErrorMessage(
+        "An unexpected error occurred during Google login. Please try again later."
+      );
     }
   };
 
   // Handle errors during Google login
   const errorGoogleMessage = (error) => {
-    setErrorMessage("An error occurred while processing the Google login. Please try again.");
+    setErrorMessage(
+      "An error occurred while processing the Google login. Please try again."
+    );
   };
 
   // Handle form submission for normal login
@@ -124,8 +130,12 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
       <form onSubmit={handleLoginSubmit}>
         <div className="auth-form">
           <h2>Welcome back</h2>
-          <span className={`${errorMessage ? "text-danger" : "text-secondary"}`}>
-            {errorMessage ? errorMessage : "Please complete all required fields to log in."}
+          <span
+            className={`${errorMessage ? "text-danger" : "text-secondary"}`}
+          >
+            {errorMessage
+              ? errorMessage
+              : "Please complete all required fields to log in."}
           </span>
 
           {/* Email input */}
@@ -146,26 +156,27 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
 
           {/* Password input */}
           <div className="password-field-container">
-  <label>Password</label>
-  <div className="input-container">
-    <input
-      type={isShowPassword ? "text" : "password"} 
-      name="password"
-      value={userData.password}
-      onChange={handlePasswordChange}
-      onBlur={() => handleBlur("password")}
-      className="form-control rounded"
-      style={{ borderColor: getBorderColor("password") }}
-      placeholder="Password"
-      required
-    />
-    
-  </div>
-  <div className="login pass-icon" onClick={handleShowPassword}>
-      <img src={isShowPassword ? showPassword : hidePassword} alt="Toggle password visibility" />
-    </div>
-</div>
-
+            <label>Password</label>
+            <div className="input-container">
+              <input
+                type={isShowPassword ? "text" : "password"}
+                name="password"
+                value={userData.password}
+                onChange={handlePasswordChange}
+                onBlur={() => handleBlur("password")}
+                className="form-control rounded"
+                style={{ borderColor: getBorderColor("password") }}
+                placeholder="Password"
+                required
+              />
+            </div>
+            <div className="login pass-icon" onClick={handleShowPassword}>
+              <img
+                src={isShowPassword ? showPassword : hidePassword}
+                alt="Toggle password visibility"
+              />
+            </div>
+          </div>
 
           {/* Action buttons */}
           <div className="action-buttons d-block">

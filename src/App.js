@@ -61,6 +61,7 @@ import MyListings from "./pages/private/users/student-profile/MyListings.jsx";
 import MyTransactions from "./pages/private/users/student-profile/MyTransactions.jsx";
 import MyRentals from "./components/myrentals/MyRentals.jsx";
 import { SocketProvider } from "./context/SocketContext.js";
+import Trial from "./Trial.js";
 
 function App() {
   console.log(baseApi);
@@ -86,6 +87,7 @@ function Content() {
       {showNavbarAndFooter && <NavBar2 className="bg-dark" />}
       <Routes>
         {/* PUBLIC ROUTES */}
+        <Route path="/trial" element={<Trial />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/login-signup" element={<LoginSignUp />} />
         <Route path="/*" element={<Home />} />

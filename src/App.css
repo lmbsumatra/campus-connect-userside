@@ -19,6 +19,7 @@
   /* --clr-main-reverse: linear-gradient(to left, #2179c8, #c31f3b); */
   /* --clr-primary: #1c1c1c; */
   --clr-secondary: #6c757d;
+  --clr-focus: #6c757d;
   --clr-light: #e0e0e0;
   --clr-white: #ffffff;
   --ff-serif: "Bellefair", serif;
@@ -131,6 +132,9 @@ body {
 
 body {
   line-height: 1.6;
+}
+body {
+  font-family: 'Roboto', sans-serif;
 }
 
 ul,

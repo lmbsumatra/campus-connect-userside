@@ -338,7 +338,6 @@ exports.getItemForSaleById = async (req, res) => {
   }
 };
 
-
 // Update a post
 exports.updateItemForSale = async (req, res) => {
   try {

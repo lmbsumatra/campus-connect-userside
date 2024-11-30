@@ -120,41 +120,54 @@ exports.registerStudent = async (req, res) => {
 // Login a student
 exports.loginStudent = async (req, res) => {
   const { email, password } = req.body;
+
+  // Validation checks
   if (!email) return res.status(400).json({ message: "Email is required" });
-  if (!password)
-    return res.status(400).json({ message: "Password is required" });
+  if (!password) return res.status(400).json({ message: "Password is required" });
 
   try {
+    // Find user
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    console.log(user)
-    const isMatch = await bcrypt.compare(password, user.password);
 
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign(
-      { userId: user.user_id, role: user.role },
-      JWT_SECRET
-    );
+    // JWT token creation
+    let token;
+    try {
+      if (!JWT_SECRET) {
+        console.error("JWT_SECRET is not defined");
+        return res.status(500).json({ message: "Server configuration error: Missing JWT secret" });
+      }
+      token = jwt.sign(
+        { userId: user.user_id, role: user.role },
+        JWT_SECRET
+      );
+    } catch (error) {
+      console.error("Error signing JWT:", error);
+      return res.status(500).json({ message: "Error generating authentication token", error: error.message });
+    }
 
+    // Respond with success
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      role: user.role,
+      userId: user.user_id,
+    });
 
-    res
-      .status(200)
-      .json({
-        message: "Login successful",
-        token,
-        role: user.role,
-        userId: user.user_id,
-      });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: "Error logging in", error: error.message });
+    return res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
+
 
 exports.googleLogin = async (req, res) => {
   const { token } = req.body;
@@ -166,7 +179,7 @@ exports.googleLogin = async (req, res) => {
     if (!user) {
       return res
         .status(404)
-        .json({ message: "User not found! Please register first." });
+        .json({ message: "Invalid email or password." });
     }
 
     const jwtToken = jwt.sign(

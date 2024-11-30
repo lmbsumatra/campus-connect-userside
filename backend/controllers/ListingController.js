@@ -318,16 +318,16 @@ exports.createListing = async (req, res, next) => {
       }
     };
     // Just before calling req.notifyAdmins
-    console.log("ItemType:", itemType);
-    console.log("CreatedItem:", {
-      id: createdItem.id,
-      name: itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name,
-     category: createdItem.category
-    });
-    console.log("Owner:", {
-      id: owner.user_id,
-      name: ownerName
-    });
+    // console.log("ItemType:", itemType);
+    // console.log("CreatedItem:", {
+    //   id: createdItem.id,
+    //   name: itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name,
+    //  category: createdItem.category
+    // });
+    // console.log("Owner:", {
+    //   id: owner.user_id,
+    //   name: ownerName
+    // });
 
     // Notify admins using socket
     req.notifyAdmins(notification);  // This should trigger the socket event on the backend
