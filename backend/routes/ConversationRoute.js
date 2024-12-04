@@ -30,7 +30,7 @@ router.get("/:id", async (req, res) => {
 
     try {
         // Log the user ID for debugging
-        console.log("Fetching conversations for user ID: ${userId}");
+        // console.log("Fetching conversations for user ID: ${userId}");
 
         // Using sequelize.query() to run a raw SQL query
         const query = `
@@ -43,7 +43,7 @@ router.get("/:id", async (req, res) => {
         const [conversations, metadata] = await sequelize.query(query);
 
         // Log the query result for debugging
-        console.log("Conversations fetched:", conversations);
+        // console.log("Conversations fetched:", conversations);
 
         // Check for student record
         const student = await models.Student.findOne({ where: { user_id: userId } });

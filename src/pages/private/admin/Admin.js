@@ -7,11 +7,12 @@ import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../../context/AuthContext";
 import useSocket from "../../../hooks/useSocket"; // Import the custom hook
 import "./adminStyles.css";
+import { io } from "socket.io-client";
 
 const Admin = () => {
   const { adminUser } = useAuth();
   const [isSidebarVisible, setSidebarVisible] = useState(true);
-  const socket = useSocket("http://localhost:3001"); // Use the custom hook to manage socket connection
+  const socket = io("http://localhost:3001");
 
   useEffect(() => {
     if (socket) {

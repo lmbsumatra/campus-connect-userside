@@ -19,12 +19,14 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UserToolbar from "../../../../components/users/user-toolbar/UserToolbar";
+import { io } from "socket.io-client";
 
 const AddListing = () => {
   //  Contexts & State
   const { studentUser } = useAuth();
   const { userId } = studentUser;
-  const socket = useSocket();
+  // const socket = useSocket();
+  const socket = io("http://localhost:3001");
 
   const {
     user,
@@ -82,7 +84,6 @@ const AddListing = () => {
   //  Toast Notifications
   const handleSubmit = async () => {
     try {
-
       const endpoint = isForSale
         ? "http://localhost:3001/item-for-sale/add"
         : "http://localhost:3001/listings/add";
@@ -126,15 +127,28 @@ const AddListing = () => {
             rental_dates: listingData.dateAndTime,
           };
 
-          console.log(payload)
-
       const response = await axios.post(endpoint, payload);
       console.log(response.data);
 
+      // Emit a socket event to notify admins about the new listing
+      if (socket) {
+        const notification = {
+          title: listingData.name,
+          owner: {
+            name: user.first_name + " " + user.last_name,
+          },
+          message: isForSale
+            ? "has listed an item for sale."
+            : "has added a new rental listing.",
+          type: isForSale ? "new-item-for-sale" : "new-listing", // Choose event type based on the listing type
+        };
+
+        // Emit the event
+        socket.emit("new-listing-notification", notification);
+      }
+
       // Toast notification on success
-      toast.success(
-      `${isForSale ? 'Item' : 'Listing'} created successfully!`,
-      {
+      toast.success(`${isForSale ? "Item" : "Listing"} created successfully!`, {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -142,24 +156,23 @@ const AddListing = () => {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-      }
-    );
-  } catch (error) {
-    console.error("Error creating listing:", error);
-    setErrorMessage("Failed to create listing.");
+      });
+    } catch (error) {
+      console.error("Error creating listing:", error);
+      setErrorMessage("Failed to create listing.");
 
-    // Toast notification on error
-      toast.error('Failed to create listing. Please try again.', {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-  }
-};
+      // Toast notification on error
+      toast.error("Failed to create listing. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  };
 
   //  Tag Handlers
   const handleAddTag = () => {

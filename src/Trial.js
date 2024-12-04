@@ -1,9 +1,5 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
-import useGoogleLogin from "./hooks/useGoogleLogin";
-import useManualLogin from "./hooks/useManualLogin";
-import { useAuth } from "./context/AuthContext";
 import {
   UPDATE_FORM,
   onInputChange,

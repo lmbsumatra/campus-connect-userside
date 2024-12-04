@@ -330,7 +330,7 @@ exports.createListing = async (req, res, next) => {
     // });
 
     // Notify admins using socket
-    req.notifyAdmins(notification);  // This should trigger the socket event on the backend
+    // req.notifyAdmins(notification);  // This should trigger the socket event on the backend
 
     res.status(201).json(createdItem);
   } catch (error) {

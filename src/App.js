@@ -62,6 +62,7 @@ import MyTransactions from "./pages/private/users/student-profile/MyTransactions
 import MyRentals from "./components/myrentals/MyRentals.jsx";
 import { SocketProvider } from "./context/SocketContext.js";
 import Trial from "./Trial.js";
+import ChatAndNotif from "./trialOnMessage&Notification/ChatAndNotif.jsx";
 
 function App() {
   console.log(baseApi);
@@ -88,6 +89,7 @@ function Content() {
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/trial" element={<Trial />} />
+        <Route path="/trialChatAndNotif" element={<ChatAndNotif />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/login-signup" element={<LoginSignUp />} />
         <Route path="/*" element={<Home />} />
