@@ -10,11 +10,11 @@
 
 .inbox {
   width: 100%;
-  max-width: 400px; /* Limit width for better mobile view */
+  max-width: 400px;
   padding: 20px;
   background-color: #fff;
-  border-right: 1px solid #ddd; /* Right border for separation */
-  overflow-y: auto; /* Enable scrolling for long message lists */
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
 }
 
 .inbox h3 {
@@ -63,12 +63,12 @@
 }
 
 .chat-box {
-  flex: 1; /* Takes the remaining space */
+  flex: 1;
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  border-left: 1px solid #ddd; /* Optional left border for separation */
-  overflow: hidden; /* Hides overflow */
+  border-left: 1px solid #ddd;
+  overflow: hidden;
 }
 
 .chat-header {
@@ -92,6 +92,8 @@
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
 }
 
 .chat-message {
@@ -137,6 +139,9 @@
   padding: 10px;
   border-top: 1px solid #ddd;
   background-color: #fff;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .chat-input input {
@@ -154,38 +159,29 @@
   color: #fff;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
 .chat-input button:hover {
   background-color: #0056b3;
 }
 
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  .message-content {
-    flex-direction: column; /* Stack vertically on mobile */
-  }
-
-  .inbox {
-    width: 100%; /* Full width on mobile */
-    border-right: none; /* Remove right border */
-  }
-
-  .chat-box {
-    width: 100%; /* Full width on mobile */
-    border-left: none; /* Remove left border */
-  }
-}
-
 .d-none {
   display: none;
 }
 
-/* Larger devices */
-@media (min-width: 769px) {
+@media (max-width: 768px) {
   .message-content {
-    flex-direction: row; /* Side by side on larger devices */
+    flex-direction: column;
+  }
+
+  .inbox {
+    width: 100%;
+    border-right: none;
+  }
+
+  .chat-box {
+    width: 100%;
+    border-left: none;
   }
 }
 
@@ -196,4 +192,17 @@
   height: 100%;
   font-size: 16px;
   color: #666;
+}
+
+/* Highlight new message */
+.chat-message.new-message {
+  border: 2px solid #4CAF50;
+  background-color: #e8f5e9;
+  animation: highlightMessage 1.5s ease-in-out;
+}
+
+@keyframes highlightMessage {
+  0% { background-color: #e8f5e9; }
+  50% { background-color: #c8e6c9; }
+  100% { background-color: #e8f5e9; }
 }
