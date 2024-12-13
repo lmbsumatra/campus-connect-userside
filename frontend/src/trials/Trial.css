@@ -1,0 +1,263 @@
+/* General Styles */
+
+input {
+  color: black;
+  background-color: #fff;
+  width: 100%;
+}
+
+.form-wrapper {
+  min-height: 80px;
+  overflow: hidden;
+  width: 100%; 
+}
+
+/* General Styles for validation messages */
+.validation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  border-radius: 4px;
+  margin-top: 4px;
+  padding: 4px;
+  width: 100%; 
+}
+.validation.error {
+  background-color: #ffe9e9;
+}
+.validation.success {
+  background-color: #ebffe9;
+}
+
+.validation img.icon {
+  height: 12px;
+  width: auto;
+}
+
+.validation span.text {
+  font-size: 12px;
+  color: red;
+  font-weight: 500;
+  width: 100%;
+
+}
+/* Ensure that the validation list (ul) also takes the full width */
+ul.list {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+ul.list li {
+  width: 100%; 
+  list-style: none; 
+  margin-bottom: 5px; 
+}
+
+/* Login Input Wrapper */
+.input-wrapper {
+  position: relative;
+  background-color: var(--clr-muted);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  width: 100%; 
+  overflow: hidden;
+}
+
+.input-wrapper img.icon {
+  position: absolute;
+  left: 8px;
+  width: 24px;
+  height: 24px;
+}
+
+.input-wrapper input {
+  border: none;
+  border-bottom: 2px solid var(--clr-muted);
+  background-color: var(--clr-muted);
+  font-size: 14px;
+  height: 40px;
+  padding: 8px 8px 8px 39px;
+  width: 100%; /* Ensure the input takes full width of the wrapper */
+  color: var(--clr-black);
+  outline: none;
+  transition: border-bottom 0.3s ease, color 0.3s ease;
+}
+
+.input-wrapper input:focus {
+  border-bottom: 2px solid var(--clr-primary);
+  color: var(--clr-primary);
+}
+
+/* Label Styles */
+.input-wrapper label {
+  font-size: 12px;
+  color: var(--clr-secondary);
+}
+
+.input-wrapper input:focus + .label,
+.input-wrapper input:not(:placeholder-shown) + .label {
+  color: var(--clr-primary);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Password Toggle Icon */
+img.password-toggle-icon {
+  position: absolute;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+/* Password validation list */
+.list {
+  display: block;
+  width: 100%; /* Ensure list takes the full width */
+}
+
+/* TUP ID Input Wrapper */
+.tupid-input-wrapper {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.input-box {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--clr-muted);
+  border-radius: 4px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--clr-black);
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.input-box:focus {
+  border-color: var(--clr-primary);
+}
+
+.input-box::placeholder {
+  color: var(--clr-muted-dark);
+}
+
+/* Divider */
+.or-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  color: #666;
+}
+
+.or-divider::before,
+.or-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #f44d4d;
+  margin: 0 10px;
+}
+
+.or-divider span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  white-space: nowrap;
+}
+
+/* Image Input Wrapper */
+.image-input-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 350px; /* Or dynamic dimensions */
+  height: 300px;
+}
+
+.image {
+  position: relative;
+  width: 100%; 
+  height: 100%;
+  border: 1px dashed #ccc; /* Default border color */
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.3s; /* Transition for border color */
+}
+
+.hover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.3s; /* Transition for overlay visibility */
+}
+
+.image:hover .hover-overlay {
+  opacity: 1; /* Show overlay on hover */
+}
+
+.image:hover {
+  border-color: var(--clr-primary); /* Change border color on hover */
+}
+
+.remove-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 999;
+}
+
+
+/* File Input */
+input[type="file"] {
+  display: none;
+}
+
+/* Remove Button */
+.remove-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.3s;
+}
+
+.remove-button img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: box-shadow 0.3s ease;
+}
+
+.remove-button:hover img {
+  box-shadow: rgba(100, 100, 111, 0.6) 0px 7px 29px 0px;
+}

@@ -4,10 +4,14 @@ import {
   UPDATE_FORM,
   onInputChange,
   onBlur,
-} from "./hooks/input-reducers/signupInputReducer";
-import emailIcon from "./assets/images/input-icons/email.svg";
-import passwordIcon from "./assets/images/input-icons/password.svg";
-import hidePasswordIcon from "./assets/images/input-icons/hide-password.svg";
+} from "../hooks/input-reducers/signupInputReducer";
+import emailIcon from "../assets/images/input-icons/email.svg";
+import passwordIcon from "../assets/images/input-icons/password.svg";
+import hidePasswordIcon from "../assets/images/input-icons/hide-password.svg";
+import warningIcon from "../assets/images/input-icons/warning.svg";
+import successIcon from "../assets/images/input-icons/success.svg";
+import closeIcon from "../assets/images/input-icons/close.svg";
+import userIcon from "../assets/images/input-icons/user.svg";
 import "./Trial.css";
 
 const initialState = {
@@ -30,6 +34,12 @@ const initialState = {
     hasError: true,
     error: "",
     validations: [],
+  },
+  tupId: {
+    value: ["", "", "", "", "", ""],
+    hasError: false,
+    error: "",
+    triggered: false,
   },
   isFormValid: false,
 };
@@ -59,35 +69,84 @@ const Trial = () => {
   const [loginDataState, dispatch] = useReducer(formsReducer, initialState);
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
-
+  const [scannedId, setScannedId] = useState(null);
+  const [imgWithid, setImgWithId] = useState(null);
+  const fileInputRef = useRef(null);
+  const [tupId, setTupId] = useState(["", "", "", "", "", ""]);
+  const inputRefs = useRef([]);
   const [isPasswordVisible, setPasswordVisible] = useState(false);
 
   const handlePasswordVisibility = () => {
     setPasswordVisible((prevState) => !prevState);
   };
 
-  const [tupId, setTupId] = useState(["", "", "", "", "", ""]);
-  const inputRefs = useRef([]);
-
   const handleTupIdChange = (index, value) => {
-    // Update the value in the state array
     const newTupId = [...tupId];
     newTupId[index] = value;
     setTupId(newTupId);
 
-    // If the current input is filled, move focus to the next input
+    onInputChange("tupId", newTupId.join(""), dispatch, loginDataState);
+    onBlur("tupId", newTupId.join(""), dispatch, loginDataState);
+
     if (value.length === 1 && index < tupId.length - 1) {
       inputRefs.current[index + 1].focus();
     }
   };
 
   const handleKeyDown = (index, event) => {
-    // If the user presses Backspace and the input is empty, move focus to the previous input
     if (event.key === "Backspace" && tupId[index] === "") {
       if (index > 0) {
-        inputRefs.current[index - 1].focus(); // Focus the previous input
+        inputRefs.current[index - 1].focus();
       }
     }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      onInputChange("imgWithId", file, dispatch, loginDataState);
+      onBlur("imgWithId", file, dispatch, loginDataState);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImgWithId(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
+
+    setImgWithId(null);
+    onInputChange("imgWithId", "", dispatch, loginDataState);
+    onBlur("imgWithId", "", dispatch, loginDataState);
+  };
+
+  const handleScannedIdChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      onInputChange("scannedId", file, dispatch, loginDataState);
+      onBlur("scannedId", file, dispatch, loginDataState);
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        setScannedId(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveScannedId = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
+    setScannedId(null);
+    onInputChange("scannedId", "", dispatch, loginDataState);
+    onBlur("scannedId", "", dispatch, loginDataState);
   };
 
   return (
@@ -97,8 +156,8 @@ const Trial = () => {
         <label htmlFor="firstName" className="label">
           First Name
         </label>
-        <div className="login input-wrapper">
-          <img className="icon" src={emailIcon} alt="First Name Icon" />
+        <div className="input-wrapper">
+          <img className="icon" src={userIcon} alt="First Name Icon" />
           <input
             id="firstName"
             name="firstName"
@@ -122,17 +181,24 @@ const Trial = () => {
         </div>
         {loginDataState.firstName.triggered &&
           loginDataState.firstName.hasError && (
-            <div className="error">{loginDataState.firstName.error}</div>
+            <div className="validation error">
+              <img
+                src={warningIcon}
+                className="icon"
+                alt="Error on first name"
+              />
+              <span className="text">{loginDataState.firstName.error}</span>
+            </div>
           )}
       </div>
 
       {/* Middle Name Input */}
       <div className="form-wrapper">
         <label htmlFor="middleName" className="label">
-          Middle Name
+          Middle Name (Optional)
         </label>
-        <div className="login input-wrapper">
-          <img className="icon" src={emailIcon} alt="Middle Name Icon" />
+        <div className="input-wrapper">
+          <img className="icon" src={userIcon} alt="Middle Name Icon" />
           <input
             id="middleName"
             name="middleName"
@@ -156,7 +222,14 @@ const Trial = () => {
         </div>
         {loginDataState.middleName.triggered &&
           loginDataState.middleName.hasError && (
-            <div className="error">{loginDataState.middleName.error}</div>
+            <div className="validation error">
+              <img
+                src={warningIcon}
+                className="icon"
+                alt="Error on middle name"
+              />
+              <span className="text">{loginDataState.middleName.error}</span>
+            </div>
           )}
       </div>
 
@@ -165,8 +238,8 @@ const Trial = () => {
         <label htmlFor="lastName" className="label">
           Last Name
         </label>
-        <div className="login input-wrapper">
-          <img className="icon" src={emailIcon} alt="Last Name Icon" />
+        <div className="input-wrapper">
+          <img className="icon" src={userIcon} alt="Last Name Icon" />
           <input
             id="lastName"
             name="lastName"
@@ -190,7 +263,14 @@ const Trial = () => {
         </div>
         {loginDataState.lastName.triggered &&
           loginDataState.lastName.hasError && (
-            <div className="error">{loginDataState.lastName.error}</div>
+            <div className="validation error">
+              <img
+                src={warningIcon}
+                className="icon"
+                alt="Error on last name"
+              />
+              <span className="text">{loginDataState.lastName.error}</span>
+            </div>
           )}
       </div>
 
@@ -199,7 +279,7 @@ const Trial = () => {
         <label htmlFor="email" className="label">
           Email
         </label>
-        <div className="login input-wrapper">
+        <div className="input-wrapper">
           <img className="icon" src={emailIcon} alt="Email Icon" />
           <input
             id="email"
@@ -218,7 +298,10 @@ const Trial = () => {
           />
         </div>
         {loginDataState.email.triggered && loginDataState.email.hasError && (
-          <div className="error">{loginDataState.email.error}</div>
+          <div className="validation error">
+            <img src={warningIcon} className="icon" alt="Error on email" />
+            <span className="text">{loginDataState.email.error}</span>
+          </div>
         )}
       </div>
 
@@ -227,7 +310,7 @@ const Trial = () => {
         <label htmlFor="password" className="label">
           Password
         </label>
-        <div className="login input-wrapper">
+        <div className="input-wrapper">
           <img className="icon" src={passwordIcon} alt="Password Icon" />
           <input
             id="password"
@@ -258,14 +341,26 @@ const Trial = () => {
 
         {/* Password validation list */}
         {loginDataState.password.validations.length > 0 && (
-          <ul className="password-validation-list">
+          <ul className="list">
             {loginDataState.password.validations.map((validation, idx) => (
-              <li
-                key={idx}
-                className={validation.isValid ? "valid" : "invalid"}
-                style={{ color: validation.isValid ? "green" : "red" }}
-              >
-                {validation.message}
+              <li key={idx}>
+                <div
+                  className={`validation ${
+                    validation.isValid ? "success" : "error"
+                  }`}
+                >
+                  <img
+                    src={validation.isValid ? successIcon : warningIcon}
+                    className="icon"
+                    alt="Error on email"
+                  />
+                  <span
+                    className={`text ${validation.isValid} ? "valid" : "invalid"`}
+                    style={{ color: validation.isValid ? "green" : "red" }}
+                  >
+                    {validation.message}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>
@@ -311,17 +406,29 @@ const Trial = () => {
           />
         </div>
 
-        {/* Password validation list */}
+        {/* Confirm Password validation list */}
         {loginDataState.confirmPassword.validations.length > 0 && (
-          <ul className="password-validation-list">
+          <ul className="list">
             {loginDataState.confirmPassword.validations.map(
               (validation, idx) => (
-                <li
-                  key={idx}
-                  className={validation.isValid ? "valid" : "invalid"}
-                  style={{ color: validation.isValid ? "green" : "red" }}
-                >
-                  {validation.message}
+                <li key={idx}>
+                  <div
+                    className={`validation ${
+                      validation.isValid ? "success" : "error"
+                    }`}
+                  >
+                    <img
+                      src={validation.isValid ? successIcon : warningIcon}
+                      className="icon"
+                      alt="Error on email"
+                    />
+                    <span
+                      className={`text ${validation.isValid} ? "valid" : "invalid"`}
+                      style={{ color: validation.isValid ? "green" : "red" }}
+                    >
+                      {validation.message}
+                    </span>
+                  </div>
                 </li>
               )
             )}
@@ -330,108 +437,157 @@ const Trial = () => {
       </div>
 
       {/* Tup id Input */}
-      <div>
+      <div className="form-wrapper">
         <label htmlFor="tupId" className="label">
           TUP ID
         </label>
-        <div>
+        <div className="tupid-input-wrapper">
           {tupId.map((digit, index) => (
             <input
               key={index}
               id={`tup-id-input-${index}`}
-              type="number"
+              type="text"
               maxLength="1"
               value={digit}
-              className="input tup-id-input"
+              className="input-box"
               placeholder="-"
               required
               onChange={(e) => handleTupIdChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)} // Handle the Backspace key
-              ref={(el) => (inputRefs.current[index] = el)} // Set the ref for each input
-              style={{
-                width: "40px",
-                height: "40px",
-                marginRight: "10px",
-                textAlign: "center",
-                fontSize: "20px",
-                borderRadius: "5px",
-                border: "2px solid #ccc",
-                outline: "none",
-                color: "black",
-                backgroundColor: "#f9f9f9",
-              }}
+              ref={(el) => (inputRefs.current[index] = el)}
             />
           ))}
         </div>
+        {loginDataState.tupId.triggered && loginDataState.tupId.hasError && (
+          <div className="validation error">
+            <img src={warningIcon} className="icon" alt="Error on TUP ID" />
+            <span className="text">{loginDataState.tupId.error}</span>
+          </div>
+        )}
       </div>
 
       {/* Image with Id Upload */}
       <div className="form-wrapper">
+        {/* Label for Image Upload */}
         <label htmlFor="imgWithId" className="label">
           Image with ID
         </label>
-        <div className="login input-wrapper">
-          <img className="icon" src={passwordIcon} alt="Password Icon" />
+
+        {/* Image Upload Section */}
+        <div className="image-input-wrapper">
+          {/* Custom Image Upload Button/Area */}
+          <label
+            htmlFor="imgWithId"
+            className={`image ${
+              loginDataState.imgWithId.value ? "has-image" : ""
+            }`}
+          >
+            {loginDataState.imgWithId.value ? (
+              <>
+                {/* Image Preview */}
+                <img src={imgWithid} alt="Preview" className="preview" />
+                <div className="hover-overlay">Click to change photo</div>
+              </>
+            ) : (
+              <span className="placeholder-text">Click to upload photo</span>
+            )}
+          </label>
+
           <input
             id="imgWithId"
-            className="input"
-            placeholder="Confirm your password"
-            required
             type="file"
-            onChange={(e) =>
-                onInputChange(
-                  "imgWithId",
-                  e.target.files,
-                  dispatch,
-                  loginDataState
-                )
-              }
-              onBlur={(e) =>
-                onBlur("imgWithId", e.target.files, dispatch, loginDataState)
-              }
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ display: "none" }}
+            ref={fileInputRef}
           />
+
+          {loginDataState.imgWithId.value && (
+            <button className="remove-button" onClick={handleRemoveImage}>
+              <img alt="Remove image button" src={closeIcon} />
+            </button>
+          )}
         </div>
+
+        {/* Error Message (if any) */}
         {loginDataState.imgWithId.triggered &&
           loginDataState.imgWithId.hasError && (
-            <div className="error">{loginDataState.imgWithId.error}</div>
+            <div className="validation error">
+              {/* Error Icon */}
+              <img
+                src={warningIcon}
+                className="icon"
+                alt="Error on Image with ID"
+              />
+              {/* Error Text */}
+              <span className="text">{loginDataState.imgWithId.error}</span>
+            </div>
           )}
       </div>
 
-      {/* Scanned Id Upload */}
+      {/* Scanned ID Upload Section */}
       <div className="form-wrapper">
         <label htmlFor="scannedId" className="label">
           Scanned ID
         </label>
-        <div className="login input-wrapper">
-          <img className="icon" src={passwordIcon} alt="Password Icon" />
+
+        <div className="image-input-wrapper">
+          {/* Custom Upload Area for Scanned ID */}
+          <label
+            htmlFor="scannedId"
+            className={`image ${
+              loginDataState.scannedId.value ? "has-image" : ""
+            }`}
+          >
+            {loginDataState.scannedId.value ? (
+              <>
+                {/* Scanned ID Preview */}
+                <img
+                  src={scannedId}
+                  alt="Scanned ID Preview"
+                  className="preview"
+                />
+                <div className="hover-overlay">Click to change photo</div>
+              </>
+            ) : (
+              <span className="placeholder-text">
+                Click to upload scanned ID
+              </span>
+            )}
+          </label>
+
           <input
             id="scannedId"
-            className="input"
-            placeholder="Confirm your password"
-            required
             type="file"
-            // value={loginDataState.scannedId.value}
-            onChange={(e) =>
-              onInputChange(
-                "scannedId",
-                e.target.files,
-                dispatch,
-                loginDataState
-              )
-            }
-            onBlur={(e) =>
-              onBlur("scannedId", e.target.files, dispatch, loginDataState)
-            }
+            accept="image/*"
+            onChange={handleScannedIdChange}
+            style={{ display: "none" }}
+            ref={fileInputRef}
           />
+
+          {loginDataState.scannedId.value && (
+            <button className="remove-button" onClick={handleRemoveScannedId}>
+              <img alt="Remove image button" src={closeIcon} />
+            </button>
+          )}
         </div>
+
+        {/* Error message (if any) */}
         {loginDataState.scannedId.triggered &&
           loginDataState.scannedId.hasError && (
-            <div className="error">{loginDataState.scannedId.error}</div>
+            <div className="validation error">
+              <img
+                src={warningIcon}
+                className="icon"
+                alt="Error on Scanned ID"
+              />
+              <span className="text">{loginDataState.scannedId.error}</span>
+            </div>
           )}
       </div>
 
       {/* Error message */}
-      {errorMessage && <div className="error">{errorMessage}</div>}
+      {errorMessage && <div className="validation error">{errorMessage}</div>}
 
       {/* Submit Button */}
       <button

@@ -143,19 +143,45 @@ export const validateInput = (name, value, password) => {
     case "confirmPassword":
       // Password validation
       const isConfirmPasswordNotEmpty = value.trim() !== "";
+      const isPasswordEmpty = password.length !== 0;
       const isPasswordEqual = value === password;
 
       validations.push({
         message: "Confirm password is required",
         isValid: isConfirmPasswordNotEmpty,
       });
-      validations.push({
-        message: "Should match the password.",
-        isValid: isPasswordEqual,
-      });
+      if (!isPasswordEmpty) {
+        validations.push({
+          message: "Enter password first",
+          isValid: isPasswordEmpty,
+        });
+      } else if (isPasswordEmpty) {
+        validations.push({
+          message: "Should match the password.",
+          isValid: isPasswordEqual,
+        });
+      }
 
       hasError = !isConfirmPasswordNotEmpty || !isPasswordEqual;
       break;
+    case "tupId":
+      if (value === "") {
+        hasError = true;
+        error = "TUP Id is required";
+      } else if (/[^0-9]/.test(value)) {
+        hasError = true;
+        error = "TUP Id contains non-digit characters";
+      } else if (value.length !== 6) {
+        hasError = true;
+        error = "TUP Id incomplete";
+      } else if (/^\d{6}$/.test(value)) {
+        console.log("TUP Id is a valid 6-digit number:", value);
+      } else {
+        hasError = true;
+        error = "TUP Id is not a valid 6-digit number";
+      }
+      break;
+
     case "imgWithId":
       const allowedTypes = [
         "image/jpeg",
@@ -200,11 +226,6 @@ export const validateInput = (name, value, password) => {
   return { hasError, error, validations };
 };
 export const onBlur = (name, value, dispatch, loginDataState) => {
-  // For file inputs, access the file directly
-  if (name === "imgWithId" || name === "scannedId") {
-    value = value[0]; // Get the file object
-  }
-
   const { hasError, error, validations } = validateInput(
     name,
     value,

@@ -61,8 +61,9 @@ import MyListings from "./pages/private/users/student-profile/MyListings.jsx";
 import MyTransactions from "./pages/private/users/student-profile/MyTransactions.jsx";
 import MyRentals from "./components/myrentals/MyRentals.jsx";
 import { SocketProvider } from "./context/SocketContext.js";
-import Trial from "./Trial.js";
+import Trial from "./trials/Trial.js";
 import ChatAndNotif from "./trialOnMessage&Notification/ChatAndNotif.jsx";
+import Trial2 from "./trials/Trial2.js";
 
 function App() {
   console.log(baseApi);
@@ -88,6 +89,7 @@ function Content() {
       {showNavbarAndFooter && <NavBar2 className="bg-dark" />}
       <Routes>
         {/* PUBLIC ROUTES */}
+        <Route path="/trial2" element={<Trial2 />} />
         <Route path="/trial" element={<Trial />} />
         <Route path="/trialChatAndNotif" element={<ChatAndNotif />} />
         <Route path="/admin-login" element={<AdminLogin />} />
