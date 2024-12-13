@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import useFetchRentalTransactionsByUserId from "../../utils/useFetchRentalTransactionsByUserId";
-import RentalFilters from "../../components/myrentals/RentalFilters";
-import RentalItem from "../../components/myrentals/RentalItem";
+import RentalFilters from "./RentalFilters";
+import RentalItem from "./RentalItem";
 import { useAuth } from "../../context/AuthContext";
 
 const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {

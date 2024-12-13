@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import "../BorrowerPOV/postStyles.css";
-import BorrowingPost from "../../../components/borrowingposts/BorrowingPost";
+import "./postStyles.css";
+import BorrowingPost from "../../borrowingposts/BorrowingPost.jsx";
 import ProfileHeader from "../header/ProfileHeader.jsx";
 import useFetchApprovedItemsByUserId from "../../../hooks/useFetchApprovedItemsByUserId.jsx";
 import { useLocation, useParams } from "react-router-dom";
