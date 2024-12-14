@@ -1,146 +1,119 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./inboxStyles.css";
 import UserIcon from "../../../../assets/images/icons/user-icon.svg";
-import axios from "axios";
 import { useAuth } from "../../../../context/AuthContext";
+import { io } from "socket.io-client";
 
-const MessagePage = ({ currentUser }) => {
-  const [conversation, setConversation] = useState();
+const MessagePage = () => {
+  const { studentUser } = useAuth();
+  const [conversations, setConversations] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [newMessage, setNewMessage] = useState("");
-  const { studentUser } = useAuth();
-  const { userId } = studentUser;
   const [isLoading, setIsLoading] = useState(true);
-
-  // Ref to handle auto scroll to bottom when new messages come in
+  const [highlightNewMessage, setHighlightNewMessage] = useState(false);
   const chatContentRef = useRef(null);
+  const socket = useRef(null);
 
-  // Handle window resize event
+  const { userId } = studentUser || {};
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch conversations when userId changes
   useEffect(() => {
-    if (!userId) {
-      console.log("User ID is missing");
-      return;
-    }
+    if (!userId) return;
 
-    const getConversations = async () => {
+    socket.current = io(
+      process.env.REACT_APP_SOCKET_URL || "http://localhost:3001"
+    );
+
+    socket.current.on("connect", () => {
+      console.log("Connected to WebSocket", socket.current.id);
+      socket.current.emit("registerUser", userId);
+    });
+
+    socket.current.on("receiveMessage", (message) => {
+      console.log("Received message:", message);
+      if (activeChat && message.conversationId === activeChat.id) {
+        setActiveChat((prev) => ({
+          ...prev,
+          messages: [...prev.messages, message],
+        }));
+        setHighlightNewMessage(true);
+        setTimeout(() => setHighlightNewMessage(false), 3000);
+      }
+    });
+
+    return () => {
+      socket.current.disconnect();
+    };
+  }, [userId, activeChat]);
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      if (!userId) return;
+
       try {
-        const res = await axios.get(
-          `http://localhost:3001/api/conversations/` + userId
+        const res = await fetch(
+          `${
+            process.env.REACT_APP_API_URL || "http://localhost:3001"
+          }/api/conversations/${userId}`
         );
-        setConversation(res.data);
+        const data = await res.json();
+        setConversations(data.conversations);
         setIsLoading(false);
       } catch (err) {
-        console.log("Error fetching conversations:", err);
+        console.error("Error fetching conversations:", err);
       }
     };
-    if (userId) {
-      getConversations();
-    }
+
+    fetchConversations();
   }, [userId]);
-
-  // Fetch new messages for the active chat every 5 seconds
   useEffect(() => {
-    if (activeChat) {
-      const fetchNewMessages = async () => {
-        try {
-          const res = await axios.get(
-            `http://localhost:3001/api/conversations/${activeChat.id}/messages`
-          );
-          const newMessages = res.data;
-
-          // Add new messages that aren't already in the active chat
-          const updatedMessages = [...activeChat.messages];
-          newMessages.forEach((msg) => {
-            if (!updatedMessages.some((m) => m.id === msg.id)) {
-              updatedMessages.push({ ...msg, isNew: true });
-            }
-          });
-
-          setActiveChat((prevChat) => ({
-            ...prevChat,
-            messages: updatedMessages,
-          }));
-
-          // Remove the "new" flag after 5 seconds
-          setTimeout(() => {
-            setActiveChat((prevChat) => ({
-              ...prevChat,
-              messages: prevChat.messages.map((msg) =>
-                msg.isNew ? { ...msg, isNew: false } : msg
-              ),
-            }));
-          }, 5000);
-        } catch (err) {
-          console.error("Error fetching new messages:", err);
-        }
-      };
-
-      // Poll for new messages every 5 seconds
-      const intervalId = setInterval(fetchNewMessages, 5000);
-
-      return () => clearInterval(intervalId);
-    }
-  }, [activeChat]);
-
-  // Handle message input change
-  const handleMessageChange = (e) => {
-    setNewMessage(e.target.value);
-  };
-
-  // Handle sending a message
-  const handleSendMessage = async () => {
-    if (newMessage.trim()) {
-      try {
-        const messageData = {
-          sender: String(userId),
-          text: newMessage.trim(),
-        };
-
-        const res = await axios.post(
-          `http://localhost:3001/api/conversations/${activeChat.id}/message`,
-          messageData
-        );
-
-        // Update the active chat with the new message
-        setActiveChat((prevChat) => ({
-          ...prevChat,
-          messages: [...prevChat.messages, res.data],
-        }));
-
-        setNewMessage(""); // Clear input field after sending
-      } catch (err) {
-        console.error("Error sending message:", err);
-      }
-    }
-  };
-
-  // Handle conversation item click
-  const handleConversationClick = (conversation) => {
-    setActiveChat(conversation);
-  };
-
-  // Scroll to the bottom of the chat content
-  const scrollToBottom = () => {
     if (chatContentRef.current) {
       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
     }
+  }, [activeChat?.messages]);
+
+  const handleSendMessage = async (message, recipientId) => {
+    if (!newMessage.trim() || !activeChat) return;
+
+    const messageData = {
+      sender: userId,
+      recipient: recipientId,
+      text: message,
+      conversationId: activeChat.id,
+      otherUser: { userId: recipientId },
+    };
+
+    try {
+      const res = await fetch(
+        `${"http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(messageData),
+        }
+      );
+      const savedMessage = await res.json();
+
+      setActiveChat((prev) => ({
+        ...prev,
+        messages: [...prev.messages, savedMessage],
+      }));
+
+      socket.current.emit("sendMessageToUser", messageData);
+      setNewMessage("");
+    } catch (err) {
+      console.error("Error sending message:", err);
+    }
   };
 
-  // Scroll to the bottom when messages are updated
-  useEffect(() => {
-    scrollToBottom();
-  }, [activeChat?.messages]); // Whenever activeChat.messages changes, scroll to bottom
+  const handleConversationClick = (conversation) => {
+    setActiveChat(conversation);
+  };
 
   return (
     <div className="container-content message-page">
@@ -149,38 +122,25 @@ const MessagePage = ({ currentUser }) => {
           className={`inbox ${isMobile && activeChat !== null ? "d-none" : ""}`}
         >
           <h3>Messages</h3>
-          {conversation ? (
-            <>
-              <div>
-                Conversations Count: {conversation.conversations.length}
-              </div>
-              {conversation.conversations.length > 0 ? (
-                conversation.conversations.map((chat) => {
-                  return (
-                    <div
-                      key={chat.id}
-                      className="inbox-item"
-                      onClick={() => handleConversationClick(chat)}
-                    >
-                      <img
-                        src={UserIcon}
-                        alt="User Icon"
-                        className="user-icon"
-                      />
-                      <div className="message-info">
-                        <h5>{chat.otherUser.first_name}</h5>
-                        <p>{chat.preview}</p>
-                      </div>
-                      <span>{chat.date}</span>
-                    </div>
-                  );
-                })
-              ) : (
-                <p>No conversations available.</p>
-              )}
-            </>
-          ) : (
+          {isLoading ? (
             <p>Loading conversations...</p>
+          ) : conversations.length > 0 ? (
+            conversations.map((chat) => (
+              <div
+                key={chat.id}
+                className="inbox-item"
+                onClick={() => handleConversationClick(chat)}
+              >
+                <img src={UserIcon} alt="User Icon" className="user-icon" />
+                <div className="message-info">
+                  <h5>{chat.otherUser.first_name}</h5>
+                  <p>{chat.preview}</p>
+                </div>
+                <span>{new Date(chat.date).toLocaleString()}</span>
+              </div>
+            ))
+          ) : (
+            <p>No conversations available.</p>
           )}
         </div>
 
@@ -200,10 +160,17 @@ const MessagePage = ({ currentUser }) => {
                 activeChat.messages.map((message, index) => (
                   <div
                     key={index}
-                    className={`chat-message ${message.sender === String(userId) ? "sent" : "received"} ${message.isNew ? "new-message" : ""}`}
+                    className={`chat-message ${
+                      message.sender === userId ? "sent" : "received"
+                    } ${
+                      highlightNewMessage &&
+                      index === activeChat.messages.length - 1
+                        ? "new-message"
+                        : ""
+                    }`}
                   >
                     <p>{message.text}</p>
-                    <span>{message.createdAt}</span>
+                    <span>{new Date(message.createdAt).toLocaleString()}</span>
                   </div>
                 ))
               ) : (
@@ -214,10 +181,16 @@ const MessagePage = ({ currentUser }) => {
               <input
                 type="text"
                 value={newMessage}
-                onChange={handleMessageChange}
+                onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type a message..."
               />
-              <button onClick={handleSendMessage}>Send</button>
+              <button
+                onClick={(e) =>
+                  handleSendMessage(newMessage, activeChat.otherUser.user_id)
+                }
+              >
+                Send
+              </button>
             </div>
           </div>
         )}

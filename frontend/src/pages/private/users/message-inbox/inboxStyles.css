@@ -206,3 +206,17 @@
   50% { background-color: #c8e6c9; }
   100% { background-color: #e8f5e9; }
 }
+/* 
+.chat-message.highlight {
+  border-left: 3px solid #ffcc00; 
+  transition: border-left 0.3s ease;
+  padding-left: 10px; 
+}
+
+.chat-message.highlight p {
+  color: #333;
+}
+
+.chat-message.highlight:hover {
+  border-left: 3px solid #ff9900; 
+} */
