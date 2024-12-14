@@ -12,13 +12,13 @@ import "./styles/icons.css";
 import "./styles/cards.css";
 import "./styles/containers.css";
 import "./styles/status.css";
+import "./trials/Trial.css"
 
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
 import Home from "./pages/public/Home.js";
 import Profile from "./pages/private/users/student-profile/Profile.js";
 import ViewPost from "./pages/private/users/ViewPost.js";
-import PostForm from "./pages/private/users/new-post/PostForm.js";
-import AddPost from "./pages/private/users/new-posting/AddPost.js";
+import AddPost from "./pages/private/users/new-post/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/RentProgress.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";

@@ -1,11 +1,6 @@
 export const UPDATE_FORM = "UPDATE FORM";
 
 export const onInputChange = (name, value, dispatch, loginDataState) => {
-  // For file inputs (like imgWithId and scannedId), handle differently.
-  if (name === "imgWithId" || name === "scannedId") {
-    value = value[0]; // Take the first file from the FileList
-  }
-
   const { hasError, error, validations } = validateInput(
     name,
     value,
@@ -165,20 +160,18 @@ export const validateInput = (name, value, password) => {
       hasError = !isConfirmPasswordNotEmpty || !isPasswordEqual;
       break;
     case "tupId":
-      if (value === "") {
+      if (value.length === 0) {
         hasError = true;
         error = "TUP Id is required";
       } else if (/[^0-9]/.test(value)) {
         hasError = true;
         error = "TUP Id contains non-digit characters";
-      } else if (value.length !== 6) {
+      } else if (value.length < 6) {
         hasError = true;
         error = "TUP Id incomplete";
-      } else if (/^\d{6}$/.test(value)) {
-        console.log("TUP Id is a valid 6-digit number:", value);
       } else {
-        hasError = true;
-        error = "TUP Id is not a valid 6-digit number";
+        hasError = false;
+        error = ""; // Reset error when TUP Id is valid
       }
       break;
 
@@ -225,6 +218,7 @@ export const validateInput = (name, value, password) => {
   }
   return { hasError, error, validations };
 };
+
 export const onBlur = (name, value, dispatch, loginDataState) => {
   const { hasError, error, validations } = validateInput(
     name,
@@ -232,6 +226,7 @@ export const onBlur = (name, value, dispatch, loginDataState) => {
     loginDataState.password.value
   );
   let isFormValid = true;
+  console.log(name, value);
 
   for (const key in loginDataState) {
     const item = loginDataState[key];

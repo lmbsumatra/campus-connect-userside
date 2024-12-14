@@ -1,9 +1,15 @@
 // Import necessary libraries and components
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useAuth } from "../../../../context/AuthContext";
+import {
+  onBlur,
+  onInputChange,
+  UPDATE_POSTING_FORM,
+} from "../../../../hooks/input-reducers/postingInputReducer";
+import warningIcon from "../../../../assets/images/input-icons/warning.svg";
 
 // Import custom components
 import "./addPostStyles.css";
@@ -13,10 +19,43 @@ import UserToolbar from "../../../../components/users/user-toolbar/UserToolbar";
 import { HandleCustomDateAndTime } from "../common-input-handler/HandleCustomDateAndTime";
 import { HandleWeeklyDateAndTime } from "../common-input-handler/HandleWeeklyDateAndTime";
 import FetchUserInfo from "../../../../utils/FetchUserInfo";
+import DateDurationPicker from "./DateDurationPicker";
+
+const initialState = {
+  itemName: { value: "", triggered: false, hasError: true, error: "" },
+  description: { value: "", triggered: false, hasError: true, error: "" },
+  category: { value: "", triggered: false, hasError: true, error: "" },
+  tags: { value: [], triggered: false, hasError: true, error: "" },
+  status: { value: "", triggered: false, hasError: true, error: "" },
+  images: { value: [], triggered: false, hasError: true, error: "" },
+  userId: { value: "", triggered: false, hasError: true, error: "" },
+  specifications: { value: [], triggered: false, hasError: true, error: "" },
+  dateAndTime: { value: "", triggered: false, hasError: true, error: "" },
+};
+
+// Reducer to manage form state updates and validation errors
+const formsReducer = (state, action) => {
+  switch (action.type) {
+    case UPDATE_POSTING_FORM:
+      return {
+        ...state,
+        [action.data.name]: {
+          ...state[action.data.name],
+          value: action.data.value,
+          hasError: action.data.hasError,
+          error: action.data.error,
+          triggered: action.data.triggered,
+        },
+        isFormValid: action.data.isFormValid, // Update form validity based on input state
+      };
+    default:
+      return state;
+  }
+};
 
 // AddPost Component
 const AddPost = () => {
-  // Define the state for form data, error handling, etc.
+  const [postDataState, dispatch] = useReducer(formsReducer, initialState);
   const [postData, setPostData] = useState({
     post_item_name: "",
     description: "",
@@ -54,13 +93,14 @@ const AddPost = () => {
   const [newTag, setNewTag] = useState(""); // For adding new tags
   const [isExpanded, setIsExpanded] = useState(false); // Toggle for expanded fields
   const [settingDateOption, SetSettingDateOption] = useState("custom"); // Date option (custom or weekly)
+  const [selectedDates, setSelectedDates] = useState([]); // To hold the selected date and time periods
 
   // Toggle the expanded state for extra form fields
   const toggleGroup = () => setIsExpanded(!isExpanded);
 
   // Handle form submission (post creation)
   const handleSubmit = async () => {
-    console.log(postData)
+    console.log(postData);
     try {
       const response = await axios.post("http://localhost:3001/posts/create", {
         post: {
@@ -75,8 +115,6 @@ const AddPost = () => {
         },
         rental_dates: postData.dateAndTime,
       });
-
-      
 
       //toast success notification
       toast.success("Post created successfully!", {
@@ -128,75 +166,96 @@ const AddPost = () => {
 
   return (
     <div className="container-content">
-      {/* ToastContainer to show notifications globally */}
       <ToastContainer />
-
-      {/* Title and Error Message */}
-      <h2>Create Post</h2>
+      <label>Create Post</label>
       {errorMessage && <div className="error-message">{errorMessage}</div>}
 
       {/* Form Container */}
-      <div className="py-4 px-2 m-0 rounded row bg-white">
+      <div className="form-container">
         <div className="form-preview w-100">
           {/* Image Upload Section */}
           <ImageUpload data={postData} setData={setPostData} />
 
-          <div className="form-fields bg-white p-3 rounded">
+          <div className="">
             {/* Post Item Name */}
-            <button className="btn btn-rounded thin">CIT</button>
-            <input
-              type="text"
-              placeholder="Item Name"
-              className="borderless"
-              value={postData.post_item_name}
-              onChange={(e) =>
-                setPostData({ ...postData, post_item_name: e.target.value })
-              }
-            />
+            <div className="field-container">
+              <button className="btn btn-rounded thin">CIT</button>
+            </div>
+
+            <div>
+              <DateDurationPicker
+                show={true}
+                onClose={() => console.log("Modal closed")}
+                onDateChange={(selectedDates) => setSelectedDates(selectedDates)} // Update selected dates when changed
+              />
+            </div>
+
+            {/* Display a summary of selected dates and time periods */}
+            <div>
+              <h3>Selected Dates and Time Periods:</h3>
+              {selectedDates.length === 0 ? (
+                <p>No dates selected yet.</p>
+              ) : (
+                <ul>
+                  {selectedDates.map((dateItem, index) => (
+                    <li key={index}>
+                      <strong>{dateItem.date.toDateString()}</strong>
+                      {dateItem.timePeriods.length === 0 ? (
+                        <p>No time periods added for this date.</p>
+                      ) : (
+                        <ul>
+                          {dateItem.timePeriods.map((period, index) => (
+                            <li key={index}>
+                              {`Start: ${period.startTime} | End: ${period.endTime}`}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="field-container">
+              <div className="input-wrapper">
+                <input
+                  id="itemName"
+                  name="itemName"
+                  className="input"
+                  placeholder="Item name"
+                  required
+                  type="text"
+                  value={postDataState.itemName.value}
+                  onChange={(e) =>
+                    onInputChange(
+                      "itemName",
+                      e.target.value,
+                      dispatch,
+                      postDataState
+                    )
+                  }
+                  onBlur={(e) =>
+                    onBlur("itemName", e.target.value, dispatch, postDataState)
+                  }
+                />
+              </div>
+              {postDataState.itemName.triggered &&
+                postDataState.itemName.hasError && (
+                  <div className="validation error">
+                    <img
+                      src={warningIcon}
+                      className="icon"
+                      alt="Error on middle name"
+                    />{" "}
+                    <span className="text">{postDataState.itemName.error}</span>
+                  </div>
+                )}
+            </div>
             <hr />
 
             {/* Rental Dates Section */}
             <div className="groupby bg-white p-0">
-              <div className="rental-dates d-block">
-                <label>Rental Dates</label>
-                <div className="d-flex gap-2">
-                  <input
-                    type="radio"
-                    id="custom-dates"
-                    name="rentalDates"
-                    checked={settingDateOption === "custom"}
-                    onChange={() => SetSettingDateOption("custom")}
-                  />
-                  <label htmlFor="custom-dates">Custom Dates</label>
-                </div>
-                <div className="d-flex gap-2">
-                  <input
-                    type="radio"
-                    id="weekly"
-                    name="rentalDates"
-                    checked={settingDateOption === "weekly"}
-                    onChange={() => SetSettingDateOption("weekly")}
-                  />
-                  <label htmlFor="weekly">Weekly</label>
-                </div>
-              </div>
-
-              {/* Custom Date and Time Selection */}
-              {settingDateOption === "custom" && (
-                <HandleCustomDateAndTime
-                  data={postData}
-                  setData={setPostData}
-                />
-              )}
-
-              {/* Weekly Date and Time Selection */}
-              {settingDateOption === "weekly" && (
-                <HandleWeeklyDateAndTime
-                  data={postData}
-                  setData={setPostData}
-                />
-              )}
-
               {/* Tags Section */}
               <div>
                 <label>Tags</label>

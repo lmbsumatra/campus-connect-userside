@@ -91,13 +91,13 @@ const Trial2 = () => {
   }, [errorGoogleLogin, errorManualLogin]);
 
   return (
-    <div className="m-5 d-flex flex-column align-items-center">
+    <div className="">
       {/* Email Input */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="email" className="label">
           Email
         </label>
-        <div className="login input-wrapper">
+        <div className="input-wrapper">
           <img className="icon" src={emailIcon} alt="Email Icon" />
           <input
             id="email"
@@ -124,15 +124,15 @@ const Trial2 = () => {
             />{" "}
             <span className="text">{loginDataState.email.error}</span>
           </div> // Show error if email is invalid
-        )}
+        )}{" "}
       </div>
 
       {/* Password Input */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="password" className="label">
           Password
         </label>
-        <div className="login input-wrapper">
+        <div className="input-wrapper">
           <img className="icon" src={passwordIcon} alt="Password Icon" />
           <input
             id="password"
@@ -160,21 +160,20 @@ const Trial2 = () => {
           />{" "}
           {/* Password visibility toggle */}
         </div>
-        {loginDataState.password.triggered && loginDataState.password.hasError && (
-          <div className="validation error">
-            <img
-              src={warningIcon}
-              className="icon"
-              alt="Error on middle name"
-            />{" "}
-            <span className="text">{loginDataState.password.error}</span>
-          </div> // Show error if email is invalid
-        )}
+        {loginDataState.password.triggered &&
+          loginDataState.password.hasError && (
+            <div className="validation error">
+              <img
+                src={warningIcon}
+                className="icon"
+                alt="Error on middle name"
+              />{" "}
+              <span className="text">{loginDataState.password.error}</span>
+            </div> // Show error if email is invalid
+          )}
       </div>
-
       {/* Error message on failed login */}
       {errorMessage && <div className="error">{errorMessage}</div>}
-
       {/* Submit Button */}
       <button
         className="btn btn-primary"
@@ -183,17 +182,13 @@ const Trial2 = () => {
       >
         {loading ? "Logging in..." : "Login"}
       </button>
-
       {/* Forgot Password Link */}
       <button className="btn btn-secondary">Forgot Password</button>
-
       {/* Google Login */}
       <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
-
       <div className="or-divider">
         <span>or</span>
       </div>
-
       {/* Sign-up Link */}
       <p>
         Don't have an account? <a className="link">Sign up here!</a>

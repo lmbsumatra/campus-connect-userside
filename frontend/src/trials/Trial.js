@@ -5,6 +5,8 @@ import {
   onInputChange,
   onBlur,
 } from "../hooks/input-reducers/signupInputReducer";
+import { Button } from "react-bootstrap";
+import ShowPhotoWithIdAndScannedIdPolicy from "./ShowPhotoWithIdAndScannedIdPolicy";
 import emailIcon from "../assets/images/input-icons/email.svg";
 import passwordIcon from "../assets/images/input-icons/password.svg";
 import hidePasswordIcon from "../assets/images/input-icons/hide-password.svg";
@@ -12,6 +14,7 @@ import warningIcon from "../assets/images/input-icons/warning.svg";
 import successIcon from "../assets/images/input-icons/success.svg";
 import closeIcon from "../assets/images/input-icons/close.svg";
 import userIcon from "../assets/images/input-icons/user.svg";
+import infoIcon from "../assets/images/input-icons/info.svg";
 import "./Trial.css";
 
 const initialState = {
@@ -72,25 +75,43 @@ const Trial = () => {
   const [scannedId, setScannedId] = useState(null);
   const [imgWithid, setImgWithId] = useState(null);
   const fileInputRef = useRef(null);
-  const [tupId, setTupId] = useState(["", "", "", "", "", ""]);
-  const inputRefs = useRef([]);
+  const [tupId, setTupId] = useState(Array(6).fill("")); // Array of 6 empty strings
+  const inputRefs = useRef([]); // Initialize inputRefs as an empty array
   const [isPasswordVisible, setPasswordVisible] = useState(false);
+  const imgWithIdInputRef = useRef(null);
+  const scannedIdInputRef = useRef(null);
+  const [showIdPolicyModal, setShowIdPolicyModal] = useState(false);
+  const [idPolicyMessage, setIdPolicyMessage] = useState("");
+
+  const handleShowIdPolicyModal = (message) => {
+    setIdPolicyMessage(message);
+    setShowIdPolicyModal(true);
+  };
+  const handleCloseIdPolicyModal = () => {
+    setShowIdPolicyModal(false);
+  };
 
   const handlePasswordVisibility = () => {
     setPasswordVisible((prevState) => !prevState);
   };
 
+  // Handle change for each digit of TUP ID
   const handleTupIdChange = (index, value) => {
+    if (/[^0-9]/.test(value)) {
+      return;
+    }
     const newTupId = [...tupId];
     newTupId[index] = value;
     setTupId(newTupId);
-
     onInputChange("tupId", newTupId.join(""), dispatch, loginDataState);
-    onBlur("tupId", newTupId.join(""), dispatch, loginDataState);
-
-    if (value.length === 1 && index < tupId.length - 1) {
+    if (value !== "" && index < inputRefs.current.length - 1) {
       inputRefs.current[index + 1].focus();
     }
+  };
+
+  // Handle blur (on losing focus) for the TUP ID input
+  const handleBlur = (e, name) => {
+    onBlur(name, tupId.join(""), dispatch, loginDataState);
   };
 
   const handleKeyDown = (index, event) => {
@@ -101,58 +122,45 @@ const Trial = () => {
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e, name) => {
     const file = e.target.files[0];
-
-    if (file) {
-      onInputChange("imgWithId", file, dispatch, loginDataState);
-      onBlur("imgWithId", file, dispatch, loginDataState);
+    onBlur(name, file, dispatch, loginDataState);
+    if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = () => {
-        setImgWithId(reader.result);
+        if (name === "imgWithId") {
+          setImgWithId(reader.result);
+        } else if (name === "scannedId") {
+          setScannedId(reader.result);
+        }
       };
       reader.readAsDataURL(file);
+      onInputChange(name, file, dispatch, loginDataState);
     }
   };
 
-  const handleRemoveImage = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = null;
+  const handleRemoveImage = (e, name) => {
+    if (name === "imgWithId") {
+      if (imgWithIdInputRef.current) {
+        imgWithIdInputRef.current.value = null;
+      }
+      setImgWithId(null);
+      onInputChange("imgWithId", "", dispatch, loginDataState);
+      onBlur("imgWithId", "", dispatch, loginDataState);
+    } else if (name === "scannedId") {
+      if (scannedIdInputRef.current) {
+        scannedIdInputRef.current.value = null;
+      }
+      setScannedId(null); // Clear the scanned ID preview
+      onInputChange("scannedId", "", dispatch, loginDataState);
+      onBlur("scannedId", "", dispatch, loginDataState);
     }
-
-    setImgWithId(null);
-    onInputChange("imgWithId", "", dispatch, loginDataState);
-    onBlur("imgWithId", "", dispatch, loginDataState);
-  };
-
-  const handleScannedIdChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      onInputChange("scannedId", file, dispatch, loginDataState);
-      onBlur("scannedId", file, dispatch, loginDataState);
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        setScannedId(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleRemoveScannedId = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = null;
-    }
-    setScannedId(null);
-    onInputChange("scannedId", "", dispatch, loginDataState);
-    onBlur("scannedId", "", dispatch, loginDataState);
   };
 
   return (
-    <div className="m-5 d-flex flex-column align-items-center">
+    <div className="">
       {/* First Name Input */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="firstName" className="label">
           First Name
         </label>
@@ -193,7 +201,7 @@ const Trial = () => {
       </div>
 
       {/* Middle Name Input */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="middleName" className="label">
           Middle Name (Optional)
         </label>
@@ -234,7 +242,7 @@ const Trial = () => {
       </div>
 
       {/* Last Name Input */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="lastName" className="label">
           Last Name
         </label>
@@ -275,7 +283,7 @@ const Trial = () => {
       </div>
 
       {/* Email Input */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="email" className="label">
           Email
         </label>
@@ -306,7 +314,7 @@ const Trial = () => {
       </div>
 
       {/* Password Input */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="password" className="label">
           Password
         </label>
@@ -368,7 +376,7 @@ const Trial = () => {
       </div>
 
       {/* Confirm Password Input */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="confirmPassword" className="label">
           Confirm Password
         </label>
@@ -437,7 +445,7 @@ const Trial = () => {
       </div>
 
       {/* Tup id Input */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="tupId" className="label">
           TUP ID
         </label>
@@ -455,6 +463,7 @@ const Trial = () => {
               onChange={(e) => handleTupIdChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)} // Handle the Backspace key
               ref={(el) => (inputRefs.current[index] = el)}
+              onBlur={(e) => handleBlur(e, "tupId")}
             />
           ))}
         </div>
@@ -467,10 +476,23 @@ const Trial = () => {
       </div>
 
       {/* Image with Id Upload */}
-      <div className="form-wrapper">
-        {/* Label for Image Upload */}
+      <div className="field-container">
         <label htmlFor="imgWithId" className="label">
           Image with ID
+          <Button
+            variant="link"
+            onClick={() =>
+              handleShowIdPolicyModal(
+                "We collect a photo of you together with your ID to verify your identity. This helps ensure that the person associated with the account is accurate and authentic."
+              )
+            }
+          >
+            <img
+              src={infoIcon}
+              className="icon"
+              alt="Information on Id Policy"
+            />
+          </Button>
         </label>
 
         {/* Image Upload Section */}
@@ -497,13 +519,17 @@ const Trial = () => {
             id="imgWithId"
             type="file"
             accept="image/*"
-            onChange={handleImageChange}
-            style={{ display: "none" }}
-            ref={fileInputRef}
+            name="imgWithId"
+            onChange={(e) => handleImageChange(e, "imgWithId")}
+            ref={imgWithIdInputRef} // Corrected ref
+            onBlur={(e) => handleBlur(e, "imgWithId")}
           />
 
           {loginDataState.imgWithId.value && (
-            <button className="remove-button" onClick={handleRemoveImage}>
+            <button
+              className="remove-button"
+              onClick={(e) => handleRemoveImage(e, "imgWithId")}
+            >
               <img alt="Remove image button" src={closeIcon} />
             </button>
           )}
@@ -526,13 +552,26 @@ const Trial = () => {
       </div>
 
       {/* Scanned ID Upload Section */}
-      <div className="form-wrapper">
+      <div className="field-container">
         <label htmlFor="scannedId" className="label">
           Scanned ID
+          <Button
+            variant="link"
+            onClick={() =>
+              handleShowIdPolicyModal(
+                "We ask for your ID to confirm your identity with official documentation. This helps us ensure that the information you provide is correct."
+              )
+            }
+          >
+            <img
+              src={infoIcon}
+              className="icon"
+              alt="Information on Id Policy"
+            />
+          </Button>
         </label>
 
         <div className="image-input-wrapper">
-          {/* Custom Upload Area for Scanned ID */}
           <label
             htmlFor="scannedId"
             className={`image ${
@@ -541,7 +580,6 @@ const Trial = () => {
           >
             {loginDataState.scannedId.value ? (
               <>
-                {/* Scanned ID Preview */}
                 <img
                   src={scannedId}
                   alt="Scanned ID Preview"
@@ -560,13 +598,16 @@ const Trial = () => {
             id="scannedId"
             type="file"
             accept="image/*"
-            onChange={handleScannedIdChange}
-            style={{ display: "none" }}
-            ref={fileInputRef}
+            onChange={(e) => handleImageChange(e, "scannedId")}
+            ref={scannedIdInputRef}
+            onBlur={(e) => handleBlur(e, "scannedId")}
           />
 
           {loginDataState.scannedId.value && (
-            <button className="remove-button" onClick={handleRemoveScannedId}>
+            <button
+              className="remove-button"
+              onClick={(e) => handleRemoveImage(e, "scannedId")}
+            >
               <img alt="Remove image button" src={closeIcon} />
             </button>
           )}
@@ -609,6 +650,17 @@ const Trial = () => {
       <p>
         Don't have an account? <a className="link">Sign up here!</a>
       </p>
+
+      <ShowPhotoWithIdAndScannedIdPolicy
+        show={showIdPolicyModal}
+        onClose={handleCloseIdPolicyModal}
+        message={idPolicyMessage}
+        images={[
+          "https://via.placeholder.com/600x400?text=Photo+1",
+          "https://via.placeholder.com/600x400?text=Photo+2",
+          "https://via.placeholder.com/600x400?text=Photo+3",
+        ]}
+      />
     </div>
   );
 };

@@ -1,0 +1,33 @@
+/* General Calendar Styling */
+.unavailable-date {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+  }
+  
+  .selected-date {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+  }
+  
+  .available-date {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  /* Dot Indicators */
+  .dot {
+    height: 5px;
+    width: 5px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 5px;
+  }
+  
+  .red-dot {
+    background-color: #f44336;
+  }
+  
+  .green-dot {
+    background-color: #4caf50;
+  }
+  

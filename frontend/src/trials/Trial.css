@@ -9,7 +9,11 @@ input {
 .form-wrapper {
   min-height: 80px;
   overflow: hidden;
-  width: 100%; 
+  width: 100%;
+}
+
+.field-container {
+  padding: 8px;
 }
 
 /* General Styles for validation messages */
@@ -21,7 +25,7 @@ input {
   border-radius: 4px;
   margin-top: 4px;
   padding: 4px;
-  width: 100%; 
+  width: 100%;
 }
 .validation.error {
   background-color: #ffe9e9;
@@ -40,7 +44,6 @@ input {
   color: red;
   font-weight: 500;
   width: 100%;
-
 }
 /* Ensure that the validation list (ul) also takes the full width */
 ul.list {
@@ -50,9 +53,9 @@ ul.list {
 }
 
 ul.list li {
-  width: 100%; 
-  list-style: none; 
-  margin-bottom: 5px; 
+  width: 100%;
+  list-style: none;
+  margin-bottom: 5px;
 }
 
 /* Login Input Wrapper */
@@ -62,7 +65,7 @@ ul.list li {
   border-radius: 8px;
   display: flex;
   align-items: center;
-  width: 100%; 
+  width: 100%;
   overflow: hidden;
 }
 
@@ -92,9 +95,20 @@ ul.list li {
 }
 
 /* Label Styles */
-.input-wrapper label {
-  font-size: 12px;
-  color: var(--clr-secondary);
+.label {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+.label button {
+  display: inline-flex;
+  align-items: center;
+}
+
+.label img.icon {
+  height: 16px;
+  width: auto;
 }
 
 .input-wrapper input:focus + .label,
@@ -123,7 +137,7 @@ img.password-toggle-icon {
 .tupid-input-wrapper {
   display: flex;
   gap: 8px;
-  justify-content: center;
+  justify-content: start;
 }
 
 .input-box {
@@ -183,7 +197,7 @@ img.password-toggle-icon {
 
 .image {
   position: relative;
-  width: 100%; 
+  width: 100%;
   height: 100%;
   border: 1px dashed #ccc; /* Default border color */
   border-radius: 8px;
@@ -226,7 +240,6 @@ img.password-toggle-icon {
   cursor: pointer;
   z-index: 999;
 }
-
 
 /* File Input */
 input[type="file"] {
