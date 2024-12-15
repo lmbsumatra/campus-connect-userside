@@ -5,22 +5,22 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./dateTimePickerStyles.css";
 
 const DateDurationPicker = () => {
-  const [dates, setDates] = useState([]); 
+  const [dates, setDates] = useState([]);
   const [unavailableDates, setUnavailableDates] = useState([
     new Date(2024, 11, 25), // Christmas (Dec 25, 2024)
     new Date(2024, 0, 1), // New Year's Day (Jan 1, 2024)
   ]); // Holidays
-  const [showModal, setShowModal] = useState(true); 
+  const [showModal, setShowModal] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [applyToAll, setApplyToAll] = useState(false); 
+  const [applyToAll, setApplyToAll] = useState(false);
 
   // Range & Weekly options
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [weekdays, setWeekdays] = useState([]);
-  const [mode, setMode] = useState("custom"); 
+  const [mode, setMode] = useState("custom");
 
   const handleModalClose = () => setShowModal(false);
   const handleAddTimePeriod = () => {
@@ -57,7 +57,7 @@ const DateDurationPicker = () => {
       return;
     }
     setDates([...dates, { date, timePeriods: [] }]);
-    setSelectedDate(null); 
+    setSelectedDate(null);
   };
 
   const handleAddRange = (startDate, endDate) => {
@@ -142,9 +142,7 @@ const DateDurationPicker = () => {
 
   const resetTime = (date) => {
     const updatedDates = dates.map((d) =>
-      d.date.getTime() === date.getTime()
-        ? { ...d, timePeriods: [] } 
-        : d
+      d.date.getTime() === date.getTime() ? { ...d, timePeriods: [] } : d
     );
     setDates(updatedDates);
   };
@@ -159,43 +157,55 @@ const DateDurationPicker = () => {
           {/* Left - Calendar Section */}
           <div className="calendar-container" style={{ flex: 1 }}>
             {/* Radio Buttons for Mode Selection */}
-            <Form.Group>
-              <Form.Label>Select Mode</Form.Label>
-              <div>
-                <Form.Check
-                  type="radio"
-                  label="Custom Dates"
-                  name="mode"
-                  checked={mode === "custom"}
-                  onChange={() => {
-                    setMode("custom");
-                    resetDates();
-                  }}
-                />
-                <Form.Check
-                  type="radio"
-                  label="Range"
-                  name="mode"
-                  checked={mode === "range"}
-                  onChange={() => {
-                    setMode("range");
-                    resetDates();
-                  }}
-                />
-                <Form.Check
-                  type="radio"
-                  label="Weekly"
-                  name="mode"
-                  checked={mode === "weekly"}
-                  onChange={() => {
-                    setMode("weekly");
-                    resetDates();
-                  }}
-                />
+            <div className="field-container select">
+              <label htmlFor="" className="">
+                Select Mode
+              </label>
+              <div className="input-wrapper">
+                <div className="input-wrapper">
+                  <input
+                    type="radio"
+                    id="custom"
+                    name="mode"
+                    checked={mode === "custom"}
+                    onChange={() => {
+                      setMode("custom");
+                      resetDates();
+                    }}
+                  />
+                  <label htmlFor="custom">Custom Dates</label>
+                </div>
+                <div className="input-wrapper">
+                  <input
+                    type="radio"
+                    id="range"
+                    name="mode"
+                    checked={mode === "range"}
+                    onChange={() => {
+                      setMode("range");
+                      resetDates();
+                    }}
+                  />
+                  <label htmlFor="range">Range</label>
+                </div>
+                <div className="input-wrapper">
+                  <input
+                    type="radio"
+                    id="weekly"
+                    name="mode"
+                    checked={mode === "weekly"}
+                    onChange={() => {
+                      setMode("weekly");
+                      resetDates();
+                    }}
+                  />
+                  <label htmlFor="weekly">Weekly</label>
+                </div>
               </div>
-            </Form.Group>
+            </div>
+
             {mode === "custom" && (
-              <div>
+              <div className="field-container picker">
                 <h4>Select Custom Dates</h4>
                 <DatePicker
                   selected={selectedDate}
@@ -217,7 +227,7 @@ const DateDurationPicker = () => {
             )}
 
             {mode === "range" && (
-              <div>
+              <div className="field-container picker">
                 <h4>Select Date Range</h4>
                 <DatePicker
                   selected={startDate}
@@ -242,7 +252,7 @@ const DateDurationPicker = () => {
             )}
 
             {mode === "weekly" && (
-              <div>
+              <div className="field-container picker">
                 <h4>Select Weekly Dates</h4>
                 <DatePicker
                   selected={startDate}

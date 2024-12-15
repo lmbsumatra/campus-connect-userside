@@ -12,7 +12,7 @@ import "./styles/icons.css";
 import "./styles/cards.css";
 import "./styles/containers.css";
 import "./styles/status.css";
-import "./trials/Trial.css"
+import "./trials/Trial.css";
 
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
 import Home from "./pages/public/Home.js";
@@ -64,6 +64,8 @@ import { SocketProvider } from "./context/SocketContext.js";
 import Trial from "./trials/Trial.js";
 import ChatAndNotif from "./trialOnMessage&Notification/ChatAndNotif.jsx";
 import Trial2 from "./trials/Trial2.js";
+import FAB from "./components/common/fab/FAB.jsx";
+import Cart from "./components/common/fab/Cart.js";
 
 function App() {
   console.log(baseApi);
@@ -84,14 +86,33 @@ function Content() {
   const location = useLocation();
   const showNavbarAndFooter = !location.pathname.startsWith("/admin");
 
+  // Handle click on FAB (Floating Action Button) for different actions
+  const handleFabClick = (action) => {
+    if (action === "add-item") {
+      console.log("Add Item button clicked");
+    } else if (action === "create-post") {
+      console.log("Create Post button clicked");
+    }
+  };
+
+  const cartItems = [
+    { name: "Plant A", quantity: 2 },
+    { name: "Tool B", quantity: 1 },
+  ];
+
   return (
     <>
       {showNavbarAndFooter && <NavBar2 className="bg-dark" />}
+      {/* Floating Action Button (FAB) */}
+      <FAB icon="+" onClick={handleFabClick} cartItems={cartItems} />
+
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/trial2" element={<Trial2 />} />
         <Route path="/trial" element={<Trial />} />
         <Route path="/trialChatAndNotif" element={<ChatAndNotif />} />
+        <Route path="/cart" element={<Cart items={cartItems} />} />
+
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/login-signup" element={<LoginSignUp />} />
         <Route path="/*" element={<Home />} />

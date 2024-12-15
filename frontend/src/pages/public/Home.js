@@ -22,15 +22,6 @@ function Home() {
   // Fetch borrowing posts data (approved posts for lending)
   const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseUrl}/posts/approved`);
 
-  // Handle click on FAB (Floating Action Button) for different actions
-  const handleFabClick = (action) => {
-    if (action === "add-item") {
-      console.log("Add Item button clicked");
-    } else if (action === "create-post") {
-      console.log("Create Post button clicked");
-    }
-  };
-
   return (
     <div>
       {/* Header and Subheader */}
@@ -57,8 +48,7 @@ function Home() {
         <BorrowingPost borrowingPosts={posts} title="Lend" />
       </div>
 
-      {/* Floating Action Button (FAB) */}
-      <FAB icon="+" onClick={handleFabClick} />
+     
     </div>
   );
 }

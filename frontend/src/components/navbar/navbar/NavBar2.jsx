@@ -15,7 +15,7 @@ const NavBar2 = () => {
   const [activeTab, setActiveTab] = useState("");
   const [authTab, setAuthTab] = useState("loginTab");
   const [openPopup, setOpenPopup] = useState(null);
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const { studentUser, logoutStudent } = useAuth();
@@ -23,9 +23,9 @@ const NavBar2 = () => {
   const role = studentUser?.role;
 
   useEffect(() => {
-    setIsLoggedIn(!!(role === 'student'));
+    setIsLoggedIn(!!(role === "student"));
     setShowLoginSignUp(false);
-    
+
     const path = location.pathname;
     if (path === "/shop") {
       setActiveTab("Shop");
@@ -81,17 +81,19 @@ const NavBar2 = () => {
         <div className="nav-content d-block">
           <div className="d-flex">
             <ul className="quick-links m-0 p-0 d-flex">
-              {["Privacy Policy", "About us", "Contact", "Ask Question"].map(link => (
-                <li className="link" key={link}>
-                  <a
-                    className="quick-links active"
-                    href={`/${link}`}
-                    onClick={() => setTab(link)}
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
+              {["Privacy Policy", "About us", "Contact", "Ask Question"].map(
+                (link) => (
+                  <li className="link" key={link}>
+                    <a
+                      className="quick-links active"
+                      href={`/${link}`}
+                      onClick={() => setTab(link)}
+                    >
+                      {link}
+                    </a>
+                  </li>
+                )
+              )}
             </ul>
           </div>
 
@@ -102,21 +104,20 @@ const NavBar2 = () => {
             </a>
 
             <div className="nav-searchbar w-50">
-  <form role="search">
-    <div className="input-container">
-      <input
-        className="form-control me-2"
-        type="search"
-        placeholder="Search"
-        aria-label="Search"
-      />
-      <div className="search-icon">
-        <img src={searchIcon} alt="Search icon" />
-      </div>
-    </div>
-  </form>
-</div>
-
+              <form role="search">
+                <div className="input-container">
+                  <input
+                    className="form-control me-2"
+                    type="search"
+                    placeholder="Search"
+                    aria-label="Search"
+                  />
+                  <div className="search-icon">
+                    <img src={searchIcon} alt="Search icon" />
+                  </div>
+                </div>
+              </form>
+            </div>
 
             {isLoggedIn ? (
               <div className="d-flex flex-end gap-2">
@@ -158,12 +159,22 @@ const NavBar2 = () => {
               {[
                 { name: "Discover", path: "/", icon: "fas fa-binoculars" },
                 { name: "Shop", path: "/shop", icon: "fas fa-shopping-cart" },
-                { name: "Looking for...", path: "/rent", icon: "fas fa-search" },
-                { name: "Lend a hand", path: "/lend", icon: "fas fa-hands-helping" },
+                {
+                  name: "Looking for...",
+                  path: "/rent",
+                  icon: "fas fa-search",
+                },
+                {
+                  name: "Lend a hand",
+                  path: "/lend",
+                  icon: "fas fa-hands-helping",
+                },
               ].map(({ name, path, icon }) => (
                 <li className="nav-item" key={name}>
                   <a
-                    className={`nav-link ${activeTab === name ? "active fw-bold" : ""}`}
+                    className={`nav-link ${
+                      activeTab === name ? "active fw-bold" : ""
+                    }`}
                     href={path}
                     onClick={() => setTab(name)}
                   >
@@ -178,7 +189,11 @@ const NavBar2 = () => {
 
       {showLoginSignUp && (
         <div className="">
-          <LoginSignUp tab={authTab} show={showLoginSignUp} onClose={closeLoginSignUp} />
+          <LoginSignUp
+            tab={authTab}
+            show={showLoginSignUp}
+            onClose={closeLoginSignUp}
+          />
         </div>
       )}
     </div>

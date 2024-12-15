@@ -1,33 +1,56 @@
 /* General Calendar Styling */
 .unavailable-date {
-    background-color: #f8d7da !important;
-    color: #721c24 !important;
-  }
-  
-  .selected-date {
-    background-color: #d4edda !important;
-    color: #155724 !important;
-  }
-  
-  .available-date {
-    background-color: #fff;
-    color: #000;
-  }
-  
-  /* Dot Indicators */
-  .dot {
-    height: 5px;
-    width: 5px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-left: 5px;
-  }
-  
-  .red-dot {
-    background-color: #f44336;
-  }
-  
-  .green-dot {
-    background-color: #4caf50;
-  }
-  
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+}
+
+.selected-date {
+  background-color: #d4edda !important;
+  color: #155724 !important;
+}
+
+.available-date {
+  background-color: #fff;
+  color: #000;
+}
+
+/* Dot Indicators */
+.dot {
+  height: 5px;
+  width: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.red-dot {
+  background-color: #f44336;
+}
+
+.green-dot {
+  background-color: #4caf50;
+}
+
+.field-container.select,
+.field-container.picker {
+  background-color: var(--clr-muted);
+  border-radius: 8px;
+}
+
+.field-container.select .input-wrapper {
+  display: flex;
+  align-items: center; /* Align the radio and label vertically */
+  gap: 8px; /* Add spacing between the radio button and its label */
+  margin-bottom: 0.5rem; /* Add spacing between each group */
+}
+
+.field-container.select input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.field-container.select label {
+  font-size: 1rem; /* Optional: Adjust label font size */
+  color: #333; /* Optional: Label text color */
+}
