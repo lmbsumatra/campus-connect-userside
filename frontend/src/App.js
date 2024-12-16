@@ -13,6 +13,8 @@ import "./styles/cards.css";
 import "./styles/containers.css";
 import "./styles/status.css";
 import "./trials/Trial.css";
+import { Provider } from "react-redux";
+import store from "../src/store/store";
 
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
 import Home from "./pages/public/Home.js";
@@ -70,15 +72,17 @@ import Cart from "./components/common/fab/Cart.js";
 function App() {
   console.log(baseApi);
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <BrowserRouter>
-          <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
-            <Content baseApi={baseApi} />
-          </GoogleOAuthProvider>
-        </BrowserRouter>
-      </SocketProvider>
-    </AuthProvider>
+    <Provider store={store}>
+      <AuthProvider>
+        <SocketProvider>
+          <BrowserRouter>
+            <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
+              <Content baseApi={baseApi} />
+            </GoogleOAuthProvider>
+          </BrowserRouter>
+        </SocketProvider>
+      </AuthProvider>
+    </Provider>
   );
 }
 
@@ -159,14 +163,14 @@ function Content() {
     <>
       {showNavbarAndFooter && <NavBar2 className="bg-dark" />}
       {/* Floating Action Button (FAB) */}
-      <FAB icon="+" onClick={handleFabClick} cartItems={cartItems} />
+      <FAB icon="+" onClick={handleFabClick} />
 
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/trial2" element={<Trial2 />} />
         <Route path="/trial" element={<Trial />} />
         <Route path="/trialChatAndNotif" element={<ChatAndNotif />} />
-        <Route path="/cart" element={<Cart items={cartItems} />} />
+        <Route path="/cart" element={<Cart />} />
 
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/login-signup" element={<LoginSignUp />} />

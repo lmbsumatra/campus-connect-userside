@@ -4,8 +4,11 @@ import { useNavigate } from "react-router-dom";
 import rentIcon from "../../../assets/images/cart/rent.svg";
 import buyIcon from "../../../assets/images/cart/buy.svg";
 import lookUpIcon from "../../../assets/images/cart/go-to.svg";
+import { useSelector } from "react-redux";
+import { selectCartItems } from "../../../features/cart/cartSlice";
 
-const Cart = ({ items = {}, isOpen, onClose }) => {
+const Cart = ({ isOpen, onClose }) => {
+  const cartItems = useSelector(selectCartItems); // Get items from Redux store
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -16,11 +19,19 @@ const Cart = ({ items = {}, isOpen, onClose }) => {
   }, []);
 
   const renderItems = () => {
-    if (Object.keys(items).length === 0) {
+    if (cartItems.length === 0) {
       return <p>Your cart is empty.</p>;
     }
 
-    return Object.keys(items).map((seller, index) => (
+    const groupedItems = cartItems.reduce((acc, item) => {
+      if (!acc[item.seller]) {
+        acc[item.seller] = [];
+      }
+      acc[item.seller].push(item);
+      return acc;
+    }, {});
+
+    return Object.keys(groupedItems).map((seller, index) => (
       <div className="owner-group" key={index}>
         <div className="header">
           <input type="checkbox" className="checkbox" />
@@ -33,7 +44,7 @@ const Cart = ({ items = {}, isOpen, onClose }) => {
             />
           </a>
         </div>
-        {items[seller].map((item, itemIndex) => (
+        {groupedItems[seller].map((item, itemIndex) => (
           <div className="item" key={itemIndex}>
             <input type="checkbox" className="checkbox" />
             <img
@@ -44,14 +55,20 @@ const Cart = ({ items = {}, isOpen, onClose }) => {
             <div className="description">
               <p className="name">{item.name}</p>
               <div className="type">
-                <img src={item.type === "To buy" ? buyIcon : rentIcon} alt={item.type} />
+                <img
+                  src={item.type === "To buy" ? buyIcon : rentIcon}
+                  alt={item.type}
+                />
               </div>
               <div className="specs">
-                {item.specs.slice(0, 2).map((spec, specIndex) => (
-                  <p className="spec" key={specIndex}>
-                    {spec.substring(0, 20)}{specIndex === 0 ? "," : "..."}
-                  </p>
-                ))}
+                {(item.specs && Array.isArray(item.specs)) ? 
+                  item.specs.slice(0, 2).map((spec, specIndex) => (
+                    <p className="spec" key={specIndex}>
+                      {spec}
+                      {specIndex === 0 ? "," : ""}
+                    </p>
+                  )) : <p>No specs available</p>
+                }
               </div>
               <p className="price">₱{item.price}</p>
             </div>
@@ -74,7 +91,9 @@ const Cart = ({ items = {}, isOpen, onClose }) => {
     <div className={`cart container ${isOpen ? "open" : ""}`}>
       <div className="header">
         <h3 className="header-text">Your Cart</h3>
-        <button className="close-btn" onClick={onClose}>&times;</button>
+        <button className="close-btn" onClick={onClose}>
+          &times;
+        </button>
       </div>
       <div className="items">{renderItems()}</div>
       <button className="checkout-btn">Checkout</button>

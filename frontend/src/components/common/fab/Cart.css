@@ -123,10 +123,10 @@
 }
 .cart .items .item .description .name {
   display: block;
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  max-width: 200px; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
 .cart .items .item .description p {
@@ -148,15 +148,17 @@
   display: flex;
   gap: 8px;
   padding: 4px;
+  max-width: 100px;
+  overflow: hidden; /* Ensures overflow content is clipped */
+  white-space: nowrap; /* Prevents the text from wrapping to the next line */
+  text-overflow: ellipsis; /* Adds ellipsis (…) when content overflows */
 }
 
 .cart .items .description .specs .spec {
   color: rgb(154, 154, 154);
   font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
+
 
 /* Type Icons */
 .cart .description .type img {

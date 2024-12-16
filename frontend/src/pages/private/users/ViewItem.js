@@ -8,21 +8,46 @@ import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import useFetchItemByParam from "../../../hooks/useFetchItemByParam";
 import UserToolbar from "../../../components/users/user-toolbar/UserToolbar";
 import { useAuth } from "../../../context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem, selectCartItems } from "../../../features/cart/cartSlice";
 
 function ViewItem() {
   const { studentUser } = useAuth();
   const { userId } = studentUser;
   // Retrieve the post ID from the URL params
   const { id } = useParams();
-  
+  const dispatch = useDispatch();
+
   // State to manage the selected rental date
   const [selectedDate, setSelectedDate] = useState(null);
 
   // Base API URL
   const baseUrl = "http://localhost:3001";
-  
+
   // Fetch the selected post using the custom hook
-  const { selectedItem, loading, error, tags } = useFetchItemByParam(`${baseUrl}/item-for-sale/available/${id}`);
+  const { selectedItem, loading, error, tags } = useFetchItemByParam(
+    `${baseUrl}/item-for-sale/available/${id}`
+  );
+
+  const cartItems = useSelector(selectCartItems);
+
+  const handleAddToCart = () => {
+    // Check if item is already in the cart
+    const isItemInCart = cartItems.some((item) => item.id === selectedItem.id);
+
+    if (!isItemInCart) {
+      dispatch(
+        addItem({
+          id: selectedItem.id,
+          name: selectedItem.item_for_sale_name,
+          price: selectedItem.price,
+        })
+      );
+      alert("Item added to cart");
+    } else {
+      alert("Item is already in your cart");
+    }
+  };
 
   if (loading) {
     return <p>Loading...</p>;
@@ -46,7 +71,9 @@ function ViewItem() {
     description = "No description available.",
   } = selectedItem;
 
-  const userName = `${seller.first_name || "Unknown"} ${seller.last_name || "User"}`;
+  const userName = `${seller.first_name || "Unknown"} ${
+    seller.last_name || "User"
+  }`;
   const userRating = seller.rating || 0;
 
   // Parse specifications
@@ -62,10 +89,12 @@ function ViewItem() {
     specifications = selectedItem.specifications;
   }
 
-  const itemSpecifications = Object.entries(specifications).map(([key, value]) => ({
-    label: key || "N/A",
-    value: value || "N/A",
-  }));
+  const itemSpecifications = Object.entries(specifications).map(
+    ([key, value]) => ({
+      label: key || "N/A",
+      value: value || "N/A",
+    })
+  );
 
   const isProfileVisit = userId === seller.user_id ? true : false;
 
@@ -74,11 +103,17 @@ function ViewItem() {
       {/* Item Details Section */}
       <div className="py-4 px-2 m-0 rounded row bg-white">
         <div className="col-md-6 item-image">
-          <img src={itemImageUrl} alt="Item" className="img-container img-fluid" />
+          <img
+            src={itemImageUrl}
+            alt="Item"
+            className="img-container img-fluid"
+          />
         </div>
         <div className="col-md-6 item-desc">
           {/* Category Button */}
-          <button className="btn btn-rounded thin">{selectedItem.category}</button>
+          <button className="btn btn-rounded thin">
+            {selectedItem.category}
+          </button>
 
           {/* Item Name and Rating */}
           <div className="d-flex justify-content-between align-items-center">
@@ -94,8 +129,18 @@ function ViewItem() {
           {/* Price and Action Buttons */}
           <span className="price">₱{price}/hr</span>
           <div className="d-flex justify-content-end">
-            <button className="btn btn-rectangle secondary no-fill me-2">Message</button>
-            <button className="btn btn-rectangle primary no-fill me-2">Borrow</button>
+            <button className="btn btn-rectangle secondary no-fill me-2">
+              Message
+            </button>
+            <button className="btn btn-rectangle primary no-fill me-2">
+              Borrow
+            </button>
+            <button
+              className="btn btn-rectangle success no-fill"
+              onClick={handleAddToCart}
+            >
+              Add to Cart
+            </button>
           </div>
 
           <hr />
@@ -122,7 +167,12 @@ function ViewItem() {
           <div>
             <p>
               <strong>Available Times</strong>{" "}
-              {selectedDate ? formatDate(selectedDate) : <i>Please select a preferred date</i>}:
+              {selectedDate ? (
+                formatDate(selectedDate)
+              ) : (
+                <i>Please select a preferred date</i>
+              )}
+              :
             </p>
             {selectedDate && available_dates.length > 0 ? (
               available_dates
@@ -132,7 +182,9 @@ function ViewItem() {
                     key={duration.id}
                     className="btn btn-rounded thin me-2 ms-2"
                   >
-                    {`${formatTimeTo12Hour(duration.rental_time_from)} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
+                    {`${formatTimeTo12Hour(
+                      duration.rental_time_from
+                    )} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
                   </button>
                 ))
             ) : (
@@ -145,7 +197,9 @@ function ViewItem() {
             <p>
               <strong>Payment Mode:</strong>
               <button className="btn btn-rounded primary thin ms-2">
-                {selectedItem.payment_mode === "payment upon meetup" ? "Upon meetup" : "Gcash"}
+                {selectedItem.payment_mode === "payment upon meetup"
+                  ? "Upon meetup"
+                  : "Gcash"}
               </button>
             </p>
           </div>
@@ -160,7 +214,11 @@ function ViewItem() {
 
           {/* Rental Agreement */}
           <div className="form-check">
-            <input className="form-check-input" type="checkbox" id="flexCheckDefault" />
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="flexCheckDefault"
+            />
             <label className="form-check-label" htmlFor="flexCheckDefault">
               I agree to the rental terms set by the owner
             </label>
@@ -193,7 +251,9 @@ function ViewItem() {
             {itemSpecifications.length > 0 ? (
               itemSpecifications.map((spec, index) => (
                 <tr key={index}>
-                  <td><strong>{spec.label}</strong></td>
+                  <td>
+                    <strong>{spec.label}</strong>
+                  </td>
                   <td>{spec.value}</td>
                 </tr>
               ))
