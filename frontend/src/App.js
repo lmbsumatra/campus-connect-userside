@@ -95,10 +95,65 @@ function Content() {
     }
   };
 
-  const cartItems = [
-    { name: "Plant A", quantity: 2 },
-    { name: "Tool B", quantity: 1 },
-  ];
+  const cartItems = {
+    "Seller X": [
+      {
+        name: "Plant APlant APlant APlant APlant APlant APlant APlant APlant APlant APlant APlant A",
+        type: "To buy",
+        specs: ["Gray", "Brand x"],
+        price: 100,
+        owner: "Seller X",
+        availability: "In Stock",
+      },
+      {
+        name: "Plant B",
+        type: "To buy",
+        specs: ["Green", "Brand z"],
+        price: 120,
+        owner: "Seller X",
+        availability: "In Stock",
+      },
+    ],
+    "Seller Y": [
+      {
+        name: "Tool B",
+        type: "To rent",
+        specs: ["Blue", "Brand y"],
+        price: 15,
+        rentalAvailability: "Available from 1st Jan",
+        owner: "Seller Y",
+        availability: "Available",
+      },
+      {
+        name: "Shovel",
+        type: "To rent",
+        specs: ["Metal", "Brand z"],
+        price: 10,
+        rentalAvailability: "Available from 15th Jan",
+        owner: "Seller Y",
+        availability: "Available",
+      },
+    ],
+    "Seller Z": [
+      {
+        name: "Cactus",
+        type: "To buy",
+        specs: ["Small", "Brand x"],
+        price: 50,
+        owner: "Seller Z",
+        availability: "In Stock",
+      },
+      {
+        name: "Rake",
+        type: "To rent",
+        specs: ["Wooden", "Brand w"],
+        price: 12,
+        rentalAvailability: "Available from 20th Jan",
+        owner: "Seller Z",
+        availability: "Available",
+      },
+    ],
+  };
 
   return (
     <>

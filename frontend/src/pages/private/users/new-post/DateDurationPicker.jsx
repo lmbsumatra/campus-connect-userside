@@ -206,7 +206,7 @@ const DateDurationPicker = () => {
 
             {mode === "custom" && (
               <div className="field-container picker">
-                <h4>Select Custom Dates</h4>
+                <label>Select Custom Dates</label>
                 <DatePicker
                   selected={selectedDate}
                   onChange={(date) => handleAddCustomDate(date)}
@@ -228,7 +228,7 @@ const DateDurationPicker = () => {
 
             {mode === "range" && (
               <div className="field-container picker">
-                <h4>Select Date Range</h4>
+                <label>Select Date Range</label>
                 <DatePicker
                   selected={startDate}
                   onChange={(dates) => {
@@ -242,18 +242,20 @@ const DateDurationPicker = () => {
                   excludeDates={unavailableDates}
                   className="form-control"
                 />
-                <Button
-                  variant="primary"
-                  onClick={() => handleAddRange(startDate, endDate)}
-                >
-                  Add Range
-                </Button>
+                <div>
+                  <Button
+                    variant="primary"
+                    onClick={() => handleAddRange(startDate, endDate)}
+                  >
+                    Add Range
+                  </Button>
+                </div>
               </div>
             )}
 
             {mode === "weekly" && (
               <div className="field-container picker">
-                <h4>Select Weekly Dates</h4>
+                <label>Select Weekly Dates</label>
                 <DatePicker
                   selected={startDate}
                   onChange={(dates) => {
@@ -267,8 +269,8 @@ const DateDurationPicker = () => {
                   excludeDates={unavailableDates}
                   className="form-control"
                 />
-                <Form.Group>
-                  <Form.Label>Select Weekdays</Form.Label>
+                <div>
+                  <label>Select Weekdays</label>
                   <div className="d-flex flex-wrap">
                     {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
                       (day, index) => (
@@ -282,13 +284,15 @@ const DateDurationPicker = () => {
                       )
                     )}
                   </div>
-                </Form.Group>
-                <Button
-                  variant="primary"
-                  onClick={() => handleAddWeekly(startDate, endDate)}
-                >
-                  Add Weekly Dates
-                </Button>
+                </div>
+                <div>
+                  <Button
+                    variant="primary"
+                    onClick={() => handleAddWeekly(startDate, endDate)}
+                  >
+                    Add Weekly Dates
+                  </Button>
+                </div>
               </div>
             )}
           </div>
