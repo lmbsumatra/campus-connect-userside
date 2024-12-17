@@ -1,45 +1,84 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createSelector } from "reselect";
-import axios from "axios"; // Use axios for API requests (install via npm if not already installed)
+import axios from "axios";
 
-// Backend API endpoints
 const BASE_URL = "http://localhost:3001/api/cart";
 
-// Initial state
 const initialState = {
   items: [],
   totalPrice: 0,
   loading: false,
   error: null,
+  successMessage: null,
 };
 
-// Asynchronous Thunks for API calls
-
-// Fetch cart items from backend
 export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
-  async (_, thunkAPI) => {
+  async (_, { getState, rejectWithValue }) => {
+    const { studentUser } = getState().studentAuth; 
+
+    if (!studentUser?.token) {
+      return rejectWithValue("No token found");
+    }
+
     try {
-      const response = await axios.get(`${BASE_URL}/get`);
-      // console.log(response.data)
+      const response = await axios.get(`${BASE_URL}/get`, {
+        headers: {
+          Authorization: `Bearer ${studentUser.token}`, 
+        },
+      });
+
       return response.data; // Return fetched cart data
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || "Failed to fetch cart.");
     }
   }
 );
 
-// Post a new cart item to the backend
 export const addCartItem = createAsyncThunk(
   "cart/addCartItem",
-  async (item, thunkAPI) => {
+  async (item, { getState, rejectWithValue }) => {
+    const { studentUser } = getState().studentAuth; 
+
+    if (!studentUser?.token) {
+      return rejectWithValue("No token found");
+    }
+
     try {
-      console.log(item);
-      const response = await axios.post(`${BASE_URL}/add`, item);
-      console.log(response);
-      return response.data; // Return added cart item
+      const response = await axios.post(`${BASE_URL}/add`, item, {
+        headers: {
+          Authorization: `Bearer ${studentUser.token}`, 
+        },
+      });
+
+      console.log(response.data);
+      return response.data; 
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return rejectWithValue(
+        error.response?.data || "Failed to add item to cart."
+      );
+    }
+  }
+);
+
+export const removeCartItem = createAsyncThunk(
+  "cart/removeCartItem",
+  async (itemId, { getState, rejectWithValue }) => {
+    const { studentUser } = getState().studentAuth;
+
+    if (!studentUser?.token) {
+      return rejectWithValue("No token found");
+    }
+
+    try {
+      const response = await axios.delete(`${BASE_URL}/remove/${itemId}`, {
+        headers: {
+          Authorization: `Bearer ${studentUser.token}`,
+        },
+      });
+      return itemId; 
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to remove item.");
     }
   }
 );
@@ -49,21 +88,18 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    removeItem: (state, action) => {
-      const itemId = action.payload;
-      const itemToRemove = state.items.find((i) => i.name === itemId);
-      if (itemToRemove) {
-        state.totalPrice -= itemToRemove.price * itemToRemove.quantity;
-        state.items = state.items.filter((i) => i.name !== itemId);
-      }
-    },
     clearCart: (state) => {
       state.items = [];
       state.totalPrice = 0;
     },
+    setSuccessMessage: (state, action) => {
+      state.successMessage = action.payload;
+    },
+    clearSuccessMessage: (state) => {
+      state.successMessage = null;
+    },
   },
   extraReducers: (builder) => {
-    // Handle fetchCart lifecycle
     builder
       .addCase(fetchCart.pending, (state) => {
         state.loading = true;
@@ -79,35 +115,60 @@ const cartSlice = createSlice({
         state.error = action.payload || "Failed to fetch cart.";
       });
 
-    // Handle addCartItem lifecycle
     builder
-      // When the action is fulfilled (successful addition of item)
+      .addCase(addCartItem.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null; 
+      })
       .addCase(addCartItem.fulfilled, (state, action) => {
+        state.loading = false;
         const newItem = action.payload;
-
-        // 1. Check if the item already exists in the cart
         const existingItem = state.items.find((i) => i.id === newItem.id);
 
-        // 2. If item exists, increment its quantity; otherwise, add the new item
         if (existingItem) {
-          // Update the quantity of the existing item
           existingItem.quantity += 1;
         } else {
-          // Add new item with quantity of 1
           state.items.push({ ...newItem, quantity: 1 });
         }
 
-        // 3. Update the total price by adding the price of the new or updated item
-        state.totalPrice += newItem.price;
+        state.totalPrice = state.items.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        );
+        state.successMessage = "Item added to cart successfully!"; 
       })
-
-      // When the action is rejected (error occurred while adding item)
       .addCase(addCartItem.rejected, (state, action) => {
-        // Store the error message in the state
+        state.loading = false;
         state.error = action.payload || "Failed to add item to cart.";
+        state.successMessage = null; 
+      });
+
+    builder
+      .addCase(removeCartItem.pending, (state) => {
+        state.loading = true;
+        state.successMessage = null;
+      })
+      .addCase(removeCartItem.fulfilled, (state, action) => {
+        const itemId = action.payload;
+        const itemToRemove = state.items.find((i) => i.id === itemId);
+
+        if (itemToRemove) {
+          state.totalPrice -= itemToRemove.price * itemToRemove.quantity;
+          state.items = state.items.filter((item) => item.id !== itemId);
+        }
+
+        state.loading = false;
+        state.successMessage = "Item removed successfully!";
+      })
+      .addCase(removeCartItem.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to remove item.";
+        state.successMessage = null;
       });
   },
 });
+
 
 // Selectors
 const selectCart = (state) => state.cart;
@@ -128,9 +189,14 @@ export const selectCartError = createSelector(
   [selectCart],
   (cart) => cart.error
 );
+export const selectCartSuccessMessage = createSelector(
+  [selectCart],
+  (cart) => cart.successMessage
+);
 
 // Export actions
-export const { addItem, removeItem, clearCart } = cartSlice.actions;
+export const { clearCart, setSuccessMessage, clearSuccessMessage } =
+  cartSlice.actions;
 
 // Export reducer
 export default cartSlice.reducer;

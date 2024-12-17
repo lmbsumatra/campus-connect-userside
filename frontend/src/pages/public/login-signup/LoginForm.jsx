@@ -1,111 +1,82 @@
-// React Imports
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux"; // Import useDispatch to dispatch actions
+import { loginStudent } from "../../../redux/auth/studentAuthSlice"; // Path to your slice
 import "./loginSignupStyle.css";
-import { GoogleLogin } from "@react-oauth/google"; // Google Login library
-import { useAuth } from "../../../context/AuthContext"; // Authentication context
+import { GoogleLogin } from "@react-oauth/google";
 import showPassword from "../../../assets/images/icons/eye-open.svg";
 import hidePassword from "../../../assets/images/icons/eye-closed.svg";
 
 const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
-  const { loginStudent } = useAuth(); // Access login function from AuthContext
+  const dispatch = useDispatch(); // Initialize dispatch function
   const navigate = useNavigate();
   const [isShowPassword, setShowPassword] = useState(false);
-
-  const handleShowPassword = () => {
-    setShowPassword((prev) => !prev);
-  };
-
   const [userData, setUserData] = useState({
     email: "",
     password: "",
-    firstName: "",
-    lastName: "",
-    middleName: "",
-    tupId: "",
-    confirmPassword: "",
   });
-
-  // State for managing input triggers (validation state)
   const [inputTriggers, setInputTriggers] = useState({
     email: false,
     password: false,
-    firstName: false,
-    lastName: false,
-    middleName: false,
-    tupId: false,
-    confirmPassword: false,
   });
 
-  // Handle user data input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Handle password field change and reset triggers
   const handlePasswordChange = (e) => {
     const { value } = e.target;
     setUserData((prevData) => ({ ...prevData, password: value }));
     setInputTriggers((prev) => ({ ...prev, password: false }));
   };
 
-  // Handle validation on input blur (losing focus)
   const handleBlur = (field) => {
-    setInputTriggers((prev) => ({ ...prev, [field]: !userData[field] }));
+    setInputTriggers((prev) => ({ ...prev, [field]: !userData[field]?.trim() }));
   };
 
-  // Function to dynamically change border color based on validation state
   const getBorderColor = (field) => (inputTriggers[field] ? "red" : "");
 
-  // Handle successful response from Google login
   const responseMessage = async (response) => {
     const token = response.credential;
 
     try {
       const res = await fetch("http://localhost:3001/user/google-login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        loginStudent(data.token, data.role, data.userId); // Handle successful login
-        navigate("/"); // Navigate to home after login
+        dispatch(loginStudent({ token: data.token, role: data.role, userId: data.userId })); // Dispatch to Redux
+        navigate("/");
       } else {
         const errorData = await res.json();
-        setErrorMessage(
-          errorData.message || "Google login failed. Please try again."
-        );
+        setErrorMessage(errorData.message || "Google login failed. Please try again.");
       }
     } catch (error) {
-      setErrorMessage(
-        "An unexpected error occurred during Google login. Please try again later."
-      );
+      setErrorMessage("An unexpected error occurred during Google login. Please try again later.");
     }
   };
 
-  // Handle errors during Google login
   const errorGoogleMessage = (error) => {
-    setErrorMessage(
-      "An error occurred while processing the Google login. Please try again."
-    );
+    setErrorMessage("An error occurred while processing the Google login. Please try again.");
   };
 
-  // Handle form submission for normal login
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage(""); // Reset error message before submission
+    setErrorMessage(""); 
+
+    if (!userData.email || !userData.password) {
+      setErrorMessage("Please fill in both email and password.");
+      return;
+    }
 
     try {
       const response = await fetch("http://localhost:3001/user/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: userData.email,
           password: userData.password,
@@ -114,8 +85,8 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
 
       if (response.ok) {
         const data = await response.json();
-        loginStudent(data.token, data.role, data.userId);
-        navigate("/"); // Navigate to the homepage after successful login
+        dispatch(loginStudent({ token: data.token, role: data.role, userId: data.userId })); // Dispatch to Redux
+        navigate("/");
       } else {
         const errorData = await response.json();
         setErrorMessage(errorData.message || "Login failed. Please try again.");
@@ -130,12 +101,8 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
       <form onSubmit={handleLoginSubmit}>
         <div className="auth-form">
           <h2>Welcome back</h2>
-          <span
-            className={`${errorMessage ? "text-danger" : "text-secondary"}`}
-          >
-            {errorMessage
-              ? errorMessage
-              : "Please complete all required fields to log in."}
+          <span className={`${errorMessage ? "text-danger" : "text-secondary"}`}>
+            {errorMessage || "Please complete all required fields to log in."}
           </span>
 
           {/* Email input */}
@@ -170,7 +137,7 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
                 required
               />
             </div>
-            <div className="login pass-icon" onClick={handleShowPassword}>
+            <div className="login pass-icon" onClick={() => setShowPassword(!isShowPassword)}>
               <img
                 src={isShowPassword ? showPassword : hidePassword}
                 alt="Toggle password visibility"
@@ -180,22 +147,16 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
 
           {/* Action buttons */}
           <div className="action-buttons d-block">
-            <button type="submit" className="btn btn-primary w-100">
-              Log In
-            </button>
+            <button type="submit" className="btn btn-primary w-100">Log In</button>
             <button className="btn btn-secondary w-100">Forgot Password</button>
             <GoogleLogin
               onSuccess={responseMessage}
               onError={errorGoogleMessage}
             />
-            <div className="or-divider">
-              <span>or</span>
-            </div>
+            <div className="or-divider"><span>or</span></div>
             <p>
               Don't have an account?{" "}
-              <a onClick={() => handleTabClick("registerTab")} className="link">
-                Sign up here!
-              </a>
+              <a onClick={() => handleTabClick("registerTab")} className="link">Sign up here!</a>
             </p>
           </div>
         </div>
