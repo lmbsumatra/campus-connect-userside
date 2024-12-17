@@ -89,11 +89,11 @@ module.exports = (sequelize) => {
     });
     RentalTransaction.belongsTo(models.Listing, { foreignKey: "item_id" });
     RentalTransaction.belongsTo(models.Post, { foreignKey: "post_id" });
-    RentalTransaction.belongsTo(models.RentalDate, {
+    RentalTransaction.belongsTo(models.Date, {
       foreignKey: "rental_date_id",
     }); 
     
-    RentalTransaction.belongsTo(models.RentalDuration, {
+    RentalTransaction.belongsTo(models.Duration, {
       foreignKey: "rental_time_id",
     }); 
 

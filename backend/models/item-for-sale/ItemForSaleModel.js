@@ -73,7 +73,7 @@ module.exports = (sequelize) => {
   );
 
   ItemForSale.associate = (models) => {
-    ItemForSale.hasMany(models.RentalDate, {
+    ItemForSale.hasMany(models.Date, {
         foreignKey: 'item_id',
         as: 'available_dates',
     });

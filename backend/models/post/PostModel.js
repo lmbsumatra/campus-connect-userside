@@ -54,7 +54,7 @@ module.exports = (sequelize) => {
     });
 
     Post.associate = (models) => {
-        Post.hasMany(models.RentalDate, {
+        Post.hasMany(models.Date, {
             foreignKey: 'item_id',
             as: 'rental_dates',
         });

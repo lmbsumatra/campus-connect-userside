@@ -13,6 +13,7 @@ const reviewAndRateRoutes = require("./routes/ReviewAndRateRoutes.js");
 const adminAuthRoutes = require("./routes/AdminAuthRoutes");
 const itemForSaleRoutes = require("./routes/ItemForSaleRoute");
 const rentalTransactionRoutes = require("./routes/RentalTransactionRoute");
+const cartRoutes = require("./routes/CartRoutes.js")
 const http = require("http");
 const { initializeSocket } = require("./socket");
 
@@ -66,6 +67,7 @@ app.use("/posts", postRoutes);
 app.use("/item-for-sale", itemForSaleRoutes);
 app.use("/rental-transaction", rentalTransactionRoutes);
 app.use("/review-and-rate", reviewAndRateRoutes);
+app.use("/api/cart", cartRoutes);
 
 // Error handling middleware for unexpected errors
 app.use((err, req, res, next) => {

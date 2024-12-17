@@ -1,9 +1,9 @@
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    class RentalDate extends Model {} 
+    class Date extends Model {} 
 
-    RentalDate.init({
+    Date.init({
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -28,17 +28,17 @@ module.exports = (sequelize) => {
         },
     }, {
         sequelize,
-        modelName: 'RentalDate',
+        modelName: 'Date',
         tableName: 'dates', 
         timestamps: false, 
     });
 
-    RentalDate.associate = (models) => {
-        RentalDate.hasMany(models.RentalDuration, {
+    Date.associate = (models) => {
+        Date.hasMany(models.Duration, {
             foreignKey: 'date_id',
             as: 'durations', 
         });
     };
 
-    return RentalDate; 
+    return Date; 
 };

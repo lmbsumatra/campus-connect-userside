@@ -4,13 +4,25 @@ import { useNavigate } from "react-router-dom";
 import rentIcon from "../../../assets/images/cart/rent.svg";
 import buyIcon from "../../../assets/images/cart/buy.svg";
 import lookUpIcon from "../../../assets/images/cart/go-to.svg";
-import { useSelector } from "react-redux";
-import { selectCartItems } from "../../../features/cart/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchCart,
+  selectCartItems,
+  selectCartLoading,
+  selectCartError,
+} from "../../../redux/cart/cartSlice";
 
 const Cart = ({ isOpen, onClose }) => {
   const cartItems = useSelector(selectCartItems); // Get items from Redux store
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const dispatch = useDispatch();
+  const loading = useSelector(selectCartLoading);
+  const error = useSelector(selectCartError);
+
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch]); // Fetch cart items on mount
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -24,10 +36,10 @@ const Cart = ({ isOpen, onClose }) => {
     }
 
     const groupedItems = cartItems.reduce((acc, item) => {
-      if (!acc[item.seller]) {
-        acc[item.seller] = [];
+      if (!acc[item.owner_id]) {
+        acc[item.owner_id] = [];
       }
-      acc[item.seller].push(item);
+      acc[item.owner_id].push(item);
       return acc;
     }, {});
 
@@ -61,14 +73,16 @@ const Cart = ({ isOpen, onClose }) => {
                 />
               </div>
               <div className="specs">
-                {(item.specs && Array.isArray(item.specs)) ? 
+                {item.specs && Array.isArray(item.specs) ? (
                   item.specs.slice(0, 2).map((spec, specIndex) => (
                     <p className="spec" key={specIndex}>
                       {spec}
                       {specIndex === 0 ? "," : ""}
                     </p>
-                  )) : <p>No specs available</p>
-                }
+                  ))
+                ) : (
+                  <p>No specs available</p>
+                )}
               </div>
               <p className="price">₱{item.price}</p>
             </div>

@@ -84,7 +84,7 @@ module.exports = (sequelize) => {
   );
 
   Listing.associate = (models) => {
-    Listing.hasMany(models.RentalDate, {
+    Listing.hasMany(models.Date, {
         foreignKey: 'item_id',
         as: 'rental_dates',
     });

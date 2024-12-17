@@ -39,7 +39,7 @@ module.exports = (sequelize) => {
     });
 
     Duration.associate = (models) => {
-        Duration.belongsTo(models.RentalDate, {
+        Duration.belongsTo(models.Date, {
             foreignKey: 'date_id',
             as: 'date',
         });

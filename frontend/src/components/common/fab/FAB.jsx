@@ -8,48 +8,49 @@ import Cart from "./Cart";
 
 const FAB = ({ cartItems }) => {
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  // Update `isMobile` on window resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const createPost = () => navigate("/new-post");
   const addItem = () => navigate("/add-listing");
-  const toggleCart = () => {
-    if (isMobile) {
-      navigate("/cart"); // Redirect to cart page on mobile
-    } else {
-      setIsCartOpen(!isCartOpen); // Toggle cart visibility on larger screens
-    }
-  };
+  const toggleCart = () => (isMobile ? navigate("/cart") : setIsCartOpen(!isCartOpen));
 
   return (
     <>
-      <div className="fabs-container">
-        <button className="fab bg-blue" onClick={addItem}>
-          <img src={addItemIcon} alt="Add Item" /> <span>Add item</span>
-        </button>
-        <button className="fab bg-orange" onClick={createPost}>
-          <img src={createPostIcon} alt="Create Post" />
-          <span>Create post</span>
-        </button>
-        <button className="fab bg-fuschia" onClick={toggleCart}>
-          <img src={cartIcon} alt="View Cart" />
-          <span>View cart</span>
+      <div className="fab-main-container">
+        <div className={`fab-options ${isMenuOpen ? "open" : ""}`}>
+          <div className="fab-option-wrapper">
+            <span className="fab-text bg-blue-text">Add Item</span>
+            <button className="fab-option bg-blue" onClick={addItem}>
+              <img src={addItemIcon} alt="Add Item" />
+            </button>
+          </div>
+          <div className="fab-option-wrapper">
+            <span className="fab-text bg-orange-text">Create Post</span>
+            <button className="fab-option bg-orange" onClick={createPost}>
+              <img src={createPostIcon} alt="Create Post" />
+            </button>
+          </div>
+          <div className="fab-option-wrapper">
+            <span className="fab-text bg-fuschia-text">View Cart</span>
+            <button className="fab-option bg-fuschia" onClick={toggleCart}>
+              <img src={cartIcon} alt="View Cart" />
+            </button>
+          </div>
+        </div>
+        <button className={`fab-main ${isMenuOpen ? "open" : ""}`} onClick={toggleMenu}>
+          +
         </button>
       </div>
-      {!isMobile && (
-        <Cart
-          items={cartItems}
-          isOpen={isCartOpen}
-          onClose={() => setIsCartOpen(false)}
-        />
-      )}
+      {!isMobile && <Cart items={cartItems} isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
     </>
   );
 };

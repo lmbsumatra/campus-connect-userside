@@ -9,7 +9,7 @@ import useFetchItemByParam from "../../../hooks/useFetchItemByParam";
 import UserToolbar from "../../../components/users/user-toolbar/UserToolbar";
 import { useAuth } from "../../../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
-import { addItem, selectCartItems } from "../../../features/cart/cartSlice";
+import { addCartItem, selectCartItems } from "../../../redux/cart/cartSlice";
 
 function ViewItem() {
   const { studentUser } = useAuth();
@@ -35,12 +35,19 @@ function ViewItem() {
     // Check if item is already in the cart
     const isItemInCart = cartItems.some((item) => item.id === selectedItem.id);
 
+    // console.log(selectedItem)
+
     if (!isItemInCart) {
       dispatch(
-        addItem({
-          id: selectedItem.id,
-          name: selectedItem.item_for_sale_name,
-          price: selectedItem.price,
+        addCartItem({
+          user_id: userId,
+          owner_id: selectedItem.seller_id,
+          item_id: selectedItem.id,
+          transaction_type: "buy",
+          date: 65,
+          duration: 100,
+          price: parseFloat(selectedItem.price),
+          status: "pending",
         })
       );
       alert("Item added to cart");

@@ -13,7 +13,7 @@ exports.getAllAvailableListing = async (req, res) => {
       },
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           required: true,
           where: {
@@ -22,7 +22,7 @@ exports.getAllAvailableListing = async (req, res) => {
           },
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
               required: true,
               where: {
@@ -56,14 +56,14 @@ exports.getAvailableListingById = async (req, res) => {
       },
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           where: {
             status: "available", // Ensures only "available" rental dates are included
           },
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
               where: {
                 status: "available", // Ensures only "available" rental durations are included
@@ -113,7 +113,7 @@ exports.getAvailableListingsByUser = async (req, res) => {
       },
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           required: false,
           where: {
@@ -121,7 +121,7 @@ exports.getAvailableListingsByUser = async (req, res) => {
           },
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
               required: false,
             },
@@ -162,7 +162,7 @@ exports.getAvailableListingsByUser = async (req, res) => {
       },
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           required: false,
           where: {
@@ -170,7 +170,7 @@ exports.getAvailableListingsByUser = async (req, res) => {
           },
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
               required: false,
             },
@@ -199,7 +199,7 @@ exports.getAllListings = async (req, res) => {
       attributes: ["id", "listing_name", "tags", "rate", "owner_id", "category", "created_at", "status"],
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           required: false,
           where: {
@@ -207,7 +207,7 @@ exports.getAllListings = async (req, res) => {
           },
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
               required: false,
             },
@@ -259,7 +259,7 @@ exports.createListing = async (req, res, next) => {
           throw new Error("Rental date is missing");
         }
 
-        const rentalDate = await models.RentalDate.create(
+        const rentalDate = await models.Date.create(
           {
             item_id: createdItem.id,
             date: date.date,
@@ -275,7 +275,7 @@ exports.createListing = async (req, res, next) => {
               throw new Error("Rental time is missing from or to fields");
             }
 
-            await models.RentalDuration.create(
+            await models.Duration.create(
               {
                 date_id: rentalDate.id,
                 rental_time_from: time.from,
@@ -358,11 +358,11 @@ exports.getListingById = async (req, res) => {
     const post = await models.Listing.findByPk(req.params.id, {
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
             },
           ],

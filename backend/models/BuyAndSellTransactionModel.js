@@ -34,8 +34,8 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'items', // Foreign key references the 'items' table
-          key: 'item_id',
+          model: 'items_for_sale', // Foreign key references the 'items' table
+          key: 'id',
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
@@ -113,8 +113,8 @@ module.exports = (sequelize) => {
       foreignKey: 'seller_id',
     });
 
-    // A buy and sell transaction belongs to an item
-    BuyAndSellTransaction.belongsTo(models.Item, {
+    // A buy and sell transaction belongs to an item (from ItemForSale)
+    BuyAndSellTransaction.belongsTo(models.ItemForSale, {
       foreignKey: 'item_id',
     });
 

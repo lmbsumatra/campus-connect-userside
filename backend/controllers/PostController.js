@@ -11,7 +11,7 @@ exports.getAllApprovedPost = async (req, res) => {
       },
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           required: true,
           where: {
@@ -19,7 +19,7 @@ exports.getAllApprovedPost = async (req, res) => {
           },
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
               required: true,
             },
@@ -51,7 +51,7 @@ exports.getAvailablePostById = async (req, res) => {
       },
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           where: {
             status: "available", // Ensures only "available" rental dates are included
@@ -59,7 +59,7 @@ exports.getAvailablePostById = async (req, res) => {
           },
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
               where: {
                 status: "available", // Ensures only "available" rental durations are included
@@ -110,7 +110,7 @@ exports.getAvailablePostsByUser = async (req, res) => {
       },
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           required: false,
           where: {
@@ -118,7 +118,7 @@ exports.getAvailablePostsByUser = async (req, res) => {
           },
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
               required: false,
             },
@@ -155,12 +155,12 @@ exports.getAllPosts = async (req, res) => {
       ],
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           required: false,  // This should be here for LEFT JOIN behavior
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
               required: false,  // Optional inclusion of durations
             },
@@ -206,7 +206,7 @@ exports.createPost = async (req, res, next) => {
         }
 
         // Create rental date associated with the post
-        const rentalDate = await models.RentalDate.create(
+        const rentalDate = await models.Date.create(
           {
             item_id: createdPost.id,
             date: date.date,
@@ -224,7 +224,7 @@ exports.createPost = async (req, res, next) => {
             }
 
             // Create rental duration associated with the rental date
-            await models.RentalDuration.create(
+            await models.Duration.create(
               {
                 date_id: rentalDate.id,
                 rental_time_from: time.from,
@@ -305,7 +305,7 @@ exports.getPostById = async (req, res) => {
     const post = await models.Post.findByPk(req.params.id, {
       include: [
         {
-          model: models.RentalDate,
+          model: models.Date,
           as: "rental_dates",
           where: {
             item_id: req.params.id, 
@@ -315,7 +315,7 @@ exports.getPostById = async (req, res) => {
           required: false,
           include: [
             {
-              model: models.RentalDuration,
+              model: models.Duration,
               as: "durations",
             },
           ],

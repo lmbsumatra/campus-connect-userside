@@ -3,8 +3,9 @@ const sequelize = require("../config/database");
 
 const Listing = require("./listing/ListingModel")(sequelize);
 const Post = require("./post/PostModel")(sequelize);
-const RentalDate = require("./common/RentalDatesModel")(sequelize);
-const RentalDuration = require("./common/RentalDurationsModel")(sequelize);
+const Cart = require("./CartModel")(sequelize);
+const Date = require("./common/DatesModel")(sequelize);
+const Duration = require("./common/DurationsModel")(sequelize);
 const Student = require("./StudentModel"); 
 const User = require("./UserModel");
 const ItemForSale = require('./item-for-sale/ItemForSaleModel')(sequelize)
@@ -16,10 +17,11 @@ const ReviewAndRate = require("./ReviewAndRateModel")(sequelize)
 const models = {
   Listing,
   Post,
+  Cart,
   Student,
   User,
-  RentalDate, 
-  RentalDuration,
+  Date, 
+  Duration,
   ItemForSale,
   RentalTransaction,
   Conversation,
