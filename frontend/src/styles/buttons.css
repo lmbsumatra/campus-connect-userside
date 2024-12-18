@@ -2,7 +2,7 @@
 /*      Buttons    */
 /* * * * * * * * * */
 .btn {
-  padding: 7px 28px;
+  padding: 5px 28px !important;
   transition: background-color 0.3s, color 0.3s;
 }
 .btn.btn-rectangle.muted {
@@ -24,7 +24,7 @@
 }
 
 .btn.btn-rectangle.secondary:hover {
-  background-color: var(--clr-primary-lighter);
+  background-color: var(--clr-primary-light);
   color: white !important;
   border: solid 1px var(--clr-primary);
 }
@@ -37,9 +37,9 @@
 }
 
 .btn.btn-rectangle.primary:hover {
-  background-color: var(--clr-primary-darker);
+  background-color: var(--clr-primary-dark);
   color: white !important;
-  border: solid 1px var(--clr-primary-darker);
+  border: solid 1px var(--clr-primary-dark);
 }
 
 /**********************************************************/
@@ -49,7 +49,6 @@
   color: white !important;
   border: solid 1px white;
   border-radius: 8px;
-  padding: 4px 26px;
 }
 
 .btn.btn-rectangle.secondary.white:hover {
@@ -68,7 +67,7 @@
 }
 
 .btn.btn-rounded.secondary:hover {
-  background-color: var(--clr-primary-lighter);
+  background-color: var(--clr-primary);
   color: white !important;
   border: solid 1px var(--clr-primary);
 }
@@ -83,24 +82,24 @@
 }
 
 .btn.btn-rounded.secondary.white:hover {
-  background-color: var(--clr-primary-darker);
+  background-color: var(--clr-primary-dark);
   color: white !important;
-  border: solid 1px var(--clr-primary-darker);
+  border: solid 1px var(--clr-primary-dark);
 }
 
 /**********************************************************/
 
 .btn.btn-rounded.primary {
-  background-color: var(--clr-primary);
+  background-color: var(--clr-primary) !important;
   color: white !important;
-  border: solid 1px var(--clr-primary);
-  border-radius: 100px;
+  border: solid 1px var(--clr-primary) !important;
+  border-radius: 100px !important;
 }
 
 .btn.btn-rounded.primary:hover {
-  background-color: var(--clr-primary-darker);
+  background-color: var(--clr-primary-dark) !important;
   color: white !important;
-  border: solid 1px var(--clr-primary-darker);
+  border: solid 1px var(--clr-primary-dark) !important;
 }
 
 /**********************************************************/
@@ -137,8 +136,8 @@
 .btn.btn-rounded.thin.primary:hover {
   color: var(--clr-secondary);
   border-radius: 100px;
-  border: 1px solid var(--clr-primary-darker);
-  background-color: var(--clr-primary-darker);
+  border: 1px solid var(--clr-primary-dark);
+  background-color: var(--clr-primary-dark);
   border-radius: 12px;
   padding: 0px 8px;
   font-size: 14px;
@@ -175,7 +174,6 @@
   color: #000a68;
 }
 
-
 .btn.btn-action.delete {
   width: auto;
   height: 27px;
@@ -191,13 +189,13 @@
   color: #680000;
 }
 
-
-
 /* buttons for transactions */
 
 /* Button Styles for Owner */
 .btn.btn-rectangle.btn-owner-primary {
-  background-color: var(--clr-owner-txt) !important; /* Customize for owner primary button */
+  background-color: var(
+    --clr-owner-txt
+  ) !important; /* Customize for owner primary button */
   color: white;
   border: solid 1px var(--clr-owner-txt);
   border-radius: 4px;
@@ -210,7 +208,9 @@
 
 /* Button Styles for Renter */
 .btn.btn-rectangle.btn-renter-primary {
-  background-color: var(--clr-renter-txt) !important; /* Customize for owner primary button */
+  background-color: var(
+    --clr-renter-txt
+  ) !important; /* Customize for owner primary button */
   color: white;
   border: solid 1px var(--clr-renter-txt);
   border-radius: 4px;
@@ -230,4 +230,24 @@
 .btn-secondary {
   background-color: #f4f4f4;
   color: #007bff;
+}
+
+.btn-icon {
+  all: unset;
+  padding: 0;
+  margin: 0;
+  background-color: none;
+  color: white !important;
+  border: solid 1px var(--clr-primary);
+  border-radius: 4px;
+  padding: 4px 5px;
+}
+.btn-icon img {
+  height: 24px;
+  width: 24px;
+}
+
+.btn-icon:hover {
+  color: white !important;
+  background-color: var(--clr-neutral-muted);
 }

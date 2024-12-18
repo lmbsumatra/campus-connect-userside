@@ -8,24 +8,42 @@
 /*       root      */
 /* * * * * * * * * */
 :root {
-  --clr-primary: #2179c8;
-  --clr-accent: #ff5400;
-  --clr-tertiary: #c31f3b;
-  --clr-primary-darker: #1d63a0;
-  --clr-primary-lighter: rgb(40, 135, 218);
-  --clr-muted: rgb(241, 241, 241);
-  --clr-primary-muted: rgba(0, 123, 255, 0.1);
-  --clr-main-darker: linear-gradient(to right, #1b62a0, #99182e);
-  /* --clr-main-reverse: linear-gradient(to left, #2179c8, #c31f3b); */
-  /* --clr-primary: #1c1c1c; */
-  --clr-secondary: #6c757d;
-  --clr-focus: #6c757d;
-  --clr-light: #e0e0e0;
-  --clr-white: #ffffff;
+  /* Brand Colors */
+  --clr-primary: #2179c8; /* Main brand color */
+  --clr-secondary: #ff5400; /* Accent color */
+  --clr-tertiary: #c31f3b; /* Supporting or tertiary brand color */
+
+  /* Variations */
+  --clr-primary-dark: #1d63a0; /* Darker variation of the primary color */
+  --clr-primary-light: #2887da; /* Lighter variation of the primary color */
+  --clr-primary-muted: rgba(
+    0,
+    123,
+    255,
+    0.1
+  ); /* Muted or transparent version of primary */
+
+  /* Neutral Colors */
+  --clr-neutral-dark: #131313; /* Almost black */
+  --clr-neutral-muted: rgb(241, 241, 241); /* Soft neutral background */
+  --clr-neutral-light: #e0e0e0; /* Light gray */
+  --clr-neutral-white: #ffffff; /* White */
+  --clr-neutral-gray: #a2a2a2; /* Secondary neutral (gray) */
+
+  /* Gradients */
+  --clr-gradient-primary-dark: linear-gradient(
+    to right,
+    #1b62a0,
+    #99182e
+  ); /* Dark gradient */
+
+  /* Potential Future Colors */
+  /* --clr-gradient-brand-reverse: linear-gradient(to left, #2179c8, #c31f3b); */
+  /* --clr-alt-primary: #1c1c1c; */
+
   --ff-serif: "Bellefair", serif;
   --ff-sans-cond: "Barlow Condensed", sans-serif;
   --ff-sans-normal: "Barlow", sans-serif;
-  --clr-black: #131313;
 
   --clr-buyer: linear-gradient(to right, #3c096c, #973aa8); /* Pink and peach */
   --clr-seller: linear-gradient(
@@ -134,7 +152,7 @@ body {
   line-height: 1.6;
 }
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 ul,
@@ -263,17 +281,29 @@ hr {
 
 .transaction-indicator {
   background-color: red;
-  color: white;         
-  border-radius: 50%;    
-  width: 16px;          
-  height: 16px;           
-  display: flex;         
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
   justify-content: center;
-  align-items: center;    
-  font-size: 10px; 
+  align-items: center;
+  font-size: 10px;
   line-height: 0;
 }
 
 .transaction-indicator.not-active {
-  background-color:var(--clr-secondary);
+  background-color: var(--clr-secondary);
+}
+
+/* catcher, if ever bootstrap fail??? */
+
+.d-flex {
+  display: flex;
+}
+.justify-content-between {
+  justify-content: space-between;
+}
+.align-items-center {
+  align-items: center;
 }

@@ -1,4 +1,4 @@
-:root {
+/* :root {
   --clr-main: linear-gradient(to right, #2179c8, #c31f3b);
   --clr-main-darker: linear-gradient(to right, #1b62a0, #99182e);
   --clr-main-reverse: linear-gradient(to left, #2179c8, #c31f3b);
@@ -9,7 +9,7 @@
   --ff-serif: "Bellefair", serif;
   --ff-sans-cond: "Barlow Condensed", sans-serif;
   --ff-sans-normal: "Barlow", sans-serif;
-}
+} */
 
 .edit-profile-form {
   width: 100%;
