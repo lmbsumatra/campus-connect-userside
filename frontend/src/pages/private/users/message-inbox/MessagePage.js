@@ -3,6 +3,7 @@ import "./inboxStyles.css";
 import UserIcon from "../../../../assets/images/icons/user-icon.svg";
 import { useAuth } from "../../../../context/AuthContext";
 import { io } from "socket.io-client";
+import { baseApi } from "../../../../App";
 
 const MessagePage = () => {
   const { studentUser } = useAuth();

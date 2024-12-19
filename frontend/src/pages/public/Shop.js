@@ -1,8 +1,9 @@
 // Imports
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import ItemSale from "../../components/itemsale/ItemSale";
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
+import ItemList from "../../components/itemlisting/ItemList";
+import { baseApi } from "../../App";
 
 // Shop Component
 const Shop = () => {
@@ -17,7 +18,7 @@ const Shop = () => {
   // const fetchUrl = `${baseUrl}/item-for-sale/info?category=${categoryFilter}&rate=${rateFilter}`;
 
   // Fetch Listings Data (approved items for sale or rent)
-  const { items, loading, error } = useFetchApprovedItems(`${baseUrl}/item-for-sale/available`);
+  const { items, loading, error } = useFetchApprovedItems(`${baseApi}/item-for-sale/available`);
 
   // Event Handlers for Filters
   const handleCategoryChange = (e) => setCategoryFilter(e.target.value);
@@ -68,7 +69,7 @@ const Shop = () => {
           ) : error ? (
             <div>Error: {error}</div>
           ) : (
-            <ItemSale items={items} title="Shop" />
+            <ItemList items={items} title="Shop" />
           )}
         </div>
       </div>

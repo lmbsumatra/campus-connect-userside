@@ -37,13 +37,19 @@
   padding: 8px;
   border: 1px solid white !important;
   margin: 0;
-  height: 259px;
+  height: 243px;
 }
 
+.card.variant-2 .details {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px !important;
+}
 .card.variant-2 .details .description {
   display: flex;
-  flex-direction: column; /* Change to column layout */
-  gap: 12px !important; /* Adjust gap as needed */
+  flex-direction: column;
+  gap: 12px !important;
+  width: 100%;
 }
 
 .card.variant-2 .details {
@@ -59,12 +65,12 @@
 }
 
 .card.variant-2 .img-holder {
+  width: 100% !important;
   height: auto !important;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 336px;
 }
 
 .card.variant-2 .img-holder .img {
@@ -112,29 +118,31 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 181px;
+  width: 181px;
   font-weight: 500;
   font-size: 16px;
   line-height: 1.3;
-  margin: 0; /* Remove margin */
-  padding: 0; /* Remove padding */
+  margin: 0;
+  padding: 0;
 }
 
-.card.variant-2 .rental-desc.holder {
+.card.variant-2 .rental-desc-holder {
+  display: flex !important;
+  flex-direction: column;
   border: 1px solid #ccc;
   border-radius: 5px;
-  position: relative; /* Necessary for .legend absolute positioning */
-  display: inline-block;
-  padding: 4px !important;
+  position: relative;
+  gap: 4px;
+  padding: 8px !important;
 }
 
-.card.variant-2 .rental-desc label {
+.card.variant-2 .rental-desc-holder label {
   color: var(--clr-neutral-gray) !important;
   font-weight: 500;
   font-size: 12px;
 }
-.card.variant-2 .rental-desc .rental-date,
-.card.variant-2 .rental-desc .rental-duration {
+.card.variant-2 .rental-desc-holder .rental-date,
+.card.variant-2 .rental-desc-holder .rental-duration {
   color: var(--clr-secondary) !important;
   font-weight: 600;
   font-size: 16px;
@@ -151,7 +159,7 @@
   align-items: center;
   gap: 8px;
   position: relative;
-  bottom: -18px;
+  bottom: 1px;
 }
 
 .card.variant-2 .details .description .action-btns .btn {
@@ -160,13 +168,12 @@
   z-index: 999;
 }
 
-
-.card.variant-2 .legend {
+.card.variant-2 .label {
   position: absolute;
   top: -10px;
   left: 10px;
-  z-index: 1; /* Ensures .legend stays on top */
-  background: #fff; /* Prevent overlap issues with border */
+  z-index: 1;
+  background: #fff; 
   padding: 0 5px;
   color: var(--clr-neutral-gray) !important;
   font-weight: 500;

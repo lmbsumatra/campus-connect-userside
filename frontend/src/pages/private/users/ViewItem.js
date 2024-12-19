@@ -10,6 +10,7 @@ import UserToolbar from "../../../components/users/user-toolbar/UserToolbar";
 import { useAuth } from "../../../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import { addCartItem, selectCartItems } from "../../../redux/cart/cartSlice";
+import { baseApi } from "../../../App";
 
 function ViewItem() {
   const { studentUser } = useAuth();
@@ -26,7 +27,7 @@ function ViewItem() {
 
   // Fetch the selected post using the custom hook
   const { selectedItem, loading, error, tags } = useFetchItemByParam(
-    `${baseUrl}/item-for-sale/available/${id}`
+    `${baseApi}/item-for-sale/available/${id}`
   );
 
   const cartItems = useSelector(selectCartItems);

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../../context/AuthContext";
 import axios from "axios";
 import ItemList from "../../../../components/itemlisting/ItemList";
+import { baseApi } from "../../../../App";
+
 
 function MyListings() {
     const [listings, setListings] = useState([]);
@@ -14,7 +16,7 @@ function MyListings() {
     useEffect(() => {
       const fetchItem = async () => {
         try {
-          const response = await axios.get(`http://localhost:3001/listings/info`);
+          const response = await axios.get(`${baseApi}/listings/info`);
           const userListings = response.data.filter(
             (listing) => listing.owner_id === userId
           );
@@ -33,7 +35,7 @@ function MyListings() {
   
     return (
       <div className="container rounded bg-white">
-        <ItemList listings={listings} title="Rent" isProfileVisit={false}/>
+        <ItemList items={listings} title="Rent" isProfileVisit={false}/>
       </div>
     );
   }

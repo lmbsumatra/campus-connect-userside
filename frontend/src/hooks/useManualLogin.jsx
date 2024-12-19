@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { baseApi } from "../App";
 
 const useManualLogin = (loginDataState, loginStudent) => {
   const [error, setError] = useState("");
@@ -16,7 +17,7 @@ const useManualLogin = (loginDataState, loginStudent) => {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
 
     try {
-      const response = await fetch("http://localhost:3001/user/login", {
+      const response = await fetch(`${baseApi}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

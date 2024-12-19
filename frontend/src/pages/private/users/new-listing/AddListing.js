@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { baseApi } from "../../../../App";
 
 //  Styles
 import "./addListingStyles.css";
@@ -85,8 +86,8 @@ const AddListing = () => {
   const handleSubmit = async () => {
     try {
       const endpoint = isForSale
-        ? "http://localhost:3001/item-for-sale/add"
-        : "http://localhost:3001/listings/add";
+        ? `${baseApi}/item-for-sale/add`
+        : `${baseApi}/listings/add`;
 
       const payload = isForSale
         ? {

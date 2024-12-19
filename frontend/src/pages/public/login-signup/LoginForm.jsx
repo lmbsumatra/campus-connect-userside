@@ -6,6 +6,7 @@ import "./loginSignupStyle.css";
 import { GoogleLogin } from "@react-oauth/google";
 import showPassword from "../../../assets/images/icons/eye-open.svg";
 import hidePassword from "../../../assets/images/icons/eye-closed.svg";
+import { baseApi } from "../../../App";
 
 const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
   const dispatch = useDispatch(); // Initialize dispatch function
@@ -41,7 +42,7 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
     const token = response.credential;
 
     try {
-      const res = await fetch("http://localhost:3001/user/google-login", {
+      const res = await fetch(`${baseApi}/user/google-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
@@ -74,7 +75,7 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/user/login", {
+      const response = await fetch(`${baseApi}/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

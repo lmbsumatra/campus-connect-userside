@@ -3,6 +3,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import PropTypes from "prop-types";
 import StarRatings from "react-star-ratings";
 import axios from "axios"; // We'll use axios to make the API request
+import { baseApi } from "../../../App";
 
 const ReviewModal = ({
   isOpen,
@@ -10,7 +11,7 @@ const ReviewModal = ({
   item,
   selectedOption,
   handleCloseModal,
-  userId
+  userId,
 }) => {
   const [productRating, setProductRating] = useState(0); // Rating for the item (Product)
   const [ownerRating, setOwnerRating] = useState(0); // Rating for the owner
@@ -39,7 +40,7 @@ const ReviewModal = ({
   const handleSubmit = async () => {
     // Prepare the review data
     const reviewData = [];
-  
+
     // For Renter: submit two reviews (item and owner)
     if (selectedOption === "Renter") {
       // Review for the item
@@ -47,54 +48,58 @@ const ReviewModal = ({
         reviewer_id: item.renter.user_id,
         reviewee_id: item.owner.user_id,
         item_id: item.Listing.id,
-        review_type: "item",  // Rating for the item
+        review_type: "item", // Rating for the item
         transaction_id: item.id,
         rate: productRating,
-        review: itemReview,  // Item review
+        review: itemReview, // Item review
       });
-  
+
       // Review for the owner
       reviewData.push({
         reviewer_id: item.renter.user_id,
         reviewee_id: item.owner.user_id,
-        item_id:  item.Listing.id,
-        review_type: "owner",  // Rating for the owner
+        item_id: item.Listing.id,
+        review_type: "owner", // Rating for the owner
         transaction_id: item.id,
         rate: ownerRating,
-        review: ownerReview,  // Owner review
+        review: ownerReview, // Owner review
       });
     } else if (selectedOption === "Owner") {
       // For Owner: Only one review (renter)
       reviewData.push({
         reviewer_id: item.owner.user_id,
         reviewee_id: item.renter.user_id,
-        item_id:  item.Listing.id,
-        review_type: "renter",  // Rating for the renter
+        item_id: item.Listing.id,
+        review_type: "renter", // Rating for the renter
         transaction_id: item.id,
         rate: renterRating,
-        review: renterReview || remarks,  // Renter review or remarks
+        review: renterReview || remarks, // Renter review or remarks
       });
     }
-  
+
     setLoading(true); // Set loading state to true while waiting for the API response
     setErrorMessage(""); // Clear previous error message
-  
+
     try {
       // Assuming you're submitting the reviews to your API endpoint
       for (const data of reviewData) {
         // Use a loop to handle multiple reviews for the renter (item and owner)
-        const response = await axios.post("http://localhost:3001/review-and-rate/submit", data);
+        const response = await axios.post(
+          `${baseApi}/review-and-rate/submit`,
+          data
+        );
         console.log(response.data); // Log the response (for debugging)
       }
       onClose(); // Close modal on success
     } catch (error) {
       console.error("Error submitting review:", error);
-      setErrorMessage("An error occurred while submitting your review. Please try again.");
+      setErrorMessage(
+        "An error occurred while submitting your review. Please try again."
+      );
     } finally {
       setLoading(false); // Set loading state to false after API response
     }
   };
-  
 
   return (
     <Modal
@@ -112,8 +117,10 @@ const ReviewModal = ({
         <Modal.Title>Review and Rate</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {errorMessage && <div className="alert alert-danger">{errorMessage}</div>} {/* Show error message if any */}
-
+        {errorMessage && (
+          <div className="alert alert-danger">{errorMessage}</div>
+        )}{" "}
+        {/* Show error message if any */}
         {/* For Renter (Rating and reviewing item and owner) */}
         {selectedOption === "Renter" && (
           <>
@@ -133,7 +140,7 @@ const ReviewModal = ({
                 />
                 <div>
                   <p>Item: {item.Listing.listing_name}</p>
-                  <p>Rental Period: {item.RentalDate.date}</p>
+                  {/* <p>Rental Period: {item.RentalDate.date}</p> */}
                   <p>Rental Duration: {item.Duration.rental_time_from}</p>
                   <p>Rental Rate: 10 PHP</p>
                   <div className="d-flex align-items-center">
@@ -191,7 +198,6 @@ const ReviewModal = ({
             </div>
           </>
         )}
-
         {/* For Owner (Rating the Renter and optional remarks) */}
         {selectedOption === "Owner" && (
           <>

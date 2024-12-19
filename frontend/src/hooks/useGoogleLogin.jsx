@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { baseApi } from '../App';
 
 const useGoogleLogin = () => {
   const [loading, setLoading] = useState(false);
@@ -18,7 +19,7 @@ const useGoogleLogin = () => {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
 
       // Send the token to your server for verification and further processing
-      const res = await fetch('http://localhost:3001/user/google-login', {
+      const res = await fetch(`${baseApi}/user/google-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

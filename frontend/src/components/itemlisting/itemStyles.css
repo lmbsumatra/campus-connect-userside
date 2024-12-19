@@ -1,34 +1,8 @@
-.card-container {
+.card-container.vertical {
   display: flex !important;
   flex-wrap: wrap !important;
-  gap: 28px !important;
+  gap: 1px !important;
   justify-content: flex-start !important;
-}
-
-@media (max-width: 600px) {
-  .card-container {
-    gap: 12px !important;
-  }
-}
-
-@media (min-width: 601px) and (max-width: 1024px) {
-  .card-container {
-    gap: 16px !important;
-  }
-
-  .card.variant-1 {
-    width: 172px !important;
-  }
-}
-
-@media (min-width: 1025px) {
-  .card-container {
-    gap: 22px !important;
-  }
-
-  .card.variant-1 {
-    width: 181px !important;
-  }
 }
 
 .card.variant-1 {
@@ -41,6 +15,38 @@
   border: 1px solid white !important;
   gap: 8px;
 }
+
+@media (max-width: 600px) {
+  .card-container.vertical {
+    gap: 4px !important;
+  }
+
+  .card.variant-1 {
+    width: 179px !important;
+  }
+
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+  .card-container.vertical {
+    gap: 18px !important;
+  }
+
+  .card.variant-1 {
+    width: 184px !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  .card-container.vertical {
+    gap: 18px !important;
+  }
+
+  .card.variant-1 {
+    width: 181px !important;
+  }
+}
+
 
 .card.variant-1:hover {
   border: 1px solid var(--clr-primary) !important;

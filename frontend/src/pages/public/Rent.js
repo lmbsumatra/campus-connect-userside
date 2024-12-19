@@ -1,6 +1,7 @@
 // React Imports
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { baseApi } from "../../App";
 
 // Component Imports
 import ItemList from "../../components/itemlisting/ItemList";
@@ -15,7 +16,7 @@ const Rent = () => {
   const baseUrl = "http://localhost:3001";
 
   // Fetch listings data (approved items for rent)
-  const { items: listings, loading: loadingListings, error: errorListings } = useFetchApprovedItems(`${baseUrl}/listings/available`);
+  const { items: listings, loading: loadingListings, error: errorListings } = useFetchApprovedItems(`${baseApi}/listings/available`);
 
   return (
     <>
@@ -58,7 +59,7 @@ const Rent = () => {
             {errorListings && <p>Error loading listings: {errorListings}</p>}
             
             {/* Render the listings */}
-            <ItemList listings={listings} title="Rent" />
+            <ItemList items={listings} title="Rent" />
           </div>
         </div>
       </div>

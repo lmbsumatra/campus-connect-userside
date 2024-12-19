@@ -326,9 +326,10 @@ function Content() {
   );
 }
 
-const baseApiUrl = window.location.hostname;
+const baseApiUrl = `localhost`;
 const baseApiPort = 3001;
 
 export const baseApi = `http://${baseApiUrl}:${baseApiPort}`;
+console.log(baseApi);
 
 export default App;

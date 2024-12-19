@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { baseApi } from "../../../App";
 
 // Custom hooks and utility functions
 import { formatDate } from "../../../utils/dateFormat";
@@ -34,7 +35,7 @@ function ViewListing() {
 
   // Fetch the selected post using the custom hook
   const { selectedItem, loading, error, tags } = useFetchItemByParam(
-    `${baseUrl}/listings/available/${id}`
+    `${baseApi}/listings/available/${id}`
   );
 
   // Retrieve student user details from authentication context
@@ -58,7 +59,7 @@ function ViewListing() {
     }
     try {
       const response = await axios.post(
-        "http://localhost:3001/rental-transaction/add",
+        `${baseApi}/rental-transaction/add`,
         {
           owner_id: selectedItem.owner_id,
           renter_id: studentUser.userId,

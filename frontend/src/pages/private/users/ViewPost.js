@@ -1,6 +1,7 @@
 // React imports
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { baseApi } from "../../../App";
 
 // Custom hooks and utility functions
 import useFetchItemByParam from "../../../hooks/useFetchItemByParam";
@@ -31,7 +32,7 @@ function ViewPost() {
     loading,
     error,
     tags,
-  } = useFetchItemByParam(`${baseUrl}/posts/available/${id}`);
+  } = useFetchItemByParam(`${baseApi}/posts/available/${id}`);
 
   // Loading and error handling
   if (loading) return <p>Loading...</p>;

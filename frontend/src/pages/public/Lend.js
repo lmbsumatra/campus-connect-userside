@@ -2,12 +2,13 @@ import React from "react";
 import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
 import FAB from "../../components/common/fab/FAB";
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
+import { baseApi } from "../../App";
 
 const Lend = () => {
   const baseUrl = "http://localhost:3001";
 
   // Fetch borrowing posts (approved posts for lending)
-  const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseUrl}/posts/approved`);
+  const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseApi}/posts/approved`);
 
   // Handle Floating Action Button (FAB) click
   const handleFabClick = (action) => {

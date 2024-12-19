@@ -6,6 +6,7 @@ import { useAuth } from "../../../context/AuthContext";
 import "./loginSignupStyle.css";
 import showPassword from "../../../assets/images/icons/eye-open.svg";
 import hidePassword from "../../../assets/images/icons/eye-closed.svg";
+import { baseApi } from "../../../App";
 
 // Helper function to validate form fields and check for empty required fields
 const validateRequiredFields = (
@@ -159,7 +160,7 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
     formData.append("role", "student");
 
     try {
-      const response = await fetch("http://localhost:3001/user/register", {
+      const response = await fetch(`${baseApi}/user/register`, {
         method: "POST",
         body: formData,
       });
@@ -366,27 +367,27 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
             </div>
 
             <div className="input-group">
-              <span className="input-group-text" >Password</span>
+              <span className="input-group-text">Password</span>
               {/* <div className="input-container"> */}
-                <input
-                  type={isShowPassword ? "text" : "password"}
-                  name="password"
-                  value={userData.password}
-                  onChange={handlePasswordChange}
-                  onFocus={() =>
-                    setInputTriggers((prev) => ({ ...prev, password: false }))
-                  }
-                  onBlur={() => handleBlur("password")}
-                  className="form-control"
-                  style={{ borderColor: getBorderColor("password") }}
-                  required
+              <input
+                type={isShowPassword ? "text" : "password"}
+                name="password"
+                value={userData.password}
+                onChange={handlePasswordChange}
+                onFocus={() =>
+                  setInputTriggers((prev) => ({ ...prev, password: false }))
+                }
+                onBlur={() => handleBlur("password")}
+                className="form-control"
+                style={{ borderColor: getBorderColor("password") }}
+                required
+              />
+              <div className="signup pass-icon" onClick={handleShowPassword}>
+                <img
+                  src={isShowPassword ? showPassword : hidePassword}
+                  alt="Toggle password visibility"
                 />
-                <div className="signup pass-icon" onClick={handleShowPassword}>
-                  <img
-                    src={isShowPassword ? showPassword : hidePassword}
-                    alt="Toggle password visibility"
-                  />
-                </div>
+              </div>
               {/* </div> */}
             </div>
             {userData.password && (
@@ -396,25 +397,25 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
             <div className="input-group">
               <span className="input-group-text">Confirm Password</span>
               {/* <div className="input-container"> */}
-                <input
-                  type={isShowConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={userData.confirmPassword}
-                  onChange={handleChange}
-                  onBlur={() => handleBlur("confirmPassword")}
-                  className="form-control"
-                  style={{ borderColor: getBorderColor("confirmPassword") }}
-                  required
+              <input
+                type={isShowConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                value={userData.confirmPassword}
+                onChange={handleChange}
+                onBlur={() => handleBlur("confirmPassword")}
+                className="form-control"
+                style={{ borderColor: getBorderColor("confirmPassword") }}
+                required
+              />
+              <div
+                className="signup pass-icon"
+                onClick={handleShowConfirmPassword}
+              >
+                <img
+                  src={isShowConfirmPassword ? showPassword : hidePassword}
+                  alt="Toggle password visibility"
                 />
-                <div
-                  className="signup pass-icon"
-                  onClick={handleShowConfirmPassword}
-                >
-                  <img
-                    src={isShowConfirmPassword ? showPassword : hidePassword}
-                    alt="Toggle password visibility"
-                  />
-                </div>
+              </div>
               {/* </div> */}
             </div>
           </section>

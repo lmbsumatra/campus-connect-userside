@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 // Custom hook to fetch listings
-const useFetchApprovedItems = (url) => {
+const 
+useFetchApprovedItems = (url) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  console.log(url)
 
   useEffect(() => {
     const fetchItems = async () => {

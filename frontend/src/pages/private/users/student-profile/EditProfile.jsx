@@ -5,6 +5,8 @@ import { useAuth } from "../../../../context/AuthContext";
 import showPassword from "../../../../assets/images/icons/eye-open.svg";
 import hidePassword from "../../../../assets/images/icons/eye-closed.svg";
 import PasswordMeter from "../../../../components/common/PasswordMeter";
+import { baseApi } from "../../../../App";
+
 
 function EditProfile() {
 
@@ -86,7 +88,7 @@ function EditProfile() {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/user/change-password", {
+      const response = await fetch(`${baseApi}/user/change-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

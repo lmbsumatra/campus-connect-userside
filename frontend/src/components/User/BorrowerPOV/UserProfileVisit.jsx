@@ -5,7 +5,6 @@ import ProfileHeader from "../header/ProfileHeader.jsx";
 import useFetchApprovedItemsByUserId from "../../../hooks/useFetchApprovedItemsByUserId.jsx";
 import { useLocation, useParams } from "react-router-dom";
 import ItemList from "../../itemlisting/ItemList.jsx";
-import ItemSale from "../../itemsale/ItemSale.jsx";
 
 const UserProfileVisit = () => {
   const location = useLocation();
@@ -92,7 +91,7 @@ const UserProfileVisit = () => {
               <>
                 {loadingItemsForSale && <p>Loading...</p>}
                 {errorItemsForSale && <p>Error fetching items: </p>}
-                <ItemSale
+                <ItemList
                   items={itemsForSale}
                   title="Sell"
                   className="col-md-10"

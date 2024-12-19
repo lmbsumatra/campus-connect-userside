@@ -20,6 +20,7 @@ import { HandleCustomDateAndTime } from "../common-input-handler/HandleCustomDat
 import { HandleWeeklyDateAndTime } from "../common-input-handler/HandleWeeklyDateAndTime";
 import FetchUserInfo from "../../../../utils/FetchUserInfo";
 import DateDurationPicker from "./DateDurationPicker";
+import { baseApi } from "../../../../App";
 
 const initialState = {
   itemName: { value: "", triggered: false, hasError: true, error: "" },
@@ -102,7 +103,7 @@ const AddPost = () => {
   const handleSubmit = async () => {
     console.log(postData);
     try {
-      const response = await axios.post("http://localhost:3001/posts/create", {
+      const response = await axios.post(`${baseApi}/posts/create`, {
         post: {
           post_item_name: postData.post_item_name,
           description: postData.description,

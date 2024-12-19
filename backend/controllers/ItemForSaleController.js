@@ -2,54 +2,54 @@ const Listing = require("../models/listing/ListingModel");
 const sequelize = require("../config/database");
 const { models } = require("../models/index");
 
-// Get all posts with rental dates and durations
-exports.getAllAvailableItemForSale = async (req, res) => {
-  try {
-    const items = await models.ItemForSale.findAll({
-      attributes: [
-        "id",
-        "item_for_sale_name",
-        "tags",
-        "price",
-        "seller_id",
-        "created_at",
-        "status",
-        "category",
-      ],
-      where: {
-        status: "approved",
-      },
-      include: [
-        {
-          model: models.Date,
-          as: "available_dates",
-          required: true,
-          where: {
-            item_type: "item_for_sale",
-          },
-          include: [
-            {
-              model: models.Duration,
-              as: "durations",
-              required: true,
-            },
-          ],
-        },
-        {
-          model: models.User,
-          as: "seller",
-          attributes: ["first_name", "last_name"],
-        },
-      ],
-    });
+// // Get all posts with rental dates and durations
+// exports.getAllAvailableItemForSale = async (req, res) => {
+//   try {
+//     const items = await models.ItemForSale.findAll({
+//       attributes: [
+//         "id",
+//         "item_for_sale_name",
+//         "tags",
+//         "price",
+//         "seller_id",
+//         "created_at",
+//         "status",
+//         "category",
+//       ],
+//       where: {
+//         status: "approved",
+//       },
+//       include: [
+//         {
+//           model: models.Date,
+//           as: "available_dates",
+//           required: true,
+//           where: {
+//             item_type: "item_for_sale",
+//           },
+//           include: [
+//             {
+//               model: models.Duration,
+//               as: "durations",
+//               required: true,
+//             },
+//           ],
+//         },
+//         {
+//           model: models.User,
+//           as: "seller",
+//           attributes: ["first_name", "last_name"],
+//         },
+//       ],
+//     });
 
-    res.status(200).json(items);
-    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(items);
+//     // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+//   } catch (error) {
+//     console.error("Error fetching posts:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 // Get a single approved item by ID with associated rental dates, durations, and renter info
 exports.getAvailableItemForSaleById = async (req, res) => {

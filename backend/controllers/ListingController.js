@@ -4,47 +4,47 @@ const { models } = require("../models/index");
 const {notifyAdmins} = require('../socket.js')
 
 // Get all approved listing: displayed in home, listings page
-exports.getAllAvailableListing = async (req, res) => {
-  try {
-    // Fetch all approved listings
-    const items = await models.Listing.findAll({
-      where: {
-        status: "approved", // Filter for approved items
-      },
-      include: [
-        {
-          model: models.Date,
-          as: "rental_dates",
-          required: true,
-          where: {
-            item_type: "listing",
-            status: "available", // Filter for available dates
-          },
-          include: [
-            {
-              model: models.Duration,
-              as: "durations",
-              required: true,
-              where: {
-                status: "available", // Filter for available durations
-              },
-            },
-          ],
-        },
-        {
-          model: models.User,
-          as: "owner",
-          attributes: ["first_name", "last_name"],
-        },
-      ],
-    });
+// exports.getAllAvailableListing = async (req, res) => {
+//   try {
+//     // Fetch all approved listings
+//     const items = await models.Listing.findAll({
+//       where: {
+//         status: "approved", // Filter for approved items
+//       },
+//       include: [
+//         {
+//           model: models.Date,
+//           as: "rental_dates",
+//           required: true,
+//           where: {
+//             item_type: "listing",
+//             status: "available", // Filter for available dates
+//           },
+//           include: [
+//             {
+//               model: models.Duration,
+//               as: "durations",
+//               required: true,
+//               where: {
+//                 status: "available", // Filter for available durations
+//               },
+//             },
+//           ],
+//         },
+//         {
+//           model: models.User,
+//           as: "owner",
+//           attributes: ["first_name", "last_name"],
+//         },
+//       ],
+//     });
 
-    res.status(200).json(items);
-  } catch (error) {
-    console.error("Error fetching listings:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(items);
+//   } catch (error) {
+//     console.error("Error fetching listings:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 // Get a single approved listing by ID with associated rental dates, durations, and renter info
 exports.getAvailableListingById = async (req, res) => {
