@@ -9,6 +9,11 @@ import moreImg from "../../assets/images/icons/moreImg.png";
 import "./postStyles.css";
 import { formatDate } from "../../utils/dateFormat";
 import flagIcon from "../../assets/images/card/flag.svg";
+import Tooltip from "@mui/material/Tooltip";
+import { Button } from "@mui/material";
+import cartIcon from "../../assets/images/card/message.svg";
+import moreIcon from "../../assets/images/card/more.svg";
+import forRentIcon from "../../assets/images/card/looking-for.svg";
 
 const BorrowingPost = ({ borrowingPosts, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -52,95 +57,123 @@ const BorrowingPost = ({ borrowingPosts, title, isProfileVisit }) => {
   return (
     <div>
       <h2 className="fs-2 fw-bold">{title}</h2>
+
       <div className="card-container">
+      <div className="card variant-2">
+                <div className="item-type">
+                  <i>Looking for...</i>
+                </div>
+                <div className="details">
+                  <div className="description">
+                    <p className="item-name">Nikon camera 123 dlsr dlsr</p>
+                    <div className="rental-desc holder">
+                      <div className="legend">Rental Details</div>
+                      <label className="rental-date">November 04, 2002</label>
+                      <span className="rental-duration">9am - 11am (2hrs)</span>
+                      <a className="link more" href="./">
+                        More details
+                      </a>
+                    </div>
+
+                    <div className="tags-holder">
+                      <span className="tag">tagtagtagtagtagtag</span>
+                      <Tooltip
+                        title="this is tag"
+                        componentsProps={{
+                          popper: {
+                            modifiers: [
+                              {
+                                name: "offset",
+                                options: {
+                                  offset: [0, -10], // Adjusts the tooltip distance [horizontal, vertical]
+                                },
+                              },
+                            ],
+                          },
+                        }}
+                      >
+                        <span className="tag">More +</span>
+                      </Tooltip>
+                    </div>
+                    <div className="action-btns">
+                      <button className="btn btn-rectangle primary">
+                        Offer
+                      </button>
+                      <button className="btn-icon">
+                        <img src={cartIcon} alt="Message poster" />
+                      </button>
+                      <button className="btn-icon option">
+                        <img src={moreIcon} alt="More option" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="img-holder">
+                    <img src={item1} alt={`${item1}`} className="img" />
+                  </div>
+                </div>
+              </div>
+
         {borrowingPosts.length > 0 ? (
           borrowingPosts.map((item, index) => {
-            let tags = [];
-            try {
-              tags = JSON.parse(item.tags);
-            } catch (e) {
-              console.error("Error parsing tags:", e);
-              tags = []; // Fallback to an empty array if parsing fails
-            }
-
             return (
-              <div
-                key={item.id}
-                className="card-link"
-                onClick={() => handleCardClick(item.id)}
-              >
-                <div className="card card-variant-2">
-                  <div className="tags d-flex justify-content-between">
-                    
-                    <ul className="tag-list">
-                      {Array.isArray(tags) &&
-                        tags.slice(0, 2).map((tag, tagIndex) => (
-                          <li key={tagIndex} className="tag">
-                            {tag}
-                          </li>
-                        ))}
-                      {tags.length > 2 && (
-                        <li
-                          className="tag more"
-                          onMouseEnter={() => handleMouseEnter(index)}
-                          onMouseLeave={handleMouseLeave}
-                        >
-                          + More
-                        </li>
-                      )}
-                    </ul>
-                    {isProfileVisit === false && (
-                      <div className="d-flex justify-content-end px-2 lh-1">
-                        <span className={`status-indication ${item.status}`}>
-                          {" "}
-                          {item.status.charAt(0).toUpperCase() +
-                            item.status.slice(1).toLowerCase()}{" "}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="row">
-                    <div className="col-6">
-                      <div className="card-body">
-                        <div>
-                          <p className="card-text fw-bold ellipsis">
-                            {item.post_item_name}
-                          </p>
-                          <div>
-                            <p className="card-text label">Rental Date</p>
-                            <button className="btn btn-rounded thin">
-                              {item.rental_dates.length > 0
-                                ? formatDate(item.rental_dates[0].date)
-                                : "N/A"}
-                            </button>
-                          </div>
-                        </div>
-                        <img
-                          src={flagIcon}
-                          className="icon flag-item"
-                          alt="More options"
-                          onClick={(e) => handleMoreClick(index, e)}
-                          style={{ cursor: "pointer" }}
-                        />
-                      </div>
+              <div className="card variant-2" key={index}>
+                <div className="item-type">
+                  <i>Looking for...</i>
+                </div>
+                <div className="details">
+                  <div className="description">
+                    <p className="item-name">{item.post_item_name}</p>
+                    <div className="rental-desc holder">
+                      <div className="legend">Rental Details</div>
+                      <label className="rental-date">November 04, 2002</label>
+                      <span className="rental-duration">9am - 11am (2hrs)</span>
+                      <a className="link more" href="./">
+                        More details
+                      </a>
                     </div>
-                    <div className="col-6">
-                      <div className="card-img">
-                        <img src={getItemImage(item.itemImage)} alt="Card" />
-                      </div>
-                    </div>
-                  </div>
-                  {selectedIndex === index && (
-                    <div className="popup">
-                      <div className="popup-content">
-                        <ul className="d-block">
-                          {tags.map((tag, tagIndex) => (
-                            <li key={tagIndex}>{tag}</li>
+
+                    <div className="tags-holder">
+                      <span className="tag">{JSON.parse(item.tags).slice(0, 1)}</span>
+                      <Tooltip
+                        title={JSON.parse(item.tags)
+                          .slice(1)
+                          .map((tag, index) => (
+                            <>
+                              {tag}
+                              <br />
+                            </>
                           ))}
-                        </ul>
-                      </div>
+                        componentsProps={{
+                          popper: {
+                            modifiers: [
+                              {
+                                name: "offset",
+                                options: {
+                                  offset: [0, -10], // Adjusts the tooltip distance [horizontal, vertical]
+                                },
+                              },
+                            ],
+                          },
+                        }}
+                      >
+                        <span className="tag">More +</span>
+                      </Tooltip>
                     </div>
-                  )}
+                    <div className="action-btns">
+                      <button className="btn btn-rectangle primary">
+                        Offer
+                      </button>
+                      <button className="btn-icon">
+                        <img src={cartIcon} alt="Message poster" />
+                      </button>
+                      <button className="btn-icon option">
+                        <img src={moreIcon} alt="More option" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="img-holder">
+                    <img src={item1} alt={`${item2}`} className="img" />
+                  </div>
                 </div>
               </div>
             );

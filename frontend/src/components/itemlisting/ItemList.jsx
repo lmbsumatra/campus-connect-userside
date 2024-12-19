@@ -7,6 +7,8 @@ import flagIcon from "../../assets/images/card/flag.svg";
 import Tooltip from "@mui/material/Tooltip";
 import { Button } from "@mui/material";
 import cartIcon from "../../assets/images/card/cart.svg";
+import moreIcon from "../../assets/images/card/more.svg";
+import forRentIcon from "../../assets/images/card/rent.svg";
 
 const ItemList = ({ listings, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -41,9 +43,31 @@ const ItemList = ({ listings, title, isProfileVisit }) => {
       <h2 className="fs-2 fw-bold">{title}</h2>
       For rent
       <div className="card-container">
-        <div className="card">
+        <div className="card variant-1">
           <div className="img-holder">
             <img src={item1} alt={`${item1}`} className="img" />
+            <Tooltip
+              title={"This is a tooltip"}
+              componentsProps={{
+                popper: {
+                  modifiers: [
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, -10], // Adjusts the tooltip distance [horizontal, vertical]
+                      },
+                    },
+                  ],
+                },
+              }}
+            >
+              {" "}
+              <img
+                src={forRentIcon}
+                alt={`${item1} is for rent`}
+                className="item-type"
+              />
+            </Tooltip>
           </div>
           <div className="description">
             <div className="tags-holder">
@@ -73,6 +97,9 @@ const ItemList = ({ listings, title, isProfileVisit }) => {
               <button className="btn-icon">
                 <img src={cartIcon} alt="Add to cart" />
               </button>
+              <button className="btn-icon option">
+                <img src={moreIcon} alt="More option" />
+              </button>
             </div>
           </div>
         </div>
@@ -88,9 +115,31 @@ const ItemList = ({ listings, title, isProfileVisit }) => {
             }
 
             return (
-              <div className="card">
+              <div className="card variant-1">
                 <div className="img-holder">
                   <img src={item1} alt={`${item1}`} className="img" />
+                  <Tooltip
+                    title={`${item.listing_name} is for rent.`}
+                    componentsProps={{
+                      popper: {
+                        modifiers: [
+                          {
+                            name: "offset",
+                            options: {
+                              offset: [0, -50], // Adjusts the tooltip distance [horizontal, vertical]
+                            },
+                          },
+                        ],
+                      },
+                    }}
+                  >
+                    {" "}
+                    <img
+                      src={forRentIcon}
+                      alt={`${item1} is for rent`}
+                      className="item-type"
+                    />
+                  </Tooltip>
                 </div>
                 <div className="description">
                   <div className="tags-holder">
@@ -123,11 +172,14 @@ const ItemList = ({ listings, title, isProfileVisit }) => {
                     </Tooltip>
                   </div>
                   <p className="item-name">{item.listing_name}</p>
-                  <p className="item-price">{item.rate} per hour</p>
+                  <p className="item-price">P{item.rate} per hour</p>
                   <div className="action-btns">
                     <button className="btn btn-rectangle primary">Rent</button>
                     <button className="btn-icon">
                       <img src={cartIcon} alt="Add to cart" />
+                    </button>
+                    <button className="btn-icon option">
+                      <img src={moreIcon} alt="More option" />
                     </button>
                   </div>
                 </div>
