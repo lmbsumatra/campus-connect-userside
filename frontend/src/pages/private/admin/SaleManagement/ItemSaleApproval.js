@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./forSaleManagement.css";
 import ViewItem from "../../users/ViewListing";
 import ActionModal from "../../../../components/admin/Action Modal/ActionModal";
-import ViewPost from "../../users/ViewPost";
+import ViewPost from "../../users/post/PostDetail";
 import FetchPostData from "../../../../utils/FetchPostData";
 import { useParams } from "react-router-dom";
 import { ItemStatus } from "../../../../utils/Status";

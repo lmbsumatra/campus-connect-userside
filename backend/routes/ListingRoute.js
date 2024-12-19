@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ListingController = require("../controllers/ListingController");
-const {
-  ItemForRentContoller,
-} = require("../controllers/item-for-rent/ItemForRentController");
+const ItemForRentContoller = require("../controllers/item-for-rent/ItemForRentController");
 
 /* * * * * * * * * displayed for all users :: available * * * * * * * * * * * * * */
 // lahat ng available na listing (approved, with available date and corresponding time)

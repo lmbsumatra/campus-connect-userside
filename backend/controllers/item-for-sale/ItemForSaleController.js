@@ -1,9 +1,7 @@
-const getAllAvailable = require('./getAllAvailable');
+const getAllAvailable = require("./getAllAvailable");
 
 const ItemForSaleContoller = {
   getAllAvailable,
 };
 
-module.exports = {
-    ItemForSaleContoller,
-};
+module.exports = ItemForSaleContoller;

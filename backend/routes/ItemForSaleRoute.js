@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const ItemForSaleController = require("../controllers/ItemForSaleController");
-const {
-  ItemForSaleContoller,
-} = require("../controllers/item-for-sale/ItemForSaleController.js");
+const
+  ItemForSaleContoller= require("../controllers/item-for-sale/ItemForSaleController.js");
 
 router.get("/available", ItemForSaleContoller.getAllAvailable);
 // isang item for sale na available (approved, with available date and corresponding time)

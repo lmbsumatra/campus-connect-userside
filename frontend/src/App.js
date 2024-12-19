@@ -19,7 +19,7 @@ import store from "../src/store/store";
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
 import Home from "./pages/public/Home.js";
 import Profile from "./pages/private/users/student-profile/Profile.js";
-import ViewPost from "./pages/private/users/ViewPost.js";
+import ViewPost from "./pages/private/users/post/PostDetail.js";
 import AddPost from "./pages/private/users/new-post/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/RentProgress.jsx";
@@ -68,6 +68,7 @@ import ChatAndNotif from "./trialOnMessage&Notification/ChatAndNotif.jsx";
 import Trial2 from "./trials/Trial2.js";
 import FAB from "./components/common/fab/FAB.jsx";
 import Cart from "./components/common/fab/Cart.js";
+import PostDetail from "./pages/private/users/post/PostDetail.js";
 
 function App() {
   console.log(baseApi);
@@ -186,11 +187,9 @@ function Content() {
         <Route
           path="/lend/:id"
           element={
-            <div className="container-content">
-              <StudentProtectedRoute allowedRoles="student">
-                <ViewPost />
-              </StudentProtectedRoute>
-            </div>
+            <StudentProtectedRoute allowedRoles="student">
+              <PostDetail />
+            </StudentProtectedRoute>
           }
         />
         <Route

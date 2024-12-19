@@ -4,6 +4,5 @@ const ItemForRentContoller = {
   getAllAvailable,
 };
 
-module.exports = {
-  ItemForRentContoller,
-};
+module.exports =
+  ItemForRentContoller;

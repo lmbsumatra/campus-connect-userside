@@ -59,7 +59,7 @@ const UserToolbar = ({
           <div>
             <a
               href={
-                isProfileVisit ? "/profile" : `/user?userId=${user.user_id}`
+                isProfileVisit ? "/profile" : `/user?userId=52`
               }
               className="text-dark small text-decoration-none"
             >
