@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPostDetails } from "../../../../redux/post/postSlice";
+import { fetchApprovedPostById } from "../../../../redux/post/approvedPostByIdSlice";
 
 // Custom hooks and utility functions
 import { useAuth } from "../../../../context/AuthContext";
@@ -21,27 +21,32 @@ import forRentIcon from "../../../../assets/images/card/rent.svg";
 import UserToolbar from "../../../../components/users/user-toolbar/UserToolbar";
 import "./postDetailStyles.css";
 
+import { computeDuration } from "../../../../utils/timeFormat";
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 function PostDetail() {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [college, setCollege] = useState("CIE");
   const { id } = useParams(); // Get the post ID from URL params
   const dispatch = useDispatch();
-  
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showDurations, setShowDurations] = useState(null); // For showing durations
+
   // Fetch post details using the ID from the URL
   useEffect(() => {
     if (id) {
-      dispatch(fetchPostDetails(id)); // Dispatch action to fetch post details by ID
+      dispatch(fetchApprovedPostById(id)); // Dispatch action to fetch post details by ID
     }
   }, [dispatch, id]);
 
   // Fetching post details from Redux store
-  const { post, loading, error } = useSelector((state) => state.post);
+  const { approvedPostById, loadingApprovedPostById, errorApprovedPostById } =
+    useSelector((state) => state.approvedPostById);
 
   const { studentUser } = useAuth();
   const { userId } = studentUser;
-
-  // State for the selected rental date
-  const [selectedDate, setSelectedDate] = useState(null);
 
   // Images for the slider
   const images = [
@@ -67,42 +72,61 @@ function PostDetail() {
     setCurrentIndex(index);
   };
 
-  // Fetch post details using the ID from the URL
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchPostDetails(id)); // Dispatch action to fetch post details by ID
+  // Handle loadingApprovedPostById and errorApprovedPostById states
+  if (loadingApprovedPostById) {
+    return <p>Loading...</p>; // Show loadingApprovedPostById state
+  }
+
+  if (errorApprovedPostById) {
+    return <p>Error: {errorApprovedPostById}</p>; // Show errorApprovedPostById if any
+  }
+
+  if (!approvedPostById) {
+    return <p>Item not found</p>;
+  }
+
+  const rentalDates = approvedPostById.rentalDates || [];
+
+  // Handle the date click event
+  const handleDateClick = (dateId) => {
+    const selectedRentalDate = approvedPostById.rentalDates.find(
+      (rentalDate) => rentalDate.id === dateId
+    );
+
+    console.log(
+      "Selected Rental Date's Durations:",
+      selectedRentalDate.durations
+    ); // Debugging line
+
+    if (selectedRentalDate && selectedRentalDate.durations) {
+      setSelectedDate(selectedRentalDate.date);
+      setShowDurations(selectedRentalDate.durations); // Update the state with durations
     }
-  }, [dispatch, id]);
+  };
 
-  // Debugging: Log the fetched post data to the console
-  console.log(post);
+  // Create an array of available dates for highlighting
+  const availableDates = rentalDates
+    .filter((rentalDate) => rentalDate.status === "available")
+    .map((rentalDate) => new Date(rentalDate.date));
 
-  // Handle loading and error states
-  if (loading) {
-    return <p>Loading...</p>; // Show loading state
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>; // Show error if any
-  }
-
-  if (!post) {
-    return <p>Item not found</p>; // Show if post is not found
-  }
-
-  const isProfileVisit = userId === post.renterId;
+  const highlightStyle = {
+    backgroundImage: `url(${images[0]})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    filter: "blur(15px)",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    height: "100%",
+    width: "100%",
+    zIndex: 0,
+  };
 
   return (
-    <div className="container-content">
+    <div className="container-content post-detail">
       <div className="post-container">
         <div className="imgs-container">
-          <div className="highlight">
-            <img
-              src={images[currentIndex]}
-              alt="Item"
-              className="highlight-img"
-            />
-            <Tooltip
+        <Tooltip
               title={"This is a tooltip"}
               componentsProps={{
                 popper: {
@@ -123,6 +147,22 @@ function PostDetail() {
                 className="item-type"
               />
             </Tooltip>
+          {/* Blurred background layer */}
+          <div
+            className="highlight-bg"
+            style={{
+              backgroundImage: `url(${images[currentIndex]})`,
+            }}
+          ></div>
+
+          {/* Highlighted image container */}
+          <div className="highlight">
+            <img
+              src={images[currentIndex]}
+              alt="Item"
+              className="highlight-img"
+            />
+            
           </div>
           {/* Image Slider */}
           <div className="img-slider">
@@ -165,7 +205,7 @@ function PostDetail() {
         </div>
 
         {/* Post Description */}
-        <div className="item-desc">
+        <div className="rental-details">
           <div className="college-badge">
             <Tooltip title="This item is from CAFA." placement="bottom">
               <img
@@ -173,13 +213,17 @@ function PostDetail() {
                 alt="College"
                 style={{ height: "24px", width: "24px" }}
               />
-              <span>CAFA</span>
+              {approvedPostById.college && (
+                <span>{approvedPostById.college}</span>
+              )}
             </Tooltip>
           </div>
           <div className="d-flex justify-content-between align-items-center m-0 p-0">
             <p>
               <i>Looking for </i>
-              <strong>{post.name}</strong>
+              {approvedPostById.name && (
+                <strong>{approvedPostById.name}</strong>
+              )}
             </p>
           </div>
           <div className="d-flex justify-content-end">
@@ -191,90 +235,147 @@ function PostDetail() {
             </button>
           </div>
           <hr />
-          <p>
-            <strong>Request Dates</strong>
-            {Array.isArray(post.rentalDates) && post.rentalDates.length > 0 ? (
-              post.rentalDates.map((rental) => (
-                <button
-                  key={rental.date}
-                  className="btn btn-rounded thin me-2 ms-2"
-                  onClick={() => setSelectedDate(rental.date)}
-                >
-                  {formatDate(rental.date)}
-                </button>
-              ))
-            ) : (
-              <p>No rental dates available.</p>
-            )}
-          </p>
+          <div className="rental-dates-durations">
+            <div className="date-picker">
+              <span>Pick a date to offer:</span>
+              {/* Inline DatePicker with available dates highlighted */}
+              <DatePicker
+                inline
+                selected={selectedDate ? new Date(selectedDate) : null}
+                onChange={(date) => {
+                  const clickedDateId = rentalDates.find(
+                    (rentalDate) =>
+                      new Date(rentalDate.date).toDateString() ===
+                      date.toDateString()
+                  )?.id;
 
-          <div>
-            <p>
-              <strong>Request Times</strong>
-              {selectedDate ? (
-                formatDate(selectedDate)
-              ) : (
-                <i>Please select a preferred date</i>
-              )}{" "}
-              :
-            </p>
-            {(selectedDate &&
-              post.rentalDates
-                .find((rental) => rental.date === selectedDate)
-                ?.durations?.map((duration, index) => (
-                  <button key={index} className="btn btn-rounded">
-                    {formatTimeTo12Hour(duration.start_time)} -{" "}
-                    {formatTimeTo12Hour(duration.end_time)}
-                  </button>
-                ))) || <p>No available times for this date</p>}
+                  if (clickedDateId) {
+                    handleDateClick(clickedDateId); // Call the handleDateClick function
+                  }
+                  setSelectedDate(date); // Update selected date
+                  // Find the corresponding rental date
+                  const rentalDate = rentalDates.find(
+                    (r) =>
+                      new Date(r.date).toDateString() === date.toDateString()
+                  );
+                  if (rentalDate && rentalDate.status === "available") {
+                    setShowDurations(rentalDate.durations); // Show durations for the selected date
+                  } else {
+                    setShowDurations(null); // No durations if date is not available
+                  }
+                }} // Update selected date
+                highlightDates={availableDates} // Highlight available dates
+                dayClassName={(date) => {
+                  // Add custom styling to available dates
+                  return availableDates.some(
+                    (d) => d.toDateString() === date.toDateString()
+                  )
+                    ? "bg-green"
+                    : "";
+                }}
+              />
+            </div>
+            {/* Displaying durations if available */}
+            <div className="duration-picker">
+              <strong>Available Durations:</strong>
+              <div>
+                {selectedDate ? (
+                  showDurations && showDurations.length > 0 ? (
+                    // Show durations if they exist
+                    <div className="duration-list">
+                      {showDurations.map((duration) => (
+                        <div key={duration.id} className="duration-item">
+                          <span>
+                            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+                            {formatTimeTo12Hour(duration.timeTo)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    // Show "No available duration" if no durations exist
+                    <p className="no-duration-message">
+                      No available duration for this date.
+                    </p>
+                  )
+                ) : (
+                  // Show "Please select a date" if no date is selected
+                  <p className="select-date-message">
+                    Please select a date first.
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* <UserToolbar
-        userProfilePic={""}
-        user={post.renter}
-        isProfileVisit={isProfileVisit}
-        userRating={""}
-        buttonText1="View Posts"
-        buttonText2="View Profile"
-        activeTab="Posts"
-      /> */}
+      <div className="post-container renter-info">
+        <div className="user-link">
+          <img src={""} alt="Profile picture" className="profile-avatar" />
+          <div>
+            <a href={``} className="username">
+              {approvedPostById.renter &&
+              approvedPostById.renter.fname &&
+              approvedPostById.renter.lname
+                ? `${approvedPostById.renter.fname} ${approvedPostById.renter.lname}`
+                : "You"}
+            </a>
+          </div>
+        </div>
+        <div className="rating-label">Rating</div>
+        <button className="btn btn-rectangle primary">View Listings</button>
+        <button className="btn btn-rectangle secondary">View Profile</button>
+      </div>
 
       {/* Item Specifications Section */}
-      <div className="item-specs mt-5 p-4 bg-white">
-        <h4>Item Specifications</h4>
-        <table className="specifications-table">
-          <thead>
-            <tr>
-              <th>Specification</th>
-              <th>Value</th>
-            </tr>
-          </thead>
+      <div className="post-container post-desc">
+        <label className="sub-section-label">Specifications</label>
+        <table className="specifications-table" role="table">
           <tbody>
-            {post.specs && post.specs !== "undefined" ? (
-              Object.entries(JSON.parse(post.specs)).map(([key, value]) => (
-                <li key={key}>
-                  <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong>{" "}
-                  {value}
-                </li>
-              ))
-            ) : (
-              <p>No specifications available.</p>
-            )}
+            {(() => {
+              try {
+                const specs = approvedPostById.specs
+                  ? Object.entries(JSON.parse(approvedPostById.specs))
+                  : [];
+
+                if (specs.length === 0) {
+                  return (
+                    <tr>
+                      <td colSpan="2">No specifications available.</td>
+                    </tr>
+                  );
+                }
+
+                return specs.map(([key, value]) => (
+                  <tr key={key}>
+                    <td className="key">
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </td>
+                    <td className="value">{value}</td>
+                  </tr>
+                ));
+              } catch (error) {
+                console.error("Failed to parse specs:", error);
+                return (
+                  <tr>
+                    <td colSpan="2">Error loading specifications.</td>
+                  </tr>
+                );
+              }
+            })()}
           </tbody>
         </table>
 
-        <hr />
-
         {/* Item Description Section */}
-        <h4>Item Description</h4>
-        <p>{post.desc}</p>
+        <label className="sub-section-label">Description</label>
+        <p>{approvedPostById.desc}</p>
 
         {/* Tags Rendering */}
         <div className="tags-holder">
-          {post.tags && post.tags !== "undefined" ? (
-            JSON.parse(post.tags).map((tag, index) => (
+          <i>Tags: </i>
+          {approvedPostById.tags && approvedPostById.tags !== "undefined" ? (
+            JSON.parse(approvedPostById.tags).map((tag, index) => (
               <div key={index} className="tag">
                 {tag}
               </div>

@@ -3,9 +3,8 @@ const { models } = require("../../models/index");
 // Get a single approved post by ID with associated rental dates, durations, and renter info
 const getAllAvailablePost = async (req, res) => {
   try {
-    const post = await models.Post.findOne({
+    const post = await models.Post.findAll({
       where: {
-        id: req.params.id,
         status: "approved", // Ensures only "approved" items are fetched
       },
       include: [

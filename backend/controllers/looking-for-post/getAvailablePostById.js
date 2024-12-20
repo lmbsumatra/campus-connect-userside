@@ -1,5 +1,6 @@
 const { models } = require("../../models/index");
-// Get a single approved post by ID with associated rental dates, durations, and renter info
+
+// Get a single approved post by ID with associated available rental dates, available durations, and renter info
 const getAvailablePostById = async (req, res) => {
   try {
     const post = await models.Post.findOne({
@@ -39,13 +40,13 @@ const getAvailablePostById = async (req, res) => {
     });
 
     if (!post) {
-      return res.status(404).json({ error: "Post not found why" });
+      return res.status(404).json({ error: "Post not found" });
     }
 
     // Format the response to flatten fields like item_name, price, etc.
     const formattedPost = {
       id: post.id,
-      name: post.post_for_sale_name,
+      name: post.post_item_name,
       tags: post.tags,
       price: post.price,
       createdAt: post.created_at,
@@ -54,6 +55,7 @@ const getAvailablePostById = async (req, res) => {
       itemType: "To Rent",
       desc: post.description,
       specs: post.specifications,
+      college: post.category,
       rentalDates: post.rental_dates.map((date) => ({
         id: date.id,
         postId: date.post_id,
@@ -67,10 +69,11 @@ const getAvailablePostById = async (req, res) => {
           status: duration.status,
         })),
       })),
-      renterId: post.renter_id,
-      renterFname: post.renter.first_name,
-      renterLname: post.renter.last_name,
-      college: post.category,
+      renter: {
+        id: post.renter_id,
+        fname: post.renter.first_name,
+        lname: post.renter.last_name,
+      },
     };
 
     res.status(200).json(formattedPost);

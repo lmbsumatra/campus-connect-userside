@@ -1,5 +1,5 @@
 import React from "react";
-import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
+import BorrowingPost from "../../components/post-card/PostCard";
 import FAB from "../../components/common/fab/FAB";
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
 import { baseApi } from "../../App";

@@ -334,7 +334,7 @@ exports.getPostById = async (req, res) => {
     });
 
     // Log the rental dates
-    console.log(JSON.stringify(post.rental_dates, null, 2));
+    // console.log(JSON.stringify(post.rental_dates, null, 2));
 
     if (!post) {
       return res.status(404).json({ error: "Post not found" });

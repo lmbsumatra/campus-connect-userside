@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../../context/AuthContext";
 import axios from "axios";
-import BorrowingPost from "../../../../components/borrowingposts/BorrowingPost";
+import BorrowingPost from "../../../../components/post-card/PostCard";
 import { baseApi } from "../../../../App";
 
 function MyPosts() {

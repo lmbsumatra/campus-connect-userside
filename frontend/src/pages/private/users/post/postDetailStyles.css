@@ -1,3 +1,8 @@
+.container-content.post-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 .post-container {
   background-color: white;
   border-radius: 8px;
@@ -17,26 +22,35 @@
   border-radius: 8px;
   overflow: hidden;
   background-color: var(--clr-neutral-muted);
-  /* padding: 8px; */
   position: relative;
   display: flex;
   justify-content: center;
 }
 
 .post-container .imgs-container .highlight {
-  height: 100%;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: var(--clr-neutral-muted);
+  position: relative;
+  z-index: 1;
 }
 
-.post-container .imgs-container .highlight img {
+.post-container .imgs-container .highlight-bg {
+  background-size: cover;
+  background-position: center;
+  filter: blur(15px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+.post-container .imgs-container .highlight-img {
   height: 100%;
   width: 100%;
   object-fit: contain;
+  position: relative;
+  z-index: 2;
 }
-
 .post-container .imgs-container img.item-type {
   position: absolute;
   height: 44px;
@@ -49,11 +63,12 @@
   border-radius: 50%;
   transform: rotate(45deg);
   transition: ease 0.5s background-color;
+  z-index: 4;
 }
 
 .post-container .imgs-container img.item-type:hover {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
+  background-color: rgba(0, 0, 0, 0.5);
+}
 
 .post-container .imgs-container .img-slider {
   position: absolute;
@@ -71,6 +86,7 @@
   display: none;
   visibility: hidden;
   transition: visibility 0.2s ease-in-out;
+  z-index: 4;
 }
 
 .post-container .imgs-container:hover .img-slider {
@@ -107,7 +123,7 @@ img.prev-btn {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
-.post-container .item-desc {
+.post-container .rental-details {
   width: 100%;
 }
 
@@ -128,23 +144,240 @@ img.prev-btn {
 }
 
 .tags-holder {
-    padding: 0;
-    margin: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+}
+
+.tags-holder .tag {
+  display: inline-block;
+  margin: 0;
+  line-height: 1;
+  vertical-align: top;
+  padding: 4px 8px;
+  border-radius: 100px;
+  background-color: var(--clr-neutral-muted) !important;
+  color: var(--clr-neutral-dark-gray);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  border: none !important;
+}
+
+.post-container.post-desc {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: 100%;
+  padding: 8px;
+}
+
+.sub-section-label {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  color: var(--clr-neutral-black);
+  font-weight: 500;
+  background-color: var(--clr-neutral-muted);
+  padding: 12px 8px;
+  border-radius: 4px;
+}
+.specifications-table {
+  width: 180px;
+  border-collapse: collapse;
+  margin: 0 8px;
+}
+
+.specifications-table .value,
+.specifications-table .key {
+  font-size: 14px;
+}
+.specifications-table .key {
+  color: var(--clr-neutral-dark-gray);
+}
+
+.specifications-table .value {
+  color: var(--clr-neutral-black);
+}
+
+.specifications-table tbody tr:nth-child(odd) {
+  background-color: var(--clr-neutral-light-gray);
+}
+
+.specifications-table tbody tr:nth-child(even) {
+  background-color: white;
+}
+
+.specifications-table tbody tr td[colspan="2"] {
+  text-align: center;
+  font-style: italic;
+  color: var(--clr-neutral-dark-gray);
+}
+
+.post-container.renter-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: auto;
+  width: 100%;
+  padding: 8px;
+  align-items: center;
+}
+
+.username {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  color: var(--clr-primary);
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 16px;
+}
+.username:hover {
+  color: var(--clr-primary-dark);
+}
+.rating-label {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  color: var(--clr-neutral-dark-gray);
+  font-weight: 400;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.user-link {
+  gap: 8px;
+  align-items: center;
+}
+.user-link .profile-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  align-items: center;
+}
+
+.post-container .rental-dates-durations {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8px !important;
+}
+
+.post-container .rental-dates-durations .date-picker,
+.post-container .rental-dates-durations .duration-picker {
+  display: flex;
+  flex-direction: column;
+}
+.post-container .rental-dates-durations .duration-picker {
+  background-color: var(--clr-neutral-muted);
+  width: 100%;
+  border-radius: 8px;
+  padding: 8px;
+}
+@media (max-width: 600px) {
+  .post-container {
     display: flex;
-    gap: 4px;
+    flex-direction: column;
+    height: auto;
   }
-  
-  .tags-holder .tag {
+
+  /* Display img-slider below the highlighted image */
+  .post-container .imgs-container {
+    display: flex;
+    flex-direction: column;
+    /* gap: 8px; */
+    /* padding: 8px; */
+  }
+
+  .post-container .imgs-container .highlight {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: none;
+  }
+
+  /* Apply the blurred background to .highlight */
+  .post-container .imgs-container .highlight::before {
+    content: "";
+    background-image: inherit; /* Uses the background of .highlight */
+    background-size: cover;
+    background-position: center;
+    filter: blur(15px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 0; /* Stays behind the content */
+  }
+
+  /* Keep the image inside .highlight unblurred */
+  .post-container .imgs-container .highlight img {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    z-index: 1; /* Stays on top of the blurred background */
+  }
+
+  /* Display img-slider below the highlighted image */
+  .post-container .imgs-container .img-slider {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    visibility: visible;
+    border-radius: 0;
+    background-color: rgba(1, 1, 1, 0.2);
+  }
+
+  .post-container .imgs-container .img-slider img.item-img {
+    height: auto;
+    width: 48px;
+    filter: brightness(0.5);
+  }
+
+  .post-container.renter-info {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .post-container.renter-info .rating-label,
+  .post-container.renter-info .user-link {
+    display: flex;
+    width: 100%;
+  }
+
+  .post-container.renter-info .btn.btn-rectangle {
+    width: 100%;
+  }
+
+  .post-container .rental-dates-durations {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: auto;
+    gap: 8px !important;
+  }
+
+  .post-container .rental-dates-durations .date-picker {
     display: inline-block;
-    margin: 0;
-    line-height: 1;
-    vertical-align: top;
-    padding: 4px 8px;
-    border-radius: 100px;
-    background-color: var(--clr-neutral-muted) !important;
-    color: var(--clr-neutral-gray);
-    font-weight: 700;
-    font-size: 12px;
-    white-space: nowrap;
-    border: none !important;
   }
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+}
+
+@media (min-width: 1025px) {
+}

@@ -11,7 +11,7 @@ import { Button } from "@mui/material";
 import cartIcon from "../../assets/images/card/message.svg";
 import moreIcon from "../../assets/images/card/more.svg";
 import forRentIcon from "../../assets/images/card/looking-for.svg";
-import "./postStyles.css";
+import "./postCardStyles.css";
 
 const BorrowingPost = ({ borrowingPosts, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);

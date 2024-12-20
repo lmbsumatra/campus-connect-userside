@@ -7,24 +7,40 @@ import Subheader from "../../components/common/subheader/Subheader";
 import Categories from "../../components/common/categories/Categories";
 import ItemList from "../../components/itemlisting/ItemList";
 import Banner from "../../components/users/banner/Banner";
-import BorrowingPost from "../../components/borrowingposts/BorrowingPost";
+import BorrowingPost from "../../components/post-card/PostCard";
 import FAB from "../../components/common/fab/FAB";
 import { baseApi } from "../../App";
 
 // Custom hook for fetching approved items
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
 
 function Home() {
-  const baseUrl = "http://localhost:3001";
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchAllApprovedPosts());
+  }, [dispatch]);
+  const { allApprovedPosts, loadingAllApprovedPosts, errorAllApprovedPosts } =
+    useSelector((state) => state.allApprovedPosts);
 
   // Fetch listings data (approved items for sale or rent)
-  const { items: listings, loading: loadingListings, error: errorListings } = useFetchApprovedItems(`${baseApi}/listings/available`);
+  const {
+    items: listings,
+    loading: loadingListings,
+    error: errorListings,
+  } = useFetchApprovedItems(`${baseApi}/listings/available`);
 
   // Fetch listings data (approved items for sale or rent)
-  const { items: itemsforsale, loading: loadingItemsforsale, error: errorItemsforsale} = useFetchApprovedItems(`${baseApi}/item-for-sale/available`);
-  
+  const {
+    items: itemsforsale,
+    loading: loadingItemsforsale,
+    error: errorItemsforsale,
+  } = useFetchApprovedItems(`${baseApi}/item-for-sale/available`);
+
   // Fetch borrowing posts data (approved posts for lending)
-  const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseApi}/posts/approved`);
+  // const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseApi}/posts/approved`);
 
   return (
     <div>
@@ -43,7 +59,9 @@ function Home() {
       </div>
       {/* For sale items Section */}
       <div className="container-content">
-        {errorItemsforsale && <p>Error loading listings: {errorItemsforsale}</p>}
+        {errorItemsforsale && (
+          <p>Error loading listings: {errorItemsforsale}</p>
+        )}
         {loadingItemsforsale && <p>Loading listings...</p>}
         <ItemList items={itemsforsale} title="For sale" />
       </div>
@@ -53,12 +71,12 @@ function Home() {
 
       {/* Borrowing Posts Section */}
       <div className="container-content">
-        {errorPosts && <p>Error loading borrowing posts: {errorPosts}</p>}
-        {loadingPosts && <p>Loading borrowing posts...</p>}
-        <BorrowingPost borrowingPosts={posts} title="Lend" />
+        {errorAllApprovedPosts && (
+          <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>
+        )}
+        {loadingAllApprovedPosts && <p>Loading borrowing posts...</p>}
+        <BorrowingPost borrowingPosts={allApprovedPosts} title="Lend" />
       </div>
-
-     
     </div>
   );
 }

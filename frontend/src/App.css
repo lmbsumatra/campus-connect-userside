@@ -29,6 +29,7 @@
   --clr-neutral-light: #e0e0e0; /* Light gray */
   --clr-neutral-white: #ffffff; /* White */
   --clr-neutral-gray: #a2a2a2; /* Secondary neutral (gray) */
+  --clr-neutral-dark-gray: #454545; /* Secondary neutral (gray) */
 
   /* Gradients */
   --clr-gradient-primary-dark: linear-gradient(
