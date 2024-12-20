@@ -143,6 +143,21 @@ img.prev-btn {
   font-weight: 600;
 }
 
+.item-title .error-msg {
+  color: red;
+  font-style: italic;
+}
+.item-title .title {
+  font-weight: 600;
+}
+
+.action-btns {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .tags-holder {
   padding: 0;
   margin: 0;
@@ -235,6 +250,7 @@ img.prev-btn {
   font-weight: 500;
   text-decoration: none;
   font-size: 16px;
+  width: 100%;
 }
 .username:hover {
   color: var(--clr-primary-dark);
@@ -252,14 +268,16 @@ img.prev-btn {
 .user-link {
   gap: 8px;
   align-items: center;
+  display: flex;
 }
 .user-link .profile-avatar {
   width: 50px;
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid white;
+  border: 2px solid black;
   align-items: center;
+  display: block;
 }
 
 .post-container .rental-dates-durations {
@@ -267,6 +285,19 @@ img.prev-btn {
   flex-direction: row;
   justify-content: flex-start;
   gap: 8px !important;
+}
+
+.post-container .rental-dates-durations .duration-item {
+  background-color: white !important;
+  border-radius: 4px !important;
+  padding: 4px !important;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.post-container .rental-dates-durations .duration-item input {
+  height: 18px;
+  width: 18px
 }
 
 .post-container .rental-dates-durations .date-picker,
@@ -377,6 +408,96 @@ img.prev-btn {
 }
 
 @media (min-width: 601px) and (max-width: 1024px) {
+  .post-container {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  /* Display img-slider below the highlighted image */
+  .post-container .imgs-container {
+    display: flex;
+    flex-direction: column;
+    /* gap: 8px; */
+    /* padding: 8px; */
+  }
+
+  .post-container .imgs-container .highlight {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: none;
+  }
+
+  /* Apply the blurred background to .highlight */
+  .post-container .imgs-container .highlight::before {
+    content: "";
+    background-image: inherit; /* Uses the background of .highlight */
+    background-size: cover;
+    background-position: center;
+    filter: blur(15px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 0; /* Stays behind the content */
+  }
+
+  /* Keep the image inside .highlight unblurred */
+  .post-container .imgs-container .highlight img {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    z-index: 1; /* Stays on top of the blurred background */
+  }
+
+  /* Display img-slider below the highlighted image */
+  .post-container .imgs-container .img-slider {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    visibility: visible;
+    border-radius: 0;
+    background-color: rgba(1, 1, 1, 0.2);
+  }
+
+  .post-container .imgs-container .img-slider img.item-img {
+    height: auto;
+    width: 48px;
+    filter: brightness(0.5);
+  }
+
+  .post-container.renter-info {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .post-container.renter-info .rating-label,
+  .post-container.renter-info .user-link {
+    display: flex;
+    width: 100%;
+  }
+
+  .post-container.renter-info .btn.btn-rectangle {
+    width: 100%;
+  }
+
+  .post-container .rental-dates-durations {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: auto;
+    gap: 8px !important;
+  }
 }
 
 @media (min-width: 1025px) {

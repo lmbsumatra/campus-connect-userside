@@ -16,6 +16,7 @@ const rentalTransactionRoutes = require("./routes/RentalTransactionRoute");
 const cartRoutes = require("./routes/CartRoutes.js")
 const http = require("http");
 const { initializeSocket } = require("./socket");
+const nodemailer = require("nodemailer");
 
 // cron
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -89,6 +90,30 @@ app.use("/rental-transaction", rentalTransactionRoutes);
 // messsaging
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
+
+
+// sample for node mailer
+const transporter = nodemailer.createTransport({
+  service: "Gmail", 
+  auth: {
+    user: "jione.capstone@gmail.com",
+    pass: "exuh vilf tkgp yvyg"
+  }
+});
+app.post("/api/send", (req, res) => {
+  const mailOptions = {
+    from: "jione.capstone@gmail.com",
+    to: "syveeeevastian@gmail.com",
+    subject: "Offer",
+    html: "this is msg"
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+     if(error){
+       return res.status(500).send(error);
+     }
+     res.status(200).send("Email sent successfully");
+  });
+});
 
 
 

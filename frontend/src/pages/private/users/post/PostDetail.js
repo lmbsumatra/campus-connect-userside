@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedPostById } from "../../../../redux/post/approvedPostByIdSlice";
+import { Modal, Button } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-// Custom hooks and utility functions
 import { useAuth } from "../../../../context/AuthContext";
-import { formatDate } from "../../../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
+import Skeleton from "react-loading-skeleton"; // Import Skeleton
+import "react-loading-skeleton/dist/skeleton.css"; // Import skeleton styles
 
-// Assets
 import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";
 import prevIcon from "../../../../assets/images/pdp/prev.svg";
 import nextIcon from "../../../../assets/images/pdp/next.svg";
@@ -18,37 +19,28 @@ import itemImage2 from "../../../../assets/images/item/item_2.jpg";
 import itemImage3 from "../../../../assets/images/item/item_3.jpg";
 import itemImage4 from "../../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
-import UserToolbar from "../../../../components/users/user-toolbar/UserToolbar";
 import "./postDetailStyles.css";
-
-import { computeDuration } from "../../../../utils/timeFormat";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
+import axios from "axios";
 
 function PostDetail() {
-  const [currentIndex, setCurrentIndex] = useState(1);
-  const [college, setCollege] = useState("CIE");
-  const { id } = useParams(); // Get the post ID from URL params
+  const { id } = useParams();
   const dispatch = useDispatch();
+  const [currentIndex, setCurrentIndex] = useState(1);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [showDurations, setShowDurations] = useState(null); // For showing durations
-
-  // Fetch post details using the ID from the URL
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchApprovedPostById(id)); // Dispatch action to fetch post details by ID
-    }
-  }, [dispatch, id]);
-
-  // Fetching post details from Redux store
+  const [selectedDuration, setSelectedDuration] = useState(null);
+  const [showDurations, setShowDurations] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const { approvedPostById, loadingApprovedPostById, errorApprovedPostById } =
     useSelector((state) => state.approvedPostById);
-
-  const { studentUser } = useAuth();
+  const studentUser = useSelector(selectStudentUser);
   const { userId } = studentUser;
+  const rentalDates = approvedPostById.rentalDates || [];
+  const [loading, setLoading] = useState(true);
 
-  // Images for the slider
   const images = [
     itemImage1,
     itemImage2,
@@ -59,7 +51,18 @@ function PostDetail() {
     itemImage4,
   ];
 
-  // Navigation for image slider
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchApprovedPostById(id));
+    }
+
+    const timer = setTimeout(() => {
+      setLoading(false); // After 5 seconds, set loading to false to show content
+    }, 5000); // 5000ms = 5 seconds
+
+    return () => clearTimeout(timer);
+  }, [dispatch, id]);
+
   const nextImage = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
@@ -72,82 +75,109 @@ function PostDetail() {
     setCurrentIndex(index);
   };
 
-  // Handle loadingApprovedPostById and errorApprovedPostById states
-  if (loadingApprovedPostById) {
-    return <p>Loading...</p>; // Show loadingApprovedPostById state
+  const handleDateClick = (dateId) => {
+    const selectedRentalDate = approvedPostById.rentalDates.find(
+      (rentalDate) => rentalDate.id === dateId
+    );
+
+    if (selectedRentalDate && selectedRentalDate.durations) {
+      setSelectedDate(selectedRentalDate.date);
+      setShowDurations(selectedRentalDate.durations);
+    }
+  };
+
+  const handleSelectDuration = (duration) => {
+    setSelectedDuration(duration);
+  };
+
+  console.log(selectedDate, showDurations);
+
+  const availableDates = rentalDates
+    .filter((rentalDate) => rentalDate.status === "available")
+    .map((rentalDate) => new Date(rentalDate.date));
+
+  const handleOfferClick = async () => {
+    if (selectedDate && selectedDuration) {
+      setShowModal(true);
+    } else {
+      alert("Please select a date and duration before offering.");
+    }
+  };
+  const handleConfirmOffer = async () => {
+    if (selectedDate && selectedDuration) {
+      try {
+        const response = await axios.post("http://localhost:3001/api/send");
+        alert("Email sent!");
+      } catch (err) {
+        alert(err);
+      }
+    } else {
+      alert("Please select a date and duration before offering.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="container-content post-detail">
+        <div className="post-container">
+          <div className="imgs-container">
+            <Skeleton height={200} />
+            <Skeleton count={3} width={60} style={{ marginTop: "10px" }} />
+          </div>
+          <div className="rental-details">
+            <Skeleton width={100} height={30} />
+            <Skeleton count={2} height={20} style={{ marginTop: "10px" }} />
+            <Skeleton height={50} style={{ marginTop: "20px" }} />
+            <Skeleton height={20} style={{ marginTop: "10px" }} />
+            <Skeleton count={3} height={20} style={{ marginTop: "10px" }} />
+          </div>
+        </div>
+        <div className="post-container renter-info">
+          <Skeleton width={60} height={60} circle />
+          <Skeleton width={120} height={20} style={{ marginTop: "10px" }} />
+          <Skeleton width={80} height={30} style={{ marginTop: "10px" }} />
+        </div>
+        <div className="post-container post-desc">
+          <Skeleton width={200} height={20} />
+          <Skeleton count={4} height={20} style={{ marginTop: "10px" }} />
+        </div>
+      </div>
+    );
   }
 
   if (errorApprovedPostById) {
-    return <p>Error: {errorApprovedPostById}</p>; // Show errorApprovedPostById if any
+    return <p>Error: {errorApprovedPostById}</p>;
   }
 
   if (!approvedPostById) {
     return <p>Item not found</p>;
   }
 
-  const rentalDates = approvedPostById.rentalDates || [];
-
-  // Handle the date click event
-  const handleDateClick = (dateId) => {
-    const selectedRentalDate = approvedPostById.rentalDates.find(
-      (rentalDate) => rentalDate.id === dateId
-    );
-
-    console.log(
-      "Selected Rental Date's Durations:",
-      selectedRentalDate.durations
-    ); // Debugging line
-
-    if (selectedRentalDate && selectedRentalDate.durations) {
-      setSelectedDate(selectedRentalDate.date);
-      setShowDurations(selectedRentalDate.durations); // Update the state with durations
-    }
-  };
-
-  // Create an array of available dates for highlighting
-  const availableDates = rentalDates
-    .filter((rentalDate) => rentalDate.status === "available")
-    .map((rentalDate) => new Date(rentalDate.date));
-
-  const highlightStyle = {
-    backgroundImage: `url(${images[0]})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    filter: "blur(15px)",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    height: "100%",
-    width: "100%",
-    zIndex: 0,
-  };
-
   return (
     <div className="container-content post-detail">
       <div className="post-container">
         <div className="imgs-container">
-        <Tooltip
-              title={"This is a tooltip"}
-              componentsProps={{
-                popper: {
-                  modifiers: [
-                    {
-                      name: "offset",
-                      options: {
-                        offset: [0, -10], // Adjust tooltip position
-                      },
+          <Tooltip
+            title={"This is a tooltip"}
+            componentsProps={{
+              popper: {
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: [0, -10],
                     },
-                  ],
-                },
-              }}
-            >
-              <img
-                src={forRentIcon}
-                alt={`Item is for rent`}
-                className="item-type"
-              />
-            </Tooltip>
-          {/* Blurred background layer */}
+                  },
+                ],
+              },
+            }}
+          >
+            <img
+              src={forRentIcon}
+              alt={`Item is for rent`}
+              className="item-type"
+            />
+          </Tooltip>
           <div
             className="highlight-bg"
             style={{
@@ -155,16 +185,13 @@ function PostDetail() {
             }}
           ></div>
 
-          {/* Highlighted image container */}
           <div className="highlight">
             <img
               src={images[currentIndex]}
               alt="Item"
               className="highlight-img"
             />
-            
           </div>
-          {/* Image Slider */}
           <div className="img-slider">
             <div className="btn-slider prev-btn" onClick={prevImage}>
               <img src={prevIcon} alt="Previous image" className="prev-btn" />
@@ -204,7 +231,6 @@ function PostDetail() {
           </div>
         </div>
 
-        {/* Post Description */}
         <div className="rental-details">
           <div className="college-badge">
             <Tooltip title="This item is from CAFA." placement="bottom">
@@ -218,19 +244,22 @@ function PostDetail() {
               )}
             </Tooltip>
           </div>
-          <div className="d-flex justify-content-between align-items-center m-0 p-0">
+          <div className="item-title">
             <p>
               <i>Looking for </i>
-              {approvedPostById.name && (
-                <strong>{approvedPostById.name}</strong>
+              {approvedPostById.name ? (
+                <span className="title">{approvedPostById.name}</span>
+              ) : (
+                <span className="error-msg">No available name.</span>
               )}
             </p>
           </div>
-          <div className="d-flex justify-content-end">
-            <button className="btn btn-rectangle secondary no-fill me-2">
-              Message
-            </button>
-            <button className="btn btn-rectangle primary no-fill me-2">
+          <div className="action-btns">
+            <button className="btn btn-rectangle secondary">Message</button>
+            <button
+              className="btn btn-rectangle primary"
+              onClick={handleOfferClick}
+            >
               Offer
             </button>
           </div>
@@ -238,7 +267,6 @@ function PostDetail() {
           <div className="rental-dates-durations">
             <div className="date-picker">
               <span>Pick a date to offer:</span>
-              {/* Inline DatePicker with available dates highlighted */}
               <DatePicker
                 inline
                 selected={selectedDate ? new Date(selectedDate) : null}
@@ -250,23 +278,21 @@ function PostDetail() {
                   )?.id;
 
                   if (clickedDateId) {
-                    handleDateClick(clickedDateId); // Call the handleDateClick function
+                    handleDateClick(clickedDateId);
                   }
-                  setSelectedDate(date); // Update selected date
-                  // Find the corresponding rental date
+                  setSelectedDate(date);
                   const rentalDate = rentalDates.find(
                     (r) =>
                       new Date(r.date).toDateString() === date.toDateString()
                   );
                   if (rentalDate && rentalDate.status === "available") {
-                    setShowDurations(rentalDate.durations); // Show durations for the selected date
+                    setShowDurations(rentalDate.durations);
                   } else {
-                    setShowDurations(null); // No durations if date is not available
+                    setShowDurations(null);
                   }
-                }} // Update selected date
-                highlightDates={availableDates} // Highlight available dates
+                }}
+                highlightDates={availableDates}
                 dayClassName={(date) => {
-                  // Add custom styling to available dates
                   return availableDates.some(
                     (d) => d.toDateString() === date.toDateString()
                   )
@@ -275,31 +301,30 @@ function PostDetail() {
                 }}
               />
             </div>
-            {/* Displaying durations if available */}
             <div className="duration-picker">
               <strong>Available Durations:</strong>
               <div>
                 {selectedDate ? (
                   showDurations && showDurations.length > 0 ? (
-                    // Show durations if they exist
                     <div className="duration-list">
                       {showDurations.map((duration) => (
                         <div key={duration.id} className="duration-item">
-                          <span>
-                            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
-                            {formatTimeTo12Hour(duration.timeTo)}
-                          </span>
+                          <input
+                            type="checkbox"
+                            id={`duration-${duration.id}`}
+                            onChange={() => handleSelectDuration(duration)}
+                          />
+                          {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+                          {formatTimeTo12Hour(duration.timeTo)}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    // Show "No available duration" if no durations exist
                     <p className="no-duration-message">
                       No available duration for this date.
                     </p>
                   )
                 ) : (
-                  // Show "Please select a date" if no date is selected
                   <p className="select-date-message">
                     Please select a date first.
                   </p>
@@ -312,7 +337,11 @@ function PostDetail() {
 
       <div className="post-container renter-info">
         <div className="user-link">
-          <img src={""} alt="Profile picture" className="profile-avatar" />
+          <img
+            src={userProfilePicture}
+            alt="Profile picture"
+            className="profile-avatar"
+          />
           <div>
             <a href={``} className="username">
               {approvedPostById.renter &&
@@ -328,7 +357,6 @@ function PostDetail() {
         <button className="btn btn-rectangle secondary">View Profile</button>
       </div>
 
-      {/* Item Specifications Section */}
       <div className="post-container post-desc">
         <label className="sub-section-label">Specifications</label>
         <table className="specifications-table" role="table">
@@ -366,12 +394,9 @@ function PostDetail() {
             })()}
           </tbody>
         </table>
-
-        {/* Item Description Section */}
         <label className="sub-section-label">Description</label>
         <p>{approvedPostById.desc}</p>
 
-        {/* Tags Rendering */}
         <div className="tags-holder">
           <i>Tags: </i>
           {approvedPostById.tags && approvedPostById.tags !== "undefined" ? (
@@ -385,6 +410,34 @@ function PostDetail() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Offer</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            <strong>Date:</strong> {new Date(selectedDate).toDateString()}
+          </p>
+          <p>
+            <strong>Duration:</strong>
+            {selectedDuration
+              ? selectedDuration.timeFrom && selectedDuration.timeTo
+                ? `${selectedDuration.timeFrom} - ${selectedDuration.timeTo}`
+                : "Invalid duration"
+              : "Nooooooooooo"}
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={() => handleConfirmOffer()}>
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
