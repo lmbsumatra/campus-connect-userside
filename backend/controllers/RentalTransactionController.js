@@ -20,16 +20,16 @@ exports.createRentalTransaction = async (req, res) => {
     if (!rental_time_id) missingFields.push("rental_time_id");
 
     if (missingFields.length > 0) {
-      return res.status(400).json({
-        error: "The following fields are required: " + missingFields.join(", "),
-      });
+      const errorMsg = "The following fields are required: " + missingFields.join(", ");
+      console.error(errorMsg);
+      return res.status(400).json({ error: errorMsg });
     }
 
     // Check if owner_id is the same as renter_id
     if (owner_id === renter_id) {
-      return res.status(400).json({
-        error: "The owner cannot rent the item to themselves.",
-      });
+      const errorMsg = "The owner cannot rent the item to themselves.";
+      console.error(errorMsg);
+      return res.status(400).json({ error: errorMsg });
     }
 
     // Create the rental transaction
@@ -44,6 +44,7 @@ exports.createRentalTransaction = async (req, res) => {
     };
 
     const rental = await models.RentalTransaction.create(rentalData);
+    console.log("Rental transaction created:", rental);
 
     // After creating the rental transaction, update the duration's status to 'requested'
     const duration = await models.Duration.findOne({
@@ -76,6 +77,8 @@ exports.createRentalTransaction = async (req, res) => {
         const rentalDate = await models.Date.findByPk(rental_date_id);
         if (rentalDate) {
           await rentalDate.update({ status: "rented" });
+        } else {
+          console.error("Rental date not found for id:", rental_date_id);
         }
       }
 
@@ -98,12 +101,14 @@ exports.createRentalTransaction = async (req, res) => {
         const item = await models.Listing.findByPk(item_id);
         if (item) {
           await item.update({ status: "unavailable" });
+        } else {
+          console.error("Item not found for id:", item_id);
         }
       }
     } else {
-      return res.status(404).json({
-        error: "The specified rental duration was not found.",
-      });
+      const errorMsg = "The specified rental duration was not found.";
+      console.error(errorMsg);
+      return res.status(404).json({ error: errorMsg });
     }
 
     // Respond with the created rental transaction
@@ -126,12 +131,15 @@ exports.createRentalTransaction = async (req, res) => {
       errorMessage = error.original.sqlMessage || error.message;
     }
 
+    console.error("Detailed error:", errorMessage);
+
     res.status(500).json({
       error: errorMessage,
       details: error.message,
     });
   }
 };
+
 
 // Get all rental transactions
 exports.getAllRentalTransactions = async (req, res) => {

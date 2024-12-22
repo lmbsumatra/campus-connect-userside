@@ -1,10 +1,10 @@
-
 const { models } = require("../../models/index");
 
 const removeCartItem = async (req, res) => {
   const user_id = req.user.userId;
   try {
     const { cart_item_id } = req.params;
+    console.log(cart_item_id);
 
     if (!cart_item_id) {
       return res.status(400).json({ message: "cart_item_id is required" });
@@ -20,9 +20,12 @@ const removeCartItem = async (req, res) => {
 
     await cartItem.destroy();
 
-    return res
-      .status(200)
-      .json({ message: "Item removed from cart", data: cartItem });
+    const formattedCart = {
+      itemId: cartItem.item_id,
+      userId: user_id,
+    };
+
+    return res.status(200).json(formattedCart);
   } catch (error) {
     const errorResponse = {
       message: "Failed to remove item from cart",

@@ -1,0 +1,31 @@
+.college-badge,
+.category-badge {
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-radius: 50px;
+  border: 1px solid white;
+  padding: 4px 8px;
+  white-space: nowrap;
+  background-color: var(--clr-secondary);
+}
+
+.category-badge {
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: 50px;
+    border: 1px solid var(--clr-secondary);
+    padding: 4px 8px;
+    white-space: nowrap;
+    background-color: white;
+  }
+  
+  .college-badge span {
+    color: white;
+    font-weight: 600;
+  }
+  .category-badge span {
+    color: var(--clr-secondary);
+    font-weight: 600;
+  }

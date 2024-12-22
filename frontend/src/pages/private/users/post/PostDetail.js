@@ -1,45 +1,56 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedPostById } from "../../../../redux/post/approvedPostByIdSlice";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import { useAuth } from "../../../../context/AuthContext";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
-import Skeleton from "react-loading-skeleton"; // Import Skeleton
-import "react-loading-skeleton/dist/skeleton.css"; // Import skeleton styles
-
-import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";
-import prevIcon from "../../../../assets/images/pdp/prev.svg";
-import nextIcon from "../../../../assets/images/pdp/next.svg";
 import itemImage1 from "../../../../assets/images/item/item_1.jpg";
 import itemImage2 from "../../../../assets/images/item/item_2.jpg";
 import itemImage3 from "../../../../assets/images/item/item_3.jpg";
 import itemImage4 from "../../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
+import forSaleIcon from "../../../../assets/images/card/rent.svg";
 import "./postDetailStyles.css";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
-import axios from "axios";
+import {
+  FOR_RENT,
+  FOR_SALE,
+  MEET_UP,
+  PICK_UP,
+  TO_BUY,
+  TO_RENT,
+} from "../../../../utils/consonants";
+import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
+import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
+import UserToolbar from "../common/UserToolbar";
+import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
+import ImageSlider from "../common/ImageSlider";
+import ItemBadges from "../common/ItemBadges";
 
 function PostDetail() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
-  const [currentIndex, setCurrentIndex] = useState(1);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [showDurations, setShowDurations] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const { approvedPostById, loadingApprovedPostById, errorApprovedPostById } =
-    useSelector((state) => state.approvedPostById);
+  const {
+    approvedPostById,
+    loadingApprovedPostById,
+    errorApprovedPostById,
+  } = useSelector((state) => state.approvedPostById);
   const studentUser = useSelector(selectStudentUser);
-  const { userId } = studentUser;
   const rentalDates = approvedPostById.rentalDates || [];
   const [loading, setLoading] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
+  const [expandTerm, setExpandTerm] = useState(false);
 
   const images = [
     itemImage1,
@@ -51,37 +62,15 @@ function PostDetail() {
     itemImage4,
   ];
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchApprovedPostById(id));
-    }
-
-    const timer = setTimeout(() => {
-      setLoading(false); // After 5 seconds, set loading to false to show content
-    }, 5000); // 5000ms = 5 seconds
-
-    return () => clearTimeout(timer);
-  }, [dispatch, id]);
-
-  const nextImage = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-  };
-  const prevImage = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + images.length) % images.length
-    );
-  };
-  const highlightImage = (index) => {
-    setCurrentIndex(index);
-  };
-
   const handleDateClick = (dateId) => {
+    const formatDate = (d) => d.toLocaleDateString("en-CA");
+
     const selectedRentalDate = approvedPostById.rentalDates.find(
       (rentalDate) => rentalDate.id === dateId
     );
 
     if (selectedRentalDate && selectedRentalDate.durations) {
-      setSelectedDate(selectedRentalDate.date);
+      setSelectedDate(formatDate(new Date(selectedRentalDate.date)));
       setShowDurations(selectedRentalDate.durations);
     }
   };
@@ -89,8 +78,6 @@ function PostDetail() {
   const handleSelectDuration = (duration) => {
     setSelectedDuration(duration);
   };
-
-  console.log(selectedDate, showDurations);
 
   const availableDates = rentalDates
     .filter((rentalDate) => rentalDate.status === "available")
@@ -103,62 +90,65 @@ function PostDetail() {
       alert("Please select a date and duration before offering.");
     }
   };
-  const handleConfirmOffer = async () => {
-    if (selectedDate && selectedDuration) {
-      try {
-        const response = await axios.post("http://localhost:3001/api/send");
-        alert("Email sent!");
-      } catch (err) {
-        alert(err);
-      }
-    } else {
-      alert("Please select a date and duration before offering.");
-    }
+
+  const handleSelectDeliveryMethod = (method) => {
+    console.log(method);
   };
 
-  const getCollegeBadgeUrl = (college) => {
-    if (college) {
-      return require(`../../../../assets/images/colleges/${college}.png`);
-    } else {
-      return null;
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchApprovedPostById(id));
     }
-  };
+  }, [id, dispatch]);
 
-  if (loading) {
-    return (
-      <div className="container-content post-detail">
-        <div className="post-container">
-          <div className="imgs-container">
-            <Skeleton height={200} />
-            <Skeleton count={3} width={60} style={{ marginTop: "10px" }} />
-          </div>
-          <div className="rental-details">
-            <Skeleton width={100} height={30} />
-            <Skeleton count={2} height={20} style={{ marginTop: "10px" }} />
-            <Skeleton height={50} style={{ marginTop: "20px" }} />
-            <Skeleton height={20} style={{ marginTop: "10px" }} />
-            <Skeleton count={3} height={20} style={{ marginTop: "10px" }} />
-          </div>
-        </div>
-        <div className="post-container renter-info">
-          <Skeleton width={60} height={60} circle />
-          <Skeleton width={120} height={20} style={{ marginTop: "10px" }} />
-          <Skeleton width={80} height={30} style={{ marginTop: "10px" }} />
-        </div>
-        <div className="post-container post-desc">
-          <Skeleton width={200} height={20} />
-          <Skeleton count={4} height={20} style={{ marginTop: "10px" }} />
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (errorApprovedPostById) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Item not found!",
+        })
+      );
+    } else if (!loadingApprovedPostById && !approvedPostById) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Not Found",
+          text: "No item found with the given ID.",
+        })
+      );
+    }
 
-  if (errorApprovedPostById) {
-    return <p>Error: {errorApprovedPostById}</p>;
-  }
+    if (errorApprovedPostById || (!loadingApprovedPostById && !approvedPostById)) {
+      setRedirecting(true); // Start the redirect process
+      const timer = setTimeout(() => {
+        dispatch(
+          showNotification({
+            type: "loading",
+            title: "Redirecting",
+          })
+        );
+      }, 5000); // Show redirect notification after 5 seconds
 
-  if (!approvedPostById) {
-    return <p>Item not found</p>;
+      return () => clearTimeout(timer); // Clean up the timeout if dependencies change
+    }
+  }, [errorApprovedPostById, loadingApprovedPostById, approvedPostById, dispatch]);
+
+  useEffect(() => {
+    if (redirecting) {
+      const redirectTimer = setTimeout(() => {
+        navigate(-1); // Redirect to previous page
+      }, 6000); // Wait 6 seconds before redirect
+
+      return () => clearTimeout(redirectTimer); // Clean up redirect timer
+    }
+  }, [redirecting, navigate]);
+
+  // Show loading skeleton if still loading or redirecting
+  if (loadingApprovedPostById || redirecting) {
+    return <LoadingItemDetailSkeleton />;
   }
 
   return (
@@ -166,14 +156,16 @@ function PostDetail() {
       <div className="post-container">
         <div className="imgs-container">
           <Tooltip
-            title={"This is a tooltip"}
+            title={`This item is ${
+              approvedPostById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+            }`}
             componentsProps={{
               popper: {
                 modifiers: [
                   {
                     name: "offset",
                     options: {
-                      offset: [0, -10],
+                      offset: [0, 0],
                     },
                   },
                 ],
@@ -181,171 +173,68 @@ function PostDetail() {
             }}
           >
             <img
-              src={forRentIcon}
-              alt={`Item is for rent`}
+              src={
+                approvedPostById.itemType === FOR_RENT
+                  ? forRentIcon
+                  : forSaleIcon
+              }
+              alt={
+                approvedPostById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+              }
               className="item-type"
             />
           </Tooltip>
-          <div
-            className="highlight-bg"
-            style={{
-              backgroundImage: `url(${images[currentIndex]})`,
-            }}
-          ></div>
-
-          <div className="highlight">
-            <img
-              src={images[currentIndex]}
-              alt="Item"
-              className="highlight-img"
-            />
-          </div>
-          <div className="img-slider">
-            <div className="btn-slider prev-btn" onClick={prevImage}>
-              <img src={prevIcon} alt="Previous image" className="prev-btn" />
-            </div>
-            <img
-              src={images[(currentIndex - 2 + images.length) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex - 2) % images.length)}
-            />
-            <img
-              src={images[(currentIndex - 1 + images.length) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex - 1) % images.length)}
-            />
-            <img
-              src={images[currentIndex]}
-              alt="Item"
-              className="item-img center"
-            />
-            <img
-              src={images[(currentIndex + 1) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex + 1) % images.length)}
-            />
-            <img
-              src={images[(currentIndex + 2) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex + 2) % images.length)}
-            />
-            <div className="btn-slider next-btn" onClick={nextImage}>
-              <img src={nextIcon} alt="Next image" className="next-btn" />
-            </div>
-          </div>
+          <ImageSlider images={images} />
         </div>
-
         <div className="rental-details">
-          <div>
-            <div className="college-badge">
-              <Tooltip
-                title={`This item is from ${
-                  approvedPostById?.renter?.college
-                    ? approvedPostById.renter.college
-                    : ""
-                }.`}
-                placement="bottom"
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, 0],
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                <img
-                  src={getCollegeBadgeUrl(
-                    approvedPostById?.renter?.college
-                      ? approvedPostById.renter.college
-                      : ""
-                  )}
-                  alt="College"
-                  style={{ height: "24px", width: "24px" }}
-                />
-                {approvedPostById?.renter?.college
-                  ? approvedPostById.renter.college
-                  : ""}
-              </Tooltip>
-            </div>
-            <div className="category-badge">
-              <Tooltip
-                title={`This item is under ${approvedPostById.category} category.`}
-                placement="bottom"
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, 0],
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                {approvedPostById.category ? (
-                  <span>{approvedPostById.category}</span>
-                ) : (
-                  <span className="error-msg">No category</span>
-                )}
-              </Tooltip>
-            </div>
-          </div>
+          <ItemBadges
+            values={{
+              college: approvedPostById?.renter?.college,
+              category: approvedPostById.category,
+            }}
+          />
           <div className="item-title">
-            <p>
+            <>
               <i>Looking for </i>
               {approvedPostById.name ? (
                 <span className="title">{approvedPostById.name}</span>
               ) : (
                 <span className="error-msg">No available name.</span>
               )}
-            </p>
+            </>
           </div>
+        
           <div className="action-btns">
+         
             <button className="btn btn-rectangle secondary">Message</button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
             >
-              Offer
+              {approvedPostById.itemType === TO_RENT ? "Offer" : "Buy"}
             </button>
           </div>
           <hr />
           <div className="rental-dates-durations">
             <div className="date-picker">
-              <span>Pick a date to offer:</span>
+              <span>
+                Pick a date to{" "}
+                {approvedPostById.itemType === TO_RENT? "offer" : "buy"}:
+              </span>
               <DatePicker
                 inline
                 selected={selectedDate ? new Date(selectedDate) : null}
                 onChange={(date) => {
-                  const clickedDateId = rentalDates.find(
-                    (rentalDate) =>
-                      new Date(rentalDate.date).toDateString() ===
-                      date.toDateString()
-                  )?.id;
-
-                  if (clickedDateId) {
-                    handleDateClick(clickedDateId);
-                  }
-                  setSelectedDate(date);
                   const rentalDate = rentalDates.find(
                     (r) =>
                       new Date(r.date).toDateString() === date.toDateString()
                   );
-                  if (rentalDate && rentalDate.status === "available") {
-                    setShowDurations(rentalDate.durations);
+
+                  if (rentalDate) {
+                    handleDateClick(rentalDate.id);
                   } else {
                     setShowDurations(null);
+                    setSelectedDate(date);
                   }
                 }}
                 highlightDates={availableDates}
@@ -358,7 +247,8 @@ function PostDetail() {
                 }}
               />
             </div>
-            <div className="duration-picker">
+
+            <div className="duration-picker group-container">
               <strong>Available Durations:</strong>
               <div>
                 {selectedDate ? (
@@ -389,84 +279,17 @@ function PostDetail() {
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
-      <div className="post-container renter-info">
-        <div className="user-link">
-          <img
-            src={userProfilePicture}
-            alt="Profile picture"
-            className="profile-avatar"
-          />
-          <div>
-            <a href={``} className="username">
-              {approvedPostById.renter &&
-              approvedPostById.renter.fname &&
-              approvedPostById.renter.lname
-                ? `${approvedPostById.renter.fname} ${approvedPostById.renter.lname}`
-                : "You"}
-            </a>
-          </div>
-        </div>
-        <div className="rating-label">Rating</div>
-        <button className="btn btn-rectangle primary">View Listings</button>
-        <button className="btn btn-rectangle secondary">View Profile</button>
-      </div>
+      <UserToolbar user={approvedPostById.owner} />
 
-      <div className="post-container post-desc">
-        <label className="sub-section-label">Specifications</label>
-        <table className="specifications-table" role="table">
-          <tbody>
-            {(() => {
-              try {
-                const specs = approvedPostById.specs
-                  ? Object.entries(JSON.parse(approvedPostById.specs))
-                  : [];
-
-                if (specs.length === 0) {
-                  return (
-                    <tr>
-                      <td colSpan="2">No specifications available.</td>
-                    </tr>
-                  );
-                }
-
-                return specs.map(([key, value]) => (
-                  <tr key={key}>
-                    <td className="key">
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </td>
-                    <td className="value">{value}</td>
-                  </tr>
-                ));
-              } catch (error) {
-                console.error("Failed to parse specs:", error);
-                return (
-                  <tr>
-                    <td colSpan="2">Error loading specifications.</td>
-                  </tr>
-                );
-              }
-            })()}
-          </tbody>
-        </table>
-        <label className="sub-section-label">Description</label>
-        <p>{approvedPostById.desc}</p>
-
-        <div className="tags-holder">
-          <i>Tags: </i>
-          {approvedPostById.tags && approvedPostById.tags !== "undefined" ? (
-            JSON.parse(approvedPostById.tags).map((tag, index) => (
-              <div key={index} className="tag">
-                {tag}
-              </div>
-            ))
-          ) : (
-            <p>No tags available</p>
-          )}
-        </div>
-      </div>
+      <ItemDescAndSpecs
+        specs={approvedPostById.specs}
+        desc={approvedPostById.desc}
+        tags={approvedPostById.tags}
+      />
 
       {/* Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -490,9 +313,7 @@ function PostDetail() {
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={() => handleConfirmOffer()}>
-            Confirm
-          </Button>
+          <Button variant="primary">Confirm</Button>
         </Modal.Footer>
       </Modal>
     </div>

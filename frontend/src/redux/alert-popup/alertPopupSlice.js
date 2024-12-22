@@ -10,20 +10,32 @@ const alertPopupSlice = createSlice({
   reducers: {
     showNotification: (_, { payload }) => {
       const { type, title, text, timer = 2000 } = payload;
-      MySwal.fire({
-        icon: type,
-        title,
-        text,
-        timer,
-        showConfirmButton: type === "loading" ? true : false,
-      });
-
       if (type === "loading") {
+        MySwal.fire({
+          icon: "info",
+          title: title || "Loading...",
+          text: text || "Please wait while we process...",
+          timer: timer,
+          showConfirmButton: false, // Hide confirm button during loading
+        });
+
         Swal.showLoading();
+      } else {
+        MySwal.fire({
+          icon: type,
+          title,
+          text,
+          timer,
+          showConfirmButton: type === "loading" ? false : true,
+        });
       }
+    },
+
+    clearNotification: () => {
+      Swal.close(); // Close any active SweetAlert notification
     },
   },
 });
 
-export const { showNotification } = alertPopupSlice.actions;
+export const { showNotification, clearNotification } = alertPopupSlice.actions;
 export default alertPopupSlice.reducer;

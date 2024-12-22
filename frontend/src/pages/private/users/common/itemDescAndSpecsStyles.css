@@ -1,0 +1,63 @@
+/* gen design */
+.sub-section-label {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  color: var(--clr-neutral-black);
+  font-weight: 500;
+  background-color: var(--clr-neutral-muted);
+  padding: 12px 8px !important;
+  border-radius: 4px;
+}
+
+.specifications-table {
+  width: 180px;
+  border-collapse: collapse;
+  margin: 0 8px;
+}
+
+.specifications-table .value,
+.specifications-table .key {
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 4px 0;
+}
+.specifications-table .key {
+  color: var(--clr-neutral-dark-gray);
+}
+
+.specifications-table .value {
+  color: var(--clr-neutral-black);
+}
+
+.specifications-table tbody tr:nth-child(odd) {
+  background-color: var(--clr-neutral-light-gray);
+}
+
+.specifications-table tbody tr:nth-child(even) {
+  background-color: white;
+}
+
+.specifications-table tbody tr td[colspan="2"] {
+  text-align: center;
+  font-style: italic;
+  color: var(--clr-neutral-dark-gray);
+}
+
+.item-desc {
+  background-color: white;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: 100%;
+  padding: 8px;
+}
+
+@media (max-width: 600px) {
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+}
+@media (min-width: 1025px) {
+}

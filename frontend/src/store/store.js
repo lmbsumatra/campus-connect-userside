@@ -7,6 +7,7 @@ import approvedItemForSaleByIdReducer from "../redux/item-for-sale/approvedItemF
 import allApprovedPostReducer from "../redux/post/allApprovedPostsSlice";
 import alertPopupReducer from "../redux/alert-popup/alertPopupSlice"
 
+
 const store = configureStore({
   reducer: {
     cart: cartReducer,

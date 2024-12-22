@@ -1,33 +1,20 @@
 const { models } = require("../../models/index");
 
 const addCartItem = async (req, res) => {
-  // Log the incoming request body for debugging
   const user_id = req.user.userId;
   console.log("Request received to add item to cart:", req.body);
 
   try {
-    const {
-      owner_id,
-      item_id,
-      transaction_type,
-      date,
-      duration,
-      price,
-    } = req.body;
+    const { ownerId, itemId, itemType, dateId, durationId, price } = req.body;
 
-    if (
-      !owner_id ||
-      !item_id ||
-      !transaction_type ||
-      !date ||
-      !duration
-    ) {
+    // Validate required fields
+    if (!ownerId || !itemId || !itemType || !dateId || !durationId) {
       const missingFields = [
-        !owner_id && "owner_id",
-        !item_id && "item_id",
-        !transaction_type && "transaction_type",
-        !date && "date",
-        !duration && "duration",
+        !ownerId && "ownerId",
+        !itemId && "itemId",
+        !itemType && "itemType",
+        !dateId && "dateId",
+        !durationId && "durationId",
       ].filter(Boolean);
       return res.status(400).json({
         message: `Missing required fields: ${missingFields.join(", ")}`,
@@ -35,82 +22,92 @@ const addCartItem = async (req, res) => {
     }
 
     // Check if the user exists
-    const user = await models.User.findOne({
-      where: { user_id },
-    });
-
+    const user = await models.User.findOne({ where: { user_id } });
     if (!user) {
-      return res.status(400).json({
-        message: "User not found.",
-      });
+      return res.status(400).json({ message: "User not found." });
     }
 
     // Check if the owner exists
-    const owner = await models.User.findOne({
-      where: { user_id: owner_id },
-    });
-
+    const owner = await models.User.findOne({ where: { user_id: ownerId } });
     if (!owner) {
-      return res.status(400).json({
-        message: "Owner not found.",
-      });
+      return res.status(400).json({ message: "Owner not found." });
     }
 
     // Create a new cart item
     const newCartItem = await models.Cart.create({
       user_id,
-      owner_id,
-      item_id,
-      transaction_type,
-      date,
-      duration,
+      owner_id: ownerId,
+      item_id: itemId,
+      transaction_type: itemType,
+      date: dateId,
+      duration: durationId,
       price,
       status: "pending",
     });
 
-    let item;
-    let item_name = "";
+    let itemDetails;
+    let itemName = "";
     let specsData = {};
 
     // Fetch item details based on transaction type
-    if (transaction_type === "buy") {
-      item = await models.ItemForSale.findOne({
-        where: { id: item_id },
+    if (itemType === "buy") {
+      itemDetails = await models.ItemForSale.findOne({
+        where: { id: itemId },
         attributes: ["item_for_sale_name", "specifications"],
       });
-      item_name = item ? item.dataValues.item_for_sale_name : "";
+      itemName = itemDetails ? itemDetails.dataValues.item_for_sale_name : "";
     } else {
-      item = await models.Listing.findOne({
-        where: { id: item_id },
+      itemDetails = await models.Listing.findOne({
+        where: { id: itemId },
         attributes: ["listing_name", "specifications"],
       });
-      item_name = item ? item.dataValues.listing_name : "";
+      itemName = itemDetails ? itemDetails.dataValues.listing_name : "";
     }
 
     specsData =
-      item && item.dataValues && item.dataValues.specifications
-        ? JSON.parse(item.dataValues.specifications)
+      itemDetails &&
+      itemDetails.dataValues &&
+      itemDetails.dataValues.specifications
+        ? JSON.parse(itemDetails.dataValues.specifications)
         : {};
 
-    // Return success response
-    return res.status(201).json({
+    const addedCartItem = {
       ...newCartItem.dataValues,
-      item_name,
+      itemName,
       specs: specsData,
       owner: owner ? owner.dataValues : null,
-    });
-  } catch (error) {
-    // Log the full error for debugging
-    console.error("Error adding item to cart:", error); // Log full error for debugging
-
-    // Return detailed error response to the client
-    const errorResponse = {
-      message: "Failed to add item to cart",
-      error: error.message,
-      errorDetails: error.errors || error.stack || [], // Include stack trace for better error tracing
     };
 
-    return res.status(500).json(errorResponse);
+    const formattedItem = {
+      id: addedCartItem.id,
+      userId: addedCartItem.user_id,
+      itemId: addedCartItem.item_id,
+      name: addedCartItem.itemName,
+      specs: addedCartItem.specs,
+      dateId: addedCartItem.date,
+      durationId: addedCartItem.duration,
+      itemType: addedCartItem.transaction_type,
+      price: addedCartItem.price,
+      status: addedCartItem.status,
+      owner: {
+        id: addedCartItem.owner.user_id,
+        fname: addedCartItem.owner.first_name,
+        lname: addedCartItem.owner.last_name,
+      },
+    };
+
+    // Return success response
+    return res.status(201).json(formattedItem);
+  } catch (error) {
+    // Log the full error for debugging
+    console.error("Error adding item to cart:", error);
+
+    // Return detailed error response
+    return res.status(500).json({
+      message: "Failed to add item to cart",
+      error: error.message,
+      details: error.errors || error.stack || [],
+    });
   }
 };
 

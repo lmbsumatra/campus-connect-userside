@@ -1,641 +1,318 @@
-.container-content.post-detail {
+.container-content.itemforsale-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+}
+.itemforsale-container {
+  background-color: white;
+  border-radius: 8px;
+  /* overflow: hidden; */
+  padding: 8px;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  height: 728px !important;
+  width: 100%;
+}
+
+.itemforsale-container .imgs-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--clr-neutral-muted);
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.itemforsale-container .imgs-container img.item-type {
+  position: absolute;
+  height: 44px;
+  width: 44px;
+  right: 0;
+  top: 0;
+  padding: 4px;
+  margin: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  transform: rotate(45deg);
+  transition: ease 0.5s background-color;
+  z-index: 4;
+}
+
+.itemforsale-container .imgs-container img.item-type:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.itemforsale-container .imgs-container:hover .img-slider {
+  display: flex;
+  visibility: visible;
+}
+
+.itemforsale-container .imgs-container .img-slider img.item-img {
+  height: 100%;
+  width: auto;
+  filter: brightness(0.5);
+}
+
+.itemforsale-container .imgs-container .img-slider img.item-img:hover {
+  filter: brightness(0.8);
+}
+.itemforsale-container .imgs-container .img-slider img.item-img.center {
+  filter: brightness(1);
+  border: 1px solid white;
+}
+
+.itemforsale-container .rental-details {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.error-msg {
+  color: red;
+  font-style: italic;
+}
+.item-title .title {
+  font-weight: 600;
+}
+
+.delivery-method,
+.payment-method,
+.item-condition {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.label,
+.value {
+  font-size: 14px;
+  color: var(--clr-neutral-dark-gray);
+  display: flex;
+  line-height: 1;
+}
+
+.group-container.terms-group .value {
+  color: var(--clr-secondary);
+  font-weight: 600;
+  font-size: 18px;
+}
+.item-price .price {
+  color: var(--clr-secondary);
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.delivery-method .value,
+.payment-method .value,
+.item-condition .value {
+  border: solid 1px var(--clr-neutral-gray);
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 2px;
+  background-color: white !important;
+  overflow: hidden;
+}
+
+.delivery-method .value:hover,
+.payment-method .value:hover {
+  border: solid 1px var(--clr-secondary);
+  color: var(--clr-secondary);
+}
+
+.delivery-method .value.selected,
+.payment-method .value.selected,
+.item-condition .value {
+  border: solid 1px var(--clr-secondary) !important;
+  background-color: var(--clr-secondary) !important;
+  color: white !important;
+}
+
+.delivery-method .value.selected:hover,
+.payment-method .value.selected:hover {
+  border: solid 1px var(--clr-secondary-dark) !important;
+  background-color: var(--clr-secondary-dark) !important;
+  color: white !important;
+}
+
+.action-btns {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.tags-holder {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+}
+
+.tags-holder .tag {
+  display: inline-block;
+  margin: 0;
+  line-height: 1;
+  vertical-align: top;
+  padding: 4px 8px;
+  border-radius: 100px;
+  background-color: var(--clr-neutral-muted) !important;
+  color: var(--clr-neutral-dark-gray);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  border: none !important;
+}
+
+/* gen design */
+.sub-section-label {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  color: var(--clr-neutral-black);
+  font-weight: 500;
+  background-color: var(--clr-neutral-muted);
+  padding: 12px 8px;
+  border-radius: 4px;
+}
+
+.itemforsale-container .rental-dates-durations {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8px !important;
+}
+
+.itemforsale-container .rental-dates-durations .duration-item {
+  background-color: white !important;
+  border-radius: 4px !important;
+  padding: 4px !important;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.itemforsale-container .rental-dates-durations .duration-item input {
+  height: 18px;
+  width: 18px;
+}
+
+.itemforsale-container .rental-dates-durations .date-picker,
+.itemforsale-container .rental-dates-durations .duration-picker {
+  display: flex;
+  flex-direction: column;
+}
+/* move to gen design */
+.group-container {
+  background-color: var(--clr-neutral-muted);
+  width: 100%;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.group-container.terms-group .term {
+  background-color: white;
+  padding: 8px;
+  border-radius: 4px;
+}
+/* gen design */
+.sub-section-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+.expand-btn {
+  all: unset;
+  cursor: pointer;
+}
+
+.expand-btn img {
+  height: 24px;
+  width: 24px;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+.expand-btn.expand img {
+  transform: rotate(45deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+.group-container.item-condition {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+
+.terms-group {
+  position: relative; /* Establish a positioning context */
+}
+
+.terms-popup {
+  position: absolute;
+  top: 100%; /* Position the popup just below the label */
+  left: 0;
+  width: 100%; /* Match the parent container width */
+  background: var(--clr-neutral-muted); /* Background color */
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
+  z-index: 10; /* Ensure the popup appears above other elements */
+  padding: 8px; /* Spacing inside the popup */
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .itemforsale-container {
+    display: flex;
+    flex-direction: column !important;
+    height: auto !important;
+  }
+
+  .itemforsale-container .imgs-container {
     display: flex;
     flex-direction: column;
-    gap: 16px;
   }
-  .itemforsale-container {
-    background-color: white;
-    border-radius: 8px;
-    /* overflow: hidden; */
-    padding: 8px;
-    margin: 0;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    height: 650px;
-    width: 100%;
-  }
-  
-  .itemforsale-container .imgs-container {
-    height: 100%;
-    width: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: var(--clr-neutral-muted);
-    position: relative;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .itemforsale-container .imgs-container .highlight {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .itemforsale-container .imgs-container .highlight-bg {
-    background-size: cover;
-    background-position: center;
-    filter: blur(15px);
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    z-index: 0;
-  }
-  
-  .itemforsale-container .imgs-container .highlight-img {
-    height: 100%;
-    width: 100%;
-    object-fit: contain;
-    position: relative;
-    z-index: 2;
-  }
-  .itemforsale-container .imgs-container img.item-type {
-    position: absolute;
-    height: 44px;
-    width: 44px;
-    right: 0;
-    top: 0;
-    padding: 4px;
-    margin: 8px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 50%;
-    transform: rotate(45deg);
-    transition: ease 0.5s background-color;
-    z-index: 4;
-  }
-  
-  .itemforsale-container .imgs-container img.item-type:hover {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-  
-  .itemforsale-container .imgs-container .img-slider {
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.2);
-    height: 90px;
-    width: auto;
-    flex-direction: row;
-    border-radius: 8px;
-    overflow: hidden;
-    bottom: 8px;
-    left: 8px;
-    right: 8px;
-    justify-content: space-between;
-    align-items: center;
-    display: none;
-    visibility: hidden;
-    transition: visibility 0.2s ease-in-out;
-    z-index: 4;
-  }
-  
-  .itemforsale-container .imgs-container:hover .img-slider {
-    display: flex;
-    visibility: visible;
-  }
+
   .itemforsale-container .imgs-container .img-slider img.item-img {
-    height: 100%;
-    width: auto;
+    height: auto;
+    width: 48px;
     filter: brightness(0.5);
   }
-  .itemforsale-container .imgs-container .img-slider img.item-img:hover {
-    filter: brightness(0.8);
-  }
-  .itemforsale-container .imgs-container .img-slider img.item-img.center {
-    filter: brightness(1);
-    border: 1px solid white;
-  }
-  img.next-btn,
-  img.prev-btn {
-    height: 24px;
-    width: 24px;
-  }
-  
-  .btn-slider {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8px;
-  }
-  
-  .btn-slider:hover {
-    background-color: rgba(0, 0, 0, 0.3);
-  }
-  
-  .itemforsale-container .rental-details {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .college-badge,
-  .category-badge {
-    display: inline-flex;
-    justify-content: flex-start;
-    align-items: center;
-    border-radius: 50px;
-    border: 1px solid white;
-    padding: 4px 8px;
-    white-space: nowrap;
-    background-color: var(--clr-secondary);
-  }
-  .category-badge {
-    display: inline-flex;
-    justify-content: flex-start;
-    align-items: center;
-    border-radius: 50px;
-    border: 1px solid var(--clr-secondary);
-    padding: 4px 8px;
-    white-space: nowrap;
-    background-color: white;
-  }
-  
-  .college-badge span {
-    color: white;
-    font-weight: 600;
-  }
-  .category-badge span {
-    color: var(--clr-secondary);
-    font-weight: 600;
-  }
-  
-  .error-msg {
-    color: red;
-    font-style: italic;
-  }
-  .item-title .title {
-    font-weight: 600;
-  }
-  
-  
-  .delivery-method, .payment-method, .item-condition {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .label,
-  .value {
-    font-size: 14px;
-    color: var(--clr-neutral-dark-gray);
-    display: flex;
-    line-height: 1;
-  }
-  
-  .group-container.terms-group .value {
-    color: var(--clr-secondary);
-    font-weight: 600;
-    font-size: 18px;
-  }
-  .item-price .price {
-    color: var(--clr-secondary);
-    font-weight: 600;
-    font-size: 24px;
-  }
-  
-  .delivery-method .value, .payment-method .value, .item-condition .value {
-    border: solid 1px var(--clr-neutral-gray);
-    font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 2px;
-    background-color: white !important;
-    overflow: hidden;
-  }
-  
-  .delivery-method .value:hover, .payment-method .value:hover {
-    border: solid 1px var(--clr-secondary);
-    color: var(--clr-secondary);
-  }
-  
-  .delivery-method .value.selected, .payment-method .value.selected, .item-condition .value {
-    border: solid 1px var(--clr-secondary) !important;
-    background-color: var(--clr-secondary) !important;
-    color: white !important;
-  }
-  
-  .delivery-method .value.selected:hover, .payment-method .value.selected:hover {
-    border: solid 1px var(--clr-secondary-dark) !important;
-    background-color: var(--clr-secondary-dark) !important;
-    color: white !important;
-  }
-  
-  .action-btns {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 8px;
-  }
-  
-  .tags-holder {
-    padding: 0;
-    margin: 0;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 4px;
-  }
-  
-  .tags-holder .tag {
-    display: inline-block;
-    margin: 0;
-    line-height: 1;
-    vertical-align: top;
-    padding: 4px 8px;
-    border-radius: 100px;
-    background-color: var(--clr-neutral-muted) !important;
-    color: var(--clr-neutral-dark-gray);
-    font-weight: 600;
-    font-size: 14px;
-    white-space: nowrap;
-    border: none !important;
-  }
-  
-  .itemforsale-container.post-desc {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    width: 100%;
-    padding: 8px;
-  }
-  
-  .sub-section-label {
-    margin: 0;
-    padding: 0;
-    line-height: 1;
-    color: var(--clr-neutral-black);
-    font-weight: 500;
-    background-color: var(--clr-neutral-muted);
-    padding: 12px 8px;
-    border-radius: 4px;
-  }
-  .specifications-table {
-    width: 180px;
-    border-collapse: collapse;
-    margin: 0 8px;
-  }
-  
-  .specifications-table .value,
-  .specifications-table .key {
-    font-size: 14px;
-    line-height: 1.5;
-  }
-  .specifications-table .key {
-    color: var(--clr-neutral-dark-gray);
-  }
-  
-  .specifications-table .value {
-    color: var(--clr-neutral-black);
-  }
-  
-  .specifications-table tbody tr:nth-child(odd) {
-    background-color: var(--clr-neutral-light-gray);
-  }
-  
-  .specifications-table tbody tr:nth-child(even) {
-    background-color: white;
-  }
-  
-  .specifications-table tbody tr td[colspan="2"] {
-    text-align: center;
-    font-style: italic;
-    color: var(--clr-neutral-dark-gray);
-  }
-  
-  .itemforsale-container.owner-info {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    height: auto;
-    width: 100%;
-    padding: 8px;
-    align-items: center;
-  }
-  
-  .username {
-    margin: 0;
-    padding: 0;
-    line-height: 1;
-    color: var(--clr-primary);
-    font-weight: 500;
-    text-decoration: none;
-    font-size: 16px;
-    width: 100%;
-  }
-  .username:hover {
-    color: var(--clr-primary-dark);
-  }
-  .rating-label {
-    margin: 0;
-    padding: 0;
-    line-height: 1;
-    color: var(--clr-neutral-dark-gray);
-    font-weight: 400;
-    text-decoration: none;
-    font-size: 16px;
-  }
-  
-  .user-link {
-    gap: 8px;
-    align-items: center;
-    display: flex;
-  }
-  .user-link .profile-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid black;
-    align-items: center;
-    display: block;
-  }
-  
+
   .itemforsale-container .rental-dates-durations {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: flex-start;
+    width: auto;
     gap: 8px !important;
   }
-  
-  .itemforsale-container .rental-dates-durations .duration-item {
-    background-color: white !important;
-    border-radius: 4px !important;
-    padding: 4px !important;
-    display: flex;
-    gap: 4px;
-    align-items: center;
+
+  .itemforsale-container .rental-dates-durations .date-picker {
+    display: inline-block;
   }
-  .itemforsale-container .rental-dates-durations .duration-item input {
-    height: 18px;
-    width: 18px;
-  }
-  
-  .itemforsale-container .rental-dates-durations .date-picker,
-  .itemforsale-container .rental-dates-durations .duration-picker {
-    display: flex;
-    flex-direction: column;
-  }
-  .group-container {
-    background-color: var(--clr-neutral-muted);
-    width: 100%;
-    border-radius: 8px;
-    padding: 8px;
-  }
-  
-  
-  .group-container.terms-group .term {
-    background-color: white;
-    padding: 8px;
-    border-radius: 4px;
-  }
-  
-  .group-container.terms-group .sub-section-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .expand-btn {
-    all: unset;
-    cursor: pointer;
-  }
-  
-  .expand-btn img {
-    height: 24px;
-    width: 24px;
-    transform: rotate(0deg);
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .expand-btn.expand img {
-    transform: rotate(45deg);
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .group-container.item-condition {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .terms-group {
-    position: relative; /* Establish a positioning context */
-  }
-  
-  .terms-popup {
-    position: absolute;
-    top: 100%; /* Position the popup just below the label */
-    left: 0;
-    width: 100%; /* Match the parent container width */
-    background: var(--clr-neutral-muted); /* Background color */
-    border-radius: 5px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
-    z-index: 10; /* Ensure the popup appears above other elements */
-    padding: 8px; /* Spacing inside the popup */
-    max-height: 200px;
-    overflow-y: auto; 
-    z-index: 9;
-    display: flex;
-    flex-direction: column;
-    gap: 8px
-  }
-  
-  
-  @media (max-width: 600px) {
-    .itemforsale-container {
-      display: flex;
-      flex-direction: column;
-      height: auto;
-    }
-  
-    /* Display img-slider below the highlighted image */
-    .itemforsale-container .imgs-container {
-      display: flex;
-      flex-direction: column;
-      /* gap: 8px; */
-      /* padding: 8px; */
-    }
-  
-    .itemforsale-container .imgs-container .highlight {
-      position: relative;
-      height: 400px;
-      width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: none;
-    }
-  
-    /* Apply the blurred background to .highlight */
-    .itemforsale-container .imgs-container .highlight::before {
-      content: "";
-      background-image: inherit; /* Uses the background of .highlight */
-      background-size: cover;
-      background-position: center;
-      filter: blur(15px);
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      z-index: 0; /* Stays behind the content */
-    }
-  
-    /* Keep the image inside .highlight unblurred */
-    .itemforsale-container .imgs-container .highlight img {
-      position: relative;
-      height: 100%;
-      width: 100%;
-      object-fit: contain;
-      z-index: 1; /* Stays on top of the blurred background */
-    }
-  
-    /* Display img-slider below the highlighted image */
-    .itemforsale-container .imgs-container .img-slider {
-      position: relative;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      visibility: visible;
-      border-radius: 0;
-      background-color: rgba(1, 1, 1, 0.2);
-    }
-  
-    .itemforsale-container .imgs-container .img-slider img.item-img {
-      height: auto;
-      width: 48px;
-      filter: brightness(0.5);
-    }
-  
-    .itemforsale-container.owner-info {
-      display: flex;
-      justify-content: flex-start;
-      flex-direction: column;
-      width: 100%;
-    }
-  
-    .itemforsale-container.owner-info .rating-label,
-    .itemforsale-container.owner-info .user-link {
-      display: flex;
-      width: 100%;
-    }
-  
-    .itemforsale-container.owner-info .btn.btn-rectangle {
-      width: 100%;
-    }
-  
-    .itemforsale-container .rental-dates-durations {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      width: auto;
-      gap: 8px !important;
-    }
-  
-    .itemforsale-container .rental-dates-durations .date-picker {
-      display: inline-block;
-    }
-  }
-  
-  @media (min-width: 601px) and (max-width: 1024px) {
-    .itemforsale-container {
-      display: flex;
-      flex-direction: column;
-      height: auto;
-    }
-  
-    /* Display img-slider below the highlighted image */
-    .itemforsale-container .imgs-container {
-      display: flex;
-      flex-direction: column;
-      /* gap: 8px; */
-      /* padding: 8px; */
-    }
-  
-    .itemforsale-container .imgs-container .highlight {
-      position: relative;
-      height: 400px;
-      width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: none;
-    }
-  
-    /* Apply the blurred background to .highlight */
-    .itemforsale-container .imgs-container .highlight::before {
-      content: "";
-      background-image: inherit; /* Uses the background of .highlight */
-      background-size: cover;
-      background-position: center;
-      filter: blur(15px);
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      z-index: 0; /* Stays behind the content */
-    }
-  
-    /* Keep the image inside .highlight unblurred */
-    .itemforsale-container .imgs-container .highlight img {
-      position: relative;
-      height: 100%;
-      width: 100%;
-      object-fit: contain;
-      z-index: 1; /* Stays on top of the blurred background */
-    }
-  
-    /* Display img-slider below the highlighted image */
-    .itemforsale-container .imgs-container .img-slider {
-      position: relative;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      visibility: visible;
-      border-radius: 0;
-      background-color: rgba(1, 1, 1, 0.2);
-    }
-  
-    .itemforsale-container .imgs-container .img-slider img.item-img {
-      height: auto;
-      width: 48px;
-      filter: brightness(0.5);
-    }
-  
-    .itemforsale-container.owner-info {
-      display: flex;
-      justify-content: flex-start;
-      flex-direction: column;
-      width: 100%;
-    }
-  
-    .itemforsale-container.owner-info .rating-label,
-    .itemforsale-container.owner-info .user-link {
-      display: flex;
-      width: 100%;
-    }
-  
-    .itemforsale-container.owner-info .btn.btn-rectangle {
-      width: 100%;
-    }
-  
-    .itemforsale-container .rental-dates-durations {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-      align-items: flex-start;
-      width: auto;
-      gap: 8px !important;
-    }
-  }
-  
-  @media (min-width: 1025px) {
-  }
-  
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+}
+
+@media (min-width: 1025px) {
+}

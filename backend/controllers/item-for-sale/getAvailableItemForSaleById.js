@@ -69,7 +69,7 @@ const getAvailableItemForSaleById = async (req, res) => {
         })),
       })),
       seller: {
-        id: item.renter_id,
+        id: item.seller.user_id,
         fname: item.seller.first_name,
         lname: item.seller.last_name,
         college: item.seller.student.college,

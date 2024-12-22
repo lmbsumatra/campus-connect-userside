@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchApprovedItemForSaleById } from "../../../../redux/item-for-sale/approvedItemForSaleByIdSlice";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css"; 
-
-import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";
-import prevIcon from "../../../../assets/images/pdp/prev.svg";
-import nextIcon from "../../../../assets/images/pdp/next.svg";
+import cartIcon from "../../../../assets/images/pdp/cart.svg";
 import itemImage1 from "../../../../assets/images/item/item_1.jpg";
 import itemImage2 from "../../../../assets/images/item/item_2.jpg";
 import itemImage3 from "../../../../assets/images/item/item_3.jpg";
@@ -23,19 +19,25 @@ import "./itemForSaleDetailStyles.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
-import axios from "axios";
 import {
   FOR_RENT,
   FOR_SALE,
   MEET_UP,
   PICK_UP,
+  TO_RENT,
 } from "../../../../utils/consonants";
-import { fetchApprovedItemForSaleById } from "../../../../redux/item-for-sale/approvedItemForSaleByIdSlice";
+import { addCartItem } from "../../../../redux/cart/cartSlice";
+import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
+import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
+import UserToolbar from "../common/UserToolbar";
+import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
+import ImageSlider from "../common/ImageSlider";
+import ItemBadges from "../common/ItemBadges";
 
 function ItemForSaleDetail() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
-  const [currentIndex, setCurrentIndex] = useState(1);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [showDurations, setShowDurations] = useState(null);
@@ -46,9 +48,9 @@ function ItemForSaleDetail() {
     errorApprovedItemForSaleById,
   } = useSelector((state) => state.approvedItemForSaleById);
   const studentUser = useSelector(selectStudentUser);
-  const { userId } = studentUser;
   const rentalDates = approvedItemForSaleById.rentalDates || [];
   const [loading, setLoading] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
   const [expandTerm, setExpandTerm] = useState(false);
 
   const images = [
@@ -61,38 +63,15 @@ function ItemForSaleDetail() {
     itemImage4,
   ];
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchApprovedItemForSaleById(id));
-    }
-
-    //  gusto ko lang makita yung lading skeleton
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [dispatch, id]);
-
-  const nextImage = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-  };
-  const prevImage = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + images.length) % images.length
-    );
-  };
-  const highlightImage = (index) => {
-    setCurrentIndex(index);
-  };
-
   const handleDateClick = (dateId) => {
+    const formatDate = (d) => d.toLocaleDateString("en-CA");
+
     const selectedRentalDate = approvedItemForSaleById.rentalDates.find(
       (rentalDate) => rentalDate.id === dateId
     );
 
     if (selectedRentalDate && selectedRentalDate.durations) {
-      setSelectedDate(selectedRentalDate.date);
+      setSelectedDate(formatDate(new Date(selectedRentalDate.date)));
       setShowDurations(selectedRentalDate.durations);
     }
   };
@@ -112,78 +91,147 @@ function ItemForSaleDetail() {
       alert("Please select a date and duration before offering.");
     }
   };
-  const handleConfirmOffer = async () => {
-    if (selectedDate && selectedDuration) {
-      try {
-        const response = await axios.post("http://localhost:3001/api/send");
-        alert("Email sent!");
-      } catch (err) {
-        alert(err);
-      }
-    } else {
-      alert("Please select a date and duration before offering.");
-    }
-  };
-
-  const getCollegeBadgeUrl = (college) => {
-    if (college) {
-      return require(`../../../../assets/images/colleges/${college}.png`);
-    } else {
-      return null;
-    }
-  };
 
   const handleSelectDeliveryMethod = (method) => {
     console.log(method);
   };
 
+  const handleAddToCart = async (e, item) => {
+    console.log(item)
+    e.stopPropagation();
 
-  if (loading) {
-    return (
-      <div className="container-content post-detail">
-        <div className="itemforsale-container">
-          <div className="imgs-container">
-            <Skeleton height={200} />
-            <Skeleton count={3} width={60} style={{ marginTop: "10px" }} />
-          </div>
-          <div className="rental-details">
-            <Skeleton width={100} height={30} />
-            <Skeleton count={2} height={20} style={{ marginTop: "10px" }} />
-            <Skeleton height={50} style={{ marginTop: "20px" }} />
-            <Skeleton height={20} style={{ marginTop: "10px" }} />
-            <Skeleton count={3} height={20} style={{ marginTop: "10px" }} />
-          </div>
-        </div>
-        <div className="itemforsale-container owner-info">
-          <Skeleton width={60} height={60} circle />
-          <Skeleton width={120} height={20} style={{ marginTop: "10px" }} />
-          <Skeleton width={80} height={30} style={{ marginTop: "10px" }} />
-        </div>
-        <div className="itemforsale-container post-desc">
-          <Skeleton width={200} height={20} />
-          <Skeleton count={4} height={20} style={{ marginTop: "10px" }} />
-        </div>
-      </div>
+    dispatch(
+      showNotification({
+        type: "loading",
+        title: "Processing...",
+        text: "Adding item to cart...",
+      })
     );
-  }
 
-  if (errorApprovedItemForSaleById) {
-    return <p>Error: {errorApprovedItemForSaleById}</p>;
-  }
+    if (!selectedDate || !selectedDuration) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Please select a date and duration before adding to cart.",
+        })
+      );
+      return;
+    }
 
-  if (!approvedItemForSaleById) {
-    return <p>Item not found</p>;
+    const selectedDateId = approvedItemForSaleById.rentalDates.find(
+      (rentalDate) => rentalDate.date === selectedDate
+    )?.id;
+    if (!selectedDateId) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Invalid date selection.",
+        })
+      );
+      return;
+    }
+
+    const selectedDurationId = selectedDuration.id;
+    
+
+    try {
+      await dispatch(
+        addCartItem({
+          userId: studentUser.userId,
+          ownerId:  item.seller.id,
+          owner: { fname: item.seller.lname, lname: item.seller.lname },
+          itemType:
+            item.itemType === TO_RENT ? "rent" : "buy",
+          dateId: selectedDateId,
+          durationId: selectedDurationId,
+          itemId: item.id,
+          price: item.price,
+          name: item.name,
+        })
+      );
+
+      dispatch(
+        showNotification({
+          type: "success",
+          title: "Success!",
+          text: "Item added to cart successfully!",
+        })
+      );
+    } catch (error) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Failed to add item to cart.",
+        })
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchApprovedItemForSaleById(id));
+    }
+  }, [id, dispatch]);
+
+  useEffect(() => {
+    if (errorApprovedItemForSaleById) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Item not found!",
+        })
+      );
+    } else if (!loadingApprovedItemForSaleById && !approvedItemForSaleById) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Not Found",
+          text: "No item found with the given ID.",
+        })
+      );
+    }
+
+    if (errorApprovedItemForSaleById || (!loadingApprovedItemForSaleById && !approvedItemForSaleById)) {
+      setRedirecting(true); // Start the redirect process
+      const timer = setTimeout(() => {
+        dispatch(
+          showNotification({
+            type: "loading",
+            title: "Redirecting",
+          })
+        );
+      }, 5000); // Show redirect notification after 5 seconds
+
+      return () => clearTimeout(timer); // Clean up the timeout if dependencies change
+    }
+  }, [errorApprovedItemForSaleById, loadingApprovedItemForSaleById, approvedItemForSaleById, dispatch]);
+
+  useEffect(() => {
+    if (redirecting) {
+      const redirectTimer = setTimeout(() => {
+        navigate(-1); // Redirect to previous page
+      }, 6000); // Wait 6 seconds before redirect
+
+      return () => clearTimeout(redirectTimer); // Clean up redirect timer
+    }
+  }, [redirecting, navigate]);
+
+  // Show loading skeleton if still loading or redirecting
+  if (loadingApprovedItemForSaleById || redirecting) {
+    return <LoadingItemDetailSkeleton />;
   }
 
   return (
-    <div className="container-content post-detail">
+    <div className="container-content itemforsale-detail">
       <div className="itemforsale-container">
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
-              approvedItemForSaleById.itemType === FOR_RENT
-                ? FOR_RENT
-                : FOR_SALE
+              approvedItemForSaleById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
             }`}
             componentsProps={{
               popper: {
@@ -205,128 +253,20 @@ function ItemForSaleDetail() {
                   : forSaleIcon
               }
               alt={
-                approvedItemForSaleById.itemType === FOR_RENT
-                  ? FOR_RENT
-                  : FOR_SALE
+                approvedItemForSaleById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
               }
               className="item-type"
             />
           </Tooltip>
-          <div
-            className="highlight-bg"
-            style={{
-              backgroundImage: `url(${images[currentIndex]})`,
-            }}
-          ></div>
-
-          <div className="highlight">
-            <img
-              src={images[currentIndex]}
-              alt="Item"
-              className="highlight-img"
-            />
-          </div>
-          <div className="img-slider">
-            <div className="btn-slider prev-btn" onClick={prevImage}>
-              <img src={prevIcon} alt="Previous image" className="prev-btn" />
-            </div>
-            <img
-              src={images[(currentIndex - 2 + images.length) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex - 2) % images.length)}
-            />
-            <img
-              src={images[(currentIndex - 1 + images.length) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex - 1) % images.length)}
-            />
-            <img
-              src={images[currentIndex]}
-              alt="Item"
-              className="item-img center"
-            />
-            <img
-              src={images[(currentIndex + 1) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex + 1) % images.length)}
-            />
-            <img
-              src={images[(currentIndex + 2) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex + 2) % images.length)}
-            />
-            <div className="btn-slider next-btn" onClick={nextImage}>
-              <img src={nextIcon} alt="Next image" className="next-btn" />
-            </div>
-          </div>
+          <ImageSlider images={images} />
         </div>
-
         <div className="rental-details">
-          <div>
-            <div className="college-badge">
-              <Tooltip
-                title={`This item is from ${
-                  approvedItemForSaleById?.seller?.college
-                    ? approvedItemForSaleById.seller.college
-                    : ""
-                }.`}
-                placement="bottom"
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, 0],
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                <img
-                  src={getCollegeBadgeUrl(
-                    approvedItemForSaleById?.seller?.college
-                      ? approvedItemForSaleById.seller.college
-                      : ""
-                  )}
-                  alt="College"
-                  style={{ height: "24px", width: "24px" }}
-                />
-                {approvedItemForSaleById?.seller?.college
-                  ? approvedItemForSaleById.seller.college
-                  : ""}
-              </Tooltip>
-            </div>
-            <div className="category-badge">
-              <Tooltip
-                title={`This item is under ${approvedItemForSaleById.category} category.`}
-                placement="bottom"
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, 0],
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                {approvedItemForSaleById.category ? (
-                  <span>{approvedItemForSaleById.category}</span>
-                ) : (
-                  <span className="error-msg">No category</span>
-                )}
-              </Tooltip>
-            </div>
-          </div>
+          <ItemBadges
+            values={{
+              college: approvedItemForSaleById?.seller?.college,
+              category: approvedItemForSaleById.category,
+            }}
+          />
           <div className="item-title">
             <>
               <i>For rent </i>
@@ -341,10 +281,16 @@ function ItemForSaleDetail() {
             {approvedItemForSaleById.price ? (
               <span className="price">₱ {approvedItemForSaleById.price}</span>
             ) : (
-              <span className="error-msg">No available price.</span>
+              <span className="error-msg">No available name.</span>
             )}
           </div>
           <div className="action-btns">
+            <button
+              className="btn-icon"
+              onClick={(e) => handleAddToCart(e, approvedItemForSaleById)}
+            >
+              <img src={cartIcon} alt="Add to cart" />
+            </button>
             <button className="btn btn-rectangle secondary">Message</button>
             <button
               className="btn btn-rectangle primary"
@@ -358,31 +304,22 @@ function ItemForSaleDetail() {
             <div className="date-picker">
               <span>
                 Pick a date to{" "}
-                {approvedItemForSaleById.itemType === FOR_RENT ? "rent" : "buy"}
-                :
+                {approvedItemForSaleById.itemType === FOR_RENT ? "rent" : "buy"}:
               </span>
               <DatePicker
                 inline
                 selected={selectedDate ? new Date(selectedDate) : null}
                 onChange={(date) => {
-                  const clickedDateId = rentalDates.find(
-                    (rentalDate) =>
-                      new Date(rentalDate.date).toDateString() ===
-                      date.toDateString()
-                  )?.id;
-
-                  if (clickedDateId) {
-                    handleDateClick(clickedDateId);
-                  }
-                  setSelectedDate(date);
                   const rentalDate = rentalDates.find(
                     (r) =>
                       new Date(r.date).toDateString() === date.toDateString()
                   );
-                  if (rentalDate && rentalDate.status === "available") {
-                    setShowDurations(rentalDate.durations);
+
+                  if (rentalDate) {
+                    handleDateClick(rentalDate.id);
                   } else {
                     setShowDurations(null);
+                    setSelectedDate(date);
                   }
                 }}
                 highlightDates={availableDates}
@@ -395,6 +332,7 @@ function ItemForSaleDetail() {
                 }}
               />
             </div>
+
             <div className="duration-picker group-container">
               <strong>Available Durations:</strong>
               <div>
@@ -429,10 +367,9 @@ function ItemForSaleDetail() {
 
           <div className="group-container delivery-method ">
             <label className="label">Delivery Method</label>
-
             {approvedItemForSaleById.deliveryMethod ? (
               <Tooltip
-                title="Delivery method has been preselected by owner."
+                title="Delivery method has been preselected by seller."
                 placement="bottom"
                 componentsProps={{
                   popper: {
@@ -454,7 +391,7 @@ function ItemForSaleDetail() {
             ) : (
               <div className="delivery-method">
                 <Tooltip
-                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                  title="seller did not set delivery method, you decide whether to meetup or pickup."
                   placement="bottom"
                   componentsProps={{
                     popper: {
@@ -501,7 +438,7 @@ function ItemForSaleDetail() {
 
             {approvedItemForSaleById.paymentMethod ? (
               <Tooltip
-                title="Delivery method has been preselected by owner."
+                title="Delivery method has been preselected by seller."
                 placement="bottom"
                 componentsProps={{
                   popper: {
@@ -523,7 +460,7 @@ function ItemForSaleDetail() {
             ) : (
               <div className="delivery-method">
                 <Tooltip
-                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                  title="seller did not set delivery method, you decide whether to meetup or pickup."
                   placement="bottom"
                 >
                   <div className="action-btns">
@@ -564,88 +501,13 @@ function ItemForSaleDetail() {
         </div>
       </div>
 
-      <div className="itemforsale-container owner-info">
-        <div className="user-link">
-          <img
-            src={userProfilePicture}
-            alt="Profile picture"
-            className="profile-avatar"
-          />
-          <div>
-            <a href={``} className="username">
-              {approvedItemForSaleById.owner &&
-              approvedItemForSaleById.owner.fname &&
-              approvedItemForSaleById.owner.lname
-                ? `${approvedItemForSaleById.owner.fname} ${approvedItemForSaleById.owner.lname}`
-                : "You"}
-            </a>
-          </div>
-        </div>
-        <div className="rating-label">Rating</div>
-        <button className="btn btn-rectangle primary">View Listings</button>
-        <button className="btn btn-rectangle secondary">View Profile</button>
-      </div>
+      <UserToolbar user={approvedItemForSaleById.seller} />
 
-      <div className="itemforsale-container post-desc">
-        <label className="sub-section-label">Specifications</label>
-        <table className="specifications-table" role="table">
-          <tbody>
-            {(() => {
-              try {
-                const specs = approvedItemForSaleById.specs
-                  ? Object.entries(JSON.parse(approvedItemForSaleById.specs))
-                  : [];
-
-                if (specs.length === 0) {
-                  return (
-                    <span className="error-msg">
-                      No specifications available.
-                    </span>
-                  );
-                }
-
-                return specs.map(([key, value]) => (
-                  <tr key={key}>
-                    <td className="key">
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </td>
-                    <td className="value">{value}</td>
-                  </tr>
-                ));
-              } catch (error) {
-                return (
-                  <span className="error-msg">
-                    Error loading specifications.
-                  </span>
-                );
-              }
-            })()}
-          </tbody>
-        </table>
-        <label className="sub-section-label">Description</label>
-        <p>
-          {approvedItemForSaleById.desc &&
-          approvedItemForSaleById.tags !== "undefined" ? (
-            approvedItemForSaleById.desc
-          ) : (
-            <span className="error-msg">No description</span>
-          )}
-        </p>
-
-        <div className="tags-holder">
-          <i>Tags: </i>
-          {approvedItemForSaleById.tags &&
-          approvedItemForSaleById.tags !== "undefined" ? (
-            JSON.parse(approvedItemForSaleById.tags).map((tag, index) => (
-              <div key={index} className="tag">
-                {tag}
-              </div>
-            ))
-          ) : (
-            <span className="error-msg">No tags available</span>
-          )}
-        </div>
-      </div>
+      <ItemDescAndSpecs
+        specs={approvedItemForSaleById.specs}
+        desc={approvedItemForSaleById.desc}
+        tags={approvedItemForSaleById.tags}
+      />
 
       {/* Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -669,9 +531,7 @@ function ItemForSaleDetail() {
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={() => handleConfirmOffer()}>
-            Confirm
-          </Button>
+          <Button variant="primary">Confirm</Button>
         </Modal.Footer>
       </Modal>
     </div>

@@ -1,0 +1,35 @@
+.container-content.listing-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.listing-container {
+  background-color: white;
+  border-radius: 8px;
+  /* overflow: hidden; */
+  padding: 8px;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  height: 700px;
+  width: 100%;
+}
+
+.listing-container.owner-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: auto;
+  width: 100%;
+  padding: 8px;
+  align-items: center;
+}
+
+.listing-container.post-desc {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: 100%;
+  padding: 8px;
+}

@@ -1,50 +1,54 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import store from "../../../../store/store.js";
 
-import { useAuth } from "../../../../context/AuthContext";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
-import Skeleton from "react-loading-skeleton"; // Import Skeleton
-import "react-loading-skeleton/dist/skeleton.css"; // Import skeleton styles
-
-import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";
-import prevIcon from "../../../../assets/images/pdp/prev.svg";
-import nextIcon from "../../../../assets/images/pdp/next.svg";
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
-import expandIcon from "../../../../assets/images/pdp/plus.svg";
 import itemImage1 from "../../../../assets/images/item/item_1.jpg";
 import itemImage2 from "../../../../assets/images/item/item_2.jpg";
 import itemImage3 from "../../../../assets/images/item/item_3.jpg";
 import itemImage4 from "../../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
-import forSaleIcon from "../../../../assets/images/card/rent.svg";
+import forSaleIcon from "../../../../assets/images/card/buy.svg";
 import "./listingDetailStyles.css";
+import "./confirmationModalStyles.css";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
-import axios from "axios";
 import {
   FOR_RENT,
   FOR_SALE,
   MEET_UP,
   PICK_UP,
+  TO_BUY,
 } from "../../../../utils/consonants";
-import { addCartItem } from "../../../../redux/cart/cartSlice";
-import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
+import {
+  addCartItem,
+  clearSuccessMessage,
+  selectCartSuccessMessage,
+} from "../../../../redux/cart/cartSlice";
+import {
+  clearNotification,
+  showNotification,
+} from "../../../../redux/alert-popup/alertPopupSlice";
+import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
+import UserToolbar from "../common/UserToolbar";
+import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
+import Terms from "./Terms";
+import ImageSlider from "../common/ImageSlider";
+import ItemBadges from "../common/ItemBadges";
+import axios from "axios";
 
 function ListingDetail() {
-  console.log(
-    "Notification state:",
-    useSelector((state) => state.notification)
-  );
+  const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
-  const [currentIndex, setCurrentIndex] = useState(1);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [showDurations, setShowDurations] = useState(null);
@@ -54,9 +58,12 @@ function ListingDetail() {
     loadingApprovedListingById,
     errorApprovedListingById,
   } = useSelector((state) => state.approvedListingById);
+  const { cartItems, loadingCart, successCartMessage, errorCartMessage } =
+    useSelector((state) => state.cart);
   const studentUser = useSelector(selectStudentUser);
   const rentalDates = approvedListingById.rentalDates || [];
   const [loading, setLoading] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
   const [expandTerm, setExpandTerm] = useState(false);
 
   const images = [
@@ -69,40 +76,15 @@ function ListingDetail() {
     itemImage4,
   ];
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchApprovedListingById(id));
-    }
-
-    //  gusto ko lang makita yung lading skeleton
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [dispatch, id]);
-
-  const nextImage = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-  };
-  const prevImage = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + images.length) % images.length
-    );
-  };
-  const highlightImage = (index) => {
-    setCurrentIndex(index);
-  };
-
   const handleDateClick = (dateId) => {
-    const formatDate = (d) => d.toLocaleDateString("en-CA"); // Uses ISO format YYYY-MM-DD
+    const formatDate = (d) => d.toLocaleDateString("en-CA");
 
     const selectedRentalDate = approvedListingById.rentalDates.find(
       (rentalDate) => rentalDate.id === dateId
     );
 
     if (selectedRentalDate && selectedRentalDate.durations) {
-      setSelectedDate(formatDate(new Date(selectedRentalDate.date))); // Format the date before setting it
+      setSelectedDate(formatDate(new Date(selectedRentalDate.date)));
       setShowDurations(selectedRentalDate.durations);
     }
   };
@@ -122,51 +104,114 @@ function ListingDetail() {
       alert("Please select a date and duration before offering.");
     }
   };
-  const handleConfirmOffer = async () => {
-    if (selectedDate && selectedDuration) {
-      try {
-        const response = await axios.post("http://localhost:3001/api/send");
-        alert("Email sent!");
-      } catch (err) {
-        alert(err);
+
+  const handleSelectDeliveryMethod = (method) => {};
+
+  const handleAddToCart = async (e, item) => {
+    e.stopPropagation();
+
+    const notify = (type, title, text) =>
+      dispatch(showNotification({ type, title, text }));
+
+    // Show loading notification
+    const loadingNotify = notify(
+      "info",
+      "Loading...",
+      "Adding item to cart..."
+    );
+
+    if (!selectedDate || !selectedDuration) {
+      // Remove the loading notification on error
+      dispatch(clearNotification(loadingNotify));
+      return notify("error", "Error", "Please select a date and duration.");
+    }
+
+    const selectedDateId = approvedListingById.rentalDates.find(
+      (rentalDate) => rentalDate.date === selectedDate
+    )?.id;
+
+    if (!selectedDateId) {
+      // Remove the loading notification on error
+      dispatch(clearNotification(loadingNotify));
+      return notify("error", "Error", "Invalid date selection.");
+    }
+
+    try {
+      await dispatch(
+        addCartItem({
+          userId: studentUser.userId,
+          ownerId: item.owner.id,
+          owner: { fname: item.owner.fname, lname: item.owner.lname },
+          itemType: item.itemType === TO_BUY ? "buy" : "rent",
+          dateId: selectedDateId,
+          durationId: selectedDuration.id,
+          itemId: item.id,
+          price: item.rate,
+          name: item.name,
+        })
+      ).unwrap();
+
+      const { successCartMessage, errorCartMessage, warningCartMessage } =
+        store.getState().cart;
+
+      if (successCartMessage) {
+        // Remove the loading notification and show success message
+        dispatch(clearNotification(loadingNotify));
+        notify("success", "Success!", successCartMessage);
+        dispatch(clearSuccessMessage());
       }
-    } else {
-      alert("Please select a date and duration before offering.");
+      if (warningCartMessage) {
+        // Remove the loading notification and show success message
+        dispatch(clearNotification(loadingNotify));
+        notify("warning", "Warning", warningCartMessage);
+        dispatch(clearSuccessMessage());
+      }
+
+      if (errorCartMessage) {
+        // Remove the loading notification and show error message
+        dispatch(clearNotification(loadingNotify));
+        notify("error", "Error", errorCartMessage);
+      }
+    } catch (error) {
+      console.error("Error adding item to cart:", error);
+      // Remove the loading notification and show error
+      dispatch(clearNotification(loadingNotify));
+      notify("error", "Error", "An unexpected error occurred.");
     }
   };
 
-  const getCollegeBadgeUrl = (college) => {
-    console.log(college);
+  const confirmRental = async () => {
+    const selectedDateId = approvedListingById.rentalDates.find(
+      (rentalDate) => rentalDate.date === selectedDate
+    )?.id;
 
-    // Check if college is defined and not null
-    if (college !== undefined && college !== null) {
-      try {
-        // Attempt to load the badge for the given college
-        return require(`../../../../assets/images/colleges/${college}.png`);
-      } catch (error) {
-        console.warn(
-          `College badge not found for: ${college}, using default badge.`
-        );
-        // Return default badge if specific badge is not found
-        return require(`../../../../assets/images/colleges/CAFA.png`);
-      }
-    } else {
-      // Return default badge if college is undefined or null
-      console.warn("College is undefined or null, using default badge.");
-      return require(`../../../../assets/images/colleges/CAFA.png`);
+    console.log(approvedListingById)
+
+    const rentalDetails = {
+      owner_id: approvedListingById.owner.id,
+      renter_id: studentUser.userId,
+      item_id: approvedListingById.id,
+      delivery_method: approvedListingById.deliveryMethod,
+      rental_date_id: selectedDateId,
+      rental_time_id: selectedDuration.id,
+    };
+    try {
+      await axios.post(
+        "http://localhost:3001/rental-transaction/add",
+        rentalDetails
+      );
+    } catch (error) {
+      return error;
     }
   };
 
-  const handleSelectDeliveryMethod = (method) => {
-    console.log(method);
-  };
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchApprovedListingById(id));
+    }
+  }, [id, dispatch]);
 
-  const handleExpandTerms = () => {
-    setExpandTerm(!expandTerm);
-  };
-
-   // Show notifications if error or no item found
-   useEffect(() => {
+  useEffect(() => {
     if (errorApprovedListingById) {
       dispatch(
         showNotification({
@@ -184,119 +229,47 @@ function ListingDetail() {
         })
       );
     }
-  }, [errorApprovedListingById, loadingApprovedListingById, approvedListingById, dispatch]);
 
+    if (
+      errorApprovedListingById ||
+      (!loadingApprovedListingById && !approvedListingById)
+    ) {
+      setRedirecting(true); // Start the redirect process
+      const timer = setTimeout(() => {
+        dispatch(
+          showNotification({
+            type: "loading",
+            title: "Redirecting",
+          })
+        );
+      }, 5000); // Show redirect notification after 5 seconds
 
-  if (loading) {
-    return (
-      <div className="container-content listing-detail">
-        <div className="listing-container">
-          <div className="imgs-container">
-            <Skeleton height={200} />
-            <Skeleton count={3} width={60} style={{ marginTop: "10px" }} />
-          </div>
-          <div className="rental-details">
-            <Skeleton width={100} height={30} />
-            <Skeleton count={2} height={20} style={{ marginTop: "10px" }} />
-            <Skeleton height={50} style={{ marginTop: "20px" }} />
-            <Skeleton height={20} style={{ marginTop: "10px" }} />
-            <Skeleton count={3} height={20} style={{ marginTop: "10px" }} />
-          </div>
-        </div>
-        <div className="listing-container owner-info">
-          <Skeleton width={60} height={60} circle />
-          <Skeleton width={120} height={20} style={{ marginTop: "10px" }} />
-          <Skeleton width={80} height={30} style={{ marginTop: "10px" }} />
-        </div>
-        <div className="listing-container post-desc">
-          <Skeleton width={200} height={20} />
-          <Skeleton count={4} height={20} style={{ marginTop: "10px" }} />
-        </div>
-      </div>
-    );
+      return () => clearTimeout(timer); // Clean up the timeout if dependencies change
+    }
+  }, [
+    errorApprovedListingById,
+    loadingApprovedListingById,
+    approvedListingById,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    if (redirecting) {
+      const redirectTimer = setTimeout(() => {
+        navigate(-1); // Redirect to previous page
+      }, 6000); // Wait 6 seconds before redirect
+
+      return () => clearTimeout(redirectTimer); // Clean up redirect timer
+    }
+  }, [redirecting, navigate]);
+
+  // Show loading skeleton if still loading or redirecting
+  if (loadingApprovedListingById || redirecting) {
+    return <LoadingItemDetailSkeleton />;
   }
-
-  if (errorApprovedListingById || !approvedListingById) {
-    return <div>No item available to display.</div>;
-  }
-
-  const handleAddToCart = async (e, item) => {
-    e.stopPropagation();
-
-    // Show loading notification
-    dispatch(
-      showNotification({
-        type: "loading",
-        title: "Processing...",
-        text: "Adding item to cart...",
-      })
-    );
-
-    // Validation checks
-    if (!selectedDate || !selectedDuration) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Error",
-          text: "Please select a date and duration before adding to cart.",
-        })
-      );
-      return;
-    }
-
-    const selectedDateId = approvedListingById.rentalDates.find(
-      (rentalDate) => rentalDate.date === selectedDate
-    )?.id;
-    if (!selectedDateId) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Error",
-          text: "Invalid date selection.",
-        })
-      );
-      return;
-    }
-
-    const selectedDurationId = selectedDuration.id;
-
-    try {
-      // Dispatch the action to add item to the cart
-      await dispatch(
-        addCartItem({
-          user_id: studentUser,
-          owner_id: item.owner.id,
-          transaction_type:
-            item.itemType === "FOR_RENT" ? "FOR_RENT" : "FOR_SALE",
-          date: selectedDateId,
-          duration: selectedDurationId,
-          item_id: item.id,
-          price: item.rate,
-        })
-      );
-
-      // Show success notification
-      dispatch(
-        showNotification({
-          type: "success",
-          title: "Success!",
-          text: "Item added to cart successfully!",
-        })
-      );
-    } catch (error) {
-      // Show error notification in case of failure
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Error",
-          text: "Failed to add item to cart.",
-        })
-      );
-    }
-  };
 
   return (
-    <div className="container-content post-detail">
+    <div className="container-content listing-detail">
       <div className="listing-container">
         <div className="imgs-container">
           <Tooltip
@@ -328,119 +301,15 @@ function ListingDetail() {
               className="item-type"
             />
           </Tooltip>
-          <div
-            className="highlight-bg"
-            style={{
-              backgroundImage: `url(${images[currentIndex]})`,
-            }}
-          ></div>
-
-          <div className="highlight">
-            <img
-              src={images[currentIndex]}
-              alt="Item"
-              className="highlight-img"
-            />
-          </div>
-          <div className="img-slider">
-            <div className="btn-slider prev-btn" onClick={prevImage}>
-              <img src={prevIcon} alt="Previous image" className="prev-btn" />
-            </div>
-            <img
-              src={images[(currentIndex - 2 + images.length) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex - 2) % images.length)}
-            />
-            <img
-              src={images[(currentIndex - 1 + images.length) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex - 1) % images.length)}
-            />
-            <img
-              src={images[currentIndex]}
-              alt="Item"
-              className="item-img center"
-            />
-            <img
-              src={images[(currentIndex + 1) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex + 1) % images.length)}
-            />
-            <img
-              src={images[(currentIndex + 2) % images.length]}
-              alt="Item"
-              className="item-img"
-              onClick={() => highlightImage((currentIndex + 2) % images.length)}
-            />
-            <div className="btn-slider next-btn" onClick={nextImage}>
-              <img src={nextIcon} alt="Next image" className="next-btn" />
-            </div>
-          </div>
+          <ImageSlider images={images} />
         </div>
-
         <div className="rental-details">
-          <div>
-            <div className="college-badge">
-              {approvedListingById?.owner?.college && (
-                <Tooltip
-                  title={`This item is from ${approvedListingById?.owner?.college}.`}
-                  placement="bottom"
-                  componentsProps={{
-                    popper: {
-                      modifiers: [
-                        {
-                          name: "offset",
-                          options: {
-                            offset: [0, 0],
-                          },
-                        },
-                      ],
-                    },
-                  }}
-                >
-                  {approvedListingById.owner.college && (
-                    <img
-                      src={getCollegeBadgeUrl(
-                        approvedListingById?.owner?.college ?? "CAFA"
-                      )}
-                      alt="College"
-                    />
-                  )}
-
-                  {approvedListingById.owner.college && (
-                    <span>{approvedListingById.owner.college}</span>
-                  )}
-                </Tooltip>
-              )}
-            </div>
-            <div className="category-badge">
-              <Tooltip
-                title={`This item is under ${approvedListingById.category} category.`}
-                placement="bottom"
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, 0],
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                {approvedListingById.category ? (
-                  <span>{approvedListingById.category}</span>
-                ) : (
-                  <span className="error-msg"></span>
-                )}
-              </Tooltip>
-            </div>
-          </div>
+          <ItemBadges
+            values={{
+              college: approvedListingById?.owner?.college,
+              category: approvedListingById.category,
+            }}
+          />
           <div className="item-title">
             <>
               <i>For rent </i>
@@ -506,6 +375,7 @@ function ListingDetail() {
                 }}
               />
             </div>
+
             <div className="duration-picker group-container">
               <strong>Available Durations:</strong>
               <div>
@@ -540,7 +410,6 @@ function ListingDetail() {
 
           <div className="group-container delivery-method ">
             <label className="label">Delivery Method</label>
-
             {approvedListingById.deliveryMethod ? (
               <Tooltip
                 title="Delivery method has been preselected by owner."
@@ -673,173 +542,97 @@ function ListingDetail() {
             </div>
           </div>
 
-          <div className={`group-container terms-group`}>
-            <label className="sub-section-label">
-              Terms and Condition{" "}
-              <button
-                className={`expand-btn ${expandTerm ? "expand" : ""}`}
-                onClick={handleExpandTerms}
-              >
-                <img src={expandIcon} alt="Expand terms and condition" />
-              </button>
-            </label>
-
-            {expandTerm && (
-              <div className="terms-popup">
-                <div className="term late-charges">
-                  <label className="label">Late Charges</label>
-                  <div>
-                    {approvedListingById.lateCharges ? (
-                      <span className="value">
-                        {approvedListingById.lateCharges}
-                      </span>
-                    ) : (
-                      <span className="error-msg">
-                        No late charges specified.
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="term deposit">
-                  <label className="label">Security Deposit</label>
-                  <div>
-                    {approvedListingById.securityDeposit ? (
-                      <span className="value">
-                        {approvedListingById.securityDeposit}
-                      </span>
-                    ) : (
-                      <span className="error-msg">
-                        No security deposit specified.
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="term repair-replacement">
-                  <label className="label">Repair and Replacement</label>
-                  <div>
-                    {approvedListingById.repairReplacement ? (
-                      <span className="value">
-                        {approvedListingById.repairReplacement}
-                      </span>
-                    ) : (
-                      <span className="error-msg">
-                        No repair and replacement specified.
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="listing-container owner-info">
-        <div className="user-link">
-          <img
-            src={userProfilePicture}
-            alt="Profile picture"
-            className="profile-avatar"
+          <Terms
+            values={{
+              lateCharges: approvedListingById.lateCharges,
+              securityDeposit: approvedListingById.securityDeposit,
+              repairReplacement: approvedListingById.repairReplacement,
+            }}
           />
-          <div>
-            <a href={``} className="username">
-              {approvedListingById.owner &&
-              approvedListingById.owner.fname &&
-              approvedListingById.owner.lname
-                ? `${approvedListingById.owner.fname} ${approvedListingById.owner.lname}`
-                : "You"}
-            </a>
-          </div>
-        </div>
-        <div className="rating-label">Rating</div>
-        <button className="btn btn-rectangle primary">View Listings</button>
-        <button className="btn btn-rectangle secondary">View Profile</button>
-      </div>
-
-      <div className="listing-container post-desc">
-        <label className="sub-section-label">Specifications</label>
-        <table className="specifications-table" role="table">
-          <tbody>
-            {(() => {
-              try {
-                const specs = approvedListingById.specs
-                  ? Object.entries(JSON.parse(approvedListingById.specs))
-                  : [];
-
-                if (specs.length === 0) {
-                  return (
-                    <span className="error-msg">
-                      No specifications available.
-                    </span>
-                  );
-                }
-
-                return specs.map(([key, value]) => (
-                  <tr key={key}>
-                    <td className="key">
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </td>
-                    <td className="value">{value}</td>
-                  </tr>
-                ));
-              } catch (error) {
-                return (
-                  <span className="error-msg">
-                    Error loading specifications.
-                  </span>
-                );
-              }
-            })()}
-          </tbody>
-        </table>
-        <label className="sub-section-label">Description</label>
-        <p>
-          {approvedListingById.desc &&
-          approvedListingById.tags !== "undefined" ? (
-            approvedListingById.desc
-          ) : (
-            <span className="error-msg">No description</span>
-          )}
-        </p>
-
-        <div className="tags-holder">
-          <i>Tags: </i>
-          {approvedListingById.tags &&
-          approvedListingById.tags !== "undefined" ? (
-            JSON.parse(approvedListingById.tags).map((tag, index) => (
-              <div key={index} className="tag">
-                {tag}
-              </div>
-            ))
-          ) : (
-            <span className="error-msg">No tags available</span>
-          )}
         </div>
       </div>
+
+      <UserToolbar user={approvedListingById.owner} />
+
+      <ItemDescAndSpecs
+        specs={approvedListingById.specs}
+        desc={approvedListingById.desc}
+        tags={approvedListingById.tags}
+      />
 
       {/* Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Offer</Modal.Title>
+          <Modal.Title>Confirm rent transaction</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            <strong>Date:</strong> {new Date(selectedDate).toDateString()}
-          </p>
-          <p>
-            <strong>Duration:</strong>
-            {selectedDuration
-              ? selectedDuration.timeFrom && selectedDuration.timeTo
-                ? `${selectedDuration.timeFrom} - ${selectedDuration.timeTo}`
-                : "Invalid duration"
-              : "Nooooooooooo"}
-          </p>
+          <div className="confirmation-modal">
+            <div className="item-card">
+              <div className="img-container">
+                <img
+                  src={images[0]}
+                  style={{ height: "100px", width: "100px" }}
+                  alt="Item image"
+                />
+              </div>
+              <div className="item-desc">
+                <span className="value">{approvedListingById.name}</span>
+                <span className="value">{approvedListingById.rate}</span>
+                <span className="label">
+                  Item Condition:{" "}
+                  <span className="value">
+                    {approvedListingById.itemCondition}
+                  </span>
+                </span>
+              </div>
+            </div>
+            <div className="rental-desc">
+              <span className="label">
+                Delivery Method:{" "}
+                <span className="value">
+                  {approvedListingById.deliveryMethod}
+                </span>{" "}
+              </span>
+              <span className="label">
+                Payment Method:{" "}
+                <span className="value">
+                  {approvedListingById.paymentMethod}
+                </span>
+              </span>
+
+              <span className="label">Date: </span>
+              <span className="label">Duration:</span>
+            </div>
+            <div className="terms-condition">
+              <span className="label">
+                Late Charges:{" "}
+                <span className="value">{approvedListingById.lateCharges}</span>
+              </span>
+              <span className="label">
+                Security Deposit:{" "}
+                <span className="value">
+                  {approvedListingById.securityDeposit}
+                </span>
+              </span>
+              <span className="label">
+                Repair and Replacement:{" "}
+                <span className="value">
+                  {approvedListingById.repairReplacement}
+                </span>
+              </span>
+            </div>
+            <span>
+              By confirming your rental, you agree to the platform's Policies,
+              Terms and Conditions, and the terms with the other party ("Owner")
+              (as shown above).
+            </span>
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={() => handleConfirmOffer()}>
+          <Button variant="primary" onClick={() => confirmRental()}>
             Confirm
           </Button>
         </Modal.Footer>

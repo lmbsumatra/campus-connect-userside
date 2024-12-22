@@ -2,21 +2,20 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createSelector } from "reselect";
 import axios from "axios";
 
-
 const BASE_URL = "http://localhost:3001/api/cart";
 
 const initialState = {
-  items: [],
+  cartItems: [],
   totalPrice: 0,
-  loading: false,
-  error: null,
-  successMessage: null,
+  loadingCart: false,
+  errorCartMessage: null,
+  successCartMessage: null,
 };
 
 export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { getState, rejectWithValue }) => {
-    const { studentUser } = getState().studentAuth; 
+    const { studentUser } = getState().studentAuth;
 
     if (!studentUser?.token) {
       return rejectWithValue("No token found");
@@ -25,9 +24,11 @@ export const fetchCart = createAsyncThunk(
     try {
       const response = await axios.get(`${BASE_URL}/get`, {
         headers: {
-          Authorization: `Bearer ${studentUser.token}`, 
+          Authorization: `Bearer ${studentUser.token}`,
         },
       });
+
+      console.log(response.data);
 
       return response.data; // Return fetched cart data
     } catch (error) {
@@ -35,48 +36,50 @@ export const fetchCart = createAsyncThunk(
     }
   }
 );
-
 export const addCartItem = createAsyncThunk(
   "cart/addCartItem",
-  async (item, { getState, rejectWithValue }) => {
-    const { studentUser } = getState().studentAuth; 
+  async (item, { getState, dispatch, rejectWithValue }) => {
+    const { studentUser } = getState().studentAuth;
 
     if (!studentUser?.token) {
       return rejectWithValue("No token found");
     }
 
-    try {
-      // Log token and item to verify they're correct
-      console.log("Token:", studentUser?.token);
-      console.log("Item data being sent:", item);
+    const { cartItems } = getState().cart; // Get the current cartItems from state
 
-      const response = await axios.post(`${BASE_URL}/add`, item, {
-        headers: {
-          Authorization: `Bearer ${studentUser.token}`, 
-        },
-      });
+    // Check if the item is already in the cart
+    const existingItem = cartItems.find(
+      (cartItem) =>
+        cartItem.itemId === item.itemId && cartItem.userId === item.userId
+    );
 
-      console.log("API response:", response);  // Log the full response
-      return response.data; 
-    } catch (error) {
-      // Log full error object for debugging
-      console.error("Error while adding item to cart:", error);
-      
-      return rejectWithValue(
-        error.response?.data || error.message || "Failed to add item to cart."
-      );
+    if (existingItem !== undefined) {
+      // If item already exists in cart, return 'existing' status
+      return { status: "existing", item: existingItem };
+    } else {
+      try {
+        // If item doesn't exist, proceed to add it to the cart
+        const response = await axios.post(`${BASE_URL}/add`, item, {
+          headers: {
+            Authorization: `Bearer ${studentUser.token}`,
+          },
+        });
+
+        return { status: "new", item: response.data }; // Return a new item
+      } catch (error) {
+        console.error("Error while adding item to cart:", error);
+        return rejectWithValue(
+          error.response?.data || error.message || "Failed to add item to cart."
+        );
+      }
     }
   }
 );
-
 
 export const removeCartItem = createAsyncThunk(
   "cart/removeCartItem",
   async (itemId, { getState, rejectWithValue }) => {
     const { studentUser } = getState().studentAuth;
-
-    console.log(itemId)
-
     if (!studentUser?.token) {
       return rejectWithValue("No token found");
     }
@@ -87,7 +90,7 @@ export const removeCartItem = createAsyncThunk(
           Authorization: `Bearer ${studentUser.token}`,
         },
       });
-      return itemId; 
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to remove item.");
     }
@@ -100,93 +103,121 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     clearCart: (state) => {
-      state.items = [];
+      state.cartItems = [];
       state.totalPrice = 0;
     },
     setSuccessMessage: (state, action) => {
-      state.successMessage = action.payload;
+      state.successCartMessage = action.payload;
     },
     clearSuccessMessage: (state) => {
-      state.successMessage = null;
+      state.successCartMessage = null;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCart.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.loadingCart = true;
+        state.errorCartMessage = null;
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = action.payload || [];
-        state.totalPrice = action.payload.totalPrice || 0;
+        state.loadingCart = false;
+        state.cartItems = action.payload || []; // Ensure cartItems is updated correctly
+        state.totalPrice = action.payload.totalPrice || 0; // Ensure totalPrice is correctly set
       })
+
       .addCase(fetchCart.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to fetch cart.";
+        state.loadingCart = false;
+        state.errorCartMessage = action.payload || "Failed to fetch cart.";
       });
 
     builder
       .addCase(addCartItem.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.successMessage = null; 
+        state.loadingCart = true;
+        state.errorCartMessage = null;
+        state.warningCartMessage = null;
+        state.successCartMessage = null;
+        // Do not reset the success message here.
       })
       .addCase(addCartItem.fulfilled, (state, action) => {
-        state.loading = false;
-        const newItem = action.payload;
-        const existingItem = state.items.find((i) => i.id === newItem.id);
+        state.loadingCart = false;
+        const { status, item } = action.payload;
+        console.log(status, item);
 
-        if (existingItem) {
-          existingItem.quantity += 1;
-        } else {
-          state.items.push({ ...newItem, quantity: 1 });
+        if (status === "existing") {
+          // Don't modify the cart if the item is already there
+          state.warningCartMessage = "Item already added to cart!";
+        } else if (status === "new") {
+          // Add the item to the cart if it doesn't already exist
+          state.cartItems.push({ ...item });
+          state.successCartMessage = "Item added to cart successfully!";
         }
 
-        state.totalPrice = state.items.reduce(
-          (total, item) => total + item.price * item.quantity,
+        // Recalculate the total price by summing all cartItems in the cart
+        state.totalPrice = state.cartItems.reduce(
+          (total, item) => total + item.price,
           0
         );
-        state.successMessage = "Item added to cart successfully!"; 
       })
+
       .addCase(addCartItem.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to add item to cart.";
-        state.successMessage = null; 
+        console.log(action.payload, "HERE");
+        state.loadingCart = false;
+        state.errorCartMessage = action.payload;
+        // Clear the success message only if action fails
+        state.successCartMessage = null;
       });
 
     builder
       .addCase(removeCartItem.pending, (state) => {
-        state.loading = true;
-        state.successMessage = null;
+        state.loadingCart = true;
+        // Do not reset the success message here.
       })
       .addCase(removeCartItem.fulfilled, (state, action) => {
-        const itemId = action.payload;
-        const itemToRemove = state.items.find((i) => i.id === itemId);
+        const { itemId } = action.payload;
+
+        const itemToRemove = state.cartItems.find(
+          (item) => item.itemId === itemId
+        );
 
         if (itemToRemove) {
+          // Deduct the price of the item to be removed from the total price
           state.totalPrice -= itemToRemove.price * itemToRemove.quantity;
-          state.items = state.items.filter((item) => item.id !== itemId);
+
+          // Remove the item from the cart
+          state.cartItems = state.cartItems.filter(
+            (item) => item.itemId !== itemId // Ensure you use correct property
+          );
+
+          // Recalculate the total price
+          state.totalPrice = state.cartItems.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+          );
+
+          // Set success message
+          state.successCartMessage = "Item removed successfully!";
+        } else {
+          console.error("Item not found in cart:", itemId);
         }
 
-        state.loading = false;
-        state.successMessage = "Item removed successfully!";
+        state.loadingCart = false;
       })
       .addCase(removeCartItem.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to remove item.";
-        state.successMessage = null;
+        state.loadingCart = false;
+        state.errorCartMessage = action.payload || "Failed to remove item.";
+        // Clear the success message only if action fails
+        state.successCartMessage = null;
       });
   },
 });
 
-
 // Selectors
 const selectCart = (state) => state.cart;
+console.log(initialState.cartItems);
 
 export const selectCartItems = createSelector(
   [selectCart],
-  (cart) => cart.items
+  (cart) => cart.cartItems // Use cartItems, not items
 );
 export const selectTotalPrice = createSelector(
   [selectCart],
@@ -194,15 +225,15 @@ export const selectTotalPrice = createSelector(
 );
 export const selectCartLoading = createSelector(
   [selectCart],
-  (cart) => cart.loading
+  (cart) => cart.loadingCart
 );
 export const selectCartError = createSelector(
   [selectCart],
-  (cart) => cart.error
+  (cart) => cart.errorCartMessage
 );
 export const selectCartSuccessMessage = createSelector(
   [selectCart],
-  (cart) => cart.successMessage
+  (cart) => cart.successCartMessage
 );
 
 // Export actions
