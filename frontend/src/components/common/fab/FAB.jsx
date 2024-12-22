@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import createPostIcon from "../../../assets/images/fab/POSTS.svg";
 import addItemIcon from "../../../assets/images/fab/RENTALS.svg";
 import cartIcon from "../../../assets/images/fab/cart.svg";
-import Cart from "./Cart";
+import Cart from "../../../pages/private/users/cart/Cart";
 
 const FAB = ({ cartItems }) => {
   const navigate = useNavigate();

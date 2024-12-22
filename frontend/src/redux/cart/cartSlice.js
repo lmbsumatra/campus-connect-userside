@@ -46,26 +46,36 @@ export const addCartItem = createAsyncThunk(
     }
 
     try {
+      // Log token and item to verify they're correct
+      console.log("Token:", studentUser?.token);
+      console.log("Item data being sent:", item);
+
       const response = await axios.post(`${BASE_URL}/add`, item, {
         headers: {
           Authorization: `Bearer ${studentUser.token}`, 
         },
       });
 
-      console.log(response.data);
+      console.log("API response:", response);  // Log the full response
       return response.data; 
     } catch (error) {
+      // Log full error object for debugging
+      console.error("Error while adding item to cart:", error);
+      
       return rejectWithValue(
-        error.response?.data || "Failed to add item to cart."
+        error.response?.data || error.message || "Failed to add item to cart."
       );
     }
   }
 );
 
+
 export const removeCartItem = createAsyncThunk(
   "cart/removeCartItem",
   async (itemId, { getState, rejectWithValue }) => {
     const { studentUser } = getState().studentAuth;
+
+    console.log(itemId)
 
     if (!studentUser?.token) {
       return rejectWithValue("No token found");

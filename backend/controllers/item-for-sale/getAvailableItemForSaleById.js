@@ -1,9 +1,8 @@
 const { models } = require("../../models/index");
-
-// Get a single approved post by ID with associated available rental dates, available durations, and renter info
-const getAvailablePostById = async (req, res) => {
+// Get a single approved item by ID with associated rental dates, durations, and renter info
+const getAvailableItemForSaleById = async (req, res) => {
   try {
-    const post = await models.Post.findOne({
+    const item = await models.ItemForSale.findOne({
       where: {
         id: req.params.id,
         status: "approved", // Ensures only "approved" items are fetched
@@ -11,10 +10,9 @@ const getAvailablePostById = async (req, res) => {
       include: [
         {
           model: models.Date,
-          as: "rental_dates",
+          as: "available_dates",
           where: {
             status: "available", // Ensures only "available" rental dates are included
-            item_type: "post",
           },
           include: [
             {
@@ -28,7 +26,7 @@ const getAvailablePostById = async (req, res) => {
         },
         {
           model: models.User,
-          as: "renter",
+          as: "seller",
           include: [
             {
               model: models.Student,
@@ -39,26 +37,27 @@ const getAvailablePostById = async (req, res) => {
       ],
     });
 
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+    if (!item) {
+      return res.status(404).json({ error: "Item not found why" });
     }
 
-    // Format the response to flatten fields like item_name, price, etc.
-    const formattedPost = {
-      id: post.id,
-      name: post.post_item_name,
-      tags: post.tags,
-      price: post.price,
-      createdAt: post.created_at,
-      status: post.status,
-      category: post.category,
-      itemType: "To Rent",
-      desc: post.description,
-      specs: post.specifications,
-      college: post.category,
-      rentalDates: post.rental_dates.map((date) => ({
+    const formattedItem = {
+      id: item.id,
+      name: item.item_for_sale_name,
+      tags: item.tags,
+      price: item.price,
+      createdAt: item.created_at,
+      deliveryMethod: item.delivery_mode,
+      itemCondition: item.item_condition,
+      paymentMethod: item.payment_mode,
+      status: item.status,
+      category: item.category,
+      itemType: "For Sale",
+      desc: item.description,
+      specs: item.specifications,
+      rentalDates: item.available_dates.map((date) => ({
         id: date.id,
-        postId: date.post_id,
+        itemId: date.item_id,
         date: date.date,
         status: date.status,
         durations: date.durations.map((duration) => ({
@@ -69,18 +68,19 @@ const getAvailablePostById = async (req, res) => {
           status: duration.status,
         })),
       })),
-      renter: {
-        id: post.renter_id,
-        fname: post.renter.first_name,
-        lname: post.renter.last_name,
+      seller: {
+        id: item.renter_id,
+        fname: item.seller.first_name,
+        lname: item.seller.last_name,
+        college: item.seller.student.college,
       },
     };
 
-    res.status(200).json(formattedPost);
+    res.status(200).json(formattedItem);
   } catch (error) {
-    console.error("Error fetching post:", error);
+    console.error("Error fetching item:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = getAvailablePostById;
+module.exports = getAvailableItemForSaleById;

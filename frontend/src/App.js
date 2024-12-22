@@ -19,12 +19,10 @@ import store from "../src/store/store";
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
 import Home from "./pages/public/Home.js";
 import Profile from "./pages/private/users/student-profile/Profile.js";
-import ViewPost from "./pages/private/users/post/PostDetail.js";
 import AddPost from "./pages/private/users/new-post/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/RentProgress.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
-import ViewListing from "./pages/private/users/ViewListing.js";
 import AddListing from "./pages/private/users/new-listing/AddListing.js";
 import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
 import Footer from "./components/users/footer/Footer.jsx";
@@ -32,11 +30,9 @@ import Admin from "./pages/private/admin/Admin.js";
 import AdminDashboard from "./pages/private/admin/dashboard/admindashboard/AdminDashboard.js";
 import Rent from "./pages/public/Rent.js";
 import Lend from "./pages/public/Lend.js";
-import Shop from "./pages/public/Shop.js";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import AdminSettings from "./pages/private/admin/settings/AdminSettings.js";
 import AdminLogin from "./pages/private/admin/login/AdminLogin.js";
-import ViewItem from "./pages/private/users/ViewItem.js";
 
 // Post Management Dashboard - ADMIN
 import PostDashboard from "./pages/private/admin/PostManagement/PostDashboard.js";
@@ -67,8 +63,11 @@ import Trial from "./trials/Trial.js";
 import ChatAndNotif from "./trialOnMessage&Notification/ChatAndNotif.jsx";
 import Trial2 from "./trials/Trial2.js";
 import FAB from "./components/common/fab/FAB.jsx";
-import Cart from "./components/common/fab/Cart.js";
+import Cart from "./pages/private/users/cart/Cart.js";
 import PostDetail from "./pages/private/users/post/PostDetail.js";
+import ListingDetail from "./pages/private/users/listing/ListingDetail.js";
+import ItemForSaleDetail from "./pages/private/users/item-for-sale/ItemForSaleDetail.js";
+import Shop from "./pages/public/Shop.js";
 
 function App() {
   console.log(baseApi);
@@ -179,13 +178,14 @@ function Content() {
         <Route path="/home" element={<Home />} />
         <Route path="/rent" element={<Rent />} />
         <Route path="/lend" element={<Lend />} />
-        <Route path="/shop" element={<Shop />} />
+        <Route path="/lend" element={<Shop />} />
+       
 
         {/* PRIVATE ROUTES */}
 
         {/* PRIVATE STUDENT ROUTES */}
         <Route
-          path="/lend/:id"
+          path="/post/:id"
           element={
             <StudentProtectedRoute allowedRoles="student">
               <PostDetail />
@@ -195,21 +195,17 @@ function Content() {
         <Route
           path="/rent/:id"
           element={
-            <div className="container-content">
-              <StudentProtectedRoute allowedRoles="student">
-                <ViewListing />
-              </StudentProtectedRoute>
-            </div>
+            <StudentProtectedRoute allowedRoles="student">
+              <ListingDetail />
+            </StudentProtectedRoute>
           }
         />
         <Route
-          path="/item-for-sale/:id"
+          path="/shop/:id"
           element={
-            <div className="container-content">
-              <StudentProtectedRoute allowedRoles="student">
-                <ViewItem />
-              </StudentProtectedRoute>
-            </div>
+            <StudentProtectedRoute allowedRoles="student">
+              <ItemForSaleDetail />
+            </StudentProtectedRoute>
           }
         />
         <Route

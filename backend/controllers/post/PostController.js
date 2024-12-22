@@ -1,9 +1,9 @@
 const getAllAvailablePost = require("./getAllAvailablePost.js");
 const getAvailablePostById = require("./getAvailablePostById.js");
 
-const LookingForRentController = {
+const PostController = {
   getAllAvailablePost,
   getAvailablePostById,
 };
 
-module.exports =  LookingForRentController;
+module.exports =  PostController;

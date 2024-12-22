@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { baseApi } from "../../App";
 
 // Component Imports
-import ItemList from "../../components/itemlisting/ItemList";
+import ItemList from "../../components/item-card/ItemCard";
 
 // Hook Imports
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";

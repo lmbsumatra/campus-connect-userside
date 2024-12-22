@@ -5,7 +5,7 @@ import axios from "axios";
 import Header from "../../components/users/header/Header";
 import Subheader from "../../components/common/subheader/Subheader";
 import Categories from "../../components/common/categories/Categories";
-import ItemList from "../../components/itemlisting/ItemList";
+import ItemList from "../../components/item-card/ItemCard";
 import Banner from "../../components/users/banner/Banner";
 import BorrowingPost from "../../components/post-card/PostCard";
 import FAB from "../../components/common/fab/FAB";
@@ -15,6 +15,8 @@ import { baseApi } from "../../App";
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
+import PostCard from "../../components/post-card/PostCard";
+import ItemCard from "../../components/item-card/ItemCard";
 
 function Home() {
   const dispatch = useDispatch();
@@ -55,7 +57,7 @@ function Home() {
       <div className="container-content">
         {errorListings && <p>Error loading listings: {errorListings}</p>}
         {loadingListings && <p>Loading listings...</p>}
-        <ItemList items={listings} title="Listings" />
+        <ItemCard items={listings} title="Listings" />
       </div>
       {/* For sale items Section */}
       <div className="container-content">
@@ -63,7 +65,7 @@ function Home() {
           <p>Error loading listings: {errorItemsforsale}</p>
         )}
         {loadingItemsforsale && <p>Loading listings...</p>}
-        <ItemList items={itemsforsale} title="For sale" />
+        <ItemCard items={itemsforsale} title="For sale" />
       </div>
 
       {/* Banner Section */}
@@ -75,7 +77,7 @@ function Home() {
           <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>
         )}
         {loadingAllApprovedPosts && <p>Loading borrowing posts...</p>}
-        <BorrowingPost borrowingPosts={allApprovedPosts} title="Lend" />
+        <PostCard borrowingPosts={allApprovedPosts} title="Lend" />
       </div>
     </div>
   );

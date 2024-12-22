@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchApprovedPostById } from "../../../../redux/post/approvedPostByIdSlice";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import { useAuth } from "../../../../context/AuthContext";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
-import Skeleton from "react-loading-skeleton"; // Import Skeleton
-import "react-loading-skeleton/dist/skeleton.css"; // Import skeleton styles
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css"; 
 
 import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";
 import prevIcon from "../../../../assets/images/pdp/prev.svg";
@@ -19,14 +17,22 @@ import itemImage2 from "../../../../assets/images/item/item_2.jpg";
 import itemImage3 from "../../../../assets/images/item/item_3.jpg";
 import itemImage4 from "../../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
-import "./postDetailStyles.css";
+import forSaleIcon from "../../../../assets/images/card/buy.svg";
+import "./itemForSaleDetailStyles.css";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
 import axios from "axios";
+import {
+  FOR_RENT,
+  FOR_SALE,
+  MEET_UP,
+  PICK_UP,
+} from "../../../../utils/consonants";
+import { fetchApprovedItemForSaleById } from "../../../../redux/item-for-sale/approvedItemForSaleByIdSlice";
 
-function PostDetail() {
+function ItemForSaleDetail() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const [currentIndex, setCurrentIndex] = useState(1);
@@ -34,12 +40,16 @@ function PostDetail() {
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [showDurations, setShowDurations] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const { approvedPostById, loadingApprovedPostById, errorApprovedPostById } =
-    useSelector((state) => state.approvedPostById);
+  const {
+    approvedItemForSaleById,
+    loadingApprovedItemForSaleById,
+    errorApprovedItemForSaleById,
+  } = useSelector((state) => state.approvedItemForSaleById);
   const studentUser = useSelector(selectStudentUser);
   const { userId } = studentUser;
-  const rentalDates = approvedPostById.rentalDates || [];
+  const rentalDates = approvedItemForSaleById.rentalDates || [];
   const [loading, setLoading] = useState(true);
+  const [expandTerm, setExpandTerm] = useState(false);
 
   const images = [
     itemImage1,
@@ -53,12 +63,13 @@ function PostDetail() {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchApprovedPostById(id));
+      dispatch(fetchApprovedItemForSaleById(id));
     }
 
+    //  gusto ko lang makita yung lading skeleton
     const timer = setTimeout(() => {
-      setLoading(false); // After 5 seconds, set loading to false to show content
-    }, 5000); // 5000ms = 5 seconds
+      setLoading(false);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [dispatch, id]);
@@ -76,7 +87,7 @@ function PostDetail() {
   };
 
   const handleDateClick = (dateId) => {
-    const selectedRentalDate = approvedPostById.rentalDates.find(
+    const selectedRentalDate = approvedItemForSaleById.rentalDates.find(
       (rentalDate) => rentalDate.id === dateId
     );
 
@@ -89,8 +100,6 @@ function PostDetail() {
   const handleSelectDuration = (duration) => {
     setSelectedDuration(duration);
   };
-
-  console.log(selectedDate, showDurations);
 
   const availableDates = rentalDates
     .filter((rentalDate) => rentalDate.status === "available")
@@ -124,10 +133,15 @@ function PostDetail() {
     }
   };
 
+  const handleSelectDeliveryMethod = (method) => {
+    console.log(method);
+  };
+
+
   if (loading) {
     return (
       <div className="container-content post-detail">
-        <div className="post-container">
+        <div className="itemforsale-container">
           <div className="imgs-container">
             <Skeleton height={200} />
             <Skeleton count={3} width={60} style={{ marginTop: "10px" }} />
@@ -140,12 +154,12 @@ function PostDetail() {
             <Skeleton count={3} height={20} style={{ marginTop: "10px" }} />
           </div>
         </div>
-        <div className="post-container renter-info">
+        <div className="itemforsale-container owner-info">
           <Skeleton width={60} height={60} circle />
           <Skeleton width={120} height={20} style={{ marginTop: "10px" }} />
           <Skeleton width={80} height={30} style={{ marginTop: "10px" }} />
         </div>
-        <div className="post-container post-desc">
+        <div className="itemforsale-container post-desc">
           <Skeleton width={200} height={20} />
           <Skeleton count={4} height={20} style={{ marginTop: "10px" }} />
         </div>
@@ -153,27 +167,31 @@ function PostDetail() {
     );
   }
 
-  if (errorApprovedPostById) {
-    return <p>Error: {errorApprovedPostById}</p>;
+  if (errorApprovedItemForSaleById) {
+    return <p>Error: {errorApprovedItemForSaleById}</p>;
   }
 
-  if (!approvedPostById) {
+  if (!approvedItemForSaleById) {
     return <p>Item not found</p>;
   }
 
   return (
     <div className="container-content post-detail">
-      <div className="post-container">
+      <div className="itemforsale-container">
         <div className="imgs-container">
           <Tooltip
-            title={"This is a tooltip"}
+            title={`This item is ${
+              approvedItemForSaleById.itemType === FOR_RENT
+                ? FOR_RENT
+                : FOR_SALE
+            }`}
             componentsProps={{
               popper: {
                 modifiers: [
                   {
                     name: "offset",
                     options: {
-                      offset: [0, -10],
+                      offset: [0, 0],
                     },
                   },
                 ],
@@ -181,8 +199,16 @@ function PostDetail() {
             }}
           >
             <img
-              src={forRentIcon}
-              alt={`Item is for rent`}
+              src={
+                approvedItemForSaleById.itemType === FOR_RENT
+                  ? forRentIcon
+                  : forSaleIcon
+              }
+              alt={
+                approvedItemForSaleById.itemType === FOR_RENT
+                  ? FOR_RENT
+                  : FOR_SALE
+              }
               className="item-type"
             />
           </Tooltip>
@@ -244,8 +270,8 @@ function PostDetail() {
             <div className="college-badge">
               <Tooltip
                 title={`This item is from ${
-                  approvedPostById?.renter?.college
-                    ? approvedPostById.renter.college
+                  approvedItemForSaleById?.seller?.college
+                    ? approvedItemForSaleById.seller.college
                     : ""
                 }.`}
                 placement="bottom"
@@ -264,21 +290,21 @@ function PostDetail() {
               >
                 <img
                   src={getCollegeBadgeUrl(
-                    approvedPostById?.renter?.college
-                      ? approvedPostById.renter.college
+                    approvedItemForSaleById?.seller?.college
+                      ? approvedItemForSaleById.seller.college
                       : ""
                   )}
                   alt="College"
                   style={{ height: "24px", width: "24px" }}
                 />
-                {approvedPostById?.renter?.college
-                  ? approvedPostById.renter.college
+                {approvedItemForSaleById?.seller?.college
+                  ? approvedItemForSaleById.seller.college
                   : ""}
               </Tooltip>
             </div>
             <div className="category-badge">
               <Tooltip
-                title={`This item is under ${approvedPostById.category} category.`}
+                title={`This item is under ${approvedItemForSaleById.category} category.`}
                 placement="bottom"
                 componentsProps={{
                   popper: {
@@ -293,8 +319,8 @@ function PostDetail() {
                   },
                 }}
               >
-                {approvedPostById.category ? (
-                  <span>{approvedPostById.category}</span>
+                {approvedItemForSaleById.category ? (
+                  <span>{approvedItemForSaleById.category}</span>
                 ) : (
                   <span className="error-msg">No category</span>
                 )}
@@ -302,14 +328,21 @@ function PostDetail() {
             </div>
           </div>
           <div className="item-title">
-            <p>
-              <i>Looking for </i>
-              {approvedPostById.name ? (
-                <span className="title">{approvedPostById.name}</span>
+            <>
+              <i>For rent </i>
+              {approvedItemForSaleById.name ? (
+                <span className="title">{approvedItemForSaleById.name}</span>
               ) : (
                 <span className="error-msg">No available name.</span>
               )}
-            </p>
+            </>
+          </div>
+          <div className="item-price">
+            {approvedItemForSaleById.price ? (
+              <span className="price">₱ {approvedItemForSaleById.price}</span>
+            ) : (
+              <span className="error-msg">No available price.</span>
+            )}
           </div>
           <div className="action-btns">
             <button className="btn btn-rectangle secondary">Message</button>
@@ -317,13 +350,17 @@ function PostDetail() {
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
             >
-              Offer
+              {approvedItemForSaleById.itemType === FOR_RENT ? "Rent" : "Buy"}
             </button>
           </div>
           <hr />
           <div className="rental-dates-durations">
             <div className="date-picker">
-              <span>Pick a date to offer:</span>
+              <span>
+                Pick a date to{" "}
+                {approvedItemForSaleById.itemType === FOR_RENT ? "rent" : "buy"}
+                :
+              </span>
               <DatePicker
                 inline
                 selected={selectedDate ? new Date(selectedDate) : null}
@@ -358,7 +395,7 @@ function PostDetail() {
                 }}
               />
             </div>
-            <div className="duration-picker">
+            <div className="duration-picker group-container">
               <strong>Available Durations:</strong>
               <div>
                 {selectedDate ? (
@@ -389,10 +426,145 @@ function PostDetail() {
               </div>
             </div>
           </div>
+
+          <div className="group-container delivery-method ">
+            <label className="label">Delivery Method</label>
+
+            {approvedItemForSaleById.deliveryMethod ? (
+              <Tooltip
+                title="Delivery method has been preselected by owner."
+                placement="bottom"
+                componentsProps={{
+                  popper: {
+                    modifiers: [
+                      {
+                        name: "offset",
+                        options: {
+                          offset: [0, -10],
+                        },
+                      },
+                    ],
+                  },
+                }}
+              >
+                <span className="value selected">
+                  {approvedItemForSaleById.deliveryMethod}
+                </span>
+              </Tooltip>
+            ) : (
+              <div className="delivery-method">
+                <Tooltip
+                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                  placement="bottom"
+                  componentsProps={{
+                    popper: {
+                      modifiers: [
+                        {
+                          name: "offset",
+                          options: {
+                            offset: [0, -10],
+                          },
+                        },
+                      ],
+                    },
+                  }}
+                >
+                  <div className="action-btns">
+                    <button
+                      className={`value ${
+                        approvedItemForSaleById.deliveryMethod === MEET_UP
+                          ? "selected"
+                          : ""
+                      }`}
+                      onClick={() => handleSelectDeliveryMethod("meetup")}
+                    >
+                      Meet up
+                    </button>
+                    <button
+                      className={`value ${
+                        approvedItemForSaleById.deliveryMethod === PICK_UP
+                          ? "selected"
+                          : ""
+                      }`}
+                      onClick={() => handleSelectDeliveryMethod("pickup")}
+                    >
+                      Pick up
+                    </button>
+                  </div>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+
+          <div className="group-container payment-method ">
+            <label className="label">Payment Method</label>
+
+            {approvedItemForSaleById.paymentMethod ? (
+              <Tooltip
+                title="Delivery method has been preselected by owner."
+                placement="bottom"
+                componentsProps={{
+                  popper: {
+                    modifiers: [
+                      {
+                        name: "offset",
+                        options: {
+                          offset: [0, -10],
+                        },
+                      },
+                    ],
+                  },
+                }}
+              >
+                <span className="value selected">
+                  {approvedItemForSaleById.paymentMethod}
+                </span>
+              </Tooltip>
+            ) : (
+              <div className="delivery-method">
+                <Tooltip
+                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                  placement="bottom"
+                >
+                  <div className="action-btns">
+                    <button
+                      className="value selected"
+                      onClick={() => handleSelectDeliveryMethod("meetup")}
+                    >
+                      Pay upon Meet up
+                    </button>
+                    <button
+                      className={`value ${
+                        approvedItemForSaleById.paymentMethod === PICK_UP
+                          ? "selected"
+                          : ""
+                      }`}
+                      onClick={() => handleSelectDeliveryMethod("pickup")}
+                    >
+                      Gcash
+                    </button>
+                  </div>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+
+          <div className="group-container item-condition">
+            <label className="label">Item Condition</label>
+            <div>
+              {approvedItemForSaleById.itemCondition ? (
+                <span className="value">
+                  {approvedItemForSaleById.itemCondition}
+                </span>
+              ) : (
+                <span className="error-msg">No item condition specified.</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="post-container renter-info">
+      <div className="itemforsale-container owner-info">
         <div className="user-link">
           <img
             src={userProfilePicture}
@@ -401,10 +573,10 @@ function PostDetail() {
           />
           <div>
             <a href={``} className="username">
-              {approvedPostById.renter &&
-              approvedPostById.renter.fname &&
-              approvedPostById.renter.lname
-                ? `${approvedPostById.renter.fname} ${approvedPostById.renter.lname}`
+              {approvedItemForSaleById.owner &&
+              approvedItemForSaleById.owner.fname &&
+              approvedItemForSaleById.owner.lname
+                ? `${approvedItemForSaleById.owner.fname} ${approvedItemForSaleById.owner.lname}`
                 : "You"}
             </a>
           </div>
@@ -414,21 +586,21 @@ function PostDetail() {
         <button className="btn btn-rectangle secondary">View Profile</button>
       </div>
 
-      <div className="post-container post-desc">
+      <div className="itemforsale-container post-desc">
         <label className="sub-section-label">Specifications</label>
         <table className="specifications-table" role="table">
           <tbody>
             {(() => {
               try {
-                const specs = approvedPostById.specs
-                  ? Object.entries(JSON.parse(approvedPostById.specs))
+                const specs = approvedItemForSaleById.specs
+                  ? Object.entries(JSON.parse(approvedItemForSaleById.specs))
                   : [];
 
                 if (specs.length === 0) {
                   return (
-                    <tr>
-                      <td colSpan="2">No specifications available.</td>
-                    </tr>
+                    <span className="error-msg">
+                      No specifications available.
+                    </span>
                   );
                 }
 
@@ -441,29 +613,36 @@ function PostDetail() {
                   </tr>
                 ));
               } catch (error) {
-                console.error("Failed to parse specs:", error);
                 return (
-                  <tr>
-                    <td colSpan="2">Error loading specifications.</td>
-                  </tr>
+                  <span className="error-msg">
+                    Error loading specifications.
+                  </span>
                 );
               }
             })()}
           </tbody>
         </table>
         <label className="sub-section-label">Description</label>
-        <p>{approvedPostById.desc}</p>
+        <p>
+          {approvedItemForSaleById.desc &&
+          approvedItemForSaleById.tags !== "undefined" ? (
+            approvedItemForSaleById.desc
+          ) : (
+            <span className="error-msg">No description</span>
+          )}
+        </p>
 
         <div className="tags-holder">
           <i>Tags: </i>
-          {approvedPostById.tags && approvedPostById.tags !== "undefined" ? (
-            JSON.parse(approvedPostById.tags).map((tag, index) => (
+          {approvedItemForSaleById.tags &&
+          approvedItemForSaleById.tags !== "undefined" ? (
+            JSON.parse(approvedItemForSaleById.tags).map((tag, index) => (
               <div key={index} className="tag">
                 {tag}
               </div>
             ))
           ) : (
-            <p>No tags available</p>
+            <span className="error-msg">No tags available</span>
           )}
         </div>
       </div>
@@ -499,4 +678,4 @@ function PostDetail() {
   );
 }
 
-export default PostDetail;
+export default ItemForSaleDetail;

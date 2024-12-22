@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import moreImg from "../../assets/images/icons/moreImg.png";
-import "./itemStyles.css";
+import "./itemCardStyles.css";
 import { useNavigate } from "react-router-dom";
 import item1 from "../../assets/images/item/item_1.jpg";
 import flagIcon from "../../assets/images/card/flag.svg";
@@ -10,11 +10,15 @@ import cartIcon from "../../assets/images/card/cart.svg";
 import moreIcon from "../../assets/images/card/more.svg";
 import forRentIcon from "../../assets/images/card/rent.svg";
 import forSaleIcon from "../../assets/images/card/buy.svg";
+import { addCartItem } from "../../redux/cart/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectStudentUser } from "../../redux/auth/studentAuthSlice";
 
-const ItemList = ({ items, title, isProfileVisit }) => {
+const ItemCard = ({ items, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
   const navigate = useNavigate();
+ 
 
   console.log(items);
 
@@ -35,8 +39,18 @@ const ItemList = ({ items, title, isProfileVisit }) => {
     }
   };
 
-  const handleCardClick = ({ id }) => {
-    navigate(`/rent/${id}`); // Navigate to the link when the card is clicked
+  const handleCardClick = (item) => {
+    if (item.itemType === "Rent") navigate(`/rent/${item.id}`);
+    // Navigate to the link when the card is clicked
+    else if (item.itemType === "Sale") {
+      navigate(`/shop/${item.id}`);
+    }
+  };
+
+  const handleAddToCart = (e, item) => {
+    e.stopPropagation();
+
+
   };
 
   return (
@@ -166,13 +180,17 @@ const ItemList = ({ items, title, isProfileVisit }) => {
         </div>
         {items.length > 0 ? (
           items.map((item, index) => {
-
             return (
-              <div className="card variant-1">
+              <div
+                className="card variant-1"
+                onClick={(e) => handleCardClick(item)}
+              >
                 <div className="img-holder">
                   <img src={item1} alt={`${item1}`} className="img" />
                   <Tooltip
-                    title={`${item.name} is for ${item.itemType === "Rent"? "rent" : "sale"}.`}
+                    title={`${item.name} is for ${
+                      item.itemType === "Rent" ? "rent" : "sale"
+                    }.`}
                     componentsProps={{
                       popper: {
                         modifiers: [
@@ -187,7 +205,7 @@ const ItemList = ({ items, title, isProfileVisit }) => {
                     }}
                   >
                     <img
-                      src={item.itemType === "Rent"? forRentIcon : forSaleIcon}
+                      src={item.itemType === "Rent" ? forRentIcon : forSaleIcon}
                       alt={`${item1} is for rent`}
                       className="item-type"
                     />
@@ -224,10 +242,17 @@ const ItemList = ({ items, title, isProfileVisit }) => {
                     </Tooltip>
                   </div>
                   <p className="item-name">{item.name}</p>
-                  <p className="item-price">P{item.price} {item.itemType === "Rent"? "per hour" : ""}</p>
+                  <p className="item-price">
+                    P{item.price} {item.itemType === "Rent" ? "per hour" : ""}
+                  </p>
                   <div className="action-btns">
-                    <button className="btn btn-rectangle primary">{item.itemType === "Rent"? "Rent" : "Buy"}</button>
-                    <button className="btn-icon">
+                    <button className="btn btn-rectangle primary">
+                      {item.itemType === "Rent" ? "Rent" : "Buy"}
+                    </button>
+                    <button
+                      className="btn-icon"
+                      onClick={(e) => handleAddToCart(e, item)}
+                    >
                       <img src={cartIcon} alt="Add to cart" />
                     </button>
                     <button className="btn-icon option">
@@ -246,4 +271,4 @@ const ItemList = ({ items, title, isProfileVisit }) => {
   );
 };
 
-export default ItemList;
+export default ItemCard;

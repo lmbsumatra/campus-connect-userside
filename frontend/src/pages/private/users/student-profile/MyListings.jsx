@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../../context/AuthContext";
 import axios from "axios";
-import ItemList from "../../../../components/itemlisting/ItemList";
+import ItemList from "../../../../components/item-card/ItemCard";
 import { baseApi } from "../../../../App";
 
 

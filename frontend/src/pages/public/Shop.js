@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
-import ItemList from "../../components/itemlisting/ItemList";
+import ItemList from "../../components/item-card/ItemCard";
 import { baseApi } from "../../App";
 
 // Shop Component

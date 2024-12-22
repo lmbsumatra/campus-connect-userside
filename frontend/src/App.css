@@ -22,6 +22,25 @@
     255,
     0.1
   ); /* Muted or transparent version of primary */
+  /* Secondary Color Variations */
+  --clr-secondary-dark: #c84e00; /* Darker variation of the secondary color */
+  --clr-secondary-light: #ff7a33; /* Lighter variation of the secondary color */
+  --clr-secondary-muted: rgba(
+    255,
+    84,
+    0,
+    0.1
+  ); /* Muted or transparent version of secondary */
+
+  /* Tertiary Color Variations */
+  --clr-tertiary-dark: #9b1831; /* Darker variation of the tertiary color */
+  --clr-tertiary-light: #e84f7a; /* Lighter variation of the tertiary color */
+  --clr-tertiary-muted: rgba(
+    195,
+    31,
+    59,
+    0.1
+  ); /* Muted or transparent version of tertiary */
 
   /* Neutral Colors */
   --clr-neutral-dark: #131313; /* Almost black */

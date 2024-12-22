@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./Cart.css";
 import { useNavigate } from "react-router-dom";
-import rentIcon from "../../../assets/images/cart/rent.svg";
-import buyIcon from "../../../assets/images/cart/buy.svg";
-import lookUpIcon from "../../../assets/images/cart/go-to.svg";
+import rentIcon from "../../../../assets/images/cart/rent.svg";
+import buyIcon from "../../../../assets/images/cart/buy.svg";
+import lookUpIcon from "../../../../assets/images/cart/go-to.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCart,
@@ -13,7 +13,7 @@ import {
   selectCartError,
   selectCartSuccessMessage,
   clearSuccessMessage,
-} from "../../../redux/cart/cartSlice";
+} from "../../../../redux/cart/cartSlice";
 import { Modal, Button, Spinner } from "react-bootstrap"; // Import Bootstrap modal and spinner
 
 const Cart = ({ isOpen, onClose }) => {
@@ -44,9 +44,20 @@ const Cart = ({ isOpen, onClose }) => {
   }, [successMessage, dispatch]);
 
   const handleRemoveClick = (item) => {
-    setItemToRemove(item);
-    setShowConfirm(true);
+    // Find the cart item that has the same item_id as the clicked item
+    const cartItemToRemove = cartItems.find(cartItem => cartItem.itemId === item.itemId);
+    console.log(item)
+      console.log(cartItems)
+  
+  
+    if (cartItemToRemove) {
+      setItemToRemove(cartItemToRemove);
+      setShowConfirm(true);
+    } else {
+      console.error("Item not found in the cart.");
+    }
   };
+  
 
   const handleConfirmRemove = () => {
     if (itemToRemove) {
@@ -68,9 +79,12 @@ const Cart = ({ isOpen, onClose }) => {
       if (!acc[item.owner_id]) {
         acc[item.owner_id] = [];
       }
+
       acc[item.owner_id].push(item);
       return acc;
     }, {});
+
+    console.log(groupedItems);
 
     return Object.keys(groupedItems).map((ownerId, index) => {
       const owner = groupedItems[ownerId];
@@ -79,10 +93,10 @@ const Cart = ({ isOpen, onClose }) => {
           <div className="header">
             <input type="checkbox" className="checkbox" />
             <a href="" className="owner-name">
-              {owner[0].owner.first_name}
+              {owner[0].owner.fname}
               <img
                 src={lookUpIcon}
-                alt={`Go to profile ${owner[0].owner.first_name}`}
+                alt={`Go to profile ${owner[0].owner.fname}`}
                 className="icon look-up"
               />
             </a>
@@ -96,11 +110,11 @@ const Cart = ({ isOpen, onClose }) => {
                 <input type="checkbox" className="checkbox" />
                 <img
                   src={item.image || "/placeholder.png"}
-                  alt={`Image of ${item.item_name}`}
+                  alt={`Image of ${item.name}`}
                   className="item-image"
                 />
                 <div className="description">
-                  <p className="name">{item.item_name}</p>
+                  <p className="name">{item.name}</p>
                   <div className="type">
                     <img
                       src={item.transaction_type === "buy" ? buyIcon : rentIcon}
@@ -126,9 +140,7 @@ const Cart = ({ isOpen, onClose }) => {
                   >
                     Remove
                   </button>
-                  <button className="find-similar-btn">
-                    Find Similar
-                  </button>
+                  <button className="find-similar-btn">Find Similar</button>
                 </div>
               </div>
             );
@@ -165,18 +177,20 @@ const Cart = ({ isOpen, onClose }) => {
             </div>
           ) : successMessage ? (
             <div className="text-success text-center">
-              <p>{successMessage}</p>
+              <p>{successMessage.message || successMessage}</p>{" "}
+              {/* Ensure it's a string */}
             </div>
           ) : error ? (
             <div className="text-danger text-center">
-              <p>{error}</p>
+              <p>{error.message || error}</p> {/* Ensure it's a string */}
             </div>
           ) : (
             <p>Are you sure you want to remove this item from your cart?</p>
           )}
         </Modal.Body>
+
         <Modal.Footer>
-          {!loading && !successMessage && (
+          {!loading && !successMessage  && (
             <>
               <Button variant="secondary" onClick={handleCancelRemove}>
                 No

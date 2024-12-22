@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const ListingController = require("../controllers/ListingController");
-const ItemForRentContoller = require("../controllers/item-for-rent/ItemForRentController");
+const ListingController2 = require("../controllers/listing/ListingController");
 
 /* * * * * * * * * displayed for all users :: available * * * * * * * * * * * * * */
 // lahat ng available na listing (approved, with available date and corresponding time)
-router.get("/available", ItemForRentContoller.getAllAvailable);
+router.get("/available", ListingController2.getAllAvailable);
 // isang listing na available (approved, with available date and corresponding time)
-router.get("/available/:id", ListingController.getAvailableListingById);
+router.get("/available/:id", ListingController2.getAvailableListingById);
 // lahat ng  listing available per user kapag nagvisit sa profile nila (approved, with available date and corresponding time)
 router.get("/all/available/user", ListingController.getAvailableListingsByUser); // get by query [item-for-sale/user?query=value]
 

@@ -47,53 +47,53 @@ const {notifyAdmins} = require('../socket.js')
 // };
 
 // Get a single approved listing by ID with associated rental dates, durations, and renter info
-exports.getAvailableListingById = async (req, res) => {
-  try {
-    const listing = await models.Listing.findOne({
-      where: {
-        id: req.params.id,
-        status: "approved", // Ensures only "approved" items are fetched
-      },
-      include: [
-        {
-          model: models.Date,
-          as: "rental_dates",
-          where: {
-            status: "available", // Ensures only "available" rental dates are included
-          },
-          include: [
-            {
-              model: models.Duration,
-              as: "durations",
-              where: {
-                status: "available", // Ensures only "available" rental durations are included
-              },
-            },
-          ],
-        },
-        {
-          model: models.User,
-          as: "owner",
-          include: [
-            {
-              model: models.Student,
-              as: "student",
-            },
-          ],
-        },
-      ],
-    });
+// exports.getAvailableListingById = async (req, res) => {
+//   try {
+//     const listing = await models.Listing.findOne({
+//       where: {
+//         id: req.params.id,
+//         status: "approved", // Ensures only "approved" items are fetched
+//       },
+//       include: [
+//         {
+//           model: models.Date,
+//           as: "rental_dates",
+//           where: {
+//             status: "available", // Ensures only "available" rental dates are included
+//           },
+//           include: [
+//             {
+//               model: models.Duration,
+//               as: "durations",
+//               where: {
+//                 status: "available", // Ensures only "available" rental durations are included
+//               },
+//             },
+//           ],
+//         },
+//         {
+//           model: models.User,
+//           as: "owner",
+//           include: [
+//             {
+//               model: models.Student,
+//               as: "student",
+//             },
+//           ],
+//         },
+//       ],
+//     });
 
-    if (!listing) {
-      return res.status(404).json({ error: "Listing not found why" });
-    }
+//     if (!listing) {
+//       return res.status(404).json({ error: "Listing not found why" });
+//     }
 
-    res.status(200).json(listing);
-  } catch (error) {
-    console.error("Error fetching listing:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(listing);
+//   } catch (error) {
+//     console.error("Error fetching listing:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 // Get all approved listings for a specific user (by userId): kapag profile visit ganern
 exports.getAvailableListingsByUser = async (req, res) => {

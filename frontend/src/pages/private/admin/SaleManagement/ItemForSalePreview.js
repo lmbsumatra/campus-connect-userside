@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../../../../components/itemlisting/itemStyles.css";
+import "../../../../components/item-card/itemCardStyles.css";
 import { useParams } from "react-router-dom";
 import FetchListingData from "../../../../utils/FetchListingData";
 import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";

@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const ItemForSaleController = require("../controllers/ItemForSaleController");
 const
-  ItemForSaleContoller= require("../controllers/item-for-sale/ItemForSaleController.js");
+  ItemForSaleController2= require("../controllers/item-for-sale/ItemForSaleController.js");
 
-router.get("/available", ItemForSaleContoller.getAllAvailable);
+router.get("/available", ItemForSaleController2.getAllAvailable);
 // isang item for sale na available (approved, with available date and corresponding time)
-router.get("/available/:id", ItemForSaleController.getAvailableItemForSaleById);
+router.get("/available/:id", ItemForSaleController2.getAvailableItemForSaleById);
 
 // lahat ng  item for sale available per user kapag nagvisit sa profile nila (approved, with available date and corresponding time)
 router.get(

@@ -52,53 +52,53 @@ const { models } = require("../models/index");
 // };
 
 // Get a single approved item by ID with associated rental dates, durations, and renter info
-exports.getAvailableItemForSaleById = async (req, res) => {
-  try {
-    const item = await models.ItemForSale.findOne({
-      where: {
-        id: req.params.id,
-        status: "approved", // Ensures only "approved" items are fetched
-      },
-      include: [
-        {
-          model: models.Date,
-          as: "available_dates",
-          where: {
-            status: "available", // Ensures only "available" rental dates are included
-          },
-          include: [
-            {
-              model: models.Duration,
-              as: "durations",
-              where: {
-                status: "available", // Ensures only "available" rental durations are included
-              },
-            },
-          ],
-        },
-        {
-          model: models.User,
-          as: "seller",
-          include: [
-            {
-              model: models.Student,
-              as: "student",
-            },
-          ],
-        },
-      ],
-    });
+// exports.getAvailableItemForSaleById = async (req, res) => {
+//   try {
+//     const item = await models.ItemForSale.findOne({
+//       where: {
+//         id: req.params.id,
+//         status: "approved", // Ensures only "approved" items are fetched
+//       },
+//       include: [
+//         {
+//           model: models.Date,
+//           as: "available_dates",
+//           where: {
+//             status: "available", // Ensures only "available" rental dates are included
+//           },
+//           include: [
+//             {
+//               model: models.Duration,
+//               as: "durations",
+//               where: {
+//                 status: "available", // Ensures only "available" rental durations are included
+//               },
+//             },
+//           ],
+//         },
+//         {
+//           model: models.User,
+//           as: "seller",
+//           include: [
+//             {
+//               model: models.Student,
+//               as: "student",
+//             },
+//           ],
+//         },
+//       ],
+//     });
 
-    if (!item) {
-      return res.status(404).json({ error: "Item not found why" });
-    }
+//     if (!item) {
+//       return res.status(404).json({ error: "Item not found why" });
+//     }
 
-    res.status(200).json(item);
-  } catch (error) {
-    console.error("Error fetching item:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(item);
+//   } catch (error) {
+//     console.error("Error fetching item:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 // Get all approved posts for a specific user (by userId)
 exports.getAvailableItemsForSaleByUser = async (req, res) => {

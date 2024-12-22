@@ -61,9 +61,11 @@ const getAllAvailable = async (req, res) => {
             status: duration.status,
           })),
         })),
-        ownerId: item.owner_id,
-        ownerFname: item.owner.first_name,
-        ownerLname: item.owner.last_name,
+        owner: {
+          id: item.owner_id,
+          fname: item.owner.first_name,
+          lname: item.owner.last_name,
+        },
       };
     });
 

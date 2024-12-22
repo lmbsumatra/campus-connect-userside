@@ -13,12 +13,12 @@ import moreIcon from "../../assets/images/card/more.svg";
 import forRentIcon from "../../assets/images/card/looking-for.svg";
 import "./postCardStyles.css";
 
-const BorrowingPost = ({ borrowingPosts, title, isProfileVisit }) => {
+const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
   const navigate = useNavigate();
 
-  const handleCardClick = (id) => navigate(`/lend/${id}`);
+  const handleCardClick = (id) => navigate(`/post/${id}`);
   const handleMouseEnter = (index) => setSelectedIndex(index);
   const handleMouseLeave = () => setSelectedIndex(null);
   const handleMoreClick = (index, e) => {
@@ -168,4 +168,4 @@ const BorrowingPost = ({ borrowingPosts, title, isProfileVisit }) => {
   );
 };
 
-export default BorrowingPost;
+export default PostCard;

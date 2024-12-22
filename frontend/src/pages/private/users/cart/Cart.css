@@ -1,7 +1,7 @@
 /* General Cart Styles */
 .cart.container,
 .cart.page {
-  background: var(--clr-muted);
+  background: var(--clr-neutral-muted);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   transition: transform 0.3s ease;
@@ -124,7 +124,6 @@
 .cart .items .item .description .name {
   display: block;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
   max-width: 200px;
 }

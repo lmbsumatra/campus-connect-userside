@@ -4,7 +4,7 @@ import BorrowingPost from "../../post-card/PostCard.jsx";
 import ProfileHeader from "../header/ProfileHeader.jsx";
 import useFetchApprovedItemsByUserId from "../../../hooks/useFetchApprovedItemsByUserId.jsx";
 import { useLocation, useParams } from "react-router-dom";
-import ItemList from "../../itemlisting/ItemList.jsx";
+import ItemList from "../../item-card/ItemCard.jsx";
 
 const UserProfileVisit = () => {
   const location = useLocation();
