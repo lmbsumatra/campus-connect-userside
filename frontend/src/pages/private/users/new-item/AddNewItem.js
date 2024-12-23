@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice.js";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import store from "../../../../store/store.js";
+import {
+  UPDATE_FORM,
+  onInputChange,
+  onBlur,
+} from "../../../../hooks/input-reducers/itemFormInputReducer.jsx";
 
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import Tooltip from "@mui/material/Tooltip";
@@ -40,10 +45,56 @@ import ItemBadges from "../common/ItemBadges.jsx";
 import axios from "axios";
 import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs.jsx";
 
+const initialState = {
+  category: { value: "", triggered: false, hasError: true, error: "" },
+  itemName: { value: "", triggered: false, hasError: true, error: "" },
+  price: { value: "", triggered: false, hasError: true, error: "" },
+  availableDates: {
+    value: [],
+    triggered: false,
+    hasError: false,
+    error: "",
+  },
+  deliveryMethod: { value: "", triggered: false, hasError: true, error: "" },
+  paymentMethod: { value: "", triggered: false, hasError: true, error: "" },
+  itemCondition: { value: "", triggered: false, hasError: true, error: "" },
+  lateCharges: { value: "", triggered: false, hasError: true, error: "" },
+  securityDeposit: { value: "", triggered: false, hasError: true, error: "" },
+  repairReplacement: { value: "", triggered: false, hasError: true, error: "" },
+
+  images: { value: [], triggered: false, hasError: false, error: "" }, // Array of images
+  desc: { value: "", triggered: false, hasError: false, error: "" }, // Array of tags
+  tags: { value: [], triggered: false, hasError: false, error: "" }, // Array of tags
+  specs: { value: {}, triggered: false, hasError: false, error: "" }, // Object for specs
+
+  isFormValid: false,
+};
+
+const formsReducer = (state, action) => {
+  switch (action.type) {
+    case UPDATE_FORM:
+      return {
+        ...state,
+        [action.data.name]: {
+          ...state[action.data.name],
+          value: action.data.value,
+          hasError: action.data.hasError,
+          error: action.data.error,
+          validations:
+            action.data.validations || state[action.data.name].validations,
+          triggered: action.data.triggered,
+        },
+        isFormValid: action.data.isFormValid,
+      };
+    default:
+      return state;
+  }
+};
+
 function AddNewItem() {
+  const [itemDataState, dispatch] = useReducer(formsReducer, initialState);
   const navigate = useNavigate();
   const { id } = useParams();
-  const dispatch = useDispatch();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [showDurations, setShowDurations] = useState(null);
@@ -291,14 +342,58 @@ function AddNewItem() {
           <div className="item-title">
             <>
               <i>For rent </i>
-              <input type="text" className="title" placeholder="Add item name">
-                {approvedListingById.name}
-              </input>
+              <input
+                id="itemName"
+                name="itemName"
+                className="input"
+                placeholder="Add item name"
+                required
+                type="text"
+                value={itemDataState.itemName.value}
+                onChange={(e) =>
+                  onInputChange(
+                    "itemName",
+                    e.target.value,
+                    dispatch,
+                    itemDataState
+                  )
+                }
+                onBlur={(e) => {
+                  onBlur("itemName", e.target.value, dispatch, itemDataState);
+                }}
+              />
+              {itemDataState.itemName.triggered &&
+                itemDataState.itemName.hasError && (
+                  <div className="validation error">
+                    <img src={""} className="icon" alt="Error on last name" />
+                    <span className="text">{itemDataState.itemName.error}</span>
+                  </div>
+                )}
             </>
           </div>
           <div className="item-price">
             <span className="price">₱ </span>
-            <input className="price" type="text" placeholder="Add price here" />
+            <input
+              id="price"
+              name="price"
+              className="input"
+              placeholder="Add price"
+              required
+              type="text"
+              value={itemDataState.price.value}
+              onChange={(e) =>
+                onInputChange("price", e.target.value, dispatch, itemDataState)
+              }
+              onBlur={(e) => {
+                onBlur("price", e.target.value, dispatch, itemDataState);
+              }}
+            />
+            {itemDataState.price.triggered && itemDataState.price.hasError && (
+              <div className="validation error">
+                <img src={""} className="icon" alt="Error on last name" />
+                <span className="text">{itemDataState.price.error}</span>
+              </div>
+            )}
           </div>
           <Tooltip title="Buttons disabled for preview purposes.">
             <div className="action-btns">

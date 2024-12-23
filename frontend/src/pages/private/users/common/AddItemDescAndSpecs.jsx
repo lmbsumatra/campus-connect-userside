@@ -1,10 +1,62 @@
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addTag, removeTag } from "../../../../redux/tag/tagSlice";
 import removeIcon from "../../../../assets/images/input-icons/remove.svg";
 import "./addItemDescAndSpecsStyles.css";
+import {
+  UPDATE_FORM,
+  onInputChange,
+  onBlur,
+} from "../../../../hooks/input-reducers/itemFormInputReducer";
+
+const initialState = {
+  category: { value: "", triggered: false, hasError: true, error: "" },
+  itemName: { value: "", triggered: false, hasError: true, error: "" },
+  price: { value: "", triggered: false, hasError: true, error: "" },
+  availableDates: {
+    value: [],
+    triggered: false,
+    hasError: false,
+    error: "",
+  },
+  deliveryMethod: { value: "", triggered: false, hasError: true, error: "" },
+  paymentMethod: { value: "", triggered: false, hasError: true, error: "" },
+  itemCondition: { value: "", triggered: false, hasError: true, error: "" },
+  lateCharges: { value: "", triggered: false, hasError: true, error: "" },
+  securityDeposit: { value: "", triggered: false, hasError: true, error: "" },
+  repairReplacement: { value: "", triggered: false, hasError: true, error: "" },
+
+  images: { value: [], triggered: false, hasError: false, error: "" }, // Array of images
+  desc: { value: "", triggered: false, hasError: false, error: "" }, // Array of tags
+  tags: { value: [], triggered: false, hasError: false, error: "" }, // Array of tags
+  specs: { value: {}, triggered: false, hasError: false, error: "" }, // Object for specs
+
+  isFormValid: false,
+};
+
+const formsReducer = (state, action) => {
+  switch (action.type) {
+    case UPDATE_FORM:
+      return {
+        ...state,
+        [action.data.name]: {
+          ...state[action.data.name],
+          value: action.data.value,
+          hasError: action.data.hasError,
+          error: action.data.error,
+          validations:
+            action.data.validations || state[action.data.name].validations,
+          triggered: action.data.triggered,
+        },
+        isFormValid: action.data.isFormValid,
+      };
+    default:
+      return state;
+  }
+};
 
 const AddItemDescAndSpecs = () => {
+  const [itemDataState, dispatchtwo] = useReducer(formsReducer, initialState);
   const [newTag, setNewTag] = useState("");
   const [duplicateTag, setDuplicateTag] = useState(null); // Track duplicate tag
   const dispatch = useDispatch();
@@ -73,7 +125,27 @@ const AddItemDescAndSpecs = () => {
       </table>
 
       <label className="sub-section-label">Description</label>
-      <input type="text" placeholder="Add item description..." />
+      <input
+        id="desc"
+        name="desc"
+        className="input"
+        placeholder="Add description"
+        required
+        type="text"
+        value={itemDataState.desc.value}
+        onChange={(e) =>
+          onInputChange("desc", e.target.value, dispatchtwo, itemDataState)
+        }
+        onBlur={(e) => {
+          onBlur("desc", e.target.value, dispatchtwo, itemDataState);
+        }}
+      />
+      {itemDataState.desc.triggered && itemDataState.desc.hasError && (
+        <div className="validation error">
+          <img src={""} className="icon" alt="Error on last name" />
+          <span className="text">{itemDataState.desc.error}</span>
+        </div>
+      )}
 
       <div className="tags-section">
         <label className="sub-section-label">Tags</label>
