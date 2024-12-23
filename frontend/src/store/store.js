@@ -6,6 +6,7 @@ import approvedListingByIdSliceReducer from "../redux/listing/approvedListingByI
 import approvedItemForSaleByIdReducer from "../redux/item-for-sale/approvedItemForSaleByIdSlice";
 import allApprovedPostReducer from "../redux/post/allApprovedPostsSlice";
 import alertPopupReducer from "../redux/alert-popup/alertPopupSlice"
+import tagReducer from "../redux/tag/tagSlice"
 
 
 const store = configureStore({
@@ -19,6 +20,8 @@ const store = configureStore({
     allApprovedPosts: allApprovedPostReducer,
     // 
     notification: alertPopupReducer,
+    // 
+    tags: tagReducer,
   },
 });
 

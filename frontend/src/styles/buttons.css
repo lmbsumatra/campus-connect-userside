@@ -232,42 +232,42 @@
   color: #007bff;
 }
 
-.btn-icon {
+/* Base styles for all btn-icon buttons */
+.btn.btn-icon {
   all: unset;
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
-  background-color: none;
+  padding: 6px !important;
   color: white !important;
-  border: solid 1px var(--clr-primary);
   border-radius: 4px;
-  padding: 6px;
-}
-.btn-icon img {
-  height: 24px;
-  width: 24px;
+  cursor: pointer;
 }
 
-.btn-icon:hover {
-  color: white !important;
-  background-color: var(--clr-neutral-muted);
-}
-.btn-icon.option{
-  all: unset;
-  padding: 0;
-  margin: 0;
+/* Primary variant */
+.btn.btn-icon.primary {
+  border: solid 1px var(--clr-primary);
   background-color: none;
+}
+
+.btn.btn-icon.primary:hover {
+  background-color: var(--clr-neutral-muted);
   color: white !important;
+}
+
+/* Secondary variant */
+.btn.btn-icon.secondary {
   border: none;
-  border-radius: 50%;
-  background-color: none;
-  padding: 4px 5px;
-}
-.btn-icon.option img {
-  height: 24px;
-  width: 24px;
 }
 
-.btn-icon.option:hover {
-  color: white !important;
+.btn.btn-icon.secondary:hover {
   background-color: var(--clr-neutral-muted);
+  color: white !important;
+}
+
+/* Image size for all variants */
+.btn.btn-icon img {
+  height: 24px;
+  width: 24px;
 }

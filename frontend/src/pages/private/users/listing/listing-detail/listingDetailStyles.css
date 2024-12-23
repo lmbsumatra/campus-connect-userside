@@ -149,29 +149,6 @@
   gap: 8px;
 }
 
-.tags-holder {
-  padding: 0;
-  margin: 0;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 4px;
-}
-
-.tags-holder .tag {
-  display: inline-block;
-  margin: 0;
-  line-height: 1;
-  vertical-align: top;
-  padding: 4px 8px;
-  border-radius: 100px;
-  background-color: var(--clr-neutral-muted) !important;
-  color: var(--clr-neutral-dark-gray);
-  font-weight: 600;
-  font-size: 14px;
-  white-space: nowrap;
-  border: none !important;
-}
 
 /* gen design */
 .sub-section-label {

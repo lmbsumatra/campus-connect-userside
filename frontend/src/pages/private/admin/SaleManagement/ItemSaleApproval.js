@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./forSaleManagement.css";
-import ViewItem from "../../users/listing/ListingDetail";
 import ActionModal from "../../../../components/admin/Action Modal/ActionModal";
 import ViewPost from "../../users/post/PostDetail";
 import FetchPostData from "../../../../utils/FetchPostData";

@@ -23,7 +23,7 @@ import AddPost from "./pages/private/users/new-post/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/RentProgress.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
-import AddListing from "./pages/private/users/new-listing/AddListing.js";
+import AddListing from "./pages/private/users/new-item/AddListing.js";
 import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
 import Footer from "./components/users/footer/Footer.jsx";
 import Admin from "./pages/private/admin/Admin.js";
@@ -65,9 +65,10 @@ import Trial2 from "./trials/Trial2.js";
 import FAB from "./components/common/fab/FAB.jsx";
 import Cart from "./pages/private/users/cart/Cart.js";
 import PostDetail from "./pages/private/users/post/PostDetail.js";
-import ListingDetail from "./pages/private/users/listing/ListingDetail.js";
+import ListingDetail from "./pages/private/users/listing/listing-detail/ListingDetail.js";
 import ItemForSaleDetail from "./pages/private/users/item-for-sale/ItemForSaleDetail.js";
 import Shop from "./pages/public/Shop.js";
+import AddNewLItem from "./pages/private/users/new-item/AddNewItem.js";
 
 function App() {
   console.log(baseApi);
@@ -224,6 +225,16 @@ function Content() {
             </StudentProtectedRoute>
           }
         />
+       
+        <Route
+          path="/add-listing2"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <AddNewLItem />
+            </StudentProtectedRoute>
+          }
+        />
+       
         <Route
           path="/messages"
           element={

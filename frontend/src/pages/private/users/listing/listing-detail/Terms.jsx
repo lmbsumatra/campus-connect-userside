@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./listingDetailStyles.css";
-import expandIcon from "../../../../assets/images/pdp/plus.svg";
+import expandIcon from "../../../../../assets/images/pdp/plus.svg";
 
 const Terms = ({ values }) => {
   const [expandTerm, setExpandTerm] = useState(false);

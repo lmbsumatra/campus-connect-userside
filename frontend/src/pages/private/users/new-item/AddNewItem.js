@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice";
+import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice.js";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import store from "../../../../store/store.js";
 
-import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
+import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import Tooltip from "@mui/material/Tooltip";
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
 import itemImage1 from "../../../../assets/images/item/item_1.jpg";
@@ -15,37 +15,32 @@ import itemImage3 from "../../../../assets/images/item/item_3.jpg";
 import itemImage4 from "../../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../assets/images/card/buy.svg";
-import "./listingDetailStyles.css";
-import "./confirmationModalStyles.css";
+import "./addNewItemStyles.css";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
+import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import {
   FOR_RENT,
   FOR_SALE,
   MEET_UP,
   PICK_UP,
   TO_BUY,
-} from "../../../../utils/consonants";
-import {
-  addCartItem,
-  clearSuccessMessage,
-  selectCartSuccessMessage,
-} from "../../../../redux/cart/cartSlice";
+} from "../../../../utils/consonants.js";
+import { addCartItem } from "../../../../redux/cart/cartSlice.js";
 import {
   clearNotification,
   showNotification,
-} from "../../../../redux/alert-popup/alertPopupSlice";
-import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
-import UserToolbar from "../common/UserToolbar";
-import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
-import Terms from "./Terms";
-import ImageSlider from "../common/ImageSlider";
-import ItemBadges from "../common/ItemBadges";
+} from "../../../../redux/alert-popup/alertPopupSlice.js";
+import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
+import UserToolbar from "../common/UserToolbar.jsx";
+import Terms from "../listing/listing-detail/Terms.jsx";
+import ImageSlider from "../common/ImageSlider.jsx";
+import ItemBadges from "../common/ItemBadges.jsx";
 import axios from "axios";
+import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs.jsx";
 
-function ListingDetail() {
+function AddNewItem() {
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -58,13 +53,9 @@ function ListingDetail() {
     loadingApprovedListingById,
     errorApprovedListingById,
   } = useSelector((state) => state.approvedListingById);
-  const { cartItems, loadingCart, successCartMessage, errorCartMessage } =
-    useSelector((state) => state.cart);
   const studentUser = useSelector(selectStudentUser);
   const rentalDates = approvedListingById.rentalDates || [];
-  const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
-  const [expandTerm, setExpandTerm] = useState(false);
 
   const images = [
     itemImage1,
@@ -110,20 +101,18 @@ function ListingDetail() {
   const handleAddToCart = async (e, item) => {
     e.stopPropagation();
 
-    const notify = (type, title, text) =>
+    const ShowAlert = (type, title, text) =>
       dispatch(showNotification({ type, title, text }));
 
-    // Show loading notification
-    const loadingNotify = notify(
+    const loadingNotify = ShowAlert(
       "info",
       "Loading...",
       "Adding item to cart..."
     );
 
     if (!selectedDate || !selectedDuration) {
-      // Remove the loading notification on error
       dispatch(clearNotification(loadingNotify));
-      return notify("error", "Error", "Please select a date and duration.");
+      return ShowAlert("error", "Error", "Please select a date and duration.");
     }
 
     const selectedDateId = approvedListingById.rentalDates.find(
@@ -133,7 +122,7 @@ function ListingDetail() {
     if (!selectedDateId) {
       // Remove the loading notification on error
       dispatch(clearNotification(loadingNotify));
-      return notify("error", "Error", "Invalid date selection.");
+      return ShowAlert("error", "Error", "Invalid date selection.");
     }
 
     try {
@@ -155,28 +144,18 @@ function ListingDetail() {
         store.getState().cart;
 
       if (successCartMessage) {
-        // Remove the loading notification and show success message
-        dispatch(clearNotification(loadingNotify));
-        notify("success", "Success!", successCartMessage);
-        dispatch(clearSuccessMessage());
+        ShowAlert("success", "Success!", successCartMessage);
       }
       if (warningCartMessage) {
-        // Remove the loading notification and show success message
-        dispatch(clearNotification(loadingNotify));
-        notify("warning", "Warning", warningCartMessage);
-        dispatch(clearSuccessMessage());
+        ShowAlert("warning", "Warning", warningCartMessage);
       }
 
       if (errorCartMessage) {
-        // Remove the loading notification and show error message
-        dispatch(clearNotification(loadingNotify));
-        notify("error", "Error", errorCartMessage);
+        ShowAlert("error", "Error", errorCartMessage);
       }
     } catch (error) {
       console.error("Error adding item to cart:", error);
-      // Remove the loading notification and show error
-      dispatch(clearNotification(loadingNotify));
-      notify("error", "Error", "An unexpected error occurred.");
+      ShowAlert("error", "Error", "An unexpected error occurred.");
     }
   };
 
@@ -185,7 +164,7 @@ function ListingDetail() {
       (rentalDate) => rentalDate.date === selectedDate
     )?.id;
 
-    console.log(approvedListingById)
+    console.log(approvedListingById);
 
     const rentalDetails = {
       owner_id: approvedListingById.owner.id,
@@ -263,7 +242,6 @@ function ListingDetail() {
     }
   }, [redirecting, navigate]);
 
-  // Show loading skeleton if still loading or redirecting
   if (loadingApprovedListingById || redirecting) {
     return <LoadingItemDetailSkeleton />;
   }
@@ -313,35 +291,32 @@ function ListingDetail() {
           <div className="item-title">
             <>
               <i>For rent </i>
-              {approvedListingById.name ? (
-                <span className="title">{approvedListingById.name}</span>
-              ) : (
-                <span className="error-msg">No available name.</span>
-              )}
+              <input type="text" className="title" placeholder="Add item name">
+                {approvedListingById.name}
+              </input>
             </>
           </div>
           <div className="item-price">
-            {approvedListingById.rate ? (
-              <span className="price">₱ {approvedListingById.rate}</span>
-            ) : (
-              <span className="error-msg">No available name.</span>
-            )}
+            <span className="price">₱ </span>
+            <input className="price" type="text" placeholder="Add price here" />
           </div>
-          <div className="action-btns">
-            <button
-              className="btn-icon"
-              onClick={(e) => handleAddToCart(e, approvedListingById)}
-            >
-              <img src={cartIcon} alt="Add to cart" />
-            </button>
-            <button className="btn btn-rectangle secondary">Message</button>
-            <button
-              className="btn btn-rectangle primary"
-              onClick={handleOfferClick}
-            >
-              {approvedListingById.itemType === FOR_RENT ? "Rent" : "Buy"}
-            </button>
-          </div>
+          <Tooltip title="Buttons disabled for preview purposes.">
+            <div className="action-btns">
+              <button className="btn btn-icon primary" disabled>
+                <img src={cartIcon} alt="Add to cart" />
+              </button>
+              <button className="btn btn-rectangle secondary" disabled>
+                Message
+              </button>
+              <button
+                className="btn btn-rectangle primary"
+                onClick={handleOfferClick}
+                disabled
+              >
+                {approvedListingById.itemType === FOR_RENT ? "Rent" : "Buy"}
+              </button>
+            </div>
+          </Tooltip>
           <hr />
           <div className="rental-dates-durations">
             <div className="date-picker">
@@ -554,7 +529,7 @@ function ListingDetail() {
 
       <UserToolbar user={approvedListingById.owner} />
 
-      <ItemDescAndSpecs
+      <AddItemDescAndSpecs
         specs={approvedListingById.specs}
         desc={approvedListingById.desc}
         tags={approvedListingById.tags}
@@ -641,4 +616,4 @@ function ListingDetail() {
   );
 }
 
-export default ListingDetail;
+export default AddNewItem;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { baseApi } from "../../../../App";
 
 //  Styles
-import "./addListingStyles.css";
+import "./addNewItemStyles.css";
 
 //  Components
 import { ImageUpload } from "../common-input-handler/ImageUpload";

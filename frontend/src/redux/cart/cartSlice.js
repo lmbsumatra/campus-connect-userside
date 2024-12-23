@@ -160,7 +160,6 @@ const cartSlice = createSlice({
       })
 
       .addCase(addCartItem.rejected, (state, action) => {
-        console.log(action.payload, "HERE");
         state.loadingCart = false;
         state.errorCartMessage = action.payload;
         // Clear the success message only if action fails
