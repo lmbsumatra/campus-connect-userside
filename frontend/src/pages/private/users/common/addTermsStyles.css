@@ -1,0 +1,40 @@
+.group-container.terms-group .input-wrapper {
+  all: unset;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  width: 100%;
+  border-radius: 0px !important;
+}
+.group-container.terms-group .field-container label {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.group-container.terms-group .input-wrapper .input {
+  all: unset;
+  width: 100%;
+  padding: 5px !important;
+  box-sizing: border-box;
+  all: unset;
+  border: 1px solid #dbdbdb !important;
+  border-radius: 4px !important;
+  flex-grow: 1;
+}
+
+.group-container.terms-group .btn.btn-icon.secondary:hover {
+  opacity: 80%;
+  background-color: white !important;
+}
+.group-container.terms-group .btn.btn-icon.secondary {
+  opacity: 50%;
+  
+}
+.group-container.terms-group .btn.btn-icon.secondary:hover {
+  opacity: 80%;
+  background-color: none !important;
+}
+.group-container.terms-group .btn.btn-icon.secondary img {
+  height: 16px;
+  width: 16px;
+}

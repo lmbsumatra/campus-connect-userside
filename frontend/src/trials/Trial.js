@@ -105,7 +105,7 @@ const Trial = () => {
   };
 
   return (
-    <div className="">
+    <div className="auth-container">
       {/* First Name Input */}
       <div className="field-container">
         <label htmlFor="firstName" className="label">

@@ -259,6 +259,8 @@
 /* Secondary variant */
 .btn.btn-icon.secondary {
   border: none;
+  border-radius: 50%;
+  
 }
 
 .btn.btn-icon.secondary:hover {
@@ -271,3 +273,4 @@
   height: 24px;
   width: 24px;
 }
+

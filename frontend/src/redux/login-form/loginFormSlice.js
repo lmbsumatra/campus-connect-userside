@@ -35,7 +35,7 @@ const validateInput = (name, value) => {
 const initialState = {
   email: { value: "", hasError: false, error: "", triggered: false },
   password: { value: "", hasError: false, error: "", triggered: false },
-  isFormValid: true,
+  isFormValid: false,
 };
 
 // Create a slice for the form

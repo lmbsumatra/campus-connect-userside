@@ -11,9 +11,10 @@
 }
 
 .specifications-table {
-  width: 180px;
+  width: 100px;
   border-collapse: collapse;
   margin: 0 8px;
+  gap: 10px;
 }
 
 .specifications-table .value,
@@ -21,6 +22,12 @@
   font-size: 14px;
   line-height: 1.5;
   padding: 4px 0;
+ 
+}
+
+.specifications-table input {
+  margin: 4px;
+  width: 110px !important;
 }
 .specifications-table .key {
   color: var(--clr-neutral-dark-gray);
@@ -52,32 +59,43 @@
   height: auto;
   width: 100%;
   padding: 8px;
+  gap: 8px;
+}
+
+.input-form .input {
+  all: unset;
+  border: 1px solid #dbdbdb !important;
+  border-radius: 4px !important;
+  padding: 5px;
 }
 
 .input-form .tags-holder {
-  padding: 0 4px !important;
+  padding: 4px !important;
   margin: 0 !important;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   gap: 4px !important;
-  border: 1px solid var(--clr-neutral-muted);
+  border: 1px solid #dbdbdb !important;
   border-radius: 8px;
 }
-
+.input-form .tags-holder.focused {
+  border: 1px solid var(--clr-primary) !important; /* Apply border when focused */
+}
 .input-form .tags-holder .tag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   margin: 0;
   vertical-align: middle;
-  padding: 2px 4px;
+  padding: 0 4px;
   border-radius: 100px;
   background-color: var(--clr-neutral-muted) !important;
   white-space: nowrap;
   border: none !important;
-  gap: 4px !important;
   border: 2px solid var(--clr-neutral-muted) !important;
+  gap: 4px;
+
 }
 .input-form .tags-holder .tag .text {
   line-height: 1;
@@ -85,21 +103,6 @@
   font-weight: 600;
   font-size: 14px;
   white-space: nowrap;
-}
-
-.input-form .tags-holder .tag .btn.btn-icon {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.input-form .tags-holder .tag .btn-icon img {
-  height: 20px;
-  width: 20px;
-  opacity: 50%;
-}
-
-.input-form .tags-holder .tag .btn-icon:hover img {
-  opacity: 80%;
 }
 
 .input-form .tags-holder .tag-input {
@@ -111,6 +114,22 @@
   outline: none;
 }
 
+.input-form .tags-holder {
+  display: flex;
+  flex-wrap: wrap; /* Allow tags to wrap to a new line */
+  gap: 8px; /* Adjust spacing between tags */
+  max-width: 100%; /* Ensure tags-holder does not overflow */
+  overflow: hidden; /* Prevent overflowing */
+  padding: 10px; /* Add padding for better appearance */
+  border: 1px solid #ccc; /* Optional: Add border to define the container */
+  border-radius: 4px; /* Optional: Rounded corners */
+  box-sizing: border-box; /* Ensure padding is included in width calculations */
+}
+.tags-holder .btn.btn-icon.secondary {
+  padding: 0 !important; 
+  background-color: none;
+}
+
 .input-form .tags-holder .tag.duplicate {
   background-color: red !important;
   border: 2px solid rgb(255, 195, 195) !important;
@@ -118,10 +137,10 @@
 .input-form .tags-holder .tag.duplicate .text {
   color: white !important;
 }
-.input-form .tags-holder .tag.duplicate .btn-icon img{
+.input-form .tags-holder .tag.duplicate .btn-icon img {
   filter: invert(100%) !important;
 }
-.input-form .tags-holder .tag.duplicate .btn-icon:hover{
+.input-form .tags-holder .tag.duplicate .btn-icon:hover {
   filter: invert(0%) !important;
   background-color: red !important;
 }

@@ -9,7 +9,7 @@ const Terms = ({ values }) => {
   };
 
   return (
-    <div className={`group-container terms-group`}>
+    <div className="group-container terms-group">
       <label className="sub-section-label">
         Terms and Condition{" "}
         <button

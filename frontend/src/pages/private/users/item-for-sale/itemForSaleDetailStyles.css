@@ -183,6 +183,11 @@
   padding: 8px;
 }
 
+.group-container.terms-group  {
+  all: unset;
+  height: 10px;
+}
+
 .group-container.terms-group .term {
   background-color: white;
   padding: 8px;

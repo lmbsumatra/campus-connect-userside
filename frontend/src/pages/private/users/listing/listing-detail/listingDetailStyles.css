@@ -99,6 +99,13 @@
   line-height: 1;
 }
 
+.group-container.terms-group {
+  height: 100px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color: aqua !important;
+}
+
 .group-container.terms-group .value {
   color: var(--clr-secondary);
   font-weight: 600;
@@ -148,7 +155,6 @@
   justify-content: flex-end;
   gap: 8px;
 }
-
 
 /* gen design */
 .sub-section-label {
@@ -236,7 +242,7 @@
 }
 
 .terms-group {
-  position: relative; /* Establish a positioning context */
+  position: relative; 
 }
 
 .terms-popup {

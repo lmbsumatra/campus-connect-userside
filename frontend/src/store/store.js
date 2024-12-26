@@ -9,6 +9,8 @@ import alertPopupReducer from "../redux/alert-popup/alertPopupSlice";
 import tagReducer from "../redux/tag/tagSlice";
 import loginFormReducer from "../redux/login-form/loginFormSlice";
 import signupFormReducer from "../redux/signup-form/signupFormSlice";
+import userReducer from "../redux/user/userSlice";
+import itemFormReducer from "../redux/item-form/itemFormSlice"
 
 const store = configureStore({
   reducer: {
@@ -26,6 +28,9 @@ const store = configureStore({
     //
     loginForm: loginFormReducer,
     signupForm: signupFormReducer,
+    user: userReducer,
+    // 
+    itemForm: itemFormReducer,
   },
 });
 

@@ -63,10 +63,10 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
               </div>
               <div className="action-btns">
                 <button className="btn btn-rectangle primary">Offer</button>
-                <button className="btn-icon">
+                <button className="btn btn-icon primary">
                   <img src={cartIcon} alt="Message poster" />
                 </button>
-                <button className="btn-icon option">
+                <button className="btn btn-icon secondary option">
                   <img src={moreIcon} alt="More options" />
                 </button>
               </div>
@@ -146,10 +146,10 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
                   </div>
                   <div className="action-btns">
                     <button className="btn btn-rectangle primary">Offer</button>
-                    <button className="btn-icon">
+                    <button className="btn btn-icon primary">
                       <img src={cartIcon} alt="Message poster" />
                     </button>
-                    <button className="btn-icon option">
+                    <button className="btn btn-icon secondary option">
                       <img src={moreIcon} alt="More options" />
                     </button>
                   </div>

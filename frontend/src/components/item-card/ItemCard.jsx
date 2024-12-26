@@ -109,10 +109,10 @@ const ItemCard = ({ items, title, isProfileVisit }) => {
             <p className="item-price">P100 per hr</p>
             <div className="action-btns">
               <button className="btn btn-rectangle primary">Rent</button>
-              <button className="btn-icon">
+              <button className="btn btn-icon primary">
                 <img src={cartIcon} alt="Add to cart" />
               </button>
-              <button className="btn-icon option">
+              <button className="btn btn-icon primary option">
                 <img src={moreIcon} alt="More option" />
               </button>
             </div>
@@ -169,10 +169,10 @@ const ItemCard = ({ items, title, isProfileVisit }) => {
             <p className="item-price">P100 per hr</p>
             <div className="action-btns">
               <button className="btn btn-rectangle primary">Rent</button>
-              <button className="btn-icon">
+              <button className="btn btn-icon primary">
                 <img src={cartIcon} alt="Add to cart" />
               </button>
-              <button className="btn-icon option">
+              <button className="btn btn-icon primary option">
                 <img src={moreIcon} alt="More option" />
               </button>
             </div>
@@ -250,12 +250,12 @@ const ItemCard = ({ items, title, isProfileVisit }) => {
                       {item.itemType === "Rent" ? "Rent" : "Buy"}
                     </button>
                     <button
-                      className="btn-icon"
+                      className="btn btn-icon primary"
                       onClick={(e) => handleAddToCart(e, item)}
                     >
                       <img src={cartIcon} alt="Add to cart" />
                     </button>
-                    <button className="btn-icon option">
+                    <button className="btn btn-icon secondary option">
                       <img src={moreIcon} alt="More option" />
                     </button>
                   </div>

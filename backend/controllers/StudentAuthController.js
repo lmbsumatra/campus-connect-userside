@@ -201,46 +201,46 @@ exports.googleLogin = async (req, res) => {
   }
 };
 
-exports.getUserInformation = async (req, res) => {
-  const userId = req.params.userId;
-  try {
-    const student = await Student.findOne({ where: { user_id: userId } });
-    if (!student) {
-      return res.status(404).json({ message: "Student record not found" });
-    }
+// exports.getUserInformation = async (req, res) => {
+//   const userId = req.params.id;
+//   try {
+//     const student = await Student.findOne({ where: { user_id: userId } });
+//     if (!student) {
+//       return res.status(404).json({ message: "Student record not found" });
+//     }
 
-    const user = await User.findByPk(student.user_id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//     const user = await User.findByPk(student.user_id);
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    res.status(200).json({
-      message: "User information retrieved successfully",
-      user: {
-        user_id: user.user_id,
-        first_name: user.first_name,
-        middle_name: user.middle_name,
-        last_name: user.last_name,
-        email: user.email,
-        role: user.role,
-        password: user.password,
-        createdAt: user.createdAt,
-      },
-      student: {
-        tup_id: student.tup_id,
-        college: student.college,
-        scanned_id: student.scanned_id,
-        photo_with_id: student.photo_with_id,
-      },
-    });
-  } catch (error) {
-    console.error("Error retrieving user information:", error);
-    res.status(500).json({
-      message: "Error retrieving user information",
-      error: error.message,
-    });
-  }
-};
+//     res.status(200).json({
+//       message: "User information retrieved successfully",
+//       user: {
+//         user_id: user.user_id,
+//         first_name: user.first_name,
+//         middle_name: user.middle_name,
+//         last_name: user.last_name,
+//         email: user.email,
+//         role: user.role,
+//         password: user.password,
+//         createdAt: user.createdAt,
+//       },
+//       student: {
+//         tup_id: student.tup_id,
+//         college: student.college,
+//         scanned_id: student.scanned_id,
+//         photo_with_id: student.photo_with_id,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error retrieving user information:", error);
+//     res.status(500).json({
+//       message: "Error retrieving user information",
+//       error: error.message,
+//     });
+//   }
+// };
 
 exports.userChangePassword = async (req, res) => {
   const userId = req.user.userId;

@@ -164,7 +164,7 @@
 
 .card.variant-2 .details .description .action-btns .btn {
   padding: 7px 10px !important;
-  width: 100% !important;
+  /* width: 100% !important; */
   z-index: 999;
 }
 
