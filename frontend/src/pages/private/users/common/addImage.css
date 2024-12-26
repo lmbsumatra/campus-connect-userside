@@ -1,113 +1,147 @@
-.highlight {
-  position: relative;
-  z-index: 1;
+/* Container for add item details */
+.container-content.add-item-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  margin: 0;
 }
 
-.upload-image {
-  background-size: cover;
-  background-position: center;
-  filter: blur(15px);
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  z-index: 0;
-  background-color: aqua;
-}
-
-
-.highlight-img {
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
-  position: relative;
-  z-index: 2;
-}
-
-.img-slider {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.2);
-  height: 90px;
-  width: auto;
+/* Main container for the image upload and preview section */
+.add-item-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 0;
+  display: flex;
   flex-direction: row;
+  gap: 8px;
+  height: auto;
+  width: 100%;
+}
+
+/* Image container for the uploaded images */
+.add-item-container .imgs-container {
+  height: 720px;
+  width: 100%;
   border-radius: 8px;
   overflow: hidden;
-  bottom: 8px;
-  left: 8px;
-  right: 8px;
-  justify-content: space-between;
-  align-items: center;
-  display: none;
-  visibility: hidden;
-  transition: visibility 0.2s ease-in-out;
-  z-index: 4;
-}
-
-img.next-btn,
-img.prev-btn {
-  height: 24px;
-  width: 24px;
-}
-
-.btn-slider {
-  height: 100%;
+  background-color: var(--clr-neutral-muted);
+  position: relative;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 8px;
 }
 
-.btn-slider:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+/* Image slider and thumbnail preview (hidden by default) */
+.add-item-container .imgs-container .upload-image {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.657);
+  display: none;
+  z-index: 8;
+}
+
+/* Show the image slider and upload overlay when hovering */
+.add-item-container .imgs-container:hover .img-slider {
+  display: flex;
+  visibility: visible;
+  z-index: 10 !important;
+}
+
+.add-item-container .imgs-container:hover .upload-image {
+  display: block;
+}
+
+/* Remove button styles */
+.add-item-container .imgs-container .btn.btn-icon.secondary.red {
+  all: unset;
+  position: absolute;
+  top: 0;
+  right: 0;
+  cursor: pointer;
+  z-index: 10;
+  background-color: rgba(255, 0, 0, 0.5); /* Make the button semi-transparent */
+  border-radius: 50%;
+  padding: 4px;
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.add-item-container .imgs-container .btn.btn-icon.secondary.red:hover {
+  background-color: rgba(255, 0, 0, 0.8); /* Darker red on hover */
+}
+
+/* Item image hover effect */
+.add-item-container .imgs-container .img-slider .slider-container img.item-img {
+  height: 100%;
+  width: auto;
+  filter: brightness(0.5);
+  transition: filter 0.3s ease; /* Smooth transition for filter change */
+}
+
+.add-item-container .imgs-container .img-slider .slider-container img.item-img:hover {
+  filter: brightness(0.8); /* Increase brightness on hover */
+}
+
+.add-item-container .imgs-container .img-slider .slider-container img.item-img.center {
+  filter: brightness(1); /* Full brightness for the centered image */
+  border: 1px solid white; /* Highlight centered image with a border */
+}
+
+.remove-image-btn:hover {
+  background-color: rgba(255, 0, 0, 0.8) !important;
 }
 
 
+/* Thumbnail container */
+.item-container {
+  position: relative;
+}
 
+.item-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 5px;
+  margin: 5px;
+  cursor: pointer;
+  object-fit: cover;
+}
+
+.item-img:hover {
+  filter: brightness(0.7);
+}
+
+/* For center image in the slider */
+.item-img.center {
+  border: 2px solid blue;
+}
+
+/* Mobile Responsiveness */
 @media (max-width: 600px) {
-  .highlight {
-    position: relative;
-    height: 400px;
-    width: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: none;
+  .add-item-container {
+    flex-direction: column;
+    height: auto;
   }
 
-  .highlight::before {
-    content: "";
-    background-image: inherit; /* Uses the background of .highlight */
-    background-size: cover;
-    background-position: center;
-    filter: blur(15px);
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    z-index: 0; /* Stays behind the content */
+  .add-item-container .imgs-container {
+    flex-direction: column;
   }
 
-  .highlight img {
-    position: relative;
-    height: 100%;
-    width: 100%;
-    object-fit: contain;
-    z-index: 1;
+  .add-item-container .imgs-container .img-slider .item-container img.item-img {
+    height: auto;
+    width: 48px;
+    filter: brightness(0.5);
   }
-  .img-slider {
-    position: relative;
-    bottom: 0;
-    left: 0;
-    right: 0;
+
+  .add-item-container .rental-dates-durations {
     display: flex;
-    visibility: visible;
-    border-radius: 0;
-    background-color: rgba(1, 1, 1, 0.2);
+    flex-direction: column;
+    justify-content: flex-start;
+    width: auto;
+    gap: 8px !important;
   }
-}
 
-@media (min-width: 601px) and (max-width: 1024px) {
-}
-@media (min-width: 1025px) {
+  .add-item-container .rental-dates-durations .date-picker {
+    display: inline-block;
+  }
 }

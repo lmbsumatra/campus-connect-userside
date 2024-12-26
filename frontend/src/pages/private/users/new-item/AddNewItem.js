@@ -49,6 +49,7 @@ import {
   updateField,
 } from "../../../../redux/item-form/itemFormSlice.js";
 import AddImage from "../common/AddImage.jsx";
+import DateDurationPicker from "../new-post/DateDurationPicker.jsx";
 
 function AddNewItem() {
   const itemDataState = useSelector((state) => state.itemForm);
@@ -274,6 +275,7 @@ function AddNewItem() {
           </Tooltip>
           <hr />
           <div className="rental-dates-durations">
+          <DateDurationPicker/>
             <div className="date-picker">
               <span>
                 Pick a date to{" "}
