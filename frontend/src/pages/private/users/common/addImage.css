@@ -1,0 +1,113 @@
+.highlight {
+  position: relative;
+  z-index: 1;
+}
+
+.upload-image {
+  background-size: cover;
+  background-position: center;
+  filter: blur(15px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+  background-color: aqua;
+}
+
+
+.highlight-img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+}
+
+.img-slider {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.2);
+  height: 90px;
+  width: auto;
+  flex-direction: row;
+  border-radius: 8px;
+  overflow: hidden;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  justify-content: space-between;
+  align-items: center;
+  display: none;
+  visibility: hidden;
+  transition: visibility 0.2s ease-in-out;
+  z-index: 4;
+}
+
+img.next-btn,
+img.prev-btn {
+  height: 24px;
+  width: 24px;
+}
+
+.btn-slider {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+.btn-slider:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+
+
+@media (max-width: 600px) {
+  .highlight {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: none;
+  }
+
+  .highlight::before {
+    content: "";
+    background-image: inherit; /* Uses the background of .highlight */
+    background-size: cover;
+    background-position: center;
+    filter: blur(15px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 0; /* Stays behind the content */
+  }
+
+  .highlight img {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    z-index: 1;
+  }
+  .img-slider {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    visibility: visible;
+    border-radius: 0;
+    background-color: rgba(1, 1, 1, 0.2);
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+}
+@media (min-width: 1025px) {
+}

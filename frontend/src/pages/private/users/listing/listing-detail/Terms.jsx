@@ -4,22 +4,24 @@ import expandIcon from "../../../../../assets/images/pdp/plus.svg";
 
 const Terms = ({ values }) => {
   const [expandTerm, setExpandTerm] = useState(false);
-  const handleExpandTerms = () => {
+  
+  const handleExpandTerms = (e) => {
+    e.stopPropagation();
     setExpandTerm(!expandTerm);
   };
 
   return (
     <div className="group-container terms-group">
-      <label className="sub-section-label">
-        Terms and Condition{" "}
+      <div className="sub-section-label">
+        Terms and Condition
         <button
           className={`expand-btn ${expandTerm ? "expand" : ""}`}
           onClick={handleExpandTerms}
         >
           <img src={expandIcon} alt="Expand terms and condition" />
         </button>
-      </label>
-
+      </div>
+      
       {expandTerm && (
         <div className="terms-popup">
           <div className="term late-charges">
@@ -38,9 +40,7 @@ const Terms = ({ values }) => {
               {values.securityDeposit ? (
                 <span className="value">{values.securityDeposit}</span>
               ) : (
-                <span className="error-msg">
-                  No security deposit specified.
-                </span>
+                <span className="error-msg">No security deposit specified.</span>
               )}
             </div>
           </div>
@@ -50,9 +50,7 @@ const Terms = ({ values }) => {
               {values.repairReplacement ? (
                 <span className="value">{values.repairReplacement}</span>
               ) : (
-                <span className="error-msg">
-                  No repair and replacement specified.
-                </span>
+                <span className="error-msg">No repair and replacement specified.</span>
               )}
             </div>
           </div>

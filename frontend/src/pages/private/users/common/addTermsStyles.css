@@ -1,4 +1,4 @@
-.group-container.terms-group .input-wrapper {
+.add-item-detail .group-container.terms-group .input-wrapper {
   all: unset;
   display: flex;
   flex-direction: row;
@@ -6,12 +6,12 @@
   width: 100%;
   border-radius: 0px !important;
 }
-.group-container.terms-group .field-container label {
+.add-item-detail .group-container.terms-group .field-container label {
   display: inline-block;
   white-space: nowrap;
 }
 
-.group-container.terms-group .input-wrapper .input {
+.add-item-detail .group-container.terms-group .input-wrapper .input {
   all: unset;
   width: 100%;
   padding: 5px !important;
@@ -22,19 +22,35 @@
   flex-grow: 1;
 }
 
-.group-container.terms-group .btn.btn-icon.secondary:hover {
+.add-item-detail .group-container.terms-group .btn.btn-icon.secondary:hover {
   opacity: 80%;
   background-color: white !important;
 }
-.group-container.terms-group .btn.btn-icon.secondary {
+.add-item-detail .group-container.terms-group .btn.btn-icon.secondary {
   opacity: 50%;
-  
 }
-.group-container.terms-group .btn.btn-icon.secondary:hover {
+.add-item-detail .group-container.terms-group .btn.btn-icon.secondary:hover {
   opacity: 80%;
   background-color: none !important;
 }
-.group-container.terms-group .btn.btn-icon.secondary img {
+.add-item-detail .group-container.terms-group .btn.btn-icon.secondary img {
   height: 16px;
   width: 16px;
+}
+
+.add-item-detail .group-container.terms-group {
+  position: relative;
+}
+
+.add-item-detail .terms-popup {
+  position: absolute;
+  top: 100%; /* Position right below the label */
+  left: 0;
+  margin-top: 8px;
+  width: 100%;
+  background-color: var(--clr-neutral-muted);
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 999;
 }

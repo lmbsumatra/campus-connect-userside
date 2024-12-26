@@ -238,35 +238,6 @@
   transition: transform 0.2s ease-in-out;
 }
 
-.group-container.item-condition {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 8px;
-}
-
-.terms-group {
-  position: relative; /* Establish a positioning context */
-}
-
-.terms-popup {
-  position: absolute;
-  top: 100%; /* Position the popup just below the label */
-  left: 0;
-  width: 100%; /* Match the parent container width */
-  background: var(--clr-neutral-muted); /* Background color */
-  border-radius: 5px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
-  z-index: 10; /* Ensure the popup appears above other elements */
-  padding: 8px; /* Spacing inside the popup */
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 9;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 
 @media (max-width: 600px) {
   .post-container {

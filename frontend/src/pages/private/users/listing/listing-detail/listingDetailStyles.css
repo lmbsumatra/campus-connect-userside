@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: row;
   gap: 8px;
-  height: 728px !important;
+  height: 708px !important;
   width: 100%;
 }
 
@@ -97,13 +97,6 @@
   color: var(--clr-neutral-dark-gray);
   display: flex;
   line-height: 1;
-}
-
-.group-container.terms-group {
-  height: 100px !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  background-color: aqua !important;
 }
 
 .group-container.terms-group .value {
@@ -202,6 +195,26 @@
   padding: 8px;
 }
 
+
+
+.listing-detail .group-container.terms-group {
+  position: relative;
+}
+
+.terms-popup {
+  position: absolute;
+  top: 100%; /* Position right below the label */
+  left: 0;
+  margin-top: 48px;
+  width: 100%;
+  background-color: white;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+
 .group-container.terms-group .term {
   background-color: white;
   padding: 8px;
@@ -214,6 +227,7 @@
   align-items: center;
   padding: 0;
   margin: 0;
+  position: relative;
 }
 
 .expand-btn {
@@ -241,27 +255,6 @@
   gap: 8px;
 }
 
-.terms-group {
-  position: relative; 
-}
-
-.terms-popup {
-  position: absolute;
-  top: 100%; /* Position the popup just below the label */
-  left: 0;
-  width: 100%; /* Match the parent container width */
-  background: var(--clr-neutral-muted); /* Background color */
-  border-radius: 5px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
-  z-index: 10; /* Ensure the popup appears above other elements */
-  padding: 8px; /* Spacing inside the popup */
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 9;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 
 @media (max-width: 600px) {
   .listing-container {
@@ -299,3 +292,12 @@
 
 @media (min-width: 1025px) {
 }
+
+/* First, modify the terms-group container to support the popup positioning */
+.group-container.terms-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative; /* Add this to contain the popup */
+}
+

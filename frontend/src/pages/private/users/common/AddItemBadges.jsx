@@ -43,6 +43,8 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
     }
   };
 
+  
+
   return (
     <div className="badge-container">
       {/* College Badge Section */}
@@ -98,6 +100,7 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
             className="category-dropdown"
             value={values?.category || ""}
             onChange={(e) => onCategoryChange(e.target.value)}
+            
           >
             <option className="header" value="" disabled>
               Select Category

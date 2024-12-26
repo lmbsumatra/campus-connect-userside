@@ -39,10 +39,7 @@ import {
 } from "../../../../redux/alert-popup/alertPopupSlice.js";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import UserToolbar from "../common/UserToolbar.jsx";
-import Terms from "../listing/listing-detail/Terms.jsx";
 import ImageSlider from "../common/ImageSlider.jsx";
-import ItemBadges from "../common/ItemBadges.jsx";
-import axios from "axios";
 import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs.jsx";
 import { fetchUser } from "../../../../redux/user/userSlice.js";
 import AddItemBadges from "../common/AddItemBadges.jsx";
@@ -51,6 +48,7 @@ import {
   blurField,
   updateField,
 } from "../../../../redux/item-form/itemFormSlice.js";
+import AddImage from "../common/AddImage.jsx";
 
 function AddNewItem() {
   const itemDataState = useSelector((state) => state.itemForm);
@@ -177,7 +175,7 @@ function AddNewItem() {
               className="item-type"
             />
           </Tooltip>
-          <ImageSlider images={images} />
+          <AddImage images={images} />
         </div>
         <div className="rental-details">
           <AddItemBadges
@@ -237,14 +235,16 @@ function AddNewItem() {
                 placeholder="Add price"
                 required
                 type="text"
-                value={itemDataState.price.value}
+               value={itemDataState.price.value}
                 onChange={(e) =>
                   dispatch(
-                    onInputChange({ name: "price", value: e.target.value })
+                    updateField({ name: "price", value: e.target.value })
                   )
                 }
                 onBlur={(e) => {
-                  dispatch(onBlur({ name: "price", value: e.target.value }));
+                  dispatch(
+                    blurField({ name: "price", value: e.target.value })
+                  );
                 }}
               />
             </div>
@@ -433,58 +433,60 @@ function AddNewItem() {
               </Tooltip>
             </div>
           </div>
-
-          <div className="field-container item-condition">
-            <div className="input-wrapper">
-              <label className="label">Item Condition</label>
-              <input
-                id="itemCondition"
-                name="itemCondition"
-                className="input"
-                placeholder="Add item condition"
-                required
-                type="text"
-                value={itemDataState.itemCondition.value}
-                onChange={(e) =>
-                  dispatch(
-                    updateField({
-                      name: "itemCondition",
-                      value: e.target.value,
-                    })
-                  )
-                }
-                onBlur={(e) =>
-                  dispatch(
-                    blurField({
-                      name: "itemCondition",
-                      value: e.target.value,
-                    })
-                  )
-                }
-              />
+          <div className="group-container">
+            <div className="field-container item-condition">
+              <div className="input-wrapper">
+                <label className="label">Item Condition</label>
+                <input
+                  id="itemCondition"
+                  name="itemCondition"
+                  className="input"
+                  placeholder="Add item condition"
+                  required
+                  type="text"
+                  value={itemDataState.itemCondition.value}
+                  onChange={(e) =>
+                    dispatch(
+                      updateField({
+                        name: "itemCondition",
+                        value: e.target.value,
+                      })
+                    )
+                  }
+                  onBlur={(e) =>
+                    dispatch(
+                      blurField({
+                        name: "itemCondition",
+                        value: e.target.value,
+                      })
+                    )
+                  }
+                />
+              </div>
+              {itemDataState.itemCondition.triggered &&
+                itemDataState.itemCondition.hasError && (
+                  <div className="validation error">
+                    <img
+                      src={warningIcon}
+                      className="icon"
+                      alt="Error on last name"
+                    />
+                    <span className="text">
+                      {itemDataState.itemCondition.error}
+                    </span>
+                  </div>
+                )}
             </div>
-            {itemDataState.itemCondition.triggered &&
-              itemDataState.itemCondition.hasError && (
-                <div className="validation error">
-                  <img
-                    src={warningIcon}
-                    className="icon"
-                    alt="Error on last name"
-                  />
-                  <span className="text">
-                    {itemDataState.itemCondition.error}
-                  </span>
-                </div>
-              )}
           </div>
-
-          <AddTerms
-            values={{
-              lateCharges: itemDataState?.lateCharges?.value,
-              securityDeposit: itemDataState?.securityDeposit?.value,
-              repairReplacement: itemDataState?.repairReplacement?.value,
-            }}
-          />
+          <div className="group-container terms">
+            <AddTerms
+              values={{
+                lateCharges: itemDataState?.lateCharges?.value,
+                securityDeposit: itemDataState?.securityDeposit?.value,
+                repairReplacement: itemDataState?.repairReplacement?.value,
+              }}
+            />
+          </div>
         </div>
       </div>
 
