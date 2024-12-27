@@ -6,6 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { Op } = require("sequelize");
+const UnavailableDate = require("../models/UnavailableDateModel");
 
 const bcrypt = require("bcrypt");
 const { rollbackUpload } = require("../config/multer");
@@ -186,5 +187,54 @@ exports.getAllAdminAccounts = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error fetching admin accounts", error: error.message });
+  }
+};
+
+// GET request to display an unavailable date
+exports.getUnavailableDates = async (req, res) => {
+  try {
+    const dates = await UnavailableDate.findAll();  // This should work if the model is set up correctly
+    res.status(200).json(dates);
+  } catch (error) {
+    console.error("Error fetching dates:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// ADD request to add an unavailable date
+exports.addUnavailableDate = async (req, res) => {
+  const { date, description } = req.body;
+
+  if (!date || !description) {
+    return res.status(400).json({ message: "Date and description are required" });
+  }
+
+  try {
+    const newDate = await UnavailableDate.create({ date, description });
+    res.status(201).json(newDate);
+  } catch (error) {
+    console.error('Error creating date:', error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// DELETE request to remove an unavailable date
+exports.deleteUnavailableDate = async (req, res) => {
+  const { date } = req.params;  // Get the date from URL parameter
+
+  try {
+    // Convert the string date to a Date object (assuming your database uses a date type)
+    const deletedDate = await UnavailableDate.destroy({
+      where: { date: new Date(date) },  // Make sure this matches your DB schema
+    });
+
+    if (deletedDate) {
+      return res.status(200).json({ message: 'Date removed successfully' });
+    } else {
+      return res.status(404).json({ message: 'Date not found' });
+    }
+  } catch (error) {
+    console.error('Error removing date:', error);
+    return res.status(500).json({ message: 'Failed to remove date' });
   }
 };

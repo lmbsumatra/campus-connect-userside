@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize } = require("sequelize"); 
 const sequelize = require("../config/database");
 
 const Listing = require("./listing/ListingModel")(sequelize);
@@ -8,11 +8,13 @@ const Date = require("./common/DatesModel")(sequelize);
 const Duration = require("./common/DurationsModel")(sequelize);
 const Student = require("./StudentModel"); 
 const User = require("./UserModel");
-const ItemForSale = require('./item-for-sale/ItemForSaleModel')(sequelize)
-const RentalTransaction = require('./RentalTransactionModel')(sequelize)
+const ItemForSale = require('./item-for-sale/ItemForSaleModel')(sequelize);
+const RentalTransaction = require('./RentalTransactionModel')(sequelize);
 const Conversation = require('./ConversationModel');
 const Message = require('./MessageModel');
-const ReviewAndRate = require("./ReviewAndRateModel")(sequelize)
+const ReviewAndRate = require("./ReviewAndRateModel")(sequelize);
+const UnavailableDate = require("./UnavailableDateModel");
+
 
 const models = {
   Listing,
@@ -26,6 +28,7 @@ const models = {
   RentalTransaction,
   Conversation,
   Message,
+  UnavailableDate,  
   ReviewAndRate
 };
 

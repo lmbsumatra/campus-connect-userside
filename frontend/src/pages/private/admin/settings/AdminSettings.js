@@ -6,6 +6,7 @@ import PasswordMeter from "../../../../components/common/PasswordMeter";
 import { useAuth } from "../../../../context/AuthContext";
 import AdminChangePassword from "./AdminChangePassword";
 import AdminViewAccounts from "./AdminViewAccounts"; // Import the new component
+import AdminUnavailableDates from "./AdminUnavailableDates";
 
 const AdminSettings = ({ tab, onClose }) => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const AdminSettings = ({ tab, onClose }) => {
   const [inputWarning, setInputWarning] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const errorRef = useRef(null);
+  const [showManageDates, setShowManageDates] = useState(false);
 
   // User data state
   const [userData, setUserData] = useState({
@@ -170,7 +172,8 @@ const AdminSettings = ({ tab, onClose }) => {
           {showAccounts ? "Hide Accounts" : "View Admin Accounts"}
         </button>
         {showAccounts && <AdminViewAccounts />}
-
+        
+        {/* Changing password for Admin/SuperAdmin */}
         <div>
           <button
             className="btn btn-secondary mb-2"
@@ -183,6 +186,7 @@ const AdminSettings = ({ tab, onClose }) => {
             <AdminChangePassword onClose={() => setShowChangePassword(false)} />
           )}
         </div>
+
         {/* Conditionally render the Create Account button based on user role */}
         {adminUser?.role === "superadmin" && ( // Check if the user is superadmin
           <button
@@ -192,6 +196,23 @@ const AdminSettings = ({ tab, onClose }) => {
             Create Account
           </button>
         )}
+
+         {/* Manage to add unavailable dates*/}
+        <div>
+          {adminUser?.role === "superadmin" && (
+                    <button
+                      className="btn btn-warning mt-2"
+                      onClick={() => setShowManageDates(true)}
+                    >
+                      Manage Unavailable Dates
+                    </button>
+                  )}
+
+                  {showManageDates && (
+                    <AdminUnavailableDates onClose={() => setShowManageDates(false)} />
+                  )}
+        </div>
+ 
 
         {showCreateAcctWindow && (
           <div className="modal show bg-shadow" style={{ display: "block" }}>

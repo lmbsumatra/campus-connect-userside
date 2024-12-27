@@ -23,4 +23,8 @@ router.get("/accounts", adminAuthController.getAllAdminAccounts);
 //     adminAuthController.getUserInformation
 //   );
 
+router.get("/unavailable-dates", adminAuthController.getUnavailableDates);
+router.post("/unavailable-dates", adminAuthController.addUnavailableDate);
+router.delete("/unavailable-dates/:date", adminAuthController.deleteUnavailableDate);
+
 module.exports = router;
