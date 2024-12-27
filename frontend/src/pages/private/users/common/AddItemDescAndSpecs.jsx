@@ -3,11 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addTag, removeTag } from "../../../../redux/tag/tagSlice";
 import removeIcon from "../../../../assets/images/input-icons/remove.svg";
 import "./addItemDescAndSpecsStyles.css";
-import {
-  UPDATE_FORM,
-  onInputChange,
-  onBlur,
-} from "../../../../hooks/input-reducers/itemFormInputReducer";
+
 import TextareaAutosize from "react-textarea-autosize";
 import warningIcon from "../../../../assets/images/input-icons/warning.svg";
 import {

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import "./addItemBadgesStyles.css";
 
-const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
-  const [itemType, setItemType] = useState(values?.itemType || "For Rent");
+const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange  }) => {
+  const itemType = values?.itemType || "For Rent";
 
   const categories = [
     "Electronics",
@@ -37,13 +37,11 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
 
   const handleToggleChange = () => {
     const newItemType = itemType === "For Rent" ? "For Sale" : "For Rent";
-    setItemType(newItemType);
     if (onItemTypeChange) {
-      onItemTypeChange(newItemType);
+      onItemTypeChange(newItemType); // Pass the change to the parent component
     }
   };
 
-  
 
   return (
     <div className="badge-container">
@@ -138,7 +136,6 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
             type="checkbox"
             id="toggle-switch"
             onChange={handleToggleChange}
-            checked={itemType === "For Sale"}
           />
           <span className="slider"><p className="text">{itemType}</p></span>
         </label>

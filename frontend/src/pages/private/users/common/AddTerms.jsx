@@ -1,60 +1,17 @@
 import { useReducer, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import "./addTermsStyles.css";
 import expandIcon from "../../../../assets/images/pdp/plus.svg";
 import infoIcon from "../../../../assets/images/input-icons/info.svg";
 import {
-  UPDATE_FORM,
-  onInputChange,
-  onBlur,
-} from "../../../../hooks/input-reducers/itemFormInputReducer";
+  blurField,
+  updateField,
+} from "../../../../redux/item-form/itemFormSlice";
 import warningIcon from "../../../../assets/images/input-icons/warning.svg";
 
-const initialState = {
-  category: { value: "", triggered: false, hasError: true, error: "" },
-  itemName: { value: "", triggered: false, hasError: true, error: "" },
-  price: { value: "", triggered: false, hasError: true, error: "" },
-  availableDates: {
-    value: [],
-    triggered: false,
-    hasError: false,
-    error: "",
-  },
-  deliveryMethod: { value: "", triggered: false, hasError: true, error: "" },
-  paymentMethod: { value: "", triggered: false, hasError: true, error: "" },
-  itemCondition: { value: "", triggered: false, hasError: true, error: "" },
-  lateCharges: { value: "", triggered: false, hasError: true, error: "" },
-  securityDeposit: { value: "", triggered: false, hasError: true, error: "" },
-  repairReplacement: { value: "", triggered: false, hasError: true, error: "" },
-
-  images: { value: [], triggered: false, hasError: false, error: "" }, // Array of images
-  desc: { value: "", triggered: false, hasError: false, error: "" }, // Array of tags
-  tags: { value: [], triggered: false, hasError: false, error: "" }, // Array of tags
-  specs: { value: {}, triggered: false, hasError: false, error: "" }, // Object for specs
-
-  isFormValid: false,
-};
-
-const formsReducer = (state, action) => {
-  switch (action.type) {
-    case UPDATE_FORM:
-      return {
-        ...state,
-        [action.data.name]: {
-          ...state[action.data.name],
-          value: action.data.value,
-          hasError: action.data.hasError,
-          error: action.data.error,
-          triggered: action.data.triggered,
-        },
-        isFormValid: action.data.isFormValid,
-      };
-    default:
-      return state;
-  }
-};
-
 const AddTerms = ({ values }) => {
-  const [itemDataState, dispatchtwo] = useReducer(formsReducer, initialState);
+  const dispatch = useDispatch();
+  const itemDataState = useSelector((state) => state.itemForm);
   const [expandTerm, setExpandTerm] = useState(false);
   const handleExpandTerms = () => {
     setExpandTerm(!expandTerm);
@@ -86,19 +43,13 @@ const AddTerms = ({ values }) => {
                 type="text"
                 value={itemDataState.lateCharges.value}
                 onChange={(e) =>
-                  onInputChange(
-                    "lateCharges",
-                    e.target.value,
-                    dispatchtwo,
-                    itemDataState
+                  dispatch(
+                    updateField({ name: "lateCharges", value: e.target.value })
                   )
                 }
                 onBlur={(e) => {
-                  onBlur(
-                    "lateCharges",
-                    e.target.value,
-                    dispatchtwo,
-                    itemDataState
+                  dispatch(
+                    blurField({ name: "lateCharges", value: e.target.value })
                   );
                 }}
               />
@@ -132,19 +83,19 @@ const AddTerms = ({ values }) => {
                 type="text"
                 value={itemDataState.securityDeposit.value}
                 onChange={(e) =>
-                  onInputChange(
-                    "securityDeposit",
-                    e.target.value,
-                    dispatchtwo,
-                    itemDataState
+                  dispatch(
+                    updateField({
+                      name: "securityDeposit",
+                      value: e.target.value,
+                    })
                   )
                 }
                 onBlur={(e) => {
-                  onBlur(
-                    "securityDeposit",
-                    e.target.value,
-                    dispatchtwo,
-                    itemDataState
+                  dispatch(
+                    blurField({
+                      name: "securityDeposit",
+                      value: e.target.value,
+                    })
                   );
                 }}
               />
@@ -176,21 +127,21 @@ const AddTerms = ({ values }) => {
                 placeholder="Add repair and replacement"
                 required
                 type="text"
-                value={itemDataState.price.value}
+                value={itemDataState.repairReplacement.value}
                 onChange={(e) =>
-                  onInputChange(
-                    "repairReplacement",
-                    e.target.value,
-                    dispatchtwo,
-                    itemDataState
+                  dispatch(
+                    updateField({
+                      name: "repairReplacement",
+                      value: e.target.value,
+                    })
                   )
                 }
                 onBlur={(e) => {
-                  onBlur(
-                    "repairReplacement",
-                    e.target.value,
-                    dispatchtwo,
-                    itemDataState
+                  dispatch(
+                    blurField({
+                      name: "repairReplacement",
+                      value: e.target.value,
+                    })
                   );
                 }}
               />

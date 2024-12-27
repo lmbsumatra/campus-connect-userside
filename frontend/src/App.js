@@ -69,6 +69,7 @@ import ListingDetail from "./pages/private/users/listing/listing-detail/ListingD
 import ItemForSaleDetail from "./pages/private/users/item-for-sale/ItemForSaleDetail.js";
 import Shop from "./pages/public/Shop.js";
 import AddNewLItem from "./pages/private/users/new-item/AddNewItem.js";
+import AddNewPost from "./pages/private/users/new-post/AddNewPost.js";
 
 function App() {
   console.log(baseApi);
@@ -214,6 +215,14 @@ function Content() {
           element={
             <StudentProtectedRoute allowedRoles="student">
               <AddPost />
+            </StudentProtectedRoute>
+          }
+        />
+        <Route
+          path="/new-post2"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <AddNewPost />
             </StudentProtectedRoute>
           }
         />

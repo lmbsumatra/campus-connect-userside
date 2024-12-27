@@ -4,9 +4,10 @@ import removeIcon from "../../../../assets/images/input-icons/remove.svg"; // Im
 import { useRef, useState } from "react";
 import "./imageSliderStyles.css";
 
-const AddImage = ({ images = [] }) => {
+const AddImage = ({ images = [], onChange }) => {
   const [currentIndex, setCurrentIndex] = useState(0); // Initialize currentIndex to 0
-  const [uploadedImages, setUploadedImages] = useState(images); // State to hold uploaded images
+  const [uploadedImages, setUploadedImages] = useState(images); // State to hold uploaded images (URLs for preview)
+  const [imageFiles, setImageFiles] = useState([]); // State to hold actual file objects
   const inputRef = useRef(null);
 
   // Go to next image in the slider
@@ -27,22 +28,36 @@ const AddImage = ({ images = [] }) => {
     setCurrentIndex(index);
   };
 
-  // Handle image upload and set the new image as current
   const handleImageUpload = (event) => {
     const uploadedFiles = Array.from(event.target.files);
-    const newImages = uploadedFiles.map((file) => URL.createObjectURL(file));
-    
-    // Add new images to the existing uploaded images array
+    const newImageUrls = uploadedFiles.map((file) => URL.createObjectURL(file)); // Create preview URLs
+
     setUploadedImages((prevImages) => {
-      const updatedImages = [...prevImages, ...newImages];
-      setCurrentIndex(updatedImages.length - 1); // Set current index to the last uploaded image
+      const updatedImages = [...prevImages, ...newImageUrls];
+      setCurrentIndex(updatedImages.length - 1);
       return updatedImages;
+    });
+
+    setImageFiles((prevFiles) => {
+      const updatedFiles = [...prevFiles, ...uploadedFiles];
+      onChange?.(updatedFiles); // Notify parent with the actual files
+      return updatedFiles;
     });
   };
 
-  // Remove image from the uploadedImages array
+  // Remove image from the uploadedImages and imageFiles array
   const removeImage = (index) => {
-    setUploadedImages((prevImages) => prevImages.filter((_, i) => i !== index));
+    setUploadedImages((prevImages) => {
+      const updatedImages = prevImages.filter((_, i) => i !== index);
+      return updatedImages;
+    });
+
+    setImageFiles((prevFiles) => {
+      const updatedFiles = prevFiles.filter((_, i) => i !== index);
+      onChange?.(updatedFiles); // Notify parent component
+      return updatedFiles;
+    });
+
     if (currentIndex === index && uploadedImages.length > 1) {
       // Adjust the currentIndex if we remove the current image
       setCurrentIndex((prevIndex) => (prevIndex === 0 ? 0 : prevIndex - 1));
@@ -57,7 +72,9 @@ const AddImage = ({ images = [] }) => {
       <div className="upload-image">
         <label
           htmlFor="imageUpload"
-          className={`image-upload-label ${uploadedImages.length ? "has-image" : ""}`}
+          className={`image-upload-label ${
+            uploadedImages.length ? "has-image" : ""
+          }`}
           style={{ display: "block", width: "100%", height: "100%" }} // Makes the entire div clickable
         >
           <div className="add-image-container">
@@ -95,15 +112,26 @@ const AddImage = ({ images = [] }) => {
             {/* Render the current subset of images */}
             {uploadedImages.length > 0 &&
               [...Array(Math.min(uploadedImages.length, 5)).keys()].map((i) => {
-                const offset = i - Math.floor(Math.min(uploadedImages.length, 5) / 2);
-                const index = (currentIndex + offset + uploadedImages.length) % uploadedImages.length;
+                const offset =
+                  i - Math.floor(Math.min(uploadedImages.length, 5) / 2);
+                const index =
+                  (currentIndex + offset + uploadedImages.length) %
+                  uploadedImages.length;
                 return (
-                  <div key={index} className="slider-container" style={{ position: 'relative' }}>
+                  <div
+                    key={index}
+                    className="slider-container"
+                    style={{ position: "relative" }}
+                  >
                     <img
                       src={uploadedImages[index]}
                       alt="Item"
                       className={`item-img ${offset === 0 ? "center" : ""}`}
-                      style={{ height: "100%", width: "60px", cursor: "pointer" }}
+                      style={{
+                        height: "100%",
+                        width: "60px",
+                        cursor: "pointer",
+                      }}
                       onClick={() => highlightImage(index)} // Click to set as current image
                     />
                     <img

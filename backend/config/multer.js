@@ -12,7 +12,9 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: (req, file) => {
     const folder = file.fieldname;
-    const publicId = `${req.user_id || "anonymous"}_${file.fieldname}_${Date.now()}`;
+    const publicId = `${req.user_id || "anonymous"}_${
+      file.fieldname
+    }_${Date.now()}`;
     return {
       folder: folder,
       public_id: publicId,
@@ -27,6 +29,14 @@ const upload = multer({ storage: storage }).fields([
 
 const upload_prof = multer({ storage: storage }).single("profile_pic");
 
+const upload_item = multer({ storage: storage }).array("item_images", 5);
+
+const upload_item_disabled = (req, res, next) => {
+  return res
+    .status(503)
+    .json({ message: "Item upload is temporarily disabled." });
+};
+
 const rollbackUpload = async (publicIds) => {
   try {
     await Promise.all(
@@ -37,4 +47,10 @@ const rollbackUpload = async (publicIds) => {
   }
 };
 
-module.exports = { upload_prof, upload, rollbackUpload };
+module.exports = {
+  upload_prof,
+  upload,
+  upload_item,
+  upload_item_disabled,
+  rollbackUpload,
+};

@@ -8,19 +8,15 @@ import Tooltip from "@mui/material/Tooltip";
 import UserToolbar from "../common/UserToolbar";
 import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs";
 import AddItemBadges from "../common/AddItemBadges";
-import AddTerms from "../common/AddTerms";
 import AddImage from "../common/AddImage";
-import DateDurationPicker from "../new-post/DateDurationPicker";
+import DateDurationPicker from "./DateDurationPicker";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
 
 // Constants and Utils
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 import {
   FOR_RENT,
-  PAY_UPON_MEETUP,
-  GCASH,
-  PICK_UP,
-  MEET_UP,
+  TO_RENT,
 } from "../../../../utils/consonants";
 
 // Redux
@@ -92,7 +88,7 @@ const FormField = ({
   </div>
 );
 
-const AddNewItem = () => {
+const AddNewPost = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const itemDataState = useSelector((state) => state.itemForm);
@@ -209,24 +205,18 @@ const AddNewItem = () => {
 
       // Prepare item data
       const itemData = {
-        [itemType == FOR_RENT ? "ownerId" : "sellerId"]: userId,
+        [itemType == TO_RENT ? "renterId" : "buyerId"]: userId,
         category: itemDataState.category.value,
         itemName: itemDataState.itemName.value,
-        itemCondition: itemDataState.itemCondition.value,
-        deliveryMethod: itemDataState.deliveryMethod.value,
-        paymentMethod: itemDataState.paymentMethod.value,
         price: itemDataState.price.value,
         desc: itemDataState.desc.value,
         tags: itemDataState.tags.value,
         dates: itemDataState.availableDates.value,
         specs: itemDataState.specs.value,
-        lateCharges: itemDataState.lateCharges.value,
-        securityDeposit: itemDataState.securityDeposit.value,
-        repairReplacement: itemDataState.repairReplacement.value,
       };
 
       formData.append(
-        itemType == FOR_RENT ? "listing" : "item",
+        itemType == FOR_RENT ? "to rent" : "to buy",
         JSON.stringify(itemData)
       );
 
@@ -284,8 +274,6 @@ const AddNewItem = () => {
     dispatch(updateField({ name: "images", value: newImages }));
     dispatch(blurField({ name: "images", value: newImages }));
   };
-
-  console.log(itemDataState.deliveryMethod.value);
 
   return (
     <div className="container-content add-item-detail">
@@ -384,129 +372,6 @@ const AddNewItem = () => {
               {renderDurations()}
             </div>
           </div>
-
-          {/* Delivery and Payment Methods */}
-          <div className="group-container delivery-method ">
-            <label className="label">Delivery Method</label>
-            <div className="delivery-method">
-              <Tooltip
-                title="Owner did not set delivery method, you decide whether to meetup or pickup."
-                placement="bottom"
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, -10],
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                <div className="action-btns">
-                  <button
-                    className={`value ${
-                      itemDataState.deliveryMethod.value === MEET_UP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "deliveryMethod", value: MEET_UP })
-                      )
-                    }
-                  >
-                    Meet up
-                  </button>
-                  <button
-                    className={`value ${
-                      itemDataState.deliveryMethod.value === PICK_UP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "deliveryMethod", value: PICK_UP })
-                      )
-                    }
-                  >
-                    Pick up
-                  </button>
-                </div>
-              </Tooltip>
-            </div>
-          </div>
-
-          <div className="group-container payment-method ">
-            <label className="label">Payment Method</label>
-            <div className="delivery-method">
-              <Tooltip
-                title="Owner did not set delivery method, you decide whether to meetup or pickup."
-                placement="bottom"
-              >
-                <div className="action-btns">
-                  <button
-                    className={`value ${
-                      itemDataState.paymentMethod.value === GCASH
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "paymentMethod", value: GCASH })
-                      )
-                    }
-                  >
-                    Gcash
-                  </button>
-                  <button
-                    className={`value ${
-                      itemDataState.paymentMethod.value === PAY_UPON_MEETUP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({
-                          name: "paymentMethod",
-                          value: PAY_UPON_MEETUP,
-                        })
-                      )
-                    }
-                  >
-                    Pay upon meetup
-                  </button>
-                </div>
-              </Tooltip>
-            </div>
-          </div>
-          <div className="group-container">
-            <FormField
-              label="Item Condition"
-              id="itemCondition"
-              value={itemDataState.itemCondition.value}
-              onChange={handleFieldChange}
-              onBlur={handleFieldBlur}
-              error={itemDataState.itemCondition.error}
-              triggered={itemDataState.itemCondition.triggered}
-              placeholder="Add item condition"
-            />
-          </div>
-          {itemType === FOR_RENT ? (
-            <div className="group-container terms">
-              <AddTerms
-                values={{
-                  lateCharges: itemDataState?.lateCharges?.value,
-                  securityDeposit: itemDataState?.securityDeposit?.value,
-                  repairReplacement: itemDataState?.repairReplacement?.value,
-                }}
-              />
-            </div>
-          ) : (
-            ""
-          )}
         </div>
       </div>
 
@@ -525,4 +390,4 @@ const AddNewItem = () => {
   );
 };
 
-export default AddNewItem;
+export default AddNewPost;

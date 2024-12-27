@@ -194,108 +194,121 @@ exports.getAllItemForSale = async (req, res) => {
   }
 };
 
-// Create a post
-exports.createItemForSale = async (req, res) => {
-  const transaction = await sequelize.transaction();
 
-  const {
-    sellerId, // Seller ID from frontend
-    category,
-    itemName, // item_for_sale_name in the model
-    itemCondition, // item_condition in the model
-    paymentMethod, // payment_mode in the model
-    price,
-    images,
-    desc, // description in the model
-    tags,
-    dates, // Rental dates and durations
-  } = req.body.item;
+// exports.createItemForSale = async (req, res) => {
+//   const transaction = await sequelize.transaction();
+//   try {
+//     // Ensure item details exist in the request
+//     if (!req.body.item) {
+//       throw new Error("Listing data is missing");
+//     }
 
-  try {
-    if (!req.body.item) {
-      throw new Error("Listing data is missing");
-    }
+//     const {
+//       sellerId,
+//       category,
+//       itemName,
+//       itemCondition,
+//       paymentMethod,
+//       price,
+//       desc,
+//       tags,
+//       dates,
+//       specs,
+//     } = req.body.item;
 
-    // Ensure required fields are present
-    if (!sellerId || !itemName || !itemCondition || !paymentMethod || !price) {
-      throw new Error("Required fields missing");
-    }
+//     // Validate required fields
+//     if (!sellerId || !itemName || !itemCondition || !paymentMethod || !price) {
+//       throw new Error("Required fields missing");
+//     }
 
-    // Create the item for sale
-    const item = await models.ItemForSale.create(
-      {
-        seller_id: sellerId,
-        category,
-        item_for_sale_name: itemName,
-        item_condition: itemCondition,
-        payment_mode: paymentMethod,
-        price,
-        images: JSON.stringify(images), // Store images as JSON string
-        description: desc,
-        tags: JSON.stringify(tags), // Convert tags array to a JSON string
-        status: "pending", // Default status to pending
-      },
-      { transaction }
-    );
+//     // Process uploaded files (item images)
+//     const uploadedFiles = req.files?.item_images || [];
+//     const imageUrls = uploadedFiles.map((file) => file.path); // Extract URLs from Cloudinary
 
-    // Handle rental dates and time periods
-    if (Array.isArray(dates)) {
-      for (const dateEntry of dates) {
-        const { date, timePeriods } = dateEntry;
+//     // Create the item for sale
+//     const item = await models.ItemForSale.create(
+//       {
+//         seller_id: sellerId,
+//         category,
+//         item_for_sale_name: itemName,
+//         item_condition: itemCondition,
+//         payment_mode: paymentMethod,
+//         price,
+//         images: JSON.stringify(imageUrls), // Store image URLs as JSON string
+//         description: desc,
+//         tags: JSON.stringify(tags), // Convert tags array to JSON
+//         status: "pending",
+//         specifications: specs,
+//       },
+//       { transaction }
+//     );
 
-        // Create a Date record
-        const rentalDate = await models.Date.create(
-          {
-            item_id: item.id,
-            date: date, // ISO date format
-            item_type: "item_for_sale",
-          },
-          { transaction }
-        );
+//     // Handle rental dates and time periods
+//     if (Array.isArray(dates)) {
+//       for (const dateEntry of dates) {
+//         const { date, timePeriods } = dateEntry;
 
-        // Create Duration records for each time period
-        if (Array.isArray(timePeriods)) {
-          for (const period of timePeriods) {
-            const { startTime, endTime } = period;
+//         // Create a Date record
+//         const rentalDate = await models.Date.create(
+//           {
+//             item_id: item.id,
+//             date: date, // ISO date format
+//             item_type: "item_for_sale",
+//           },
+//           { transaction }
+//         );
 
-            if (!startTime || !endTime) {
-              throw new Error(
-                "Both 'from' and 'to' times are required in timePeriods."
-              );
-            }
+//         // Create Duration records for each time period
+//         if (Array.isArray(timePeriods)) {
+//           for (const period of timePeriods) {
+//             const { startTime, endTime } = period;
 
-            await models.Duration.create(
-              {
-                date_id: rentalDate.id,
-                rental_time_from: startTime,
-                rental_time_to: endTime,
-              },
-              { transaction }
-            );
-          }
-        }
-      }
-    } else {
-      throw new Error("Dates must be provided as an array.");
-    }
+//             if (!startTime || !endTime) {
+//               throw new Error(
+//                 "Both 'from' and 'to' times are required in timePeriods."
+//               );
+//             }
 
-    // Commit transaction
-    await transaction.commit();
+//             await models.Duration.create(
+//               {
+//                 date_id: rentalDate.id,
+//                 rental_time_from: startTime,
+//                 rental_time_to: endTime,
+//               },
+//               { transaction }
+//             );
+//           }
+//         }
+//       }
+//     } else {
+//       throw new Error("Dates must be provided as an array.");
+//     }
 
-    res
-      .status(201)
-      .json({ message: "Item for sale created successfully.", item });
-  } catch (error) {
-    await transaction.rollback();
-    console.error("Error creating item for sale:", error);
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-      details:
-        "Failed to create listing. Please check the input data and try again.",
-    });
-  }
-};
+//     // Commit transaction
+//     await transaction.commit();
+
+//     res
+//       .status(201)
+//       .json({ message: "Item for sale created successfully.", item });
+//   } catch (error) {
+//     await transaction.rollback();
+
+//     // Rollback uploaded images in case of error
+//     if (req.files?.item_images) {
+//       const publicIds = req.files.item_images.map((file) => file.filename);
+//       await rollbackUpload(publicIds);
+//     }
+
+//     console.error("Error creating item for sale:", error);
+//     res.status(500).json({
+//       error: "Internal Server Error",
+//       message: error.message,
+//       details:
+//         "Failed to create listing. Please check the input data and try again.",
+//     });
+//   }
+// };
+
 
 // Get a single post by ID with associated rental dates, durations, and renter info
 exports.getItemForSaleById = async (req, res) => {

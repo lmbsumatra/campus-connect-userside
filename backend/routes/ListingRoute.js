@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const ListingController = require("../controllers/ListingController");
 const ListingController2 = require("../controllers/listing/ListingController");
+const { upload_item } = require("../config/multer");
 
 /* * * * * * * * * displayed for all users :: available * * * * * * * * * * * * * */
 // lahat ng available na listing (approved, with available date and corresponding time)
@@ -16,7 +17,7 @@ router.get("/info", ListingController.getAllListings);
 
 // user crud
 router.get("/:id", ListingController.getListingById);
-router.post("/add", ListingController.createListing);
+router.post("/add", upload_item, ListingController2.addListing);
 router.put("/:id", ListingController.updateListing);
 router.delete("/:id", ListingController.deleteListing);
 router.patch("/:id", ListingController.updateStatus);
