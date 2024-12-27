@@ -1,16 +1,38 @@
-import React, { useEffect, useReducer, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import "bootstrap/dist/css/bootstrap.min.css";
-import store from "../../../../store/store.js";
-import {
-  UPDATE_FORM,
-  onInputChange,
-  onBlur,
-} from "../../../../hooks/input-reducers/itemFormInputReducer.jsx";
-
-import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
+import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
+
+// Components
+import UserToolbar from "../common/UserToolbar";
+import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs";
+import AddItemBadges from "../common/AddItemBadges";
+import AddTerms from "../common/AddTerms";
+import AddImage from "../common/AddImage";
+import DateDurationPicker from "../new-post/DateDurationPicker";
+import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
+
+// Constants and Utils
+import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
+import {
+  FOR_RENT,
+  PAY_UPON_MEETUP,
+  GCASH,
+  PICK_UP,
+  MEET_UP,
+} from "../../../../utils/consonants";
+
+// Redux
+import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
+import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
+import { fetchUser } from "../../../../redux/user/userSlice";
+import {
+  blurField,
+  updateField,
+} from "../../../../redux/item-form/itemFormSlice";
+
+// Assets
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
 import itemImage1 from "../../../../assets/images/item/item_1.jpg";
 import itemImage2 from "../../../../assets/images/item/item_2.jpg";
@@ -19,52 +41,68 @@ import itemImage4 from "../../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../assets/images/card/buy.svg";
 import warningIcon from "../../../../assets/images/input-icons/warning.svg";
-import "./addNewItemStyles.css";
 
-import DatePicker from "react-datepicker";
+// Styles
+import "bootstrap/dist/css/bootstrap.min.css";
 import "react-datepicker/dist/react-datepicker.css";
-import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
-import {
-  FOR_RENT,
-  FOR_SALE,
-  GCASH,
-  MEET_UP,
-  PAY_UPON_MEETUP,
-  PICK_UP,
-  TO_BUY,
-} from "../../../../utils/consonants.js";
-import {
-  clearNotification,
-  showNotification,
-} from "../../../../redux/alert-popup/alertPopupSlice.js";
-import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
-import UserToolbar from "../common/UserToolbar.jsx";
-import ImageSlider from "../common/ImageSlider.jsx";
-import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs.jsx";
-import { fetchUser } from "../../../../redux/user/userSlice.js";
-import AddItemBadges from "../common/AddItemBadges.jsx";
-import AddTerms from "../common/AddTerms.jsx";
-import {
-  blurField,
-  updateField,
-} from "../../../../redux/item-form/itemFormSlice.js";
-import AddImage from "../common/AddImage.jsx";
-import DateDurationPicker from "../new-post/DateDurationPicker.jsx";
+import "./addNewItemStyles.css";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { baseApi } from "../../../../App";
+import { io } from "socket.io-client";
 
-function AddNewItem() {
-  const itemDataState = useSelector((state) => state.itemForm);
+const UNAVAILABLE_DATES = [
+  new Date(2024, 11, 25), // Christmas
+  new Date(2025, 0, 1), // New Year's
+];
+
+const ValidationError = ({ message }) => (
+  <div className="validation error">
+    <img src={warningIcon} className="icon" alt="Error indicator" />
+    <span className="text">{message}</span>
+  </div>
+);
+
+const FormField = ({
+  label,
+  id,
+  value,
+  onChange,
+  onBlur,
+  error,
+  triggered,
+  placeholder,
+}) => (
+  <div className="field-container">
+    <div className="input-wrapper">
+      {label && <label>{label}</label>}
+      <input
+        id={id}
+        name={id}
+        className="input"
+        placeholder={placeholder}
+        required
+        type="text"
+        value={value}
+        onChange={(e) => onChange(id, e.target.value)}
+        onBlur={(e) => onBlur(id, e.target.value)}
+      />
+    </div>
+    {triggered && error && <ValidationError message={error} />}
+  </div>
+);
+
+const AddNewItem = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedDuration, setSelectedDuration] = useState(null);
-  const [showDurations, setShowDurations] = useState(null);
+  const itemDataState = useSelector((state) => state.itemForm);
   const { user, loadingFetchUser, errorFetchUser } = useSelector(
     (state) => state.user
   );
   const { userId } = useSelector(selectStudentUser);
-  const [redirecting, setRedirecting] = useState(false);
+  const socket = io("http://localhost:3001");
 
-  const images = [
+  const itemImages = [
     itemImage1,
     itemImage2,
     itemImage3,
@@ -76,18 +114,10 @@ function AddNewItem() {
 
   const [category, setCategory] = useState("");
   const [itemType, setItemType] = useState("For Rent");
-
-  const handleCategoryChange = (newCategory) => {
-    setCategory(newCategory);
-    console.log("Selected Category:", newCategory);
-  };
-
-  const handleItemTypeChange = (newItemType) => {
-    setItemType(newItemType);
-    console.log("Selected Item Type:", newItemType);
-  };
-
-  const handleSelectDeliveryMethod = (method) => {};
+  const [redirecting, setRedirecting] = useState(false);
+  const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
+  const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
+  const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
 
   useEffect(() => {
     if (userId) {
@@ -96,249 +126,269 @@ function AddNewItem() {
   }, [userId, dispatch]);
 
   useEffect(() => {
-    if (errorFetchUser) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Error",
-          text: "User not found!",
-        })
-      );
-    } else if (!loadingFetchUser && !user) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Not Found",
-          text: "No user found with the given ID.",
-        })
-      );
-    }
-
     if (errorFetchUser || (!loadingFetchUser && !user)) {
-      setRedirecting(true); // Start the redirect process
-      const timer = setTimeout(() => {
-        dispatch(
-          showNotification({
-            type: "loading",
-            title: "Redirecting",
-          })
-        );
-      }, 5000); // Show redirect notification after 5 seconds
-
-      return () => clearTimeout(timer); // Clean up the timeout if dependencies change
+      handleError();
     }
-  }, [errorFetchUser, loadingFetchUser, user, dispatch]);
+  }, [errorFetchUser, loadingFetchUser, user]);
 
-  useEffect(() => {
-    if (redirecting) {
-      const redirectTimer = setTimeout(() => {
-        navigate(-1); // Redirect to previous page
-      }, 6000); // Wait 6 seconds before redirect
+  const handleError = () => {
+    const errorMessage = errorFetchUser
+      ? "User not found!"
+      : "No user found with the given ID.";
+    dispatch(
+      showNotification({
+        type: "error",
+        title: "Error",
+        text: errorMessage,
+      })
+    );
 
-      return () => clearTimeout(redirectTimer); // Clean up redirect timer
+    setRedirecting(true);
+    setTimeout(() => {
+      dispatch(showNotification({ type: "loading", title: "Redirecting" }));
+      setTimeout(() => navigate(-1), 1000);
+    }, 5000);
+  };
+
+  const handleFieldChange = (name, value) => {
+    dispatch(updateField({ name, value }));
+
+    dispatch(blurField({ name, value }));
+  };
+
+  const handleFieldBlur = (name, value) => {
+    dispatch(blurField({ name, value }));
+  };
+
+  const getDurationsForDate = (date) => {
+    if (!date) return [];
+    const dateItem = selectedDatesDurations.find(
+      (item) => item.date.toDateString() === date.toDateString()
+    );
+    return dateItem ? dateItem.timePeriods : [];
+  };
+
+  const renderDurations = () => {
+    const durations = getDurationsForDate(selectedDisplayDate);
+
+    if (!selectedDisplayDate) {
+      return <p className="select-date-message">Please select a date first.</p>;
     }
-  }, [redirecting, navigate]);
+
+    if (durations.length === 0) {
+      return (
+        <p className="no-duration-message">
+          No available duration for this date.
+        </p>
+      );
+    }
+
+    return (
+      <div className="duration-list">
+        {durations.map((duration, index) => (
+          <div key={index} className="duration-item">
+            <input type="checkbox" id={`duration-${index}`} checked readOnly />
+            {formatTimeTo12Hour(duration.startTime)} -{" "}
+            {formatTimeTo12Hour(duration.endTime)}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   if (loadingFetchUser || redirecting) {
     return <LoadingItemDetailSkeleton />;
   }
 
+  const handleSubmit = async () => {
+    try {
+      // Construct payload
+      const isForSale = true;
+      const endpoint = isForSale
+        ? `${baseApi}/item-for-sale/add`
+        : `${baseApi}/listings/add`;
+
+      const payload = {
+        ...(!isForSale && {
+          listing: {
+            category: itemDataState.category.value,
+            itemName: itemDataState.itemName.value,
+            price: itemDataState.price.value,
+            availableDates: itemDataState.availableDates.value,
+            itemCondition: itemDataState.itemCondition.value,
+            deliveryMethod: itemDataState.deliveryMethod.value,
+            paymentMethod: itemDataState.paymentMethod.value,
+            terms: {
+              lateCharges: itemDataState.lateCharges.value,
+              securityDeposit: itemDataState.securityDeposit.value,
+              repairReplacement: itemDataState.repairReplacement.value,
+            },
+            images: itemDataState.images.value,
+            desc: itemDataState.desc.value,
+            tags: itemDataState.tags.value,
+            specs: itemDataState.specs.value,
+          },
+        }),
+        ...(isForSale && {
+          item: {
+            sellerId: userId,
+            category: itemDataState.category.value,
+            itemName: itemDataState.itemName.value,
+            itemCondition: itemDataState.itemCondition.value,
+            paymentMethod: itemDataState.paymentMethod.value,
+            price: itemDataState.price.value,
+            images: itemDataState.images.value,
+            desc: itemDataState.desc.value,
+            tags: itemDataState.tags.value,
+            dates: itemDataState.availableDates.value
+          },
+        }),
+      };
+
+      console.log(itemDataState);
+
+      // Make API request
+      const response = await axios.post(endpoint, payload);
+
+      console.log(response);
+
+      // Emit socket event
+      if (socket) {
+        const notification = {
+          title: isForSale ? "New Sale Item" : "New Rental Listing",
+          owner: `${user?.fname} ${user?.lname}`,
+          message: isForSale
+            ? "listed an item for sale."
+            : "added a new rental listing.",
+          type: isForSale ? "new-item-for-sale" : "new-listing",
+        };
+
+        socket.emit("new-listing-notification", notification);
+      }
+
+      // Notify success
+      toast.success(`${isForSale ? "Item" : "Listing"} created successfully!`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      // Reset form if needed
+      // dispatch(resetForm());
+    } catch (error) {
+      console.error("Error creating listing:", error);
+
+      toast.error("Failed to create listing. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  const handleSaveDatesDurations = (datesDurations) => {
+    setSelectedDatesDurations(datesDurations);
+    dispatch(updateField({ name: "availableDates", value: datesDurations })); // Dispatch the action to save the selected dates and durations
+  };
+
   return (
     <div className="container-content add-item-detail">
       <div className="add-item-container">
         <div className="imgs-container">
-          <Tooltip
-            title={`This item is ${
-              itemDataState.itemType.value === FOR_RENT ? FOR_RENT : FOR_SALE
-            }`}
-            componentsProps={{
-              popper: {
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: {
-                      offset: [0, 0],
-                    },
-                  },
-                ],
-              },
-            }}
-          >
+          <Tooltip title={`This item is ${itemDataState.itemType.value}`}>
             <img
               src={
                 itemDataState.itemType.value === FOR_RENT
                   ? forRentIcon
                   : forSaleIcon
               }
-              alt={
-                itemDataState.itemType.value === FOR_RENT ? FOR_RENT : FOR_SALE
-              }
+              alt={itemDataState.itemType.value}
               className="item-type"
             />
           </Tooltip>
-          <AddImage images={images} />
+          <AddImage images={itemImages} />
         </div>
+
         <div className="rental-details">
           <AddItemBadges
             values={{
               college: user?.student?.college,
-              category: category,
-              itemType: itemType,
+              category,
+              itemType,
             }}
-            onCategoryChange={handleCategoryChange}
-            onItemTypeChange={(newItemType) =>
-              console.log("Item Type:", newItemType)
-            }
+            onCategoryChange={setCategory}
+            onItemTypeChange={(newType) => setItemType(newType)}
           />
 
-          <div className="field-container item-title">
-            <div className="input-wrapper">
-              <label>For rent </label>
-              <input
-                id="itemName"
-                name="itemName"
-                className="input"
-                placeholder="Add item name"
-                required
-                type="text"
-                value={itemDataState.itemName.value}
-                onChange={(e) =>
-                  dispatch(
-                    updateField({ name: "itemName", value: e.target.value })
-                  )
-                }
-                onBlur={(e) => {
-                  dispatch(
-                    blurField({ name: "itemName", value: e.target.value })
-                  );
-                }}
-              />
-            </div>
-            {itemDataState.itemName.triggered &&
-              itemDataState.itemName.hasError && (
-                <div className="validation error">
-                  <img
-                    src={warningIcon}
-                    className="icon"
-                    alt="Error on last name"
-                  />
-                  <span className="text">{itemDataState.itemName.error}</span>
-                </div>
-              )}
+          <FormField
+            label="For rent"
+            id="itemName"
+            value={itemDataState.itemName.value}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
+            error={itemDataState.itemName.error}
+            triggered={itemDataState.itemName.triggered}
+            placeholder="Add item name"
+          />
+
+          <FormField
+            label={<span className="price">$</span>}
+            id="price"
+            value={itemDataState.price.value}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
+            error={itemDataState.price.error}
+            triggered={itemDataState.price.triggered}
+            placeholder="Add price"
+            className="field-container item-price"
+          />
+
+          {/* Action Buttons */}
+          <div className="action-btns">
+            <button className="btn btn-icon primary" disabled>
+              <img src={cartIcon} alt="Add to cart" />
+            </button>
+            <button className="btn btn-rectangle secondary" disabled>
+              Message
+            </button>
+            <button className="btn btn-rectangle primary" disabled>
+              {itemDataState.itemType.value === FOR_RENT ? "Rent" : "Buy"}
+            </button>
           </div>
-          <div className="field-container item-price">
-            <div className="input-wrapper">
-              <label className="price">₱ </label>
-              <input
-                id="price"
-                name="price"
-                className="input"
-                placeholder="Add price"
-                required
-                type="text"
-               value={itemDataState.price.value}
-                onChange={(e) =>
-                  dispatch(
-                    updateField({ name: "price", value: e.target.value })
-                  )
-                }
-                onBlur={(e) => {
-                  dispatch(
-                    blurField({ name: "price", value: e.target.value })
-                  );
-                }}
-              />
-            </div>
-            {itemDataState.price.triggered && itemDataState.price.hasError && (
-              <div className="validation error">
-                <img
-                  src={warningIcon}
-                  className="icon"
-                  alt="Error on last name"
-                />
-                <span className="text">{itemDataState.price.error}</span>
-              </div>
-            )}
-          </div>
-          <Tooltip title="Buttons disabled for preview purposes.">
-            <div className="action-btns">
-              <button className="btn btn-icon primary" disabled>
-                <img src={cartIcon} alt="Add to cart" />
-              </button>
-              <button className="btn btn-rectangle secondary" disabled>
-                Message
-              </button>
-              <button className="btn btn-rectangle primary" disabled>
-                {itemDataState.itemType.value === FOR_RENT ? "Rent" : "Buy"}
-              </button>
-            </div>
-          </Tooltip>
+
           <hr />
+
+          {/* Date Duration Section */}
           <div className="rental-dates-durations">
-          <DateDurationPicker/>
+            <DateDurationPicker
+              show={showDateDurationPicker}
+              onClose={() => setShowDateDurationPicker(false)}
+              onSaveDatesDurations={handleSaveDatesDurations}
+              unavailableDates={UNAVAILABLE_DATES}
+            />
+
             <div className="date-picker">
-              <span>
-                Pick a date to{" "}
-                {itemDataState.itemType.value === FOR_RENT ? "rent" : "buy"}:
-              </span>
+              <button
+                className="btn btn-rectangle primary"
+                onClick={() => setShowDateDurationPicker(true)}
+              >
+                Add Dates and Durations
+              </button>
+
               <DatePicker
                 inline
-                selected={selectedDate ? new Date(selectedDate) : null}
-                onChange={(date) => {
-                  // const rentalDate = rentalDates.find(
-                  //   (r) =>
-                  //     new Date(r.date).toDateString() === date.toDateString()
-                  // );
-                  // if (rentalDate) {
-                  //   handleDateClick(rentalDate.id);
-                  // } else {
-                  //   setShowDurations(null);
-                  //   setSelectedDate(date);
-                  // }
-                }}
-                // highlightDates={availableDates}
-                // dayClassName={(date) => {
-                //   return availableDates.some(
-                //     (d) => d.toDateString() === date.toDateString()
-                //   )
-                //     ? "bg-green"
-                //     : "";
-                // }}
+                selected={selectedDisplayDate}
+                onChange={setSelectedDisplayDate}
+                highlightDates={selectedDatesDurations.map((item) => item.date)}
+                excludeDates={UNAVAILABLE_DATES}
               />
             </div>
 
             <div className="duration-picker group-container">
-              <strong>Available Durations:</strong>
-              <div>
-                {selectedDate ? (
-                  showDurations && showDurations.length > 0 ? (
-                    <div className="duration-list">
-                      {showDurations.map((duration) => (
-                        <div key={duration.id} className="duration-item">
-                          <input
-                            type="checkbox"
-                            id={`duration-${duration.id}`}
-                            // onChange={() => handleSelectDuration(duration)}
-                          />
-                          {formatTimeTo12Hour(duration.timeFrom)} -{" "}
-                          {formatTimeTo12Hour(duration.timeTo)}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-duration-message">
-                      No available duration for this date.
-                    </p>
-                  )
-                ) : (
-                  <p className="select-date-message">
-                    Please select a date first.
-                  </p>
-                )}
-              </div>
+              <strong>Selected Durations:</strong>
+              {renderDurations()}
             </div>
           </div>
 
+          {/* Delivery and Payment Methods */}
           <div className="group-container delivery-method ">
             <label className="label">Delivery Method</label>
             <div className="delivery-method">
@@ -436,50 +486,18 @@ function AddNewItem() {
             </div>
           </div>
           <div className="group-container">
-            <div className="field-container item-condition">
-              <div className="input-wrapper">
-                <label className="label">Item Condition</label>
-                <input
-                  id="itemCondition"
-                  name="itemCondition"
-                  className="input"
-                  placeholder="Add item condition"
-                  required
-                  type="text"
-                  value={itemDataState.itemCondition.value}
-                  onChange={(e) =>
-                    dispatch(
-                      updateField({
-                        name: "itemCondition",
-                        value: e.target.value,
-                      })
-                    )
-                  }
-                  onBlur={(e) =>
-                    dispatch(
-                      blurField({
-                        name: "itemCondition",
-                        value: e.target.value,
-                      })
-                    )
-                  }
-                />
-              </div>
-              {itemDataState.itemCondition.triggered &&
-                itemDataState.itemCondition.hasError && (
-                  <div className="validation error">
-                    <img
-                      src={warningIcon}
-                      className="icon"
-                      alt="Error on last name"
-                    />
-                    <span className="text">
-                      {itemDataState.itemCondition.error}
-                    </span>
-                  </div>
-                )}
-            </div>
+            <FormField
+              label="Item Condition"
+              id="itemCondition"
+              value={itemDataState.itemCondition.value}
+              onChange={handleFieldChange}
+              onBlur={handleFieldBlur}
+              error={itemDataState.itemCondition.error}
+              triggered={itemDataState.itemCondition.triggered}
+              placeholder="Add item condition"
+            />
           </div>
+
           <div className="group-container terms">
             <AddTerms
               values={{
@@ -499,8 +517,12 @@ function AddNewItem() {
         desc={itemDataState?.desc?.value}
         tags={itemDataState?.tags?.value}
       />
+
+      <button className="btn btn-primary" onClick={() => handleSubmit()}>
+        Submit
+      </button>
     </div>
   );
-}
+};
 
 export default AddNewItem;

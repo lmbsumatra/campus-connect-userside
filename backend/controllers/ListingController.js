@@ -96,6 +96,7 @@ const {notifyAdmins} = require('../socket.js')
 // };
 
 // Get all approved listings for a specific user (by userId): kapag profile visit ganern
+
 exports.getAvailableListingsByUser = async (req, res) => {
   try {
     // Extract userId from query params or route parameters
@@ -231,125 +232,125 @@ exports.getAllListings = async (req, res) => {
 
 // Create listing: student side
 exports.createListing = async (req, res, next) => {
-  const transaction = await sequelize.transaction();
+  // const transaction = await sequelize.transaction();
 
-  try {
-    if (!req.body.listing && !req.body.item) {
-      throw new Error("Listing or Item data is missing");
-    }
+  // try {
+  //   if (!req.body.listing && !req.body.item) {
+  //     throw new Error("Listing or Item data is missing");
+  //   }
 
-    let createdItem;
-    let itemType = 'listing';
+  //   let createdItem;
+  //   let itemType = 'listing';
 
-    // Create listing or item for sale
-    if (req.body.listing) {
-      req.body.listing.status = "pending";  // Initially setting the listing status to "pending"
-      createdItem = await models.Listing.create(req.body.listing, { transaction });
-      itemType = 'listing';
-    } else {
-      createdItem = await models.ItemForSale.create(req.body.item, { transaction });
-      itemType = 'item-for-sale';
-    }
+  //   // Create listing or item for sale
+  //   if (req.body.listing) {
+  //     req.body.listing.status = "pending";  // Initially setting the listing status to "pending"
+  //     createdItem = await models.Listing.create(req.body.listing, { transaction });
+  //     itemType = 'listing';
+  //   } else {
+  //     createdItem = await models.ItemForSale.create(req.body.item, { transaction });
+  //     itemType = 'item-for-sale';
+  //   }
     
-    // Handle rental dates and durations if provided
-    const rentalDates = req.body.rental_dates || [];
-    if (Array.isArray(rentalDates)) {
-      for (const date of rentalDates) {
-        if (!date.date) {
-          throw new Error("Rental date is missing");
-        }
+  //   // Handle rental dates and durations if provided
+  //   const rentalDates = req.body.rental_dates || [];
+  //   if (Array.isArray(rentalDates)) {
+  //     for (const date of rentalDates) {
+  //       if (!date.date) {
+  //         throw new Error("Rental date is missing");
+  //       }
 
-        const rentalDate = await models.Date.create(
-          {
-            item_id: createdItem.id,
-            date: date.date,
-            item_type: itemType,
-          },
-          { transaction }
-        );
-        console.log("Created rental date:", rentalDate);
+  //       const rentalDate = await models.Date.create(
+  //         {
+  //           item_id: createdItem.id,
+  //           date: date.date,
+  //           item_type: itemType,
+  //         },
+  //         { transaction }
+  //       );
+  //       console.log("Created rental date:", rentalDate);
 
-        if (date.times && Array.isArray(date.times)) {
-          for (const time of date.times) {
-            if (!time.from || !time.to) {
-              throw new Error("Rental time is missing from or to fields");
-            }
+  //       if (date.times && Array.isArray(date.times)) {
+  //         for (const time of date.times) {
+  //           if (!time.from || !time.to) {
+  //             throw new Error("Rental time is missing from or to fields");
+  //           }
 
-            await models.Duration.create(
-              {
-                date_id: rentalDate.id,
-                rental_time_from: time.from,
-                rental_time_to: time.to,
-              },
-              { transaction }
-            );
-          }
-        } else {
-          console.warn(`No times provided for date: ${date.date}`);
-        }
-      }
-    }
+  //           await models.Duration.create(
+  //             {
+  //               date_id: rentalDate.id,
+  //               rental_time_from: time.from,
+  //               rental_time_to: time.to,
+  //             },
+  //             { transaction }
+  //           );
+  //         }
+  //       } else {
+  //         console.warn(`No times provided for date: ${date.date}`);
+  //       }
+  //     }
+  //   }
 
 
-    // Commit the transaction
-    await transaction.commit();
+  //   // Commit the transaction
+  //   await transaction.commit();
 
-    // Get owner info
-    const owner = await models.User.findOne({
-      where: { user_id: req.body.item ? req.body.item.seller_id : req.body.listing.owner_id },
-      attributes: ["user_id", "first_name", "last_name"],
-    });
+  //   // Get owner info
+  //   const owner = await models.User.findOne({
+  //     where: { user_id: req.body.item ? req.body.item.seller_id : req.body.listing.owner_id },
+  //     attributes: ["user_id", "first_name", "last_name"],
+  //   });
 
-    const ownerName = owner ? `${owner.first_name} ${owner.last_name}` : "Unknown";
+  //   const ownerName = owner ? `${owner.first_name} ${owner.last_name}` : "Unknown";
 
-    // Create notification object
-    const notification = {
-      type: itemType === 'item-for-sale' ? "new-item-for-sale" : "new-listing",
-      title: `New ${itemType === 'item-for-sale' ? "Item For Sale" : "Listing"} awaiting approval`,
-      message: ` created new ${itemType === 'item-for-sale' ? "item" : "listing"} "${
-        itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name
-      }"`,
-      timestamp: new Date(),
-      listingId: createdItem.id,
-      category: createdItem.category,
-      owner: {
-        id: owner.user_id,
-        name: ownerName,
-      }
-    };
-    // Just before calling req.notifyAdmins
-    // console.log("ItemType:", itemType);
-    // console.log("CreatedItem:", {
-    //   id: createdItem.id,
-    //   name: itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name,
-    //  category: createdItem.category
-    // });
-    // console.log("Owner:", {
-    //   id: owner.user_id,
-    //   name: ownerName
-    // });
+  //   // Create notification object
+  //   const notification = {
+  //     type: itemType === 'item-for-sale' ? "new-item-for-sale" : "new-listing",
+  //     title: `New ${itemType === 'item-for-sale' ? "Item For Sale" : "Listing"} awaiting approval`,
+  //     message: ` created new ${itemType === 'item-for-sale' ? "item" : "listing"} "${
+  //       itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name
+  //     }"`,
+  //     timestamp: new Date(),
+  //     listingId: createdItem.id,
+  //     category: createdItem.category,
+  //     owner: {
+  //       id: owner.user_id,
+  //       name: ownerName,
+  //     }
+  //   };
+  //   // Just before calling req.notifyAdmins
+  //   // console.log("ItemType:", itemType);
+  //   // console.log("CreatedItem:", {
+  //   //   id: createdItem.id,
+  //   //   name: itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name,
+  //   //  category: createdItem.category
+  //   // });
+  //   // console.log("Owner:", {
+  //   //   id: owner.user_id,
+  //   //   name: ownerName
+  //   // });
 
-    // Notify admins using socket
-    // req.notifyAdmins(notification);  // This should trigger the socket event on the backend
+  //   // Notify admins using socket
+  //   // req.notifyAdmins(notification);  // This should trigger the socket event on the backend
 
-    res.status(201).json(createdItem);
-  } catch (error) {
-    if (transaction.finished !== 'commit') {
-      await transaction.rollback();
-    }
+  //   res.status(201).json(createdItem);
+  // } catch (error) {
+  //   if (transaction.finished !== 'commit') {
+  //     await transaction.rollback();
+  //   }
 
-    console.error("Error creating listing/item:", {
-      message: error.message,
-      stack: error.stack,
-      body: req.body,
-    });
+  //   console.error("Error creating listing/item:", {
+  //     message: error.message,
+  //     stack: error.stack,
+  //     body: req.body,
+  //   });
 
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-      details: "Failed to create listing or item. Please check the input data and try again.",
-    });
-  }
+  //   res.status(500).json({
+  //     error: "Internal Server Error",
+  //     message: error.message,
+  //     details: "Failed to create listing or item. Please check the input data and try again.",
+  //   });
+  // }
 };
 
 // Get a single post by ID with associated rental dates, durations, and renter info: 

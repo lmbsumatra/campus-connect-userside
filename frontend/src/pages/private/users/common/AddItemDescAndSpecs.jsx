@@ -9,62 +9,21 @@ import {
   onBlur,
 } from "../../../../hooks/input-reducers/itemFormInputReducer";
 import TextareaAutosize from "react-textarea-autosize";
-import warningIcon from "../../../../assets/images/input-icons/warning.svg"
-
-const initialState = {
-  category: { value: "", triggered: false, hasError: true, error: "" },
-  itemName: { value: "", triggered: false, hasError: true, error: "" },
-  price: { value: "", triggered: false, hasError: true, error: "" },
-  availableDates: {
-    value: [],
-    triggered: false,
-    hasError: false,
-    error: "",
-  },
-  deliveryMethod: { value: "", triggered: false, hasError: true, error: "" },
-  paymentMethod: { value: "", triggered: false, hasError: true, error: "" },
-  itemCondition: { value: "", triggered: false, hasError: true, error: "" },
-  lateCharges: { value: "", triggered: false, hasError: true, error: "" },
-  securityDeposit: { value: "", triggered: false, hasError: true, error: "" },
-  repairReplacement: { value: "", triggered: false, hasError: true, error: "" },
-
-  images: { value: [], triggered: false, hasError: false, error: "" }, // Array of images
-  desc: { value: "", triggered: false, hasError: false, error: "" }, // Array of tags
-  tags: { value: [], triggered: false, hasError: false, error: "" }, // Array of tags
-  specs: { value: {}, triggered: false, hasError: false, error: "" }, // Object for specs
-
-  isFormValid: false,
-};
-
-const formsReducer = (state, action) => {
-  switch (action.type) {
-    case UPDATE_FORM:
-      return {
-        ...state,
-        [action.data.name]: {
-          ...state[action.data.name],
-          value: action.data.value,
-          hasError: action.data.hasError,
-          error: action.data.error,
-          triggered: action.data.triggered,
-        },
-        isFormValid: action.data.isFormValid,
-      };
-    default:
-      return state;
-  }
-};
+import warningIcon from "../../../../assets/images/input-icons/warning.svg";
+import {
+  blurField,
+  updateField,
+} from "../../../../redux/item-form/itemFormSlice";
 
 const AddItemDescAndSpecs = () => {
-  const [itemDataState, dispatchtwo] = useReducer(formsReducer, initialState);
-  const [newTag, setNewTag] = useState("");
-  const [duplicateTag, setDuplicateTag] = useState(null); // Track duplicate tag
   const dispatch = useDispatch();
+  const itemDataState = useSelector((state) => state.itemForm);
+  const [newTag, setNewTag] = useState("");
+  const [duplicateTag, setDuplicateTag] = useState(null);
   const tags = useSelector((state) => state.tags);
   const [blur, setBlur] = useState(false);
   const [newKey, setNewKey] = useState(""); // State for the new key
-  const [newValue, setNewValue] = useState(""); // State for the new value
-  console.log(itemDataState);
+  const [newValue, setNewValue] = useState("");
 
   const handleAddTag = () => {
     if (newTag.trim()) {
@@ -74,7 +33,7 @@ const AddItemDescAndSpecs = () => {
       } else {
         dispatch(addTag(newTag)); // Update Redux with the new tag
         setDuplicateTag(null);
-        onInputChange("tags", [...tags, newTag], dispatchtwo, itemDataState); // Update reducer state
+        dispatch(updateField({ name: "tags", value: [...tags, newTag] })); // Update reducer state
       }
       setNewTag(""); // Clear input field
     }
@@ -86,21 +45,21 @@ const AddItemDescAndSpecs = () => {
 
   const handleBlur = () => {
     setBlur(false); // Reset blur state
-    onBlur("tags", tags, dispatchtwo, itemDataState); // Trigger validation
+    dispatch(blurField({ name: "tags", value: tags })); // Trigger validation
   };
 
   const handleInputChange = (e) => {
     const value = e.target.value;
     setNewTag(value);
-    onBlur("tags", [...tags], dispatchtwo, itemDataState); // Validate on every input
-    onInputChange("tags", [...tags], dispatchtwo, itemDataState); // Sync with reducer state
+    dispatch(blurField({ name: "tags", value: [...tags] })); // Validate on every input
+    dispatch(updateField({ name: "tags", value: [...tags] })); // Sync with reducer state
     setDuplicateTag(null); // Clear duplicate state
   };
 
   const handleRemoveTag = (tag) => {
     const updatedTags = tags.filter((t) => t !== tag);
     dispatch(removeTag(tag)); // Update Redux
-    onInputChange("tags", updatedTags, dispatchtwo, itemDataState); // Update reducer state
+    dispatch(updateField({ name: "tags", value: updatedTags })); // Update reducer state
     if (duplicateTag === tag) setDuplicateTag(null); // Reset duplicate state
   };
 
@@ -122,7 +81,7 @@ const AddItemDescAndSpecs = () => {
 
     const updatedSpecs = { ...currentSpecs, [key]: value };
 
-    await onInputChange("specs", updatedSpecs, dispatchtwo, itemDataState);
+    await dispatch(updateField({ name: "specs", value: updatedSpecs }));
 
     const { error, hasError } = itemDataState.specs || {};
 
@@ -130,7 +89,7 @@ const AddItemDescAndSpecs = () => {
       const correctedSpecs = { ...currentSpecs };
       delete correctedSpecs[key];
 
-      await onInputChange("specs", correctedSpecs, dispatchtwo, itemDataState);
+      await dispatch(updateField({ name: "specs", value: correctedSpecs }));
 
       console.warn(`Spec with key "${key}" removed due to an error.`);
     } else {
@@ -215,10 +174,10 @@ const AddItemDescAndSpecs = () => {
         required
         value={itemDataState.desc.value}
         onChange={(e) =>
-          onInputChange("desc", e.target.value, dispatchtwo, itemDataState)
+          dispatch(updateField({ name: "desc", value: e.target.value }))
         }
         onBlur={(e) => {
-          onBlur("desc", e.target.value, dispatchtwo, itemDataState);
+          dispatch(blurField({ name: "desc", value: e.target.value }));
         }}
       />
       {itemDataState.desc.triggered && itemDataState.desc.hasError && (

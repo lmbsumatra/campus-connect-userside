@@ -3,70 +3,145 @@ import { Modal, Button, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./dateTimePickerStyles.css";
+import Tooltip from "@mui/material/Tooltip";
 
-const DateDurationPicker = () => {
+const ModeSelector = ({ mode, setMode, resetDates }) => (
+  <div className="field-container select">
+    <label>Select Mode</label>
+    <div className="input-wrapper">
+      {["custom", "range", "weekly"].map((value) => (
+        <div key={value} className="input-wrapper">
+          <input
+            type="radio"
+            id={value}
+            name="mode"
+            checked={mode === value}
+            onChange={() => {
+              setMode(value);
+              resetDates();
+            }}
+          />
+          <label htmlFor={value}>
+            {value.charAt(0).toUpperCase() + value.slice(1)} Dates
+          </label>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const WeekdaySelector = ({ weekdays, toggleWeekday }) => (
+  <div>
+    <label>Select Weekdays</label>
+    <div className="d-flex flex-wrap">
+      {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, index) => (
+        <Form.Check
+          key={index}
+          label={day}
+          type="checkbox"
+          checked={weekdays.includes(index)}
+          onChange={() => toggleWeekday(index)}
+        />
+      ))}
+    </div>
+  </div>
+);
+
+const TimeDurationModal = ({
+  selectedDate,
+  startTime,
+  endTime,
+  applyToAll,
+  onClose,
+  onSave,
+  onTimeChange,
+  onApplyAllChange,
+}) => (
+  <Modal show={true} onHide={onClose}>
+    <Modal.Header closeButton>
+      <Modal.Title>Add Time Duration</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <Form>
+        <Form.Group controlId="start-time">
+          <Form.Label>Start Time</Form.Label>
+          <Form.Control
+            type="time"
+            value={startTime}
+            onChange={(e) => onTimeChange("startTime", e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group controlId="end-time">
+          <Form.Label>End Time</Form.Label>
+          <Form.Control
+            type="time"
+            value={endTime}
+            onChange={(e) => onTimeChange("endTime", e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group>
+          <Form.Check
+            type="checkbox"
+            label="Apply this time to all selected dates"
+            checked={applyToAll}
+            onChange={onApplyAllChange}
+          />
+        </Form.Group>
+      </Form>
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={onClose}>
+        Close
+      </Button>
+      <Button variant="primary" onClick={onSave}>
+        Add Duration
+      </Button>
+    </Modal.Footer>
+  </Modal>
+);
+
+const DateDurationPicker = ({
+  show,
+  onClose,
+  onSaveDatesDurations,
+  unavailableDates,
+}) => {
+  // State management
   const [dates, setDates] = useState([]);
-  const [unavailableDates, setUnavailableDates] = useState([
-    new Date(2024, 11, 25), // Christmas (Dec 25, 2024)
-    new Date(2024, 0, 1), // New Year's Day (Jan 1, 2024)
-  ]); // Holidays
-  const [showModal, setShowModal] = useState(true);
+  const [mode, setMode] = useState("custom");
   const [selectedDate, setSelectedDate] = useState(null);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [applyToAll, setApplyToAll] = useState(false);
-
-  // Range & Weekly options
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [weekdays, setWeekdays] = useState([]);
-  const [mode, setMode] = useState("custom");
 
-  const handleModalClose = () => setShowModal(false);
-  const handleAddTimePeriod = () => {
-    if (!startTime || !endTime) {
-      alert("Please select both start and end times");
-      return;
-    }
+  // Helper functions
+  const isSelected = (date) =>
+    dates.some((d) => d.date.getTime() === date.getTime());
 
-    const newTimePeriod = { startTime, endTime };
-
-    if (applyToAll) {
-      const updatedDates = dates.map((d) => ({
-        ...d,
-        timePeriods: [...d.timePeriods, newTimePeriod],
-      }));
-      setDates(updatedDates);
-    } else {
-      const updatedDates = dates.map((d) =>
-        d.date.getTime() === selectedDate.getTime()
-          ? { ...d, timePeriods: [...d.timePeriods, newTimePeriod] }
-          : d
-      );
-      setDates(updatedDates);
-    }
-
-    setStartTime("");
-    setEndTime("");
-    setApplyToAll(false); // Reset checkbox
+  const handleTimeChange = (field, value) => {
+    if (field === "startTime") setStartTime(value);
+    if (field === "endTime") setEndTime(value);
   };
 
+  // Date handling functions
   const handleAddCustomDate = (date) => {
-    if (dates.some((d) => d.date.getTime() === date.getTime())) {
+    if (isSelected(date)) {
       alert("This date is already added.");
       return;
     }
     setDates([...dates, { date, timePeriods: [] }]);
-    setSelectedDate(null);
   };
 
-  const handleAddRange = (startDate, endDate) => {
+  const handleAddRange = () => {
     if (!startDate || !endDate) {
-      alert("Please select both a start and an end date for the range.");
+      alert("Please select both start and end dates.");
       return;
     }
 
-    const rangeDates = [];
+    const newDates = [];
     let currentDate = new Date(startDate);
 
     while (currentDate <= endDate) {
@@ -74,27 +149,26 @@ const DateDurationPicker = () => {
         !unavailableDates.some((d) => d.getTime() === currentDate.getTime()) &&
         !isSelected(currentDate)
       ) {
-        rangeDates.push(new Date(currentDate));
+        newDates.push({ date: new Date(currentDate), timePeriods: [] });
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    if (rangeDates.length === 0) {
+    if (newDates.length === 0) {
       alert("No valid dates available in the range.");
       return;
     }
 
-    const newDates = rangeDates.map((date) => ({ date, timePeriods: [] }));
     setDates([...dates, ...newDates]);
   };
 
-  const handleAddWeekly = (startDate, endDate) => {
+  const handleAddWeekly = () => {
     if (!startDate || !endDate || weekdays.length === 0) {
-      alert("Please select a start date, end date, and at least one weekday.");
+      alert("Please select dates and at least one weekday.");
       return;
     }
 
-    const weeklyDates = [];
+    const newDates = [];
     let currentDate = new Date(startDate);
 
     while (currentDate <= endDate) {
@@ -103,36 +177,46 @@ const DateDurationPicker = () => {
         !unavailableDates.some((d) => d.getTime() === currentDate.getTime()) &&
         !isSelected(currentDate)
       ) {
-        weeklyDates.push(new Date(currentDate));
+        newDates.push({ date: new Date(currentDate), timePeriods: [] });
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    if (weeklyDates.length === 0) {
+    if (newDates.length === 0) {
       alert("No valid weekly dates available.");
       return;
     }
 
-    const newDates = weeklyDates.map((date) => ({ date, timePeriods: [] }));
     setDates([...dates, ...newDates]);
   };
 
-  const handleRemoveDate = (date) => {
-    setDates(dates.filter((d) => d.date.getTime() !== date.getTime()));
+  // Time period handling
+  const handleAddTimePeriod = () => {
+    if (!startTime || !endTime) {
+      alert("Please select both start and end times");
+      return;
+    }
+
+    const newTimePeriod = {
+      startTime,
+      endTime,
+    };
+
+    const updatedDates = dates.map((d) => {
+      if (applyToAll || d.date.getTime() === selectedDate.getTime()) {
+        return { ...d, timePeriods: [...d.timePeriods, newTimePeriod] };
+      }
+      return d;
+    });
+
+    setDates(updatedDates);
+    setStartTime("");
+    setEndTime("");
+    setApplyToAll(false);
+    setSelectedDate(null);
   };
 
-  const toggleWeekday = (day) => {
-    setWeekdays(
-      weekdays.includes(day)
-        ? weekdays.filter((d) => d !== day)
-        : [...weekdays, day]
-    );
-  };
-
-  const isSelected = (date) => {
-    return dates.some((d) => d.date.getTime() === date.getTime());
-  };
-
+  // Reset functions
   const resetDates = () => {
     setDates([]);
     setStartDate(null);
@@ -141,86 +225,60 @@ const DateDurationPicker = () => {
   };
 
   const resetTime = (date) => {
-    const updatedDates = dates.map((d) =>
-      d.date.getTime() === date.getTime() ? { ...d, timePeriods: [] } : d
+    setDates(
+      dates.map((d) =>
+        d.date.getTime() === date.getTime() ? { ...d, timePeriods: [] } : d
+      )
     );
-    setDates(updatedDates);
+  };
+
+  const handleSaveAndClose = () => {
+    onSaveDatesDurations(dates);
+    onClose();
   };
 
   return (
-    <Modal show={showModal} onHide={handleModalClose} size="lg">
+    <Modal show={show} onHide={handleSaveAndClose} size="lg">
       <Modal.Header closeButton>
         <Modal.Title>Select Dates and Time</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="d-flex">
-          {/* Left - Calendar Section */}
           <div className="calendar-container" style={{ flex: 1 }}>
-            {/* Radio Buttons for Mode Selection */}
-            <div className="field-container select">
-              <label htmlFor="" className="">
-                Select Mode
-              </label>
-              <div className="input-wrapper">
-                <div className="input-wrapper">
-                  <input
-                    type="radio"
-                    id="custom"
-                    name="mode"
-                    checked={mode === "custom"}
-                    onChange={() => {
-                      setMode("custom");
-                      resetDates();
-                    }}
-                  />
-                  <label htmlFor="custom">Custom Dates</label>
-                </div>
-                <div className="input-wrapper">
-                  <input
-                    type="radio"
-                    id="range"
-                    name="mode"
-                    checked={mode === "range"}
-                    onChange={() => {
-                      setMode("range");
-                      resetDates();
-                    }}
-                  />
-                  <label htmlFor="range">Range</label>
-                </div>
-                <div className="input-wrapper">
-                  <input
-                    type="radio"
-                    id="weekly"
-                    name="mode"
-                    checked={mode === "weekly"}
-                    onChange={() => {
-                      setMode("weekly");
-                      resetDates();
-                    }}
-                  />
-                  <label htmlFor="weekly">Weekly</label>
-                </div>
-              </div>
-            </div>
+            <ModeSelector
+              mode={mode}
+              setMode={setMode}
+              resetDates={resetDates}
+            />
 
             {mode === "custom" && (
               <div className="field-container picker">
                 <label>Select Custom Dates</label>
                 <DatePicker
-                  selected={selectedDate}
-                  onChange={(date) => handleAddCustomDate(date)}
+                  selected={null}
+                  onChange={handleAddCustomDate}
                   inline
                   excludeDates={unavailableDates}
-                  dayClassName={(date) => {
-                    if (
-                      unavailableDates.some(
-                        (d) => d.getTime() === date.getTime()
-                      )
-                    )
-                      return "unavailable-date";
-                    if (isSelected(date)) return "selected-date";
-                    return "available-date";
+                  dayClassName={(date) =>
+                    unavailableDates.some((d) => d.getTime() === date.getTime())
+                      ? "unavailable-date"
+                      : isSelected(date)
+                      ? "selected-date"
+                      : "available-date"
+                  }
+                  renderDayContents={(day, date) => {
+                    const isUnavailable = unavailableDates.some(
+                      (d) => d.getTime() === date.getTime()
+                    );
+                    return (
+                      <Tooltip
+                        title={isUnavailable ? "This date is unavailable" : ""}
+                        arrow
+                        disableHoverListener={!isUnavailable}
+                      >
+                        <span>{day}</span>
+                      </Tooltip>
+                    );
                   }}
                 />
               </div>
@@ -240,16 +298,10 @@ const DateDurationPicker = () => {
                   endDate={endDate}
                   inline
                   excludeDates={unavailableDates}
-                  className="form-control"
                 />
-                <div>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleAddRange(startDate, endDate)}
-                  >
-                    Add Range
-                  </Button>
-                </div>
+                <Button variant="primary" onClick={handleAddRange}>
+                  Add Range
+                </Button>
               </div>
             )}
 
@@ -267,37 +319,24 @@ const DateDurationPicker = () => {
                   endDate={endDate}
                   inline
                   excludeDates={unavailableDates}
-                  className="form-control"
                 />
-                <div>
-                  <label>Select Weekdays</label>
-                  <div className="d-flex flex-wrap">
-                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-                      (day, index) => (
-                        <Form.Check
-                          key={index}
-                          label={day}
-                          type="checkbox"
-                          checked={weekdays.includes(index)}
-                          onChange={() => toggleWeekday(index)}
-                        />
-                      )
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleAddWeekly(startDate, endDate)}
-                  >
-                    Add Weekly Dates
-                  </Button>
-                </div>
+                <WeekdaySelector
+                  weekdays={weekdays}
+                  toggleWeekday={(day) =>
+                    setWeekdays((prev) =>
+                      prev.includes(day)
+                        ? prev.filter((d) => d !== day)
+                        : [...prev, day]
+                    )
+                  }
+                />
+                <Button variant="primary" onClick={handleAddWeekly}>
+                  Add Weekly Dates
+                </Button>
               </div>
             )}
           </div>
 
-          {/* Right - Time Selection */}
           <div
             className="time-container"
             style={{ flex: 1, marginLeft: "20px" }}
@@ -307,7 +346,7 @@ const DateDurationPicker = () => {
               <p>No dates added yet.</p>
             ) : (
               dates.map((dateItem) => (
-                <div key={dateItem.date} className="date-item">
+                <div key={dateItem.date.getTime()} className="date-item">
                   <h5>{dateItem.date.toDateString()}</h5>
                   {dateItem.timePeriods.length === 0 ? (
                     <p>No durations added for this date.</p>
@@ -318,81 +357,47 @@ const DateDurationPicker = () => {
                       </p>
                     ))
                   )}
-                  <button
-                    onClick={() => {
-                      setSelectedDate(dateItem.date);
-                    }}
-                    className="btn btn-primary"
-                  >
-                    Add Duration
-                  </button>
-                  <button
-                    onClick={() => handleRemoveDate(dateItem.date)}
-                    className="btn btn-danger"
-                  >
-                    Remove Date
-                  </button>
-                  <button
-                    onClick={() => resetTime(dateItem.date)}
-                    className="btn btn-warning"
-                  >
-                    Reset Time
-                  </button>
+                  <div className="button-group">
+                    <Button
+                      variant="primary"
+                      onClick={() => setSelectedDate(dateItem.date)}
+                    >
+                      Add Duration
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() =>
+                        setDates(dates.filter((d) => d.date !== dateItem.date))
+                      }
+                    >
+                      Remove Date
+                    </Button>
+                    <Button
+                      variant="warning"
+                      onClick={() => resetTime(dateItem.date)}
+                    >
+                      Reset Time
+                    </Button>
+                  </div>
                 </div>
               ))
             )}
           </div>
         </div>
 
-        {/* Time Duration Modal */}
         {selectedDate && (
-          <Modal show={true} onHide={() => setSelectedDate(null)}>
-            <Modal.Header closeButton>
-              <Modal.Title>Add Time Duration</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form>
-                <Form.Group controlId="start-time">
-                  <Form.Label>Start Time</Form.Label>
-                  <Form.Control
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                  />
-                </Form.Group>
-
-                <Form.Group controlId="end-time">
-                  <Form.Label>End Time</Form.Label>
-                  <Form.Control
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                  />
-                </Form.Group>
-
-                {/* Checkbox to apply time to all dates */}
-                <Form.Group>
-                  <Form.Check
-                    type="checkbox"
-                    label="Apply this time to all selected dates"
-                    checked={applyToAll}
-                    onChange={() => setApplyToAll(!applyToAll)}
-                  />
-                </Form.Group>
-              </Form>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setSelectedDate(null)}>
-                Close
-              </Button>
-              <Button variant="primary" onClick={handleAddTimePeriod}>
-                Add Duration
-              </Button>
-            </Modal.Footer>
-          </Modal>
+          <TimeDurationModal
+            selectedDate={selectedDate}
+            startTime={startTime}
+            endTime={endTime}
+            applyToAll={applyToAll}
+            onClose={() => setSelectedDate(null)}
+            onSave={handleAddTimePeriod}
+            onTimeChange={handleTimeChange}
+            onApplyAllChange={() => setApplyToAll(!applyToAll)}
+          />
         )}
 
-        {/* Reset All Dates Button */}
         <Button variant="danger" onClick={resetDates} className="mt-3">
           Reset All Dates
         </Button>

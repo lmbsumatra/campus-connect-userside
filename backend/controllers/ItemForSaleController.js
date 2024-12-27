@@ -102,11 +102,11 @@ const { models } = require("../models/index");
 
 // Get all approved posts for a specific user (by userId)
 exports.getAvailableItemsForSaleByUser = async (req, res) => {
-  console.log("userId", req.query)
+  console.log("userId", req.query);
   try {
     // Extract userId from query params or route parameters
     const { userId } = req.query; // or req.params if userId is in URL params
-   
+
     // Validate userId
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
@@ -198,94 +198,96 @@ exports.getAllItemForSale = async (req, res) => {
 exports.createItemForSale = async (req, res) => {
   const transaction = await sequelize.transaction();
 
+  const {
+    sellerId, // Seller ID from frontend
+    category,
+    itemName, // item_for_sale_name in the model
+    itemCondition, // item_condition in the model
+    paymentMethod, // payment_mode in the model
+    price,
+    images,
+    desc, // description in the model
+    tags,
+    dates, // Rental dates and durations
+  } = req.body.item;
+
   try {
     if (!req.body.item) {
       throw new Error("Listing data is missing");
     }
-    req.body.item.status = "pending";
-    const item = await models.ItemForSale.create(req.body.item, {
-      transaction,
-    });
-    console.log("Created item:", item);
 
-    const rentalDates = req.body.rental_dates;
-
-    if (!Array.isArray(rentalDates)) {
-      throw new Error("Rental dates should be an array");
+    // Ensure required fields are present
+    if (!sellerId || !itemName || !itemCondition || !paymentMethod || !price) {
+      throw new Error("Required fields missing");
     }
 
-    for (const date of rentalDates) {
-      if (!date.date) {
-        throw new Error("Rental date is missing");
-      }
-
-      const rentalDate = await models.Date.create(
-        {
-          item_id: item.id,
-          date: date.date,
-          item_type: "item_for_sale",
-        },
-        { transaction }
-      );
-      console.log("Created rental date:", rentalDate);
-
-      if (date.times && Array.isArray(date.times)) {
-        for (const time of date.times) {
-          if (!time.from || !time.to) {
-            throw new Error("Rental time is missing from or to fields");
-          }
-
-          await models.Duration.create(
-            {
-              date_id: rentalDate.id,
-              rental_time_from: time.from,
-              rental_time_to: time.to,
-            },
-            { transaction }
-          );
-        }
-      } else {
-        console.warn(`No times provided for date: ${date.date}`);
-      }
-    }
-
-    await transaction.commit();
-    // Fetch the owner's name using the owner_id from the listing
-    const seller = await models.User.findOne({
-      where: { user_id: req.body.item.seller_id },
-      // attributes: ["user_id", "first_name", "last_name"],
-    });
-
-    console.log(seller);
-
-    // Notification after successful commit
-    const notification = {
-      type: "new-listing",
-      title: "New Listing Created",
-      message: `created new listing "${item.item_for_sale_name}"`,
-      timestamp: new Date(),
-      listingId: item.id,
-      category: item.category,
-      owner: {
-        id: seller.user_id, // Use user_id here
-        name: `${seller.first_name} ${seller.last_name}` || "Unknown",
+    // Create the item for sale
+    const item = await models.ItemForSale.create(
+      {
+        seller_id: sellerId,
+        category,
+        item_for_sale_name: itemName,
+        item_condition: itemCondition,
+        payment_mode: paymentMethod,
+        price,
+        images: JSON.stringify(images), // Store images as JSON string
+        description: desc,
+        tags: JSON.stringify(tags), // Convert tags array to a JSON string
+        status: "pending", // Default status to pending
       },
-    };
+      { transaction }
+    );
 
-    console.log(notification);
+    // Handle rental dates and time periods
+    if (Array.isArray(dates)) {
+      for (const dateEntry of dates) {
+        const { date, timePeriods } = dateEntry;
 
-    // Call the notifyAdmins function from socket.js
-    req.notifyAdmins(notification);
-    res.status(201).json(item);
+        // Create a Date record
+        const rentalDate = await models.Date.create(
+          {
+            item_id: item.id,
+            date: date, // ISO date format
+            item_type: "item_for_sale",
+          },
+          { transaction }
+        );
+
+        // Create Duration records for each time period
+        if (Array.isArray(timePeriods)) {
+          for (const period of timePeriods) {
+            const { startTime, endTime } = period;
+
+            if (!startTime || !endTime) {
+              throw new Error(
+                "Both 'from' and 'to' times are required in timePeriods."
+              );
+            }
+
+            await models.Duration.create(
+              {
+                date_id: rentalDate.id,
+                rental_time_from: startTime,
+                rental_time_to: endTime,
+              },
+              { transaction }
+            );
+          }
+        }
+      }
+    } else {
+      throw new Error("Dates must be provided as an array.");
+    }
+
+    // Commit transaction
+    await transaction.commit();
+
+    res
+      .status(201)
+      .json({ message: "Item for sale created successfully.", item });
   } catch (error) {
     await transaction.rollback();
-
-    console.error("Error creating listing:", {
-      message: error.message,
-      stack: error.stack,
-      body: req.body,
-    });
-
+    console.error("Error creating item for sale:", error);
     res.status(500).json({
       error: "Internal Server Error",
       message: error.message,
@@ -323,7 +325,7 @@ exports.getItemForSaleById = async (req, res) => {
       ],
       where: {
         // Assuming you have a column 'item_type' in your Listing model
-        item_type: "item_for_sale",  // Filter for listings only
+        item_type: "item_for_sale", // Filter for listings only
       },
     });
 
