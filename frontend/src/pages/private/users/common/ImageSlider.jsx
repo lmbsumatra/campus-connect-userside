@@ -30,6 +30,7 @@ const ImageSlider = ({ images }) => {
       <div className="highlight">
         <img src={images[currentIndex]} alt="Item" className="highlight-img" />
       </div>
+      
       <div className="img-slider">
         <div className="btn-slider prev-btn" onClick={prevImage}>
           <img src={prevIcon} alt="Previous image" className="prev-btn" />

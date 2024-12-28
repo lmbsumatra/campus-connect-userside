@@ -20,7 +20,7 @@ const AddTerms = ({ values }) => {
   return (
     <div className={`group-container terms-group`}>
       <label className="sub-section-label">
-        Terms and Condition{" "}
+        Terms and Condition
         <button
           className={`expand-btn ${expandTerm ? "expand" : ""}`}
           onClick={handleExpandTerms}
@@ -28,6 +28,17 @@ const AddTerms = ({ values }) => {
           <img src={expandIcon} alt="Expand terms and condition" />
         </button>
       </label>
+      {(itemDataState.lateCharges.triggered &&
+        itemDataState.lateCharges.hasError) ||
+      (itemDataState.lateCharges.triggered &&
+        itemDataState.lateCharges.hasError) ||
+      (itemDataState.lateCharges.triggered &&
+        itemDataState.lateCharges.hasError) ? (
+        <div className="validation error">
+          <img src={warningIcon} className="icon" alt="Error indicator" />
+          <span className="text">Terms and Condition have error/s</span>
+        </div>
+      ) : null}
 
       {expandTerm && (
         <div className="terms-popup">

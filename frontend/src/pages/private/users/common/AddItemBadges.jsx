@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import "./addItemBadgesStyles.css";
 
-const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange  }) => {
+const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
   const itemType = values?.itemType || "For Rent";
 
   const categories = [
@@ -41,7 +41,6 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange  }) => {
       onItemTypeChange(newItemType); // Pass the change to the parent component
     }
   };
-
 
   return (
     <div className="badge-container">
@@ -98,7 +97,6 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange  }) => {
             className="category-dropdown"
             value={values?.category || ""}
             onChange={(e) => onCategoryChange(e.target.value)}
-            
           >
             <option className="header" value="" disabled>
               Select Category
@@ -113,9 +111,9 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange  }) => {
       </div>
 
       {/* Toggle Section */}
-      
+
       <div className="toggle-container">
-      <Tooltip
+        <Tooltip
           title="Toggle to whether you want item to be renter or sold."
           placement="bottom"
           componentsProps={{
@@ -131,14 +129,16 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange  }) => {
             },
           }}
         >
-        <label className="toggle">
-          <input
-            type="checkbox"
-            id="toggle-switch"
-            onChange={handleToggleChange}
-          />
-          <span className="slider"><p className="text">{itemType}</p></span>
-        </label>
+          <label className="toggle">
+            <input
+              type="checkbox"
+              id="toggle-switch"
+              onChange={handleToggleChange}
+            />
+            <span className="slider">
+              <p className="text">{itemType}</p>
+            </span>
+          </label>
         </Tooltip>
       </div>
     </div>

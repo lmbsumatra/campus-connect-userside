@@ -1,102 +1,77 @@
-import React, { useReducer, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addTag, removeTag } from "../../../../redux/tag/tagSlice";
+import React, { useState } from "react";
+import TextareaAutosize from "react-textarea-autosize";
 import removeIcon from "../../../../assets/images/input-icons/remove.svg";
+import warningIcon from "../../../../assets/images/input-icons/warning.svg";
 import "./addItemDescAndSpecsStyles.css";
 
-import TextareaAutosize from "react-textarea-autosize";
-import warningIcon from "../../../../assets/images/input-icons/warning.svg";
-import {
-  blurField,
-  updateField,
-} from "../../../../redux/item-form/itemFormSlice";
-
-const AddItemDescAndSpecs = () => {
-  const dispatch = useDispatch();
-  const itemDataState = useSelector((state) => state.itemForm);
+const AddItemDescAndSpecs = ({
+  specs = {},
+  desc = "",
+  tags: initialTags,
+  onSpecsChange,
+  onDescChange,
+  onTagsChange,
+  errors = {},
+  triggered = {}
+}) => {
+  // Ensure tags is always an array
+  const tags = Array.isArray(initialTags) ? initialTags : [];
+  
   const [newTag, setNewTag] = useState("");
   const [duplicateTag, setDuplicateTag] = useState(null);
-  const tags = useSelector((state) => state.tags);
   const [blur, setBlur] = useState(false);
-  const [newKey, setNewKey] = useState(""); // State for the new key
+  const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
 
   const handleAddTag = () => {
     if (newTag.trim()) {
       if (tags.includes(newTag)) {
-        setDuplicateTag(newTag); // Mark as duplicate
-        setTimeout(() => setDuplicateTag(null), 3000); // Clear duplicate error
+        setDuplicateTag(newTag);
+        setTimeout(() => setDuplicateTag(null), 3000);
       } else {
-        dispatch(addTag(newTag)); // Update Redux with the new tag
+        const updatedTags = [...tags, newTag];
+        onTagsChange?.(updatedTags);
         setDuplicateTag(null);
-        dispatch(updateField({ name: "tags", value: [...tags, newTag] })); // Update reducer state
       }
-      setNewTag(""); // Clear input field
+      setNewTag("");
     }
   };
 
-  const handleFocus = () => {
-    setBlur(true); // Handle blur state when focused
-  };
-
-  const handleBlur = () => {
-    setBlur(false); // Reset blur state
-    dispatch(blurField({ name: "tags", value: tags })); // Trigger validation
-  };
-
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setNewTag(value);
-    dispatch(blurField({ name: "tags", value: [...tags] })); // Validate on every input
-    dispatch(updateField({ name: "tags", value: [...tags] })); // Sync with reducer state
-    setDuplicateTag(null); // Clear duplicate state
-  };
-
-  const handleRemoveTag = (tag) => {
-    const updatedTags = tags.filter((t) => t !== tag);
-    dispatch(removeTag(tag)); // Update Redux
-    dispatch(updateField({ name: "tags", value: updatedTags })); // Update reducer state
-    if (duplicateTag === tag) setDuplicateTag(null); // Reset duplicate state
+  const handleRemoveTag = (tagToRemove) => {
+    const updatedTags = tags.filter(tag => tag !== tagToRemove);
+    onTagsChange?.(updatedTags);
+    if (duplicateTag === tagToRemove) setDuplicateTag(null);
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      handleAddTag(); // Add tag on Enter
+      e.preventDefault();
+      handleAddTag();
     } else if (e.key === "Backspace" && newTag === "") {
       if (tags.length > 0) {
         const lastTag = tags[tags.length - 1];
-        handleRemoveTag(lastTag); // Remove last tag on Backspace
+        handleRemoveTag(lastTag);
       }
     }
   };
 
-  const handleAddSpec = async (key, value) => {
-    if (!key || !value) return;
-
-    const currentSpecs = itemDataState.specs?.value || {};
-
-    const updatedSpecs = { ...currentSpecs, [key]: value };
-
-    await dispatch(updateField({ name: "specs", value: updatedSpecs }));
-
-    const { error, hasError } = itemDataState.specs || {};
-
-    if (error || hasError) {
-      const correctedSpecs = { ...currentSpecs };
-      delete correctedSpecs[key];
-
-      await dispatch(updateField({ name: "specs", value: correctedSpecs }));
-
-      console.warn(`Spec with key "${key}" removed due to an error.`);
-    } else {
-      console.log("Updated specs:", updatedSpecs);
-    }
+  const handleAddSpec = () => {
+    if (!newKey.trim() || !newValue.trim()) return;
+    
+    const updatedSpecs = {
+      ...specs,
+      [newKey.trim()]: newValue.trim()
+    };
+    
+    onSpecsChange?.(updatedSpecs);
+    setNewKey("");
+    setNewValue("");
   };
 
-  const handleRemoveSpec = (key) => {
-    const currentSpecs = { ...itemDataState.specs?.value };
-
-    delete currentSpecs[key];
+  const handleRemoveSpec = (keyToRemove) => {
+    const updatedSpecs = { ...specs };
+    delete updatedSpecs[keyToRemove];
+    onSpecsChange?.(updatedSpecs);
   };
 
   return (
@@ -104,26 +79,27 @@ const AddItemDescAndSpecs = () => {
       <label className="sub-section-label">Specifications</label>
       <table className="specifications-table" role="table">
         <thead>
-          <td>Key</td>
-          <td>Value</td>
+          <tr>
+            <th>Key</th>
+            <th>Value</th>
+            <th>Action</th>
+          </tr>
         </thead>
         <tbody>
-          {Object.entries(itemDataState.specs.value).map(
-            ([key, value], index) => (
-              <tr key={index}>
-                <td>{key}</td>
-                <td>{value}</td>
-                <td>
-                  <button
-                    className="btn btn-icon secondary"
-                    onClick={() => handleRemoveSpec(key)}
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            )
-          )}
+          {Object.entries(specs).map(([key, value], index) => (
+            <tr key={index}>
+              <td>{key}</td>
+              <td>{value}</td>
+              <td>
+                <button
+                  className="btn btn-icon secondary"
+                  onClick={() => handleRemoveSpec(key)}
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+          ))}
           <tr>
             <td>
               <input
@@ -146,7 +122,7 @@ const AddItemDescAndSpecs = () => {
             <td>
               <button
                 className="btn btn-primary"
-                onClick={() => handleAddSpec(newKey, newValue)}
+                onClick={handleAddSpec}
               >
                 Add
               </button>
@@ -154,32 +130,25 @@ const AddItemDescAndSpecs = () => {
           </tr>
         </tbody>
       </table>
-      {itemDataState.specs.triggered && itemDataState.specs.hasError && (
+      {triggered.specs && errors.specs && (
         <div className="validation error">
           <img src={warningIcon} className="icon" alt="Error on specs" />
-          <span className="text">{itemDataState.specs.error}</span>
+          <span className="text">{errors.specs}</span>
         </div>
       )}
 
       <label className="sub-section-label">Description</label>
       <TextareaAutosize
-        id="desc"
-        name="desc"
         className="input"
         placeholder="Add description"
         required
-        value={itemDataState.desc.value}
-        onChange={(e) =>
-          dispatch(updateField({ name: "desc", value: e.target.value }))
-        }
-        onBlur={(e) => {
-          dispatch(blurField({ name: "desc", value: e.target.value }));
-        }}
+        value={desc}
+        onChange={(e) => onDescChange?.(e.target.value)}
       />
-      {itemDataState.desc.triggered && itemDataState.desc.hasError && (
+      {triggered.desc && errors.desc && (
         <div className="validation error">
-          <img src={warningIcon} className="icon" alt="Error on last name" />
-          <span className="text">{itemDataState.desc.error}</span>
+          <img src={warningIcon} className="icon" alt="Error on description" />
+          <span className="text">{errors.desc}</span>
         </div>
       )}
 
@@ -202,22 +171,22 @@ const AddItemDescAndSpecs = () => {
 
         <input
           type="text"
-          placeholder={`${duplicateTag ? "Duplicate tag" : "Add tag"}`}
+          placeholder={duplicateTag ? "Duplicate tag" : "Add tag"}
           className="tag-input"
           value={newTag}
-          onChange={handleInputChange}
+          onChange={(e) => setNewTag(e.target.value)}
           onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
-          onBlur={(e) => handleBlur(e, "tags")}
+          onFocus={() => setBlur(true)}
+          onBlur={() => setBlur(false)}
         />
         <button className="btn btn-primary" onClick={handleAddTag}>
           Add
         </button>
       </div>
-      {itemDataState.tags.triggered && itemDataState.tags.hasError && (
+      {triggered.tags && errors.tags && (
         <div className="validation error">
-          <img src={warningIcon} className="icon" alt="Error on last name" />
-          <span className="text">{itemDataState.tags.error}</span>
+          <img src={warningIcon} className="icon" alt="Error on tags" />
+          <span className="text">{errors.tags}</span>
         </div>
       )}
     </div>

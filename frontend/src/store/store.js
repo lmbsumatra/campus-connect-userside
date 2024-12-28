@@ -11,6 +11,7 @@ import loginFormReducer from "../redux/login-form/loginFormSlice";
 import signupFormReducer from "../redux/signup-form/signupFormSlice";
 import userReducer from "../redux/user/userSlice";
 import itemFormReducer from "../redux/item-form/itemFormSlice"
+import postFormReducer from "../redux/post-form/postFormSlice"
 
 const store = configureStore({
   reducer: {
@@ -31,6 +32,7 @@ const store = configureStore({
     user: userReducer,
     // 
     itemForm: itemFormReducer,
+    postForm: postFormReducer,
   },
 });
 

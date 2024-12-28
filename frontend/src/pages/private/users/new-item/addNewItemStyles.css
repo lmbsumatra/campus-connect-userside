@@ -5,6 +5,7 @@
   padding: 0;
   margin: 0;
 }
+
 .add-item-container {
   background-color: white;
   border-radius: 8px;
@@ -17,22 +18,12 @@
   width: 100%;
 }
 
-.add-item-container  .price {
+.add-item-container .price {
   color: var(--clr-secondary) !important;
   font-weight: 600;
   font-size: 24px;
 }
 
-.add-item-container .imgs-container {
-  height: 720px;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: var(--clr-neutral-muted);
-  position: relative;
-  display: flex;
-  justify-content: center;
-}
 .relative {
   position: relative;
 }
@@ -54,35 +45,6 @@
 
 .add-item-container .imgs-container img.item-type:hover {
   background-color: rgba(0, 0, 0, 0.5);
-}
-
-.add-item-container .imgs-container img.item-type:hover {
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.add-item-container .imgs-container:hover .img-slider {
-  display: flex;
-  visibility: visible;
-  z-index: 10 !important;
-}
-.add-item-container .imgs-container .upload-image {
-  width: 100%;
-  height: 100%;
-  z-index: 8;
-  background-color: rgba(0, 0, 0, 0.657);
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  display: none;
-}
-.add-item-container .imgs-container:hover .upload-image {
-  display: block;
-}
-
-.add-item-container .imgs-container .img-slider .item-container img.item-img {
-  height: 100%;
-  width: auto;
-  filter: brightness(0.5);
 }
 
 .add-item-container .rental-details {
@@ -110,7 +72,6 @@
 /*   LISTING ITEM  */
 /* * * * * * * * * */
 .profile-info {
-  /* display: flex; comment ko muna to ha kasi naadjust rin yung style sa .profile-info sa profile page naging flex*/
   align-items: center;
 }
 
@@ -208,6 +169,7 @@
   all: unset;
   border-radius: 0 !important;
 }
+
 .field-container .input-wrapper {
   display: flex;
   flex-direction: row;
@@ -215,6 +177,7 @@
   width: 100%;
   border-radius: 0px !important;
 }
+
 .field-container label {
   display: inline-block;
   white-space: nowrap;
@@ -225,7 +188,6 @@
   width: 100%;
   padding: 5px !important;
   box-sizing: border-box;
-  all: unset;
   border: 1px solid #dbdbdb !important;
   border-radius: 4px !important;
   flex-grow: 1;
@@ -237,21 +199,21 @@
 
 .add-item-container .rental-dates-durations {
   all: unset;
-  display: flex;
-  flex-direction: row;
+  display: flex !important;
+  flex-direction: row !important;
   justify-content: flex-start;
   width: 100%;
   max-width: 800px;
-  gap: 8px;
+  gap: 8px !important;
   background-color: transparent;
 }
 
 .add-item-container .rental-dates-durations .date-picker {
   padding: 10px;
   border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
 }
 
 .add-item-container .rental-dates-durations .duration-picker.group-container {
@@ -260,33 +222,13 @@
 }
 
 @media (max-width: 600px) {
-  .add-item-container {
-    display: flex;
-    flex-direction: column !important;
-    height: auto !important;
-  }
-
   .add-item-container .imgs-container {
     display: flex;
     flex-direction: column;
   }
 
-  .add-item-container .imgs-container .img-slider .item-container img.item-img {
-    height: auto;
-    width: 48px;
-    filter: brightness(0.5);
-  }
-
-  .add-item-container .rental-dates-durations {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    width: auto;
-    gap: 8px !important;
-  }
-
   .add-item-container .rental-dates-durations .date-picker {
-    display: block;
+    display: block !important;
   }
 
   .add-item-container .rental-dates-durations .date-picker > * {
@@ -295,6 +237,11 @@
 
   .add-item-container .rental-dates-durations .date-picker > *:last-child {
     margin-bottom: 0;
+  }
+
+  .add-item-container .rental-dates-durations {
+    all: unset;
+    display: block !important;
   }
 }
 

@@ -17,6 +17,7 @@ import forRentIcon from "../../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../../assets/images/card/buy.svg";
 import "./listingDetailStyles.css";
 import "../confirmationModalStyles.css";
+import ShowAlert from "../../../../../utils/ShowAlert.js";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -28,9 +29,7 @@ import {
   PICK_UP,
   TO_BUY,
 } from "../../../../../utils/consonants.js";
-import {
-  addCartItem,
-} from "../../../../../redux/cart/cartSlice.js";
+import { addCartItem } from "../../../../../redux/cart/cartSlice.js";
 import {
   clearNotification,
   showNotification,
@@ -104,10 +103,8 @@ function ListingDetail() {
   const handleAddToCart = async (e, item) => {
     e.stopPropagation();
 
-    const ShowAlert = (type, title, text) =>
-      dispatch(showNotification({ type, title, text }));
-
     const loadingNotify = ShowAlert(
+      dispatch,
       "info",
       "Loading...",
       "Adding item to cart..."
@@ -115,7 +112,7 @@ function ListingDetail() {
 
     if (!selectedDate || !selectedDuration) {
       dispatch(clearNotification(loadingNotify));
-      return ShowAlert("error", "Error", "Please select a date and duration.");
+      return ShowAlert(dispatch,"error", "Error", "Please select a date and duration.");
     }
 
     const selectedDateId = approvedListingById.rentalDates.find(
@@ -125,7 +122,7 @@ function ListingDetail() {
     if (!selectedDateId) {
       // Remove the loading notification on error
       dispatch(clearNotification(loadingNotify));
-      return ShowAlert("error", "Error", "Invalid date selection.");
+      return ShowAlert(dispatch,"error", "Error", "Invalid date selection.");
     }
 
     try {
@@ -147,18 +144,18 @@ function ListingDetail() {
         store.getState().cart;
 
       if (successCartMessage) {
-        ShowAlert("success", "Success!", successCartMessage);
+        ShowAlert(dispatch,"success", "Success!", successCartMessage);
       }
       if (warningCartMessage) {
-        ShowAlert("warning", "Warning", warningCartMessage);
+        ShowAlert(dispatch,"warning", "Warning", warningCartMessage);
       }
 
       if (errorCartMessage) {
-        ShowAlert("error", "Error", errorCartMessage);
+        ShowAlert(dispatch,"error", "Error", errorCartMessage);
       }
     } catch (error) {
       console.error("Error adding item to cart:", error);
-      ShowAlert("error", "Error", "An unexpected error occurred.");
+      ShowAlert(dispatch,"error", "Error", "An unexpected error occurred.");
     }
   };
 
@@ -167,7 +164,7 @@ function ListingDetail() {
       (rentalDate) => rentalDate.date === selectedDate
     )?.id;
 
-    console.log(approvedListingById)
+    console.log(approvedListingById);
 
     const rentalDetails = {
       owner_id: approvedListingById.owner.id,
@@ -195,21 +192,9 @@ function ListingDetail() {
 
   useEffect(() => {
     if (errorApprovedListingById) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Error",
-          text: "Item not found!",
-        })
-      );
+      ShowAlert(dispatch,"error", "Error", "Item not found!");
     } else if (!loadingApprovedListingById && !approvedListingById) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Not Found",
-          text: "No item found with the given ID.",
-        })
-      );
+      ShowAlert(dispatch,"error", "Error", "Item not found!");
     }
 
     if (
@@ -218,12 +203,7 @@ function ListingDetail() {
     ) {
       setRedirecting(true); // Start the redirect process
       const timer = setTimeout(() => {
-        dispatch(
-          showNotification({
-            type: "loading",
-            title: "Redirecting",
-          })
-        );
+        ShowAlert(dispatch,"loading", "Redirecting");
       }, 5000); // Show redirect notification after 5 seconds
 
       return () => clearTimeout(timer); // Clean up the timeout if dependencies change

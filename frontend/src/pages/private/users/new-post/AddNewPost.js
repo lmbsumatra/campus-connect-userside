@@ -9,31 +9,26 @@ import UserToolbar from "../common/UserToolbar";
 import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs";
 import AddItemBadges from "../common/AddItemBadges";
 import AddImage from "../common/AddImage";
-import DateDurationPicker from "./DateDurationPicker";
+import DateDurationPicker from "../new-post/DateDurationPicker";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
+import ShowAlert from "../../../../utils/ShowAlert.js";
 
 // Constants and Utils
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
-import {
-  FOR_RENT,
-  TO_RENT,
-} from "../../../../utils/consonants";
+import { FOR_RENT, TO_RENT } from "../../../../utils/consonants";
 
 // Redux
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
-import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
 import { fetchUser } from "../../../../redux/user/userSlice";
 import {
   blurField,
+  updateAvailableDates,
   updateField,
-} from "../../../../redux/item-form/itemFormSlice";
+  validateInput,
+} from "../../../../redux/post-form/postFormSlice";
 
 // Assets
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
-import itemImage1 from "../../../../assets/images/item/item_1.jpg";
-import itemImage2 from "../../../../assets/images/item/item_2.jpg";
-import itemImage3 from "../../../../assets/images/item/item_3.jpg";
-import itemImage4 from "../../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../assets/images/card/buy.svg";
 import warningIcon from "../../../../assets/images/input-icons/warning.svg";
@@ -41,8 +36,8 @@ import warningIcon from "../../../../assets/images/input-icons/warning.svg";
 // Styles
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-datepicker/dist/react-datepicker.css";
-import "./addNewItemStyles.css";
-import { toast } from "react-toastify";
+import "./addNewPostStyles.css";
+import { ToastContainer } from "react-toastify";
 import axios from "axios";
 import { baseApi } from "../../../../App";
 import { io } from "socket.io-client";
@@ -71,7 +66,7 @@ const FormField = ({
 }) => (
   <div className="field-container">
     <div className="input-wrapper">
-      {label && <label>{label}</label>}
+      {label && <label className="label">{label}</label>}
       <input
         id={id}
         name={id}
@@ -91,7 +86,7 @@ const FormField = ({
 const AddNewPost = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const itemDataState = useSelector((state) => state.itemForm);
+  const postDataState = useSelector((state) => state.postForm);
   const { user, loadingFetchUser, errorFetchUser } = useSelector(
     (state) => state.user
   );
@@ -117,31 +112,6 @@ const AddNewPost = () => {
       dispatch(fetchUser(userId));
     }
   }, [userId, dispatch]);
-
-  useEffect(() => {
-    if (errorFetchUser || (!loadingFetchUser && !user)) {
-      handleError();
-    }
-  }, [errorFetchUser, loadingFetchUser, user]);
-
-  const handleError = () => {
-    const errorMessage = errorFetchUser
-      ? "User not found!"
-      : "No user found with the given ID.";
-    dispatch(
-      showNotification({
-        type: "error",
-        title: "Error",
-        text: errorMessage,
-      })
-    );
-
-    setRedirecting(true);
-    setTimeout(() => {
-      dispatch(showNotification({ type: "loading", title: "Redirecting" }));
-      setTimeout(() => navigate(-1), 1000);
-    }, 5000);
-  };
 
   const handleFieldChange = (name, value) => {
     dispatch(updateField({ name, value }));
@@ -189,83 +159,42 @@ const AddNewPost = () => {
     );
   };
 
+  useEffect(() => {
+    if (!userId) {
+      ShowAlert(dispatch, "warning", "Warning", "You must login first!");
+    }
+
+    if (!userId) {
+      setRedirecting(true); // Start the redirect process
+      const timer = setTimeout(() => {
+        ShowAlert(dispatch, "loading", "Redirecting");
+      }, 5000); // Show redirect notification after 5 seconds
+
+      return () => clearTimeout(timer); // Clean up the timeout if dependencies change
+    }
+  }, [userId, dispatch]);
+
+  useEffect(() => {
+    if (redirecting) {
+      const redirectTimer = setTimeout(() => {
+        navigate(-1); // Redirect to previous page
+      }, 6000); // Wait 6 seconds before redirect
+
+      return () => clearTimeout(redirectTimer); // Clean up redirect timer
+    }
+  }, [redirecting, navigate]);
+
   if (loadingFetchUser || redirecting) {
     return <LoadingItemDetailSkeleton />;
   }
 
-  const handleSubmit = async () => {
-    console.log(itemDataState);
-    try {
-      const formData = new FormData();
-
-      // Append images to form data
-      itemDataState.images.value.forEach((image) =>
-        formData.append("item_images", image)
-      );
-
-      // Prepare item data
-      const itemData = {
-        [itemType == TO_RENT ? "renterId" : "buyerId"]: userId,
-        category: itemDataState.category.value,
-        itemName: itemDataState.itemName.value,
-        price: itemDataState.price.value,
-        desc: itemDataState.desc.value,
-        tags: itemDataState.tags.value,
-        dates: itemDataState.availableDates.value,
-        specs: itemDataState.specs.value,
-      };
-
-      formData.append(
-        itemType == FOR_RENT ? "to rent" : "to buy",
-        JSON.stringify(itemData)
-      );
-
-      const endpoint =
-        itemType == FOR_RENT ? "/listings/add" : "/item-for-sale/add";
-      const notificationType =
-        itemType == FOR_RENT ? "new-item-for-rent" : "new-item-for-sale";
-
-      // Submit the item data
-      const response = await axios.post(`${baseApi}${endpoint}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      // Send socket notification
-      if (socket) {
-        socket.emit("new-listing-notification", {
-          title: `${itemType == FOR_RENT ? "New Rental" : "New Sale"} Item`,
-          owner: `${user?.fname} ${user?.lname}`,
-          message: `listed an item for ${
-            itemType == FOR_RENT ? "rent" : "sale"
-          }.`,
-          type: notificationType,
-        });
-      }
-
-      // Success message
-      toast.success("Item created successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      navigate(`/items/${response.data.item.id}`);
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to create listing. Please try again.";
-      toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
-
-      // Scroll to first error if validation error
-      const firstError = document.querySelector(".validation.error");
-      firstError?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   const handleSaveDatesDurations = (datesDurations) => {
     setSelectedDatesDurations(datesDurations);
-    dispatch(updateField({ name: "availableDates", value: datesDurations })); // Dispatch the action to save the selected dates and durations
+    dispatch(updateField({ name: "availableDates", value: datesDurations }));
   };
 
   const handleCategoryChange = (selectedCategory) => {
+    setCategory(selectedCategory);
     dispatch(updateField({ name: "category", value: selectedCategory }));
     dispatch(blurField({ name: "category", value: selectedCategory }));
   };
@@ -275,9 +204,105 @@ const AddNewPost = () => {
     dispatch(blurField({ name: "images", value: newImages }));
   };
 
+  const handleSubmit = async () => {
+    // Validate all fields and trigger errors if needed
+    let hasErrors = false;
+    console.log(postDataState);
+
+    Object.keys(postDataState).forEach((key) => {
+      if (key !== "isFormValid") {
+        const field = postDataState[key];
+        console.log("Validating field:", key, "Value:", field.value); // Add this
+        const { hasError, error } = validateInput(key, field.value);
+
+        if (hasError) {
+          hasErrors = true;
+          dispatch(
+            blurField({ name: key, value: "" }) // This updates the Redux state to include the error
+          );
+          dispatch(updateAvailableDates());
+        }
+      }
+    });
+
+    console.log(postDataState);
+
+    // Prevent submission if there are errors
+    if (hasErrors) {
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Please correct the highlighted errors."
+      );
+      const firstError = document.querySelector(".validation.error");
+      firstError?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    console.log(postDataState);
+
+    try {
+      const formData = new FormData();
+
+      // Append images to form data
+      postDataState.images.value.forEach((image) =>
+        formData.append("item_images", image)
+      );
+
+      // Prepare item data
+      const itemData = {
+        [itemType === TO_RENT ? "renterId" : "buyerId"]: userId,
+        category: postDataState.category.value,
+        itemName: postDataState.itemName.value,
+        desc: postDataState.desc.value,
+        tags: postDataState.tags.value,
+        dates: postDataState.availableDates.value,
+        specs: postDataState.specs.value,
+      };
+
+      formData.append("item", JSON.stringify(itemData));
+
+      const endpoint =
+        itemType === TO_RENT ? "/posts/create" : "/item-for-sale/add";
+      const notificationType =
+        itemType === TO_RENT ? "new-post-to-rent" : "new-post-to-buy";
+
+      // Submit the item data
+      const response = await axios.post(`${baseApi}${endpoint}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      // Send socket notification
+      if (socket) {
+        socket.emit("new-listing-notification", {
+          title: `${
+            itemType === TO_RENT ? "New Post to Rent" : "New Post to Buy"
+          } Item`,
+          owner: `${user?.fname} ${user?.lname}`,
+          message: `posted an item to ${
+            itemType === TO_RENT ? "rent" : "buy"
+          }.`,
+          type: notificationType,
+        });
+      }
+
+      ShowAlert(dispatch, "loading", "Redirecting");
+      navigate(`/items/${response.data.item.id}`);
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to create listing. Please try again.";
+      ShowAlert(dispatch, "error", "Error", errorMessage);
+      const firstError = document.querySelector(".validation.error");
+      firstError?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="container-content add-item-detail">
-      <div className="add-item-container">
+    <div className="container-content add-post-detail">
+      <ToastContainer />
+      <div className="add-post-container">
         <div className="imgs-container">
           <Tooltip title={`This item is ${itemType}`}>
             <img
@@ -286,8 +311,14 @@ const AddNewPost = () => {
               className="item-type"
             />
           </Tooltip>
+          {postDataState.images.triggered && postDataState.images.hasError && (
+            <div className="validation error d-block">
+              <img src={warningIcon} className="icon" alt="Error indicator" />
+              <span className="text">{postDataState.images.error}</span>
+            </div>
+          )}
           <AddImage
-            images={itemDataState.images.value}
+            images={postDataState.images.value}
             onChange={handleImagesChange}
           />
         </div>
@@ -303,27 +334,23 @@ const AddNewPost = () => {
             onCategoryChange={handleCategoryChange}
           />
 
+          {postDataState.category.triggered &&
+            postDataState.category.hasError && (
+              <div className="validation error">
+                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <span className="text">{postDataState.category.error}</span>
+              </div>
+            )}
+
           <FormField
             label="For rent"
             id="itemName"
-            value={itemDataState.itemName.value}
+            value={postDataState.itemName.value}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
-            error={itemDataState.itemName.error}
-            triggered={itemDataState.itemName.triggered}
+            error={postDataState.itemName.error}
+            triggered={postDataState.itemName.triggered}
             placeholder="Add item name"
-          />
-
-          <FormField
-            label={<span className="price">$</span>}
-            id="price"
-            value={itemDataState.price.value}
-            onChange={handleFieldChange}
-            onBlur={handleFieldBlur}
-            error={itemDataState.price.error}
-            triggered={itemDataState.price.triggered}
-            placeholder="Add price"
-            className="field-container item-price"
           />
 
           {/* Action Buttons */}
@@ -335,12 +362,21 @@ const AddNewPost = () => {
               Message
             </button>
             <button className="btn btn-rectangle primary" disabled>
-              {itemDataState.itemType.value === FOR_RENT ? "Rent" : "Buy"}
+              {postDataState.itemType.value === FOR_RENT ? "Rent" : "Buy"}
             </button>
           </div>
 
           <hr />
-
+          {postDataState.requestDates.triggered &&
+            postDataState.requestDates.hasError && (
+              <div className="validation error d-block">
+                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <span className="text">
+                  {" "}
+                  {postDataState.requestDates.error}
+                </span>
+              </div>
+            )}
           {/* Date Duration Section */}
           <div className="rental-dates-durations">
             <DateDurationPicker
@@ -374,15 +410,34 @@ const AddNewPost = () => {
           </div>
         </div>
       </div>
-
-      <UserToolbar user={user?.owner} />
+      <UserToolbar user={user} />
 
       <AddItemDescAndSpecs
-        specs={itemDataState?.specs?.value}
-        desc={itemDataState?.desc?.value}
-        tags={itemDataState?.tags?.value}
+        specs={postDataState.specs.value}
+        desc={postDataState.desc.value}
+        tags={postDataState.tags.value}
+        onSpecsChange={(newSpecs) =>
+          dispatch(updateField({ name: "specs", value: newSpecs }))
+        }
+        onDescChange={(newDesc) => {
+          dispatch(updateField({ name: "desc", value: newDesc }));
+          dispatch(blurField({ name: "desc", value: newDesc }));
+        }}
+        onTagsChange={(newTags) => {
+          dispatch(updateField({ name: "tags", value: newTags }));
+          dispatch(blurField({ name: "tags", value: newTags }));
+        }}
+        errors={{
+          specs: postDataState.specs.error,
+          desc: postDataState.desc.error,
+          tags: postDataState.tags.error,
+        }}
+        triggered={{
+          specs: postDataState.specs.triggered,
+          desc: postDataState.desc.triggered,
+          tags: postDataState.tags.triggered,
+        }}
       />
-
       <button className="btn btn-primary" onClick={() => handleSubmit()}>
         Submit
       </button>

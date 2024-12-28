@@ -1,0 +1,278 @@
+/* Container Styles */
+.container-content .imgs-container {
+  position: relative;
+  width: 100%;
+  height: 720px;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  /* background-color: var(--clr-neutral-muted); */
+  overflow: hidden;
+}
+
+/* Upload Image Overlay */
+.container-content .imgs-container .upload-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 8;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.container-content .imgs-container .upload-image .text {
+  color: var(--clr-neutral-muted);
+  font-weight: 700;
+}
+.container-content .imgs-container .no-image .text {
+  color: var(--clr-neutral-dark-gray);
+  font-weight: 700;
+}
+
+.container-content .imgs-container .no-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 8;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.container-content .imgs-container .upload-image .image-upload-label,
+.container-content .imgs-container .no-image .image-upload-label {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container-content .imgs-container:hover .upload-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+}
+.container-content .imgs-container .no-image {
+  opacity: 1;
+}
+
+/* Image Slider */
+.container-content .imgs-container:hover .img-slider {
+  display: flex;
+  visibility: visible;
+  z-index: 10;
+}
+
+.container-content .imgs-container .img-slider .slider-container img.item-img {
+  height: 80px !important;
+  width: auto;
+  filter: brightness(0.5);
+  transition: filter 0.3s ease;
+  background-color: white;
+}
+
+.container-content
+  .imgs-container
+  .img-slider
+  .slider-container
+  img.item-img:hover {
+  filter: brightness(0.8);
+}
+
+.container-content
+  .imgs-container
+  .img-slider
+  .slider-container
+  img.item-img.center {
+  filter: brightness(1);
+  border: 1px solid white;
+}
+
+.highlight-bg {
+  background-size: cover;
+  background-position: center;
+  filter: blur(15px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+}
+
+/* Remove Button */
+.container-content .imgs-container .btn.btn-icon.secondary.red {
+  all: unset;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 16px;
+  width: 16px;
+  padding: 4px;
+  background-color: rgba(255, 0, 0, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.3s ease;
+}
+
+.container-content .imgs-container .btn.btn-icon.secondary.red:hover,
+.remove-image-btn:hover {
+  background-color: rgba(255, 0, 0, 0.8);
+}
+
+/* Item Container and Images */
+.item-container {
+  position: relative;
+}
+
+.item-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 5px;
+  margin: 5px;
+  cursor: pointer;
+  object-fit: cover;
+}
+
+.item-img:hover {
+  filter: brightness(0.7);
+}
+
+.item-img.center {
+  border: 2px solid blue;
+}
+
+/* Image Upload Label States */
+.image-upload-label {
+  color: white;
+  font-size: 18px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.image-upload-label .placeholder-text,
+.image-upload-label .add-more-text {
+  font-size: 16px;
+}
+
+.image-upload-label.no-image {
+  display: block;
+}
+
+.image-upload-label.has-image {
+  display: block;
+}
+
+.image-upload-label.no-image .add-more-text,
+.image-upload-label.has-image .placeholder-text {
+  display: none;
+}
+
+.image-upload-label.has-image .add-more-text {
+  display: none;
+}
+
+.image-upload-label.has-image:hover .add-more-text {
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .container-content {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .container-content .imgs-container {
+    flex-direction: column;
+  }
+  .container-content .imgs-container .img-slider {
+    display: flex;
+    width: 100%;
+    visibility: visible !important; /* Force visibility */
+    position: absolute;
+    bottom: 0;
+  }
+
+  /* Make the slider container scrollable */
+  .container-content .imgs-container .img-slider .slider-container {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+
+  .container-content
+    .imgs-container
+    .img-slider
+    .slider-container
+    img.item-img {
+    height: 80px !important;
+    width: 40px;
+  }
+
+  .container-content .imgs-container .btn.btn-icon.secondary.red {
+    position: relative; 
+    padding: 0;
+    margin: 0;
+    top: 0;
+    right: 24px;
+}
+}
+.container-content .imgs-container .img-slider .slider-container img.item-img {
+  height: 60px !important;
+  width: 40px !important;
+  filter: brightness(0.5);
+}
+
+.container-content .rental-dates-durations {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: auto;
+  gap: 8px;
+}
+
+.container-content .rental-dates-durations .date-picker {
+  display: inline-block;
+}
+
+.highlight {
+  position: relative;
+  height: 100%; /* or specify a fixed height like 720px */
+  width: 100%;
+  display: flex; /* Optional: for aligning child elements */
+  justify-content: center; /* Optional */
+  align-items: center; /* Optional */
+}
+
+.highlight-bg {
+  background-size: cover;
+  background-position: center;
+  filter: blur(15px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+.highlight-img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+}

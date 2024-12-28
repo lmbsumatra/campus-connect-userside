@@ -4,6 +4,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./dateTimePickerStyles.css";
 import Tooltip from "@mui/material/Tooltip";
+import { updateAvailableDates } from "../../../../redux/item-form/itemFormSlice";
+import { useDispatch } from "react-redux";
 
 const ModeSelector = ({ mode, setMode, resetDates }) => (
   <div className="field-container select">
@@ -116,7 +118,7 @@ const DateDurationPicker = ({
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [weekdays, setWeekdays] = useState([]);
-
+  const dispatch = useDispatch();
   // Helper functions
   const isSelected = (date) =>
     dates.some((d) => d.date.getTime() === date.getTime());
@@ -234,6 +236,7 @@ const DateDurationPicker = ({
 
   const handleSaveAndClose = () => {
     onSaveDatesDurations(dates);
+    dispatch(updateAvailableDates(dates));
     onClose();
   };
 

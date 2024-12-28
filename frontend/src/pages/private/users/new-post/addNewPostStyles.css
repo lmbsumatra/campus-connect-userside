@@ -1,0 +1,253 @@
+.container-content.add-post-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .add-post-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 8px;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    height: auto !important;
+    width: 100%;
+  }
+  
+  .add-post-container .price {
+    color: var(--clr-secondary) !important;
+    font-weight: 600;
+    font-size: 24px;
+  }
+  
+  .relative {
+    position: relative;
+  }
+  
+  .add-post-container .imgs-container img.item-type {
+    position: absolute;
+    height: 44px;
+    width: 44px;
+    right: 0;
+    top: 0;
+    padding: 4px;
+    margin: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    transform: rotate(45deg);
+    transition: ease 0.5s background-color;
+    z-index: 4;
+  }
+  
+  .add-post-container .imgs-container img.item-type:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .add-post-container .rental-details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .add-post-container .group-container.terms {
+    padding: 0;
+    margin: 0;
+  }
+  
+  .form-fields {
+    width: 100%;
+    height: 500px;
+    overflow-y: scroll;
+    background-color: #f5c518;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* * * * * * * * * */
+  /*   LISTING ITEM  */
+  /* * * * * * * * * */
+  .profile-info {
+    align-items: center;
+  }
+  
+  .profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+  
+  .user-name {
+    display: block;
+    font-weight: bold;
+  }
+  
+  .rating {
+    font-size: 0.875rem;
+    color: #f5c518;
+  }
+  
+  .price {
+    color: green;
+    font-weight: bold;
+  }
+  
+  /* * * * * * * * * */
+  /*   View Item     */
+  /* * * * * * * * * */
+  
+  .item-container,
+  .user-info,
+  .item-specs {
+    margin-bottom: 30px;
+    padding: 20px 10px;
+    border-radius: 5px;
+    background-color: white;
+    border-radius: 8px;
+  }
+  
+  .item-desc p {
+    margin: 5px 0;
+  }
+  
+  .price {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .form-check {
+    margin-top: 10px;
+  }
+  
+  .groupby input[type="text"] {
+    background-image: white;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 4px;
+    display: block;
+    width: 100%;
+  }
+  
+  .delivery-options label {
+    margin-right: 15px;
+  }
+  
+  .user-info .profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .rating {
+    font-size: 1.2em;
+  }
+  
+  .spec-title,
+  .item-specs-description {
+    font-size: 1em;
+    border: 1px solid var(--clr-secondary);
+    border-radius: 5px;
+    height: 40px;
+    margin-bottom: 4px;
+    min-width: 100px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  .item-description,
+  .item-specs-description {
+    resize: horizontal;
+  }
+  
+  .add-post-detail .field-container {
+    all: unset;
+    border-radius: 0 !important;
+  }
+  
+  .field-container .input-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    width: 100%;
+    border-radius: 0px !important;
+  }
+  
+  .field-container label {
+    display: inline-block;
+    white-space: nowrap;
+  }
+  
+  .add-post-detail .field-container .input-wrapper .input {
+    all: unset;
+    width: 100%;
+    padding: 5px !important;
+    box-sizing: border-box;
+    border: 1px solid #dbdbdb !important;
+    border-radius: 4px !important;
+    flex-grow: 1;
+  }
+  
+  .add-post-detail .group-container .field-container.item-condition input {
+    background-color: white;
+  }
+  
+  .add-post-container .rental-dates-durations {
+    all: unset;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 800px;
+    gap: 8px !important;
+    background-color: transparent;
+  }
+  
+  .add-post-container .rental-dates-durations .date-picker {
+    padding: 10px;
+    border-radius: 4px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  
+  .add-post-container .rental-dates-durations .duration-picker.group-container {
+    padding: 10px;
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 600px) {
+    .add-post-container .imgs-container {
+      display: flex;
+      flex-direction: column;
+    }
+  
+    .add-post-container .rental-dates-durations .date-picker {
+      display: block !important;
+    }
+  
+    .add-post-container .rental-dates-durations .date-picker > * {
+      margin-bottom: 8px;
+    }
+  
+    .add-post-container .rental-dates-durations .date-picker > *:last-child {
+      margin-bottom: 0;
+    }
+  
+    .add-post-container .rental-dates-durations {
+      all: unset;
+      display: block !important;
+    }
+  }
+  
+  @media (min-width: 601px) and (max-width: 1024px) {
+  }
+  
+  @media (min-width: 1025px) {
+  }
+  
