@@ -1,0 +1,82 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 15px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.card-header {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  
+}
+
+.card-text,
+.card-status {
+  text-align: center; 
+  font-size: 0.85rem;
+}
+
+.card-footer {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-evenly;
+  gap: 10px;
+}
+
+.card-footer button {
+  flex: 1;
+  padding: 10px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.2s ease;
+  text-align: center;
+}
+
+.card-footer button:hover {
+  background-color: #0056b3;
+}
+
+.card-status span {
+  color: #555; /* Custom color for the status text */
+  font-weight: normal;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-footer {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+.status-action {
+  padding: 8px 0; /* Adjust the values as needed */
+  margin-top: 4px;
+  margin-bottom: 4px;
+  display: flex; /* Optional: Helps align title and value nicely */
+  align-items: center; /* Optional: Vertically aligns text if needed */
+}
+
+.status-action strong {
+  font-size: 0.85rem;
+  padding-right: 5px;
+}

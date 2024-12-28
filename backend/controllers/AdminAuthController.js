@@ -118,6 +118,8 @@ exports.loginAdmin = async (req, res) => {
       token,
       role: user.role,
       userId: user.user_id,
+      first_name: user.first_name, 
+      last_name: user.last_name,
     });
   } catch (error) {
     console.error("Login error:", error);

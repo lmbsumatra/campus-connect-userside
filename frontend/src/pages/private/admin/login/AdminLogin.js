@@ -48,7 +48,7 @@ const AdminLogin = () => {
   const handleAdminLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-
+  
     try {
       const response = await fetch("http://localhost:3001/admin/login", {
         method: "POST",
@@ -60,11 +60,14 @@ const AdminLogin = () => {
           password: userData.password,
         }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
-        loginAdmin(data.token, data.role, data.userId);
-        navigate("/admin/dashboard"); // naliligaw ata ako? // sana hindi na
+        console.log("Login Response Data:", data); // Log the full response
+  
+        const { token, role, userId, first_name, last_name } = data; // Destructure the fields
+        loginAdmin(token, role, userId, first_name, last_name); // Pass them to loginAdmin
+        navigate("/admin/dashboard"); // Redirect after successful login
       } else {
         const errorData = await response.json();
         console.error("Login failed:", errorData);
@@ -75,6 +78,7 @@ const AdminLogin = () => {
       setErrorMessage("An unexpected error occurred. Please try again later.");
     }
   };
+  
 
 
   return (

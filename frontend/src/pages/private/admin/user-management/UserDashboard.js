@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TableComponent from "../../../../components/Table/TableComponent";
+import CardComponent from "../../../../components/Table/CardComponent"; 
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import useFetchAllUsersData from "../../../../utils/FetchAllUsersData";
@@ -19,6 +20,7 @@ const UserDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
+  const [viewMode, setViewMode] = useState("table");
   const navigate = useNavigate();
 
   const headers = [
@@ -187,6 +189,11 @@ const UserDashboard = () => {
     ];
   });
 
+  const handleSwitchView = (view) => {
+    setViewMode(view);
+  };
+
+
   return (
     <div className="admin-content-container">
       <div className="row">
@@ -195,14 +202,29 @@ const UserDashboard = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
-          <TableComponent
-            headers={headers}
-            data={data}
-            onSortChange={handleSortChange}
-            onFilterChange={handleFilterChange}
-          />
+          
+          {/* View switcher */}
+          <div className="view-toggle">
+            <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
+            <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
+          </div>
+
+          {/* Conditionally render Table or Card View */}
+          {viewMode === "table" ? (
+            <TableComponent
+              headers={headers}
+              data={data}
+              onSortChange={handleSortChange}
+              onFilterChange={handleFilterChange}
+            />
+          ) : (
+            <CardComponent data={data} headers={headers}/>
+
+          )}
+          
           {loading && <p>Loading ...</p>}
           {error && <p>Error: {error}</p>}
+          
           <PaginationComponent
             currentPage={currentPage}
             totalPages={totalPages}

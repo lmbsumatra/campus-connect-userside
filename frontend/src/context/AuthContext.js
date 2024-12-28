@@ -40,12 +40,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("studentUser");
   };
 
-  const loginAdmin = (token, role, userId) => {
-    const newUser = { role, token, userId };
+  const loginAdmin = (token, role, userId, firstName, lastName) => {
+    const newUser = { role, token, userId, firstName, lastName }; // Add firstName and lastName
     setAdminUser(newUser);
     localStorage.setItem("adminUser", JSON.stringify(newUser));
     console.log("Admin logged in:", newUser);
   };
+  
 
   const logoutAdmin = () => {
     setAdminUser(null);

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useSocket from "../../../hooks/useSocket"; 
-import searchIcon from "../../../assets/images/icons/search.svg";
 import UserDropdown from "../dropdown/UserDropdown";
 import Notification from "../notif/Notification";
 import { useAuth } from "../../../context/AuthContext"; 
@@ -13,7 +12,7 @@ const AdminNavBar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const socket = useSocket("http://localhost:3001");
-  const { logoutAdmin } = useAuth(); 
+  const { adminUser, logoutAdmin } = useAuth(); // Access adminUser from AuthContext
   const [openPopup, setOpenPopup] = useState(null);
 
   const notificationsRef = useRef(null); // Define ref for notifications
@@ -38,6 +37,12 @@ const AdminNavBar = () => {
     navigate("/admin-login");
   };
 
+  // Function to format date and time
+  const getFormattedDateTime = () => {
+    const currentDate = new Date();
+    return currentDate.toLocaleString(); // Formats as 'MM/DD/YYYY, HH:MM:SS AM/PM'
+  };
+
   useEffect(() => {
     if (socket) {
       // Emit the 'admin-connect' event to notify the server this admin is connected
@@ -59,13 +64,13 @@ const AdminNavBar = () => {
         ]);
       });
 
-        // Listen for new post notifications
-        socket.on("new-post-notification", (notificationData) => {
-          setNotifications((prevNotifications) => [
-            ...prevNotifications,
-            notificationData,
-          ]);
-        });
+      // Listen for new post notifications
+      socket.on("new-post-notification", (notificationData) => {
+        setNotifications((prevNotifications) => [
+          ...prevNotifications,
+          notificationData,
+        ]);
+      });
 
       // Cleanup socket listeners on component unmount
       return () => {
@@ -79,10 +84,18 @@ const AdminNavBar = () => {
 
   return (
     <div className="nav nav-container">
-      <div className="searchbar">
-        <input placeholder="Search here..." />
-        <img src={searchIcon} alt="Search icon" className="search-icon" />
+      <div className="admin-info">
+        {/* Display admin name and formatted date-time */}
+        {adminUser ? (
+          <>
+            <span className="admin-name">{`${adminUser.firstName} ${adminUser.lastName}`}</span>
+            <span className="date-time">{getFormattedDateTime()}</span>
+          </>
+        ) : (
+          <span>Loading...</span> 
+        )}
       </div>
+
       <div className="toolbar d-flex">
         <div ref={notificationsRef} onClick={toggleNotifications}>
           <Notification

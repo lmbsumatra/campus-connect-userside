@@ -13,6 +13,7 @@ import {
   ListingStatusDistribution,
   TopUsersForListings,
 } from "../../../../components/Analytics/ListingAnalyticsComponent";
+import CardComponent from "../../../../components/Table/CardComponent"; 
 
 const ListingDashboard = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
@@ -21,6 +22,7 @@ const ListingDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page state
   const [listingsPerPage] = useState(10); // Listings per page
   const [originalData, setOriginalData] = useState([]); // State for storing original data
+    const [viewMode, setViewMode] = useState("table");
 
   const headers = [
     "Thumbnail",
@@ -192,6 +194,10 @@ const ListingDashboard = () => {
     ];
   });
 
+  const handleSwitchView = (view) => {
+    setViewMode(view);
+  };
+
   return (
     <div className="admin-content-container">
       <div className="row">
@@ -206,14 +212,24 @@ const ListingDashboard = () => {
               onSearchChange={setSearchQuery}
             />
 
-            {/* Table Component */}
+          {/* View switcher */}
+          <div className="view-toggle">
+            <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
+            <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
+          </div>
+
+          {/* Conditionally render Table or Card View */}
+          {viewMode === "table" ? (
             <TableComponent
               headers={headers}
               data={data}
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
             />
+          ) : (
+            <CardComponent data={data} headers={headers}/>
 
+          )}
             {/* Pagination Component */}
             <PaginationComponent
               currentPage={currentPage}
