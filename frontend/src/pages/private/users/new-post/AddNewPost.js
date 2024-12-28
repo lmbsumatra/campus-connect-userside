@@ -22,7 +22,7 @@ import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
 import { fetchUser } from "../../../../redux/user/userSlice";
 import {
   blurField,
-  updateAvailableDates,
+  updateRequestDates,
   updateField,
   validateInput,
 } from "../../../../redux/post-form/postFormSlice";
@@ -190,7 +190,7 @@ const AddNewPost = () => {
 
   const handleSaveDatesDurations = (datesDurations) => {
     setSelectedDatesDurations(datesDurations);
-    dispatch(updateField({ name: "availableDates", value: datesDurations }));
+    dispatch(updateField({ name: "requestDates", value: datesDurations }));
   };
 
   const handleCategoryChange = (selectedCategory) => {
@@ -220,7 +220,7 @@ const AddNewPost = () => {
           dispatch(
             blurField({ name: key, value: "" }) // This updates the Redux state to include the error
           );
-          dispatch(updateAvailableDates());
+          dispatch(updateRequestDates());
         }
       }
     });
@@ -394,12 +394,19 @@ const AddNewPost = () => {
                 Add Dates and Durations
               </button>
 
-              <DatePicker
-                inline
-                selected={selectedDisplayDate}
-                onChange={setSelectedDisplayDate}
-                highlightDates={selectedDatesDurations.map((item) => item.date)}
-                excludeDates={UNAVAILABLE_DATES}
+              <DateDurationPicker
+                show={showDateDurationPicker}
+                onClose={() => setShowDateDurationPicker(false)}
+                onSaveDatesDurations={(dates) => {
+                  setSelectedDatesDurations(dates);
+                  dispatch(updateRequestDates(dates));
+                }}
+                unavailableDates={UNAVAILABLE_DATES}
+                initialDates={selectedDatesDurations}
+                onDateSelect={(dates) => {
+                  setSelectedDatesDurations(dates);
+                  dispatch(updateRequestDates(dates));
+                }}
               />
             </div>
 

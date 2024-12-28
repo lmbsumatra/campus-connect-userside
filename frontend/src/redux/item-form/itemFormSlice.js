@@ -1,4 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {
+  GCASH,
+  MEET_UP,
+  PAY_UPON_MEETUP,
+  PICK_UP,
+} from "../../utils/consonants";
 
 // Utility function to validate available dates
 const validateAvailableDates = (dates) => {
@@ -105,32 +111,32 @@ export const validateInput = (name, value) => {
       }
       break;
 
-    case "deliveryMethod":
-      if (value.trim() === "") {
-        hasError = true;
-        error = "Delivery method cannot be empty.";
-      } else if (value !== "Pickup" || value !== "Meetup") {
-        hasError = true;
-        error = "Please choose between pickup and meetup only.";
-      } else {
-        hasError = false;
-        error = "";
-      }
-      break;
-
-    case "paymentMethod":
-      if (value.trim() === "") {
-        hasError = true;
-        error = "Payment method cannot be empty.";
-      } else if (value !== "Payment upon meetup" || value !== "Gcash") {
-        hasError = true;
-        error = "Please choose between Payment upon meetup and Gcash only.";
-      } else {
-        hasError = false;
-        error = "";
-      }
-      break;
-
+      case "deliveryMethod":
+        if (value.trim() === "") {
+          hasError = true;
+          error = "Delivery method cannot be empty.";
+        } else if (value !== PICK_UP && value !== MEET_UP) { // Changed to AND
+          console.log(value, PICK_UP, MEET_UP);
+          hasError = true;
+          error = "Please choose between pickup and meetup only.";
+        } else {
+          hasError = false;
+          error = "";
+        }
+        break;
+      
+      case "paymentMethod":
+        if (value.trim() === "") {
+          hasError = true;
+          error = "Payment method cannot be empty.";
+        } else if (value !== PAY_UPON_MEETUP && value !== GCASH) { // Changed to AND
+          hasError = true;
+          error = "Please choose between Payment upon meetup and Gcash only.";
+        } else {
+          hasError = false;
+          error = "";
+        }
+        break;
     case "itemCondition":
       if (value.trim() === "") {
         hasError = true;
@@ -335,6 +341,7 @@ const itemFormSlice = createSlice({
     },
     updateField: (state, action) => {
       const { name, value } = action.payload;
+      console.log(name, value);
       const { hasError, error } = validateInput(name, value);
 
       // Update the field

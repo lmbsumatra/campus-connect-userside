@@ -49,6 +49,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import { baseApi } from "../../../../App";
 import { io } from "socket.io-client";
+import { updateRequestDates } from "../../../../redux/post-form/postFormSlice.js";
 
 const UNAVAILABLE_DATES = [
   new Date(2024, 11, 25), // Christmas
@@ -197,8 +198,12 @@ const AddNewItem = () => {
   }
 
   const handleSaveDatesDurations = (datesDurations) => {
+    const serializedDates = datesDurations.availableDates.map((date) => ({
+      ...date,
+      date: new Date(date.date).toISOString(),
+    }));
     setSelectedDatesDurations(datesDurations);
-    dispatch(updateField({ name: "availableDates", value: datesDurations }));
+    dispatch(updateAvailableDates(serializedDates));
   };
 
   const handleCategoryChange = (selectedCategory) => {
@@ -211,11 +216,10 @@ const AddNewItem = () => {
     dispatch(updateField({ name: "images", value: newImages }));
     dispatch(blurField({ name: "images", value: newImages }));
   };
-
+  console.log(itemDataState);
   const handleSubmit = async () => {
     // Validate all fields and trigger errors if needed
     let hasErrors = false;
-    console.log(itemDataState);
 
     Object.keys(itemDataState).forEach((key) => {
       if (key !== "isFormValid") {
@@ -225,10 +229,13 @@ const AddNewItem = () => {
 
         if (hasError) {
           hasErrors = true;
+
           dispatch(
             blurField({ name: key, value: "" }) // This updates the Redux state to include the error
           );
-          dispatch(updateAvailableDates());
+          if (key === "availableDates") {
+            dispatch(updateAvailableDates(field.value));
+          }
         }
       }
     });
@@ -303,7 +310,7 @@ const AddNewItem = () => {
         });
       }
 
-      ShowAlert(dispatch, "loading", "Redirecting");
+      ShowAlert(dispatch, "loading", "Redirecting", "...");
       navigate(`/items/${response.data.item.id}`);
     } catch (error) {
       const errorMessage =
@@ -399,7 +406,10 @@ const AddNewItem = () => {
             itemDataState.availableDates.hasError && (
               <div className="validation error d-block">
                 <img src={warningIcon} className="icon" alt="Error indicator" />
-                <span className="text"> {itemDataState.availableDates.error}</span>
+                <span className="text">
+                  {" "}
+                  {itemDataState.availableDates.error}
+                </span>
               </div>
             )}
           {/* Date Duration Section */}

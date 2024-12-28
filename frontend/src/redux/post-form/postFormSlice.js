@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 // Utility function to validate available dates
-const validateAvailableDates = (dates) => {
+const validateRequestDates = (dates) => {
   const errors = [];
 
   if (!dates || dates.length === 0) {
-    errors.push("At least one available date is required.");
+    errors.push("At least one request date is required.");
     return errors;
   }
 
@@ -81,7 +81,7 @@ export const validateInput = (name, value) => {
       break;
 
     case "requestDates":
-      const dateValidation = validateAvailableDates(value);
+      const dateValidation = validateRequestDates(value);
       if (dateValidation.length > 0) {
         hasError = true;
         error = dateValidation.join(" ");
@@ -220,12 +220,12 @@ const postFormSlice = createSlice({
   name: "post-form",
   initialState,
   reducers: {
-    updateAvailableDates: (state, action) => {
+    updateRequestDates: (state, action) => {
       const { hasError, error } = validateInput(
         "requestDates",
         action.payload
       );
-      state.availableDates = {
+      state.requestDates = {
         value: action.payload,
         hasError,
         error,
@@ -260,7 +260,7 @@ const postFormSlice = createSlice({
 });
 
 // Export actions
-export const { updateField, blurField, updateAvailableDates } =
+export const { updateField, blurField, updateRequestDates } =
 postFormSlice.actions;
 
 // Export the reducer

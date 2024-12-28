@@ -236,7 +236,6 @@ const DateDurationPicker = ({
 
   const handleSaveAndClose = () => {
     onSaveDatesDurations(dates);
-    dispatch(updateAvailableDates(dates));
     onClose();
   };
 
