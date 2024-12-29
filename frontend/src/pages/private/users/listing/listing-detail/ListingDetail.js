@@ -229,6 +229,32 @@ function ListingDetail() {
     return <LoadingItemDetailSkeleton />;
   }
 
+  const handleMessageClick = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversation`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            senderId: studentUser.userId, // Logged-in user
+            ownerId: approvedListingById.owner.id, // Listing owner's user ID
+          }),
+        }
+      );
+  
+      if (response.ok) {
+        navigate("/messages"); // Redirect to messages page
+      } else {
+        const error = await response.json();
+        console.error("Error creating conversation:", error.error);
+      }
+    } catch (err) {
+      console.error("Error handling message click:", err);
+    }
+};
+
+
   return (
     <div className="container-content listing-detail">
       <div className="listing-container">
@@ -295,7 +321,7 @@ function ListingDetail() {
             >
               <img src={cartIcon} alt="Add to cart" />
             </button>
-            <button className="btn btn-rectangle secondary">Message</button>
+            <button className="btn btn-rectangle secondary"  onClick={handleMessageClick}>Message</button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}

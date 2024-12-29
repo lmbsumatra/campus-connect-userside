@@ -6,6 +6,7 @@ const Message = require ("../models/MessageModel")
 // add lang
 
 const {models} = require("../models/index")
+
 // New conversation
 router.post("/", async (req, res) => {
     try {
@@ -18,6 +19,42 @@ router.post("/", async (req, res) => {
     }
 });
 
+
+router.post("/createConversation", async (req, res) => {
+    const { senderId, ownerId } = req.body;
+  
+    try {
+      if (!senderId || !ownerId) {
+        return res.status(400).json({ error: "Sender ID and Owner ID are required" });
+      }
+  
+      // Check if the conversation already exists
+      const existingConversation = await Conversation.findOne({
+        where: {
+          members: sequelize.literal(
+            `JSON_CONTAINS(members, '["${senderId}"]') AND JSON_CONTAINS(members, '["${ownerId}"]')`
+          ),
+        },
+      });
+  
+      if (!existingConversation) {
+        // Create a new conversation with members as a JSON array
+        const newConversation = await Conversation.create({
+          members: [String(senderId), String(ownerId)], // Store directly as an array
+          user_id: senderId, // Populate user_id as the creator
+        });
+  
+        return res.status(201).json(newConversation);
+      }
+  
+      res.status(200).json(existingConversation);
+    } catch (err) {
+      console.error("Error creating conversation:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+  
+  
 
 // Get conversations of a user
 router.get("/:id", async (req, res) => {
@@ -111,6 +148,8 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+
+
 // Additional route to handle sending a message in a conversation
 router.post("/:conversationId/message", async (req, res) => {
     const { conversationId } = req.params; // Get the conversation ID from the URL params
@@ -154,6 +193,10 @@ router.get("/:conversationId/messages", async (req, res) => {
     }
 });
 
+
+module.exports = router;
+
+
 // Get all conversations
 // router.get("/", async (req, res) => {
 //     try {
@@ -168,6 +211,3 @@ router.get("/:conversationId/messages", async (req, res) => {
 //         res.status(500).json({ error: err.message });
 //     }
 // });
-
-
-module.exports = router;

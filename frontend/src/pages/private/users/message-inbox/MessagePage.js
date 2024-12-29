@@ -72,6 +72,7 @@ const MessagePage = () => {
 
     fetchConversations();
   }, [userId]);
+  
   useEffect(() => {
     if (chatContentRef.current) {
       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
