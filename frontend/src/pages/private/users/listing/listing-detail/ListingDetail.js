@@ -112,7 +112,12 @@ function ListingDetail() {
 
     if (!selectedDate || !selectedDuration) {
       dispatch(clearNotification(loadingNotify));
-      return ShowAlert(dispatch,"error", "Error", "Please select a date and duration.");
+      return ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Please select a date and duration."
+      );
     }
 
     const selectedDateId = approvedListingById.rentalDates.find(
@@ -122,7 +127,7 @@ function ListingDetail() {
     if (!selectedDateId) {
       // Remove the loading notification on error
       dispatch(clearNotification(loadingNotify));
-      return ShowAlert(dispatch,"error", "Error", "Invalid date selection.");
+      return ShowAlert(dispatch, "error", "Error", "Invalid date selection.");
     }
 
     try {
@@ -144,18 +149,18 @@ function ListingDetail() {
         store.getState().cart;
 
       if (successCartMessage) {
-        ShowAlert(dispatch,"success", "Success!", successCartMessage);
+        ShowAlert(dispatch, "success", "Success!", successCartMessage);
       }
       if (warningCartMessage) {
-        ShowAlert(dispatch,"warning", "Warning", warningCartMessage);
+        ShowAlert(dispatch, "warning", "Warning", warningCartMessage);
       }
 
       if (errorCartMessage) {
-        ShowAlert(dispatch,"error", "Error", errorCartMessage);
+        ShowAlert(dispatch, "error", "Error", errorCartMessage);
       }
     } catch (error) {
       console.error("Error adding item to cart:", error);
-      ShowAlert(dispatch,"error", "Error", "An unexpected error occurred.");
+      ShowAlert(dispatch, "error", "Error", "An unexpected error occurred.");
     }
   };
 
@@ -192,9 +197,9 @@ function ListingDetail() {
 
   useEffect(() => {
     if (errorApprovedListingById) {
-      ShowAlert(dispatch,"error", "Error", "Item not found!");
+      ShowAlert(dispatch, "error", "Error", "Item not found!");
     } else if (!loadingApprovedListingById && !approvedListingById) {
-      ShowAlert(dispatch,"error", "Error", "Item not found!");
+      ShowAlert(dispatch, "error", "Error", "Item not found!");
     }
 
     if (
@@ -203,7 +208,7 @@ function ListingDetail() {
     ) {
       setRedirecting(true); // Start the redirect process
       const timer = setTimeout(() => {
-        ShowAlert(dispatch,"loading", "Redirecting");
+        ShowAlert(dispatch, "loading", "Redirecting");
       }, 5000); // Show redirect notification after 5 seconds
 
       return () => clearTimeout(timer); // Clean up the timeout if dependencies change
@@ -528,14 +533,15 @@ function ListingDetail() {
               )}
             </div>
           </div>
-
-          <Terms
-            values={{
-              lateCharges: approvedListingById.lateCharges,
-              securityDeposit: approvedListingById.securityDeposit,
-              repairReplacement: approvedListingById.repairReplacement,
-            }}
-          />
+          <div className="group-container terms">
+            <Terms
+              values={{
+                lateCharges: approvedListingById.lateCharges,
+                securityDeposit: approvedListingById.securityDeposit,
+                repairReplacement: approvedListingById.repairReplacement,
+              }}
+            />
+          </div>
         </div>
       </div>
 
