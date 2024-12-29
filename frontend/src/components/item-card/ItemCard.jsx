@@ -1,268 +1,176 @@
-import React, { useState } from "react";
-import moreImg from "../../assets/images/icons/moreImg.png";
+import React, { useState, useEffect, useRef } from "react";
 import "./itemCardStyles.css";
 import { useNavigate } from "react-router-dom";
 import item1 from "../../assets/images/item/item_1.jpg";
-import flagIcon from "../../assets/images/card/flag.svg";
 import Tooltip from "@mui/material/Tooltip";
-import { Button } from "@mui/material";
 import cartIcon from "../../assets/images/card/cart.svg";
 import moreIcon from "../../assets/images/card/more.svg";
 import forRentIcon from "../../assets/images/card/rent.svg";
 import forSaleIcon from "../../assets/images/card/buy.svg";
-import { addCartItem } from "../../redux/cart/cartSlice";
+import { ItemStatus } from "../../utils/Status";
 import { useDispatch, useSelector } from "react-redux";
+import { deleteListingById } from "../../redux/listing/allListingsByUserSlice";
 import { selectStudentUser } from "../../redux/auth/studentAuthSlice";
+import ShowAlert from "../../utils/ShowAlert";
+import { FOR_RENT } from "../../utils/consonants";
 
-const ItemCard = ({ items, title, isProfileVisit }) => {
-  const [selectedIndex, setSelectedIndex] = useState(null);
-  const [showOptions, setShowOptions] = useState(null);
+const tooltipProps = {
+  componentsProps: {
+    popper: {
+      modifiers: [
+        {
+          name: "offset",
+          options: { offset: [0, -10] },
+        },
+      ],
+    },
+  },
+};
+
+const ItemCard = ({ items, title, isYou, onOptionClick }) => {
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const dropdownRefs = useRef({});
   const navigate = useNavigate();
- 
+  const { userId } = useSelector(selectStudentUser);
+  const { deletingListing, deleteStatus, deleteError } = useSelector(
+    (state) => state.allListingsByUser
+  );
 
-  console.log(items);
+  const dispatch = useDispatch();
 
-  const handleMouseEnter = (index) => {
-    setSelectedIndex(index);
-  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const activeRef = dropdownRefs.current[activeDropdown];
+      if (
+        activeDropdown !== null &&
+        activeRef &&
+        !activeRef.contains(event.target)
+      ) {
+        setActiveDropdown(null);
+      }
+    };
 
-  const handleMouseLeave = () => {
-    setSelectedIndex(null);
-  };
-
-  const handleMoreClick = (index, e) => {
-    e.stopPropagation(); // Prevent the Link from triggering
-    if (showOptions === index) {
-      setShowOptions(null); // Close if already open
-    } else {
-      setShowOptions(index);
-    }
-  };
-
-  const handleCardClick = (item) => {
-    if (item.itemType === "Rent") navigate(`/rent/${item.id}`);
-    // Navigate to the link when the card is clicked
-    else if (item.itemType === "Sale") {
-      navigate(`/shop/${item.id}`);
-    }
-  };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [activeDropdown]);
 
   const handleAddToCart = (e, item) => {
     e.stopPropagation();
-
-
   };
 
+  const handleDropdownToggle = (e, index) => {
+    e.stopPropagation();
+    setActiveDropdown((prevState) => (prevState === index ? null : index));
+  };
+
+  const handleCardClick = (item) => {
+    if (item.itemType === "For Rent") navigate(`/rent/${item.id}`);
+    else if (item.itemType === "For Sale") navigate(`/shop/${item.id}`);
+  };
   return (
     <div>
       <h2 className="fs-2 fw-bold">{title}</h2>
       For rent
       <div className="card-container vertical">
-        <div className="card variant-1">
-          <div className="img-holder">
-            <img src={item1} alt={`${item1}`} className="img" />
-            <Tooltip
-              title={"This is a tooltip"}
-              componentsProps={{
-                popper: {
-                  modifiers: [
-                    {
-                      name: "offset",
-                      options: {
-                        offset: [0, -10], // Adjusts the tooltip distance [horizontal, vertical]
-                      },
-                    },
-                  ],
-                },
-              }}
-            >
-              {" "}
-              <img
-                src={forRentIcon}
-                alt={`${item1} is for rent`}
-                className="item-type"
-              />
-            </Tooltip>
-          </div>
-          <div className="description">
-            <div className="tags-holder">
-              <span className="tag">tagtagtagtagtag</span>
-              <Tooltip
-                title={"This is a tooltip"}
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, -10], // Adjusts the tooltip distance [horizontal, vertical]
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                <span className="tag">More +</span>
-              </Tooltip>
-            </div>
-            <p className="item-name">Nikon 123 Camera Dslr Dslr</p>
-            <p className="item-price">P100 per hr</p>
-            <div className="action-btns">
-              <button className="btn btn-rectangle primary">Rent</button>
-              <button className="btn btn-icon primary">
-                <img src={cartIcon} alt="Add to cart" />
-              </button>
-              <button className="btn btn-icon primary option">
-                <img src={moreIcon} alt="More option" />
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="card variant-1">
-          <div className="img-holder">
-            <img src={item1} alt={`${item1}`} className="img" />
-            <Tooltip
-              title={"This is a tooltip"}
-              componentsProps={{
-                popper: {
-                  modifiers: [
-                    {
-                      name: "offset",
-                      options: {
-                        offset: [0, -10], // Adjusts the tooltip distance [horizontal, vertical]
-                      },
-                    },
-                  ],
-                },
-              }}
-            >
-              {" "}
-              <img
-                src={forRentIcon}
-                alt={`${item1} is for rent`}
-                className="item-type"
-              />
-            </Tooltip>
-          </div>
-          <div className="description">
-            <div className="tags-holder">
-              <span className="tag">tagtagtagtagtag</span>
-              <Tooltip
-                title={"This is a tooltip"}
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, -10], // Adjusts the tooltip distance [horizontal, vertical]
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                <span className="tag">More +</span>
-              </Tooltip>
-            </div>
-            <p className="item-name">Nikon 123 Camera Dslr</p>
-            <p className="item-price">P100 per hr</p>
-            <div className="action-btns">
-              <button className="btn btn-rectangle primary">Rent</button>
-              <button className="btn btn-icon primary">
-                <img src={cartIcon} alt="Add to cart" />
-              </button>
-              <button className="btn btn-icon primary option">
-                <img src={moreIcon} alt="More option" />
-              </button>
-            </div>
-          </div>
-        </div>
         {items.length > 0 ? (
-          items.map((item, index) => {
-            return (
-              <div
-                className="card variant-1"
-                onClick={(e) => handleCardClick(item)}
-              >
-                <div className="img-holder">
-                  <img src={item1} alt={`${item1}`} className="img" />
-                  <Tooltip
-                    title={`${item.name} is for ${
-                      item.itemType === "Rent" ? "rent" : "sale"
-                    }.`}
-                    componentsProps={{
-                      popper: {
-                        modifiers: [
-                          {
-                            name: "offset",
-                            options: {
-                              offset: [0, -50], // Adjusts the tooltip distance [horizontal, vertical]
-                            },
-                          },
-                        ],
-                      },
-                    }}
-                  >
-                    <img
-                      src={item.itemType === "Rent" ? forRentIcon : forSaleIcon}
-                      alt={`${item1} is for rent`}
-                      className="item-type"
-                    />
-                  </Tooltip>
-                </div>
-                <div className="description">
-                  <div className="tags-holder">
-                    <span className="tag">
-                      {JSON.parse(item.tags).slice(0, 1)}
-                    </span>
-                    <Tooltip
-                      title={JSON.parse(item.tags)
-                        .slice(1)
-                        .map((tag, index) => (
-                          <div key={index}>
-                            {tag}
-                            <br />
-                          </div>
-                        ))}
-                      componentsProps={{
-                        popper: {
-                          modifiers: [
-                            {
-                              name: "offset",
-                              options: {
-                                offset: [0, -10], // Adjusts the tooltip distance [horizontal, vertical]
-                              },
-                            },
-                          ],
-                        },
-                      }}
-                    >
-                      <span className="tag">More +</span>
-                    </Tooltip>
-                  </div>
-                  <p className="item-name">{item.name}</p>
-                  <p className="item-price">
-                    P{item.price} {item.itemType === "Rent" ? "per hour" : ""}
-                  </p>
-                  <div className="action-btns">
-                    <button className="btn btn-rectangle primary">
-                      {item.itemType === "Rent" ? "Rent" : "Buy"}
-                    </button>
-                    <button
-                      className="btn btn-icon primary"
-                      onClick={(e) => handleAddToCart(e, item)}
-                    >
-                      <img src={cartIcon} alt="Add to cart" />
-                    </button>
-                    <button className="btn btn-icon secondary option">
-                      <img src={moreIcon} alt="More option" />
-                    </button>
-                  </div>
-                </div>
+          items.map((item, index) => (
+            <div
+              key={item.id || index}
+              className="card variant-1"
+              onClick={() => handleCardClick(item)}
+            >
+              <div className="img-holder">
+                <img src={item1} alt={item.name} className="img" />
+                <Tooltip
+                  title={`${item.name} is for ${
+                    item.itemType === "Rent" ? "rent" : "sale"
+                  }.`}
+                  {...tooltipProps}
+                >
+                  <img
+                    src={item.itemType === FOR_RENT ? forRentIcon : forSaleIcon}
+                    alt={`${item.name} type`}
+                    className="item-type"
+                  />
+                </Tooltip>
               </div>
-            );
-          })
+
+              <div className="description">
+                <div className="tags-holder">
+                  {Array.isArray(item.tags) && item.tags.length > 0 && (
+                    <>
+                      <span className="tag">{item.tags[0]}</span>
+                      {item.tags.length > 1 && (
+                        <Tooltip
+                          title={item.tags.slice(1).map((tag, i) => (
+                            <div key={i}>
+                              {tag}
+                              <br />
+                            </div>
+                          ))}
+                          {...tooltipProps}
+                        >
+                          <span className="tag">More +</span>
+                        </Tooltip>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <p className="item-name">{item.name}</p>
+                <p className="item-price">
+                  P{item.price} {item.itemType === "Rent" ? "per hour" : ""}
+                </p>
+
+                <div className="action-btns">
+                  <button className="btn btn-rectangle primary">
+                    {item.itemType === "Rent" ? "Rent" : "Buy"}
+                  </button>
+                  <button
+                    className="btn btn-icon primary"
+                    onClick={(e) => handleAddToCart(e, item)}
+                  >
+                    <img src={cartIcon} alt="Add to cart" />
+                  </button>
+
+                  <div
+                    className="option"
+                    ref={(el) => (dropdownRefs.current[index] = el)}
+                  >
+                    <button
+                      className="btn btn-icon secondary option"
+                      onClick={(e) => handleDropdownToggle(e, index)}
+                    >
+                      <img src={moreIcon} alt="More options" />
+                    </button>
+                    {activeDropdown === index && (
+                      <div className="menu">
+                        {["view", "edit", "delete"].map((option) => (
+                          <button
+                            key={option}
+                            className="item"
+                            onClick={(e) => onOptionClick(e, option, item)}
+                          >
+                            {option.charAt(0).toUpperCase() + option.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {isYou && (
+                  <div
+                    className={`item-status ${
+                      ItemStatus(item.status).className
+                    }`}
+                  >
+                    {ItemStatus(item.status).label}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
         ) : (
           <p>No items to display</p>
         )}

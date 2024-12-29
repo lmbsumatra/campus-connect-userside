@@ -1,10 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  FOR_SALE,
   GCASH,
   MEET_UP,
   PAY_UPON_MEETUP,
   PICK_UP,
 } from "../../utils/consonants";
+import { faker } from "@faker-js/faker";
+import {
+  formatDateFromSelectDate,
+  formatTimeWithAMPM,
+} from "../../utils/dateFormat.js";
 
 // Utility function to validate available dates
 const validateAvailableDates = (dates) => {
@@ -62,7 +68,7 @@ const validateAvailableDates = (dates) => {
 };
 
 // Utility function for input validation
-export const validateInput = (name, value) => {
+export const validateInput = (name, value, itemType) => {
   let hasError = false;
   let error = "";
   switch (name) {
@@ -150,6 +156,7 @@ export const validateInput = (name, value) => {
       break;
 
     case "lateCharges":
+      if (itemType === FOR_SALE) break;
       if (value.trim() === "") {
         hasError = true;
         error =
@@ -165,6 +172,7 @@ export const validateInput = (name, value) => {
       break;
 
     case "securityDeposit":
+      if (itemType === FOR_SALE) break;
       if (value.trim() === "") {
         hasError = true;
         error =
@@ -180,6 +188,7 @@ export const validateInput = (name, value) => {
       break;
 
     case "repairReplacement":
+      if (itemType === FOR_SALE) break;
       if (value.trim() === "") {
         hasError = true;
         error = "Repair and replacement condition is required.";
@@ -329,6 +338,89 @@ const itemFormSlice = createSlice({
   name: "item-form",
   initialState,
   reducers: {
+    generateSampleData: (state) => {
+      state.itemName.value = faker.commerce.productName();
+      state.price.value = faker.commerce.price(10, 1000);
+      state.category.value = faker.helpers.arrayElement([
+        "Electronics",
+        "Home",
+        "Fashion",
+        "Sports",
+        "Books",
+        "Toys",
+        "Automotive",
+        "Health",
+        "Hobbies",
+        "Technology",
+        "Business",
+        "Musical",
+        "Pet",
+        "Event",
+        "Travel",
+      ]);
+
+      // Generate helpers tags
+      state.tags.value = [
+        faker.lorem.word(),
+        faker.lorem.word(),
+        faker.lorem.word(),
+      ];
+
+      // Generate a helpers description
+      state.desc.value = faker.lorem.sentences(3);
+
+      // Generate available dates with time periods
+      state.availableDates.value = [
+        {
+          date: formatDateFromSelectDate(faker.date.future()),
+          timePeriods: [
+            {
+              startTime: formatTimeWithAMPM(faker.date.future()), // Returns time in abbreviated format (e.g., '12:34:07 AM')
+              endTime: formatTimeWithAMPM(faker.date.future()), // Returns time in abbreviated format (e.g., '12:34:07 AM')
+            },
+          ],
+        },
+      ];
+
+      state.deliveryMethod.value =
+        faker.helpers.arrayElement(["pickup", "meetup"]) || "pickup"; // Default to "pickup" if undefined
+
+      // Generate helpers payment method
+      state.paymentMethod.value =
+        faker.helpers.arrayElement(["payment upon meetup", "gcash"]) || "gcash";
+
+      // Generate helpers item condition
+      state.itemCondition.value = faker.helpers.arrayElement([
+        "New",
+        "Like New",
+        "Used",
+        "Damaged",
+      ]);
+
+      // Generate helpers late charges
+      state.lateCharges.value = faker.finance.amount(5, 50, 2);
+
+      // Generate helpers security deposit amount
+      state.securityDeposit.value = faker.finance.amount(100, 500, 2);
+
+      // Generate repair/replacement option
+      state.repairReplacement.value = faker.helpers.arrayElement(["Yes", "No"]);
+
+      // Generate helpers images (URLs)
+      state.images.value = [
+        faker.image.url(),
+        faker.image.url(),
+        faker.image.url(), // You can add more or less as needed
+      ];
+
+      // Generate helpers item specifications
+      state.specs.value = {
+        color: faker.color.human(),
+        size: faker.helpers.arrayElement(["S", "M", "L"]),
+        brand: faker.company.name(), // Example of adding a brand field
+        weight: `${faker.number.float({ min: 1, max: 10 })} kg`, // helpers weight
+      };
+    },
     updateAvailableDates: (state, action) => {
       const { hasError, error } = validateInput(
         "availableDates",
@@ -343,7 +435,8 @@ const itemFormSlice = createSlice({
     },
     updateField: (state, action) => {
       const { name, value } = action.payload;
-      const { hasError, error } = validateInput(name, value);
+      const itemType = state.itemType.value; // Get current itemType
+      const { hasError, error } = validateInput(name, value, itemType);
 
       // Update the field
       state[name] = { value, hasError, error, triggered: false };
@@ -355,7 +448,8 @@ const itemFormSlice = createSlice({
     },
     blurField: (state, action) => {
       const { name, value } = action.payload;
-      const { hasError, error } = validateInput(name, value);
+      const itemType = state.itemType.value; // Get current itemType
+      const { hasError, error } = validateInput(name, value, itemType);
 
       // Update the field on blur
       state[name] = { value, hasError, error, triggered: true };
@@ -369,8 +463,12 @@ const itemFormSlice = createSlice({
 });
 
 // Export actions
-export const { updateField, blurField, updateAvailableDates } =
-  itemFormSlice.actions;
+export const {
+  updateField,
+  blurField,
+  updateAvailableDates,
+  generateSampleData,
+} = itemFormSlice.actions;
 
 // Export the reducer
 export default itemFormSlice.reducer;

@@ -33,6 +33,20 @@ const validateImages = (files) => {
   return files.map((file) => file.path);
 };
 
+const rollbackUpload = async (publicIds) => {
+  // Your rollback logic for deleting images from wherever they were uploaded
+  // This could be calling a cloud provider's API or removing from local storage
+  try {
+    for (const publicId of publicIds) {
+      // If using a cloud service like Cloudinary, for example:
+      // await cloudinary.uploader.destroy(publicId);
+      console.log(`Rollback image: ${publicId}`);
+    }
+  } catch (err) {
+    console.error("Error during image rollback:", err);
+  }
+};
+
 const addListing = async (req, res) => {
   const transaction = await sequelize.transaction();
 
@@ -58,14 +72,26 @@ const addListing = async (req, res) => {
       });
     }
 
-    if (!req.files || !req.files.length) {
+    // Validate rental dates
+    try {
+      validateRentalDates(listingData.dates);
+    } catch (validationError) {
       return res.status(400).json({
         error: "Validation Error",
-        message: "At least one image must be uploaded",
+        message: validationError.message,
       });
     }
 
-    const imageUrls = req.files.map((file) => file.path);
+    // Validate images
+    let imageUrls;
+    try {
+      imageUrls = validateImages(req.files);
+    } catch (validationError) {
+      return res.status(400).json({
+        error: "Validation Error",
+        message: validationError.message,
+      });
+    }
 
     // Set initial listing status
     listingData.status = "pending";
@@ -80,7 +106,7 @@ const addListing = async (req, res) => {
         rate: listingData.price,
         images: JSON.stringify(imageUrls),
         description: listingData.desc,
-        tags: JSON.stringify(listingData.tags),
+        tags: listingData.tags,
         status: "pending",
         specifications: listingData.specs,
         rental_dates: listingData.dates,
@@ -91,6 +117,7 @@ const addListing = async (req, res) => {
       { transaction }
     );
 
+    // Handle rental dates and times
     if (Array.isArray(listingData.dates)) {
       await Promise.all(
         listingData.dates.map(async ({ date, timePeriods }) => {
@@ -163,6 +190,12 @@ const addListing = async (req, res) => {
   } catch (error) {
     if (transaction.finished !== "commit") {
       await transaction.rollback();
+    }
+
+    // Rollback image upload if any images were uploaded
+    if (req.files?.length) {
+      const publicIds = req.files.map((file) => file.filename); // Adjust based on your storage system
+      await rollbackUpload(publicIds);
     }
 
     console.error("Listing creation error:", error);

@@ -16,6 +16,7 @@ import "./postCardStyles.css";
 const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const navigate = useNavigate();
 
   const handleCardClick = (id) => navigate(`/post/${id}`);
@@ -26,13 +27,28 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
     setShowOptions(showOptions === index ? null : index);
   };
 
+  const handleDropdownToggle = (e, index) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === index ? null : index);
+  };
+
+  const handleOptionClick = (e, option, item) => {
+    e.stopPropagation();
+    setActiveDropdown(null);
+    if (option === "view") {
+      navigate(`/view/${item.id}`);
+    } else if (option === "edit") {
+      navigate(`/edit/${item.id}`);
+    } else if (option === "delete") {
+      console.log("Delete item:", item);
+    }
+  };
+
   return (
     <div>
       <h2 className="fs-2 fw-bold">{title}</h2>
       <div className="card-container">
-        <div
-          className="card variant-2"
-        >
+        <div className="card variant-2">
           <div className="item-type">Looking for...</div>
           <div className="details">
             <div className="description">
@@ -149,9 +165,34 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
                     <button className="btn btn-icon primary">
                       <img src={cartIcon} alt="Message poster" />
                     </button>
-                    <button className="btn btn-icon secondary option">
+                    <button
+                      className="btn btn-icon secondary option"
+                      onClick={(e) => handleDropdownToggle(e, index)}
+                    >
                       <img src={moreIcon} alt="More options" />
                     </button>
+                    {activeDropdown === index && (
+                      <div className="dropdown-menu">
+                        <div
+                          className="dropdown-item"
+                          onClick={(e) => handleOptionClick(e, "view", item)}
+                        >
+                          View
+                        </div>
+                        <div
+                          className="dropdown-item"
+                          onClick={(e) => handleOptionClick(e, "edit", item)}
+                        >
+                          Edit
+                        </div>
+                        <div
+                          className="dropdown-item"
+                          onClick={(e) => handleOptionClick(e, "delete", item)}
+                        >
+                          Delete
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="img-holder">

@@ -1,0 +1,36 @@
+/* Wrapper for breadcrumb */
+.breadcrumb {
+  padding: 8px 16px;
+  background-color: white;
+  border-radius: 8px;
+}
+
+/* Styling for the ordered list */
+.breadcrumb-list {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  margin: 0;
+}
+
+/* Styling for each breadcrumb item */
+.breadcrumb-item {
+  margin-right: 8px;
+}
+
+/* Styling for the breadcrumb link */
+.breadcrumb-link {
+  text-decoration: none;
+  color: var(--clr-primary);
+  font-weight: 500;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+/* Styling for the current breadcrumb (non-clickable) */
+.breadcrumb-current {
+  color: var(--clr-neutral-dark-gray);
+  font-weight: 500;
+}

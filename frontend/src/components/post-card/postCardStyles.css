@@ -158,14 +158,11 @@
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  position: relative;
-  bottom: 1px;
 }
 
-.card.variant-2 .details .description .action-btns .btn {
+.card.variant-2 .action-btns .btn-rectangle {
   padding: 7px 10px !important;
-  /* width: 100% !important; */
-  z-index: 999;
+  width: 100%;
 }
 
 .card.variant-2 .label {

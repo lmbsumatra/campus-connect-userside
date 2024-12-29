@@ -35,7 +35,7 @@ function initializeSocket(server) {
     });
 
     // Handle item-for-sale notifications
-    socket.on("new-item-for-sale", (notification) => {
+    socket.on("new-item-for-sale-notification", (notification) => {
       console.log("Received new item-for-sale notification:", notification);
       console.log(
         "Current admin sockets when receiving item-for-sale:",

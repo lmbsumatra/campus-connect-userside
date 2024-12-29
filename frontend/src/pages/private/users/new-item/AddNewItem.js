@@ -23,6 +23,7 @@ import {
   GCASH,
   PICK_UP,
   MEET_UP,
+  FOR_SALE,
 } from "../../../../utils/consonants";
 
 // Redux
@@ -31,6 +32,7 @@ import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice"
 import { fetchUser } from "../../../../redux/user/userSlice";
 import {
   blurField,
+  generateSampleData,
   updateAvailableDates,
   updateField,
   validateInput,
@@ -50,7 +52,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import { baseApi } from "../../../../App";
 import { io } from "socket.io-client";
-import { updateRequestDates } from "../../../../redux/post-form/postFormSlice.js";
+import BreadCrumb from "../common/BreadCrumb.jsx";
 
 const UNAVAILABLE_DATES = [
   new Date(2024, 11, 25), // Christmas
@@ -100,22 +102,21 @@ const AddNewItem = () => {
   const { user, loadingFetchUser, errorFetchUser } = useSelector(
     (state) => state.user
   );
+
   const { userId } = useSelector(selectStudentUser);
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
   });
 
   const [category, setCategory] = useState("");
-  const [itemType, setItemType] = useState("For Rent");
-  const [redirecting, setRedirecting] = useState(false);
+  const [itemType, setItemType] = useState(FOR_RENT);
   const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
   const [localImages, setLocalImages] = useState([]);
 
-  const handleItemTypeChange = (newType) => {
-    setItemType(newType);
-    console.log(itemType);
+  const handleGenerateData = () => {
+    dispatch(generateSampleData());
   };
 
   useEffect(() => {
@@ -124,9 +125,16 @@ const AddNewItem = () => {
     }
   }, [userId, dispatch]);
 
+  if (loadingFetchUser) {
+    return <LoadingItemDetailSkeleton />;
+  }
+
+  const handleItemTypeChange = (newType) => {
+    setItemType(newType);
+    dispatch(updateField({ name: "itemType", value: newType }));
+  };
   const handleFieldChange = (name, value) => {
     dispatch(updateField({ name, value }));
-
     dispatch(blurField({ name, value }));
   };
 
@@ -171,43 +179,12 @@ const AddNewItem = () => {
     );
   };
 
-  useEffect(() => {
-    if (!userId) {
-      ShowAlert(dispatch, "warning", "Warning", "You must login first!");
-    }
-
-    if (!userId) {
-      setRedirecting(true); // Start the redirect process
-      const timer = setTimeout(() => {
-        ShowAlert(dispatch, "loading", "Redirecting");
-      }, 5000); // Show redirect notification after 5 seconds
-
-      return () => clearTimeout(timer); // Clean up the timeout if dependencies change
-    }
-  }, [userId, dispatch]);
-
-  useEffect(() => {
-    if (redirecting) {
-      const redirectTimer = setTimeout(() => {
-        navigate(-1); // Redirect to previous page
-      }, 6000); // Wait 6 seconds before redirect
-
-      return () => clearTimeout(redirectTimer); // Clean up redirect timer
-    }
-  }, [redirecting, navigate]);
-
-  if (loadingFetchUser || redirecting) {
-    return <LoadingItemDetailSkeleton />;
-  }
-
   const handleSaveDatesDurations = (datesDurations) => {
     // Assuming datesDurations is an array
     const serializedDates = datesDurations.map((dateObj) => ({
       ...dateObj,
       date: formatDateFromSelectDate(dateObj.date),
     }));
-
-    console.log(serializedDates);
 
     setSelectedDatesDurations(serializedDates);
     dispatch(updateAvailableDates(serializedDates));
@@ -234,7 +211,9 @@ const AddNewItem = () => {
       })
     );
   };
+
   const handleSubmit = async () => {
+    console.log(itemDataState);
     try {
       let hasErrors = false;
       const errors = {};
@@ -242,14 +221,24 @@ const AddNewItem = () => {
       // Validate fields
       Object.keys(itemDataState).forEach((key) => {
         if (key !== "isFormValid") {
+          if (
+            itemType === FOR_SALE &&
+            ["lateCharges", "repairReplacement", "securityDeposit"].includes(
+              key
+            )
+          ) {
+            return;
+          }
           const field = itemDataState[key];
-          console.log("Validating field:", key, "Value:", field.value);
           const { hasError, error } = validateInput(key, field.value);
 
           if (hasError) {
             hasErrors = true;
             errors[key] = error;
-            dispatch(blurField({ name: key, value: field.value }));
+            console.log(error);
+            dispatch(
+              blurField({ name: key, value: field.value, itemType: FOR_SALE })
+            );
 
             if (key === "availableDates") {
               dispatch(updateAvailableDates(field.value));
@@ -259,7 +248,6 @@ const AddNewItem = () => {
       });
 
       if (hasErrors) {
-        console.log("Validation errors:", errors);
         ShowAlert(
           dispatch,
           "error",
@@ -296,9 +284,11 @@ const AddNewItem = () => {
         tags: itemDataState.tags.value,
         dates: itemDataState.availableDates.value,
         specs: itemDataState.specs.value,
-        lateCharges: itemDataState.lateCharges.value,
-        securityDeposit: itemDataState.securityDeposit.value,
-        repairReplacement: itemDataState.repairReplacement.value,
+        ...(itemType === FOR_RENT && {
+          lateCharges: itemDataState.lateCharges.value,
+          securityDeposit: itemDataState.securityDeposit.value,
+          repairReplacement: itemDataState.repairReplacement.value,
+        }),
       };
 
       console.log("Submitting item data:", itemData);
@@ -313,23 +303,41 @@ const AddNewItem = () => {
 
       // Trigger loading alert
       ShowAlert(dispatch, "loading", "Creating listing", "Please wait...");
-     
 
       // Make Axios request with timeout
       const response = await axios.post(`${baseApi}${endpoint}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 5000, // 15 seconds timeout
+        timeout: 5000, // 5 seconds timeout
       });
 
-      if (socket && response.data.notification) {
-        socket.emit("new-listing-notification", response.data.notification);
+      if (socket) {
+        const notification = {
+          title: `New ${itemType === FOR_RENT ? "Listing!" : "Item for Sale!"}`,
+          owner: {
+            name: user.user.fname + " " + user.user.lname,
+          },
+          message:
+            itemType === FOR_RENT
+              ? "has added a new rental listing."
+              : "has listed an item for sale.",
+          type:
+            itemType === FOR_RENT
+              ? "new-listing-notification"
+              : "new-item-for-sale-notification",
+        };
+        socket.emit(notification.type, notification);
       }
 
-      ShowAlert(dispatch, "success", "Success", "Item created successfully!");
+      ShowAlert(
+        dispatch,
+        "success",
+        "Success",
+        `Item for ${itemType === FOR_RENT ? "listing" : "sale"} added!`
+      );
       // navigate(`/items/${response.data.listing.id}`);
     } catch (error) {
-        ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
-      
+      ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
+
       console.error("Submission error:", error);
 
       const errorMessage =
@@ -337,13 +345,27 @@ const AddNewItem = () => {
         "Failed to create listing. Please try again.";
 
       ShowAlert(dispatch, "error", "Error", errorMessage);
-    } 
-    
+    }
   };
+
+  const breadcrumbs = [
+    { label: "Home", href: "/" },
+    {
+      label: `${itemType === FOR_RENT ? "My Listings" : "My For Sale"}`,
+      href: `${itemType === FOR_RENT ? "/my-listings" : "/my-for-sale"}`,
+    },
+    {
+      label: `${
+        itemType === FOR_RENT ? "Add New Listing" : "Add New Item for Sale"
+      }`,
+      href: `${itemType === FOR_RENT ? "/listings/add" : "/item-for-sale/a"}`,
+    },
+  ];
 
   return (
     <div className="container-content add-item-detail">
-      <ToastContainer />
+      <BreadCrumb breadcrumbs={breadcrumbs} />
+      <button onClick={handleGenerateData}>Generate Sample Data</button>
       <div className="add-item-container">
         <div className="imgs-container">
           <Tooltip title={`This item is ${itemType}`}>
@@ -372,7 +394,6 @@ const AddNewItem = () => {
             onItemTypeChange={handleItemTypeChange}
             onCategoryChange={handleCategoryChange}
           />
-
           {itemDataState.category.triggered &&
             itemDataState.category.hasError && (
               <div className="validation error">
@@ -405,19 +426,37 @@ const AddNewItem = () => {
           />
 
           {/* Action Buttons */}
-          <div className="action-btns">
-            <button className="btn btn-icon primary" disabled>
-              <img src={cartIcon} alt="Add to cart" />
-            </button>
-            <button className="btn btn-rectangle secondary" disabled>
-              Message
-            </button>
-            <button className="btn btn-rectangle primary" disabled>
-              {itemDataState.itemType.value === FOR_RENT ? "Rent" : "Buy"}
-            </button>
-          </div>
+          <Tooltip
+            title="Buttons are disabled for preview purposes."
+            placement="bottom"
+            componentsProps={{
+              popper: {
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: [0, -10],
+                    },
+                  },
+                ],
+              },
+            }}
+          >
+            <div className="action-btns">
+              <button className="btn btn-icon primary" disabled>
+                <img src={cartIcon} alt="Add to cart" />
+              </button>
+              <button className="btn btn-rectangle secondary" disabled>
+                Message
+              </button>
+              <button className="btn btn-rectangle primary" disabled>
+                {itemDataState.itemType.value === FOR_RENT ? "Rent" : "Buy"}
+              </button>
+            </div>
+          </Tooltip>
 
           <hr />
+
           {itemDataState.availableDates.triggered &&
             itemDataState.availableDates.hasError && (
               <div className="validation error d-block">
@@ -428,6 +467,7 @@ const AddNewItem = () => {
                 </span>
               </div>
             )}
+
           {/* Date Duration Section */}
           <div className="rental-dates-durations">
             <DateDurationPicker
@@ -578,6 +618,7 @@ const AddNewItem = () => {
                 </span>
               </div>
             )}
+
           <div className="group-container item-condition">
             <FormField
               label="Item Condition"
@@ -607,7 +648,7 @@ const AddNewItem = () => {
         </div>
       </div>
 
-      <UserToolbar user={user} />
+      <UserToolbar user={user.user} isYou={true} />
 
       <AddItemDescAndSpecs
         specs={itemDataState.specs.value}

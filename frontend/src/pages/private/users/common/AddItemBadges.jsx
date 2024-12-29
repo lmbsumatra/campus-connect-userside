@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import "./addItemBadgesStyles.css";
+import { FOR_RENT, FOR_SALE } from "../../../../utils/consonants";
 
 const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
-  const itemType = values?.itemType || "For Rent";
+  const itemType = values?.itemType || FOR_RENT;
 
   const categories = [
     "Electronics",
@@ -133,6 +134,7 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
             <input
               type="checkbox"
               id="toggle-switch"
+              checked={itemType === FOR_SALE}
               onChange={handleToggleChange}
             />
             <span className="slider">

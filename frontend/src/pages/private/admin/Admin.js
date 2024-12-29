@@ -12,7 +12,9 @@ import { io } from "socket.io-client";
 const Admin = () => {
   const { adminUser } = useAuth();
   const [isSidebarVisible, setSidebarVisible] = useState(true);
-  const socket = io("http://localhost:3001");
+  const socket = io("http://localhost:3001", {
+    transports: ["polling", "websocket"],
+  });
 
   useEffect(() => {
     if (socket) {
@@ -22,22 +24,27 @@ const Admin = () => {
       socket.on("connect", () => {
         console.log("Socket connected with ID:", socket.id);
       });
-       // listener for new-listi notifications
+      // listener for new-listi notifications
       socket.on("new-listing-notification", (notification) => {
         console.log("Received listing notification in admin:", notification);
         toast.info(
           <span>
-            <strong>{notification.title}</strong>: <em>{notification.owner.name}</em> {notification.message}
+            <strong>{notification.title}</strong>:{" "}
+            <em>{notification.owner.name}</em> {notification.message}
           </span>
         );
       });
 
-       // listener for new-item-for-sale notifications
+      // listener for new-item-for-sale notifications
       socket.on("new-item-for-sale-notification", (notification) => {
-        console.log("Received item-for-sale notification in admin:", notification);
+        console.log(
+          "Received item-for-sale notification in admin:",
+          notification
+        );
         toast.info(
           <span>
-            <strong>{notification.title}</strong>: <em>{notification.owner.name}</em> {notification.message}
+            <strong>{notification.title}</strong>:{" "}
+            <em>{notification.owner.name}</em> {notification.message}
           </span>
         );
       });
@@ -47,7 +54,9 @@ const Admin = () => {
         console.log("Received post notification in admin:", notificationData);
         toast.info(
           <span>
-            <strong>{notificationData.title}</strong>: {notificationData.renter.name}<em>{notificationData.message}</em>
+            <strong>{notificationData.title}</strong>:{" "}
+            {notificationData.renter.name}
+            <em>{notificationData.message}</em>
           </span>
         );
       });

@@ -23,3 +23,28 @@ export const formatDateFromSelectDate = (dateString) => {
 
   return `${year}-${month}-${day}`;
 };
+
+
+export const formatTimeWithAMPM = (dateString) => {
+  const date = new Date(dateString);
+
+  // Check for invalid date
+  if (isNaN(date.getTime())) {
+    console.error("Invalid date:", dateString);
+    return "Invalid Time";
+  }
+
+  // Extract the hours and minutes from the date object
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  // Determine AM or PM
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+
+  // Convert hours to 12-hour format
+  hours = hours % 12;
+  hours = hours ? hours : 12; // Adjust hour to 12-hour format if 0
+
+  // Return formatted time string
+  return `${hours}:${minutes} ${ampm}`;
+};

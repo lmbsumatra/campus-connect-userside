@@ -37,15 +37,40 @@ const upload_item_disabled = (req, res, next) => {
     .json({ message: "Item upload is temporarily disabled." });
 };
 
-const rollbackUpload = async (publicIds) => {
+const rollbackUpload = async (imageUrls) => {
+  console.log("Received image URLs:", imageUrls);
+
   try {
+    const publicIds = imageUrls.map((url) => {
+      const matches = url.match(/upload\/(?:v\d+\/)?([^\.]+)/);
+      if (matches && matches[1]) {
+        return matches[1]; // Return the public_id part
+      }
+      console.error(`Failed to extract public_id from URL: ${url}`);
+      throw new Error("Invalid Cloudinary URL");
+    });
+
+    console.log("Extracted public_ids:", publicIds);
+
     await Promise.all(
-      publicIds.map((publicId) => cloudinary.uploader.destroy(publicId))
+      publicIds.map(async (publicId) => {
+        try {
+          console.log(`Attempting to delete public_id: ${publicId}`);
+          const result = await cloudinary.uploader.destroy(publicId);
+          console.log(`Deleted public_id: ${publicId}`, result);
+        } catch (error) {
+          console.error(`Error deleting public_id: ${publicId}`, error);
+        }
+      })
     );
+
+    console.log("All image deletions attempted.");
   } catch (error) {
-    console.error("Error deleting images from Cloudinary:", error);
+    console.error("Error during Cloudinary rollback:", error);
   }
 };
+
+
 
 module.exports = {
   upload_prof,
