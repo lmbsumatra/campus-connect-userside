@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
+import { formatDateFromSelectDate } from "../../../../utils/dateFormat.js";
 
 // Components
 import UserToolbar from "../common/UserToolbar";
@@ -110,6 +111,7 @@ const AddNewItem = () => {
   const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
+  const [localImages, setLocalImages] = useState([]);
 
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
@@ -135,7 +137,8 @@ const AddNewItem = () => {
   const getDurationsForDate = (date) => {
     if (!date) return [];
     const dateItem = selectedDatesDurations.find(
-      (item) => item.date.toDateString() === date.toDateString()
+      (item) =>
+        formatDateFromSelectDate(item.date) === formatDateFromSelectDate(date)
     );
     return dateItem ? dateItem.timePeriods : [];
   };
@@ -198,11 +201,15 @@ const AddNewItem = () => {
   }
 
   const handleSaveDatesDurations = (datesDurations) => {
-    const serializedDates = datesDurations.availableDates.map((date) => ({
-      ...date,
-      date: new Date(date.date).toISOString(),
+    // Assuming datesDurations is an array
+    const serializedDates = datesDurations.map((dateObj) => ({
+      ...dateObj,
+      date: formatDateFromSelectDate(dateObj.date),
     }));
-    setSelectedDatesDurations(datesDurations);
+
+    console.log(serializedDates);
+
+    setSelectedDatesDurations(serializedDates);
     dispatch(updateAvailableDates(serializedDates));
   };
 
@@ -213,59 +220,70 @@ const AddNewItem = () => {
   };
 
   const handleImagesChange = (newImages) => {
-    dispatch(updateField({ name: "images", value: newImages }));
-    dispatch(blurField({ name: "images", value: newImages }));
+    setLocalImages(newImages); // Update local state with new images
+    dispatch(
+      updateField({
+        name: "images",
+        value: newImages.map((image) => image.name || image), // Use name or URL depending on type
+      })
+    );
+    dispatch(
+      blurField({
+        name: "images",
+        value: newImages.map((image) => image.name || image),
+      })
+    );
   };
-  console.log(itemDataState);
   const handleSubmit = async () => {
-    // Validate all fields and trigger errors if needed
-    let hasErrors = false;
+    try {
+      let hasErrors = false;
+      const errors = {};
 
-    Object.keys(itemDataState).forEach((key) => {
-      if (key !== "isFormValid") {
-        const field = itemDataState[key];
-        console.log("Validating field:", key, "Value:", field.value); // Add this
-        const { hasError, error } = validateInput(key, field.value);
+      // Validate fields
+      Object.keys(itemDataState).forEach((key) => {
+        if (key !== "isFormValid") {
+          const field = itemDataState[key];
+          console.log("Validating field:", key, "Value:", field.value);
+          const { hasError, error } = validateInput(key, field.value);
 
-        if (hasError) {
-          hasErrors = true;
+          if (hasError) {
+            hasErrors = true;
+            errors[key] = error;
+            dispatch(blurField({ name: key, value: field.value }));
 
-          dispatch(
-            blurField({ name: key, value: "" }) // This updates the Redux state to include the error
-          );
-          if (key === "availableDates") {
-            dispatch(updateAvailableDates(field.value));
+            if (key === "availableDates") {
+              dispatch(updateAvailableDates(field.value));
+            }
           }
         }
+      });
+
+      if (hasErrors) {
+        console.log("Validation errors:", errors);
+        ShowAlert(
+          dispatch,
+          "error",
+          "Validation Error",
+          "Please correct the highlighted errors."
+        );
+        const firstError = document.querySelector(".validation.error");
+        firstError?.scrollIntoView({ behavior: "smooth" });
+        return;
       }
-    });
 
-    console.log(itemDataState);
+      if (!localImages.length) {
+        ShowAlert(
+          dispatch,
+          "error",
+          "Image Required",
+          "Please upload at least one image"
+        );
+        return;
+      }
 
-    // Prevent submission if there are errors
-    if (hasErrors) {
-      ShowAlert(
-        dispatch,
-        "error",
-        "Error",
-        "Please correct the highlighted errors."
-      );
-      const firstError = document.querySelector(".validation.error");
-      firstError?.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-
-    console.log(itemDataState);
-
-    try {
       const formData = new FormData();
+      localImages.forEach((image) => formData.append("item_images", image));
 
-      // Append images to form data
-      itemDataState.images.value.forEach((image) =>
-        formData.append("item_images", image)
-      );
-
-      // Prepare item data
       const itemData = {
         [itemType === FOR_RENT ? "ownerId" : "sellerId"]: userId,
         category: itemDataState.category.value,
@@ -283,6 +301,8 @@ const AddNewItem = () => {
         repairReplacement: itemDataState.repairReplacement.value,
       };
 
+      console.log("Submitting item data:", itemData);
+
       formData.append(
         itemType === FOR_RENT ? "listing" : "item",
         JSON.stringify(itemData)
@@ -290,36 +310,35 @@ const AddNewItem = () => {
 
       const endpoint =
         itemType === FOR_RENT ? "/listings/add" : "/item-for-sale/add";
-      const notificationType =
-        itemType === FOR_RENT ? "new-item-for-rent" : "new-item-for-sale";
 
-      // Submit the item data
+      // Trigger loading alert
+      ShowAlert(dispatch, "loading", "Creating listing", "Please wait...");
+     
+
+      // Make Axios request with timeout
       const response = await axios.post(`${baseApi}${endpoint}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 5000, // 15 seconds timeout
       });
 
-      // Send socket notification
-      if (socket) {
-        socket.emit("new-listing-notification", {
-          title: `${itemType === FOR_RENT ? "New Rental" : "New Sale"} Item`,
-          owner: `${user?.fname} ${user?.lname}`,
-          message: `listed an item for ${
-            itemType === FOR_RENT ? "rent" : "sale"
-          }.`,
-          type: notificationType,
-        });
+      if (socket && response.data.notification) {
+        socket.emit("new-listing-notification", response.data.notification);
       }
 
-      ShowAlert(dispatch, "loading", "Redirecting", "...");
-      navigate(`/items/${response.data.item.id}`);
+      ShowAlert(dispatch, "success", "Success", "Item created successfully!");
+      // navigate(`/items/${response.data.listing.id}`);
     } catch (error) {
+        ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
+      
+      console.error("Submission error:", error);
+
       const errorMessage =
         error.response?.data?.message ||
         "Failed to create listing. Please try again.";
+
       ShowAlert(dispatch, "error", "Error", errorMessage);
-      const firstError = document.querySelector(".validation.error");
-      firstError?.scrollIntoView({ behavior: "smooth" });
-    }
+    } 
+    
   };
 
   return (
@@ -340,10 +359,7 @@ const AddNewItem = () => {
               <span className="text">{itemDataState.images.error}</span>
             </div>
           )}
-          <AddImage
-            images={itemDataState.images.value}
-            onChange={handleImagesChange}
-          />
+          <AddImage images={localImages} onChange={handleImagesChange} />
         </div>
 
         <div className="rental-details">
@@ -433,8 +449,10 @@ const AddNewItem = () => {
                 inline
                 selected={selectedDisplayDate}
                 onChange={setSelectedDisplayDate}
-                highlightDates={selectedDatesDurations.map((item) => item.date)}
-                excludeDates={UNAVAILABLE_DATES}
+                highlightDates={selectedDatesDurations.map(
+                  (item) => new Date(item.date)
+                )}
+                excludeDates={UNAVAILABLE_DATES.map((date) => new Date(date))}
               />
             </div>
 

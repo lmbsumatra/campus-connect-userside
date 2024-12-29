@@ -41,18 +41,34 @@ const addListing = async (req, res) => {
       typeof req.body.listing === "string"
         ? JSON.parse(req.body.listing)
         : req.body.listing;
-    console.log(req.body.listing);
 
     if (!listingData) {
-      throw new Error("Listing data is missing");
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Listing data is missing",
+      });
     }
 
-    validateListingData(listingData);
+    try {
+      validateListingData(listingData);
+    } catch (validationError) {
+      return res.status(400).json({
+        error: "Validation Error",
+        message: validationError.message,
+      });
+    }
 
-    // Set initial listing status to "pending"
+    if (!req.files || !req.files.length) {
+      return res.status(400).json({
+        error: "Validation Error",
+        message: "At least one image must be uploaded",
+      });
+    }
+
+    const imageUrls = req.files.map((file) => file.path);
+
+    // Set initial listing status
     listingData.status = "pending";
-
-    const imageUrls = validateImages(req.files);
 
     const listing = await models.Listing.create(
       {
@@ -70,14 +86,17 @@ const addListing = async (req, res) => {
         rental_dates: listingData.dates,
         late_charges: listingData.lateCharges,
         security_deposit: listingData.securityDeposit,
-        repar_replacement: listingData.reparReplacement
+        repair_replacement: listingData.repairReplacement,
       },
       { transaction }
     );
 
-      if (Array.isArray(listingData.dates)) {
-        for (const { date, timePeriods } of listingData.dates) {
-          if (!date) throw new Error("Date is required in each date entry");
+    if (Array.isArray(listingData.dates)) {
+      await Promise.all(
+        listingData.dates.map(async ({ date, timePeriods }) => {
+          if (!date) {
+            throw new Error("Date is required in each date entry");
+          }
 
           const rentalDate = await models.Date.create(
             {
@@ -108,13 +127,12 @@ const addListing = async (req, res) => {
               );
             })
           );
-        }
-      }
-  
+        })
+      );
+    }
 
     await transaction.commit();
 
-    // Get owner info
     const owner = await models.User.findOne({
       where: { user_id: listing.owner_id },
       attributes: ["user_id", "first_name", "last_name"],
@@ -124,11 +142,10 @@ const addListing = async (req, res) => {
       ? `${owner.first_name} ${owner.last_name}`
       : "Unknown";
 
-    // Create notification object
     const notification = {
       type: "new-listing",
       title: "New Listing awaiting approval",
-      message: ` created new listing "${listing.listing_name}"`,
+      message: `${ownerName} created new listing "${listing.listing_name}"`,
       timestamp: new Date(),
       listingId: listing.id,
       category: listing.category,
@@ -138,26 +155,22 @@ const addListing = async (req, res) => {
       },
     };
 
-    // Notify admins (assuming this triggers an event for admin notification)
-    // req.notifyAdmins(notification);
-
-    res.status(201).json({ message: "Listing created successfully.", listing });
+    res.status(201).json({
+      message: "Listing created successfully.",
+      listing,
+      notification,
+    });
   } catch (error) {
     if (transaction.finished !== "commit") {
       await transaction.rollback();
     }
 
-    console.error("Error creating listing:", {
-      message: error.message,
-      stack: error.stack,
-      body: req.body,
-    });
+    console.error("Listing creation error:", error);
 
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-      details:
-        "Failed to create listing. Please check the input data and try again.",
+    res.status(error.status || 500).json({
+      error: error.name || "Internal Server Error",
+      message: error.message || "Failed to create listing",
+      details: error.stack,
     });
   }
 };

@@ -222,9 +222,15 @@
   }
   
   @media (max-width: 600px) {
-    .add-post-container .imgs-container {
+    .add-post-container {
       display: flex;
-      flex-direction: column;
+      flex-direction: column !important;
+      height: auto !important;
+    }
+    .add-post-container .imgs-container {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 500px !important;
     }
   
     .add-post-container .rental-dates-durations .date-picker {

@@ -9,13 +9,13 @@ const alertPopupSlice = createSlice({
   initialState: {},
   reducers: {
     showNotification: (_, { payload }) => {
-      const { type, title, text, timer = 2000 } = payload;
+      const { type, title, text } = payload;
       if (type === "loading") {
         MySwal.fire({
           icon: "info",
           title: title || "Loading...",
           text: text || "Please wait while we process...",
-          timer: timer,
+          
           showConfirmButton: false, // Hide confirm button during loading
         });
 
@@ -25,7 +25,6 @@ const alertPopupSlice = createSlice({
           icon: type,
           title,
           text,
-          timer,
           showConfirmButton: type === "loading" ? false : true,
         });
       }

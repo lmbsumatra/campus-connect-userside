@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
+import { formatDate } from "../../../../utils/dateFormat.js";
 
 // Components
 import UserToolbar from "../common/UserToolbar";
@@ -190,7 +191,7 @@ const AddNewPost = () => {
 
   const handleSaveDatesDurations = (datesDurations) => {
     setSelectedDatesDurations(datesDurations);
-    dispatch(updateField({ name: "requestDates", value: datesDurations }));
+    dispatch(updateRequestDates(datesDurations));
   };
 
   const handleCategoryChange = (selectedCategory) => {
@@ -220,7 +221,7 @@ const AddNewPost = () => {
           dispatch(
             blurField({ name: key, value: "" }) // This updates the Redux state to include the error
           );
-          dispatch(updateRequestDates());
+          dispatch(updateRequestDates(postDataState.requestDates.value));
         }
       }
     });
@@ -394,19 +395,12 @@ const AddNewPost = () => {
                 Add Dates and Durations
               </button>
 
-              <DateDurationPicker
-                show={showDateDurationPicker}
-                onClose={() => setShowDateDurationPicker(false)}
-                onSaveDatesDurations={(dates) => {
-                  setSelectedDatesDurations(dates);
-                  dispatch(updateRequestDates(dates));
-                }}
-                unavailableDates={UNAVAILABLE_DATES}
-                initialDates={selectedDatesDurations}
-                onDateSelect={(dates) => {
-                  setSelectedDatesDurations(dates);
-                  dispatch(updateRequestDates(dates));
-                }}
+              <DatePicker
+                inline
+                selected={selectedDisplayDate}
+                onChange={setSelectedDisplayDate}
+                highlightDates={selectedDatesDurations.map((item) => item.date)}
+                excludeDates={UNAVAILABLE_DATES}
               />
             </div>
 

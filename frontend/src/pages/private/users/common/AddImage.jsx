@@ -10,7 +10,7 @@ import removeIcon from "../../../../assets/images/input-icons/remove.svg";
 import warningIcon from "../../../../assets/images/input-icons/warning.svg";
 import "./addImageStyles.css";
 
-const AddImage = ({ images = [] }) => {
+const AddImage = ({ images = [], onChange }) => {
   const dispatch = useDispatch();
   const itemDataState = useSelector((state) => state.itemForm);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -19,10 +19,18 @@ const AddImage = ({ images = [] }) => {
   const inputRef = useRef(null);
 
   const updateReduxImages = (updatedFiles) => {
-    // Dispatch updated images to the Redux store
-    dispatch(updateField({ name: "images", value: updatedFiles }));
-    // Optionally trigger blur for validation
-    dispatch(blurField({ name: "images", value: updatedFiles }));
+    dispatch(
+      updateField({
+        name: "images",
+        value: updatedFiles.map((image) => image.name), // Store image names or URLs as metadata
+      })
+    );
+    dispatch(
+      blurField({
+        name: "images",
+        value: updatedFiles.map((image) => image.name), // Store image names or URLs as metadata
+      })
+    );
   };
 
   const nextImage = () => {
@@ -55,6 +63,8 @@ const AddImage = ({ images = [] }) => {
       updateReduxImages(updatedFiles); // Update Redux store
       return updatedFiles;
     });
+
+    onChange([...images, ...uploadedFiles]);
   };
 
   const removeImage = (index) => {
@@ -76,7 +86,9 @@ const AddImage = ({ images = [] }) => {
 
     setImageFiles((prevFiles) => {
       const updatedFiles = prevFiles.filter((_, i) => i !== index);
-      updateReduxImages(updatedFiles); // Update Redux store
+      updateReduxImages(updatedFiles); 
+      updatedFiles.splice(index, 1);
+      onChange(updatedFiles);
       return updatedFiles;
     });
   };
@@ -173,12 +185,9 @@ const AddImage = ({ images = [] }) => {
             <div className="btn-slider next-btn" onClick={nextImage}>
               <img src={nextIcon} alt="Next image" className="next-btn" />
             </div>
-
-            
           </div>
         </>
       )}
-  
     </>
   );
 };
