@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import TableComponent from "../../../../components/Table/TableComponent";
-import CardComponent from "../../../../components/Table/CardComponent"; 
 import "./forSaleManagement.css";
 import useFetchAllItemsForSaleData from "../../../../utils/FetchAllItemsForSaleData";
 import { formatDate } from "../../../../utils/dateFormat";
@@ -22,7 +21,7 @@ const ForSaleManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
-  const [viewMode, setViewMode] = useState("table");
+
 
   const headers = [
     "Thumbnail",
@@ -204,9 +203,6 @@ const ForSaleManagement = () => {
     ];
   });
 
-  const handleSwitchView = (view) => {
-    setViewMode(view);
-  };
 
 
   return (
@@ -219,24 +215,12 @@ const ForSaleManagement = () => {
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
             />
-          {/* View switcher */}
-          <div className="view-toggle">
-            <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
-            <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
-          </div>
-
-          {/* Conditionally render Table or Card View */}
-          {viewMode === "table" ? (
-            <TableComponent
-              headers={headers}
-              data={data}
-              onSortChange={handleSortChange}
-              onFilterChange={handleFilterChange}
-            />
-          ) : (
-            <CardComponent data={data} headers={headers}/>
-
-          )}
+          <TableComponent
+            headers={headers}
+            data={data}
+            onSortChange={handleSortChange}
+            onFilterChange={handleFilterChange}
+          />
             <PaginationComponent
               currentPage={currentPage}
               totalPages={totalPages}

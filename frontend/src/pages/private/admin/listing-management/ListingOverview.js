@@ -7,6 +7,7 @@ import SearchBarComponent from "../../../../components/Search/SearchBarComponent
 import { useNavigate } from "react-router-dom";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import { ItemStatus } from "../../../../utils/Status";
+import CardComponent from "../../../../components/Table/CardComponent"; 
 
 const ListingOverview = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,6 +16,8 @@ const ListingOverview = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [listingsPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
+  const [viewMode, setViewMode] = useState("table");
+  
 
   const headers = [
     "Thumbnail",
@@ -194,6 +197,12 @@ const ListingOverview = () => {
     ];
   });
 
+  
+  const handleSwitchView = (view) => {
+    setViewMode(view);
+  };
+
+
   return (
     <div className="admin-content-container">
       <div className="row">
@@ -211,13 +220,24 @@ const ListingOverview = () => {
               onSearchChange={setSearchQuery}
             />
 
-            {/* Table Component */}
+       {/* View switcher */}
+       <div className="view-toggle">
+            <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
+            <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
+          </div>
+
+          {/* Conditionally render Table or Card View */}
+          {viewMode === "table" ? (
             <TableComponent
               headers={headers}
               data={data}
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
             />
+          ) : (
+            <CardComponent data={data} headers={headers}/>
+
+          )}
 
             {/* Pagination Component */}
             <PaginationComponent

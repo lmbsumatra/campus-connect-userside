@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import TableComponent from "../../../../components/Table/TableComponent";
-import CardComponent from "../../../../components/Table/CardComponent"; 
 import "./postDashboard.css";
 import useFetchAllPostsData from "../../../../utils/FetchAllPostsData";
 import { formatDate } from "../../../../utils/dateFormat";
@@ -22,7 +21,6 @@ const PostDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page state
   const [postsPerPage] = useState(10); // Posts per page
   const [originalData, setOriginalData] = useState([]); // State for storing original data
-  const [viewMode, setViewMode] = useState("table");
   
 
   const headers = [
@@ -208,10 +206,6 @@ const PostDashboard = () => {
     ];
   });
 
-  const handleSwitchView = (view) => {
-    setViewMode(view);
-  };
-
 
   return (
     <div className="admin-content-container">
@@ -227,24 +221,12 @@ const PostDashboard = () => {
               onSearchChange={setSearchQuery}
             />
 
-          {/* View switcher */}
-          <div className="view-toggle">
-            <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
-            <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
-          </div>
-
-          {/* Conditionally render Table or Card View */}
-          {viewMode === "table" ? (
             <TableComponent
               headers={headers}
               data={data}
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
             />
-          ) : (
-            <CardComponent data={data} headers={headers}/>
-
-          )}
             {/* Pagination Component */}
             <PaginationComponent
               currentPage={currentPage}

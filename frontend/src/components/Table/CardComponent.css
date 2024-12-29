@@ -1,16 +1,57 @@
-.card {
+/* Container for cards */
+.card-container {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
+  flex-wrap: wrap; 
+  justify-content: center; 
+  gap: 20px; 
+  margin: 10px -10px; 
+  padding: 10px;
+  box-sizing: border-box; 
+}
+
+/* Individual card */
+.card {
+  flex: 1 1 calc(20% - 20px); 
+  margin: 10px;
   padding: 15px;
   background-color: #ffffff;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
+  box-sizing: border-box;
+  max-width: 300px; 
+  min-width: 200px; 
+  height: auto; 
 }
 
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .card {
+    flex: 1 1 calc(25% - 20px); /* 4 cards per row */
+  }
+}
+
+@media (max-width: 992px) {
+  .card {
+    flex: 1 1 calc(33.33% - 20px); /* 3 cards per row */
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    flex: 1 1 calc(50% - 20px); /* 2 cards per row */
+  }
+}
+
+@media (max-width: 576px) {
+  .card {
+    flex: 1 1 calc(100% - 20px); /* 1 card per row */
+    margin: 10px auto;
+  }
+}
+
+/* Card header styling */
 .card-header {
   font-size: 1.2rem;
   font-weight: bold;
@@ -18,19 +59,25 @@
   text-align: center;
 }
 
+/* Card body */
 .card-body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  
 }
 
-.card-text,
+/* General text and status styling */
+.card-text {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
 .card-status {
-  text-align: center; 
+  text-align: center;
   font-size: 0.85rem;
 }
 
+/* Card footer for buttons */
 .card-footer {
   margin-top: 15px;
   display: flex;
@@ -38,6 +85,7 @@
   gap: 10px;
 }
 
+/* Buttons inside card footer */
 .card-footer button {
   flex: 1;
   padding: 10px;
@@ -55,25 +103,15 @@
   background-color: #0056b3;
 }
 
-.card-status span {
-  color: #555; /* Custom color for the status text */
-  font-weight: normal;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .card-footer {
-    flex-direction: column;
-    gap: 5px;
-  }
-}
-
+/* Status action styling */
 .status-action {
-  padding: 8px 0; /* Adjust the values as needed */
+  padding: 8px 0; /* Adjust padding */
   margin-top: 4px;
   margin-bottom: 4px;
-  display: flex; /* Optional: Helps align title and value nicely */
-  align-items: center; /* Optional: Vertically aligns text if needed */
+  display: flex; /* Align title and value nicely */
+  align-items: center; /* Vertical alignment */
+  justify-content: center; /* Center horizontally */
+  text-align: center; /* Center the text */
 }
 
 .status-action strong {

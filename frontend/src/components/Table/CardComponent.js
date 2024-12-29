@@ -9,7 +9,6 @@ const CardComponent = ({ data, headers }) => {
         <div className="card" key={index}>
           <div className="card-body">
             {headers.map((header, headerIndex) => {
-              // Check if the header is "Status" or "Action"
               const isStatus = header === "Status";
               const isAction = header === "Action";
 
@@ -20,9 +19,9 @@ const CardComponent = ({ data, headers }) => {
                     isStatus || isAction ? "status-action" : ""
                   }`}
                 >
-                  {isStatus && <strong>Status:</strong>} 
-                  {isAction && <strong>Action:</strong>} 
-                  {!isStatus && !isAction && row[headerIndex]} 
+                  {isStatus && <strong>Status:</strong>}
+                  {isAction && <strong>Action:</strong>}
+                  {!isStatus && !isAction && row[headerIndex]}
                   {isStatus || isAction ? row[headerIndex] : null}
                 </p>
               );
