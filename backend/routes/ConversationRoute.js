@@ -19,7 +19,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-
+// convo between user and lender
 router.post("/createConversation", async (req, res) => {
     const { senderId, ownerId } = req.body;
   
@@ -41,6 +41,41 @@ router.post("/createConversation", async (req, res) => {
         // Create a new conversation with members as a JSON array
         const newConversation = await Conversation.create({
           members: [String(senderId), String(ownerId)], // Store directly as an array
+          user_id: senderId, // Populate user_id as the creator
+        });
+  
+        return res.status(201).json(newConversation);
+      }
+  
+      res.status(200).json(existingConversation);
+    } catch (err) {
+      console.error("Error creating conversation:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+  
+//convo between user and seller
+  router.post("/createBySeller", async (req, res) => {
+    const { senderId, sellerId } = req.body;
+  
+    try {
+      if (!senderId || !sellerId) {
+        return res.status(400).json({ error: "Sender ID and Seller ID are required" });
+      }
+  
+      // Check if the conversation already exists
+      const existingConversation = await Conversation.findOne({
+        where: {
+          members: sequelize.literal(
+            `JSON_CONTAINS(members, '["${senderId}"]') AND JSON_CONTAINS(members, '["${sellerId}"]')`
+          ),
+        },
+      });
+  
+      if (!existingConversation) {
+        // Create a new conversation with members as a JSON array
+        const newConversation = await Conversation.create({
+          members: [String(senderId), String(sellerId)], // Store directly as an array
           user_id: senderId, // Populate user_id as the creator
         });
   

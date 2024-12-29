@@ -225,6 +225,32 @@ function ItemForSaleDetail() {
     return <LoadingItemDetailSkeleton />;
   }
 
+  const handleMessageSellerClick = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createBySeller`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            senderId: studentUser.userId, // Logged-in user
+            sellerId: approvedItemForSaleById.seller.id, // Seller's user ID
+          }),
+        }
+      );
+  
+      if (response.ok) {
+        navigate("/messages"); // Redirect to the messages page
+      } else {
+        const error = await response.json();
+        console.error("Error creating conversation with seller:", error.error);
+      }
+    } catch (err) {
+      console.error("Error handling message click:", err);
+    }
+  };
+  
+
   return (
     <div className="container-content itemforsale-detail">
       <div className="itemforsale-container">
@@ -291,7 +317,8 @@ function ItemForSaleDetail() {
             >
               <img src={cartIcon} alt="Add to cart" />
             </button>
-            <button className="btn btn-rectangle secondary">Message</button>
+            <button className="btn btn-rectangle secondary" onClick={handleMessageSellerClick}>
+              Message</button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
