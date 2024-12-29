@@ -4,6 +4,7 @@ import UserIcon from "../../../../assets/images/icons/user-icon.svg";
 import { useAuth } from "../../../../context/AuthContext";
 import { io } from "socket.io-client";
 import { baseApi } from "../../../../App";
+import ProductCard from "./ProductCard";
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
@@ -179,6 +180,7 @@ const MessagePage = () => {
                 <p>No messages yet.</p>
               )}
             </div>
+            <ProductCard />
             <div className="chat-input">
               <input
                 type="text"
