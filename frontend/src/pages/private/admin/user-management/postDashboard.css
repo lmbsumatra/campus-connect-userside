@@ -27,25 +27,25 @@
     border: #ccc;
   }
 
-  .view-toggle {
+  .admin-view-toggle {
     display: flex;
-    gap: 10px; /* Adds space between buttons */
+    gap: 10px; 
   }
   
-  .view-toggle button {
-    padding: 10px 15px; /* Adjust padding for better spacing inside the buttons */
+  .admin-view-toggle button {
+    padding: 10px 15px; 
     font-size: 1rem;
     border-radius: 4px;
-    transition: background-color 0.2s ease, color 0.2s ease; /* Smooth transitions for selected state */
+    transition: background-color 0.2s ease, color 0.2s ease; 
   }
   
-  .view-toggle button.active {
-    background-color: #007bff; /* Indicate the selected view with a highlighted background */
-    color: white; /* Make text readable on highlighted background */
+  .admin-view-toggle button.active {
+    background-color: #007bff; 
+    color: white; 
   }
   
-  .view-toggle button:not(.active):hover {
-    background-color: #1da3d8; /* Optional: subtle hover effect for unselected buttons */
+  .admin-view-toggle button:not(.active):hover {
+    background-color: #1da3d8; 
   }
   
   

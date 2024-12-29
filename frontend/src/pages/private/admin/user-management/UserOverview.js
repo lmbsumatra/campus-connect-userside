@@ -209,7 +209,7 @@ const UserOverview = () => {
         onSearchChange={setSearchQuery}
       />
        {/* View switcher */}
-       <div className="view-toggle">
+       <div className="admin-view-toggle">
             <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
             <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
           </div>

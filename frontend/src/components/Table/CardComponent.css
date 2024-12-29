@@ -1,5 +1,5 @@
 /* Container for cards */
-.card-container {
+.adminv1-card-container {
   display: flex;
   flex-wrap: wrap; 
   justify-content: center; 
@@ -10,7 +10,7 @@
 }
 
 /* Individual card */
-.card {
+.adminv1-card {
   flex: 1 1 calc(20% - 20px); 
   margin: 10px;
   padding: 15px;
@@ -27,32 +27,32 @@
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
-  .card {
+  .adminv1-card {
     flex: 1 1 calc(25% - 20px); /* 4 cards per row */
   }
 }
 
 @media (max-width: 992px) {
-  .card {
+  .adminv1-card {
     flex: 1 1 calc(33.33% - 20px); /* 3 cards per row */
   }
 }
 
 @media (max-width: 768px) {
-  .card {
+  .adminv1-card {
     flex: 1 1 calc(50% - 20px); /* 2 cards per row */
   }
 }
 
 @media (max-width: 576px) {
-  .card {
+  .adminv1-card {
     flex: 1 1 calc(100% - 20px); /* 1 card per row */
     margin: 10px auto;
   }
 }
 
 /* Card header styling */
-.card-header {
+.adminv1-card-header {
   font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 10px;
@@ -60,25 +60,25 @@
 }
 
 /* Card body */
-.card-body {
+.adminv1-card-body {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 /* General text and status styling */
-.card-text {
+.adminv1-card-text {
   text-align: center;
   font-size: 0.9rem;
 }
 
-.card-status {
+.adminv1-card-status {
   text-align: center;
   font-size: 0.85rem;
 }
 
 /* Card footer for buttons */
-.card-footer {
+.adminv1-card-footer {
   margin-top: 15px;
   display: flex;
   justify-content: space-evenly;
@@ -86,7 +86,7 @@
 }
 
 /* Buttons inside card footer */
-.card-footer button {
+.adminv1-card-footer button {
   flex: 1;
   padding: 10px;
   font-size: 0.9rem;
@@ -99,12 +99,12 @@
   text-align: center;
 }
 
-.card-footer button:hover {
+.adminv1-card-footer button:hover {
   background-color: #0056b3;
 }
 
 /* Status action styling */
-.status-action {
+.adminv1-status-action {
   padding: 8px 0; /* Adjust padding */
   margin-top: 4px;
   margin-bottom: 4px;
@@ -114,7 +114,7 @@
   text-align: center; /* Center the text */
 }
 
-.status-action strong {
+.adminv1-status-action strong {
   font-size: 0.85rem;
   padding-right: 5px;
 }

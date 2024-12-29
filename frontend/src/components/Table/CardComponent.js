@@ -4,10 +4,10 @@ import "./CardComponent.css";
 
 const CardComponent = ({ data, headers }) => {
   return (
-    <div className="card-container">
+    <div className="adminv1-card-container">
       {data.map((row, index) => (
-        <div className="card" key={index}>
-          <div className="card-body">
+        <div className="adminv1-card" key={index}>
+          <div className="adminv1-card-body">
             {headers.map((header, headerIndex) => {
               const isStatus = header === "Status";
               const isAction = header === "Action";
@@ -15,8 +15,8 @@ const CardComponent = ({ data, headers }) => {
               return (
                 <p
                   key={headerIndex}
-                  className={`card-text ${
-                    isStatus || isAction ? "status-action" : ""
+                  className={`adminv1-card-text ${
+                    isStatus || isAction ? "adminv1-status-action" : ""
                   }`}
                 >
                   {isStatus && <strong>Status:</strong>}
