@@ -1,5 +1,5 @@
-import prevIcon from "../../../../assets/images/pdp/prev.svg";
-import nextIcon from "../../../../assets/images/pdp/next.svg";
+import prevIcon from "../../../assets/images/pdp/prev.svg";
+import nextIcon from "../../../assets/images/pdp/next.svg";
 import { useState } from "react";
 import "./imageSliderStyles.css";
 

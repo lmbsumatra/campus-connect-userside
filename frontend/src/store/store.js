@@ -13,10 +13,12 @@ import approvedPostByIdSliceReducer from "../redux/post/approvedPostByIdSlice";
 import allApprovedPostReducer from "../redux/post/allApprovedPostsSlice";
 
 // ** Listing-related Reducers **
+import allApprovedListingsReducer from "../redux/listing/allApprovedListingsSlice";
 import approvedListingByIdSliceReducer from "../redux/listing/approvedListingByIdSlice";
 import allListingsByUserSliceReducer from "../redux/listing/allListingsByUserSlice";
 
 // ** Item-for-Sale-related Reducers **
+import allApprovedItemForSaleReducer from "../redux/item-for-sale/allApprovedItemsForSaleSlice";
 import approvedItemForSaleByIdReducer from "../redux/item-for-sale/approvedItemForSaleByIdSlice";
 import allItemForSaleByUserSliceReducer from "../redux/item-for-sale/allItemForSaleByUserSlice";
 
@@ -37,9 +39,11 @@ const store = configureStore({
     studentAuth: studentAuthReducer,
     approvedPostById: approvedPostByIdSliceReducer,
     //
+    allApprovedListings: allApprovedListingsReducer,
     approvedListingById: approvedListingByIdSliceReducer,
     allListingsByUser: allListingsByUserSliceReducer,
     //
+    allApprovedItemForSale: allApprovedItemForSaleReducer,
     approvedItemForSaleById: approvedItemForSaleByIdReducer,
     allItemForSaleByUser: allItemForSaleByUserSliceReducer,
     //

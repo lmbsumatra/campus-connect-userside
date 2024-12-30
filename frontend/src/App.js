@@ -19,11 +19,11 @@ import store from "../src/store/store";
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
 import Home from "./pages/public/Home.js";
 import Profile from "./pages/private/users/student-profile/Profile.js";
-import AddPost from "./pages/private/users/new-post/AddPost.js";
+import AddPost from "./pages/private/users/post/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/RentProgress.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
-import AddListing from "./pages/private/users/new-item/AddListing.js";
+import AddListing from "./pages/private/users/item/AddListing.js";
 import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
 import Footer from "./components/users/footer/Footer.jsx";
 import Admin from "./pages/private/admin/Admin.js";
@@ -64,12 +64,13 @@ import ChatAndNotif from "./trialOnMessage&Notification/ChatAndNotif.jsx";
 import Trial2 from "./trials/Trial2.js";
 import FAB from "./components/common/fab/FAB.jsx";
 import Cart from "./pages/private/users/cart/Cart.js";
-import PostDetail from "./pages/private/users/post/PostDetail.js";
-import ListingDetail from "./pages/private/users/listing/listing-detail/ListingDetail.js";
-import ItemForSaleDetail from "./pages/private/users/item-for-sale/ItemForSaleDetail.js";
+import PostDetail from "./pages/public/post/PostDetail.js";
+import ListingDetail from "./pages/public/listing/listing-detail/ListingDetail.js";
+import ItemForSaleDetail from "./pages/public/item-for-sale/ItemForSaleDetail.js";
 import Shop from "./pages/public/Shop.js";
-import AddNewLItem from "./pages/private/users/new-item/AddNewItem.js";
-import AddNewPost from "./pages/private/users/new-post/AddNewPost.js";
+import AddNewLItem from "./pages/private/users/item/AddNewItem.js";
+import AddNewPost from "./pages/private/users/post/AddNewPost.js";
+import EditItem from "./pages/private/users/item/EditItem.jsx";
 
 function App() {
   console.log(baseApi);
@@ -92,80 +93,11 @@ function Content() {
   const location = useLocation();
   const showNavbarAndFooter = !location.pathname.startsWith("/admin");
 
-  // Handle click on FAB (Floating Action Button) for different actions
-  const handleFabClick = (action) => {
-    if (action === "add-item") {
-      console.log("Add Item button clicked");
-    } else if (action === "create-post") {
-      console.log("Create Post button clicked");
-    }
-  };
-
-  const cartItems = {
-    "Seller X": [
-      {
-        name: "Plant APlant APlant APlant APlant APlant APlant APlant APlant APlant APlant APlant A",
-        type: "To buy",
-        specs: ["Gray", "Brand x"],
-        price: 100,
-        owner: "Seller X",
-        availability: "In Stock",
-      },
-      {
-        name: "Plant B",
-        type: "To buy",
-        specs: ["Green", "Brand z"],
-        price: 120,
-        owner: "Seller X",
-        availability: "In Stock",
-      },
-    ],
-    "Seller Y": [
-      {
-        name: "Tool B",
-        type: "To rent",
-        specs: ["Blue", "Brand y"],
-        price: 15,
-        rentalAvailability: "Available from 1st Jan",
-        owner: "Seller Y",
-        availability: "Available",
-      },
-      {
-        name: "Shovel",
-        type: "To rent",
-        specs: ["Metal", "Brand z"],
-        price: 10,
-        rentalAvailability: "Available from 15th Jan",
-        owner: "Seller Y",
-        availability: "Available",
-      },
-    ],
-    "Seller Z": [
-      {
-        name: "Cactus",
-        type: "To buy",
-        specs: ["Small", "Brand x"],
-        price: 50,
-        owner: "Seller Z",
-        availability: "In Stock",
-      },
-      {
-        name: "Rake",
-        type: "To rent",
-        specs: ["Wooden", "Brand w"],
-        price: 12,
-        rentalAvailability: "Available from 20th Jan",
-        owner: "Seller Z",
-        availability: "Available",
-      },
-    ],
-  };
-
   return (
     <>
       {showNavbarAndFooter && <NavBar2 className="bg-dark" />}
       {/* Floating Action Button (FAB) */}
-      <FAB icon="+" onClick={handleFabClick} />
+      <FAB icon="+" />
 
       <Routes>
         {/* PUBLIC ROUTES */}
@@ -180,8 +112,7 @@ function Content() {
         <Route path="/home" element={<Home />} />
         <Route path="/rent" element={<Rent />} />
         <Route path="/lend" element={<Lend />} />
-        <Route path="/lend" element={<Shop />} />
-       
+        <Route path="/shop" element={<Shop />} />
 
         {/* PRIVATE ROUTES */}
 
@@ -227,6 +158,14 @@ function Content() {
           }
         />
         <Route
+          path="/post/edit/:id"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <EditItem />
+            </StudentProtectedRoute>
+          }
+        />
+        <Route
           path="/add-listing"
           element={
             <StudentProtectedRoute allowedRoles="student">
@@ -234,7 +173,7 @@ function Content() {
             </StudentProtectedRoute>
           }
         />
-       
+
         <Route
           path="/add-listing2"
           element={
@@ -243,7 +182,16 @@ function Content() {
             </StudentProtectedRoute>
           }
         />
-       
+
+        <Route
+          path="/profile/my-listings/edit/:id"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <EditItem />
+            </StudentProtectedRoute>
+          }
+        />
+
         <Route
           path="/messages"
           element={

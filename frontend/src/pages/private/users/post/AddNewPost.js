@@ -10,7 +10,7 @@ import UserToolbar from "../common/UserToolbar";
 import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs";
 import AddItemBadges from "../common/AddItemBadges";
 import AddImage from "../common/AddImage";
-import DateDurationPicker from "../new-post/DateDurationPicker";
+import DateDurationPicker from "../post/DateDurationPicker";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
 import ShowAlert from "../../../../utils/ShowAlert.js";
 

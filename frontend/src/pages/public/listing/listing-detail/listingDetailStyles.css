@@ -196,6 +196,7 @@
 }
 
 .listing-detail .group-container.terms {
+  position: relative;
   padding: 0;
   margin: 0;
 }
@@ -204,7 +205,7 @@
   position: absolute;
   top: 100%; /* Position right below the label */
   left: 0;
-  margin-top: 48px;
+  margin-top: 8px;
   width: 100%;
   background-color: white;
   border-radius: 8px;
@@ -213,10 +214,6 @@
   z-index: 999;
 }
 
-.listing-container .group-container.terms-group {
-  all: unset;
-  display: block;
-}
 /* gen design */
 .sub-section-label {
   display: flex;
@@ -289,10 +286,7 @@
 @media (min-width: 1025px) {
 }
 
-/* First, modify the terms-group container to support the popup positioning */
-.group-container.terms-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  position: relative; /* Add this to contain the popup */
+.listing-container .group-container.terms {
+  padding: 0;
+  margin: 0;
 }

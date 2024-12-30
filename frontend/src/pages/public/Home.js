@@ -17,61 +17,55 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
 import PostCard from "../../components/post-card/PostCard";
 import ItemCard from "../../components/item-card/ItemCard";
+import { fetchAllApprovedListings } from "../../redux/listing/allApprovedListingsSlice";
+import { fetchAllApprovedItemForSale } from "../../redux/item-for-sale/allApprovedItemsForSaleSlice";
 
 function Home() {
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(fetchAllApprovedPosts());
+    dispatch(fetchAllApprovedListings());
+    dispatch(fetchAllApprovedItemForSale());
   }, [dispatch]);
+
   const { allApprovedPosts, loadingAllApprovedPosts, errorAllApprovedPosts } =
     useSelector((state) => state.allApprovedPosts);
 
-  // Fetch listings data (approved items for sale or rent)
   const {
-    items: listings,
-    loading: loadingListings,
-    error: errorListings,
-  } = useFetchApprovedItems(`${baseApi}/listings/available`);
-
-  // Fetch listings data (approved items for sale or rent)
+    allApprovedListings,
+    loadingAllApprovedListings,
+    errorAllApprovedListings,
+  } = useSelector((state) => state.allApprovedListings);
   const {
-    items: itemsforsale,
-    loading: loadingItemsforsale,
-    error: errorItemsforsale,
-  } = useFetchApprovedItems(`${baseApi}/item-for-sale/available`);
-
-  // Fetch borrowing posts data (approved posts for lending)
-  // const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseApi}/posts/approved`);
+    allApprovedItemForSale,
+    loadingAllApprovedItemForSale,
+    errorAllApprovedItemForSale,
+  } = useSelector((state) => state.allApprovedItemForSale);
 
   return (
     <div>
-      {/* Header and Subheader */}
       <Header />
       <Subheader />
-
-      {/* Categories Section */}
       <Categories />
-
-      {/* Listings Section */}
       <div className="container-content">
-        {errorListings && <p>Error loading listings: {errorListings}</p>}
-        {loadingListings && <p>Loading listings...</p>}
-        <ItemCard items={listings} title="Listings" />
-      </div>
-      {/* For sale items Section */}
-      <div className="container-content">
-        {errorItemsforsale && (
-          <p>Error loading listings: {errorItemsforsale}</p>
+        {errorAllApprovedListings && (
+          <p>Error loading listings: {errorAllApprovedListings}</p>
         )}
-        {loadingItemsforsale && <p>Loading listings...</p>}
-        <ItemCard items={itemsforsale} title="For sale" />
+        {loadingAllApprovedListings && <p>Loading listings...</p>}
+        <ItemCard items={allApprovedListings} title="Listings" />
       </div>
 
-      {/* Banner Section */}
+      <div className="container-content">
+        {errorAllApprovedItemForSale && (
+          <p>Error loading listings: {errorAllApprovedItemForSale}</p>
+        )}
+        {loadingAllApprovedItemForSale && <p>Loading listings...</p>}
+        <ItemCard items={allApprovedItemForSale} title="For sale" />
+      </div>
+
       <Banner />
 
-      {/* Borrowing Posts Section */}
       <div className="container-content">
         {errorAllApprovedPosts && (
           <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>

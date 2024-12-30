@@ -1,4 +1,3 @@
-import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";
 import "./itemDescAndSpecsStyles.css";
 
 export const ItemDescAndSpecs = ({ specs, desc, tags }) => {

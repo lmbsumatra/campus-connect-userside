@@ -8,8 +8,6 @@ useFetchApprovedItems = (url) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  console.log(url)
-
   useEffect(() => {
     const fetchItems = async () => {
       try {

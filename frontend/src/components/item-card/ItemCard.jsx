@@ -124,7 +124,7 @@ const ItemCard = ({ items, title, isYou, onOptionClick }) => {
 
                 <div className="action-btns">
                   <button className="btn btn-rectangle primary">
-                    {item.itemType === "Rent" ? "Rent" : "Buy"}
+                    {item.itemType === FOR_RENT ? "Rent" : "Buy"}
                   </button>
                   <button
                     className="btn btn-icon primary"

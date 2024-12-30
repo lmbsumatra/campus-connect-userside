@@ -375,15 +375,15 @@ const itemFormSlice = createSlice({
           date: formatDateFromSelectDate(faker.date.future()),
           timePeriods: [
             {
-              startTime: formatTimeWithAMPM(faker.date.future()), // Returns time in abbreviated format (e.g., '12:34:07 AM')
-              endTime: formatTimeWithAMPM(faker.date.future()), // Returns time in abbreviated format (e.g., '12:34:07 AM')
+              startTime: formatTimeWithAMPM(faker.date.future()), 
+              endTime: formatTimeWithAMPM(faker.date.future()), 
             },
           ],
         },
       ];
 
       state.deliveryMethod.value =
-        faker.helpers.arrayElement(["pickup", "meetup"]) || "pickup"; // Default to "pickup" if undefined
+        faker.helpers.arrayElement(["pickup", "meetup"]) || "pickup";
 
       // Generate helpers payment method
       state.paymentMethod.value =

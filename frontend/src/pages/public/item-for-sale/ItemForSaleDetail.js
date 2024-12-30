@@ -1,48 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchApprovedListingById } from "../../../../../redux/listing/approvedListingByIdSlice.js";
+import { fetchApprovedItemForSaleById } from "../../../redux/item-for-sale/approvedItemForSaleByIdSlice";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import store from "../../../../../store/store.js";
 
-import { formatTimeTo12Hour } from "../../../../../utils/timeFormat.js";
+import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
-import cartIcon from "../../../../../assets/images/pdp/cart.svg";
-import itemImage1 from "../../../../../assets/images/item/item_1.jpg";
-import itemImage2 from "../../../../../assets/images/item/item_2.jpg";
-import itemImage3 from "../../../../../assets/images/item/item_3.jpg";
-import itemImage4 from "../../../../../assets/images/item/item_4.jpg";
-import forRentIcon from "../../../../../assets/images/card/rent.svg";
-import forSaleIcon from "../../../../../assets/images/card/buy.svg";
-import "./listingDetailStyles.css";
-import "../confirmationModalStyles.css";
-import ShowAlert from "../../../../../utils/ShowAlert.js";
+import cartIcon from "../../../assets/images/pdp/cart.svg";
+import itemImage1 from "../../../assets/images/item/item_1.jpg";
+import itemImage2 from "../../../assets/images/item/item_2.jpg";
+import itemImage3 from "../../../assets/images/item/item_3.jpg";
+import itemImage4 from "../../../assets/images/item/item_4.jpg";
+import forRentIcon from "../../../assets/images/card/rent.svg";
+import forSaleIcon from "../../../assets/images/card/buy.svg";
+import "./itemForSaleDetailStyles.css";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { selectStudentUser } from "../../../../../redux/auth/studentAuthSlice.js";
+import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 import {
   FOR_RENT,
   FOR_SALE,
   MEET_UP,
   PICK_UP,
-  TO_BUY,
-} from "../../../../../utils/consonants.js";
-import { addCartItem } from "../../../../../redux/cart/cartSlice.js";
-import {
-  clearNotification,
-  showNotification,
-} from "../../../../../redux/alert-popup/alertPopupSlice.js";
-import LoadingItemDetailSkeleton from "../../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
-import UserToolbar from "../../common/UserToolbar.jsx";
-import ItemDescAndSpecs from "../../common/ItemDescAndSpecs.jsx";
-import Terms from "./Terms.jsx";
-import ImageSlider from "../../common/ImageSlider.jsx";
-import ItemBadges from "../../common/ItemBadges.jsx";
-import axios from "axios";
+  TO_RENT,
+} from "../../../utils/consonants";
+import { addCartItem } from "../../../redux/cart/cartSlice";
+import { showNotification } from "../../../redux/alert-popup/alertPopupSlice";
+import LoadingItemDetailSkeleton from "../../../components/loading-skeleton/LoadingItemDetailSkeleton";
+import UserToolbar from "../common/UserToolbar";
+import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
+import ImageSlider from "../common/ImageSlider";
+import ItemBadges from "../common/ItemBadges";
 
-function ListingDetail() {
+function ItemForSaleDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -51,13 +43,15 @@ function ListingDetail() {
   const [showDurations, setShowDurations] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const {
-    approvedListingById,
-    loadingApprovedListingById,
-    errorApprovedListingById,
-  } = useSelector((state) => state.approvedListingById);
+    approvedItemForSaleById,
+    loadingApprovedItemForSaleById,
+    errorApprovedItemForSaleById,
+  } = useSelector((state) => state.approvedItemForSaleById);
   const studentUser = useSelector(selectStudentUser);
-  const rentalDates = approvedListingById.rentalDates || [];
+  const rentalDates = approvedItemForSaleById.rentalDates || [];
+  const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
+  const [expandTerm, setExpandTerm] = useState(false);
 
   const images = [
     itemImage1,
@@ -72,7 +66,7 @@ function ListingDetail() {
   const handleDateClick = (dateId) => {
     const formatDate = (d) => d.toLocaleDateString("en-CA");
 
-    const selectedRentalDate = approvedListingById.rentalDates.find(
+    const selectedRentalDate = approvedItemForSaleById.rentalDates.find(
       (rentalDate) => rentalDate.id === dateId
     );
 
@@ -98,127 +92,123 @@ function ListingDetail() {
     }
   };
 
-  const handleSelectDeliveryMethod = (method) => {};
+  const handleSelectDeliveryMethod = (method) => {
+    console.log(method);
+  };
 
   const handleAddToCart = async (e, item) => {
+    console.log(item)
     e.stopPropagation();
 
-    const loadingNotify = ShowAlert(
-      dispatch,
-      "info",
-      "Loading...",
-      "Adding item to cart..."
+    dispatch(
+      showNotification({
+        type: "loading",
+        title: "Processing...",
+        text: "Adding item to cart...",
+      })
     );
 
     if (!selectedDate || !selectedDuration) {
-      dispatch(clearNotification(loadingNotify));
-      return ShowAlert(
-        dispatch,
-        "error",
-        "Error",
-        "Please select a date and duration."
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Please select a date and duration before adding to cart.",
+        })
       );
+      return;
     }
 
-    const selectedDateId = approvedListingById.rentalDates.find(
+    const selectedDateId = approvedItemForSaleById.rentalDates.find(
       (rentalDate) => rentalDate.date === selectedDate
     )?.id;
-
     if (!selectedDateId) {
-      // Remove the loading notification on error
-      dispatch(clearNotification(loadingNotify));
-      return ShowAlert(dispatch, "error", "Error", "Invalid date selection.");
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Invalid date selection.",
+        })
+      );
+      return;
     }
+
+    const selectedDurationId = selectedDuration.id;
+    
 
     try {
       await dispatch(
         addCartItem({
           userId: studentUser.userId,
-          ownerId: item.owner.id,
-          owner: { fname: item.owner.fname, lname: item.owner.lname },
-          itemType: item.itemType === TO_BUY ? "buy" : "rent",
+          ownerId:  item.seller.id,
+          owner: { fname: item.seller.lname, lname: item.seller.lname },
+          itemType:
+            item.itemType === TO_RENT ? "rent" : "buy",
           dateId: selectedDateId,
-          durationId: selectedDuration.id,
+          durationId: selectedDurationId,
           itemId: item.id,
-          price: item.rate,
+          price: item.price,
           name: item.name,
         })
-      ).unwrap();
+      );
 
-      const { successCartMessage, errorCartMessage, warningCartMessage } =
-        store.getState().cart;
-
-      if (successCartMessage) {
-        ShowAlert(dispatch, "success", "Success!", successCartMessage);
-      }
-      if (warningCartMessage) {
-        ShowAlert(dispatch, "warning", "Warning", warningCartMessage);
-      }
-
-      if (errorCartMessage) {
-        ShowAlert(dispatch, "error", "Error", errorCartMessage);
-      }
-    } catch (error) {
-      console.error("Error adding item to cart:", error);
-      ShowAlert(dispatch, "error", "Error", "An unexpected error occurred.");
-    }
-  };
-
-  const confirmRental = async () => {
-    const selectedDateId = approvedListingById.rentalDates.find(
-      (rentalDate) => rentalDate.date === selectedDate
-    )?.id;
-
-    console.log(approvedListingById);
-
-    const rentalDetails = {
-      owner_id: approvedListingById.owner.id,
-      renter_id: studentUser.userId,
-      item_id: approvedListingById.id,
-      delivery_method: approvedListingById.deliveryMethod,
-      rental_date_id: selectedDateId,
-      rental_time_id: selectedDuration.id,
-    };
-    try {
-      await axios.post(
-        "http://localhost:3001/rental-transaction/add",
-        rentalDetails
+      dispatch(
+        showNotification({
+          type: "success",
+          title: "Success!",
+          text: "Item added to cart successfully!",
+        })
       );
     } catch (error) {
-      return error;
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Failed to add item to cart.",
+        })
+      );
     }
   };
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchApprovedListingById(id));
+      dispatch(fetchApprovedItemForSaleById(id));
     }
   }, [id, dispatch]);
 
   useEffect(() => {
-    if (errorApprovedListingById) {
-      ShowAlert(dispatch, "error", "Error", "Item not found!");
-    } else if (!loadingApprovedListingById && !approvedListingById) {
-      ShowAlert(dispatch, "error", "Error", "Item not found!");
+    if (errorApprovedItemForSaleById) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Item not found!",
+        })
+      );
+    } else if (!loadingApprovedItemForSaleById && !approvedItemForSaleById) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Not Found",
+          text: "No item found with the given ID.",
+        })
+      );
     }
 
-    if (
-      errorApprovedListingById ||
-      (!loadingApprovedListingById && !approvedListingById)
-    ) {
+    if (errorApprovedItemForSaleById || (!loadingApprovedItemForSaleById && !approvedItemForSaleById)) {
       setRedirecting(true); // Start the redirect process
       const timer = setTimeout(() => {
-        ShowAlert(dispatch, "loading", "Redirecting");
+        dispatch(
+          showNotification({
+            type: "loading",
+            title: "Redirecting",
+          })
+        );
       }, 5000); // Show redirect notification after 5 seconds
 
       return () => clearTimeout(timer); // Clean up the timeout if dependencies change
     }
-  }, [
-    errorApprovedListingById,
-    loadingApprovedListingById,
-    approvedListingById,
-    dispatch,
-  ]);
+  }, [errorApprovedItemForSaleById, loadingApprovedItemForSaleById, approvedItemForSaleById, dispatch]);
 
   useEffect(() => {
     if (redirecting) {
@@ -230,43 +220,44 @@ function ListingDetail() {
     }
   }, [redirecting, navigate]);
 
-  if (loadingApprovedListingById || redirecting) {
+  // Show loading skeleton if still loading or redirecting
+  if (loadingApprovedItemForSaleById || redirecting) {
     return <LoadingItemDetailSkeleton />;
   }
 
-  const handleMessageClick = async () => {
+  const handleMessageSellerClick = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversation`,
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createBySeller`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             senderId: studentUser.userId, // Logged-in user
-            ownerId: approvedListingById.owner.id, // Listing owner's user ID
+            sellerId: approvedItemForSaleById.seller.id, // Seller's user ID
           }),
         }
       );
   
       if (response.ok) {
-        navigate("/messages"); // Redirect to messages page
+        navigate("/messages"); // Redirect to the messages page
       } else {
         const error = await response.json();
-        console.error("Error creating conversation:", error.error);
+        console.error("Error creating conversation with seller:", error.error);
       }
     } catch (err) {
       console.error("Error handling message click:", err);
     }
-};
-
+  };
+  
 
   return (
-    <div className="container-content listing-detail">
-      <div className="listing-container">
+    <div className="container-content itemforsale-detail">
+      <div className="itemforsale-container">
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
-              approvedListingById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+              approvedItemForSaleById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
             }`}
             componentsProps={{
               popper: {
@@ -283,12 +274,12 @@ function ListingDetail() {
           >
             <img
               src={
-                approvedListingById.itemType === FOR_RENT
+                approvedItemForSaleById.itemType === FOR_RENT
                   ? forRentIcon
                   : forSaleIcon
               }
               alt={
-                approvedListingById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+                approvedItemForSaleById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
               }
               className="item-type"
             />
@@ -298,23 +289,23 @@ function ListingDetail() {
         <div className="rental-details">
           <ItemBadges
             values={{
-              college: approvedListingById?.owner?.college,
-              category: approvedListingById.category,
+              college: approvedItemForSaleById?.seller?.college,
+              category: approvedItemForSaleById.category,
             }}
           />
           <div className="item-title">
             <>
               <i>For rent </i>
-              {approvedListingById.name ? (
-                <span className="title">{approvedListingById.name}</span>
+              {approvedItemForSaleById.name ? (
+                <span className="title">{approvedItemForSaleById.name}</span>
               ) : (
                 <span className="error-msg">No available name.</span>
               )}
             </>
           </div>
           <div className="item-price">
-            {approvedListingById.rate ? (
-              <span className="price">₱ {approvedListingById.rate}</span>
+            {approvedItemForSaleById.price ? (
+              <span className="price">₱ {approvedItemForSaleById.price}</span>
             ) : (
               <span className="error-msg">No available name.</span>
             )}
@@ -322,16 +313,17 @@ function ListingDetail() {
           <div className="action-btns">
             <button
               className="btn btn-icon primary"
-              onClick={(e) => handleAddToCart(e, approvedListingById)}
+              onClick={(e) => handleAddToCart(e, approvedItemForSaleById)}
             >
               <img src={cartIcon} alt="Add to cart" />
             </button>
-            <button className="btn btn-rectangle secondary"  onClick={handleMessageClick}>Message</button>
+            <button className="btn btn-rectangle secondary" onClick={handleMessageSellerClick}>
+              Message</button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
             >
-              {approvedListingById.itemType === FOR_RENT ? "Rent" : "Buy"}
+              {approvedItemForSaleById.itemType === FOR_RENT ? "Rent" : "Buy"}
             </button>
           </div>
           <hr />
@@ -339,7 +331,7 @@ function ListingDetail() {
             <div className="date-picker">
               <span>
                 Pick a date to{" "}
-                {approvedListingById.itemType === FOR_RENT ? "rent" : "buy"}:
+                {approvedItemForSaleById.itemType === FOR_RENT ? "rent" : "buy"}:
               </span>
               <DatePicker
                 inline
@@ -402,9 +394,9 @@ function ListingDetail() {
 
           <div className="group-container delivery-method ">
             <label className="label">Delivery Method</label>
-            {approvedListingById.deliveryMethod ? (
+            {approvedItemForSaleById.deliveryMethod ? (
               <Tooltip
-                title="Delivery method has been preselected by owner."
+                title="Delivery method has been preselected by seller."
                 placement="bottom"
                 componentsProps={{
                   popper: {
@@ -420,13 +412,13 @@ function ListingDetail() {
                 }}
               >
                 <span className="value selected">
-                  {approvedListingById.deliveryMethod}
+                  {approvedItemForSaleById.deliveryMethod}
                 </span>
               </Tooltip>
             ) : (
               <div className="delivery-method">
                 <Tooltip
-                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                  title="seller did not set delivery method, you decide whether to meetup or pickup."
                   placement="bottom"
                   componentsProps={{
                     popper: {
@@ -444,7 +436,7 @@ function ListingDetail() {
                   <div className="action-btns">
                     <button
                       className={`value ${
-                        approvedListingById.deliveryMethod === MEET_UP
+                        approvedItemForSaleById.deliveryMethod === MEET_UP
                           ? "selected"
                           : ""
                       }`}
@@ -454,7 +446,7 @@ function ListingDetail() {
                     </button>
                     <button
                       className={`value ${
-                        approvedListingById.deliveryMethod === PICK_UP
+                        approvedItemForSaleById.deliveryMethod === PICK_UP
                           ? "selected"
                           : ""
                       }`}
@@ -471,9 +463,9 @@ function ListingDetail() {
           <div className="group-container payment-method ">
             <label className="label">Payment Method</label>
 
-            {approvedListingById.paymentMethod ? (
+            {approvedItemForSaleById.paymentMethod ? (
               <Tooltip
-                title="Delivery method has been preselected by owner."
+                title="Delivery method has been preselected by seller."
                 placement="bottom"
                 componentsProps={{
                   popper: {
@@ -489,13 +481,13 @@ function ListingDetail() {
                 }}
               >
                 <span className="value selected">
-                  {approvedListingById.paymentMethod}
+                  {approvedItemForSaleById.paymentMethod}
                 </span>
               </Tooltip>
             ) : (
               <div className="delivery-method">
                 <Tooltip
-                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                  title="seller did not set delivery method, you decide whether to meetup or pickup."
                   placement="bottom"
                 >
                   <div className="action-btns">
@@ -507,7 +499,7 @@ function ListingDetail() {
                     </button>
                     <button
                       className={`value ${
-                        approvedListingById.paymentMethod === PICK_UP
+                        approvedItemForSaleById.paymentMethod === PICK_UP
                           ? "selected"
                           : ""
                       }`}
@@ -524,114 +516,53 @@ function ListingDetail() {
           <div className="group-container item-condition">
             <label className="label">Item Condition</label>
             <div>
-              {approvedListingById.itemCondition ? (
+              {approvedItemForSaleById.itemCondition ? (
                 <span className="value">
-                  {approvedListingById.itemCondition}
+                  {approvedItemForSaleById.itemCondition}
                 </span>
               ) : (
                 <span className="error-msg">No item condition specified.</span>
               )}
             </div>
           </div>
-          <div className="group-container terms">
-            <Terms
-              values={{
-                lateCharges: approvedListingById.lateCharges,
-                securityDeposit: approvedListingById.securityDeposit,
-                repairReplacement: approvedListingById.repairReplacement,
-              }}
-            />
-          </div>
         </div>
       </div>
 
-      <UserToolbar user={approvedListingById.owner} />
+      <UserToolbar user={approvedItemForSaleById.seller} />
 
       <ItemDescAndSpecs
-        specs={approvedListingById.specs}
-        desc={approvedListingById.desc}
-        tags={approvedListingById.tags}
+        specs={approvedItemForSaleById.specs}
+        desc={approvedItemForSaleById.desc}
+        tags={approvedItemForSaleById.tags}
       />
 
       {/* Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm rent transaction</Modal.Title>
+          <Modal.Title>Confirm Offer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div className="confirmation-modal">
-            <div className="item-card">
-              <div className="img-container">
-                <img
-                  src={images[0]}
-                  style={{ height: "100px", width: "100px" }}
-                  alt="Item image"
-                />
-              </div>
-              <div className="item-desc">
-                <span className="value">{approvedListingById.name}</span>
-                <span className="value">{approvedListingById.rate}</span>
-                <span className="label">
-                  Item Condition:{" "}
-                  <span className="value">
-                    {approvedListingById.itemCondition}
-                  </span>
-                </span>
-              </div>
-            </div>
-            <div className="rental-desc">
-              <span className="label">
-                Delivery Method:{" "}
-                <span className="value">
-                  {approvedListingById.deliveryMethod}
-                </span>{" "}
-              </span>
-              <span className="label">
-                Payment Method:{" "}
-                <span className="value">
-                  {approvedListingById.paymentMethod}
-                </span>
-              </span>
-
-              <span className="label">Date: </span>
-              <span className="label">Duration:</span>
-            </div>
-            <div className="terms-condition">
-              <span className="label">
-                Late Charges:{" "}
-                <span className="value">{approvedListingById.lateCharges}</span>
-              </span>
-              <span className="label">
-                Security Deposit:{" "}
-                <span className="value">
-                  {approvedListingById.securityDeposit}
-                </span>
-              </span>
-              <span className="label">
-                Repair and Replacement:{" "}
-                <span className="value">
-                  {approvedListingById.repairReplacement}
-                </span>
-              </span>
-            </div>
-            <span>
-              By confirming your rental, you agree to the platform's Policies,
-              Terms and Conditions, and the terms with the other party ("Owner")
-              (as shown above).
-            </span>
-          </div>
+          <p>
+            <strong>Date:</strong> {new Date(selectedDate).toDateString()}
+          </p>
+          <p>
+            <strong>Duration:</strong>
+            {selectedDuration
+              ? selectedDuration.timeFrom && selectedDuration.timeTo
+                ? `${selectedDuration.timeFrom} - ${selectedDuration.timeTo}`
+                : "Invalid duration"
+              : "Nooooooooooo"}
+          </p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={() => confirmRental()}>
-            Confirm
-          </Button>
+          <Button variant="primary">Confirm</Button>
         </Modal.Footer>
       </Modal>
     </div>
   );
 }
 
-export default ListingDetail;
+export default ItemForSaleDetail;

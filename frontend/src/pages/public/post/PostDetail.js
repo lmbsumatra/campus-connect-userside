@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchApprovedPostById } from "../../../../redux/post/approvedPostByIdSlice";
+import { fetchApprovedPostById } from "../../../redux/post/approvedPostByIdSlice";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
+import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
-import itemImage1 from "../../../../assets/images/item/item_1.jpg";
-import itemImage2 from "../../../../assets/images/item/item_2.jpg";
-import itemImage3 from "../../../../assets/images/item/item_3.jpg";
-import itemImage4 from "../../../../assets/images/item/item_4.jpg";
-import forRentIcon from "../../../../assets/images/card/rent.svg";
-import forSaleIcon from "../../../../assets/images/card/rent.svg";
+import itemImage1 from "../../../assets/images/item/item_1.jpg";
+import itemImage2 from "../../../assets/images/item/item_2.jpg";
+import itemImage3 from "../../../assets/images/item/item_3.jpg";
+import itemImage4 from "../../../assets/images/item/item_4.jpg";
+import forRentIcon from "../../../assets/images/card/rent.svg";
+import forSaleIcon from "../../../assets/images/card/rent.svg";
 import "./postDetailStyles.css";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
+import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 import {
   FOR_RENT,
   FOR_SALE,
@@ -25,9 +25,9 @@ import {
   PICK_UP,
   TO_BUY,
   TO_RENT,
-} from "../../../../utils/consonants";
-import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
-import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
+} from "../../../utils/consonants";
+import { showNotification } from "../../../redux/alert-popup/alertPopupSlice";
+import LoadingItemDetailSkeleton from "../../../components/loading-skeleton/LoadingItemDetailSkeleton";
 import UserToolbar from "../common/UserToolbar";
 import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
 import ImageSlider from "../common/ImageSlider";

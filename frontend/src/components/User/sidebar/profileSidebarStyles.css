@@ -5,9 +5,9 @@
 .profile-sidebar {
   background-color: white;
   border-radius: 10px;
-  width: 121px;
-  height: auto;
-  overflow: hidden;
+  width: 200px;
+  height: 100%; /* Match parent height */
+  overflow-y: auto;
 }
 
 .profile-sidebar ul {

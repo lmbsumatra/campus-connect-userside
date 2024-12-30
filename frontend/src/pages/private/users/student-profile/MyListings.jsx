@@ -48,7 +48,7 @@ function MyListings() {
           navigate(`/view/${item.id}`);
           break;
         case "edit":
-          navigate(`/edit/${item.id}`);
+          navigate(`/profile/my-listings/edit/${item.id}`);
           break;
         default:
           break;

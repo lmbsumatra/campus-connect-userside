@@ -49,12 +49,6 @@
   width: auto;
 }
 
-.profile-content {
-  flex-grow: 1;
-  background-color: white;
-  border-radius: 20px;
-}
-
 .banner-image {
   width: 100%;
   height: 100%;

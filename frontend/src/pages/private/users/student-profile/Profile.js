@@ -5,7 +5,6 @@ import {
   Navigate,
   useLocation,
   useNavigate,
-  useParams,
 } from "react-router-dom";
 import { useAuth } from "../../../../context/AuthContext.js";
 import ProfileSidebar from "../../../../components/User/sidebar/ProfileSidebar.jsx";
@@ -16,92 +15,115 @@ import MyForSale from "./MyForSale.jsx";
 import MyPosts from "./MyPosts.jsx";
 import MyListings from "./MyListings.jsx";
 import MyTransactions from "./MyTransactions.jsx";
+import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
+import "./profileStyles.css";
 
 function Profile() {
   const { studentUser } = useAuth();
-  const { userId } = studentUser || {}; // Get userId from auth context
+  const { userId } = studentUser || {};
   const location = useLocation();
-  const navigate = useNavigate(); // To navigate programmatically
+  const navigate = useNavigate();
 
-  // Create a URLSearchParams instance to extract query parameters from the location's search string
   const queryParams = new URLSearchParams(location.search);
-
-  // Get the values of the query parameters
   const currentPage = queryParams.get("currentPage");
   const currentTab = queryParams.get("currentTab");
 
   const [loading, setLoading] = useState(true);
-  const [selectedOption, setSelectedOption] = useState("Renter"); // Default value "Renter"
-  const [selectedTab, setSelectedTab] = useState("Requests"); // Default value "Requests"
+  const [selectedOption, setSelectedOption] = useState(currentPage || "Renter");
+  const [selectedTab, setSelectedTab] = useState(currentTab || "Requests");
 
   useEffect(() => {
     if (userId) {
-      setLoading(false); // Once userId is available, stop loading
+      setLoading(false);
     }
-  }, [userId]); // Only re-run when userId changes
+  }, [userId]);
 
   useEffect(() => {
-    // Check URL parameters on initial load or refresh
     if (currentPage) {
       setSelectedOption(currentPage);
     }
     if (currentTab) {
       setSelectedTab(currentTab);
     }
-  }, [currentPage, currentTab]); // Re-run when currentPage or currentTab changes in query params
+  }, [currentPage, currentTab]);
 
-  // Don't return early with loading state. Let the hooks always be called in the same order.
-  if (loading) {
-    return <div>Loading user information...</div>; // Show loading state if still fetching userId
-  }
-
-  // Function to handle option change (update the query parameters and state)
   const handleOptionChange = (option) => {
-    // Update the URL with new query parameters
-    navigate(`/profile/transactions?currentPage=${option}&currentTab=${currentTab}`);
-
-    // Update the selectedOption state
+    navigate(
+      `/profile/transactions?currentPage=${option}&currentTab=${selectedTab}`
+    );
     setSelectedOption(option);
   };
 
-  // Function to handle tab change (update the query parameters and state)
   const handleTabChange = (newSelectedTab) => {
-    // Update the URL with new query parameters
-    navigate(`/profile/transactions?currentPage=${selectedOption}&currentTab=${newSelectedTab}`);
-    
-    // Update the selectedTab state
+    navigate(
+      `/profile/transactions?currentPage=${selectedOption}&currentTab=${newSelectedTab}`
+    );
     setSelectedTab(newSelectedTab);
   };
 
-  console.log(`/profile/transactions?currentPage=${currentPage}&currentTab=${currentTab}`);
+  const breadcrumbs = [
+    { label: "Home", href: "/" },
+    { label: "Profile", href: "/profile" },
+  ];
+
+  const pathToBreadcrumb = {
+    "my-posts": { label: "My Posts", href: "/profile/my-posts" },
+    "my-listings": { label: "My Listings", href: "/profile/my-listings" },
+    "my-forsale-items": {
+      label: "My For Sale Items",
+      href: "/profile/my-forsale-items",
+    },
+    "my-rentals": { label: "My Rentals", href: "/profile/my-rentals" },
+    transactions: { label: "Transactions", href: "/profile/transactions" },
+    "edit-profile": { label: "Edit Profile", href: "/profile/edit-profile" },
+  };
+
+  const currentPath = location.pathname;
+  const pathKey = Object.keys(pathToBreadcrumb).find((key) =>
+    currentPath.includes(key)
+  );
+  
+  if (pathKey) {
+    breadcrumbs.push(pathToBreadcrumb[pathKey]);
+  }
+
+  if (loading) {
+    return <div>Loading user information...</div>;
+  }
 
   return (
-    <div className="container-content d-flex gap-3">
-      {userId && (
-        <ProfileSidebar className="profile-sidebar m-0 p-0 lh-0 bg-dark h-100 " />
-      )}
+    <div className="container-content profile-detail">
+      <BreadCrumb breadcrumbs={breadcrumbs} />
+      <div className="profile-container">
+        {userId && (
+          <ProfileSidebar />
+        )}
 
-      <div className="profile-content m-0 p-0 lh-0 w-50">
-        <ProfileHeader
-          userId={userId}
-          isProfileVisit={false}
-          selectedOption={selectedOption} // Pass selectedOption to ProfileHeader
-          onOptionChange={handleOptionChange} // Pass handleOptionChange to ProfileHeader
-          className="m-0 p-0"
-        />
-        <div className="m-0 p-0">
-          <Routes>
-            <Route path="edit-profile" element={<EditProfile />} />
-            <Route
-              path="transactions"
-              element={<MyRentals selectedOption={selectedOption} selectedTab={selectedTab} onTabChange={handleTabChange} />} // Pass onTabChange to MyRentals
-            />
-            <Route path="my-rentals" element={<MyTransactions />} />
-            <Route path="my-listings" element={<MyListings />} />
-            <Route path="my-posts" element={<MyPosts />} />
-            <Route path="my-forsale-items" element={<MyForSale />} />
-            <Route path="/" element={<Navigate to="my-listings" />} />
-          </Routes>
+        <div className="profile-content">
+          <ProfileHeader
+            userId={userId}
+            isProfileVisit={false}
+            selectedOption={selectedOption}
+            onOptionChange={handleOptionChange}
+          />
+            <Routes>
+              <Route path="edit-profile" element={<EditProfile />} />
+              <Route
+                path="transactions"
+                element={
+                  <MyRentals
+                    selectedOption={selectedOption}
+                    selectedTab={selectedTab}
+                    onTabChange={handleTabChange}
+                  />
+                }
+              />
+              <Route path="my-rentals" element={<MyTransactions />} />
+              <Route path="my-listings" element={<MyListings />} />
+              <Route path="my-posts" element={<MyPosts />} />
+              <Route path="my-forsale-items" element={<MyForSale />} />
+              <Route path="/" element={<Navigate to="my-listings" />} />
+            </Routes>
         </div>
       </div>
     </div>

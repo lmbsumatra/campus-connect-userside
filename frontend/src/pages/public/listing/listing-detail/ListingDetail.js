@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchApprovedItemForSaleById } from "../../../../redux/item-for-sale/approvedItemForSaleByIdSlice";
+import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice.js";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import store from "../../../../store/store.js";
 
-import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
+import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import Tooltip from "@mui/material/Tooltip";
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
 import itemImage1 from "../../../../assets/images/item/item_1.jpg";
@@ -14,27 +15,34 @@ import itemImage3 from "../../../../assets/images/item/item_3.jpg";
 import itemImage4 from "../../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../assets/images/card/buy.svg";
-import "./itemForSaleDetailStyles.css";
+import "./listingDetailStyles.css";
+import "../confirmationModalStyles.css";
+import ShowAlert from "../../../../utils/ShowAlert.js";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
+import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import {
   FOR_RENT,
   FOR_SALE,
   MEET_UP,
   PICK_UP,
-  TO_RENT,
-} from "../../../../utils/consonants";
-import { addCartItem } from "../../../../redux/cart/cartSlice";
-import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
-import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
-import UserToolbar from "../common/UserToolbar";
-import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
-import ImageSlider from "../common/ImageSlider";
-import ItemBadges from "../common/ItemBadges";
+  TO_BUY,
+} from "../../../../utils/consonants.js";
+import { addCartItem } from "../../../../redux/cart/cartSlice.js";
+import {
+  clearNotification,
+  showNotification,
+} from "../../../../redux/alert-popup/alertPopupSlice.js";
+import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
+import UserToolbar from "../../common/UserToolbar.jsx";
+import ItemDescAndSpecs from "../../common/ItemDescAndSpecs.jsx";
+import Terms from "./Terms.jsx";
+import ImageSlider from "../../common/ImageSlider.jsx";
+import ItemBadges from "../../common/ItemBadges.jsx";
+import axios from "axios";
 
-function ItemForSaleDetail() {
+function ListingDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -43,15 +51,13 @@ function ItemForSaleDetail() {
   const [showDurations, setShowDurations] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const {
-    approvedItemForSaleById,
-    loadingApprovedItemForSaleById,
-    errorApprovedItemForSaleById,
-  } = useSelector((state) => state.approvedItemForSaleById);
+    approvedListingById,
+    loadingApprovedListingById,
+    errorApprovedListingById,
+  } = useSelector((state) => state.approvedListingById);
   const studentUser = useSelector(selectStudentUser);
-  const rentalDates = approvedItemForSaleById.rentalDates || [];
-  const [loading, setLoading] = useState(true);
+  const rentalDates = approvedListingById.rentalDates || [];
   const [redirecting, setRedirecting] = useState(false);
-  const [expandTerm, setExpandTerm] = useState(false);
 
   const images = [
     itemImage1,
@@ -66,7 +72,7 @@ function ItemForSaleDetail() {
   const handleDateClick = (dateId) => {
     const formatDate = (d) => d.toLocaleDateString("en-CA");
 
-    const selectedRentalDate = approvedItemForSaleById.rentalDates.find(
+    const selectedRentalDate = approvedListingById.rentalDates.find(
       (rentalDate) => rentalDate.id === dateId
     );
 
@@ -92,123 +98,127 @@ function ItemForSaleDetail() {
     }
   };
 
-  const handleSelectDeliveryMethod = (method) => {
-    console.log(method);
-  };
+  const handleSelectDeliveryMethod = (method) => {};
 
   const handleAddToCart = async (e, item) => {
-    console.log(item)
     e.stopPropagation();
 
-    dispatch(
-      showNotification({
-        type: "loading",
-        title: "Processing...",
-        text: "Adding item to cart...",
-      })
+    const loadingNotify = ShowAlert(
+      dispatch,
+      "info",
+      "Loading...",
+      "Adding item to cart..."
     );
 
     if (!selectedDate || !selectedDuration) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Error",
-          text: "Please select a date and duration before adding to cart.",
-        })
+      dispatch(clearNotification(loadingNotify));
+      return ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Please select a date and duration."
       );
-      return;
     }
 
-    const selectedDateId = approvedItemForSaleById.rentalDates.find(
+    const selectedDateId = approvedListingById.rentalDates.find(
       (rentalDate) => rentalDate.date === selectedDate
     )?.id;
-    if (!selectedDateId) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Error",
-          text: "Invalid date selection.",
-        })
-      );
-      return;
-    }
 
-    const selectedDurationId = selectedDuration.id;
-    
+    if (!selectedDateId) {
+      // Remove the loading notification on error
+      dispatch(clearNotification(loadingNotify));
+      return ShowAlert(dispatch, "error", "Error", "Invalid date selection.");
+    }
 
     try {
       await dispatch(
         addCartItem({
           userId: studentUser.userId,
-          ownerId:  item.seller.id,
-          owner: { fname: item.seller.lname, lname: item.seller.lname },
-          itemType:
-            item.itemType === TO_RENT ? "rent" : "buy",
+          ownerId: item.owner.id,
+          owner: { fname: item.owner.fname, lname: item.owner.lname },
+          itemType: item.itemType === TO_BUY ? "buy" : "rent",
           dateId: selectedDateId,
-          durationId: selectedDurationId,
+          durationId: selectedDuration.id,
           itemId: item.id,
-          price: item.price,
+          price: item.rate,
           name: item.name,
         })
-      );
+      ).unwrap();
 
-      dispatch(
-        showNotification({
-          type: "success",
-          title: "Success!",
-          text: "Item added to cart successfully!",
-        })
+      const { successCartMessage, errorCartMessage, warningCartMessage } =
+        store.getState().cart;
+
+      if (successCartMessage) {
+        ShowAlert(dispatch, "success", "Success!", successCartMessage);
+      }
+      if (warningCartMessage) {
+        ShowAlert(dispatch, "warning", "Warning", warningCartMessage);
+      }
+
+      if (errorCartMessage) {
+        ShowAlert(dispatch, "error", "Error", errorCartMessage);
+      }
+    } catch (error) {
+      console.error("Error adding item to cart:", error);
+      ShowAlert(dispatch, "error", "Error", "An unexpected error occurred.");
+    }
+  };
+
+  const confirmRental = async () => {
+    const selectedDateId = approvedListingById.rentalDates.find(
+      (rentalDate) => rentalDate.date === selectedDate
+    )?.id;
+
+    console.log(approvedListingById);
+
+    const rentalDetails = {
+      owner_id: approvedListingById.owner.id,
+      renter_id: studentUser.userId,
+      item_id: approvedListingById.id,
+      delivery_method: approvedListingById.deliveryMethod,
+      rental_date_id: selectedDateId,
+      rental_time_id: selectedDuration.id,
+    };
+    try {
+      await axios.post(
+        "http://localhost:3001/rental-transaction/add",
+        rentalDetails
       );
     } catch (error) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Error",
-          text: "Failed to add item to cart.",
-        })
-      );
+      return error;
     }
   };
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchApprovedItemForSaleById(id));
+      dispatch(fetchApprovedListingById(id));
     }
   }, [id, dispatch]);
 
   useEffect(() => {
-    if (errorApprovedItemForSaleById) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Error",
-          text: "Item not found!",
-        })
-      );
-    } else if (!loadingApprovedItemForSaleById && !approvedItemForSaleById) {
-      dispatch(
-        showNotification({
-          type: "error",
-          title: "Not Found",
-          text: "No item found with the given ID.",
-        })
-      );
+    if (errorApprovedListingById) {
+      ShowAlert(dispatch, "error", "Error", "Item not found!");
+    } else if (!loadingApprovedListingById && !approvedListingById) {
+      ShowAlert(dispatch, "error", "Error", "Item not found!");
     }
 
-    if (errorApprovedItemForSaleById || (!loadingApprovedItemForSaleById && !approvedItemForSaleById)) {
+    if (
+      errorApprovedListingById ||
+      (!loadingApprovedListingById && !approvedListingById)
+    ) {
       setRedirecting(true); // Start the redirect process
       const timer = setTimeout(() => {
-        dispatch(
-          showNotification({
-            type: "loading",
-            title: "Redirecting",
-          })
-        );
+        ShowAlert(dispatch, "loading", "Redirecting");
       }, 5000); // Show redirect notification after 5 seconds
 
       return () => clearTimeout(timer); // Clean up the timeout if dependencies change
     }
-  }, [errorApprovedItemForSaleById, loadingApprovedItemForSaleById, approvedItemForSaleById, dispatch]);
+  }, [
+    errorApprovedListingById,
+    loadingApprovedListingById,
+    approvedListingById,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (redirecting) {
@@ -220,44 +230,43 @@ function ItemForSaleDetail() {
     }
   }, [redirecting, navigate]);
 
-  // Show loading skeleton if still loading or redirecting
-  if (loadingApprovedItemForSaleById || redirecting) {
+  if (loadingApprovedListingById || redirecting) {
     return <LoadingItemDetailSkeleton />;
   }
 
-  const handleMessageSellerClick = async () => {
+  const handleMessageClick = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createBySeller`,
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversation`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             senderId: studentUser.userId, // Logged-in user
-            sellerId: approvedItemForSaleById.seller.id, // Seller's user ID
+            ownerId: approvedListingById.owner.id, // Listing owner's user ID
           }),
         }
       );
   
       if (response.ok) {
-        navigate("/messages"); // Redirect to the messages page
+        navigate("/messages"); // Redirect to messages page
       } else {
         const error = await response.json();
-        console.error("Error creating conversation with seller:", error.error);
+        console.error("Error creating conversation:", error.error);
       }
     } catch (err) {
       console.error("Error handling message click:", err);
     }
-  };
-  
+};
+
 
   return (
-    <div className="container-content itemforsale-detail">
-      <div className="itemforsale-container">
+    <div className="container-content listing-detail">
+      <div className="listing-container">
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
-              approvedItemForSaleById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+              approvedListingById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
             }`}
             componentsProps={{
               popper: {
@@ -274,12 +283,12 @@ function ItemForSaleDetail() {
           >
             <img
               src={
-                approvedItemForSaleById.itemType === FOR_RENT
+                approvedListingById.itemType === FOR_RENT
                   ? forRentIcon
                   : forSaleIcon
               }
               alt={
-                approvedItemForSaleById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+                approvedListingById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
               }
               className="item-type"
             />
@@ -289,23 +298,23 @@ function ItemForSaleDetail() {
         <div className="rental-details">
           <ItemBadges
             values={{
-              college: approvedItemForSaleById?.seller?.college,
-              category: approvedItemForSaleById.category,
+              college: approvedListingById?.owner?.college,
+              category: approvedListingById.category,
             }}
           />
           <div className="item-title">
             <>
               <i>For rent </i>
-              {approvedItemForSaleById.name ? (
-                <span className="title">{approvedItemForSaleById.name}</span>
+              {approvedListingById.name ? (
+                <span className="title">{approvedListingById.name}</span>
               ) : (
                 <span className="error-msg">No available name.</span>
               )}
             </>
           </div>
           <div className="item-price">
-            {approvedItemForSaleById.price ? (
-              <span className="price">₱ {approvedItemForSaleById.price}</span>
+            {approvedListingById.rate ? (
+              <span className="price">₱ {approvedListingById.rate}</span>
             ) : (
               <span className="error-msg">No available name.</span>
             )}
@@ -313,17 +322,16 @@ function ItemForSaleDetail() {
           <div className="action-btns">
             <button
               className="btn btn-icon primary"
-              onClick={(e) => handleAddToCart(e, approvedItemForSaleById)}
+              onClick={(e) => handleAddToCart(e, approvedListingById)}
             >
               <img src={cartIcon} alt="Add to cart" />
             </button>
-            <button className="btn btn-rectangle secondary" onClick={handleMessageSellerClick}>
-              Message</button>
+            <button className="btn btn-rectangle secondary"  onClick={handleMessageClick}>Message</button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
             >
-              {approvedItemForSaleById.itemType === FOR_RENT ? "Rent" : "Buy"}
+              {approvedListingById.itemType === FOR_RENT ? "Rent" : "Buy"}
             </button>
           </div>
           <hr />
@@ -331,7 +339,7 @@ function ItemForSaleDetail() {
             <div className="date-picker">
               <span>
                 Pick a date to{" "}
-                {approvedItemForSaleById.itemType === FOR_RENT ? "rent" : "buy"}:
+                {approvedListingById.itemType === FOR_RENT ? "rent" : "buy"}:
               </span>
               <DatePicker
                 inline
@@ -394,9 +402,9 @@ function ItemForSaleDetail() {
 
           <div className="group-container delivery-method ">
             <label className="label">Delivery Method</label>
-            {approvedItemForSaleById.deliveryMethod ? (
+            {approvedListingById.deliveryMethod ? (
               <Tooltip
-                title="Delivery method has been preselected by seller."
+                title="Delivery method has been preselected by owner."
                 placement="bottom"
                 componentsProps={{
                   popper: {
@@ -412,13 +420,13 @@ function ItemForSaleDetail() {
                 }}
               >
                 <span className="value selected">
-                  {approvedItemForSaleById.deliveryMethod}
+                  {approvedListingById.deliveryMethod}
                 </span>
               </Tooltip>
             ) : (
               <div className="delivery-method">
                 <Tooltip
-                  title="seller did not set delivery method, you decide whether to meetup or pickup."
+                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
                   placement="bottom"
                   componentsProps={{
                     popper: {
@@ -436,7 +444,7 @@ function ItemForSaleDetail() {
                   <div className="action-btns">
                     <button
                       className={`value ${
-                        approvedItemForSaleById.deliveryMethod === MEET_UP
+                        approvedListingById.deliveryMethod === MEET_UP
                           ? "selected"
                           : ""
                       }`}
@@ -446,7 +454,7 @@ function ItemForSaleDetail() {
                     </button>
                     <button
                       className={`value ${
-                        approvedItemForSaleById.deliveryMethod === PICK_UP
+                        approvedListingById.deliveryMethod === PICK_UP
                           ? "selected"
                           : ""
                       }`}
@@ -463,9 +471,9 @@ function ItemForSaleDetail() {
           <div className="group-container payment-method ">
             <label className="label">Payment Method</label>
 
-            {approvedItemForSaleById.paymentMethod ? (
+            {approvedListingById.paymentMethod ? (
               <Tooltip
-                title="Delivery method has been preselected by seller."
+                title="Delivery method has been preselected by owner."
                 placement="bottom"
                 componentsProps={{
                   popper: {
@@ -481,13 +489,13 @@ function ItemForSaleDetail() {
                 }}
               >
                 <span className="value selected">
-                  {approvedItemForSaleById.paymentMethod}
+                  {approvedListingById.paymentMethod}
                 </span>
               </Tooltip>
             ) : (
               <div className="delivery-method">
                 <Tooltip
-                  title="seller did not set delivery method, you decide whether to meetup or pickup."
+                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
                   placement="bottom"
                 >
                   <div className="action-btns">
@@ -499,7 +507,7 @@ function ItemForSaleDetail() {
                     </button>
                     <button
                       className={`value ${
-                        approvedItemForSaleById.paymentMethod === PICK_UP
+                        approvedListingById.paymentMethod === PICK_UP
                           ? "selected"
                           : ""
                       }`}
@@ -516,53 +524,114 @@ function ItemForSaleDetail() {
           <div className="group-container item-condition">
             <label className="label">Item Condition</label>
             <div>
-              {approvedItemForSaleById.itemCondition ? (
+              {approvedListingById.itemCondition ? (
                 <span className="value">
-                  {approvedItemForSaleById.itemCondition}
+                  {approvedListingById.itemCondition}
                 </span>
               ) : (
                 <span className="error-msg">No item condition specified.</span>
               )}
             </div>
           </div>
+          <div className="group-container terms">
+            <Terms
+              values={{
+                lateCharges: approvedListingById.lateCharges,
+                securityDeposit: approvedListingById.securityDeposit,
+                repairReplacement: approvedListingById.repairReplacement,
+              }}
+            />
+          </div>
         </div>
       </div>
 
-      <UserToolbar user={approvedItemForSaleById.seller} />
+      <UserToolbar user={approvedListingById.owner} />
 
       <ItemDescAndSpecs
-        specs={approvedItemForSaleById.specs}
-        desc={approvedItemForSaleById.desc}
-        tags={approvedItemForSaleById.tags}
+        specs={approvedListingById.specs}
+        desc={approvedListingById.desc}
+        tags={approvedListingById.tags}
       />
 
       {/* Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Offer</Modal.Title>
+          <Modal.Title>Confirm rent transaction</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            <strong>Date:</strong> {new Date(selectedDate).toDateString()}
-          </p>
-          <p>
-            <strong>Duration:</strong>
-            {selectedDuration
-              ? selectedDuration.timeFrom && selectedDuration.timeTo
-                ? `${selectedDuration.timeFrom} - ${selectedDuration.timeTo}`
-                : "Invalid duration"
-              : "Nooooooooooo"}
-          </p>
+          <div className="confirmation-modal">
+            <div className="item-card">
+              <div className="img-container">
+                <img
+                  src={images[0]}
+                  style={{ height: "100px", width: "100px" }}
+                  alt="Item image"
+                />
+              </div>
+              <div className="item-desc">
+                <span className="value">{approvedListingById.name}</span>
+                <span className="value">{approvedListingById.rate}</span>
+                <span className="label">
+                  Item Condition:{" "}
+                  <span className="value">
+                    {approvedListingById.itemCondition}
+                  </span>
+                </span>
+              </div>
+            </div>
+            <div className="rental-desc">
+              <span className="label">
+                Delivery Method:{" "}
+                <span className="value">
+                  {approvedListingById.deliveryMethod}
+                </span>{" "}
+              </span>
+              <span className="label">
+                Payment Method:{" "}
+                <span className="value">
+                  {approvedListingById.paymentMethod}
+                </span>
+              </span>
+
+              <span className="label">Date: </span>
+              <span className="label">Duration:</span>
+            </div>
+            <div className="terms-condition">
+              <span className="label">
+                Late Charges:{" "}
+                <span className="value">{approvedListingById.lateCharges}</span>
+              </span>
+              <span className="label">
+                Security Deposit:{" "}
+                <span className="value">
+                  {approvedListingById.securityDeposit}
+                </span>
+              </span>
+              <span className="label">
+                Repair and Replacement:{" "}
+                <span className="value">
+                  {approvedListingById.repairReplacement}
+                </span>
+              </span>
+            </div>
+            <span>
+              By confirming your rental, you agree to the platform's Policies,
+              Terms and Conditions, and the terms with the other party ("Owner")
+              (as shown above).
+            </span>
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary">Confirm</Button>
+          <Button variant="primary" onClick={() => confirmRental()}>
+            Confirm
+          </Button>
         </Modal.Footer>
       </Modal>
     </div>
   );
 }
 
-export default ItemForSaleDetail;
+export default ListingDetail;

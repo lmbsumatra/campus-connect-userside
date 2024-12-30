@@ -41,12 +41,12 @@ const getAllAvailable = async (req, res) => {
       return {
         id: item.id,
         name: item.listing_name,
-        tags: item.tags,
+        tags: JSON.parse(item.tags),
         price: item.rate,
         createdAt: item.created_at,
         status: item.status,
         category: item.category,
-        itemType: "Rent",
+        itemType: "For Rent",
         availableDates: item.rental_dates.map((date) => ({
           id: date.id,
           itemId: date.item_id,

@@ -6,17 +6,17 @@ import Tooltip from "@mui/material/Tooltip";
 import { formatDateFromSelectDate } from "../../../../utils/dateFormat.js";
 
 // Components
-import UserToolbar from "../common/UserToolbar";
-import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs";
-import AddItemBadges from "../common/AddItemBadges";
-import AddTerms from "../common/AddTerms";
-import AddImage from "../common/AddImage";
-import DateDurationPicker from "../new-post/DateDurationPicker";
-import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
+import UserToolbar from "../common/UserToolbar.jsx";
+import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs.jsx";
+import AddItemBadges from "../common/AddItemBadges.jsx";
+import AddTerms from "../common/AddTerms.jsx";
+import AddImage from "../common/AddImage.jsx";
+import DateDurationPicker from "../post/DateDurationPicker.jsx";
+import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import ShowAlert from "../../../../utils/ShowAlert.js";
 
 // Constants and Utils
-import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
+import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import {
   FOR_RENT,
   PAY_UPON_MEETUP,
@@ -24,19 +24,19 @@ import {
   PICK_UP,
   MEET_UP,
   FOR_SALE,
-} from "../../../../utils/consonants";
+} from "../../../../utils/consonants.js";
 
 // Redux
-import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
-import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
-import { fetchUser } from "../../../../redux/user/userSlice";
+import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
+import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
+import { fetchUser } from "../../../../redux/user/userSlice.js";
 import {
   blurField,
   generateSampleData,
   updateAvailableDates,
   updateField,
   validateInput,
-} from "../../../../redux/item-form/itemFormSlice";
+} from "../../../../redux/item-form/itemFormSlice.js";
 
 // Assets
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
@@ -50,9 +50,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./addNewItemStyles.css";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import { baseApi } from "../../../../App";
+import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
-import BreadCrumb from "../common/BreadCrumb.jsx";
+import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 
 const UNAVAILABLE_DATES = [
   new Date(2024, 11, 25), // Christmas
@@ -95,7 +95,7 @@ const FormField = ({
   </div>
 );
 
-const AddNewItem = () => {
+const EditItem = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const itemDataState = useSelector((state) => state.itemForm);
@@ -350,15 +350,34 @@ const AddNewItem = () => {
 
   const breadcrumbs = [
     { label: "Home", href: "/" },
+    { label: "Profile", href: "/profile" },
     {
-      label: `${itemType === FOR_RENT ? "My Listings" : "My For Sale"}`,
-      href: `${itemType === FOR_RENT ? "/my-listings" : "/my-for-sale"}`,
+      label:
+        itemType === FOR_RENT
+          ? "My Listings"
+          : itemType === FOR_SALE
+          ? "My For Sale"
+          : "Unknown",
+      href:
+        itemType === FOR_RENT
+          ? "/my-listings"
+          : itemType === FOR_SALE
+          ? "/my-for-sale"
+          : "/unknown",
     },
     {
-      label: `${
-        itemType === FOR_RENT ? "Add New Listing" : "Add New Item for Sale"
-      }`,
-      href: `${itemType === FOR_RENT ? "/listings/add" : "/item-for-sale/a"}`,
+      label:
+        itemType === FOR_RENT
+          ? "Edit Listing"
+          : itemType === FOR_SALE
+          ? "Edit Item for Sale"
+          : "Unknown Item Type",
+      href:
+        itemType === FOR_RENT
+          ? "/listings/add"
+          : itemType === FOR_SALE
+          ? "/item-for-sale/add"
+          : "/unknown",
     },
   ];
 
@@ -684,4 +703,4 @@ const AddNewItem = () => {
   );
 };
 
-export default AddNewItem;
+export default EditItem;

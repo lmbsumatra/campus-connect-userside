@@ -4,12 +4,12 @@ const ItemBadges = ({ values }) => {
   const getCollegeBadgeUrl = (college) => {
     if (college !== undefined && college !== null) {
       try {
-        return require(`../../../../assets/images/colleges/${college}.png`);
+        return require(`../../../assets/images/colleges/${college}.png`);
       } catch (error) {
-        return require(`../../../../assets/images/colleges/CAFA.png`);
+        return require(`../../../assets/images/colleges/CAFA.png`);
       }
     } else {
-      return require(`../../../../assets/images/colleges/CAFA.png`);
+      return require(`../../../assets/images/colleges/CAFA.png`);
     }
   };
   return (

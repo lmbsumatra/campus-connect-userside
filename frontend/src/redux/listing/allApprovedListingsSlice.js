@@ -31,7 +31,7 @@ const allApprovedPostsSlice = createSlice({
       })
       .addCase(fetchAllApprovedListings.fulfilled, (state, action) => {
         state.loadingAllApprovedListings = false;
-        state.allApprovedPosts = action.payload;
+        state.allApprovedListings = action.payload;
       })
       .addCase(fetchAllApprovedListings.rejected, (state, action) => {
         state.loadingAllApprovedListings = false;

@@ -1,14 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-const BASE_URL = "http://localhost:3001/posts/approved";
+
+const BASE_URL = "http://localhost:3001/item-for-sale/available";
 
 const initialState = {
-  allApprovedPosts: [],
-  loadingAllApprovedPosts: false,
-  errorAllApprovedPosts: null,
+  allApprovedItemForSale: [],
+  loadingAllApprovedItemForSale: false,
+  errorAllApprovedItemForSale: null,
 };
 
-export const fetchAllApprovedPosts = createAsyncThunk(
-  "post/allApprovedPosts",
+export const fetchAllApprovedItemForSale = createAsyncThunk(
+  "item-for-sale/allApprovedItemForSale",
   async () => {
     const response = await fetch(BASE_URL);
 
@@ -17,24 +18,24 @@ export const fetchAllApprovedPosts = createAsyncThunk(
   }
 );
 
-const allApprovedPostsSlice = createSlice({
-  name: "post",
+const allApprovedItemForSaleSlice = createSlice({
+  name: "item-for-sale",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllApprovedPosts.pending, (state) => {
-        state.loadingAllApprovedPosts = true;
+      .addCase(fetchAllApprovedItemForSale.pending, (state) => {
+        state.loadingAllApprovedItemForSale = true;
       })
-      .addCase(fetchAllApprovedPosts.fulfilled, (state, action) => {
-        state.loadingAllApprovedPosts = false;
-        state.allApprovedPosts = action.payload;
+      .addCase(fetchAllApprovedItemForSale.fulfilled, (state, action) => {
+        state.loadingAllApprovedItemForSale = false;
+        state.allApprovedItemForSale = action.payload;
       })
-      .addCase(fetchAllApprovedPosts.rejected, (state, action) => {
-        state.loadingAllApprovedPosts = false;
-        state.errorAllApprovedPosts = action.error.message;
+      .addCase(fetchAllApprovedItemForSale.rejected, (state, action) => {
+        state.loadingAllApprovedItemForSale = false;
+        state.errorAllApprovedItemForSale = action.error.message;
       });
   },
 });
 
-export default allApprovedPostsSlice.reducer;
+export default allApprovedItemForSaleSlice.reducer;

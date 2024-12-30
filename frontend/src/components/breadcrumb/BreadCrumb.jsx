@@ -2,7 +2,6 @@ import React from "react";
 import "./breadCrumbStyles.css"; // Import the CSS file
 
 const BreadCrumb = ({ breadcrumbs }) => {
-  console.log(breadcrumbs);
   return (
     <div aria-label="breadcrumb" className="breadcrumb">
       <ol className="breadcrumb-list">
