@@ -259,3 +259,27 @@ CREATE TABLE buy_and_sell_transactions (
   FOREIGN KEY (item_id) REFERENCES items_for_sale(id) ON DELETE CASCADE,
   FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE 
 );
+
+CREATE TABLE `reports` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `reporter_id` int NOT NULL,
+  `reported_entity_id` int NOT NULL,
+  `entity_type` enum('user', 'listing', 'post') NOT NULL,
+  `reason` text NOT NULL,
+  `status` enum('pending', 'reviewed', 'flagged', 'dismissed') DEFAULT 'pending',
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,  -- Correct camelCase
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- Correct camelCase
+  PRIMARY KEY (`id`),
+  KEY `reporter_id` (`reporter_id`),
+  CONSTRAINT `reports_ibfk_1` FOREIGN KEY (`reporter_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `unavailable_dates` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `date` (`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

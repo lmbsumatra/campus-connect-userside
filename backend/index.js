@@ -17,6 +17,7 @@ const cartRoutes = require("./routes/CartRoutes.js")
 const http = require("http");
 const { initializeSocket } = require("./socket");
 const nodemailer = require("nodemailer");
+const reportRoutes = require("./routes/ReportRoute");
 
 // cron
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -69,6 +70,7 @@ app.use("/item-for-sale", itemForSaleRoutes);
 app.use("/rental-transaction", rentalTransactionRoutes);
 app.use("/review-and-rate", reviewAndRateRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/reports", reportRoutes);
 
 // Error handling middleware for unexpected errors
 app.use((err, req, res, next) => {

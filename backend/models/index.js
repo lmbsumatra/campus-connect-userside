@@ -14,6 +14,7 @@ const Conversation = require('./ConversationModel');
 const Message = require('./MessageModel');
 const ReviewAndRate = require("./ReviewAndRateModel")(sequelize);
 const UnavailableDate = require("./UnavailableDateModel");
+const Report = require("./ReportModel");
 
 
 const models = {
@@ -29,6 +30,7 @@ const models = {
   Conversation,
   Message,
   UnavailableDate,  
+  Report,
   ReviewAndRate
 };
 

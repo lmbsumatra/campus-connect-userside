@@ -49,7 +49,14 @@ const AdminSidebar = () => {
     } else if (path.includes("/admin/sales")) {
       setActiveTab("sales");
       setActiveSubTab("salesOverview");
-    } else if (path.includes("/admin/settings")) {
+    } else if (path.includes("/admin/reports")) {
+      setActiveTab("reports");
+    
+      if (path.includes("report-overview")) {
+        setActiveSubTab("reportsOverview");
+      }
+    } 
+    else if (path.includes("/admin/settings")) {
       setActiveTab("settings");
     }
   }, [location]);
@@ -307,6 +314,47 @@ const AdminSidebar = () => {
             </div>
           </div>
         </div>
+
+        {/* Reports Management Tab */}
+        <div>
+          <div
+            className={`tab ${activeTab === "reports" ? "active" : ""} ${
+              openTabs.includes("reports") ? "expand" : ""
+            }`}
+            onClick={() => handleActiveTab(["reports", "/admin/reports"])}
+          >
+            <img
+              src={dashboardIcon}
+              alt="Reports icon"
+              className="sidebar-icon"
+            />
+            {(expandSidebar || isHovered) && "Reports Management"}
+            <img
+              src={arrowDown}
+              className="expand-tab"
+              onClick={() => handleExpandTab("reports")}
+              alt="Expand tab button"
+            />
+          </div>
+          <div className={`sub-tabs ${openTabs.includes("reports") ? "show" : ""}`}>
+            <div
+              className={`sub-tab ${
+                activeSubTab === "reportsOverview" ? "active" : ""
+              }`}
+              onClick={() =>
+                handleActiveTab(["reportsOverview", "/admin/reports/report-overview"])
+              }
+            >
+              <div
+                className={`indication ${
+                  activeSubTab === "reportsOverview" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Reports Overview</>}
+            </div>
+          </div>
+        </div>
+
 
         {/* Settings tab */}
         <div
