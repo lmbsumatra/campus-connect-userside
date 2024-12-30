@@ -48,7 +48,7 @@ export const ItemDescAndSpecs = ({ specs, desc, tags }) => {
       <div className="tags-holder">
         <i>Tags: </i>
         {tags && tags !== "undefined" ? (
-          JSON.parse(tags).map((tag, index) => (
+          tags.map((tag, index) => (
             <div key={index} className="tag">
               {tag}
             </div>

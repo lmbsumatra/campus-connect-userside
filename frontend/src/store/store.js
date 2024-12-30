@@ -13,6 +13,7 @@ import approvedPostByIdSliceReducer from "../redux/post/approvedPostByIdSlice";
 import allApprovedPostReducer from "../redux/post/allApprovedPostsSlice";
 
 // ** Listing-related Reducers **
+import listingByIdSliceReducer from "../redux/listing/listingByIdSlice";
 import allApprovedListingsReducer from "../redux/listing/allApprovedListingsSlice";
 import approvedListingByIdSliceReducer from "../redux/listing/approvedListingByIdSlice";
 import allListingsByUserSliceReducer from "../redux/listing/allListingsByUserSlice";
@@ -39,6 +40,7 @@ const store = configureStore({
     studentAuth: studentAuthReducer,
     approvedPostById: approvedPostByIdSliceReducer,
     //
+    listingById: listingByIdSliceReducer,
     allApprovedListings: allApprovedListingsReducer,
     approvedListingById: approvedListingByIdSliceReducer,
     allListingsByUser: allListingsByUserSliceReducer,

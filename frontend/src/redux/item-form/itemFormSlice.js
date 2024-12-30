@@ -23,7 +23,7 @@ const validateAvailableDates = (dates) => {
 
   // Check if each date has at least one time period
   const datesWithoutTime = dates.filter(
-    (date) => !date.timePeriods || date.timePeriods.length === 0
+    (date) => !date.durations || date.durations.length === 0
   );
   if (datesWithoutTime.length > 0) {
     errors.push("Each selected date must have at least one time period.");
@@ -31,11 +31,11 @@ const validateAvailableDates = (dates) => {
 
   // Validate time periods
   dates.forEach((dateItem) => {
-    if (dateItem.timePeriods) {
-      dateItem.timePeriods.forEach((period) => {
-        if (!period.startTime || !period.endTime) {
+    if (dateItem.durations) {
+      dateItem.durations.forEach((period) => {
+        if (!period.timeFrom || !period.timeTo) {
           errors.push("Start and end times are required for all time periods.");
-        } else if (period.startTime >= period.endTime) {
+        } else if (period.timeFrom >= period.timeTo) {
           errors.push("End time must be after start time.");
         }
       });
@@ -44,17 +44,17 @@ const validateAvailableDates = (dates) => {
 
   // Check for overlapping time periods on the same date
   dates.forEach((dateItem) => {
-    if (dateItem.timePeriods && dateItem.timePeriods.length > 1) {
-      for (let i = 0; i < dateItem.timePeriods.length; i++) {
-        for (let j = i + 1; j < dateItem.timePeriods.length; j++) {
-          const period1 = dateItem.timePeriods[i];
-          const period2 = dateItem.timePeriods[j];
+    if (dateItem.durations && dateItem.durations.length > 1) {
+      for (let i = 0; i < dateItem.durations.length; i++) {
+        for (let j = i + 1; j < dateItem.durations.length; j++) {
+          const period1 = dateItem.durations[i];
+          const period2 = dateItem.durations[j];
 
           if (
-            (period1.startTime <= period2.endTime &&
-              period1.endTime >= period2.startTime) ||
-            (period2.startTime <= period1.endTime &&
-              period2.endTime >= period1.startTime)
+            (period1.timeFrom <= period2.timeTo &&
+              period1.timeTo >= period2.timeFrom) ||
+            (period2.timeFrom <= period1.timeTo &&
+              period2.timeTo >= period1.timeFrom)
           ) {
             errors.push("Time periods cannot overlap on the same date.");
             break;
@@ -373,10 +373,10 @@ const itemFormSlice = createSlice({
       state.availableDates.value = [
         {
           date: formatDateFromSelectDate(faker.date.future()),
-          timePeriods: [
+          durations: [
             {
-              startTime: formatTimeWithAMPM(faker.date.future()), 
-              endTime: formatTimeWithAMPM(faker.date.future()), 
+              timeFrom: formatTimeWithAMPM(faker.date.future()),
+              timeTo: formatTimeWithAMPM(faker.date.future()),
             },
           ],
         },
@@ -459,6 +459,27 @@ const itemFormSlice = createSlice({
         (key) => key === "isFormValid" || !state[key].hasError
       );
     },
+    populateItemData: (state, action) => {
+      let itemData = action.payload;
+
+
+      // Now itemData is guaranteed to be an object
+      Object.keys(itemData).forEach((key) => {
+        if (state[key] !== undefined) {
+          state[key] = {
+            value: itemData[key],
+            hasError: false,
+            error: "",
+            triggered: false,
+          };
+        }
+      });
+
+      // Recalculate form validity
+      state.isFormValid = Object.keys(state).every(
+        (key) => key === "isFormValid" || !state[key].hasError
+      );
+    },
   },
 });
 
@@ -468,6 +489,7 @@ export const {
   blurField,
   updateAvailableDates,
   generateSampleData,
+  populateItemData,
 } = itemFormSlice.actions;
 
 // Export the reducer

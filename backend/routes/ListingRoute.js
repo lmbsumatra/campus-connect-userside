@@ -16,9 +16,10 @@ router.get("/users/:userId", ListingController2.getAllListingsByUser); // get by
 router.get("/info", ListingController.getAllListings);
 
 // user crud
-router.get("/:id", ListingController.getListingById);
+router.get("/users/:userId/get/:listingId", ListingController2.getListingById);
 router.post("/add", upload_item, ListingController2.addListing);
-router.put("/:id", ListingController.updateListing);
+// router.put("/:id", ListingController.updateListing);
+router.patch("/users/:userId/update/:listingId", ListingController2.updateListingById);
 router.delete("/users/:userId/delete/:listingId", ListingController2.deleteListingById);
 router.patch("/:id", ListingController.updateStatus);
 

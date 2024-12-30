@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
 import { formatDateFromSelectDate } from "../../../../utils/dateFormat.js";
-
-// Components
 import UserToolbar from "../common/UserToolbar.jsx";
 import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs.jsx";
 import AddItemBadges from "../common/AddItemBadges.jsx";
@@ -14,8 +12,6 @@ import AddImage from "../common/AddImage.jsx";
 import DateDurationPicker from "../post/DateDurationPicker.jsx";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import ShowAlert from "../../../../utils/ShowAlert.js";
-
-// Constants and Utils
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import {
   FOR_RENT,
@@ -25,26 +21,21 @@ import {
   MEET_UP,
   FOR_SALE,
 } from "../../../../utils/consonants.js";
-
-// Redux
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
 import { fetchUser } from "../../../../redux/user/userSlice.js";
 import {
   blurField,
   generateSampleData,
+  populateItemData,
   updateAvailableDates,
   updateField,
   validateInput,
 } from "../../../../redux/item-form/itemFormSlice.js";
-
-// Assets
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../assets/images/card/buy.svg";
 import warningIcon from "../../../../assets/images/input-icons/warning.svg";
-
-// Styles
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "./addNewItemStyles.css";
@@ -53,10 +44,11 @@ import axios from "axios";
 import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
+import { fetchListingById } from "../../../../redux/listing/listingByIdSlice.js";
 
 const UNAVAILABLE_DATES = [
-  new Date(2024, 11, 25), // Christmas
-  new Date(2025, 0, 1), // New Year's
+  new Date(2024, 11, 25),
+  new Date(2025, 0, 1),
 ];
 
 const ValidationError = ({ message }) => (
@@ -99,11 +91,16 @@ const EditItem = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const itemDataState = useSelector((state) => state.itemForm);
-  const { user, loadingFetchUser, errorFetchUser } = useSelector(
-    (state) => state.user
-  );
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const { userId, role } = useSelector(selectStudentUser);
+  const location = useLocation();
+  const itemData = location.state.item || {};
 
-  const { userId } = useSelector(selectStudentUser);
+  const {
+    listingById: itemById,
+    loadingListingById: loading,
+  } = useSelector((state) => state.listingById);
+
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
   });
@@ -115,15 +112,64 @@ const EditItem = () => {
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
   const [localImages, setLocalImages] = useState([]);
 
-  const handleGenerateData = () => {
-    dispatch(generateSampleData());
-  };
+  useEffect(() => {
+    if (itemData) {
+      if (userId === itemData.owner.id && role === "student") {
+        if (itemData.itemType === FOR_RENT) {
+          dispatch(fetchListingById({ userId, listingId: itemData.id }));
+        }
+      } else {
+        navigate("/unauthorized", { replace: true });
+      }
+    }
+  }, [itemData, userId, role, navigate, dispatch]);
+
+  useEffect(() => {
+    if (!loading && itemById) {
+      dispatch(populateItemData(itemById));
+      const newSelectedDatesDurations = [];
+      itemDataState.availableDates.value.forEach((dateItem) => {
+        if (dateItem.date) {
+          newSelectedDatesDurations.push({
+            date: new Date(dateItem.date),
+            durations: dateItem.durations.map((duration) => ({
+              timeFrom: duration.timeFrom,
+              timeTo: duration.timeTo,
+            })),
+          });
+        }
+      });
+      setSelectedDatesDurations(newSelectedDatesDurations);
+    }
+  }, [loading, itemById, dispatch]);
+
+  useEffect(() => {
+    if (itemDataState.category && itemDataState.category.value !== category) {
+      setCategory(itemDataState.category.value);
+    }
+  }, [itemDataState.category.value, category]);
+
+  useEffect(() => {
+    if (itemDataState.itemType && itemDataState.itemType.value !== itemType) {
+      setItemType(itemDataState.itemType.value);
+    }
+  }, [itemDataState.itemType.value, itemType]);
+
+  useEffect(() => {
+    if (itemDataState.images && itemDataState.images.value !== localImages) {
+      setLocalImages(itemDataState.images.value);
+    }
+  }, [itemDataState.images.value, localImages]);
 
   useEffect(() => {
     if (userId) {
       dispatch(fetchUser(userId));
     }
   }, [userId, dispatch]);
+
+  const handleGenerateData = () => {
+    dispatch(generateSampleData());
+  };
 
   if (loadingFetchUser) {
     return <LoadingItemDetailSkeleton />;
@@ -133,6 +179,7 @@ const EditItem = () => {
     setItemType(newType);
     dispatch(updateField({ name: "itemType", value: newType }));
   };
+
   const handleFieldChange = (name, value) => {
     dispatch(updateField({ name, value }));
     dispatch(blurField({ name, value }));
@@ -148,7 +195,7 @@ const EditItem = () => {
       (item) =>
         formatDateFromSelectDate(item.date) === formatDateFromSelectDate(date)
     );
-    return dateItem ? dateItem.timePeriods : [];
+    return dateItem ? dateItem.durations : [];
   };
 
   const renderDurations = () => {
@@ -160,9 +207,7 @@ const EditItem = () => {
 
     if (durations.length === 0) {
       return (
-        <p className="no-duration-message">
-          No available duration for this date.
-        </p>
+        <p className="no-duration-message">No available duration for this date.</p>
       );
     }
 
@@ -171,8 +216,8 @@ const EditItem = () => {
         {durations.map((duration, index) => (
           <div key={index} className="duration-item">
             <input type="checkbox" id={`duration-${index}`} checked readOnly />
-            {formatTimeTo12Hour(duration.startTime)} -{" "}
-            {formatTimeTo12Hour(duration.endTime)}
+            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+            {formatTimeTo12Hour(duration.timeTo)}
           </div>
         ))}
       </div>
@@ -180,13 +225,11 @@ const EditItem = () => {
   };
 
   const handleSaveDatesDurations = (datesDurations) => {
-    // Assuming datesDurations is an array
-    const serializedDates = datesDurations.map((dateObj) => ({
-      ...dateObj,
-      date: formatDateFromSelectDate(dateObj.date),
+    const serializedDates = datesDurations.map(dateObj => ({
+      date: dateObj.date.toISOString(),
+      durations: dateObj.durations
     }));
-
-    setSelectedDatesDurations(serializedDates);
+    setSelectedDatesDurations(datesDurations);
     dispatch(updateAvailableDates(serializedDates));
   };
 
@@ -197,11 +240,11 @@ const EditItem = () => {
   };
 
   const handleImagesChange = (newImages) => {
-    setLocalImages(newImages); // Update local state with new images
+    setLocalImages(newImages);
     dispatch(
       updateField({
         name: "images",
-        value: newImages.map((image) => image.name || image), // Use name or URL depending on type
+        value: newImages.map((image) => image.name || image),
       })
     );
     dispatch(
@@ -213,19 +256,15 @@ const EditItem = () => {
   };
 
   const handleSubmit = async () => {
-    console.log(itemDataState);
     try {
       let hasErrors = false;
       const errors = {};
 
-      // Validate fields
       Object.keys(itemDataState).forEach((key) => {
         if (key !== "isFormValid") {
           if (
             itemType === FOR_SALE &&
-            ["lateCharges", "repairReplacement", "securityDeposit"].includes(
-              key
-            )
+            ["lateCharges", "repairReplacement", "securityDeposit"].includes(key)
           ) {
             return;
           }
@@ -235,10 +274,7 @@ const EditItem = () => {
           if (hasError) {
             hasErrors = true;
             errors[key] = error;
-            console.log(error);
-            dispatch(
-              blurField({ name: key, value: field.value, itemType: FOR_SALE })
-            );
+            dispatch(blurField({ name: key, value: field.value, itemType: FOR_SALE }));
 
             if (key === "availableDates") {
               dispatch(updateAvailableDates(field.value));
@@ -291,23 +327,21 @@ const EditItem = () => {
         }),
       };
 
-      console.log("Submitting item data:", itemData);
-
       formData.append(
         itemType === FOR_RENT ? "listing" : "item",
         JSON.stringify(itemData)
       );
 
-      const endpoint =
-        itemType === FOR_RENT ? "/listings/add" : "/item-for-sale/add";
+      const endpoint = itemType === FOR_RENT 
+        ? `/listings/users/${userId}/update/${itemById.id}` 
+        : "/item-for-sale/update";
 
-      // Trigger loading alert
       ShowAlert(dispatch, "loading", "Creating listing", "Please wait...");
 
-      // Make Axios request with timeout
-      const response = await axios.post(`${baseApi}${endpoint}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        timeout: 5000, // 5 seconds timeout
+      const response = await axios.patch(`${baseApi}${endpoint}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       if (socket) {
@@ -316,14 +350,12 @@ const EditItem = () => {
           owner: {
             name: user.user.fname + " " + user.user.lname,
           },
-          message:
-            itemType === FOR_RENT
-              ? "has added a new rental listing."
-              : "has listed an item for sale.",
-          type:
-            itemType === FOR_RENT
-              ? "new-listing-notification"
-              : "new-item-for-sale-notification",
+          message: itemType === FOR_RENT
+            ? "has added a new rental listing."
+            : "has listed an item for sale.",
+          type: itemType === FOR_RENT
+            ? "new-listing-notification"
+            : "new-item-for-sale-notification",
         };
         socket.emit(notification.type, notification);
       }
@@ -334,16 +366,11 @@ const EditItem = () => {
         "Success",
         `Item for ${itemType === FOR_RENT ? "listing" : "sale"} added!`
       );
-      // navigate(`/items/${response.data.listing.id}`);
     } catch (error) {
       ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
-
       console.error("Submission error:", error);
-
-      const errorMessage =
-        error.response?.data?.message ||
+      const errorMessage = error.response?.data?.message ||
         "Failed to create listing. Please try again.";
-
       ShowAlert(dispatch, "error", "Error", errorMessage);
     }
   };
@@ -352,32 +379,12 @@ const EditItem = () => {
     { label: "Home", href: "/" },
     { label: "Profile", href: "/profile" },
     {
-      label:
-        itemType === FOR_RENT
-          ? "My Listings"
-          : itemType === FOR_SALE
-          ? "My For Sale"
-          : "Unknown",
-      href:
-        itemType === FOR_RENT
-          ? "/my-listings"
-          : itemType === FOR_SALE
-          ? "/my-for-sale"
-          : "/unknown",
+      label: itemType === FOR_RENT ? "My Listings" : itemType === FOR_SALE ? "My For Sale" : "Unknown",
+      href: itemType === FOR_RENT ? "/my-listings" : itemType === FOR_SALE ? "/my-for-sale" : "/unknown",
     },
     {
-      label:
-        itemType === FOR_RENT
-          ? "Edit Listing"
-          : itemType === FOR_SALE
-          ? "Edit Item for Sale"
-          : "Unknown Item Type",
-      href:
-        itemType === FOR_RENT
-          ? "/listings/add"
-          : itemType === FOR_SALE
-          ? "/item-for-sale/add"
-          : "/unknown",
+      label: itemType === FOR_RENT ? "Edit Listing" : itemType === FOR_SALE ? "Edit Item for Sale" : "Unknown Item Type",
+      href: itemType === FOR_RENT ? "/listings/add" : itemType === FOR_SALE ? "/item-for-sale/add" : "/unknown",
     },
   ];
 
@@ -395,10 +402,7 @@ const EditItem = () => {
             />
           </Tooltip>
           {itemDataState.images.triggered && itemDataState.images.hasError && (
-            <div className="validation error d-block">
-              <img src={warningIcon} className="icon" alt="Error indicator" />
-              <span className="text">{itemDataState.images.error}</span>
-            </div>
+            <ValidationError message={itemDataState.images.error} />
           )}
           <AddImage images={localImages} onChange={handleImagesChange} />
         </div>
@@ -494,6 +498,7 @@ const EditItem = () => {
               onClose={() => setShowDateDurationPicker(false)}
               onSaveDatesDurations={handleSaveDatesDurations}
               unavailableDates={UNAVAILABLE_DATES}
+              selectedDatesDurations={selectedDatesDurations}
             />
 
             <div className="date-picker">

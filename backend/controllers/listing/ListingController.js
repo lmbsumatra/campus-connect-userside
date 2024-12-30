@@ -3,13 +3,17 @@ const getAvailableListingById = require("./getAvailableListingById");
 const addListing = require("./addListing.js");
 const getAllListingsByUser = require("./getAllListingsByUser");
 const deleteListingById = require("./deleteListingById");
+const getListingById = require("./getListingById");
+const updateListingById = require("./updateListingById");
 
 const ListingController = {
   getAllAvailable,
   getAvailableListingById,
   addListing,
   getAllListingsByUser,
-  deleteListingById
+  deleteListingById,
+  getListingById,
+  updateListingById,
 };
 
 module.exports = ListingController;

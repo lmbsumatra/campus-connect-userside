@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import ItemList from "../../../../components/item-card/ItemCard";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
-import { fetchAllListingsByUser, deleteListingById } from "../../../../redux/listing/allListingsByUserSlice";
+import {
+  fetchAllListingsByUser,
+  deleteListingById,
+} from "../../../../redux/listing/allListingsByUserSlice";
 import ShowAlert from "../../../../utils/ShowAlert";
 
 function MyListings() {
@@ -13,8 +16,11 @@ function MyListings() {
   const navigate = useNavigate(); // Navigation hook
 
   // Get the state from Redux (listings, loading, error)
-  const { allListingsByUser, loadingAllListingsByUser, errorAllListingsByUser } =
-    useSelector((state) => state.allListingsByUser);
+  const {
+    allListingsByUser,
+    loadingAllListingsByUser,
+    errorAllListingsByUser,
+  } = useSelector((state) => state.allListingsByUser);
 
   useEffect(() => {
     if (userId) {
@@ -36,11 +42,18 @@ function MyListings() {
       ShowAlert(dispatch, "loading", "Deleting...");
 
       try {
-        await dispatch(deleteListingById({ userId, listingId: item.id })).unwrap();
+        await dispatch(
+          deleteListingById({ userId, listingId: item.id })
+        ).unwrap();
         ShowAlert(dispatch, "success", "Item deleted successfully!");
       } catch (error) {
         console.error("Error deleting listing:", error);
-        ShowAlert(dispatch, "error", "Error", error || "Failed to delete listing!");
+        ShowAlert(
+          dispatch,
+          "error",
+          "Error",
+          error || "Failed to delete listing!"
+        );
       }
     } else {
       switch (option) {
@@ -48,7 +61,8 @@ function MyListings() {
           navigate(`/view/${item.id}`);
           break;
         case "edit":
-          navigate(`/profile/my-listings/edit/${item.id}`);
+          console.log(item)
+          navigate(`/profile/my-listings/edit/${item.id}`, { state: {item} });
           break;
         default:
           break;

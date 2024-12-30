@@ -398,19 +398,19 @@ exports.getListingById = async (req, res) => {
 };
 
 
-// Update a post
-exports.updateListing = async (req, res) => {
-  try {
-    const post = await Listing.findByPk(req.params.id);
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-    await post.update(req.body);
-    res.status(200).json(post);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+// // Update a post
+// exports.updateListing = async (req, res) => {
+//   try {
+//     const post = await Listing.findByPk(req.params.id);
+//     if (!post) {
+//       return res.status(404).json({ error: "Post not found" });
+//     }
+//     await post.update(req.body);
+//     res.status(200).json(post);
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// };
 
 // // Delete a post
 // exports.deleteListingById = async (req, res) => {

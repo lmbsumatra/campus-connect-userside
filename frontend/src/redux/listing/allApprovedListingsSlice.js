@@ -14,8 +14,6 @@ export const fetchAllApprovedListings = createAsyncThunk(
   "listing/allApprovedListings",
   async () => {
     const response = await fetch(BASE_URL);
-
-    console.log(response);
     return response.json();
   }
 );

@@ -1,27 +1,16 @@
 const { models } = require("../../models/index");
 
-// Get a single approved listing by ID with associated rental dates, durations, and renter info
-const getAvailableListingById = async (req, res) => {
+const getListingById = async (req, res) => {
   try {
-    const listing = await models.Listing.findOne({
-      where: {
-        id: req.params.id,
-        status: "approved", // Ensures only "approved" items are fetched
-      },
+    const listing = await models.Listing.findByPk(req.params.listingId, {
       include: [
         {
           model: models.Date,
           as: "rental_dates",
-          where: {
-            status: "available", // Ensures only "available" rental dates are included
-          },
           include: [
             {
               model: models.Duration,
               as: "durations",
-              where: {
-                status: "available", // Ensures only "available" rental durations are included
-              },
             },
           ],
         },
@@ -36,18 +25,23 @@ const getAvailableListingById = async (req, res) => {
           ],
         },
       ],
+      where: {
+        // Assuming you have a column 'item_type' in your Listing model
+        item_type: "listing", // Filter for listings only
+      },
     });
 
     if (!listing) {
-      return res.status(404).json({ error: "Listing not found why" });
+      return res.status(404).json({ error: "Listing not found" });
     }
 
     // Format the response to flatten fields like item_name, price, etc.
     const formattedListing = {
       id: listing.id,
-      name: listing.listing_name,
+      itemName: listing.listing_name,
+      images: JSON.parse(listing.images),
       tags: JSON.parse(listing.tags),
-      rate: listing.rate,
+      price: listing.rate,
       createdAt: listing.created_at,
       deliveryMethod: listing.delivery_mode,
       lateCharges: listing.late_charges,
@@ -59,7 +53,7 @@ const getAvailableListingById = async (req, res) => {
       category: listing.category,
       itemType: "For Rent",
       desc: listing.description,
-      specs: listing.specifications,
+      specs: JSON.parse(listing.specifications),
       availableDates: listing.rental_dates.map((date) => ({
         id: date.id,
         listingId: date.listing_id,
@@ -83,9 +77,9 @@ const getAvailableListingById = async (req, res) => {
 
     res.status(200).json(formattedListing);
   } catch (error) {
-    console.error("Error fetching listing:", error);
+    console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = getAvailableListingById;
+module.exports = getListingById;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -51,8 +51,8 @@ const WeekdaySelector = ({ weekdays, toggleWeekday }) => (
 
 const TimeDurationModal = ({
   selectedDate,
-  startTime,
-  endTime,
+  timeFrom,
+  timeTo,
   applyToAll,
   onClose,
   onSave,
@@ -69,16 +69,16 @@ const TimeDurationModal = ({
           <Form.Label>Start Time</Form.Label>
           <Form.Control
             type="time"
-            value={startTime}
-            onChange={(e) => onTimeChange("startTime", e.target.value)}
+            value={timeFrom}
+            onChange={(e) => onTimeChange("timeFrom", e.target.value)}
           />
         </Form.Group>
         <Form.Group controlId="end-time">
           <Form.Label>End Time</Form.Label>
           <Form.Control
             type="time"
-            value={endTime}
-            onChange={(e) => onTimeChange("endTime", e.target.value)}
+            value={timeTo}
+            onChange={(e) => onTimeChange("timeTo", e.target.value)}
           />
         </Form.Group>
         <Form.Group>
@@ -107,25 +107,27 @@ const DateDurationPicker = ({
   onClose,
   onSaveDatesDurations,
   unavailableDates,
+  selectedDatesDurations = [],  // Default to an empty array if not provided
 }) => {
   // State management
-  const [dates, setDates] = useState([]);
+  const [dates, setDates] = useState(selectedDatesDurations);
   const [mode, setMode] = useState("custom");
   const [selectedDate, setSelectedDate] = useState(null);
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [timeFrom, settimeFrom] = useState("");
+  const [timeTo, settimeTo] = useState("");
   const [applyToAll, setApplyToAll] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [weekdays, setWeekdays] = useState([]);
   const dispatch = useDispatch();
+  
   // Helper functions
   const isSelected = (date) =>
     dates.some((d) => d.date.getTime() === date.getTime());
 
   const handleTimeChange = (field, value) => {
-    if (field === "startTime") setStartTime(value);
-    if (field === "endTime") setEndTime(value);
+    if (field === "timeFrom") settimeFrom(value);
+    if (field === "timeTo") settimeTo(value);
   };
 
   // Date handling functions
@@ -134,7 +136,7 @@ const DateDurationPicker = ({
       alert("This date is already added.");
       return;
     }
-    setDates([...dates, { date, timePeriods: [] }]);
+    setDates([...dates, { date, durations: [] }]);
   };
 
   const handleAddRange = () => {
@@ -151,7 +153,7 @@ const DateDurationPicker = ({
         !unavailableDates.some((d) => d.getTime() === currentDate.getTime()) &&
         !isSelected(currentDate)
       ) {
-        newDates.push({ date: new Date(currentDate), timePeriods: [] });
+        newDates.push({ date: new Date(currentDate), durations: [] });
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -179,7 +181,7 @@ const DateDurationPicker = ({
         !unavailableDates.some((d) => d.getTime() === currentDate.getTime()) &&
         !isSelected(currentDate)
       ) {
-        newDates.push({ date: new Date(currentDate), timePeriods: [] });
+        newDates.push({ date: new Date(currentDate), durations: [] });
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -194,26 +196,26 @@ const DateDurationPicker = ({
 
   // Time period handling
   const handleAddTimePeriod = () => {
-    if (!startTime || !endTime) {
+    if (!timeFrom || !timeTo) {
       alert("Please select both start and end times");
       return;
     }
 
     const newTimePeriod = {
-      startTime,
-      endTime,
+      timeFrom,
+      timeTo,
     };
 
     const updatedDates = dates.map((d) => {
       if (applyToAll || d.date.getTime() === selectedDate.getTime()) {
-        return { ...d, timePeriods: [...d.timePeriods, newTimePeriod] };
+        return { ...d, durations: [...d.durations, newTimePeriod] };
       }
       return d;
     });
 
     setDates(updatedDates);
-    setStartTime("");
-    setEndTime("");
+    settimeFrom("");
+    settimeTo("");
     setApplyToAll(false);
     setSelectedDate(null);
   };
@@ -229,15 +231,30 @@ const DateDurationPicker = ({
   const resetTime = (date) => {
     setDates(
       dates.map((d) =>
-        d.date.getTime() === date.getTime() ? { ...d, timePeriods: [] } : d
+        d.date.getTime() === date.getTime() ? { ...d, durations: [] } : d
       )
     );
   };
 
   const handleSaveAndClose = () => {
-    onSaveDatesDurations(dates);
+    const serializedDates = dates.map(dateObj => ({
+      date: dateObj.date.toISOString(), // Convert Date object to string
+      durations: dateObj.durations
+    }));
+    
+    onSaveDatesDurations(dates); // Pass the original dates with Date objects for local state
+    dispatch(updateAvailableDates(serializedDates)); // Update Redux with serialized dates
     onClose();
   };
+
+  useEffect(() => {
+    if (show && selectedDatesDurations.length > 0) {
+      setDates(selectedDatesDurations.map(dateItem => ({
+        date: new Date(dateItem.date),
+        durations: dateItem.durations
+      })));
+    }
+  }, [show, selectedDatesDurations]);
 
   return (
     <Modal show={show} onHide={handleSaveAndClose} size="lg">
@@ -350,12 +367,12 @@ const DateDurationPicker = ({
               dates.map((dateItem) => (
                 <div key={dateItem.date.getTime()} className="date-item">
                   <h5>{dateItem.date.toDateString()}</h5>
-                  {dateItem.timePeriods.length === 0 ? (
+                  {dateItem.durations.length === 0 ? (
                     <p>No durations added for this date.</p>
                   ) : (
-                    dateItem.timePeriods.map((period, index) => (
+                    dateItem.durations.map((period, index) => (
                       <p key={index}>
-                        Start: {period.startTime} | End: {period.endTime}
+                        Start: {period.timeFrom} | End: {period.timeTo}
                       </p>
                     ))
                   )}
@@ -390,8 +407,8 @@ const DateDurationPicker = ({
         {selectedDate && (
           <TimeDurationModal
             selectedDate={selectedDate}
-            startTime={startTime}
-            endTime={endTime}
+            timeFrom={timeFrom}
+            timeTo={timeTo}
             applyToAll={applyToAll}
             onClose={() => setSelectedDate(null)}
             onSave={handleAddTimePeriod}

@@ -43,6 +43,8 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
     }
   };
 
+  
+
   return (
     <div className="badge-container">
       {/* College Badge Section */}

@@ -103,6 +103,8 @@ const AddNewItem = () => {
     (state) => state.user
   );
 
+  console.log(itemDataState);
+
   const { userId } = useSelector(selectStudentUser);
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
@@ -148,7 +150,7 @@ const AddNewItem = () => {
       (item) =>
         formatDateFromSelectDate(item.date) === formatDateFromSelectDate(date)
     );
-    return dateItem ? dateItem.timePeriods : [];
+    return dateItem ? dateItem.durations : [];
   };
 
   const renderDurations = () => {
@@ -172,7 +174,7 @@ const AddNewItem = () => {
           <div key={index} className="duration-item">
             <input type="checkbox" id={`duration-${index}`} checked readOnly />
             {formatTimeTo12Hour(duration.startTime)} -{" "}
-            {formatTimeTo12Hour(duration.endTime)}
+            {formatTimeTo12Hour(duration.timeTo)}
           </div>
         ))}
       </div>
