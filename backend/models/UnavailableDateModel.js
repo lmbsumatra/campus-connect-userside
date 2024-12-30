@@ -18,7 +18,7 @@ UnavailableDate.init(
   {
     sequelize,
     modelName: 'UnavailableDate',
-    tableName: 'unavailable_dates',  // Ensure it matches your table name
+    tableName: 'unavailable_dates',  
     timestamps: true
   }
 );

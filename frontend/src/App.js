@@ -48,6 +48,8 @@ import ListingApproval from "./pages/private/admin/listing-management/ListingApp
 import UserDashboard from "./pages/private/admin/user-management/UserDashboard.js";
 import UserOverview from "./pages/private/admin/user-management/UserOverview.js";
 import UserVerification from "./pages/private/admin/user-management/student-profile/UserVerification.js";
+import ReportDashboard from "./pages/private/admin/ReportManagement/ReportDashboard.js";
+import ReportOverview from "./pages/private/admin/ReportManagement/ReportOverview.js";
 
 import ProtectedRoute from "./components/Protected Route/ProtectedRoute.js";
 import { AuthProvider } from "./context/AuthContext.js";
@@ -330,6 +332,11 @@ function Content() {
             path="sales/item-approval/:id"
             element={<ItemForSaleApproval />}
           />
+
+          {/* REPORT MANAGEMENT */}
+          <Route path="reports" element={<ReportDashboard />}/>
+          <Route path="reports/report-overview" element={<ReportOverview />} />
+         
 
           {/* ADMIN MANAGEMENT */}
           <Route path="settings" element={<AdminSettings />} />
