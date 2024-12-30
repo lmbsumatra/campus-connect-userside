@@ -120,7 +120,7 @@ const addListing = async (req, res) => {
     // Handle rental dates and times
     if (Array.isArray(listingData.dates)) {
       await Promise.all(
-        listingData.dates.map(async ({ date, timePeriods }) => {
+        listingData.dates.map(async ({ date, durations }) => {
           if (!date) {
             throw new Error("Date is required in each date entry");
           }
@@ -134,21 +134,21 @@ const addListing = async (req, res) => {
             { transaction }
           );
 
-          if (!Array.isArray(timePeriods)) {
+          if (!Array.isArray(durations)) {
             throw new Error("Time periods must be provided as an array");
           }
 
           await Promise.all(
-            timePeriods.map((period) => {
-              if (!period.startTime || !period.endTime) {
+            durations.map((period) => {
+              if (!period.timeFrom || !period.timeTo) {
                 throw new Error("Both start and end times are required");
               }
 
               return models.Duration.create(
                 {
                   date_id: rentalDate.id,
-                  rental_time_from: period.startTime,
-                  rental_time_to: period.endTime,
+                  rental_time_from: period.timeFrom,
+                  rental_time_to: period.timeTo,
                 },
                 { transaction }
               );
