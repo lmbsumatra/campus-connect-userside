@@ -1,61 +1,62 @@
 import React, { useState, useEffect } from "react";
 import TableComponent from "../../../../components/Table/TableComponent";
-import "./ReportDashboard.css";
-import useFetchAllReportsData from "../../../../utils/FetchAllReportsData";
+import "./AdminTransactionDashboard.css";
+import useFetchAllTransactionsData from "../../../../utils/FetchAllTransactionsData";
 import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import CardComponent from "../../../../components/Table/CardComponent"; 
 
-const ReportOverview = () => {
+const AdminTransactionOverview = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOptions, setSortOptions] = useState({});
   const [filterOptions, setFilterOptions] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [reportsPerPage] = useState(10);
+  const [transactionsPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
   const navigate = useNavigate();
-   const [viewMode, setViewMode] = useState("table");
+  const [viewMode, setViewMode] = useState("table");
 
   const headers = [
-    "Report ID",
-    "Reason",
-    "Reporter",
-    "Reported Item",
-    "Date Added",
+    "Transaction ID",
+    "Type",
+    "Buyer/Renter",
+    "Seller/Owner",
+    "Amount",
+    "Date",
     "Status",
     "Action",
   ];
 
-  const { reports, error, loading } = useFetchAllReportsData();
+  const { transactions, error, loading } = useFetchAllTransactionsData();
 
   useEffect(() => {
-    if (reports.length) {
-      setOriginalData(reports);
+    if (transactions.length) {
+      setOriginalData(transactions);
     }
-  }, [reports]);
+  }, [transactions]);
 
-  const handleView = (reportId) => {
-    navigate(`/admin/reports/view/${reportId}`);
+  const handleView = (transactionId) => {
+    navigate(`/admin/transactions/view/${transactionId}`);
   };
 
-  const handleResolve = (reportId) => {
-    console.log(`Resolving report with ID: ${reportId}`);
+  const handleEdit = (transactionId) => {
+    console.log(`Resolving transactionId with ID: ${transactionId}`);
   };
 
-  const handleDelete = (reportId) => {
-    console.log(`Deleting report with ID: ${reportId}`);
+  const handleDelete = (transactionId) => {
+    console.log(`Deleting transactionId with ID: ${transactionId}`);
   };
 
   const getStatusInfo = (status) => {
     switch (status) {
       case "pending":
         return { label: "Pending", className: "bg-warning text-dark" };
-      case "resolved":
-        return { label: "Resolved", className: "bg-success text-white" };
-      case "ignored":
-        return { label: "Ignored", className: "bg-secondary text-white" };
+      case "completed":
+        return { label: "Completed", className: "bg-success text-white" };
+      case "failed":
+        return { label: "Failed", className: "bg-danger text-white" };
       default:
         return { label: "Unknown", className: "bg-light text-dark" };
     }
@@ -68,9 +69,10 @@ const ReportOverview = () => {
       setSortOptions({ [column]: order });
     }
   };
-
   const handleFilterChange = (column, value) => {
-    setFilterOptions({ ...filterOptions, [column]: value });
+    setFilterOptions((prevFilters) => {
+      return { ...prevFilters, [column]: value };
+    });
   };
 
   const handlePageChange = (pageNumber) => {
@@ -86,24 +88,26 @@ const ReportOverview = () => {
       .toLowerCase();
 
     if (normalizedSearchQuery) {
-      filteredData = filteredData.filter((report) => {
-        const reporterName = `${report.reporter.first_name} ${report.reporter.last_name}`.toLowerCase();
-        const reportedItem = report.item_name.toLowerCase();
-        const normalizedReason = report.reason.toLowerCase();
-        const normalizedDateAdded = formatDate(report.createdAt).toLowerCase();
-
+      filteredData = filteredData.filter((transaction) => {
+        const participantNames = `${transaction.buyer?.first_name || transaction.renter?.first_name} ${
+          transaction.buyer?.last_name || transaction.renter?.last_name
+        } ${transaction.seller?.first_name || transaction.owner?.first_name} ${
+          transaction.seller?.last_name || transaction.owner?.last_name
+        }`.toLowerCase();
+        const normalizedDate = formatDate(transaction.createdAt).toLowerCase();
         return (
-          reporterName.includes(normalizedSearchQuery) ||
-          reportedItem.includes(normalizedSearchQuery) ||
-          normalizedReason.includes(normalizedSearchQuery) ||
-          normalizedDateAdded.includes(normalizedSearchQuery)
+          participantNames.includes(normalizedSearchQuery) ||
+          normalizedDate.includes(normalizedSearchQuery)
         );
       });
     }
+    const handleFilterChange = (column, value) => {
+        setFilterOptions({ ...filterOptions, [column]: value });
+      };
 
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(
-        (report) => report.status === filterOptions["Status"]
+        (transaction) => transaction.status === filterOptions["Status"]
       );
     }
 
@@ -114,9 +118,9 @@ const ReportOverview = () => {
     let sorted = [...getFilteredData()];
 
     if (Object.keys(sortOptions).length > 0) {
-      if (sortOptions["Date Added"]) {
+      if (sortOptions["Date"]) {
         sorted = sorted.sort((a, b) =>
-          sortOptions["Date Added"] === "newest"
+          sortOptions["Date"] === "newest"
             ? new Date(b.createdAt) - new Date(a.createdAt)
             : new Date(a.createdAt) - new Date(b.createdAt)
         );
@@ -129,38 +133,39 @@ const ReportOverview = () => {
   const sortedFilteredData = sortedData();
 
   const totalItems = sortedFilteredData.length;
-  const totalPages = Math.ceil(totalItems / reportsPerPage);
+  const totalPages = Math.ceil(totalItems / transactionsPerPage);
 
   const displayedData = sortedFilteredData.slice(
-    (currentPage - 1) * reportsPerPage,
-    currentPage * reportsPerPage
+    (currentPage - 1) * transactionsPerPage,
+    currentPage * transactionsPerPage
   );
 
-  const data = displayedData.map((report) => {
-    const { label, className } = getStatusInfo(report.status);
+  const data = displayedData.map((transaction) => {
+    const { label, className } = getStatusInfo(transaction.status);
     return [
-      report.id,
-      report.reason,
-      <>{report.reporter.first_name} {report.reporter.last_name}</>,
-      report.item_name,
-      formatDate(report.createdAt),
+      transaction.id,
+      transaction.type,
+      <>{transaction.buyer?.first_name || transaction.renter?.first_name} {transaction.buyer?.last_name || transaction.renter?.last_name}</>,
+      <>{transaction.seller?.first_name || transaction.owner?.first_name} {transaction.seller?.last_name || transaction.owner?.last_name}</>,
+      transaction.amount || "N/A",
+      formatDate(transaction.createdAt),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
         <button
           className="btn btn-action view"
-          onClick={() => handleView(report.id)}
+          onClick={() => handleView(transaction.id)}
         >
           View
         </button>
         <button
           className="btn btn-action edit"
-          onClick={() => handleResolve(report.id)}
+          onClick={() => handleEdit(transaction.id)}
         >
           Edit
         </button>
         <button
           className="btn btn-action delete"
-          onClick={() => handleDelete(report.id)}
+          onClick={() => handleDelete(transaction.id)}
         >
           Delete
         </button>
@@ -180,7 +185,9 @@ const ReportOverview = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
-          {/* View switcher */}
+          {loading && <p>Loading ...</p>}
+          {error && <p>Error: {error}</p>}
+           {/* View switcher */}
        <div className="admin-view-toggle">
             <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
             <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
@@ -198,8 +205,6 @@ const ReportOverview = () => {
             <CardComponent data={data} headers={headers}/>
 
           )}
-            {loading && <p>Loading ...</p>}
-            {error && <p>Error: {error}</p>}
           <PaginationComponent
             currentPage={currentPage}
             totalPages={totalPages}
@@ -211,4 +216,4 @@ const ReportOverview = () => {
   );
 };
 
-export default ReportOverview;
+export default AdminTransactionOverview;

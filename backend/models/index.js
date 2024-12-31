@@ -15,6 +15,7 @@ const Message = require('./MessageModel');
 const ReviewAndRate = require("./ReviewAndRateModel")(sequelize);
 const UnavailableDate = require("./UnavailableDateModel");
 const Report = require("./ReportModel");
+const BuyAndSellTransaction = require("./BuyAndSellTransactionModel")(sequelize);
 
 
 const models = {
@@ -31,6 +32,7 @@ const models = {
   Message,
   UnavailableDate,  
   Report,
+  BuyAndSellTransaction,
   ReviewAndRate
 };
 
@@ -39,5 +41,6 @@ Object.values(models).forEach((model) => {
     model.associate(models);
   }
 });
+
 
 module.exports = { sequelize, models };

@@ -55,8 +55,12 @@ const AdminSidebar = () => {
       if (path.includes("report-overview")) {
         setActiveSubTab("reportsOverview");
       }
-    } 
-    else if (path.includes("/admin/settings")) {
+    } else if (path.includes("/admin/transactions")) {
+      setActiveTab("transactions");
+      if (path.includes("overview")) {
+        setActiveSubTab("transactionsOverview");
+      }
+    } else if (path.includes("/admin/settings")) {
       setActiveTab("settings");
     }
   }, [location]);
@@ -351,6 +355,48 @@ const AdminSidebar = () => {
                 }`}
               ></div>
               {(expandSidebar || isHovered) && <>Reports Overview</>}
+            </div>
+          </div>
+        </div>
+        
+        {/* Transaction Management Tab */}
+        <div>
+          <div
+            className={`tab ${activeTab === "transactions" ? "active" : ""} ${
+              openTabs.includes("transactions") ? "expand" : ""
+            }`}
+            onClick={() => handleActiveTab(["transactions", "/admin/transactions"])}
+          >
+            <img
+              src={dashboardIcon}
+              alt="Transactions icon"
+              className="sidebar-icon"
+            />
+            {(expandSidebar || isHovered) && "Transaction Management"}
+            <img
+              src={arrowDown}
+              className="expand-tab"
+              onClick={() => handleExpandTab("transactions")}
+              alt="Expand tab button"
+            />
+          </div>
+          <div
+            className={`sub-tabs ${openTabs.includes("transactions") ? "show" : ""}`}
+          >
+            <div
+              className={`sub-tab ${
+                activeSubTab === "transactionsOverview" ? "active" : ""
+              }`}
+              onClick={() =>
+                handleActiveTab(["transactionsOverview", "/admin/transactions/overview"])
+              }
+            >
+              <div
+                className={`indication ${
+                  activeSubTab === "transactionsOverview" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Transactions Overview</>}
             </div>
           </div>
         </div>

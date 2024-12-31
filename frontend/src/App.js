@@ -50,6 +50,8 @@ import UserOverview from "./pages/private/admin/user-management/UserOverview.js"
 import UserVerification from "./pages/private/admin/user-management/student-profile/UserVerification.js";
 import ReportDashboard from "./pages/private/admin/ReportManagement/ReportDashboard.js";
 import ReportOverview from "./pages/private/admin/ReportManagement/ReportOverview.js";
+import AdminTransactionDashboard from "./pages/private/admin/TransactionManagement/AdminTransactionDashboard.js";
+import AdminTransactionOverview from "./pages/private/admin/TransactionManagement/AdminTransactionOverview.js";
 
 import ProtectedRoute from "./components/Protected Route/ProtectedRoute.js";
 import { AuthProvider } from "./context/AuthContext.js";
@@ -284,6 +286,10 @@ function Content() {
           {/* REPORT MANAGEMENT */}
           <Route path="reports" element={<ReportDashboard />}/>
           <Route path="reports/report-overview" element={<ReportOverview />} />
+
+          {/* TRANSACTION MANAGEMENT */}
+          <Route path="transactions" element={<AdminTransactionDashboard />}/>
+          <Route path="transactions/overview" element={<AdminTransactionOverview />}/>
          
 
           {/* ADMIN MANAGEMENT */}
