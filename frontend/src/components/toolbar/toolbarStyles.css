@@ -1,0 +1,21 @@
+.toolbar.items{
+    all: unset;
+    display: flex;
+    justify-content: space-between;
+}
+.toolbar .select-container .select input[type="checkbox"] {
+  width: 20px !important;
+  height: 20px !important;
+  background-color: transparent;
+}
+.toolbar .select-container {
+  background-color: transparent !important;
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.toolbar .select-container .select, .toolbar .view-type{
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}

@@ -202,3 +202,14 @@
   background-color: #f5f5f5;
 }
 
+.select-container .select {
+  display: flex;
+  flex-direction: row;
+  gap: 2px
+}
+
+.table .img-thumbnail {
+  width: 100px;
+  height: 100px;
+  
+}

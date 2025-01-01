@@ -7,11 +7,9 @@ import cartIcon from "../../assets/images/card/cart.svg";
 import moreIcon from "../../assets/images/card/more.svg";
 import forRentIcon from "../../assets/images/card/rent.svg";
 import forSaleIcon from "../../assets/images/card/buy.svg";
+import editIcon from "../../assets/images/table/edit.svg";
+import deleteIcon from "../../assets/images/table/delete.svg";
 import { ItemStatus } from "../../utils/Status";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteListingById } from "../../redux/listing/allListingsByUserSlice";
-import { selectStudentUser } from "../../redux/auth/studentAuthSlice";
-import ShowAlert from "../../utils/ShowAlert";
 import { FOR_RENT } from "../../utils/consonants";
 
 const tooltipProps = {
@@ -27,16 +25,18 @@ const tooltipProps = {
   },
 };
 
-const ItemCard = ({ items, title, isYou, onOptionClick }) => {
+const ItemCard = ({
+  items,
+  title,
+  isYou,
+  onOptionClick,
+  selectedItems = [],
+  onSelectItem,
+  viewType = "card",
+}) => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const dropdownRefs = useRef({});
   const navigate = useNavigate();
-  const { userId } = useSelector(selectStudentUser);
-  const { deletingListing, deleteStatus, deleteError } = useSelector(
-    (state) => state.allListingsByUser
-  );
-
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -63,118 +63,189 @@ const ItemCard = ({ items, title, isYou, onOptionClick }) => {
     setActiveDropdown((prevState) => (prevState === index ? null : index));
   };
 
-  const handleCardClick = (item) => {
+  const handleCardClick = (e, item) => {
+    e.stopPropagation();
     if (item.itemType === "For Rent") navigate(`/rent/${item.id}`);
     else if (item.itemType === "For Sale") navigate(`/shop/${item.id}`);
   };
-  return (
-    <div>
-      <h2 className="fs-2 fw-bold">{title}</h2>
-      For rent
-      <div className="card-container vertical">
-        {items.length > 0 ? (
-          items.map((item, index) => (
-            <div
-              key={item.id || index}
-              className="card variant-1"
-              onClick={() => handleCardClick(item)}
-            >
-              <div className="img-holder">
-                <img src={item1} alt={item.name} className="img" />
-                <Tooltip
-                  title={`${item.name} is for ${
-                    item.itemType === "Rent" ? "rent" : "sale"
-                  }.`}
-                  {...tooltipProps}
-                >
-                  <img
-                    src={item.itemType === FOR_RENT ? forRentIcon : forSaleIcon}
-                    alt={`${item.name} type`}
-                    className="item-type"
-                  />
-                </Tooltip>
+
+  // Render items as cards
+  const renderCardView = () => (
+    <div className="card-container vertical">
+      {items.map((item, index) => (
+        <div
+          key={item.id || index}
+          className={`card variant-1 ${
+            selectedItems.includes(item.id) ? "selected" : ""
+          }`}
+          onClick={(e) => handleCardClick(e, item)}
+        >
+          {isYou && (
+            <div className="select-container">
+              <div className="select">
+                <input
+                  type="checkbox"
+                  checked={selectedItems.includes(item.id)}
+                  onClick={(e) => e.stopPropagation()} // Prevent card click
+                  onChange={(e) => onSelectItem(item.id)} // Handle selection
+                />
+                {selectedItems.includes(item.id) ? "Selected" : "Select"}
               </div>
+            </div>
+          )}
 
-              <div className="description">
-                <div className="tags-holder">
-                  {Array.isArray(item.tags) && item.tags.length > 0 && (
-                    <>
-                      <span className="tag">{item.tags[0]}</span>
-                      {item.tags.length > 1 && (
-                        <Tooltip
-                          title={item.tags.slice(1).map((tag, i) => (
-                            <div key={i}>
-                              {tag}
-                              <br />
-                            </div>
-                          ))}
-                          {...tooltipProps}
-                        >
-                          <span className="tag">More +</span>
-                        </Tooltip>
-                      )}
-                    </>
-                  )}
-                </div>
+          <div className="img-holder">
+            <img src={item1} alt={item.name} className="img" />
+            <Tooltip
+              title={`${item.name} is for ${
+                item.itemType === "Rent" ? "rent" : "sale"
+              }.`}
+              {...tooltipProps}
+            >
+              <img
+                src={item.itemType === FOR_RENT ? forRentIcon : forSaleIcon}
+                alt={`${item.name} type`}
+                className="item-type"
+              />
+            </Tooltip>
+          </div>
 
-                <p className="item-name">{item.name}</p>
-                <p className="item-price">
-                  P{item.price} {item.itemType === "Rent" ? "per hour" : ""}
-                </p>
-
-                <div className="action-btns">
-                  <button className="btn btn-rectangle primary">
-                    {item.itemType === FOR_RENT ? "Rent" : "Buy"}
-                  </button>
-                  <button
-                    className="btn btn-icon primary"
-                    onClick={(e) => handleAddToCart(e, item)}
-                  >
-                    <img src={cartIcon} alt="Add to cart" />
-                  </button>
-
-                  <div
-                    className="option"
-                    ref={(el) => (dropdownRefs.current[index] = el)}
-                  >
-                    <button
-                      className="btn btn-icon secondary option"
-                      onClick={(e) => handleDropdownToggle(e, index)}
+          <div className="description">
+            <div className="tags-holder">
+              {Array.isArray(item.tags) && item.tags.length > 0 && (
+                <>
+                  <span className="tag">{item.tags[0]}</span>
+                  {item.tags.length > 1 && (
+                    <Tooltip
+                      title={item.tags.slice(1).map((tag, i) => (
+                        <div key={i}>
+                          {tag}
+                          <br />
+                        </div>
+                      ))}
+                      {...tooltipProps}
                     >
-                      <img src={moreIcon} alt="More options" />
-                    </button>
-                    {activeDropdown === index && (
-                      <div className="menu">
-                        {["view", "edit", "delete"].map((option) => (
-                          <button
-                            key={option}
-                            className="item"
-                            onClick={(e) => onOptionClick(e, option, item)}
-                          >
-                            {option.charAt(0).toUpperCase() + option.slice(1)}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                      <span className="tag">More +</span>
+                    </Tooltip>
+                  )}
+                </>
+              )}
+            </div>
 
-                {isYou && (
-                  <div
-                    className={`item-status ${
-                      ItemStatus(item.status).className
-                    }`}
-                  >
-                    {ItemStatus(item.status).label}
+            <p className="item-name">{item.name}</p>
+            <p className="item-price">
+              P{item.price} {item.itemType === "Rent" ? "per hour" : ""}
+            </p>
+
+            <div className="action-btns">
+              <button className="btn btn-rectangle primary" disabled={isYou}>
+                {item.itemType === FOR_RENT ? "Rent" : "Buy"}
+              </button>
+              <button
+                className="btn btn-icon primary"
+                onClick={(e) => handleAddToCart(e, item)}
+                disabled={isYou}
+              >
+                <img src={cartIcon} alt="Add to cart" />
+              </button>
+
+              <div
+                className="option"
+                ref={(el) => (dropdownRefs.current[index] = el)}
+              >
+                <button
+                  className="btn btn-icon secondary option"
+                  onClick={(e) => handleDropdownToggle(e, index)}
+                >
+                  <img src={moreIcon} alt="More options" />
+                </button>
+                {activeDropdown === index && (
+                  <div className="menu">
+                    {["view", "edit", "delete"].map((option) => (
+                      <button
+                        key={option}
+                        className="item"
+                        onClick={(e) => onOptionClick(e, option, item)}
+                      >
+                        {option.charAt(0).toUpperCase() + option.slice(1)}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
             </div>
-          ))
-        ) : (
-          <p>No items to display</p>
-        )}
-      </div>
+
+            {isYou && (
+              <div
+                className={`item-status ${ItemStatus(item.status).className}`}
+              >
+                {ItemStatus(item.status).label}
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  // Render items as a table
+  const renderTableView = () => (
+    <table className="table">
+      <thead>
+        <tr>
+          <th>Select</th>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((item, index) => (
+          <tr
+            key={item.id || index}
+            className={selectedItems.includes(item.id) ? "selected" : ""}
+          >
+            <td>
+              {isYou && (
+                <input
+                  type="checkbox"
+                  checked={selectedItems.includes(item.id)}
+                  onChange={(e) => onSelectItem(item.id)} // Handle selection
+                />
+              )}
+            </td>
+            <td>
+              <img src={item1} alt={item.name} className="img-thumbnail" />
+            </td>
+            <td>{item.name}</td>
+            <td>
+              P{item.price} {item.itemType === "Rent" ? "per hour" : ""}
+            </td>
+            <td>
+              <button
+                className="btn btn-icon primary"
+                onClick={(e) => onOptionClick(e, "edit", item)}
+              >
+                <img src={editIcon} alt="Add to cart" />
+              </button>
+              <button
+                className="btn btn-icon primary"
+                onClick={(e) => onOptionClick(e, "delete", item)}
+              >
+                <img src={deleteIcon} alt="Add to cart" />
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  return (
+    <div>
+      <h2 className="fs-2 fw-bold">{title}</h2>
+      {viewType === "card" ? renderCardView() : renderTableView()}
     </div>
   );
 };

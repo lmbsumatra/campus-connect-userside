@@ -1,9 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  updateField,
-  blurField,
-} from "../../../../redux/item-form/itemFormSlice";
 import prevIcon from "../../../../assets/images/pdp/prev.svg";
 import nextIcon from "../../../../assets/images/pdp/next.svg";
 import removeIcon from "../../../../assets/images/input-icons/remove.svg";
@@ -17,21 +13,9 @@ const AddImage = ({ images = [], onChange }) => {
   const [uploadedImages, setUploadedImages] = useState(images);
   const [imageFiles, setImageFiles] = useState([]);
   const inputRef = useRef(null);
-
-  const updateReduxImages = (updatedFiles) => {
-    dispatch(
-      updateField({
-        name: "images",
-        value: updatedFiles.map((image) => image.name), // Store image names or URLs as metadata
-      })
-    );
-    dispatch(
-      blurField({
-        name: "images",
-        value: updatedFiles.map((image) => image.name), // Store image names or URLs as metadata
-      })
-    );
-  };
+  useEffect(() => {
+    setImageFiles(images);
+  }, [images]);
 
   const nextImage = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % uploadedImages.length);
@@ -60,7 +44,6 @@ const AddImage = ({ images = [], onChange }) => {
 
     setImageFiles((prevFiles) => {
       const updatedFiles = [...prevFiles, ...uploadedFiles];
-      updateReduxImages(updatedFiles); // Update Redux store
       return updatedFiles;
     });
 
@@ -86,7 +69,6 @@ const AddImage = ({ images = [], onChange }) => {
 
     setImageFiles((prevFiles) => {
       const updatedFiles = prevFiles.filter((_, i) => i !== index);
-      updateReduxImages(updatedFiles); 
       updatedFiles.splice(index, 1);
       onChange(updatedFiles);
       return updatedFiles;

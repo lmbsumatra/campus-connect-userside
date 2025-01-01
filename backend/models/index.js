@@ -1,14 +1,14 @@
 const { Sequelize } = require("sequelize"); 
 const sequelize = require("../config/database");
 
-const Listing = require("./listing/ListingModel")(sequelize);
-const Post = require("./post/PostModel")(sequelize);
+const Listing = require("./ListingModel")(sequelize);
+const Post = require("./PostModel")(sequelize);
 const Cart = require("./CartModel")(sequelize);
 const Date = require("./common/DatesModel")(sequelize);
 const Duration = require("./common/DurationsModel")(sequelize);
 const Student = require("./StudentModel"); 
 const User = require("./UserModel");
-const ItemForSale = require('./item-for-sale/ItemForSaleModel')(sequelize);
+const ItemForSale = require('./ItemForSaleModel')(sequelize);
 const RentalTransaction = require('./RentalTransactionModel')(sequelize);
 const Conversation = require('./ConversationModel');
 const Message = require('./MessageModel');

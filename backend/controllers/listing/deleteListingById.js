@@ -1,5 +1,5 @@
 const { models } = require("../../models/index");
-const { rollbackUpload } = require("../../config/multer"); // Import the rollbackUpload function
+const { rollbackUpload } = require("../../config/multer");
 
 const deleteListingById = async (req, res) => {
   try {
@@ -27,7 +27,7 @@ const deleteListingById = async (req, res) => {
     let images = [];
     if (listing.images && typeof listing.images === "string") {
       try {
-        images = JSON.parse(listing.images); // Parse the JSON string
+        images = JSON.parse(listing.images);
       } catch (error) {
         console.error("Failed to parse listing.images as JSON:", error);
       }
@@ -38,11 +38,40 @@ const deleteListingById = async (req, res) => {
     // Call rollbackUpload to delete images from Cloudinary if there are any images
     if (Array.isArray(images) && images.length > 0) {
       try {
-        await rollbackUpload(images); // Delete the images from Cloudinary
+        await rollbackUpload(images);
         console.log("Cloudinary rollback completed for images:", images);
       } catch (error) {
         console.error("Error during Cloudinary rollback:", error.message);
       }
+    }
+
+    // Find all associated date IDs for this listing
+    const dates = await models.Date.findAll({
+      where: {
+        item_id: listingId,
+        item_type: "listing", // Ensure dates linked to the listing are targeted
+      },
+      attributes: ["id"],
+    });
+
+    const dateIds = dates.map((date) => date.id);
+
+    // Delete the associated durations
+    if (dateIds.length > 0) {
+      await models.Duration.destroy({
+        where: {
+          date_id: dateIds,
+        },
+      });
+
+      // Delete the associated dates
+      await models.Date.destroy({
+        where: {
+          id: dateIds,
+        },
+      });
+
+      console.log(`Deleted associated dates and durations for listing ID ${listingId}`);
     }
 
     // Delete the listing from the database

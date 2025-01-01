@@ -1,4 +1,4 @@
-const Post = require("../models/post/PostModel");
+const Post = require("../models/PostModel");
 const sequelize = require("../config/database");
 const { models } = require("../models/index");
 // const { truncateByDomain } = require("recharts/types/util/ChartUtils");

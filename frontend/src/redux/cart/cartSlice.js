@@ -28,8 +28,6 @@ export const fetchCart = createAsyncThunk(
         },
       });
 
-      console.log(response.data);
-
       return response.data; // Return fetched cart data
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to fetch cart.");
@@ -141,7 +139,6 @@ const cartSlice = createSlice({
       .addCase(addCartItem.fulfilled, (state, action) => {
         state.loadingCart = false;
         const { status, item } = action.payload;
-        console.log(status, item);
 
         if (status === "existing") {
           // Don't modify the cart if the item is already there
@@ -212,7 +209,6 @@ const cartSlice = createSlice({
 
 // Selectors
 const selectCart = (state) => state.cart;
-console.log(initialState.cartItems);
 
 export const selectCartItems = createSelector(
   [selectCart],

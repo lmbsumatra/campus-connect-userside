@@ -74,7 +74,7 @@ import ItemForSaleDetail from "./pages/public/item-for-sale/ItemForSaleDetail.js
 import Shop from "./pages/public/Shop.js";
 import AddNewLItem from "./pages/private/users/item/AddNewItem.js";
 import AddNewPost from "./pages/private/users/post/AddNewPost.js";
-import EditItem from "./pages/private/users/item/EditItem.jsx";
+import EditItem from "./pages/private/users/item/EditItem.js";
 
 function App() {
   console.log(baseApi);

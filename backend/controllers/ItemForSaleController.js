@@ -1,4 +1,4 @@
-const Listing = require("../models/listing/ListingModel");
+const Listing = require("../models/ListingModel");
 const sequelize = require("../config/database");
 const { models } = require("../models/index");
 

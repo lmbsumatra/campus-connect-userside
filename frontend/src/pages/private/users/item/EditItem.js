@@ -45,11 +45,11 @@ import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import { fetchListingById } from "../../../../redux/listing/listingByIdSlice.js";
+import ComparisonView from "./ComparisonView.jsx";
+import { Modal } from "react-bootstrap";
+import { editItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
 
-const UNAVAILABLE_DATES = [
-  new Date(2024, 11, 25),
-  new Date(2025, 0, 1),
-];
+const UNAVAILABLE_DATES = [new Date(2024, 11, 25), new Date(2025, 0, 1)];
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
@@ -94,38 +94,47 @@ const EditItem = () => {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const { userId, role } = useSelector(selectStudentUser);
   const location = useLocation();
-  const itemData = location.state.item || {};
-
-  const {
-    listingById: itemById,
-    loadingListingById: loading,
-  } = useSelector((state) => state.listingById);
-
+  const itemData = location?.state?.item || {};
+  const { listingById: itemById, loadingListingById: loading } = useSelector(
+    (state) => state.listingById
+  );
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
   });
-
   const [category, setCategory] = useState("");
   const [itemType, setItemType] = useState(FOR_RENT);
   const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
   const [localImages, setLocalImages] = useState([]);
+  const [originalData, setOriginalData] = useState(null);
+  const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
-    if (itemData) {
-      if (userId === itemData.owner.id && role === "student") {
+    if (itemData && Object.keys(itemData).length > 0) {
+      if (
+        itemData.owner &&
+        itemData.owner.id &&
+        userId === itemData.owner.id &&
+        role === "student"
+      ) {
         if (itemData.itemType === FOR_RENT) {
           dispatch(fetchListingById({ userId, listingId: itemData.id }));
         }
-      } else {
-        navigate("/unauthorized", { replace: true });
       }
+    } else {
+      navigate("/unauthorized");
     }
   }, [itemData, userId, role, navigate, dispatch]);
 
   useEffect(() => {
     if (!loading && itemById) {
+      const initialData = {
+        ...itemById,
+        images: itemById.images,
+        availableDates: itemById.availableDates,
+      };
+      setOriginalData(initialData);
       dispatch(populateItemData(itemById));
       const newSelectedDatesDurations = [];
       itemDataState.availableDates.value.forEach((dateItem) => {
@@ -207,7 +216,9 @@ const EditItem = () => {
 
     if (durations.length === 0) {
       return (
-        <p className="no-duration-message">No available duration for this date.</p>
+        <p className="no-duration-message">
+          No available duration for this date.
+        </p>
       );
     }
 
@@ -225,9 +236,9 @@ const EditItem = () => {
   };
 
   const handleSaveDatesDurations = (datesDurations) => {
-    const serializedDates = datesDurations.map(dateObj => ({
+    const serializedDates = datesDurations.map((dateObj) => ({
       date: dateObj.date.toISOString(),
-      durations: dateObj.durations
+      durations: dateObj.durations,
     }));
     setSelectedDatesDurations(datesDurations);
     dispatch(updateAvailableDates(serializedDates));
@@ -240,19 +251,16 @@ const EditItem = () => {
   };
 
   const handleImagesChange = (newImages) => {
+    const imageNames = newImages.map((image) => {
+      if (typeof image === "string") {
+        return image; 
+      }
+      return image.name || ""; 
+    });
+
     setLocalImages(newImages);
-    dispatch(
-      updateField({
-        name: "images",
-        value: newImages.map((image) => image.name || image),
-      })
-    );
-    dispatch(
-      blurField({
-        name: "images",
-        value: newImages.map((image) => image.name || image),
-      })
-    );
+    dispatch(updateField({ name: "images", value: imageNames }));
+    dispatch(blurField({ name: "images", value: imageNames }));
   };
 
   const handleSubmit = async () => {
@@ -264,7 +272,9 @@ const EditItem = () => {
         if (key !== "isFormValid") {
           if (
             itemType === FOR_SALE &&
-            ["lateCharges", "repairReplacement", "securityDeposit"].includes(key)
+            ["lateCharges", "repairReplacement", "securityDeposit"].includes(
+              key
+            )
           ) {
             return;
           }
@@ -274,7 +284,9 @@ const EditItem = () => {
           if (hasError) {
             hasErrors = true;
             errors[key] = error;
-            dispatch(blurField({ name: key, value: field.value, itemType: FOR_SALE }));
+            dispatch(
+              blurField({ name: key, value: field.value, itemType: FOR_SALE })
+            );
 
             if (key === "availableDates") {
               dispatch(updateAvailableDates(field.value));
@@ -332,9 +344,10 @@ const EditItem = () => {
         JSON.stringify(itemData)
       );
 
-      const endpoint = itemType === FOR_RENT 
-        ? `/listings/users/${userId}/update/${itemById.id}` 
-        : "/item-for-sale/update";
+      const endpoint =
+        itemType === FOR_RENT
+          ? `/listings/users/${userId}/update/${itemById.id}`
+          : "/item-for-sale/update";
 
       ShowAlert(dispatch, "loading", "Creating listing", "Please wait...");
 
@@ -350,12 +363,14 @@ const EditItem = () => {
           owner: {
             name: user.user.fname + " " + user.user.lname,
           },
-          message: itemType === FOR_RENT
-            ? "has added a new rental listing."
-            : "has listed an item for sale.",
-          type: itemType === FOR_RENT
-            ? "new-listing-notification"
-            : "new-item-for-sale-notification",
+          message:
+            itemType === FOR_RENT
+              ? "has added a new rental listing."
+              : "has listed an item for sale.",
+          type:
+            itemType === FOR_RENT
+              ? "new-listing-notification"
+              : "new-item-for-sale-notification",
         };
         socket.emit(notification.type, notification);
       }
@@ -369,28 +384,16 @@ const EditItem = () => {
     } catch (error) {
       ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
       console.error("Submission error:", error);
-      const errorMessage = error.response?.data?.message ||
+      const errorMessage =
+        error.response?.data?.message ||
         "Failed to create listing. Please try again.";
       ShowAlert(dispatch, "error", "Error", errorMessage);
     }
   };
 
-  const breadcrumbs = [
-    { label: "Home", href: "/" },
-    { label: "Profile", href: "/profile" },
-    {
-      label: itemType === FOR_RENT ? "My Listings" : itemType === FOR_SALE ? "My For Sale" : "Unknown",
-      href: itemType === FOR_RENT ? "/my-listings" : itemType === FOR_SALE ? "/my-for-sale" : "/unknown",
-    },
-    {
-      label: itemType === FOR_RENT ? "Edit Listing" : itemType === FOR_SALE ? "Edit Item for Sale" : "Unknown Item Type",
-      href: itemType === FOR_RENT ? "/listings/add" : itemType === FOR_SALE ? "/item-for-sale/add" : "/unknown",
-    },
-  ];
-
   return (
     <div className="container-content add-item-detail">
-      <BreadCrumb breadcrumbs={breadcrumbs} />
+      <BreadCrumb breadcrumbs={editItemBreadcrumbs({itemType})} />
       <button onClick={handleGenerateData}>Generate Sample Data</button>
       <div className="add-item-container">
         <div className="imgs-container">
@@ -671,9 +674,7 @@ const EditItem = () => {
           )}
         </div>
       </div>
-
       <UserToolbar user={user.user} isYou={true} />
-
       <AddItemDescAndSpecs
         specs={itemDataState.specs.value}
         desc={itemDataState.desc.value}
@@ -701,9 +702,34 @@ const EditItem = () => {
         }}
       />
 
-      <button className="btn btn-primary" onClick={() => handleSubmit()}>
-        Submit
+      <button
+        className="btn btn-secondary mr-4"
+        onClick={() => setShowComparison(true)}
+      >
+        Submit Changes
       </button>
+
+      <Modal
+        show={showComparison}
+        onClose={() => setShowComparison(false)}
+        contentLabel="Changes Comparison"
+      >
+        <div className="flex justify-end mb-4">
+          <button
+            className="text-gray-500 hover:text-gray-700"
+            onClick={() => setShowComparison(false)}
+          >
+            Close
+          </button>
+        </div>
+        <ComparisonView
+          originalData={originalData}
+          currentData={itemDataState}
+        />
+        <button className="btn btn-primary" onClick={() => handleSubmit()}>
+          Submit
+        </button>
+      </Modal>
     </div>
   );
 };
