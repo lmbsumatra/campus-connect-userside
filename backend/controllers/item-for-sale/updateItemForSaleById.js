@@ -1,37 +1,37 @@
 const { models } = require("../../models/index");
 const { rollbackUpload } = require("../../config/multer");
 
-const updateListingById = async (req, res) => {
+const updateItemForSaleById = async (req, res) => {
   try {
     // Extract `listingId` from request parameters
-    const listingId = req.params.listingId;
+    const itemId = req.params.itemId;
 
-    if (!listingId) {
+    if (!itemId) {
       return res.status(400).json({ message: "Listing ID is required" });
     }
 
-    console.log("Listing ID:", listingId);
+    console.log("Listing ID:", itemId);
 
     // Parse and validate the listing data
-    let listingData;
+    let itemData;
     try {
-      listingData = req.body.listing ? JSON.parse(req.body.listing) : null;
+      itemData = req.body.listing ? JSON.parse(req.body.listing) : null;
 
-      if (!listingData) {
+      if (!itemData) {
         return res.status(400).json({ message: "No listing data provided" });
       }
 
-      listingData.id = listingId; // Set `listingId` into `listingData`
+      itemData.id = itemId; // Set `listingId` into `itemData`
     } catch (parseError) {
       console.error("Error parsing listing data:", parseError);
       return res.status(400).json({ message: "Invalid listing data format" });
     }
 
-    console.log("Parsed listing data:", listingData);
+    console.log("Parsed listing data:", itemData);
 
     // Validate required fields
     const requiredFields = ["id", "ownerId", "itemName", "category"];
-    const missingFields = requiredFields.filter((field) => !listingData[field]);
+    const missingFields = requiredFields.filter((field) => !itemData[field]);
 
     if (missingFields.length) {
       return res.status(400).json({
@@ -45,9 +45,9 @@ const updateListingById = async (req, res) => {
     // Update listing in the database
     const [updateCount] = await models.Listing.update(
       {
-        category: listingData.category,
-        listing_name: listingData.itemName,
-        description: listingData.description,
+        category: itemData.category,
+        listing_name: itemData.itemName,
+        description: itemData.description,
         images: JSON.stringify(imageUrls), // Add new images if provided
         // Add other fields to update as needed
       },
@@ -67,7 +67,7 @@ const updateListingById = async (req, res) => {
     res.status(200).json({
       message: "Listing updated successfully",
       updatedFields: {
-        ...listingData,
+        ...itemData,
         images: imageUrls,
       },
     });
@@ -84,4 +84,4 @@ const updateListingById = async (req, res) => {
   }
 };
 
-module.exports = updateListingById;
+module.exports = updateItemForSaleById;

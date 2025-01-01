@@ -19,8 +19,8 @@ const FAB = ({ cartItems }) => {
   }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const createPost = () => navigate("/new-post");
-  const addItem = () => navigate("/add-listing");
+  const createPost = () => navigate("/profile/my-posts/new");
+  const addItem = () => navigate("/profile/my-listings/add");
   const toggleCart = () => (isMobile ? navigate("/cart") : setIsCartOpen(!isCartOpen));
 
   return (

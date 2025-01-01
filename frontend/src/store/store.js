@@ -1,5 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 
+// fiter
+import filterReducer from "../redux/filter/filterSlice";
+
 // ** Cart-related Reducers **
 import cartReducer from "../redux/cart/cartSlice";
 
@@ -19,6 +22,7 @@ import approvedListingByIdSliceReducer from "../redux/listing/approvedListingByI
 import allListingsByUserSliceReducer from "../redux/listing/allListingsByUserSlice";
 
 // ** Item-for-Sale-related Reducers **
+import itemForSaleByIdSliceReducer from "../redux/item-for-sale/itemForSaleByIdSlice";
 import allApprovedItemForSaleReducer from "../redux/item-for-sale/allApprovedItemsForSaleSlice";
 import approvedItemForSaleByIdReducer from "../redux/item-for-sale/approvedItemForSaleByIdSlice";
 import allItemForSaleByUserSliceReducer from "../redux/item-for-sale/allItemForSaleByUserSlice";
@@ -36,6 +40,7 @@ import postFormReducer from "../redux/post-form/postFormSlice";
 
 const store = configureStore({
   reducer: {
+    filter: filterReducer,
     cart: cartReducer,
     studentAuth: studentAuthReducer,
     approvedPostById: approvedPostByIdSliceReducer,
@@ -45,6 +50,7 @@ const store = configureStore({
     approvedListingById: approvedListingByIdSliceReducer,
     allListingsByUser: allListingsByUserSliceReducer,
     //
+    itemForSaleById: itemForSaleByIdSliceReducer,
     allApprovedItemForSale: allApprovedItemForSaleReducer,
     approvedItemForSaleById: approvedItemForSaleByIdReducer,
     allItemForSaleByUser: allItemForSaleByUserSliceReducer,

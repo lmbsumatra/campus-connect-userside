@@ -1,28 +1,10 @@
 import React, { useState } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import "./addItemBadgesStyles.css";
-import { FOR_RENT, FOR_SALE } from "../../../../utils/consonants";
+import { categories, FOR_RENT, FOR_SALE } from "../../../../utils/consonants";
 
 const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
   const itemType = values?.itemType || FOR_RENT;
-
-  const categories = [
-    "Electronics",
-    "Home",
-    "Fashion",
-    "Sports",
-    "Books",
-    "Toys",
-    "Automotive",
-    "Health",
-    "Hobbies",
-    "Technology",
-    "Business",
-    "Musical",
-    "Pet",
-    "Event",
-    "Travel",
-  ];
 
   const getCollegeBadgeUrl = (college) => {
     if (college !== undefined && college !== null) {

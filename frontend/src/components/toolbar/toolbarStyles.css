@@ -2,6 +2,7 @@
     all: unset;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 .toolbar .select-container .select input[type="checkbox"] {
   width: 20px !important;

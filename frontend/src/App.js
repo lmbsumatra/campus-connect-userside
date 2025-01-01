@@ -146,15 +146,7 @@ function Content() {
           }
         />
         <Route
-          path="/new-post"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <AddPost />
-            </StudentProtectedRoute>
-          }
-        />
-        <Route
-          path="/new-post2"
+          path="/profile/my-posts/new"
           element={
             <StudentProtectedRoute allowedRoles="student">
               <AddNewPost />
@@ -169,17 +161,9 @@ function Content() {
             </StudentProtectedRoute>
           }
         />
-        <Route
-          path="/add-listing"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <AddListing />
-            </StudentProtectedRoute>
-          }
-        />
 
         <Route
-          path="/add-listing2"
+          path="/profile/my-listings/add"
           element={
             <StudentProtectedRoute allowedRoles="student">
               <AddNewLItem />
@@ -189,6 +173,15 @@ function Content() {
 
         <Route
           path="/profile/my-listings/edit/:id"
+          element={
+            <StudentProtectedRoute allowedRoles="student">
+              <EditItem />
+            </StudentProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile/my-for-sale/edit/:id"
           element={
             <StudentProtectedRoute allowedRoles="student">
               <EditItem />
@@ -255,7 +248,7 @@ function Content() {
             <Route path="transactions" element={<MyTransactions />} />
             <Route path="my-listings" element={<MyListings />} />
             <Route path="my-posts" element={<MyPosts />} />
-            <Route path="my-forsale-items" element={<MyForSale />} />
+            <Route path="my-for-sale" element={<MyForSale />} />
             <Route index path="*" element={<MyListings />} />
           </Route>
 
@@ -284,13 +277,15 @@ function Content() {
           />
 
           {/* REPORT MANAGEMENT */}
-          <Route path="reports" element={<ReportDashboard />}/>
+          <Route path="reports" element={<ReportDashboard />} />
           <Route path="reports/report-overview" element={<ReportOverview />} />
 
           {/* TRANSACTION MANAGEMENT */}
-          <Route path="transactions" element={<AdminTransactionDashboard />}/>
-          <Route path="transactions/overview" element={<AdminTransactionOverview />}/>
-         
+          <Route path="transactions" element={<AdminTransactionDashboard />} />
+          <Route
+            path="transactions/overview"
+            element={<AdminTransactionOverview />}
+          />
 
           {/* ADMIN MANAGEMENT */}
           <Route path="settings" element={<AdminSettings />} />

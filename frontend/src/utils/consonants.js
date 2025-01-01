@@ -13,3 +13,21 @@ export const MEET_UP = "meetup";
 export const PAY_UPON_MEETUP = "payment upon meetup";
 
 export const GCASH = "gcash";
+
+export const categories = [
+  "Electronics",
+  "Home",
+  "Fashion",
+  "Sports",
+  "Books",
+  "Toys",
+  "Automotive",
+  "Health",
+  "Hobbies",
+  "Technology",
+  "Business",
+  "Musical",
+  "Pet",
+  "Event",
+  "Travel",
+];

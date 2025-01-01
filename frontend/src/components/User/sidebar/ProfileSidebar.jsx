@@ -24,7 +24,7 @@ const ProfileSidebar = () => {
         </li>
         <li>
           <NavLink
-            to="my-forsale-items"
+            to="my-for-sale"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
             My For Sales

@@ -53,6 +53,7 @@ import axios from "axios";
 import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
+import { addItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
 
 const UNAVAILABLE_DATES = [
   new Date(2024, 11, 25), // Christmas
@@ -350,23 +351,9 @@ const AddNewItem = () => {
     }
   };
 
-  const breadcrumbs = [
-    { label: "Home", href: "/" },
-    {
-      label: `${itemType === FOR_RENT ? "My Listings" : "My For Sale"}`,
-      href: `${itemType === FOR_RENT ? "/my-listings" : "/my-for-sale"}`,
-    },
-    {
-      label: `${
-        itemType === FOR_RENT ? "Add New Listing" : "Add New Item for Sale"
-      }`,
-      href: `${itemType === FOR_RENT ? "/listings/add" : "/item-for-sale/a"}`,
-    },
-  ];
-
   return (
     <div className="container-content add-item-detail">
-      <BreadCrumb breadcrumbs={breadcrumbs} />
+      <BreadCrumb breadcrumbs={addItemBreadcrumbs({ itemType })} />
       <button onClick={handleGenerateData}>Generate Sample Data</button>
       <div className="add-item-container">
         <div className="imgs-container">

@@ -12,6 +12,9 @@ import deleteIcon from "../../assets/images/table/delete.svg";
 import { ItemStatus } from "../../utils/Status";
 import { FOR_RENT } from "../../utils/consonants";
 
+// Import custom hook
+import useSortItems from "../../pages/private/users/student-profile/useSortItems";
+
 const tooltipProps = {
   componentsProps: {
     popper: {
@@ -33,10 +36,14 @@ const ItemCard = ({
   selectedItems = [],
   onSelectItem,
   viewType = "card",
+  itemType,
 }) => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const dropdownRefs = useRef({});
   const navigate = useNavigate();
+
+  // Use the custom sorting hook
+  const { sortedItems, sortConfig, handleSort } = useSortItems(items);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -54,8 +61,16 @@ const ItemCard = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [activeDropdown]);
 
+  const handleCardClick = (e, item) => {
+    e.stopPropagation();
+    if (item.itemType === "For Rent")
+      navigate(`/profile/my-listings/edit/${item.id}`, { state: { item } });
+    else if (item.itemType === "For Sale") navigate(`/shop/${item.id}`);
+  };
+
   const handleAddToCart = (e, item) => {
     e.stopPropagation();
+    console.log(`Added ${item.name} to cart`);
   };
 
   const handleDropdownToggle = (e, index) => {
@@ -63,16 +78,27 @@ const ItemCard = ({
     setActiveDropdown((prevState) => (prevState === index ? null : index));
   };
 
-  const handleCardClick = (e, item) => {
-    e.stopPropagation();
-    if (item.itemType === "For Rent") navigate(`/rent/${item.id}`);
-    else if (item.itemType === "For Sale") navigate(`/shop/${item.id}`);
+  const handleAddItemClick = () => {
+    navigate(
+      `/profile/${itemType === FOR_RENT ? "my-listings" : "my-for-sale"}/add`
+    );
   };
 
   // Render items as cards
   const renderCardView = () => (
     <div className="card-container vertical">
-      {items.map((item, index) => (
+      {/* Add Item Card */}
+      {isYou && (
+        <div
+          className="card variant-1 add-item bg-light"
+          onClick={handleAddItemClick}
+        >
+          <div className="add-item-content">
+            <p className="add-item-text">+ Add New Item</p>
+          </div>
+        </div>
+      )}
+      {sortedItems.map((item, index) => (
         <div
           key={item.id || index}
           className={`card variant-1 ${
@@ -193,15 +219,23 @@ const ItemCard = ({
     <table className="table">
       <thead>
         <tr>
-          <th>Select</th>
-          <th>Image</th>
-          <th>Name</th>
-          <th>Price</th>
+          <th onClick={() => handleSort("select")}>Select</th>
+          <th onClick={() => handleSort("image")}>Image</th>
+          <th onClick={() => handleSort("name")}>
+            Name{" "}
+            {sortConfig.key === "name" &&
+              (sortConfig.direction === "asc" ? "↑" : "↓")}
+          </th>
+          <th onClick={() => handleSort("price")}>
+            Price{" "}
+            {sortConfig.key === "price" &&
+              (sortConfig.direction === "asc" ? "↑" : "↓")}
+          </th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        {items.map((item, index) => (
+        {sortedItems.map((item, index) => (
           <tr
             key={item.id || index}
             className={selectedItems.includes(item.id) ? "selected" : ""}
@@ -227,13 +261,13 @@ const ItemCard = ({
                 className="btn btn-icon primary"
                 onClick={(e) => onOptionClick(e, "edit", item)}
               >
-                <img src={editIcon} alt="Add to cart" />
+                <img src={editIcon} alt="Edit" />
               </button>
               <button
                 className="btn btn-icon primary"
                 onClick={(e) => onOptionClick(e, "delete", item)}
               >
-                <img src={deleteIcon} alt="Add to cart" />
+                <img src={deleteIcon} alt="Delete" />
               </button>
             </td>
           </tr>

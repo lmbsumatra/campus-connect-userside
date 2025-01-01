@@ -48,6 +48,7 @@ import { fetchListingById } from "../../../../redux/listing/listingByIdSlice.js"
 import ComparisonView from "./ComparisonView.jsx";
 import { Modal } from "react-bootstrap";
 import { editItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
+import { fetchItemForSaleById } from "../../../../redux/item-for-sale/itemForSaleByIdSlice.js";
 
 const UNAVAILABLE_DATES = [new Date(2024, 11, 25), new Date(2025, 0, 1)];
 
@@ -95,14 +96,26 @@ const EditItem = () => {
   const { userId, role } = useSelector(selectStudentUser);
   const location = useLocation();
   const itemData = location?.state?.item || {};
-  const { listingById: itemById, loadingListingById: loading } = useSelector(
-    (state) => state.listingById
+  const {
+    [location.state.item.itemType === FOR_RENT
+      ? "listingById"
+      : "itemForSaleById"]: itemById,
+    [location.state.item.itemType === FOR_RENT
+      ? "loadingListingById"
+      : "loadingItemForSaleById"]: loading,
+  } = useSelector((state) =>
+    location.state.item.itemType === FOR_RENT
+      ? state.listingById
+      : state.itemForSaleById
   );
+
+  console.log({ itemById });
+  console.log(location.state.item.itemType, itemById, "This");
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
   });
   const [category, setCategory] = useState("");
-  const [itemType, setItemType] = useState(FOR_RENT);
+  const [itemType, setItemType] = useState(location.state.item.itemType || "");
   const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
@@ -111,19 +124,22 @@ const EditItem = () => {
   const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
-    if (itemData && Object.keys(itemData).length > 0) {
-      if (
-        itemData.owner &&
-        itemData.owner.id &&
-        userId === itemData.owner.id &&
-        role === "student"
-      ) {
-        if (itemData.itemType === FOR_RENT) {
-          dispatch(fetchListingById({ userId, listingId: itemData.id }));
-        }
-      }
-    } else {
+    if (!itemData) {
       navigate("/unauthorized");
+      return;
+    }
+
+    const isOwner =
+      itemData.owner?.id && userId === itemData.owner.id && role === "student";
+    const isSeller =
+      itemData.seller?.id &&
+      userId === itemData.seller.id &&
+      role === "student";
+
+    if (isOwner && itemData.itemType === FOR_RENT) {
+      dispatch(fetchListingById({ userId, listingId: itemData.id }));
+    } else if (isSeller && itemData.itemType === FOR_SALE) {
+      dispatch(fetchItemForSaleById({ userId, itemForSaleId: itemData.id }));
     }
   }, [itemData, userId, role, navigate, dispatch]);
 
@@ -161,6 +177,7 @@ const EditItem = () => {
   useEffect(() => {
     if (itemDataState.itemType && itemDataState.itemType.value !== itemType) {
       setItemType(itemDataState.itemType.value);
+      console.log(itemDataState);
     }
   }, [itemDataState.itemType.value, itemType]);
 
@@ -253,9 +270,9 @@ const EditItem = () => {
   const handleImagesChange = (newImages) => {
     const imageNames = newImages.map((image) => {
       if (typeof image === "string") {
-        return image; 
+        return image;
       }
-      return image.name || ""; 
+      return image.name || "";
     });
 
     setLocalImages(newImages);
@@ -391,9 +408,11 @@ const EditItem = () => {
     }
   };
 
+  console.log("Current itemType:", itemType);
+
   return (
     <div className="container-content add-item-detail">
-      <BreadCrumb breadcrumbs={editItemBreadcrumbs({itemType})} />
+      <BreadCrumb breadcrumbs={editItemBreadcrumbs({ itemType })} />
       <button onClick={handleGenerateData}>Generate Sample Data</button>
       <div className="add-item-container">
         <div className="imgs-container">

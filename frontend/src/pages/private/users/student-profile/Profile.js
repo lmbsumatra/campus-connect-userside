@@ -121,7 +121,7 @@ function Profile() {
               <Route path="my-rentals" element={<MyTransactions />} />
               <Route path="my-listings" element={<MyListings />} />
               <Route path="my-posts" element={<MyPosts />} />
-              <Route path="my-forsale-items" element={<MyForSale />} />
+              <Route path="my-for-sale" element={<MyForSale />} />
               <Route path="/" element={<Navigate to="my-listings" />} />
             </Routes>
         </div>
