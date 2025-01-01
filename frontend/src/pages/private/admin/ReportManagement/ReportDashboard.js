@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import { ReportsByCategory, ReportStatusDistribution, ReportsGrowth, TopReportUsers } from "../../../../components/Analytics/ReportAnalyticsComponent";
+import { ReportStatus } from "../../../../utils/Status";
 
 const ReportDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,17 +49,17 @@ const ReportDashboard = () => {
   };
 
   const getStatusInfo = (status) => {
-    switch (status) {
-      case "pending":
-        return { label: "Pending", className: "bg-warning text-dark" };
-      case "resolved":
-        return { label: "Resolved", className: "bg-success text-white" };
-      case "ignored":
-        return { label: "Ignored", className: "bg-secondary text-white" };
-      default:
-        return { label: "Unknown", className: "bg-light text-dark" };
-    }
+    const { label, className } = ReportStatus(status);
+    return { label, className };
   };
+  
+  const filterableStatusOptions = [
+    "pending",
+    "reviewed",
+    "flagged",
+    "dismissed",
+  ];
+  
 
   const handleSortChange = (column, order) => {
     if (order === "default") {
@@ -182,6 +183,7 @@ const ReportDashboard = () => {
             data={data}
             onSortChange={handleSortChange}
             onFilterChange={handleFilterChange}
+            statusOptions={filterableStatusOptions} 
           />
 
           <PaginationComponent

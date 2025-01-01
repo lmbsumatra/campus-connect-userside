@@ -8,13 +8,14 @@ const TableComponent = ({
   statusColumnIndex,
   onSortChange,
   onFilterChange,
+  statusOptions = [],
 }) => {
   const renderHeaderControls = (header, index) => {
     switch (header) {
       case "User":
       case "Title":
       case "Renter":
-      case "Owner": // Add sorting for the "Owner" column
+      case "Owner":
         return (
           <select
             className="form-select"
@@ -41,7 +42,19 @@ const TableComponent = ({
             <option value="COS">COS</option>
           </select>
         );
+        case "Type":
+          return (
+            <select
+              className="form-select"
+              onChange={(e) => onFilterChange(header, e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="rental">RENTAL</option>
+              <option value="buy_and_sell">SALE</option>
+            </select>
+          );
       case "Date Added":
+      case "Date":
         return (
           <select
             className="form-select"
@@ -52,21 +65,20 @@ const TableComponent = ({
             <option value="oldest">Oldest</option>
           </select>
         );
-      case "Status":
-        return (
-          <select
-            className="form-select"
-            onChange={(e) => onFilterChange(header, e.target.value)}
-          >
-            <option value="">All</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="declined">Declined</option>
-            <option value="removed">Removed</option>
-            <option value="revoked">Revoked</option>
-            <option value="flagged">Flagged</option>
-          </select>
-        );
+        case "Status":
+          return (
+            <select
+              className="form-select"
+              onChange={(e) => onFilterChange(header, e.target.value)}
+            >
+              <option value="">All</option>
+              {statusOptions.map((status, idx) => (
+                <option key={idx} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          );
       default:
         return null;
     }

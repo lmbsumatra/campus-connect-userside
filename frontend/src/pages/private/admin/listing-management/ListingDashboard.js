@@ -63,6 +63,15 @@ const ListingDashboard = () => {
     return { label, className };
   };
 
+  const filterableStatusOptions = [
+    "pending",
+    "approved",
+    "declined",
+    "removed",
+    "revoked",
+    "flagged",
+  ];
+
   const handleSortChange = (column, order) => {
     if (order === "default") {
       setSortOptions({});
@@ -214,6 +223,7 @@ const ListingDashboard = () => {
               data={data}
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
+              statusOptions={filterableStatusOptions}
             />
             {/* Pagination Component */}
             <PaginationComponent
