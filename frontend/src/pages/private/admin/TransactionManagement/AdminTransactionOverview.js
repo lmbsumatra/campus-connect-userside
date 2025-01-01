@@ -6,6 +6,7 @@ import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
+import { TransactionStatus} from "../../../../utils/Status";
 import CardComponent from "../../../../components/Table/CardComponent"; 
 
 const AdminTransactionOverview = () => {
@@ -41,6 +42,7 @@ const AdminTransactionOverview = () => {
     navigate(`/admin/transactions/view/${transactionId}`);
   };
 
+  
   const handleEdit = (transactionId) => {
     console.log(`Resolving transactionId with ID: ${transactionId}`);
   };
@@ -50,17 +52,22 @@ const AdminTransactionOverview = () => {
   };
 
   const getStatusInfo = (status) => {
-    switch (status) {
-      case "pending":
-        return { label: "Pending", className: "bg-warning text-dark" };
-      case "completed":
-        return { label: "Completed", className: "bg-success text-white" };
-      case "failed":
-        return { label: "Failed", className: "bg-danger text-white" };
-      default:
-        return { label: "Unknown", className: "bg-light text-dark" };
-    }
+    const { label, className } = TransactionStatus(status);
+    return { label, className };
   };
+  
+  const filterableStatusOptions = [
+    "Requested",
+    "Accepted",
+    "Declined",
+    "HandedOver",
+    "Returned",
+    "Completed",
+    "Cancelled",
+    "HandOver", // For BuyAndSellTransaction
+    "Review"    // For BuyAndSellTransaction
+  ];
+  
 
   const handleSortChange = (column, order) => {
     if (order === "default") {
@@ -69,12 +76,10 @@ const AdminTransactionOverview = () => {
       setSortOptions({ [column]: order });
     }
   };
-  const handleFilterChange = (column, value) => {
-    setFilterOptions((prevFilters) => {
-      return { ...prevFilters, [column]: value };
-    });
-  };
 
+  const handleFilterChange = (column, value) => {
+    setFilterOptions({ ...filterOptions, [column]: value });
+  };
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -101,9 +106,6 @@ const AdminTransactionOverview = () => {
         );
       });
     }
-    const handleFilterChange = (column, value) => {
-        setFilterOptions({ ...filterOptions, [column]: value });
-      };
 
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(
@@ -187,7 +189,7 @@ const AdminTransactionOverview = () => {
           />
           {loading && <p>Loading ...</p>}
           {error && <p>Error: {error}</p>}
-           {/* View switcher */}
+            {/* View switcher */}
        <div className="admin-view-toggle">
             <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
             <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
@@ -200,6 +202,7 @@ const AdminTransactionOverview = () => {
               data={data}
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
+              statusOptions={filterableStatusOptions} 
             />
           ) : (
             <CardComponent data={data} headers={headers}/>

@@ -14,6 +14,7 @@ import {
   TopSellers,
 } from "../../../../components/Analytics/SaleAnalyticsComponents";
 
+
 const ForSaleManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOptions, setSortOptions] = useState({});
@@ -61,6 +62,15 @@ const ForSaleManagement = () => {
     const { label, className } = ItemStatus(status);
     return { label, className };
   };
+
+  const filterableStatusOptions = [
+    "pending",
+    "approved",
+    "declined",
+    "removed",
+    "revoked",
+    "flagged",
+  ];
 
   const handleSortChange = (column, order) => {
     if (order === "default") {
@@ -220,6 +230,7 @@ const ForSaleManagement = () => {
             data={data}
             onSortChange={handleSortChange}
             onFilterChange={handleFilterChange}
+            statusOptions={filterableStatusOptions} 
           />
             <PaginationComponent
               currentPage={currentPage}
