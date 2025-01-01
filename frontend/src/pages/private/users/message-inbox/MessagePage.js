@@ -5,9 +5,11 @@ import { useAuth } from "../../../../context/AuthContext";
 import { io } from "socket.io-client";
 import { baseApi } from "../../../../App";
 import ProductCard from "./ProductCard";
+import { useLocation } from "react-router-dom";
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
+  const { state } = useLocation(); // Get ownerId from navigate state
   const [conversations, setConversations] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -38,6 +40,25 @@ const MessagePage = () => {
 
     socket.current.on("receiveMessage", (message) => {
       console.log("Received message:", message);
+
+      setConversations((prevConversations) => {
+        const updatedConversations = prevConversations.map((conversation) => {
+          if (conversation.id === message.conversationId) {
+            return {
+              ...conversation,
+              messages: [...conversation.messages, message],
+              updatedAt: new Date().toISOString(), // Update the timestamp
+            };
+          }
+          return conversation;
+        });
+
+        // Sort updated conversations
+        return updatedConversations.sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+      });
+
       if (activeChat && message.conversationId === activeChat.id) {
         setActiveChat((prev) => ({
           ...prev,
@@ -65,14 +86,31 @@ const MessagePage = () => {
         );
         const data = await res.json();
         setConversations(data.conversations);
+
+         // Sort conversations by the most recent activity
+        const sortedConversations = data.conversations.sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+        setConversations(sortedConversations);
+
+          // Automatically set the conversation with the owner as active
+          if (state?.ownerId || state?.sellerId) {
+            const targetConversation = data.conversations.find((conversation) =>
+              conversation.members.includes(String(state.ownerId || state.sellerId))
+            );
+            setActiveChat(targetConversation || null);
+          }
+
         setIsLoading(false);
+
       } catch (err) {
         console.error("Error fetching conversations:", err);
       }
     };
 
     fetchConversations();
-  }, [userId]);
+  }, [studentUser.userId, state?.ownerId, state?.sellerId]);
+  
   
   useEffect(() => {
     if (chatContentRef.current) {
@@ -139,7 +177,7 @@ const MessagePage = () => {
                   <h5>{chat.otherUser.first_name}</h5>
                   <p>{chat.preview}</p>
                 </div>
-                <span>{new Date(chat.date).toLocaleString()}</span>
+                <span>{new Date(chat.updatedAt).toLocaleString()}</span>
               </div>
             ))
           ) : (
@@ -173,14 +211,14 @@ const MessagePage = () => {
                     }`}
                   >
                     <p>{message.text}</p>
-                    <span>{new Date(message.createdAt).toLocaleString()}</span>
+                    <span>{new Date(message.updatedAt).toLocaleString()}</span>
                   </div>
                 ))
               ) : (
                 <p>No messages yet.</p>
               )}
             </div>
-            <ProductCard />
+            {/* <ProductCard /> */}
             <div className="chat-input">
               <input
                 type="text"

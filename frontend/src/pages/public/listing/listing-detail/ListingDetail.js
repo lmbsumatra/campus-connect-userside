@@ -249,7 +249,9 @@ function ListingDetail() {
       );
   
       if (response.ok) {
-        navigate("/messages"); // Redirect to messages page
+        navigate("/messages", {
+          state: { ownerId: approvedListingById.owner.id },
+        }); // Navigate and pass ownerId as state
       } else {
         const error = await response.json();
         console.error("Error creating conversation:", error.error);
@@ -257,7 +259,8 @@ function ListingDetail() {
     } catch (err) {
       console.error("Error handling message click:", err);
     }
-};
+  };
+  
 
 
   return (

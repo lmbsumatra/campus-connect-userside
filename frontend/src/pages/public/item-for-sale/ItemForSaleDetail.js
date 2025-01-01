@@ -240,13 +240,15 @@ function ItemForSaleDetail() {
       );
   
       if (response.ok) {
-        navigate("/messages"); // Redirect to the messages page
+        navigate("/messages", {
+          state: { sellerId: approvedItemForSaleById.seller.id }, // Pass sellerId to MessagePage
+        });
       } else {
         const error = await response.json();
         console.error("Error creating conversation with seller:", error.error);
       }
     } catch (err) {
-      console.error("Error handling message click:", err);
+      console.error("Error handling message seller click:", err);
     }
   };
   
