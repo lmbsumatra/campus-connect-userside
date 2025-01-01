@@ -62,15 +62,6 @@ const PostDashboard = () => {
     return { label, className };
   };
 
-  const filterableStatusOptions = [
-    "pending",
-    "approved",
-    "declined",
-    "removed",
-    "revoked",
-    "flagged",
-  ];
-  
   const handleSortChange = (column, order) => {
     if (order === "default") {
       setSortOptions({});
@@ -235,7 +226,6 @@ const PostDashboard = () => {
               data={data}
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
-              statusOptions={filterableStatusOptions}
             />
             {/* Pagination Component */}
             <PaginationComponent

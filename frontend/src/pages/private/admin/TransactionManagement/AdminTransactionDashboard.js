@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import { TopTransactionUsers, TransactionStatusDistribution, TransactionsByType, TransactionsGrowth } from "../../../../components/Analytics/TransactionAnalyticsComponent";
-import { TransactionStatus} from "../../../../utils/Status";
 
 const AdminTransactionDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,22 +50,17 @@ const AdminTransactionDashboard = () => {
   };
 
   const getStatusInfo = (status) => {
-    const { label, className } = TransactionStatus(status);
-    return { label, className };
+    switch (status) {
+      case "pending":
+        return { label: "Pending", className: "bg-warning text-dark" };
+      case "completed":
+        return { label: "Completed", className: "bg-success text-white" };
+      case "failed":
+        return { label: "Failed", className: "bg-danger text-white" };
+      default:
+        return { label: "Unknown", className: "bg-light text-dark" };
+    }
   };
-  
-  const filterableStatusOptions = [
-    "Requested",
-    "Accepted",
-    "Declined",
-    "HandedOver",
-    "Returned",
-    "Completed",
-    "Cancelled",
-    "HandOver", // For BuyAndSellTransaction
-    "Review"    // For BuyAndSellTransaction
-  ];
-  
 
   const handleSortChange = (column, order) => {
     if (order === "default") {
@@ -79,19 +73,18 @@ const AdminTransactionDashboard = () => {
   const handleFilterChange = (column, value) => {
     setFilterOptions({ ...filterOptions, [column]: value });
   };
-
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
   const getFilteredData = () => {
     let filteredData = originalData;
-  
+
     const normalizedSearchQuery = searchQuery
       .trim()
       .replace(/\s+/g, " ")
       .toLowerCase();
-  
+
     if (normalizedSearchQuery) {
       filteredData = filteredData.filter((transaction) => {
         const participantNames = `${transaction.buyer?.first_name || transaction.renter?.first_name} ${
@@ -106,24 +99,15 @@ const AdminTransactionDashboard = () => {
         );
       });
     }
-  
-    // Ensure the filter logic for "Type" works correctly
-    if (filterOptions["Type"] && filterOptions["Type"] !== "") {
-      filteredData = filteredData.filter(
-        (transaction) => transaction.type === filterOptions["Type"]
-      );
-    }
-  
-    // Ensure the filter logic for "Status" works correctly
+
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(
         (transaction) => transaction.status === filterOptions["Status"]
       );
     }
-  
+
     return filteredData;
   };
-  
 
   const sortedData = () => {
     let sorted = [...getFilteredData()];
@@ -199,7 +183,6 @@ const AdminTransactionDashboard = () => {
             data={data}
             onSortChange={handleSortChange}
             onFilterChange={handleFilterChange}
-            statusOptions={filterableStatusOptions} 
           />
           <PaginationComponent
             currentPage={currentPage}
