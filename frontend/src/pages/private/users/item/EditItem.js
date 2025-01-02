@@ -122,6 +122,7 @@ const EditItem = () => {
   const [originalData, setOriginalData] = useState(null);
   const [showComparison, setShowComparison] = useState(false);
   const [unavailableDates, setUnavailableDates] = useState([]);
+  const [removedDates, setRemovedDates] = useState([]);
 
   useEffect(() => {
     if (!itemData) {
@@ -200,12 +201,9 @@ const EditItem = () => {
     }
   }, [itemDataState.images?.value]);
 
-  console.log(itemDataState);
-
   const handleImagesChange = ({ currentImages, removedImagesList }) => {
     setLocalImages(currentImages);
     setRemovedImages(removedImagesList);
-    console.log({ localImages });
 
     // Extract filenames
     const filenames = currentImages.map((image) => {
@@ -218,8 +216,6 @@ const EditItem = () => {
         blobFilename.substring(blobFilename.lastIndexOf("/") + 1) || "blob-file"
       );
     });
-
-    console.log("Filenames:", filenames); // Debugging: log the filenames
 
     // Dispatch updates to Redux
     dispatch(updateField({ name: "images", value: filenames })); // Use filenames instead of full objects
@@ -291,14 +287,29 @@ const EditItem = () => {
     );
   };
 
-  const handleSaveDatesDurations = (datesDurations) => {
+  const handleSaveDatesDurations = (datesDurations, removed) => {
+    // Format the datesDurations as required
     const serializedDates = datesDurations.map((dateObj) => ({
       date: formatDateFromSelectDate(dateObj.date),
       durations: dateObj.durations,
     }));
+
+    // Format the removed dates to 'yy-mm-dd'
+    const formattedRemovedDates = removed.map((removedDate) => {
+      return formatDateFromSelectDate(removedDate.date)
+    });
+
+    // Set the formatted removed dates
+    setRemovedDates(formattedRemovedDates);
+
+    // Dispatch the action for the selected dates
     setSelectedDatesDurations(datesDurations);
     dispatch(updateAvailableDates(serializedDates));
+
+    // Log the formatted removed dates for debugging
+    console.log(formattedRemovedDates);
   };
+
 
   const handleCategoryChange = (selectedCategory) => {
     setCategory(selectedCategory);
@@ -379,6 +390,7 @@ const EditItem = () => {
         desc: itemDataState.desc.value,
         tags: itemDataState.tags.value,
         dates: itemDataState.availableDates.value,
+        toRemoveDates: removedDates,
         specs: itemDataState.specs.value,
         ...(itemType === FOR_RENT && {
           lateCharges: itemDataState.lateCharges.value,
@@ -573,6 +585,32 @@ const EditItem = () => {
                   (item) => new Date(item.date)
                 )}
                 excludeDates={UNAVAILABLE_DATES.map((date) => new Date(date))}
+                dayClassName={(date) => {
+                  const dateWithoutTime = new Date(
+                    date.getFullYear(),
+                    date.getMonth(),
+                    date.getDate()
+                  ); // Normalize to date without time
+                  const unavailableDateWithoutTime = unavailableDates.map(
+                    (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()) // Normalize to date without time
+                  );
+
+                  if (
+                    unavailableDateWithoutTime.some(
+                      (d) => d.getTime() === dateWithoutTime.getTime()
+                    )
+                  ) {
+                    return "bg-danger"; // Mark the unavailable dates with bg-danger
+                  } else if (
+                    selectedDatesDurations.some(
+                      (d) => new Date(d.date).getTime() === date.getTime()
+                    )
+                  ) {
+                    return "bg-blue"; // Mark the highlighted dates with bg-blue
+                  } else {
+                    return "bg-green"; // Mark other available dates with bg-green
+                  }
+                }}
               />
             </div>
 

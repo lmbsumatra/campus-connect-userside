@@ -237,7 +237,7 @@ const DateDurationPicker = ({
   };
 
   const handleSaveAndClose = () => {
-    onSaveDatesDurations(dates);
+    onSaveDatesDurations(dates, removedDates);
     onClose();
   };
 
@@ -263,7 +263,6 @@ const DateDurationPicker = ({
     }
   };
 
-  console.log("All Removed Dates:", removedDates); // Log the updated removedDates array
   return (
     <Modal show={show} onHide={handleSaveAndClose} size="lg">
       <Modal.Header closeButton>

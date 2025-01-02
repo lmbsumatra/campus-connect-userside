@@ -22,6 +22,7 @@ const addDatesAndDurations = async (itemId, dates) => {
       where: {
         item_id: itemId,
         date: date.date, // Check if date exists
+        item_type: "item_for_sale",
       },
     });
 
@@ -84,6 +85,81 @@ const addDatesAndDurations = async (itemId, dates) => {
   }
 };
 
+// Helper function to remove dates and their associated durations
+const removeDatesAndDurations = async (itemId, removedDates) => {
+  for (const removedDate of removedDates) {
+    // Find the date record by itemId and date
+    const dateRecord = await models.Date.findOne({
+      where: {
+        item_id: itemId,
+        date: removedDate,
+        item_type: "item_for_sale",
+      },
+    });
+
+    if (dateRecord) {
+      console.log(
+        `Processing date ${removedDate} for removal for item ${itemId}`
+      );
+
+      // Check if this date is linked to any rental transactions
+      const rentalTransactionForDate = await models.RentalTransaction.findOne({
+        where: { rental_date_id: dateRecord.id },
+      });
+
+      if (rentalTransactionForDate) {
+        console.log(
+          `Date ${removedDate} is linked to active rentals. Skipping deletion.`
+        );
+        continue; // Skip this date
+      }
+
+      // Fetch associated durations
+      const durations = await models.Duration.findAll({
+        where: { date_id: dateRecord.id },
+      });
+
+      for (const duration of durations) {
+        // Check if this duration is linked to any rental transactions
+        const rentalTransactionForDuration =
+          await models.RentalTransaction.findOne({
+            where: { rental_time_id: duration.id },
+          });
+
+        if (rentalTransactionForDuration) {
+          console.log(
+            `Duration from ${duration.rental_time_from} to ${duration.rental_time_to} is linked to active rentals. Skipping deletion.`
+          );
+          continue; // Skip this duration
+        }
+
+        // If no active rentals, delete the duration
+        await duration.destroy();
+        console.log(
+          `Removed duration from ${duration.rental_time_from} to ${duration.rental_time_to}`
+        );
+      }
+
+      // Check if all durations for the date are removed
+      const remainingDurations = await models.Duration.findAll({
+        where: { date_id: dateRecord.id },
+      });
+
+      if (remainingDurations.length === 0) {
+        // If no durations remain, delete the date
+        await dateRecord.destroy();
+        console.log(`Removed date ${removedDate}`);
+      } else {
+        console.log(
+          `Date ${removedDate} has active durations linked to rentals. Skipping date deletion.`
+        );
+      }
+    } else {
+      console.log(`No date record found for date ${removedDate}`);
+    }
+  }
+};
+
 // Main function
 const updateItemForSaleById = async (req, res) => {
   const transaction = await sequelize.transaction();
@@ -128,6 +204,12 @@ const updateItemForSaleById = async (req, res) => {
     // Extract remove_images field if provided
     const removeImages = req.body.remove_images || [];
     console.log("Images to remove:", removeImages); // Debug remove images
+
+    // Extract removed dates if provided
+    const removedDates = Array.isArray(itemData.toRemoveDates)
+      ? itemData.toRemoveDates
+      : [];
+    console.log("Dates to remove:", removedDates); // Debug removed dates
 
     // Fetch the existing item
     const existingItem = await models.ItemForSale.findByPk(itemId);
@@ -185,7 +267,13 @@ const updateItemForSaleById = async (req, res) => {
       { where: { id: itemId }, transaction }
     );
 
-    // Add dates and durations if they exist in itemData
+    // Remove the dates and durations if they exist in removedDates
+    if (removedDates.length > 0) {
+      console.log("Removing dates and associated durations...");
+      await removeDatesAndDurations(itemId, removedDates);
+    }
+
+    // Add new dates and durations if they exist in itemData
     if (itemData.dates && itemData.dates.length > 0) {
       console.log("Adding new dates and durations...");
       await addDatesAndDurations(itemId, itemData.dates);
