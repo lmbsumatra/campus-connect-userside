@@ -95,6 +95,7 @@ const EditItem = () => {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const { userId, role } = useSelector(selectStudentUser);
   const location = useLocation();
+
   const itemData = location?.state?.item || {};
   const {
     [location.state.item.itemType === FOR_RENT
@@ -108,9 +109,6 @@ const EditItem = () => {
       ? state.listingById
       : state.itemForSaleById
   );
-
-  console.log({ itemById });
-  console.log(location.state.item.itemType, itemById, "This");
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
   });
@@ -120,8 +118,10 @@ const EditItem = () => {
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
   const [localImages, setLocalImages] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
   const [originalData, setOriginalData] = useState(null);
   const [showComparison, setShowComparison] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState([]);
 
   useEffect(() => {
     if (!itemData) {
@@ -129,20 +129,14 @@ const EditItem = () => {
       return;
     }
 
-    const isOwner =
-      itemData.owner?.id && userId === itemData.owner.id && role === "student";
-    const isSeller =
-      itemData.seller?.id &&
-      userId === itemData.seller.id &&
-      role === "student";
-
-    if (isOwner && itemData.itemType === FOR_RENT) {
-      dispatch(fetchListingById({ userId, listingId: itemData.id }));
-    } else if (isSeller && itemData.itemType === FOR_SALE) {
-      dispatch(fetchItemForSaleById({ userId, itemForSaleId: itemData.id }));
+    if (location.state?.item?.itemType === FOR_SALE) {
+      const itemForSaleId = location.state.item.id;
+      dispatch(fetchItemForSaleById({ userId, itemForSaleId }));
+    } else if (location.state?.item?.itemType === FOR_RENT) {
+      const listingId = location.state.item.id;
+      dispatch(fetchListingById({ userId, listingId }));
     }
   }, [itemData, userId, role, navigate, dispatch]);
-
   useEffect(() => {
     if (!loading && itemById) {
       const initialData = {
@@ -152,19 +146,36 @@ const EditItem = () => {
       };
       setOriginalData(initialData);
       dispatch(populateItemData(itemById));
+
       const newSelectedDatesDurations = [];
+      const unavailableDates = [];
+
       itemDataState.availableDates.value.forEach((dateItem) => {
         if (dateItem.date) {
-          newSelectedDatesDurations.push({
-            date: new Date(dateItem.date),
-            durations: dateItem.durations.map((duration) => ({
-              timeFrom: duration.timeFrom,
-              timeTo: duration.timeTo,
-            })),
-          });
+          // Filter dates where the status is not "available"
+          const isAvailable = dateItem.status === "available";
+
+          // If not available, add it to the unavailableDates array
+          if (!isAvailable) {
+            unavailableDates.push(new Date(dateItem.date));
+          }
+
+          // Add selected dates and durations to the newSelectedDatesDurations
+          if (isAvailable) {
+            newSelectedDatesDurations.push({
+              date: new Date(dateItem.date),
+              durations: dateItem.durations.map((duration) => ({
+                timeFrom: duration.timeFrom,
+                timeTo: duration.timeTo,
+              })),
+            });
+          }
         }
       });
+
+      // Set the state for both selectedDatesDurations and unavailableDates
       setSelectedDatesDurations(newSelectedDatesDurations);
+      setUnavailableDates(unavailableDates);
     }
   }, [loading, itemById, dispatch]);
 
@@ -177,15 +188,43 @@ const EditItem = () => {
   useEffect(() => {
     if (itemDataState.itemType && itemDataState.itemType.value !== itemType) {
       setItemType(itemDataState.itemType.value);
-      console.log(itemDataState);
     }
   }, [itemDataState.itemType.value, itemType]);
 
   useEffect(() => {
-    if (itemDataState.images && itemDataState.images.value !== localImages) {
-      setLocalImages(itemDataState.images.value);
+    if (itemDataState.images?.value) {
+      // Only set localImages once when initially loading the data
+      if (localImages.length === 0) {
+        setLocalImages(itemDataState.images.value);
+      }
     }
-  }, [itemDataState.images.value, localImages]);
+  }, [itemDataState.images?.value]);
+
+  console.log(itemDataState);
+
+  const handleImagesChange = ({ currentImages, removedImagesList }) => {
+    setLocalImages(currentImages);
+    setRemovedImages(removedImagesList);
+    console.log({ localImages });
+
+    // Extract filenames
+    const filenames = currentImages.map((image) => {
+      if (image.file && image.file.name) {
+        return image.file.name; // For files
+      }
+      // For blob URLs, extract a default or placeholder filename
+      const blobFilename = image.preview || image;
+      return (
+        blobFilename.substring(blobFilename.lastIndexOf("/") + 1) || "blob-file"
+      );
+    });
+
+    console.log("Filenames:", filenames); // Debugging: log the filenames
+
+    // Dispatch updates to Redux
+    dispatch(updateField({ name: "images", value: filenames })); // Use filenames instead of full objects
+    dispatch(blurField({ name: "images", value: filenames }));
+  };
 
   useEffect(() => {
     if (userId) {
@@ -254,7 +293,7 @@ const EditItem = () => {
 
   const handleSaveDatesDurations = (datesDurations) => {
     const serializedDates = datesDurations.map((dateObj) => ({
-      date: dateObj.date.toISOString(),
+      date: formatDateFromSelectDate(dateObj.date),
       durations: dateObj.durations,
     }));
     setSelectedDatesDurations(datesDurations);
@@ -265,19 +304,6 @@ const EditItem = () => {
     setCategory(selectedCategory);
     dispatch(updateField({ name: "category", value: selectedCategory }));
     dispatch(blurField({ name: "category", value: selectedCategory }));
-  };
-
-  const handleImagesChange = (newImages) => {
-    const imageNames = newImages.map((image) => {
-      if (typeof image === "string") {
-        return image;
-      }
-      return image.name || "";
-    });
-
-    setLocalImages(newImages);
-    dispatch(updateField({ name: "images", value: imageNames }));
-    dispatch(blurField({ name: "images", value: imageNames }));
   };
 
   const handleSubmit = async () => {
@@ -333,9 +359,14 @@ const EditItem = () => {
         );
         return;
       }
-
       const formData = new FormData();
-      localImages.forEach((image) => formData.append("item_images", image));
+      localImages
+        .filter((image) => image.file instanceof File) // Filter only File objects
+        .forEach((image) => formData.append("upload_images", image.file));
+
+      removedImages.forEach((image) => {
+        formData.append("remove_images", image);
+      });
 
       const itemData = {
         [itemType === FOR_RENT ? "ownerId" : "sellerId"]: userId,
@@ -364,10 +395,9 @@ const EditItem = () => {
       const endpoint =
         itemType === FOR_RENT
           ? `/listings/users/${userId}/update/${itemById.id}`
-          : "/item-for-sale/update";
+          : `/item-for-sale/users/${userId}/update/${itemById.id}`;
 
-      ShowAlert(dispatch, "loading", "Creating listing", "Please wait...");
-
+      ShowAlert(dispatch, "loading", "Submitting changes", "Please wait...");
       const response = await axios.patch(`${baseApi}${endpoint}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -396,19 +426,16 @@ const EditItem = () => {
         dispatch,
         "success",
         "Success",
-        `Item for ${itemType === FOR_RENT ? "listing" : "sale"} added!`
+        `Item for ${itemType === FOR_RENT ? "listing" : "sale"} changed!`
       );
     } catch (error) {
       ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
       console.error("Submission error:", error);
       const errorMessage =
-        error.response?.data?.message ||
-        "Failed to create listing. Please try again.";
+        error.response?.data?.message || "Failed to update. Please try again.";
       ShowAlert(dispatch, "error", "Error", errorMessage);
     }
   };
-
-  console.log("Current itemType:", itemType);
 
   return (
     <div className="container-content add-item-detail">
@@ -426,7 +453,11 @@ const EditItem = () => {
           {itemDataState.images.triggered && itemDataState.images.hasError && (
             <ValidationError message={itemDataState.images.error} />
           )}
-          <AddImage images={localImages} onChange={handleImagesChange} />
+          <AddImage
+            images={localImages}
+            onChange={handleImagesChange}
+            removedImages={removedImages}
+          />
         </div>
 
         <div className="rental-details">
@@ -519,7 +550,10 @@ const EditItem = () => {
               show={showDateDurationPicker}
               onClose={() => setShowDateDurationPicker(false)}
               onSaveDatesDurations={handleSaveDatesDurations}
-              unavailableDates={UNAVAILABLE_DATES}
+              unavailableDates={[
+                ...UNAVAILABLE_DATES, // Add the hardcoded unavailable dates
+                ...unavailableDates.map((date) => new Date(date)), // Add dynamically determined unavailable dates
+              ]}
               selectedDatesDurations={selectedDatesDurations}
             />
 

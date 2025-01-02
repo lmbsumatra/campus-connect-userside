@@ -29,7 +29,10 @@ const upload = multer({ storage: storage }).fields([
 
 const upload_prof = multer({ storage: storage }).single("profile_pic");
 
-const upload_item = multer({ storage: storage }).array("item_images", 5);
+const upload_item = multer({ storage: storage }).fields([
+  { name: "upload_images", maxCount: 5 },
+  { name: "remove_images" }, // If needed for rollback or future features
+]);
 
 const upload_item_disabled = (req, res, next) => {
   return res

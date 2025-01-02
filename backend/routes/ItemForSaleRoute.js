@@ -26,6 +26,11 @@ router.patch("/:id", ItemForSaleController.updateStatus);
 
 // crud for user
 router.post("/add", upload_item, ItemForSaleController2.addItemForSale);
+router.get(
+  "/users/:userId/get/:itemForSaleId",
+  upload_item,
+  ItemForSaleController2.getItemForSaleById
+);
 router.patch(
   "/users/:userId/update/:itemId",
   upload_item,

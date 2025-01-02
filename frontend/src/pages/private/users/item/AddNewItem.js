@@ -100,6 +100,7 @@ const AddNewItem = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const itemDataState = useSelector((state) => state.itemForm);
+  const [removedImages, setRemovedImages] = useState([]);
   const { user, loadingFetchUser, errorFetchUser } = useSelector(
     (state) => state.user
   );
@@ -199,20 +200,28 @@ const AddNewItem = () => {
     dispatch(blurField({ name: "category", value: selectedCategory }));
   };
 
-  const handleImagesChange = (newImages) => {
-    setLocalImages(newImages); // Update local state with new images
-    dispatch(
-      updateField({
-        name: "images",
-        value: newImages.map((image) => image.name || image), // Use name or URL depending on type
-      })
-    );
-    dispatch(
-      blurField({
-        name: "images",
-        value: newImages.map((image) => image.name || image),
-      })
-    );
+  const handleImagesChange = ({ currentImages, removedImagesList }) => {
+    setLocalImages(currentImages);
+    setRemovedImages(removedImagesList);
+    console.log({ localImages });
+
+    // Extract filenames
+    const filenames = currentImages.map((image) => {
+      if (image.file && image.file.name) {
+        return image.file.name; // For files
+      }
+      // For blob URLs, extract a default or placeholder filename
+      const blobFilename = image.preview || image;
+      return (
+        blobFilename.substring(blobFilename.lastIndexOf("/") + 1) || "blob-file"
+      );
+    });
+
+    console.log("Filenames:", filenames); // Debugging: log the filenames
+
+    // Dispatch updates to Redux
+    dispatch(updateField({ name: "images", value: filenames })); // Use filenames instead of full objects
+    dispatch(blurField({ name: "images", value: filenames }));
   };
 
   const handleSubmit = async () => {
@@ -273,8 +282,13 @@ const AddNewItem = () => {
       }
 
       const formData = new FormData();
-      localImages.forEach((image) => formData.append("item_images", image));
+      localImages
+        .filter((image) => image.file instanceof File) // Filter only File objects
+        .forEach((image) => formData.append("upload_images", image.file));
 
+      removedImages.forEach((image) => {
+        formData.append("remove_images", image);
+      });
       const itemData = {
         [itemType === FOR_RENT ? "ownerId" : "sellerId"]: userId,
         category: itemDataState.category.value,
@@ -286,6 +300,7 @@ const AddNewItem = () => {
         desc: itemDataState.desc.value,
         tags: itemDataState.tags.value,
         dates: itemDataState.availableDates.value,
+        images: itemDataState.images.value,
         specs: itemDataState.specs.value,
         ...(itemType === FOR_RENT && {
           lateCharges: itemDataState.lateCharges.value,
@@ -310,7 +325,6 @@ const AddNewItem = () => {
       // Make Axios request with timeout
       const response = await axios.post(`${baseApi}${endpoint}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 5000, // 5 seconds timeout
       });
 
       if (socket) {
@@ -370,7 +384,11 @@ const AddNewItem = () => {
               <span className="text">{itemDataState.images.error}</span>
             </div>
           )}
-          <AddImage images={localImages} onChange={handleImagesChange} />
+          <AddImage
+            images={localImages}
+            onChange={handleImagesChange}
+            removedImages={removedImages}
+          />
         </div>
 
         <div className="rental-details">

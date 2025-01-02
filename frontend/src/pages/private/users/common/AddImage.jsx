@@ -1,30 +1,77 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import prevIcon from "../../../../assets/images/pdp/prev.svg";
 import nextIcon from "../../../../assets/images/pdp/next.svg";
 import removeIcon from "../../../../assets/images/input-icons/remove.svg";
-import warningIcon from "../../../../assets/images/input-icons/warning.svg";
 import "./addImageStyles.css";
 
-const AddImage = ({ images = [], onChange }) => {
-  const dispatch = useDispatch();
-  const itemDataState = useSelector((state) => state.itemForm);
+// AddImage Component
+const AddImage = ({
+  images = [],
+  onChange,
+  removedImages: initialRemovedImages = [],
+}) => {
+  const [currentImages, setCurrentImages] = useState(images);
+  const [removedImagesList, setRemovedImagesList] =
+    useState(initialRemovedImages);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [uploadedImages, setUploadedImages] = useState(images);
-  const [imageFiles, setImageFiles] = useState([]);
   const inputRef = useRef(null);
+
+  // Update internal state when props change
   useEffect(() => {
-    setImageFiles(images);
+    setCurrentImages(images);
   }, [images]);
 
+  // Handle image upload
+  const handleImageUpload = (event) => {
+    const files = Array.from(event.target.files); // Get the list of files
+    const newImages = files.map((file) => ({
+      type: "file",
+      file, // Store the File object
+      preview: URL.createObjectURL(file), // Create a blob URL for preview
+    }));
+
+    const updatedImages = [...currentImages, ...newImages];
+    setCurrentImages(updatedImages);
+    setCurrentIndex(updatedImages.length - 1);
+
+    onChange({
+      currentImages: updatedImages,
+      removedImagesList,
+    });
+  };
+
+  // Updated removeImage to handle both blob and file
+  const removeImage = (index) => {
+    const imageToRemove = currentImages[index];
+    const updatedImages = currentImages.filter((_, i) => i !== index);
+    const updatedRemovedImages = [...removedImagesList];
+
+    // If it's a file, store the file in removedImagesList
+    if (imageToRemove.type === "file") {
+      updatedRemovedImages.push(imageToRemove.file);
+    }
+
+    setCurrentImages(updatedImages);
+    setRemovedImagesList(updatedRemovedImages);
+    setCurrentIndex(
+      Math.max(0, Math.min(currentIndex, updatedImages.length - 1))
+    );
+
+    onChange({
+      currentImages: updatedImages,
+      removedImagesList: updatedRemovedImages,
+    });
+  };
+
+  // Navigation functions
   const nextImage = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % uploadedImages.length);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % currentImages.length);
   };
 
   const prevImage = () => {
     setCurrentIndex(
       (prevIndex) =>
-        (prevIndex - 1 + uploadedImages.length) % uploadedImages.length
+        (prevIndex - 1 + currentImages.length) % currentImages.length
     );
   };
 
@@ -32,57 +79,13 @@ const AddImage = ({ images = [], onChange }) => {
     setCurrentIndex(index);
   };
 
-  const handleImageUpload = (event) => {
-    const uploadedFiles = Array.from(event.target.files);
-    const newImageUrls = uploadedFiles.map((file) => URL.createObjectURL(file));
-
-    setUploadedImages((prevImages) => {
-      const updatedImages = [...prevImages, ...newImageUrls];
-      setCurrentIndex(updatedImages.length - 1);
-      return updatedImages;
-    });
-
-    setImageFiles((prevFiles) => {
-      const updatedFiles = [...prevFiles, ...uploadedFiles];
-      return updatedFiles;
-    });
-
-    onChange([...images, ...uploadedFiles]);
-  };
-
-  const removeImage = (index) => {
-    setUploadedImages((prevImages) => {
-      const updatedImages = prevImages.filter((_, i) => i !== index);
-
-      setCurrentIndex((prevIndex) => {
-        if (updatedImages.length === 0) {
-          return 0;
-        } else if (prevIndex >= index) {
-          return Math.max(prevIndex - 1, 0);
-        } else {
-          return prevIndex;
-        }
-      });
-
-      return updatedImages;
-    });
-
-    setImageFiles((prevFiles) => {
-      const updatedFiles = prevFiles.filter((_, i) => i !== index);
-      updatedFiles.splice(index, 1);
-      onChange(updatedFiles);
-      return updatedFiles;
-    });
-  };
-
   return (
     <>
-      {uploadedImages.length === 0 ? (
+      {currentImages.length === 0 ? (
         <div className="no-image">
           <label htmlFor="imageUpload" className="image-upload-label">
             <span className="text">Click here to upload</span>
           </label>
-
           <input
             id="imageUpload"
             type="file"
@@ -110,17 +113,25 @@ const AddImage = ({ images = [], onChange }) => {
         </div>
       )}
 
-      {uploadedImages.length > 0 && (
+      {currentImages.length > 0 && (
         <>
           <div className="highlight">
             <div
               className="highlight-bg"
               style={{
-                backgroundImage: `url(${uploadedImages[currentIndex]})`,
+                backgroundImage: `url(${
+                  currentImages[currentIndex].type === "file"
+                    ? currentImages[currentIndex].preview
+                    : currentImages[currentIndex]
+                })`,
               }}
             ></div>
             <img
-              src={uploadedImages[currentIndex]}
+              src={
+                currentImages[currentIndex].type === "file"
+                  ? currentImages[currentIndex].preview
+                  : currentImages[currentIndex]
+              }
               alt="Item"
               className="highlight-img"
             />
@@ -131,12 +142,13 @@ const AddImage = ({ images = [], onChange }) => {
               <img src={prevIcon} alt="Previous image" className="prev-btn" />
             </div>
 
-            {[...Array(Math.min(uploadedImages.length, 5)).keys()].map((i) => {
+            {[...Array(Math.min(currentImages.length, 5)).keys()].map((i) => {
               const offset =
-                i - Math.floor(Math.min(uploadedImages.length, 5) / 2);
+                i - Math.floor(Math.min(currentImages.length, 5) / 2);
               const index =
-                (currentIndex + offset + uploadedImages.length) %
-                uploadedImages.length;
+                (currentIndex + offset + currentImages.length) %
+                currentImages.length;
+
               return (
                 <div
                   key={index}
@@ -144,7 +156,11 @@ const AddImage = ({ images = [], onChange }) => {
                   style={{ position: "relative" }}
                 >
                   <img
-                    src={uploadedImages[index]}
+                    src={
+                      currentImages[index].type === "file"
+                        ? currentImages[index].preview
+                        : currentImages[index]
+                    }
                     alt="Item"
                     className={`item-img ${offset === 0 ? "center" : ""}`}
                     style={{

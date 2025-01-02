@@ -33,17 +33,17 @@ const validateRentalDates = (rentalDates) => {
     throw new Error("Rental dates should be an array.");
   }
 
-  rentalDates.forEach(({ date, timePeriods }) => {
+  rentalDates.forEach(({ date, durations }) => {
     if (!date) {
       throw new Error("Each rental date must have a valid date.");
     }
 
-    if (!Array.isArray(timePeriods)) {
+    if (!Array.isArray(durations)) {
       throw new Error("Time periods should be an array.");
     }
 
-    timePeriods.forEach((period) => {
-      if (!period.startTime || !period.endTime) {
+    durations.forEach((period) => {
+      if (!period.timeFrom || !period.timeTo) {
         throw new Error(
           "Both start and end times are required for each time period."
         );
@@ -69,6 +69,9 @@ const rollbackUpload = async (publicIds) => {
 const addItemForSale = async (req, res) => {
   const transaction = await sequelize.transaction();
 
+  console.log("Request body:", req.body);
+  console.log("Uploaded files:", req.files.upload_images);
+
   try {
     const itemData =
       typeof req.body.item === "string"
@@ -81,11 +84,10 @@ const addItemForSale = async (req, res) => {
 
     // Validate the item data and images
     validateItemData(itemData);
-    const imageUrls = validateImages(req.files); // Using local file paths
+    const imageUrls = validateImages(req.files.upload_images); // Using local file paths
 
     // Validate rental dates if present
     if (Array.isArray(itemData.dates)) {
-      console.log(itemData.dates)
       validateRentalDates(itemData.dates); // Validate rental dates and time periods
     }
 
@@ -109,7 +111,7 @@ const addItemForSale = async (req, res) => {
 
     // Process rental dates (if any)
     if (Array.isArray(itemData.dates)) {
-      for (const { date, timePeriods } of itemData.dates) {
+      for (const { date, durations } of itemData.dates) {
         if (!date) throw new Error("Date is required in each date entry");
 
         const rentalDate = await models.Date.create(
@@ -121,21 +123,21 @@ const addItemForSale = async (req, res) => {
           { transaction }
         );
 
-        if (!Array.isArray(timePeriods)) {
+        if (!Array.isArray(durations)) {
           throw new Error("Time periods must be provided as an array");
         }
 
         await Promise.all(
-          timePeriods.map((period) => {
-            if (!period.startTime || !period.endTime) {
+          durations.map((period) => {
+            if (!period.timeFrom || !period.timeTo) {
               throw new Error("Both start and end times are required");
             }
 
             return models.Duration.create(
               {
                 date_id: rentalDate.id,
-                rental_time_from: period.startTime,
-                rental_time_to: period.endTime,
+                rental_time_from: period.timeFrom,
+                rental_time_to: period.timeTo,
               },
               { transaction }
             );

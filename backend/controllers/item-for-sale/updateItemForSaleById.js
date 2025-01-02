@@ -1,86 +1,229 @@
 const { models } = require("../../models/index");
+const sequelize = require("../../config/database");
 const { rollbackUpload } = require("../../config/multer");
 
+// Helper function to validate item data
+const validateUpdateData = (itemData) => {
+  const requiredFields = ["id", "sellerId", "itemName", "category"];
+  const missingFields = requiredFields.filter((field) => !itemData[field]);
+
+  if (missingFields.length) {
+    throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
+  }
+};
+
+// Helper function to add new dates and durations
+const addDatesAndDurations = async (itemId, dates) => {
+  for (const date of dates) {
+    console.log(`Checking if date ${date.date} exists for item ${itemId}`);
+
+    // Check if the date already exists in the database
+    const existingDate = await models.Date.findOne({
+      where: {
+        item_id: itemId,
+        date: date.date, // Check if date exists
+      },
+    });
+
+    let dateRecord;
+    if (existingDate) {
+      console.log(
+        `Date ${date.date} already exists for item ${itemId}. Using existing date.`
+      );
+      dateRecord = existingDate; // Use existing date
+    } else {
+      console.log(
+        `Date ${date.date} not found. Creating new date for item ${itemId}.`
+      );
+      // If not exists, create a new date record
+      dateRecord = await models.Date.create({
+        item_id: itemId,
+        date: date.date,
+        status: date.status,
+        item_type: "item_for_sale",
+      });
+      console.log(
+        `Created new date: ${dateRecord.date} with ID ${dateRecord.id}`
+      );
+    }
+
+    // Check if any duration for the current date already exists
+    for (const duration of date.durations) {
+      console.log(
+        `Checking if duration from ${duration.timeFrom} to ${duration.timeTo} exists for date ${dateRecord.id}`
+      );
+
+      const existingDuration = await models.Duration.findOne({
+        where: {
+          date_id: dateRecord.id,
+          rental_time_from: duration.timeFrom,
+          rental_time_to: duration.timeTo,
+        },
+      });
+
+      if (existingDuration) {
+        console.log(
+          `Duration from ${duration.timeFrom} to ${duration.timeTo} already exists for date ${dateRecord.id}. Skipping creation.`
+        );
+      } else {
+        console.log(
+          `Duration from ${duration.timeFrom} to ${duration.timeTo} does not exist. Creating new duration.`
+        );
+        // If duration doesn't exist, create a new duration
+        await models.Duration.create({
+          date_id: dateRecord.id,
+          rental_time_from: duration.timeFrom,
+          rental_time_to: duration.timeTo,
+          status: duration.status,
+        });
+        console.log(
+          `Created new duration from ${duration.timeFrom} to ${duration.timeTo} for date ${dateRecord.id}`
+        );
+      }
+    }
+  }
+};
+
+// Main function
 const updateItemForSaleById = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
-    // Extract `listingId` from request parameters
+    // Extract `itemId` from request parameters
     const itemId = req.params.itemId;
 
     if (!itemId) {
-      return res.status(400).json({ message: "Listing ID is required" });
+      throw new Error("Item ID is required");
     }
 
-    console.log("Listing ID:", itemId);
+    console.log(`Item ID ${itemId} received for update`);
 
-    // Parse and validate the listing data
-    let itemData;
-    try {
-      itemData = req.body.listing ? JSON.parse(req.body.listing) : null;
+    // Parse and validate the item data
+    const itemData =
+      typeof req.body.item === "string"
+        ? JSON.parse(req.body.item)
+        : req.body.item;
 
-      if (!itemData) {
-        return res.status(400).json({ message: "No listing data provided" });
+    if (!itemData) {
+      throw new Error("No item data provided");
+    }
+
+    itemData.id = itemId; // Include `itemId` in `itemData`
+
+    // Validate the data
+    validateUpdateData(itemData);
+
+    // Prepare image URLs if new images are uploaded
+    let imageUrls = [];
+
+    if (req.files?.upload_images) {
+      // If there are files in the "upload_images" field
+      imageUrls = Array.isArray(req.files.upload_images)
+        ? req.files.upload_images.map((file) => file.path)
+        : [req.files.upload_images.path];
+    }
+
+    console.log("Uploaded Cloudinary URLs:", imageUrls); // Debug uploaded URLs
+
+    // Extract remove_images field if provided
+    const removeImages = req.body.remove_images || [];
+    console.log("Images to remove:", removeImages); // Debug remove images
+
+    // Fetch the existing item
+    const existingItem = await models.ItemForSale.findByPk(itemId);
+    if (!existingItem) {
+      if (imageUrls.length) await rollbackUpload(imageUrls); // Rollback uploaded images
+      throw new Error("Item not found");
+    }
+
+    console.log(`Found existing item with ID ${existingItem.id}`);
+
+    // If images are to be removed, process the removal
+    if (removeImages.length) {
+      const oldImages = JSON.parse(existingItem.images || "[]");
+      const imagesToDelete = removeImages.filter((removeUrl) =>
+        oldImages.includes(removeUrl)
+      );
+
+      console.log(`Removing images: ${imagesToDelete.join(", ")}`);
+
+      // Rollback the old images that are being removed
+      if (imagesToDelete.length) {
+        await rollbackUpload(imagesToDelete);
       }
 
-      itemData.id = itemId; // Set `listingId` into `itemData`
-    } catch (parseError) {
-      console.error("Error parsing listing data:", parseError);
-      return res.status(400).json({ message: "Invalid listing data format" });
+      // Filter out the removed images from the existing images
+      const remainingImages = oldImages.filter(
+        (image) => !imagesToDelete.includes(image)
+      );
+
+      // Set new images after removal
+      existingItem.images = JSON.stringify(remainingImages);
     }
 
-    console.log("Parsed listing data:", itemData);
-
-    // Validate required fields
-    const requiredFields = ["id", "ownerId", "itemName", "category"];
-    const missingFields = requiredFields.filter((field) => !itemData[field]);
-
-    if (missingFields.length) {
-      return res.status(400).json({
-        message: `Missing required fields: ${missingFields.join(", ")}`,
-      });
+    // If there are new images, update them
+    if (imageUrls.length) {
+      const oldImages = JSON.parse(existingItem.images || "[]");
+      await rollbackUpload(oldImages); // Rollback old images if new ones are provided
+      existingItem.images = JSON.stringify(imageUrls);
     }
 
-    // Prepare image URLs for update (if any)
-    const imageUrls = req.files?.item_images?.map((file) => file.path) || [];
-
-    // Update listing in the database
-    const [updateCount] = await models.Listing.update(
+    // Update the item in the database
+    await models.ItemForSale.update(
       {
         category: itemData.category,
-        listing_name: itemData.itemName,
-        description: itemData.description,
-        images: JSON.stringify(imageUrls), // Add new images if provided
-        // Add other fields to update as needed
+        item_for_sale_name: itemData.itemName,
+        description: itemData.desc,
+        images: existingItem.images, // Retain updated images
+        item_condition: itemData.itemCondition || existingItem.item_condition,
+        payment_mode: itemData.paymentMethod || existingItem.payment_mode,
+        delivery_mode: itemData.deliveryMethod || existingItem.delivery_mode,
+        price: itemData.price || existingItem.price,
+        tags: itemData.tags || existingItem.tags,
+        specifications: itemData.specs || existingItem.specifications,
       },
-      { where: { id: listingId } }
+      { where: { id: itemId }, transaction }
     );
 
-    if (!updateCount) {
-      // If no rows were updated, the listing does not exist
-      if (imageUrls.length) {
-        // Rollback image upload if the listing update fails
-        await rollbackUpload(imageUrls);
-      }
-
-      return res.status(404).json({ message: "Listing not found" });
+    // Add dates and durations if they exist in itemData
+    if (itemData.dates && itemData.dates.length > 0) {
+      console.log("Adding new dates and durations...");
+      await addDatesAndDurations(itemId, itemData.dates);
+    } else {
+      console.log("No new dates or durations provided.");
     }
 
+    // Commit the transaction
+    await transaction.commit();
+    console.log("Transaction committed");
+
     res.status(200).json({
-      message: "Listing updated successfully",
-      updatedFields: {
+      message: "Item updated successfully",
+      updatedItem: {
         ...itemData,
-        images: imageUrls,
+        images: imageUrls.length ? imageUrls : JSON.parse(existingItem.images),
       },
     });
   } catch (error) {
-    console.error("Error updating listing:", error);
+    // Rollback the transaction in case of any errors
+    await transaction.rollback();
+    console.log("Transaction rolled back due to error");
 
-    // Rollback uploaded images in case of any error
-    const imageUrls = req.files?.item_images?.map((file) => file.path) || [];
+    // Rollback uploaded images if any
+    const imageUrls = req.files?.upload_images
+      ? Array.isArray(req.files.upload_images)
+        ? req.files.upload_images.map((file) => file.path)
+        : [req.files.upload_images.path]
+      : [];
     if (imageUrls.length) {
       await rollbackUpload(imageUrls);
+      console.log("Rolled back uploaded images");
     }
 
-    res.status(500).json({ message: "Internal server error" });
+    res.status(400).json({
+      error: "Update Error",
+      message: error.message,
+    });
   }
 };
 

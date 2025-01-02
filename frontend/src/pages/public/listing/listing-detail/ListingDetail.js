@@ -56,7 +56,7 @@ function ListingDetail() {
     errorApprovedListingById,
   } = useSelector((state) => state.approvedListingById);
   const studentUser = useSelector(selectStudentUser);
-  const rentalDates = approvedListingById.rentalDates || [];
+  const rentalDates = approvedListingById.availableDates || [];
   const [redirecting, setRedirecting] = useState(false);
 
   const images = [
@@ -72,7 +72,7 @@ function ListingDetail() {
   const handleDateClick = (dateId) => {
     const formatDate = (d) => d.toLocaleDateString("en-CA");
 
-    const selectedRentalDate = approvedListingById.rentalDates.find(
+    const selectedRentalDate = approvedListingById.availableDates.find(
       (rentalDate) => rentalDate.id === dateId
     );
 
@@ -89,6 +89,8 @@ function ListingDetail() {
   const availableDates = rentalDates
     .filter((rentalDate) => rentalDate.status === "available")
     .map((rentalDate) => new Date(rentalDate.date));
+
+  console.log(availableDates);
 
   const handleOfferClick = async () => {
     if (selectedDate && selectedDuration) {
@@ -165,7 +167,7 @@ function ListingDetail() {
   };
 
   const confirmRental = async () => {
-    const selectedDateId = approvedListingById.rentalDates.find(
+    const selectedDateId = approvedListingById.availableDates.find(
       (rentalDate) => rentalDate.date === selectedDate
     )?.id;
 
@@ -237,7 +239,9 @@ function ListingDetail() {
   const handleMessageClick = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversation`,
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:3001"
+        }/api/conversations/createConversation`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -247,7 +251,7 @@ function ListingDetail() {
           }),
         }
       );
-  
+
       if (response.ok) {
         navigate("/messages", {
           state: { ownerId: approvedListingById.owner.id },
@@ -260,8 +264,6 @@ function ListingDetail() {
       console.error("Error handling message click:", err);
     }
   };
-  
-
 
   return (
     <div className="container-content listing-detail">
@@ -329,7 +331,12 @@ function ListingDetail() {
             >
               <img src={cartIcon} alt="Add to cart" />
             </button>
-            <button className="btn btn-rectangle secondary"  onClick={handleMessageClick}>Message</button>
+            <button
+              className="btn btn-rectangle secondary"
+              onClick={handleMessageClick}
+            >
+              Message
+            </button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}

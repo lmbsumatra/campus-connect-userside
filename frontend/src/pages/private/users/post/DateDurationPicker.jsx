@@ -107,9 +107,8 @@ const DateDurationPicker = ({
   onClose,
   onSaveDatesDurations,
   unavailableDates,
-  selectedDatesDurations = [],  // Default to an empty array if not provided
+  selectedDatesDurations = [], // Default to an empty array if not provided
 }) => {
-  // State management
   const [dates, setDates] = useState(selectedDatesDurations);
   const [mode, setMode] = useState("custom");
   const [selectedDate, setSelectedDate] = useState(null);
@@ -120,7 +119,8 @@ const DateDurationPicker = ({
   const [endDate, setEndDate] = useState(null);
   const [weekdays, setWeekdays] = useState([]);
   const dispatch = useDispatch();
-  
+  const [removedDates, setRemovedDate] = useState([]);
+
   // Helper functions
   const isSelected = (date) =>
     dates.some((d) => d.date.getTime() === date.getTime());
@@ -237,25 +237,33 @@ const DateDurationPicker = ({
   };
 
   const handleSaveAndClose = () => {
-    const serializedDates = dates.map(dateObj => ({
-      date: dateObj.date.toISOString(), // Convert Date object to string
-      durations: dateObj.durations
-    }));
-    
-    onSaveDatesDurations(dates); // Pass the original dates with Date objects for local state
-    dispatch(updateAvailableDates(serializedDates)); // Update Redux with serialized dates
+    onSaveDatesDurations(dates);
     onClose();
   };
 
   useEffect(() => {
     if (show && selectedDatesDurations.length > 0) {
-      setDates(selectedDatesDurations.map(dateItem => ({
-        date: new Date(dateItem.date),
-        durations: dateItem.durations
-      })));
+      setDates(
+        selectedDatesDurations.map((dateItem) => ({
+          date: new Date(dateItem.date),
+          durations: dateItem.durations,
+        }))
+      );
     }
   }, [show, selectedDatesDurations]);
 
+  const removeDate = (dateToRemove) => {
+    const dateFound = dates.find((d) => d.date === dateToRemove.date);
+    if (dateFound) {
+      setRemovedDate((prev) => [...prev, dateFound]); // Add to removed dates array
+      setDates(dates.filter((d) => d.date !== dateToRemove.date)); // Remove from dates
+      console.log("Removed Date:", dateFound); // Debug log
+    } else {
+      console.log("Date not found:", dateToRemove.date); // Debug log
+    }
+  };
+
+  console.log("All Removed Dates:", removedDates); // Log the updated removedDates array
   return (
     <Modal show={show} onHide={handleSaveAndClose} size="lg">
       <Modal.Header closeButton>
@@ -278,13 +286,38 @@ const DateDurationPicker = ({
                   onChange={handleAddCustomDate}
                   inline
                   excludeDates={unavailableDates}
-                  dayClassName={(date) =>
-                    unavailableDates.some((d) => d.getTime() === date.getTime())
-                      ? "unavailable-date"
-                      : isSelected(date)
-                      ? "selected-date"
-                      : "available-date"
-                  }
+                  highlightDates={selectedDatesDurations.map(
+                    (item) => new Date(item.date)
+                  )}
+                  dayClassName={(date) => {
+                    const dateWithoutTime = new Date(
+                      date.getFullYear(),
+                      date.getMonth(),
+                      date.getDate()
+                    ); // Normalize to date without time
+                    const unavailableDateWithoutTime = unavailableDates.map(
+                      (d) =>
+                        new Date(d.getFullYear(), d.getMonth(), d.getDate()) // Normalize to date without time
+                    );
+
+                    if (
+                      unavailableDateWithoutTime.some(
+                        (d) => d.getTime() === dateWithoutTime.getTime()
+                      )
+                    ) {
+                      return "bg-danger"; // Mark the unavailable dates with bg-danger
+                    } else if (isSelected(date)) {
+                      return "bg-warning"; // Mark the selected dates with bg-warning
+                    } else if (
+                      selectedDatesDurations.some(
+                        (d) => new Date(d.date).getTime() === date.getTime()
+                      )
+                    ) {
+                      return "bg-blue"; // Mark the highlighted dates with bg-blue
+                    } else {
+                      return "bg-green"; // Mark other available dates with bg-green
+                    }
+                  }}
                   renderDayContents={(day, date) => {
                     const isUnavailable = unavailableDates.some(
                       (d) => d.getTime() === date.getTime()
@@ -317,6 +350,38 @@ const DateDurationPicker = ({
                   endDate={endDate}
                   inline
                   excludeDates={unavailableDates}
+                  highlightDates={selectedDatesDurations.map(
+                    (item) => new Date(item.date)
+                  )}
+                  dayClassName={(date) => {
+                    const dateWithoutTime = new Date(
+                      date.getFullYear(),
+                      date.getMonth(),
+                      date.getDate()
+                    ); // Normalize to date without time
+                    const unavailableDateWithoutTime = unavailableDates.map(
+                      (d) =>
+                        new Date(d.getFullYear(), d.getMonth(), d.getDate()) // Normalize to date without time
+                    );
+
+                    if (
+                      unavailableDateWithoutTime.some(
+                        (d) => d.getTime() === dateWithoutTime.getTime()
+                      )
+                    ) {
+                      return "bg-danger"; // Mark the unavailable dates with bg-danger
+                    } else if (isSelected(date)) {
+                      return "bg-warning"; // Mark the selected dates with bg-warning
+                    } else if (
+                      selectedDatesDurations.some(
+                        (d) => new Date(d.date).getTime() === date.getTime()
+                      )
+                    ) {
+                      return "bg-blue"; // Mark the highlighted dates with bg-blue
+                    } else {
+                      return "bg-green"; // Mark other available dates with bg-green
+                    }
+                  }}
                 />
                 <Button variant="primary" onClick={handleAddRange}>
                   Add Range
@@ -338,6 +403,38 @@ const DateDurationPicker = ({
                   endDate={endDate}
                   inline
                   excludeDates={unavailableDates}
+                  highlightDates={selectedDatesDurations.map(
+                    (item) => new Date(item.date)
+                  )}
+                  dayClassName={(date) => {
+                    const dateWithoutTime = new Date(
+                      date.getFullYear(),
+                      date.getMonth(),
+                      date.getDate()
+                    ); // Normalize to date without time
+                    const unavailableDateWithoutTime = unavailableDates.map(
+                      (d) =>
+                        new Date(d.getFullYear(), d.getMonth(), d.getDate()) // Normalize to date without time
+                    );
+
+                    if (
+                      unavailableDateWithoutTime.some(
+                        (d) => d.getTime() === dateWithoutTime.getTime()
+                      )
+                    ) {
+                      return "bg-danger"; // Mark the unavailable dates with bg-danger
+                    } else if (isSelected(date)) {
+                      return "bg-warning"; // Mark the selected dates with bg-warning
+                    } else if (
+                      selectedDatesDurations.some(
+                        (d) => new Date(d.date).getTime() === date.getTime()
+                      )
+                    ) {
+                      return "bg-blue"; // Mark the highlighted dates with bg-blue
+                    } else {
+                      return "bg-green"; // Mark other available dates with bg-green
+                    }
+                  }}
                 />
                 <WeekdaySelector
                   weekdays={weekdays}
@@ -385,9 +482,7 @@ const DateDurationPicker = ({
                     </Button>
                     <Button
                       variant="danger"
-                      onClick={() =>
-                        setDates(dates.filter((d) => d.date !== dateItem.date))
-                      }
+                      onClick={() => removeDate(dateItem)}
                     >
                       Remove Date
                     </Button>

@@ -50,6 +50,9 @@ const rollbackUpload = async (publicIds) => {
 const addListing = async (req, res) => {
   const transaction = await sequelize.transaction();
 
+  console.log("Request body:", req.body);
+  console.log("Uploaded files:", req.files.upload_images);
+
   try {
     const listingData =
       typeof req.body.listing === "string"
@@ -85,7 +88,7 @@ const addListing = async (req, res) => {
     // Validate images
     let imageUrls;
     try {
-      imageUrls = validateImages(req.files);
+      imageUrls = validateImages(req.files.upload_images);
     } catch (validationError) {
       return res.status(400).json({
         error: "Validation Error",

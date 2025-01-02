@@ -1,6 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createSelector } from "reselect";
-import axios from "axios";
 
 const BASE_URL = "http://192.168.100.34:3001/item-for-sale/available";
 
@@ -11,7 +9,7 @@ const initialState = {
 };
 
 export const fetchApprovedItemForSaleById = createAsyncThunk(
-  "item-for-sale/etchApprovedItemForSaleById",
+  "item-for-sale/fetchApprovedItemForSaleById",
   async (id) => {
     const response = await fetch(`${BASE_URL}/${id}`);
     return response.json();
