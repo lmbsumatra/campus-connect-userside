@@ -1,0 +1,121 @@
+/* General styling for the container */
+.container-content.email {
+  padding: 30px;
+  /* max-width: 600px; */
+  margin: auto;
+  border: 1px solid var(--clr-primary);
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  background-color: white !important;
+}
+
+/* Logo section */
+.container-content.email div:first-child {
+  display: block;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.container-content.email img {
+  height: 50px;
+  margin-right: 10px;
+}
+
+.container-content.email span {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Header */
+.container-content.email h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Main description */
+.container-content.email h6 {
+  font-size: 20px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.container-content.email p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Button styling */
+.container-content.email .btn {
+  background-color: #0069d9;
+  color: white;
+  font-size: 16px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 15px;
+}
+
+.container-content.email .btn:hover {
+  background-color: #0056b3;
+}
+
+/* Expiration text */
+.container-content.email span {
+  font-size: 14px;
+  color: #777;
+  margin-top: 10px;
+  display: block;
+}
+
+/* Additional link text */
+.container-content.email a {
+  color: #0069d9;
+  text-decoration: none;
+}
+
+.container-content.email a:hover {
+  text-decoration: underline;
+}
+
+/* Contact section */
+.container-content span {
+  font-size: 14px;
+  color: #555;
+  margin-top: 20px;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .container-content.email {
+    padding: 15px;
+    width: 90%;
+  }
+
+  .container-content.email img {
+    height: 40px;
+  }
+
+  .container-content.email h3 {
+    font-size: 20px;
+  }
+
+  .container-content.email h4 {
+    font-size: 18px;
+  }
+
+  .container-content.email p {
+    font-size: 14px;
+  }
+
+  .container-content.email .btn {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+}

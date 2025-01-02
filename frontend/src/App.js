@@ -106,7 +106,7 @@ function Content() {
       <FAB icon="+" />
 
       <Routes>
-        <Route path="/email" element={<VerifyEmail />} />
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
         {/* PUBLIC ROUTES */}
         <Route path="/trial2" element={<Trial2 />} />
         <Route path="/trial" element={<Trial />} />

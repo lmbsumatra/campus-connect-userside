@@ -1,45 +1,54 @@
-import logo from "../../assets/images/navbar/cc-logo.png";
-import "./verifyEmailStyles.css";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
-const VerifyEmail = ({ token }) => {
-  const verificationUrl = `http://localhost:3001/verify-email/${token}`;
+const VerifyEmail = () => {
+  const { token } = useParams(); // Get the token from the URL parameter
+  const [status, setStatus] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate(); // Using useNavigate in place of useHistory
+  console.log(token);
+
+  useEffect(() => {
+    // Function to verify the email
+    const verifyEmail = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/user/verify-email/${token}`,
+          {
+            method: "GET",
+          }
+        );
+
+        if (response.ok) {
+          setStatus("success");
+          setMessage("Your email has been successfully verified!");
+          setTimeout(() => navigate("/login"), 3000); // Redirect to login after 3 seconds
+        } else {
+          const error = await response.json();
+          setStatus("error");
+          setMessage(error.message || "Verification failed. Please try again.");
+        }
+      } catch (error) {
+        setStatus("error");
+        setMessage("An error occurred. Please try again later.");
+      }
+    };
+
+    verifyEmail();
+  }, [token, navigate]); // Add navigate to the dependency array
 
   return (
-    <div className="container-content email">
-      <div className="header">
-        <img src={logo} alt="Campus Connect Logo" />
-        <span>Campus Connect</span>
-      </div>
-      <div className="content">
-        <h1>Verify Your Email Address</h1>
-        <h6>Welcome to Campus Connect!</h6>
-        <p>
-          Click the button below to verify your email address and activate your
-          account.
-        </p>
-        <button
-          className="btn btn-primary"
-          onClick={() => window.location.href = verificationUrl}
-        >
-          Verify
-        </button>
-        <span className="expiration">This link will expire in 5 minutes.</span>
-        <p>
-          If the button above doesn't work, copy and paste the following link
-          into your browser:
-        </p>
-        <a href={verificationUrl} target="_blank" rel="noopener noreferrer">
-          {verificationUrl}
-        </a>
-      </div>
-      <div className="footer">
-        <p>
-          If you didn’t request this email or think something is wrong, contact
-          us at{" "}
-          <a href="mailto:campusconnect@gmail.com">campusconnect@gmail.com</a>.
-          We’d love to help.
-        </p>
-      </div>
+    <div className="verify-email-container">
+      {status === "success" ? (
+        <div className="success-message">
+          <h1>{message}</h1>
+          <p>You will be redirected to the login page shortly.</p>
+        </div>
+      ) : (
+        <div className="error-message">
+          <h1>{message}</h1>
+        </div>
+      )}
     </div>
   );
 };
