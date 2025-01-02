@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const PostContoller = require("../controllers/PostController");
 const PostController2 = require("../controllers/post/PostController")
+const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 
 /* * * * * * * * * displayed for all users :: available * * * * * * * * * * * * * */
  // lahat ng available na post (approved, with available date and corresponding time)
@@ -15,7 +16,7 @@ router.get("/all/available/user", PostContoller.getAvailablePostsByUser); // get
 router.get("/info", PostContoller.getAllPosts);
 
 // crud for user
-router.post("/create", PostContoller.createPost);
+router.post("/create",checkUnavailableDate, PostContoller.createPost);
 router.get("/:id", PostContoller.getPostById);
 router.put("/:id", PostContoller.updatePost);
 router.delete("/:id", PostContoller.deletePost);

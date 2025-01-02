@@ -15,18 +15,27 @@ const AdminUnavailableDates = ({ onClose }) => {
       .catch((error) => console.error("Error fetching dates:", error));
   }, []);
 
+  const handleAction = (action, bypassCheck = false) => {
+    const today = new Date().toISOString().split("T")[0];
+    if (!bypassCheck && dates.some((dateObj) => dateObj.date === today)) {
+      alert("This action is not allowed today due to an unavailable date.");
+      return;
+    }
+    action(); // Proceed with the intended action
+  };
+
   const handleAddDate = () => {
     if (!newDate || !description) {
       setErrorMessage("Please fill in both date and description.");
       return;
     }
-  
+
     // Convert the date to a valid format if necessary
     const newEntry = { 
       date: new Date(newDate).toISOString(), // Convert to ISO string for consistency
       description 
     };
-  
+
     fetch("http://localhost:3001/admin/unavailable-dates", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -62,6 +71,9 @@ const AdminUnavailableDates = ({ onClose }) => {
   
       const data = await response.json();
       console.log(data.message); // Display success message from backend
+  
+      // Remove the date from the state
+      setDates(dates.filter((dateObj) => dateObj.date !== date));
     } catch (error) {
       console.error('Error removing date:', error); // Log error to the console
       alert('Error removing date');
@@ -99,7 +111,10 @@ const AdminUnavailableDates = ({ onClose }) => {
               />
             </div>
             {errorMessage && <p className="text-danger">{errorMessage}</p>}
-            <button className="btn btn-primary mt-2" onClick={handleAddDate}>
+            <button
+              className="btn btn-primary mt-2"
+              onClick={() => handleAction(handleAddDate)}
+            >
               Add Date
             </button>
             <ul className="list-group mt-3">
@@ -108,7 +123,7 @@ const AdminUnavailableDates = ({ onClose }) => {
                   <strong>{dateObj.date}</strong>: {dateObj.description}
                   <button
                     className="btn btn-danger btn-sm float-end"
-                    onClick={() => handleRemoveDate(dateObj.date)}
+                    onClick={() => handleAction(() => handleRemoveDate(dateObj.date), true)}
                   >
                     Remove
                   </button>

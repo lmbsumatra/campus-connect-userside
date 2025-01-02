@@ -3,10 +3,11 @@ const router = express.Router();
 const studentAuthController = require("../controllers/StudentAuthController");
 const authenticateToken = require("../middlewares/StudentAuthMiddleware");
 const StudentController = require("../controllers/student/StudentController")
+const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 
 const { upload } = require("../config/multer");
 
-router.post("/register", upload, studentAuthController.registerStudent);
+router.post("/register",checkUnavailableDate, upload, studentAuthController.registerStudent);
 router.post("/login", studentAuthController.loginStudent);
 router.post("/google-login", studentAuthController.googleLogin);
 router.get(
