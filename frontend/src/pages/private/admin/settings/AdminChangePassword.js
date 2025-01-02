@@ -94,7 +94,7 @@ const AdminChangePassword = ({ onClose }) => {
                   required
                 />
               </div>
-              <button type="submit" className="btn btn-primary">
+              <button type="submit" className="btn btn-primary mt-2">
                 Change Password
               </button>
             </form>

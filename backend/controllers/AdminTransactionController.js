@@ -32,3 +32,45 @@ exports.getAllTransactions = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch transactions." });
   }
 };
+
+exports.getTransactionById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`Fetching transaction with ID: ${id}`); // Add log for debugging
+
+    let transaction = await BuyAndSellTransaction.findOne({
+      where: { id },
+      include: [
+        { model: models.User, as: "buyer", attributes: ["user_id", "first_name", "last_name"] },
+        { model: models.User, as: "seller", attributes: ["user_id", "first_name", "last_name"] },
+      ],
+    });
+    
+    if (transaction) {
+      transaction = { ...transaction.toJSON(), type: "buy_and_sell" };
+    } else {
+      console.log(`Transaction not found in BuyAndSellTransaction model, searching in RentalTransaction.`);
+      transaction = await RentalTransaction.findOne({
+        where: { id },
+        include: [
+          { model: models.User, as: "renter", attributes: ["user_id", "first_name", "last_name"] },
+          { model: models.User, as: "owner", attributes: ["user_id", "first_name", "last_name"] },
+        ],
+      });
+    
+      if (transaction) {
+        transaction = { ...transaction.toJSON(), type: "rental" };
+      }
+    }
+    
+    if (!transaction) {
+      return res.status(404).json({ error: "Transaction not found." });
+    }
+    
+    res.status(200).json(transaction);
+    
+  } catch (error) {
+    console.error("Error fetching transaction by ID:", error);  // Log any error that occurs
+    res.status(500).json({ error: "Failed to fetch transaction." });
+  }
+};

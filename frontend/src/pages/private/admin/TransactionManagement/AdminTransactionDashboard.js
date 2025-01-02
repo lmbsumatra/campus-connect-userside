@@ -41,15 +41,6 @@ const AdminTransactionDashboard = () => {
     navigate(`/admin/transactions/view/${transactionId}`);
   };
 
-  
-  const handleEdit = (transactionId) => {
-    console.log(`Resolving transactionId with ID: ${transactionId}`);
-  };
-
-  const handleDelete = (transactionId) => {
-    console.log(`Deleting transactionId with ID: ${transactionId}`);
-  };
-
   const getStatusInfo = (status) => {
     const { label, className } = TransactionStatus(status);
     return { label, className };
@@ -167,18 +158,6 @@ const AdminTransactionDashboard = () => {
           onClick={() => handleView(transaction.id)}
         >
           View
-        </button>
-        <button
-          className="btn btn-action edit"
-          onClick={() => handleEdit(transaction.id)}
-        >
-          Edit
-        </button>
-        <button
-          className="btn btn-action delete"
-          onClick={() => handleDelete(transaction.id)}
-        >
-          Delete
         </button>
       </div>,
     ];

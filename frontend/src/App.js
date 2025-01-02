@@ -52,6 +52,7 @@ import ReportDashboard from "./pages/private/admin/ReportManagement/ReportDashbo
 import ReportOverview from "./pages/private/admin/ReportManagement/ReportOverview.js";
 import AdminTransactionDashboard from "./pages/private/admin/TransactionManagement/AdminTransactionDashboard.js";
 import AdminTransactionOverview from "./pages/private/admin/TransactionManagement/AdminTransactionOverview.js";
+import ViewTransaction from "./pages/private/admin/TransactionManagement/ViewTransaction.js";
 
 import ProtectedRoute from "./components/Protected Route/ProtectedRoute.js";
 import { AuthProvider } from "./context/AuthContext.js";
@@ -282,10 +283,8 @@ function Content() {
 
           {/* TRANSACTION MANAGEMENT */}
           <Route path="transactions" element={<AdminTransactionDashboard />} />
-          <Route
-            path="transactions/overview"
-            element={<AdminTransactionOverview />}
-          />
+          <Route path="transactions/overview" element={<AdminTransactionOverview />}/>
+          <Route path="transactions/view/:id" element={<ViewTransaction />} />
 
           {/* ADMIN MANAGEMENT */}
           <Route path="settings" element={<AdminSettings />} />

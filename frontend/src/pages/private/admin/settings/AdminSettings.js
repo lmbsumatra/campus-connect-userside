@@ -21,6 +21,8 @@ const AdminSettings = ({ tab, onClose }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const errorRef = useRef(null);
   const [showManageDates, setShowManageDates] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // User data state
   const [userData, setUserData] = useState({
@@ -161,6 +163,14 @@ const AdminSettings = ({ tab, onClose }) => {
   };
 
   const [showChangePassword, setShowChangePassword] = useState(false); //change pass
+
+  const togglePasswordVisibility = (field) => {
+    if (field === "password") {
+      setShowPassword((prevState) => !prevState);
+    } else if (field === "confirmPassword") {
+      setShowConfirmPassword((prevState) => !prevState);
+    }
+  };
 
   return (
     <div className="admin-content-container">
@@ -332,29 +342,31 @@ const AdminSettings = ({ tab, onClose }) => {
                       <div className="input-group">
                         <span className="input-group-text">Password</span>
                         <input
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           name="password"
                           value={userData.password}
                           onChange={handleChange}
                           className="form-control"
                           required
                         />
+                        <button type="button" className="btn btn-outline-secondary" onClick={() => togglePasswordVisibility("password")}>
+                          {showPassword ? "Hide" : "Show"}
+                        </button>
                       </div>
-                      {userData.password && (
-                        <PasswordMeter password={userData.password} />
-                      )}
+                      {userData.password && <PasswordMeter password={userData.password} />}
                       <div className="input-group">
-                        <span className="input-group-text">
-                          Confirm Password
-                        </span>
+                        <span className="input-group-text">Confirm Password</span>
                         <input
-                          type="password"
+                          type={showConfirmPassword ? "text" : "password"}
                           name="confirmPassword"
                           value={userData.confirmPassword}
                           onChange={handleChange}
                           className="form-control"
                           required
                         />
+                        <button type="button" className="btn btn-outline-secondary" onClick={() => togglePasswordVisibility("confirmPassword")}>
+                          {showConfirmPassword ? "Hide" : "Show"}
+                        </button>
                       </div>
                     </section>
 
