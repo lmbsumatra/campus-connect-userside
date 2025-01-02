@@ -45,7 +45,7 @@ input {
   font-weight: 500;
   width: 100%;
 }
-/* Ensure that the validation list (ul) also takes the full width */
+
 ul.list {
   width: 100%;
   padding: 0;
@@ -83,7 +83,7 @@ ul.list li {
   font-size: 14px;
   height: 40px;
   padding: 8px 8px 8px 39px;
-  width: 100%; /* Ensure the input takes full width of the wrapper */
+  width: 100%;
   color: var(--clr-black);
   outline: none;
   transition: border-bottom 0.3s ease, color 0.3s ease;
@@ -130,7 +130,7 @@ img.password-toggle-icon {
 /* Password validation list */
 .list {
   display: block;
-  width: 100%; /* Ensure list takes the full width */
+  width: 100%;
 }
 
 /* TUP ID Input Wrapper */
@@ -191,21 +191,27 @@ img.password-toggle-icon {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 350px; /* Or dynamic dimensions */
+  width: 350px;
   height: 300px;
+}
+
+.image-input-wrapper .preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .image {
   position: relative;
   width: 100%;
   height: 100%;
-  border: 1px dashed #ccc; /* Default border color */
+  border: 1px dashed #ccc;
   border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: border-color 0.3s; /* Transition for border color */
+  transition: border-color 0.3s;
 }
 
 .hover-overlay {
@@ -219,16 +225,16 @@ img.password-toggle-icon {
   display: flex;
   justify-content: center;
   align-items: center;
-  opacity: 0; /* Initially hidden */
-  transition: opacity 0.3s; /* Transition for overlay visibility */
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .image:hover .hover-overlay {
-  opacity: 1; /* Show overlay on hover */
+  opacity: 1;
 }
 
 .image:hover {
-  border-color: var(--clr-primary); /* Change border color on hover */
+  border-color: var(--clr-primary);
 }
 
 .remove-button {

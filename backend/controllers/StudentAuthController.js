@@ -41,81 +41,81 @@ exports.getAllStudents = async (req, res) => {
   }
 };
 
-// Register a new student
-exports.registerStudent = async (req, res) => {
-  const t = await sequelize.transaction();
-  let publicIds = [];
+// // Register a new student
+// exports.registerStudent = async (req, res) => {
+//   const t = await sequelize.transaction();
+//   let publicIds = [];
 
-  try {
-    const {
-      first_name,
-      middle_name,
-      last_name,
-      email,
-      password,
-      tup_id,
-      college,
-    } = req.body;
+//   try {
+//     const {
+//       first_name,
+//       middle_name,
+//       last_name,
+//       email,
+//       password,
+//       tup_id,
+//       college,
+//     } = req.body;
 
-    const { scanned_id, photo_with_id } = req.files;
+//     const { scanned_id, photo_with_id } = req.files;
 
-    if (
-      !first_name ||
-      !last_name ||
-      !email ||
-      !password ||
-      !tup_id ||
-      !college ||
-      !scanned_id ||
-      !photo_with_id
-    )
-      return res.status(400).json({ message: "All fields are required" });
+//     if (
+//       !first_name ||
+//       !last_name ||
+//       !email ||
+//       !password ||
+//       !tup_id ||
+//       !college ||
+//       !scanned_id ||
+//       !photo_with_id
+//     )
+//       return res.status(400).json({ message: "All fields are required" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    publicIds.push(scanned_id[0].filename, photo_with_id[0].filename);
+//     publicIds.push(scanned_id[0].filename, photo_with_id[0].filename);
 
-    const newUser = await User.create(
-      {
-        first_name,
-        middle_name,
-        last_name,
-        role: "student",
-        email,
-        password: hashedPassword,
-      },
-      { transaction: t }
-    );
+//     const newUser = await User.create(
+//       {
+//         first_name,
+//         middle_name,
+//         last_name,
+//         role: "student",
+//         email,
+//         password: hashedPassword,
+//       },
+//       { transaction: t }
+//     );
 
-    // Create a new student record
-    const newStudent = await Student.create(
-      {
-        tup_id,
-        user_id: newUser.user_id,
-        college,
-        scanned_id: scanned_id[0].path,
-        photo_with_id: photo_with_id[0].path,
-      },
-      { transaction: t }
-    );
+//     // Create a new student record
+//     const newStudent = await Student.create(
+//       {
+//         tup_id,
+//         user_id: newUser.user_id,
+//         college,
+//         scanned_id: scanned_id[0].path,
+//         photo_with_id: photo_with_id[0].path,
+//       },
+//       { transaction: t }
+//     );
 
-    await t.commit();
-    res.status(201).json({
-      message: "Student registered successfully",
-      student: newStudent,
-    });
-  } catch (error) {
-    await t.rollback();
+//     await t.commit();
+//     res.status(201).json({
+//       message: "Student registered successfully",
+//       student: newStudent,
+//     });
+//   } catch (error) {
+//     await t.rollback();
 
-    await rollbackUpload(publicIds);
+//     await rollbackUpload(publicIds);
 
-    console.error("Registration error:", error);
-    res.status(500).json({
-      message: "Failed registration. Please check your information",
-      error: error.message,
-    });
-  }
-};
+//     console.error("Registration error:", error);
+//     res.status(500).json({
+//       message: "Failed registration. Please check your information",
+//       error: error.message,
+//     });
+//   }
+// };
 
 // Login a student
 exports.loginStudent = async (req, res) => {

@@ -3,7 +3,6 @@ const sequelize = require("../../config/database");
 const fs = require("fs");
 const path = require("path");
 
-// Helper functions
 const validateItemData = (itemData) => {
   const requiredFields = [
     "sellerId",

@@ -76,6 +76,7 @@ import Shop from "./pages/public/Shop.js";
 import AddNewLItem from "./pages/private/users/item/AddNewItem.js";
 import AddNewPost from "./pages/private/users/post/AddNewPost.js";
 import EditItem from "./pages/private/users/item/EditItem.js";
+import VerifyEmail from "./components/emails/VerfiyEmail.jsx";
 
 function App() {
   console.log(baseApi);
@@ -105,6 +106,7 @@ function Content() {
       <FAB icon="+" />
 
       <Routes>
+        <Route path="/email" element={<VerifyEmail />} />
         {/* PUBLIC ROUTES */}
         <Route path="/trial2" element={<Trial2 />} />
         <Route path="/trial" element={<Trial />} />
@@ -283,7 +285,10 @@ function Content() {
 
           {/* TRANSACTION MANAGEMENT */}
           <Route path="transactions" element={<AdminTransactionDashboard />} />
-          <Route path="transactions/overview" element={<AdminTransactionOverview />}/>
+          <Route
+            path="transactions/overview"
+            element={<AdminTransactionOverview />}
+          />
           <Route path="transactions/view/:id" element={<ViewTransaction />} />
 
           {/* ADMIN MANAGEMENT */}
