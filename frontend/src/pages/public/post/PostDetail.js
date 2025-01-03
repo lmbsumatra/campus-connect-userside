@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedPostById } from "../../../redux/post/approvedPostByIdSlice";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
@@ -32,6 +33,7 @@ import UserToolbar from "../common/UserToolbar";
 import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
 import ImageSlider from "../common/ImageSlider";
 import ItemBadges from "../common/ItemBadges";
+import ReportModal from "../../../components/report/ReportModal";
 
 function PostDetail() {
   const navigate = useNavigate();
@@ -51,6 +53,8 @@ function PostDetail() {
   const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
   const [expandTerm, setExpandTerm] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const loggedInUserId = studentUser.userId;
 
   const images = [
     itemImage1,
@@ -151,6 +155,27 @@ function PostDetail() {
     return <LoadingItemDetailSkeleton />;
   }
 
+  const handleReportSubmit = async (reason) => {
+    const reportData = {
+      reporter_id: loggedInUserId, // ID of the logged-in user
+      reported_entity_id: approvedPostById.id, // ID of the item being reported
+      entity_type: "post", // Type of entity being reported
+      reason: reason, // Reason for the report
+    };
+
+    try {
+      console.log(reportData);
+      const response = await axios.post("http://localhost:3001/api/reports", reportData); // API endpoint
+      console.log("Report submitted:", response.data);
+      alert("Report submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("Failed to submit the report.");
+    }
+
+    setShowReportModal(false); // Close the modal
+  };
+
   return (
     <div className="container-content post-detail">
       <div className="post-container">
@@ -187,12 +212,29 @@ function PostDetail() {
           <ImageSlider images={images} />
         </div>
         <div className="rental-details">
-          <ItemBadges
+        <div className="item-header">
+        <ItemBadges
             values={{
               college: approvedPostById?.renter?.college,
               category: approvedPostById.category,
             }}
           />
+          <div className="report-button">
+            <button
+              className="btn btn-rectangle danger"
+              onClick={() => setShowReportModal(true)} // Open the modal
+            >
+              Report
+            </button>
+          </div>
+
+          {/* Report Modal */}
+          <ReportModal
+            show={showReportModal}
+            handleClose={() => setShowReportModal(false)} // Close the modal
+            handleSubmit={handleReportSubmit} // Submit the report
+          />
+        </div>
           <div className="item-title">
             <>
               <i>Looking for </i>

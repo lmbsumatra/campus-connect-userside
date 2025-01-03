@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedItemForSaleById } from "../../../redux/item-for-sale/approvedItemForSaleByIdSlice";
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
@@ -33,6 +34,7 @@ import UserToolbar from "../common/UserToolbar";
 import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
 import ImageSlider from "../common/ImageSlider";
 import ItemBadges from "../common/ItemBadges";
+import ReportModal from "../../../components/report/ReportModal";
 
 function ItemForSaleDetail() {
   const navigate = useNavigate();
@@ -52,6 +54,8 @@ function ItemForSaleDetail() {
   const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
   const [expandTerm, setExpandTerm] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const loggedInUserId = studentUser.userId;
 
   const images = [
     itemImage1,
@@ -251,11 +255,33 @@ function ItemForSaleDetail() {
       console.error("Error handling message seller click:", err);
     }
   };
+
+  const handleReportSubmit = async (reason) => {
+    const reportData = {
+      reporter_id: loggedInUserId, // ID of the logged-in user
+      reported_entity_id: approvedItemForSaleById.id, // ID of the item being reported
+      entity_type: "items_for_sale", // Type of entity being reported
+      reason: reason, // Reason for the report
+    };
+
+    try {
+      console.log(reportData);
+      const response = await axios.post("http://localhost:3001/api/reports", reportData); // API endpoint
+      console.log("Report submitted:", response.data);
+      alert("Report submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("Failed to submit the report.");
+    }
+
+    setShowReportModal(false); // Close the modal
+  };
   
 
   return (
     <div className="container-content itemforsale-detail">
       <div className="itemforsale-container">
+
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
@@ -289,12 +315,29 @@ function ItemForSaleDetail() {
           <ImageSlider images={images} />
         </div>
         <div className="rental-details">
+        <div className="item-header">
           <ItemBadges
             values={{
               college: approvedItemForSaleById?.seller?.college,
               category: approvedItemForSaleById.category,
             }}
           />
+          <div className="report-button">
+            <button
+              className="btn btn-rectangle danger"
+              onClick={() => setShowReportModal(true)} // Open the modal
+            >
+              Report
+            </button>
+          </div>
+
+          {/* Report Modal */}
+          <ReportModal
+            show={showReportModal}
+            handleClose={() => setShowReportModal(false)} // Close the modal
+            handleSubmit={handleReportSubmit} // Submit the report
+          />
+        </div>
           <div className="item-title">
             <>
               <i>For rent </i>

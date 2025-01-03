@@ -23,7 +23,7 @@ Report.init(
       allowNull: false,
     },
     entity_type: {
-      type: DataTypes.ENUM("user", "listing", "post"),
+      type: DataTypes.ENUM("user", "listing", "post", "items_for_sale"),
       allowNull: false,
     },
     reason: {

@@ -6,7 +6,12 @@ import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
-import { ReportsByCategory, ReportStatusDistribution, ReportsGrowth, TopReportUsers } from "../../../../components/Analytics/ReportAnalyticsComponent";
+import {
+  ReportsByCategory,
+  ReportStatusDistribution,
+  ReportsGrowth,
+  TopReportUsers,
+} from "../../../../components/Analytics/ReportAnalyticsComponent";
 import { ReportStatus } from "../../../../utils/Status";
 
 const ReportDashboard = () => {
@@ -22,7 +27,8 @@ const ReportDashboard = () => {
     "Report ID",
     "Reason",
     "Reporter",
-    "Reported Item",
+    "Reported ID",
+    "Entity",
     "Date Added",
     "Status",
     "Action",
@@ -52,14 +58,13 @@ const ReportDashboard = () => {
     const { label, className } = ReportStatus(status);
     return { label, className };
   };
-  
+
   const filterableStatusOptions = [
     "pending",
     "reviewed",
     "flagged",
     "dismissed",
   ];
-  
 
   const handleSortChange = (column, order) => {
     if (order === "default") {
@@ -88,13 +93,13 @@ const ReportDashboard = () => {
     if (normalizedSearchQuery) {
       filteredData = filteredData.filter((report) => {
         const reporterName = `${report.reporter.first_name} ${report.reporter.last_name}`.toLowerCase();
-        const reportedItem = report.item_name.toLowerCase();
         const normalizedReason = report.reason.toLowerCase();
         const normalizedDateAdded = formatDate(report.createdAt).toLowerCase();
 
         return (
           reporterName.includes(normalizedSearchQuery) ||
-          reportedItem.includes(normalizedSearchQuery) ||
+          report.reported_entity_id.toString().includes(normalizedSearchQuery) ||
+          report.entity_type.toLowerCase().includes(normalizedSearchQuery) ||
           normalizedReason.includes(normalizedSearchQuery) ||
           normalizedDateAdded.includes(normalizedSearchQuery)
         );
@@ -142,7 +147,8 @@ const ReportDashboard = () => {
       report.id,
       report.reason,
       <>{report.reporter.first_name} {report.reporter.last_name}</>,
-      report.item_name,
+      report.reported_entity_id,
+      report.entity_type,
       formatDate(report.createdAt),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
@@ -176,16 +182,15 @@ const ReportDashboard = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
-                      {loading && <p>Loading ...</p>}
-                      {error && <p>Error: {error}</p>}
+          {loading && <p>Loading ...</p>}
+          {error && <p>Error: {error}</p>}
           <TableComponent
             headers={headers}
             data={data}
             onSortChange={handleSortChange}
             onFilterChange={handleFilterChange}
-            statusOptions={filterableStatusOptions} 
+            statusOptions={filterableStatusOptions}
           />
-
           <PaginationComponent
             currentPage={currentPage}
             totalPages={totalPages}
@@ -193,10 +198,10 @@ const ReportDashboard = () => {
           />
         </div>
         <div className="col-lg-4">
-            <ReportsByCategory reports={reports}/>
-            <ReportStatusDistribution reports={reports} />
-            <ReportsGrowth reports={reports} />
-            <TopReportUsers  reports={reports} />
+          <ReportsByCategory reports={reports} />
+          <ReportStatusDistribution reports={reports} />
+          <ReportsGrowth reports={reports} />
+          <TopReportUsers reports={reports} />
         </div>
       </div>
     </div>

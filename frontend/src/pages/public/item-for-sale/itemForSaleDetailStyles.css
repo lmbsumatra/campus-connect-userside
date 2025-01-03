@@ -285,3 +285,29 @@
 
 @media (min-width: 1025px) {
 }
+
+.item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between the badge and button */
+  margin-bottom: 10px;
+}
+
+.report-button {
+  margin-left: auto; /* Push the button to the far right */
+}
+
+.item-header .btn {
+  background-color: #dc3545; /* Bootstrap danger color */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.item-header .btn:hover {
+  background-color: #b02a37; /* Darker red for hover effect */
+}
