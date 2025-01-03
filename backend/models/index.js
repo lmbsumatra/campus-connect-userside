@@ -16,6 +16,7 @@ const ReviewAndRate = require("./ReviewAndRateModel")(sequelize);
 const UnavailableDate = require("./UnavailableDateModel");
 const Report = require("./ReportModel");
 const BuyAndSellTransaction = require("./BuyAndSellTransactionModel")(sequelize);
+const Notification = require('./NotificationModel');
 
 
 const models = {
@@ -33,7 +34,8 @@ const models = {
   UnavailableDate,  
   Report,
   BuyAndSellTransaction,
-  ReviewAndRate
+  ReviewAndRate,
+  Notification
 };
 
 Object.values(models).forEach((model) => {
