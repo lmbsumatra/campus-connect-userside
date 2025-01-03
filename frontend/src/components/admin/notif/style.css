@@ -1,134 +1,164 @@
-/* Notification icon styles */
-.notification-item .icon-link img {
-  width: 24px;
-  height: 24px;
+/* Base notification container */
+.notification-container {
+  position: relative;
 }
 
-/* Notification container styles */
+/* Notification icon styles */
+.icon-link {
+  position: relative;
+  display: inline-block;
+  padding: 8px;
+}
+
+.icon-link img {
+  width: 40px;
+  height: 40px;
+}
+
+/* Notification badge styles */
+.icon-link[data-count]:not([data-count="0"])::after {
+  content: attr(data-count);
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+/* Notifications dropdown container */
 .notifications {
   position: absolute;
   top: 65px;
   right: 140px;
-  width: 300px;
+  width: 320px;
   background-color: #fff;
   border: 1px solid #ddd;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   z-index: 1000;
   overflow: hidden;
-  transition: all 0.3s ease-in-out; /* Smooth transition */
+  transition: all 0.3s ease-in-out;
 }
 
-/* Notification header */
+/* Notification header section */
 .notifications-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 15px;
+  padding: 12px 16px;
   border-bottom: 1px solid #ddd;
 }
 
-/* Notification title */
 .notifications-header h5 {
   margin: 0;
   font-size: 16px;
 }
 
-/* Close button style */
-.close-btn {
+/* Close and mark-read buttons */
+.close-btn,
+.mark-all-read {
   background: none;
   border: none;
-  font-size: 20px;
   cursor: pointer;
+  padding: 4px 8px;
 }
 
-/* Close button focus style */
+.close-btn {
+  font-size: 20px;
+}
+
+.mark-all-read {
+  color: #0066cc;
+  font-size: 14px;
+}
+
 .close-btn:focus {
-  outline: 2px solid #007bff; /* Example focus state */
+  outline: 2px solid #007bff;
 }
 
 /* Notification list container */
 .notification-list {
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
-/* Notification item styles */
+/* Individual notification items */
 .notification-item {
   display: flex;
   align-items: center;
-  padding: 10px 15px;
+  padding: 12px 16px;
   text-decoration: none;
   color: #333;
-  transition: background 0.3s;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
 }
 
-/* Hover effect on notification item */
 .notification-item:hover {
   background-color: #f9f9f9;
 }
 
-/* Avatar image style */
-.notification-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  margin-right: 15px;
+.notification-item.unread {
+  background-color: #f0f7ff;
 }
 
-/* Notification content (text) styles */
+/* Avatar styles */
+.notification-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+/* Notification content container */
 .notification-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-/* Notification content paragraph style */
 .notification-content p {
-  margin: 0 0 5px;
+  margin: 0 0 4px 0;
   font-size: 14px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 }
 
-/* Notification timestamp style */
 .notification-content span {
   font-size: 12px;
   color: #777;
 }
 
+/* Empty state */
+.no-notifications {
+  padding: 16px;
+  text-align: center;
+  color: #666;
+}
+
 /* Mobile responsive styling */
 @media (max-width: 600px) {
-  /* Adjust notification container on mobile */
   .notifications {
     top: 0;
     right: 0;
     width: 100vw;
-    height:  60vh;
-    border-radius: 0; /* Remove rounded corners */
-    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent background */
+    height: 60vh;
+    border-radius: 0;
+    background-color: rgba(255, 255, 255, 0.95);
   }
-}
 
-/* Notification badge on the bell icon */
-.icon-link {
-  position: relative;
-}
+  .notification-avatar {
+    width: 32px;
+    height: 32px;
+  }
 
-.icon-link::after {
-  content: attr(data-count); /* Dynamically update the count */
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: red;
-  color: white;
-  border-radius: 50%;
-  padding: 5px 10px;
-  font-size: 12px;
-  display: none; /* Hide by default */
-}
-
-/* Display the badge only if there are notifications */
-.icon-link[data-count]:not([data-count="0"])::after {
-  display: block;
+  .notification-content p {
+    font-size: 13px;
+  }
 }

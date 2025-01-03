@@ -19,6 +19,8 @@ const { initializeSocket } = require("./socket");
 const nodemailer = require("nodemailer");
 const reportRoutes = require("./routes/ReportRoute");
 const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js")
+const notificationRoutes = require("./routes/NotificationRoute");
+
 
 // cron
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -31,11 +33,13 @@ const cron = require("node-cron");
 const conversationRoutes = require("./routes/ConversationRoute");
 const messageRoutes = require("./routes/MessageRoute");
 
+// Load environment variables
 dotenv.config();
 
+// Initialize Express app and create HTTP server
 const app = express();
-const server = http.createServer(app); // Create HTTP server
-const { io, notifyAdmins } = initializeSocket(server); // Initialize Socket.IO
+const server = http.createServer(app); 
+const { io, notifyAdmins } = initializeSocket(server); 
 
 // Middleware
 app.use(express.json());
@@ -56,8 +60,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Make notifyAdmins available to all routes via middleware
+// Make socket.io and notifyAdmins available to routes
 app.use((req, res, next) => {
+  req.io = io;
   req.notifyAdmins = notifyAdmins;
   next();
 });
@@ -73,6 +78,20 @@ app.use("/review-and-rate", reviewAndRateRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/admin/transactions", adminTransactionRoutes);
+
+// Other routes
+app.use("/user", studentAuthRoutes);
+app.use("/admin", adminAuthRoutes);
+app.use("/listings", listingRoutes);
+app.use("/posts", postRoutes);
+app.use("/item-for-sale", itemForSaleRoutes);
+app.use("/rental-transaction", rentalTransactionRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/admin/transactions", adminTransactionRoutes);
+app.use("/api/conversations", conversationRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Error handling middleware for unexpected errors
 app.use((err, req, res, next) => {

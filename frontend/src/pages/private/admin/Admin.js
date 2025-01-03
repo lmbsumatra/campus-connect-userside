@@ -5,79 +5,118 @@ import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../../context/AuthContext";
-import useSocket from "../../../hooks/useSocket"; // Import the custom hook
+import axios from 'axios';
+import io from "socket.io-client";
 import "./adminStyles.css";
-import { io } from "socket.io-client";
 
 const Admin = () => {
   const { adminUser } = useAuth();
   const [isSidebarVisible, setSidebarVisible] = useState(true);
-  const socket = io("http://localhost:3001", {
-    transports: ["polling", "websocket"],
-  });
+  const [notifications, setNotifications] = useState([]);
+  const [socket, setSocket] = useState(null);
 
+  // Initialize socket connection
   useEffect(() => {
-    if (socket) {
-      // Emit the admin connection event when socket is initialized
+    const newSocket = io("http://localhost:3001", {
+      transports: ["polling", "websocket"],
+    });
+    setSocket(newSocket);
+
+    return () => newSocket.disconnect();
+  }, []);
+
+  // Fetch initial notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/notifications');
+        setNotifications(response.data);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+        toast.error('Failed to load notifications');
+      }
+    };
+
+    if (adminUser) {
+      fetchNotifications();
+    }
+  }, [adminUser]);
+
+  // Handle socket connections and notifications
+  useEffect(() => {
+    if (socket && adminUser) {
+      // Emit admin connection
       socket.emit("admin-connect");
 
       socket.on("connect", () => {
         console.log("Socket connected with ID:", socket.id);
       });
-      // listener for new-listi notifications
+
+      // Generic notification handler
+      const handleNotification = (notification) => {
+        setNotifications(prev => [notification, ...prev]);
+        
+        // Determine the notification format based on type
+        let toastContent;
+        if (notification.type === "new-post") {
+          toastContent = (
+            <span>
+              <strong>{notification.title}</strong>:{" "}
+              {notification.renter?.name}
+              <em>{notification.message}</em>
+            </span>
+          );
+        } else {
+          toastContent = (
+            <span>
+              <strong>{notification.title}</strong>:{" "}
+              <em>{notification.owner?.name}</em> {notification.message}
+            </span>
+          );
+        }
+        
+        toast.info(toastContent);
+      };
+
+      // Set up event listeners
       socket.on("new-listing-notification", (notification) => {
-        console.log("Received listing notification in admin:", notification);
-        toast.info(
-          <span>
-            <strong>{notification.title}</strong>:{" "}
-            <em>{notification.owner.name}</em> {notification.message}
-          </span>
-        );
+        console.log("Received listing notification:", notification);
+        handleNotification({ ...notification, type: "listing" });
       });
 
-      // listener for new-item-for-sale notifications
       socket.on("new-item-for-sale-notification", (notification) => {
-        console.log(
-          "Received item-for-sale notification in admin:",
-          notification
-        );
-        toast.info(
-          <span>
-            <strong>{notification.title}</strong>:{" "}
-            <em>{notification.owner.name}</em> {notification.message}
-          </span>
-        );
+        console.log("Received item-for-sale notification:", notification);
+        handleNotification({ ...notification, type: "item-for-sale" });
       });
 
-      // listener for new post notifications
-      socket.on("new-post-notification", (notificationData) => {
-        console.log("Received post notification in admin:", notificationData);
-        toast.info(
-          <span>
-            <strong>{notificationData.title}</strong>:{" "}
-            {notificationData.renter.name}
-            <em>{notificationData.message}</em>
-          </span>
-        );
+      socket.on("new-post-notification", (notification) => {
+        console.log("Received post notification:", notification);
+        handleNotification({ ...notification, type: "new-post" });
       });
 
       socket.on("disconnect", () => {
         console.log("Socket disconnected");
+        toast.warn("Lost connection to server. Reconnecting...");
       });
 
       socket.on("error", (error) => {
         console.error("Socket error:", error);
+        toast.error("Connection error occurred");
       });
+
+      // Cleanup event listeners
+      return () => {
+        socket.off("connect");
+        socket.off("new-listing-notification");
+        socket.off("new-item-for-sale-notification");
+        socket.off("new-post-notification");
+        socket.off("disconnect");
+        socket.off("error");
+      };
     }
+  }, [socket, adminUser]);
 
-    // Clean up on component unmount
-    return () => {
-      if (socket) {
-        socket.disconnect();
-      }
-    };
-  }, [socket]); // Adding `socket` as dependency to manage lifecycle
-
+  // Handle responsive sidebar
   useEffect(() => {
     const handleResize = () => {
       setSidebarVisible(window.innerWidth > 768);
@@ -89,8 +128,9 @@ const Admin = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Authentication check
   if (!adminUser || !["admin", "superadmin"].includes(adminUser.role)) {
-    return <Navigate to="/admin-login" />; // Redirect if not logged in or not an admin
+    return <Navigate to="/admin-login" />;
   }
 
   return (
@@ -98,8 +138,21 @@ const Admin = () => {
       {isSidebarVisible && <AdminSidebar />}
       <main className="w-100">
         <div className="admin-content">
-          <AdminNavBar />
-          <ToastContainer position="bottom-right" autoClose={5000} />
+          <AdminNavBar 
+            notifications={notifications} 
+            setNotifications={setNotifications}
+          />
+          <ToastContainer 
+            position="bottom-right" 
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
           <Outlet />
         </div>
       </main>

@@ -1,21 +1,59 @@
-import React from 'react'; 
+import React from "react";
+import axios from "axios";
 import Bell from "../../../assets/images/icons/notif.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
 
-const Notification = ({ showNotifications, toggleNotifications, notifications }) => {
-  const handleNotificationClick = (e) => {
-    e.stopPropagation(); // Prevent click from propagating to parent component
-    toggleNotifications(); // Toggle the notification state
+const Notification = ({
+  showNotifications,
+  toggleNotifications,
+  notifications,
+  setNotifications,
+}) => {
+  const handleNotificationClick = async (e, notificationId) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (notificationId) {
+      try {
+        await axios.put(
+          `http://localhost:3001/api/notifications/${notificationId}/read`
+        );
+        setNotifications((prev) =>
+          prev.map((notif) =>
+            notif.id === notificationId ? { ...notif, isRead: true } : notif
+          )
+        );
+      } catch (error) {
+        console.error("Error marking notification as read:", error);
+      }
+    }
   };
+
+  const handleMarkAllAsRead = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put("http://localhost:3001/api/notifications/mark-all-read");
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, isRead: true }))
+      );
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
+  };
+
+  const unreadCount = notifications.filter((notif) => !notif.isRead).length;
 
   return (
     <div className="notification-container">
-      <a 
-        className="icon-link" 
-        href="#" 
-        onClick={handleNotificationClick} 
-        data-count={notifications.length}  // Set the notification count as data attribute
+      <a
+        className="icon-link"
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          toggleNotifications();
+        }}
+        data-count={unreadCount}
       >
         <img src={Bell} alt="Notification Icon" />
       </a>
@@ -24,37 +62,44 @@ const Notification = ({ showNotifications, toggleNotifications, notifications })
         <div className="notifications">
           <div className="notifications-header">
             <h5>Notifications</h5>
-            <button 
-              className="close-btn" 
-              onClick={() => { 
-                toggleNotifications(); 
-              }}
-            >
+            {unreadCount > 0 && (
+              <button className="mark-all-read" onClick={handleMarkAllAsRead}>
+                Mark all as read
+              </button>
+            )}
+            <button className="close-btn" onClick={toggleNotifications}>
               ×
             </button>
           </div>
           <div className="notification-list">
             {notifications.length > 0 ? (
-              notifications.map((notification, index) => (
-                <a href="#" key={index} className="notification-item">
-                  <img src={UserIcon} className="notification-avatar" alt="User Avatar" />
+              notifications.map((notification) => (
+                <a
+                  href="#"
+                  key={notification.id}
+                  className={`notification-item ${
+                    notification.isRead ? "read" : "unread"
+                  }`}
+                  onClick={(e) => handleNotificationClick(e, notification.id)}
+                >
+                  <img
+                    src={UserIcon}
+                    className="notification-avatar"
+                    alt="User Avatar"
+                  />
                   <div className="notification-content">
                     <p>
-                      <strong>
-                        {/* Render owner or renter name based on notification type */}
-                        {notification.type === 'new-listing' || notification.type === 'new-item-for-sale'
-                          ? notification.owner?.name || "Owner Unknown"
-                          : notification.renter?.name || "Renter Unknown"}
-                      </strong> 
-                      {/* Render appropriate message based on notification type */}
+                      <strong>{notification.ownerName}</strong>
                       <em>{notification.message}</em>
                     </p>
-                    <span>{new Date(notification.timestamp).toLocaleString()}</span>
+                    <span>
+                      {new Date(notification.timestamp).toLocaleString()}
+                    </span>
                   </div>
                 </a>
               ))
             ) : (
-              <p className="no-notifications">No new notifications.</p>
+              <p className="no-notifications">No notifications.</p>
             )}
           </div>
         </div>

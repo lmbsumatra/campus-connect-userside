@@ -66,6 +66,7 @@ const addListing = async (req, res) => {
       });
     }
 
+    // Validate listing data
     try {
       validateListingData(listingData);
     } catch (validationError) {
@@ -99,6 +100,7 @@ const addListing = async (req, res) => {
     // Set initial listing status
     listingData.status = "pending";
 
+    // Create the listing
     const listing = await models.Listing.create(
       {
         owner_id: listingData.ownerId,
@@ -161,8 +163,7 @@ const addListing = async (req, res) => {
       );
     }
 
-    await transaction.commit();
-
+    // Fetch owner details
     const owner = await models.User.findOne({
       where: { user_id: listing.owner_id },
       attributes: ["user_id", "first_name", "last_name"],
@@ -172,23 +173,41 @@ const addListing = async (req, res) => {
       ? `${owner.first_name} ${owner.last_name}`
       : "Unknown";
 
-    const notification = {
+    // Create notification in database
+    const notificationData = {
       type: "new-listing",
       title: "New Listing awaiting approval",
-      message: `${ownerName} created new listing "${listing.listing_name}"`,
+      message: ` created a new listing: "${listing.listing_name}"`,
+      ownerName,
+      ownerId: owner.user_id,
+      itemId: listing.id,
+      itemType: "listing",
       timestamp: new Date(),
-      listingId: listing.id,
-      category: listing.category,
-      owner: {
-        id: owner.user_id,
-        name: ownerName,
-      },
+      isRead: false,
     };
+
+    const notification = await models.Notification.create(notificationData, {
+      transaction,
+    });
+
+    // Commit the transaction
+    await transaction.commit();
+
+    // Emit socket event after commit
+    if (req.notifyAdmins) {
+      req.notifyAdmins({
+        ...notification.toJSON(),
+        owner: {
+          id: owner.user_id,
+          name: ownerName,
+        },
+      });
+    }
 
     res.status(201).json({
       message: "Listing created successfully.",
       listing,
-      notification,
+      notification: notification.toJSON(),
     });
   } catch (error) {
     if (transaction.finished !== "commit") {

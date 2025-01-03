@@ -82,11 +82,11 @@ const AddListing = () => {
   const toggleGroup = () => setIsExpanded(!isExpanded);
   const toggleStatus = () => setIsForSale((prevStatus) => !prevStatus);
 
-  //  Toast Notifications
+  /* Toast Notifications
   const handleSubmit = async () => {
     try {
       const endpoint = isForSale
-        ? `${baseApi}/item-for-sale/add`
+       // ? `${baseApi}/item-for-sale/add`
         : `${baseApi}/listings/add`;
 
       const payload = isForSale
@@ -131,7 +131,7 @@ const AddListing = () => {
       const response = await axios.post(endpoint, payload);
       console.log(response.data);
 
-      // Emit a socket event to notify admins about the new listing
+      Emit a socket event to notify admins about the new listing
       if (socket) {
         const notification = {
           title: listingData.name,
@@ -139,7 +139,7 @@ const AddListing = () => {
             name: user.first_name + " " + user.last_name,
           },
           message: isForSale
-            ? "has listed an item for sale."
+          //  ? "has listed an item for sale."
             : "has added a new rental listing.",
           type: isForSale ? "new-item-for-sale" : "new-listing", // Choose event type based on the listing type
         };
@@ -173,8 +173,9 @@ const AddListing = () => {
         progress: undefined,
       });
     }
+  
   };
-
+   */ 
   //  Tag Handlers
   const handleAddTag = () => {
     const trimmedTag = newTag.trim();
@@ -513,7 +514,7 @@ const AddListing = () => {
       <HandleSpecifications data={listingData} setData={setListingData} />
 
       {/* Submit Button */}
-      <button className="btn btn-primary" onClick={handleSubmit}>
+      <button className="btn btn-primary" onClick={("")}>
         Submit
       </button>
     </div>

@@ -1,6 +1,7 @@
 const { Server } = require("socket.io");
 const { getServerUrl } = require("./getServerUrl.js");
-console.log(getServerUrl);
+
+// Export both the initialization function and the notifyAdmins function
 function initializeSocket(server) {
   const io = new Server(server, {
     cors: {
@@ -44,7 +45,7 @@ function initializeSocket(server) {
       notifyAdmins(notification);
     });
 
-    // Handle post notifications (new addition)
+    // Handle post notifications
     socket.on("new-post", (notification) => {
       console.log("Received new post notification:", notification);
       console.log(
@@ -53,17 +54,7 @@ function initializeSocket(server) {
       );
       notifyAdmins(notification);
     });
-
-    // Clean up on disconnect
-    socket.on("disconnect", () => {
-      adminSockets.delete(socket.id);
-      console.log(
-        "Client disconnected. Remaining admin sockets:",
-        Array.from(adminSockets)
-      );
-    });
-
-    // ====================================================================
+// ====================================================================
     // Register the userId to socket mapping
     socket.on("registerUser", (userId) => {
       userSockets.set(userId, socket.id);
@@ -92,12 +83,17 @@ function initializeSocket(server) {
 
     // Clean up on disconnect
     socket.on("disconnect", () => {
+      adminSockets.delete(socket.id);
       userSockets.forEach((socketId, userId) => {
         if (socketId === socket.id) {
           userSockets.delete(userId);
           console.log(`User ${userId} disconnected`);
         }
       });
+      console.log(
+        "Client disconnected. Remaining admin sockets:",
+        Array.from(adminSockets)
+      );
     });
   });
 
@@ -110,8 +106,8 @@ function initializeSocket(server) {
       notification.type === "new-item-for-sale"
         ? "new-item-for-sale-notification"
         : notification.type === "new-post"
-        ? "new-post-notification" // Event for new posts
-        : "new-listing-notification"; // Default to listing notification
+        ? "new-post-notification"
+        : "new-listing-notification";
 
     // Emit notification to all connected admins
     adminSockets.forEach((socketId) => {

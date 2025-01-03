@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import useSocket from "../../../hooks/useSocket"; 
+import axios from "axios";
+import useSocket from "../../../hooks/useSocket";
 import UserDropdown from "../dropdown/UserDropdown";
 import Notification from "../notif/Notification";
-import { useAuth } from "../../../context/AuthContext"; 
+import { useAuth } from "../../../context/AuthContext";
 import "./adminNavBarStyles.css";
 
 const AdminNavBar = () => {
@@ -12,11 +13,10 @@ const AdminNavBar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const socket = useSocket("http://localhost:3001");
-  const { adminUser, logoutAdmin } = useAuth(); // Access adminUser from AuthContext
+  const { adminUser, logoutAdmin } = useAuth();
   const [openPopup, setOpenPopup] = useState(null);
-
-  const notificationsRef = useRef(null); // Define ref for notifications
-  const userDropdownRef = useRef(null); // Define ref for user dropdown
+  const notificationsRef = useRef(null);
+  const userDropdownRef = useRef(null);
 
   const togglePopup = (popup) => {
     setOpenPopup((prev) => (prev === popup ? null : popup));
@@ -29,7 +29,7 @@ const AdminNavBar = () => {
 
   const toggleNotifications = () => {
     setShowUserDropdown(false);
-    setShowNotifications((prev) => !prev);
+    setShowNotifications((prevState) => !prevState);
   };
 
   const handleLogout = () => {
@@ -37,42 +37,49 @@ const AdminNavBar = () => {
     navigate("/admin-login");
   };
 
-  // Function to format date and time
   const getFormattedDateTime = () => {
     const currentDate = new Date();
-    return currentDate.toLocaleString(); // Formats as 'MM/DD/YYYY, HH:MM:SS AM/PM'
+    return currentDate.toLocaleString();
   };
+  useEffect(() => {
+    console.log("showNotifications:", showNotifications);
+  }, [showNotifications]);
 
+  // Fetch notifications when component mounts
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/notifications"
+        );
+        setNotifications(response.data);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+    fetchNotifications();
+  }, []);
+
+  // Socket listeners for real-time updates
   useEffect(() => {
     if (socket) {
-      // Emit the 'admin-connect' event to notify the server this admin is connected
+      // Emit admin-connect event
       socket.emit("admin-connect");
 
-      // Listen for 'listing notification'
+      // Listen for new notifications
       socket.on("new-listing-notification", (notification) => {
-        setNotifications((prevNotifications) => [
-          ...prevNotifications,
-          notification,
-        ]);
+        setNotifications((prev) => [notification, ...prev]);
       });
 
-      // Listen for item-for-sale notification 
       socket.on("new-item-for-sale-notification", (notification) => {
-        setNotifications((prevNotifications) => [
-          ...prevNotifications,
-          notification,
-        ]);
+        setNotifications((prev) => [notification, ...prev]);
       });
 
-      // Listen for new post notifications
-      socket.on("new-post-notification", (notificationData) => {
-        setNotifications((prevNotifications) => [
-          ...prevNotifications,
-          notificationData,
-        ]);
+      socket.on("new-post-notification", (notification) => {
+        setNotifications((prev) => [notification, ...prev]);
       });
 
-      // Cleanup socket listeners on component unmount
+      // Cleanup socket listeners
       return () => {
         socket.off("new-listing-notification");
         socket.off("new-item-for-sale-notification");
@@ -80,28 +87,45 @@ const AdminNavBar = () => {
         socket.disconnect();
       };
     }
-  }, [socket]); // Only run effect when the socket is available
+  }, [socket]);
+
+  // Function to mark notification as read
+  const handleNotificationClick = async (notificationId) => {
+    try {
+      await axios.put(
+        `http://localhost:3001/api/notifications/${notificationId}/read`
+      );
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.id === notificationId ? { ...notif, isRead: true } : notif
+        )
+      );
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
 
   return (
     <div className="nav nav-container">
       <div className="admin-info">
-        {/* Display admin name and formatted date-time */}
         {adminUser ? (
           <>
             <span className="admin-name">{`${adminUser.firstName} ${adminUser.lastName}`}</span>
             <span className="date-time">{getFormattedDateTime()}</span>
           </>
         ) : (
-          <span>Loading...</span> 
+          <span>Loading...</span>
         )}
       </div>
 
       <div className="toolbar d-flex">
         <div ref={notificationsRef} onClick={toggleNotifications}>
           <Notification
-            showNotifications={showNotifications}
-            toggleNotifications={toggleNotifications}
+            showNotifications={openPopup === "notifications"}
+            toggleNotifications={() => togglePopup("notifications")}
             notifications={notifications}
+            setNotifications={setNotifications}
+            onNotificationClick={handleNotificationClick}
           />
         </div>
         <div ref={userDropdownRef} onClick={toggleUserDropdown}>

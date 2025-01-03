@@ -125,13 +125,30 @@ const AddNewItem = () => {
 
   useEffect(() => {
     if (userId) {
-      dispatch(fetchUser(userId));
+      console.log("Fetching user with ID:", userId);
+      dispatch(fetchUser(userId))
+      .then((response) => console.log("User fetch response:", response))
+      .catch((error) => console.error("User fetch error:", error));
     }
   }, [userId, dispatch]);
+  console.log("Current user state:", { user, loadingFetchUser, errorFetchUser });
 
   if (loadingFetchUser) {
     return <LoadingItemDetailSkeleton />;
   }
+
+// Show error state if user fetch failed
+if (errorFetchUser) {
+  return (
+    <div className="error-container">
+      <p>Error loading user data. Please try again later.</p>
+    </div>
+  );
+}
+// Ensure user data exists before rendering main content
+if (!user?.user) {
+  return <LoadingItemDetailSkeleton />;
+}
 
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
@@ -226,6 +243,15 @@ const AddNewItem = () => {
 
   const handleSubmit = async () => {
     console.log(itemDataState);
+    if (!user?.user) {
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "User data not available. Please try again."
+      );
+      return;
+    }
     try {
       let hasErrors = false;
       const errors = {};
@@ -327,7 +353,7 @@ const AddNewItem = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (socket) {
+    /* if (socket) {
         const notification = {
           title: `New ${itemType === FOR_RENT ? "Listing!" : "Item for Sale!"}`,
           owner: {
@@ -335,16 +361,21 @@ const AddNewItem = () => {
           },
           message:
             itemType === FOR_RENT
-              ? "has added a new rental listing."
+             // ? "has added a new rental listing."
               : "has listed an item for sale.",
           type:
             itemType === FOR_RENT
-              ? "new-listing-notification"
-              : "new-item-for-sale-notification",
+              //? "new-listing"
+              : "new-item-for-sale",
+        timestamp: new Date().toISOString(), 
         };
-        socket.emit(notification.type, notification);
+        socket.emit
+        ( notification.type === "new-listing"
+            //? "new-listing-notification" 
+            : "new-item-for-sale-notification",
+          notification);
       }
-
+*/
       ShowAlert(
         dispatch,
         "success",
@@ -363,6 +394,10 @@ const AddNewItem = () => {
 
       ShowAlert(dispatch, "error", "Error", errorMessage);
     }
+  };
+  const renderUserToolbar = () => {
+    if (!user?.user) return null;
+    return <UserToolbar user={user.user} isYou={true} />;
   };
 
   return (
@@ -655,7 +690,7 @@ const AddNewItem = () => {
         </div>
       </div>
 
-      <UserToolbar user={user.user} isYou={true} />
+      {renderUserToolbar()}
 
       <AddItemDescAndSpecs
         specs={itemDataState.specs.value}
