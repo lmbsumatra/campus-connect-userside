@@ -7,6 +7,7 @@ const initialState = {
   imgWithId: { value: "", triggered: false, hasError: true, error: "" },
   scannedId: { value: "", triggered: false, hasError: true, error: "" },
   email: { value: "", triggered: false, hasError: true, error: "" },
+  college: { value: "", triggered: false, hasError: true, error: "" },
   password: {
     value: "",
     triggered: false,
@@ -96,12 +97,11 @@ const validateInput = (name, value, password) => {
       const hasLowercase = /[a-z]/.test(value);
       const hasDigit = /\d/.test(value);
       const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-      console.log(isNotEmpty)
       validations.push({
         message: "Password is required",
         isValid: isNotEmpty,
       });
-      
+
       validations.push({
         message: "At least 8 characters",
         isValid: isMinLength,
@@ -155,6 +155,12 @@ const validateInput = (name, value, password) => {
 
       hasError = !isConfirmPasswordNotEmpty || !isPasswordEqual;
       break;
+    case "college":
+      if (value.trim() === "") {
+        hasError = true;
+        error = "College cannot be empty.";
+      }
+      break;
     case "tupId":
       if (value.length === 0) {
         hasError = true;
@@ -170,45 +176,67 @@ const validateInput = (name, value, password) => {
         error = ""; // Reset error when TUP Id is valid
       }
       break;
-
     case "imgWithId":
       const allowedTypes = [
         "image/jpeg",
+        "image/jpg",
         "image/png",
         "image/gif",
         "image/webp",
       ];
-      const maxSize = 5 * 1024 * 1024;
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
       if (!value) {
         hasError = true;
-        error = "A photo with your Id is required.";
-      } else if (!allowedTypes.includes(value.type)) {
-        hasError = true;
-        error = "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.";
-      } else if (value.size > maxSize) {
-        hasError = true;
-        error = "File size exceeds the 5MB limit.";
+        error = "A photo with your ID is required.";
+      } else {
+        // Extract the file extension from the filename
+        const fileExtension = value.filename.split(".").pop().toLowerCase();
+        const isValidExtension = allowedTypes.some((type) =>
+          type.includes(fileExtension)
+        );
+
+        if (!isValidExtension) {
+          hasError = true;
+          error =
+            "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.";
+        } else if (value.filesize > maxSize) {
+          hasError = true;
+          error = "File size exceeds the 5MB limit.";
+        }
       }
       break;
+
     case "scannedId":
       const scannedIdAllowedTypes = [
         "image/jpeg",
+        "image/jpg",
         "image/png",
         "image/gif",
         "image/webp",
       ];
-      const scannedIdMaxSize = 5 * 1024 * 1024;
+      const scannedIdMaxSize = 5 * 1024 * 1024; // 5MB
+
       if (!value) {
         hasError = true;
-        error = "Scan of your Id is required.";
-      } else if (scannedIdAllowedTypes.includes(value.type) === false) {
-        hasError = true;
-        error = "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.";
-      } else if (value.size > scannedIdMaxSize) {
-        hasError = true;
-        error = "File size exceeds the 5MB limit.";
+        error = "Scan of your ID is required.";
+      } else {
+        // Extract the file extension from the filename
+        const fileExtension = value.filename.split(".").pop().toLowerCase();
+        const isValidExtension = scannedIdAllowedTypes.some((type) =>
+          type.includes(fileExtension)
+        );
+        if (!isValidExtension) {
+          hasError = true;
+          error =
+            "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.";
+        } else if (value.filesize > scannedIdMaxSize) {
+          hasError = true;
+          error = "File size exceeds the 5MB limit.";
+        }
       }
       break;
+
     default:
       break;
   }
@@ -252,8 +280,11 @@ const signupFormSlice = createSlice({
       // Call validateInput with password for consistency
 
       const password = state.password.value;
-      console.log(state.password.value)
-      const { hasError, error, validations } = validateInput(name, value, password);
+      const { hasError, error, validations } = validateInput(
+        name,
+        value,
+        password
+      );
 
       state[name] = {
         ...state[name],

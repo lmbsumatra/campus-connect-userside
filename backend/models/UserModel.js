@@ -34,6 +34,19 @@ const User = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    // New columns for email verification
+    verification_token: {
+      type: DataTypes.STRING(255),
+      allowNull: true,  // The token will be generated upon registration
+    },
+    verification_token_expiration: {
+      type: DataTypes.DATE,
+      allowNull: true,  // Set to null initially and later updated
+    },
+    email_verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,  // Default to false, will be updated upon email verification
+    },
   },
   { sequelize, modelName: "User", tableName: "users" }
 );
@@ -49,7 +62,6 @@ User.associate = (models) => {
     as: "student",
   });
 
-  // Ensure that the 'user_id' exists in the Conversation model
   User.hasMany(models.Conversation, {
     foreignKey: "user_id",
     as: "conversations",

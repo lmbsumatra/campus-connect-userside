@@ -7,6 +7,7 @@ import { useAuth } from "../../../../context/AuthContext";
 import AdminChangePassword from "./AdminChangePassword";
 import AdminViewAccounts from "./AdminViewAccounts"; // Import the new component
 import AdminUnavailableDates from "./AdminUnavailableDates";
+import AdminResetStatus from "./AdminResetStatus";
 
 const AdminSettings = ({ tab, onClose }) => {
   const navigate = useNavigate();
@@ -22,7 +23,9 @@ const AdminSettings = ({ tab, onClose }) => {
   const errorRef = useRef(null);
   const [showManageDates, setShowManageDates] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showManageEndSemesterDates, setShowManageEndSemesterDates] = useState(false);
+
 
   // User data state
   const [userData, setUserData] = useState({
@@ -209,18 +212,25 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
          {/* Manage to add unavailable dates*/}
         <div>
-          {adminUser?.role === "superadmin" && (
-                    <button
-                      className="btn btn-warning mt-2"
-                      onClick={() => setShowManageDates(true)}
-                    >
+          {adminUser?.role === "superadmin" && (<button className="btn btn-warning mt-2" onClick={() => setShowManageDates(true)}>
                       Manage Unavailable Dates
-                    </button>
-                  )}
+                    </button>)}
+                  {showManageDates && (<AdminUnavailableDates onClose={() => setShowManageDates(false)} />)}
+        </div>
 
-                  {showManageDates && (
-                    <AdminUnavailableDates onClose={() => setShowManageDates(false)} />
-                  )}
+        <div>
+          {adminUser?.role === "superadmin" && (
+            <button
+              className="btn btn-info mt-2"
+              onClick={() => setShowManageEndSemesterDates(true)}
+            >
+              Manage End Semester Dates
+            </button>
+          )}
+
+          {showManageEndSemesterDates && (
+            <AdminResetStatus onClose={() => setShowManageEndSemesterDates(false)} />
+          )}
         </div>
  
 
