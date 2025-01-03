@@ -1,0 +1,87 @@
+/* Basic layout and container */
+.dashboard-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f4f4f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Dashboard Title */
+.dashboard-title {
+    text-align: center;
+    font-size: 32px; /* Increased font size for prominence */
+    margin-bottom: 30px; /* Increased margin for spacing */
+    color: #333;
+}
+
+/* Section Title */
+.section-title {
+    font-size: 20px; /* Increased font size for better visibility */
+    color: #555;
+    margin-bottom: 15px; /* Increased margin for spacing */
+    font-weight: bold; /* Bold text for emphasis */
+}
+
+/* Card-style sections for each part of the dashboard */
+.card {
+    background-color: #fff;
+    border-radius: 10px; /* Slightly larger border radius */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Deeper shadow for depth */
+    padding: 20px; /* Increased padding for better spacing */
+    margin-bottom: 25px; /* Increased margin for spacing */
+}
+
+/* General info text style */
+.info {
+    font-size: 16px; /* Slightly larger font size for readability */
+    color: #555;
+    margin-top: 10px;
+}
+
+/* Input fields and select dropdowns */
+.input-field,
+.select-field {
+    width: calc(100% - 20px); /* Adjusted width to account for padding */
+    padding: 12px; /* Increased padding for comfort */
+    margin-top: 8px; /* Top margin only for spacing */
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px; /* Increased font size for readability */
+}
+
+.input-field:focus,
+.select-field:focus {
+    border-color: #6c63ff; /* Highlight color on focus */
+    outline: none;
+}
+
+/* Select dropdown styling */
+.select-field {
+    background-color: #f9f9f9;
+}
+
+/* Responsive adjustments for mobile devices */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 15px;
+    }
+
+    .dashboard-title {
+        font-size: 28px; /* Adjusted size for smaller screens */
+    }
+
+    .section-title {
+        font-size: 18px; /* Adjusted size for smaller screens */
+    }
+
+    .card {
+        padding: 15px; /* Slightly reduced padding on smaller screens */
+    }
+
+    .input-field,
+    .select-field {
+        font-size: 14px; /* Smaller font size on mobile devices */
+        padding: 10px; /* Reduced padding on mobile devices */
+    }
+}
