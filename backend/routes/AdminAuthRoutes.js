@@ -27,4 +27,9 @@ router.get("/unavailable-dates", adminAuthController.getUnavailableDates);
 router.post("/unavailable-dates", adminAuthController.addUnavailableDate);
 router.delete("/unavailable-dates/:date", adminAuthController.deleteUnavailableDate);
 
+router.get("/end-semester-dates", adminAuthController.getEndSemesterDates);
+router.post("/end-semester-dates", adminAuthController.addEndSemesterDate);
+router.delete("/end-semester-dates/:date", adminAuthController.deleteEndSemesterDate);
+
+
 module.exports = router;

@@ -7,6 +7,7 @@ const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { Op } = require("sequelize");
 const UnavailableDate = require("../models/UnavailableDateModel");
+const EndSemesterDate = require("../models/EndSemesterDate");
 
 const bcrypt = require("bcrypt");
 const { rollbackUpload } = require("../config/multer");
@@ -212,13 +213,21 @@ exports.addUnavailableDate = async (req, res) => {
   }
 
   try {
+    // Check if the date already exists
+    const existingDate = await UnavailableDate.findOne({ where: { date: new Date(date) } });
+    if (existingDate) {
+      return res.status(409).json({ message: "This date already exists." });
+    }
+
+    // Add the new date
     const newDate = await UnavailableDate.create({ date, description });
     res.status(201).json(newDate);
   } catch (error) {
-    console.error('Error creating date:', error);
+    console.error("Error creating unavailable date:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
+
 
 // DELETE request to remove an unavailable date
 exports.deleteUnavailableDate = async (req, res) => {
@@ -237,6 +246,62 @@ exports.deleteUnavailableDate = async (req, res) => {
     }
   } catch (error) {
     console.error('Error removing date:', error);
+    return res.status(500).json({ message: 'Failed to remove date' });
+  }
+};
+
+// Get all end-semester dates
+exports.getEndSemesterDates = async (req, res) => {
+  try {
+    const dates = await EndSemesterDate.findAll();  // Use the correct model here
+    res.status(200).json(dates);
+  } catch (error) {
+    console.error("Error fetching end-semester dates:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// Add a new end-semester date
+exports.addEndSemesterDate = async (req, res) => {
+  const { date, description } = req.body;
+
+  if (!date || !description) {
+    return res.status(400).json({ message: "Date and description are required" });
+  }
+
+  try {
+    // Check if the date already exists
+    const existingDate = await EndSemesterDate.findOne({ where: { date: new Date(date) } });
+    if (existingDate) {
+      return res.status(409).json({ message: "This date already exists." });
+    }
+
+    // Add the new date
+    const newDate = await EndSemesterDate.create({ date, description });
+    res.status(201).json(newDate);
+  } catch (error) {
+    console.error("Error creating end-semester date:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+// Delete an end-semester date
+exports.deleteEndSemesterDate = async (req, res) => {
+  const { date } = req.params;
+
+  try {
+    const deletedDate = await EndSemesterDate.destroy({
+      where: { date: new Date(date) },
+    });
+
+    if (deletedDate) {
+      return res.status(200).json({ message: 'Date removed successfully' });
+    } else {
+      return res.status(404).json({ message: 'Date not found' });
+    }
+  } catch (error) {
+    console.error('Error removing end-semester date:', error);
     return res.status(500).json({ message: 'Failed to remove date' });
   }
 };

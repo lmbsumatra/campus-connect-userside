@@ -283,3 +283,13 @@ CREATE TABLE `unavailable_dates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `date` (`date`)
 ) 
+
+CREATE TABLE `end_semester_dates` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_date` (`date`)
+) 
