@@ -1,49 +1,60 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import UserIcon from "../../../assets/images/icons/user.svg";
 import MyRentalsIcon from "../../../assets/images/icons/rental.svg";
 import MyItemsIcon from "../../../assets/images/icons/item.svg";
 import MyPostsIcon from "../../../assets/images/icons/post.svg";
 import LogoutIcon from "../../../assets/images/icons/logout.svg";
 import "./style.css";
-import { useAuth } from "../../../context/AuthContext";
 import FetchUserInfo from "../../../utils/FetchUserInfo";
+import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 
 const UserDropdown = ({
   showDropdown,
   toggleDropdown,
-  handleClick,
   handleLogout,
 }) => {
-  const { studentUser } = useAuth();
-  const { userId } = studentUser;
-  const {
-    user,
-    student,
-    errorMessage: fetchErrorMessage,
-  } = FetchUserInfo({ userId });
+  const studentUser = useSelector(selectStudentUser);
+  const { userId } = studentUser || {};
+  
+  // Fetch user information
+  const { user, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
+
   return (
     <div className="nav-item">
+      {/* Dropdown Trigger */}
       <a className="icon-link" href="#" onClick={toggleDropdown}>
         <img src={UserIcon} alt="User Icon" className="user-icon" />
       </a>
 
+      {/* Dropdown Menu */}
       {showDropdown && (
         <div className="user-menu">
           <div className="triangle"></div>
+
+          {/* User Info Section */}
           <div className="dropdown-header">
             <img src={UserIcon} alt="User" className="profile-img" />
-            <div className="profile-info d-flex flex-column gap-1 align-items-start justify-content-start">
-              <h5 className="">
-                {user?.first_name} {user?.last_name}
-              </h5>
-              <h6>
-                <a href="/profile">View Profile</a>
-              </h6>
+            <div className="profile-info d-flex flex-column gap-1 align-items-start">
+              {fetchErrorMessage ? (
+                <p className="error-message">{fetchErrorMessage}</p>
+              ) : (
+                <>
+                  <h5>
+                    {user?.first_name || "First Name"} {user?.last_name || "Last Name"}
+                  </h5>
+                  <h6>
+                    <a href="/profile">View Profile</a>
+                  </h6>
+                </>
+              )}
             </div>
             <button className="close-btn" onClick={toggleDropdown}>
               &times; {/* Close icon */}
             </button>
           </div>
+
+          {/* Dropdown Options */}
           <div className="dropdown-content">
             <button
               className="dropdown-btn"

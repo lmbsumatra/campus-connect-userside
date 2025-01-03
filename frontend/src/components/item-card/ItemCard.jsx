@@ -38,6 +38,7 @@ const ItemCard = ({
   viewType = "card",
   itemType,
 }) => {
+  console.log({ items });
   const [activeDropdown, setActiveDropdown] = useState(null);
   const dropdownRefs = useRef({});
   const navigate = useNavigate();

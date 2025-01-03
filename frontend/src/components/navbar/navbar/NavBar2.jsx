@@ -1,46 +1,54 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import ccLogo from "../../../assets/images/navbar/cc-logo.png";
 import Notification from "../notif/Notification.jsx";
 import Message from "../inbox/Message.jsx";
 import UserDropdown from "../dropdown/UserDropdown.jsx";
 import LoginSignUp from "../../../pages/public/login-signup/LoginSignup.js";
-import "./navbarStyles.css";
-import { useAuth } from "../../../context/AuthContext.js";
 import searchIcon from "../../../assets/images/navbar/search.svg";
+import "./navbarStyles.css";
+import { logoutStudent, selectStudentUser } from "../../../redux/auth/studentAuthSlice.js";
 
 const NavBar2 = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showLoginSignUp, setShowLoginSignUp] = useState(false);
-  const [activeTab, setActiveTab] = useState("");
-  const [authTab, setAuthTab] = useState("loginTab");
-  const [openPopup, setOpenPopup] = useState(null);
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { studentUser, logoutStudent } = useAuth();
-  const popupRef = useRef(null);
-  const role = studentUser?.role;
+  const [refresh, setRefresh] = useState(false);
+  const studentUser = useSelector(selectStudentUser);
 
   useEffect(() => {
-    setIsLoggedIn(!!(role === "student"));
-    setShowLoginSignUp(false);
+    setRefresh((prev) => !prev); // Toggle to force refresh
+  }, [studentUser]);
 
+
+  const [showLoginSignUp, setShowLoginSignUp] = useState(false);
+  const [authTab, setAuthTab] = useState("loginTab");
+  const [activeTab, setActiveTab] = useState("");
+  const [openPopup, setOpenPopup] = useState(null);
+
+  const popupRef = useRef(null);
+
+  useEffect(() => {
     const path = location.pathname;
-    if (path === "/shop") {
-      setActiveTab("Shop");
-    } else if (path === "/rent") {
-      setActiveTab("Looking for...");
-    } else if (path === "/lend") {
-      setActiveTab("Lend a hand");
-    } else {
-      setActiveTab("Discover");
+    switch (path) {
+      case "/shop":
+        setActiveTab("Shop");
+        break;
+      case "/rent":
+        setActiveTab("Looking for...");
+        break;
+      case "/lend":
+        setActiveTab("Lend a hand");
+        break;
+      default:
+        setActiveTab("Discover");
     }
-  }, [location, studentUser]);
+  }, [location]);
 
   const setTab = (tab) => {
     setActiveTab(tab);
-    navigate(`/${tab}`);
+    navigate(`/${tab.toLowerCase().replace(/\s+/g, "")}`);
   };
 
   const togglePopup = (popup) => {
@@ -57,8 +65,7 @@ const NavBar2 = () => {
   };
 
   const handleLogout = () => {
-    logoutStudent();
-    setIsLoggedIn(false);
+    dispatch(logoutStudent());
     navigate("/");
   };
 
@@ -79,30 +86,31 @@ const NavBar2 = () => {
     <div ref={popupRef}>
       <nav className="nav bg-white">
         <div className="nav-content d-block">
+          {/* Quick Links */}
           <div className="d-flex">
             <ul className="quick-links m-0 p-0 d-flex">
-              {["Privacy Policy", "About us", "Contact", "Ask Question"].map(
-                (link) => (
-                  <li className="link" key={link}>
-                    <a
-                      className="quick-links active"
-                      href={`/${link}`}
-                      onClick={() => setTab(link)}
-                    >
-                      {link}
-                    </a>
-                  </li>
-                )
-              )}
+              {["Privacy Policy", "About us", "Contact", "Ask Question"].map((link) => (
+                <li className="link" key={link}>
+                  <a
+                    className="quick-links active"
+                    href={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
+                  >
+                    {link}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
+          {/* Toolbar */}
           <div className="nav-toolbar d-flex justify-content-between w-100 gap-5">
+            {/* Logo */}
             <a className="nav-logo gap-3 text-decoration-none" href="/home">
               <img src={ccLogo} alt="Logo" />
               <span className="fw-bold">Campus Connect</span>
             </a>
 
+            {/* Search Bar */}
             <div className="nav-searchbar w-50">
               <form role="search">
                 <div className="input-container">
@@ -119,7 +127,8 @@ const NavBar2 = () => {
               </form>
             </div>
 
-            {isLoggedIn ? (
+            {/* Right Section */}
+            {studentUser ? (
               <div className="d-flex flex-end gap-2">
                 <Notification
                   showNotifications={openPopup === "notifications"}
@@ -132,7 +141,6 @@ const NavBar2 = () => {
                 <UserDropdown
                   showDropdown={openPopup === "dropdown"}
                   toggleDropdown={() => togglePopup("dropdown")}
-                  handleClick={handleAuth}
                   handleLogout={handleLogout}
                 />
               </div>
@@ -154,6 +162,7 @@ const NavBar2 = () => {
             )}
           </div>
 
+          {/* Navigation Links */}
           <div className="d-flex justify-content-center">
             <ul className="nav-links m-0 p-0 d-flex">
               {[
@@ -187,14 +196,9 @@ const NavBar2 = () => {
         </div>
       </nav>
 
+      {/* Login/Signup Modal */}
       {showLoginSignUp && (
-        <div className="">
-          <LoginSignUp
-            tab={authTab}
-            show={showLoginSignUp}
-            onClose={closeLoginSignUp}
-          />
-        </div>
+        <LoginSignUp tab={authTab} show={showLoginSignUp} onClose={closeLoginSignUp} />
       )}
     </div>
   );

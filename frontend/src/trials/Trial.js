@@ -14,6 +14,8 @@ import infoIcon from "../assets/images/input-icons/info.svg";
 import successIcon from "../assets/images/input-icons/success.svg";
 import { baseApi } from "../App";
 import ShowAlert from "../utils/ShowAlert";
+import { useNavigate } from "react-router-dom";
+import { saveUserData } from "../redux/auth/studentAuthSlice";
 
 const Trial = () => {
   const dispatch = useDispatch();
@@ -41,6 +43,7 @@ const Trial = () => {
   const inputRefs = useRef([]);
   const imgWithIdInputRef = useRef(null);
   const scannedIdInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleShowIdPolicyModal = (message) => {
     setIdPolicyMessage(message);
@@ -82,12 +85,7 @@ const Trial = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    ShowAlert(
-      dispatch,
-      "loading",
-      "Loading",
-      "We're working on it..."
-    );
+    ShowAlert(dispatch, "loading", "Loading", "We're working on it...");
 
     if (!signupDataState.isFormValid) {
       alert("Please correct the errors before submitting.");
@@ -114,7 +112,25 @@ const Trial = () => {
 
       if (response.ok) {
         const data = await response.json();
-        ShowAlert(dispatch, "success", "Success!", "Registered successfully!");
+        await ShowAlert(
+          dispatch,
+          "success",
+          "Success!",
+          "Registered successfully!"
+        );
+        ShowAlert(dispatch, "loading", "Logging you in...");
+        if (data.token && data.role && data.userId) {
+          const loginData = {
+            token: data.token,
+            role: data.role,
+            userId: data.userId,
+          };
+          dispatch(saveUserData(loginData));
+          ShowAlert(dispatch, "success", "Logged in!");
+          navigate("/");
+        } else {
+          ShowAlert(dispatch, "error", "Failed", "Please try to login again.");
+        }
       } else {
         const errorData = await response.json();
         ShowAlert(
@@ -125,6 +141,7 @@ const Trial = () => {
         );
       }
     } catch (error) {
+      console.error("Unexpected error during registration:", error); // Log the error
       ShowAlert(
         dispatch,
         "error",

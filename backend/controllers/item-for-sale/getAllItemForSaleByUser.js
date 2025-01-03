@@ -3,7 +3,7 @@ const { models } = require("../../models/index");
 const getAllItemForSaleByUser = async (req, res) => {
   try {
     // Extract userId from query params or route parameters
-    const userId = 52; // or req.params if userId is in URL params
+    const userId = req.params.id; // or req.params if userId is in URL params
 
     // Validate userId
     if (!userId) {

@@ -9,9 +9,6 @@ import {
 } from "../../../../redux/listing/allListingsByUserSlice";
 import ShowAlert from "../../../../utils/ShowAlert";
 import Toolbar from "../../../../components/toolbar/Toolbar";
-import useListingsSearch from "./useListingsSearch.jsx"; // Import the custom search hook
-import useListingsFilter from "./useItemsFilter.jsx"; // Import the updated filter hook
-import FilterModal from "./FilterModal"; // Import your FilterModal component
 import { FOR_RENT } from "../../../../utils/consonants.js";
 
 function MyListings() {
@@ -42,11 +39,6 @@ function MyListings() {
     }
   }, [errorAllListingsByUser]);
 
-  // Use the custom search hook here (filtering based on searchTerm)
-  const searchedListings = useListingsSearch(allListingsByUser, searchTerm);
-
-  // Use the custom filter hook here (filtering based on Redux filters)
-  const filteredListings = useListingsFilter(searchedListings);
 
   const handleOptionClick = useCallback(
     async (e, option, item) => {
@@ -85,6 +77,8 @@ function MyListings() {
     },
     [dispatch, navigate, userId]
   );
+
+  
 
   const handleBulkDelete = useCallback(async () => {
     if (!selectedItems.length) {
@@ -128,9 +122,9 @@ function MyListings() {
             selectedItems={selectedItems}
             onSelectAll={() => {
               setSelectedItems(
-                selectedItems.length === filteredListings.length
+                selectedItems.length === allListingsByUser.length
                   ? []
-                  : filteredListings.map((item) => item.id)
+                  : allListingsByUser.map((item) => item.id)
               );
             }}
             onViewToggle={() =>
@@ -138,13 +132,16 @@ function MyListings() {
             }
             viewType={viewType}
             onAction={handleBulkDelete}
-            items={filteredListings}
+            items={allListingsByUser}
             onSearch={setSearchTerm}
           />
 
           <ItemList
-            items={filteredListings}
-            title="Rent"
+          itemType={FOR_RENT}
+            items={allListingsByUser.filter((item) =>
+              item.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )}
+            title="For Rent"
             isYou={true}
             onOptionClick={handleOptionClick}
             selectedItems={selectedItems}

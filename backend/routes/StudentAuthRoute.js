@@ -9,11 +9,11 @@ const { upload } = require("../config/multer");
 
 router.post(
   "/register",
-  checkUnavailableDate,
+  // checkUnavailableDate,
   upload,
   StudentController.registerStudent
 );
-router.post("/login", studentAuthController.loginStudent);
+router.post("/login", StudentController.loginStudent);
 router.post("/google-login", studentAuthController.googleLogin);
 router.get("/info/:id", StudentController.getStudentDataById);
 router.get("/", studentAuthController.getAllStudents);
