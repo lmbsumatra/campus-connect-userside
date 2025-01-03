@@ -60,6 +60,7 @@ const getAvailableListingById = async (req, res) => {
       itemType: "For Rent",
       desc: listing.description,
       specs: listing.specifications,
+      images: JSON.parse(listing.images),
       availableDates: listing.rental_dates.map((date) => ({
         id: date.id,
         listingId: date.listing_id,

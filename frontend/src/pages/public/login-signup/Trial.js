@@ -1,23 +1,26 @@
 import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateField, blurField } from "../redux/signup-form/signupFormSlice";
+import {
+  updateField,
+  blurField,
+} from "../../../redux/signup-form/signupFormSlice";
 import { Button, Dropdown } from "react-bootstrap";
-import ShowPhotoWithIdAndScannedIdPolicy from "./ShowPhotoWithIdAndScannedIdPolicy";
-import emailIcon from "../assets/images/input-icons/email.svg";
-import passwordIcon from "../assets/images/input-icons/password.svg";
-import hidePasswordIcon from "../assets/images/input-icons/hide-password.svg";
-import showPasswordIcon from "../assets/images/input-icons/show-password.svg";
-import warningIcon from "../assets/images/input-icons/warning.svg";
-import closeIcon from "../assets/images/input-icons/close.svg";
-import userIcon from "../assets/images/input-icons/user.svg";
-import infoIcon from "../assets/images/input-icons/info.svg";
-import successIcon from "../assets/images/input-icons/success.svg";
-import { baseApi } from "../App";
-import ShowAlert from "../utils/ShowAlert";
+import ShowPhotoWithIdAndScannedIdPolicy from "../../../trials/ShowPhotoWithIdAndScannedIdPolicy";
+import emailIcon from "../../../assets/images/input-icons/email.svg";
+import passwordIcon from "../../../assets/images/input-icons/password.svg";
+import hidePasswordIcon from "../../../assets/images/input-icons/hide-password.svg";
+import showPasswordIcon from "../../../assets/images/input-icons/show-password.svg";
+import warningIcon from "../../../assets/images/input-icons/warning.svg";
+import closeIcon from "../../../assets/images/input-icons/close.svg";
+import userIcon from "../../../assets/images/input-icons/user.svg";
+import infoIcon from "../../../assets/images/input-icons/info.svg";
+import successIcon from "../../../assets/images/input-icons/success.svg";
+import { baseApi } from "../../../App";
+import ShowAlert from "../../../utils/ShowAlert";
 import { useNavigate } from "react-router-dom";
-import { saveUserData } from "../redux/auth/studentAuthSlice";
+import { saveUserData } from "../../../redux/auth/studentAuthSlice";
 
-const Trial = () => {
+const Trial = ({ onTabClick }) => {
   const dispatch = useDispatch();
   const signupDataState = useSelector((state) => state.signupForm);
   const [step, setStep] = useState(1);
@@ -352,7 +355,6 @@ const Trial = () => {
         // Check if the required fields have no errors and contain values
         return (
           signupDataState.firstName?.value &&
-          signupDataState.middleName?.value &&
           signupDataState.lastName?.value &&
           !signupDataState.firstName?.hasError &&
           !signupDataState.middleName?.hasError &&
@@ -363,7 +365,7 @@ const Trial = () => {
         return (
           tupId.every((digit) => digit !== "") &&
           imgWithId.filename &&
-          scannedId.filename
+          scannedId.filename && signupDataState.college
         );
       case 3:
         // Check if email, password, and confirm password fields are valid and match
@@ -526,6 +528,18 @@ const Trial = () => {
           </button>
         )}
       </div>
+
+      <div className="or-divider">
+        <span>or</span>
+      </div>
+
+      {/* Sign-up Link */}
+      <p>
+        Already have an account?{" "}
+        <a className="link" onClick={() => onTabClick("loginTab")}>
+          Login here!
+        </a>
+      </p>
 
       <ShowPhotoWithIdAndScannedIdPolicy
         show={showIdPolicyModal}

@@ -10,7 +10,7 @@ import forSaleIcon from "../../assets/images/card/buy.svg";
 import editIcon from "../../assets/images/table/edit.svg";
 import deleteIcon from "../../assets/images/table/delete.svg";
 import { ItemStatus } from "../../utils/Status";
-import { FOR_RENT } from "../../utils/consonants";
+import { defaultImages, FOR_RENT } from "../../utils/consonants";
 
 // Import custom hook
 import useSortItems from "../../pages/private/users/student-profile/useSortItems";
@@ -65,8 +65,18 @@ const ItemCard = ({
   const handleCardClick = (e, item) => {
     e.stopPropagation();
     if (item.itemType === "For Rent")
-      navigate(`/profile/my-listings/edit/${item.id}`, { state: { item } });
-    else if (item.itemType === "For Sale") navigate(`/shop/${item.id}`);
+      if (item.owner && isYou) {
+        navigate(`/profile/my-listings/edit/${item.id}`, { state: { item } });
+      } else {
+        navigate(`/rent/${item.id}`);
+      }
+    else if (item.itemType === "For Sale") {
+      if (item.seller && isYou) {
+        navigate(`/profile/my-for-sale/edit/${item.id}`, { state: { item } });
+      } else {
+        navigate(`/shop/${item.id}`);
+      }
+    }
   };
 
   const handleAddToCart = (e, item) => {
@@ -122,7 +132,16 @@ const ItemCard = ({
           )}
 
           <div className="img-holder">
-            <img src={item1} alt={item.name} className="img" />
+            <img
+              src={item.images[0] || [defaultImages]}
+              alt={item.name}
+              className="img"
+              onError={(e) => {
+                e.target.onerror = null; // Prevent infinite loop
+                e.target.src = [defaultImages]; // Provide a backup fallback image
+              }}
+            />
+
             <Tooltip
               title={`${item.name} is for ${
                 item.itemType === "Rent" ? "rent" : "sale"

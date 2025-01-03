@@ -4,6 +4,7 @@ import {
   Route,
   useLocation,
   Navigate,
+  Outlet,
 } from "react-router-dom";
 import React from "react";
 import "./App.css";
@@ -19,11 +20,9 @@ import store from "../src/store/store";
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
 import Home from "./pages/public/Home.js";
 import Profile from "./pages/private/users/student-profile/Profile.js";
-import AddPost from "./pages/private/users/post/AddPost.js";
 import MessagePage from "./pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "./components/myrentals/RentProgress.jsx";
 import UserProfileVisit from "./components/User/BorrowerPOV/UserProfileVisit.jsx";
-import AddListing from "./pages/private/users/item/AddListing.js";
 import NavBar2 from "./components/navbar/navbar/NavBar2.jsx";
 import Footer from "./components/users/footer/Footer.jsx";
 import Admin from "./pages/private/admin/Admin.js";
@@ -64,9 +63,9 @@ import MyListings from "./pages/private/users/student-profile/MyListings.jsx";
 import MyTransactions from "./pages/private/users/student-profile/MyTransactions.jsx";
 import MyRentals from "./components/myrentals/MyRentals.jsx";
 import { SocketProvider } from "./context/SocketContext.js";
-import Trial from "./trials/Trial.js";
+import Trial from "./pages/public/login-signup/Trial.js";
 import ChatAndNotif from "./trialOnMessage&Notification/ChatAndNotif.jsx";
-import Trial2 from "./trials/Trial2.js";
+import Trial2 from "./pages/public/login-signup/Trial2.js";
 import FAB from "./components/common/fab/FAB.jsx";
 import Cart from "./pages/private/users/cart/Cart.js";
 import PostDetail from "./pages/public/post/PostDetail.js";
@@ -97,135 +96,132 @@ function App() {
 
 function Content() {
   const location = useLocation();
-  const showNavbarAndFooter = !location.pathname.startsWith("/admin");
 
   return (
     <>
-      {showNavbarAndFooter && <NavBar2 className="bg-dark" />}
-      {/* Floating Action Button (FAB) */}
-      <FAB icon="+" />
-
       <Routes>
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
-        {/* PUBLIC ROUTES */}
-        <Route path="/trial2" element={<Trial2 />} />
-        <Route path="/trial" element={<Trial />} />
-        <Route path="/trialChatAndNotif" element={<ChatAndNotif />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route element={<PublicLayout />}>
+          {/* PUBLIC ROUTES */}
+          <Route path="/trial2" element={<Trial2 />} />
+          <Route path="/trial" element={<Trial />} />
+          <Route path="/trialChatAndNotif" element={<ChatAndNotif />} />
+          <Route path="/cart" element={<Cart />} />
 
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/login-signup" element={<LoginSignUp />} />
-        <Route path="/*" element={<Home />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/rent" element={<Rent />} />
-        <Route path="/lend" element={<Lend />} />
-        <Route path="/shop" element={<Shop />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/login-signup" element={<LoginSignUp />} />
+          <Route path="/*" element={<Home />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/rent" element={<Rent />} />
+          <Route path="/lend" element={<Lend />} />
+          <Route path="/shop" element={<Shop />} />
 
-        {/* PRIVATE ROUTES */}
+          {/* PRIVATE ROUTES */}
 
-        {/* PRIVATE STUDENT ROUTES */}
-        <Route
-          path="/post/:id"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <PostDetail />
-            </StudentProtectedRoute>
-          }
-        />
-        <Route
-          path="/rent/:id"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <ListingDetail />
-            </StudentProtectedRoute>
-          }
-        />
-        <Route
-          path="/shop/:id"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <ItemForSaleDetail />
-            </StudentProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile/my-posts/new"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <AddNewPost />
-            </StudentProtectedRoute>
-          }
-        />
-        <Route
-          path="/post/edit/:id"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <EditItem />
-            </StudentProtectedRoute>
-          }
-        />
+          {/* PRIVATE STUDENT ROUTES */}
+          <Route
+            path="/post/:id"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <PostDetail />
+              </StudentProtectedRoute>
+            }
+          />
+          <Route
+            path="/rent/:id"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <ListingDetail />
+              </StudentProtectedRoute>
+            }
+          />
+          <Route
+            path="/shop/:id"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <ItemForSaleDetail />
+              </StudentProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/my-posts/new"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <AddNewPost />
+              </StudentProtectedRoute>
+            }
+          />
+          <Route
+            path="/post/edit/:id"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <EditItem />
+              </StudentProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/profile/my-listings/add"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <AddNewLItem />
-            </StudentProtectedRoute>
-          }
-        />
+          <Route
+            path="/profile/my-listings/add"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <AddNewLItem />
+              </StudentProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/profile/my-listings/edit/:id"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <EditItem />
-            </StudentProtectedRoute>
-          }
-        />
+          <Route
+            path="/profile/my-listings/edit/:id"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <EditItem />
+              </StudentProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/profile/my-for-sale/edit/:id"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <EditItem />
-            </StudentProtectedRoute>
-          }
-        />
+          <Route
+            path="/profile/my-for-sale/edit/:id"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <EditItem />
+              </StudentProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/messages"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <MessagePage />
-            </StudentProtectedRoute>
-          }
-        />
+          <Route
+            path="/messages"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <MessagePage />
+              </StudentProtectedRoute>
+            }
+          />
 
-        {/* USER PROFILE */}
-        <Route
-          path="/profile/*"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <Profile />
-            </StudentProtectedRoute>
-          }
-        />
-        <Route
-          path="/rent-progress/:id"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <RentProgress />
-            </StudentProtectedRoute>
-          }
-        />
-        <Route
-          path="/user"
-          element={
-            <StudentProtectedRoute allowedRoles="student">
-              <UserProfileVisit />
-            </StudentProtectedRoute>
-          }
-        />
+          {/* USER PROFILE */}
+          <Route
+            path="/profile/*"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <Profile />
+              </StudentProtectedRoute>
+            }
+          />
+          <Route
+            path="/rent-progress/:id"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <RentProgress />
+              </StudentProtectedRoute>
+            }
+          />
+          <Route
+            path="/user"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <UserProfileVisit />
+              </StudentProtectedRoute>
+            }
+          />
+        </Route>
 
         {/* ADMIN ROUTES */}
         <Route
@@ -296,7 +292,27 @@ function Content() {
           <Route path="*" element={<Navigate to="/admin/dashboard" />} />
         </Route>
       </Routes>
-      {showNavbarAndFooter && <Footer />}
+    </>
+  );
+}
+
+// Public Layout with NavBar and Footer
+function PublicLayout() {
+  return (
+    <>
+      <NavBar2 />
+      <FAB icon="+" />
+      <Outlet />
+      <Footer />
+    </>
+  );
+}
+
+// Admin Layout without NavBar and Footer
+function AdminLayout() {
+  return (
+    <>
+      <Outlet />
     </>
   );
 }

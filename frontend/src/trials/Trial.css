@@ -1,9 +1,11 @@
 /* General Styles */
 
-input {
+
+.auth-container input {
   color: black;
-  background-color: #fff;
+  background-color: white !important;
   width: 100%;
+  border-radius: 8px;
 }
 
 .form-wrapper {

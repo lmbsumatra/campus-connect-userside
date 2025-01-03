@@ -23,6 +23,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import {
+  defaultImages,
   FOR_RENT,
   FOR_SALE,
   MEET_UP,
@@ -41,8 +42,10 @@ import Terms from "./Terms.jsx";
 import ImageSlider from "../../common/ImageSlider.jsx";
 import ItemBadges from "../../common/ItemBadges.jsx";
 import axios from "axios";
+import ViewToolbar from "../../common/ViewToolbar.js";
 
 function ListingDetail() {
+  
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -58,16 +61,7 @@ function ListingDetail() {
   const studentUser = useSelector(selectStudentUser);
   const rentalDates = approvedListingById.availableDates || [];
   const [redirecting, setRedirecting] = useState(false);
-
-  const images = [
-    itemImage1,
-    itemImage2,
-    itemImage3,
-    itemImage4,
-    itemImage4,
-    itemImage4,
-    itemImage4,
-  ];
+  const isYou = approvedListingById?.owner?.id === studentUser?.userId;
 
   const handleDateClick = (dateId) => {
     const formatDate = (d) => d.toLocaleDateString("en-CA");
@@ -90,7 +84,7 @@ function ListingDetail() {
     .filter((rentalDate) => rentalDate.status === "available")
     .map((rentalDate) => new Date(rentalDate.date));
 
-  console.log(availableDates);
+  console.log(approvedListingById);
 
   const handleOfferClick = async () => {
     if (selectedDate && selectedDuration) {
@@ -208,12 +202,12 @@ function ListingDetail() {
       errorApprovedListingById ||
       (!loadingApprovedListingById && !approvedListingById)
     ) {
-      setRedirecting(true); // Start the redirect process
+      setRedirecting(true);
       const timer = setTimeout(() => {
         ShowAlert(dispatch, "loading", "Redirecting");
-      }, 5000); // Show redirect notification after 5 seconds
+      }, 5000);
 
-      return () => clearTimeout(timer); // Clean up the timeout if dependencies change
+      return () => clearTimeout(timer);
     }
   }, [
     errorApprovedListingById,
@@ -225,10 +219,10 @@ function ListingDetail() {
   useEffect(() => {
     if (redirecting) {
       const redirectTimer = setTimeout(() => {
-        navigate(-1); // Redirect to previous page
-      }, 6000); // Wait 6 seconds before redirect
+        navigate(-1);
+      }, 3000);
 
-      return () => clearTimeout(redirectTimer); // Clean up redirect timer
+      return () => clearTimeout(redirectTimer);
     }
   }, [redirecting, navigate]);
 
@@ -267,6 +261,8 @@ function ListingDetail() {
 
   return (
     <div className="container-content listing-detail">
+      {isYou && <ViewToolbar />}
+
       <div className="listing-container">
         <div className="imgs-container">
           <Tooltip
@@ -298,7 +294,13 @@ function ListingDetail() {
               className="item-type"
             />
           </Tooltip>
-          <ImageSlider images={images} />
+          <ImageSlider
+            images={
+              approvedListingById.images && approvedListingById.images.length
+                ? approvedListingById.images
+                : [defaultImages]
+            }
+          />
         </div>
         <div className="rental-details">
           <ItemBadges
@@ -328,18 +330,21 @@ function ListingDetail() {
             <button
               className="btn btn-icon primary"
               onClick={(e) => handleAddToCart(e, approvedListingById)}
+              disabled={isYou}
             >
               <img src={cartIcon} alt="Add to cart" />
             </button>
             <button
               className="btn btn-rectangle secondary"
               onClick={handleMessageClick}
+              disabled={isYou}
             >
               Message
             </button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
+              disabled={isYou}
             >
               {approvedListingById.itemType === FOR_RENT ? "Rent" : "Buy"}
             </button>
@@ -459,6 +464,7 @@ function ListingDetail() {
                           : ""
                       }`}
                       onClick={() => handleSelectDeliveryMethod("meetup")}
+                      disabled={isYou}
                     >
                       Meet up
                     </button>
@@ -469,6 +475,7 @@ function ListingDetail() {
                           : ""
                       }`}
                       onClick={() => handleSelectDeliveryMethod("pickup")}
+                      disabled={isYou}
                     >
                       Pick up
                     </button>
@@ -512,6 +519,7 @@ function ListingDetail() {
                     <button
                       className="value selected"
                       onClick={() => handleSelectDeliveryMethod("meetup")}
+                      disabled={isYou}
                     >
                       Pay upon Meet up
                     </button>
@@ -522,6 +530,7 @@ function ListingDetail() {
                           : ""
                       }`}
                       onClick={() => handleSelectDeliveryMethod("pickup")}
+                      disabled={isYou}
                     >
                       Gcash
                     </button>
@@ -573,7 +582,12 @@ function ListingDetail() {
             <div className="item-card">
               <div className="img-container">
                 <img
-                  src={images[0]}
+                  src={
+                    approvedListingById.images &&
+                    approvedListingById.images.length
+                      ? approvedListingById.images[0]
+                      : [defaultImages]
+                  }
                   style={{ height: "100px", width: "100px" }}
                   alt="Item image"
                 />

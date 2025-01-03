@@ -47,6 +47,7 @@ const getAllAvailable = async (req, res) => {
         status: item.status,
         category: item.category,
         itemType: "For Rent",
+        images: JSON.parse(item.images),
         availableDates: item.rental_dates.map((date) => ({
           id: date.id,
           itemId: date.item_id,

@@ -67,11 +67,15 @@ const loginFormSlice = createSlice({
         (key) => key === "isFormValid" || !state[key].hasError
       );
     },
+    resetLoginForm: (state) => {
+      return initialState; // Reset the state to the initial state
+    },
   },
 });
 
 // Export actions
-export const { updateField, blurField } = loginFormSlice.actions;
+export const { updateField, blurField, resetLoginForm } =
+  loginFormSlice.actions;
 
 // Export the reducer
 export default loginFormSlice.reducer;

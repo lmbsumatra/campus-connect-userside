@@ -9,18 +9,21 @@ import { GoogleLogin } from "@react-oauth/google"; // Google OAuth login compone
 import { useDispatch, useSelector } from "react-redux"; // For Redux state and actions
 
 // Components and Assets
-import { updateField, blurField } from "../redux/login-form/loginFormSlice"; // Redux Toolkit slice actions
-import emailIcon from "../assets/images/input-icons/email.svg"; // Email input icon
-import passwordIcon from "../assets/images/input-icons/password.svg"; // Password visibility toggle icon
-import hidePasswordIcon from "../assets/images/input-icons/hide-password.svg"; // Password visibility toggle icon
-import warningIcon from "../assets/images/input-icons/warning.svg"; // Warning icon for validation
+import {
+  updateField,
+  blurField,
+} from "../../../redux/login-form/loginFormSlice"; // Redux Toolkit slice actions
+import emailIcon from "../../../assets/images/input-icons/email.svg"; // Email input icon
+import passwordIcon from "../../../assets/images/input-icons/password.svg"; // Password visibility toggle icon
+import hidePasswordIcon from "../../../assets/images/input-icons/hide-password.svg"; // Password visibility toggle icon
+import warningIcon from "../../../assets/images/input-icons/warning.svg"; // Warning icon for validation
 
 // Styles
-import "./Trial.css"; // Component-specific styles
-import { manualLogin, googleLogin } from "../redux/auth/studentAuthSlice"; // Import login actions
-import ShowAlert from "../utils/ShowAlert";
+// import "../trial/Trial.css"; // Component-specific styles
+import { manualLogin, googleLogin } from "../../../redux/auth/studentAuthSlice"; // Import login actions
+import ShowAlert from "../../../utils/ShowAlert";
 
-const Trial2 = () => {
+const Trial2 = ({ onTabClick }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate(); // Navigation hook
 
@@ -53,7 +56,7 @@ const Trial2 = () => {
         navigate("/");
       })
       .catch((error) => {
-        ShowAlert(dispatch, "error", error);
+        console.log("Error:", error);
       });
   };
 
@@ -165,7 +168,10 @@ const Trial2 = () => {
       <button className="btn btn-secondary">Forgot Password</button>
 
       {/* Google Login */}
-      <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+      <GoogleLogin
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+      />
 
       <div className="or-divider">
         <span>or</span>
@@ -173,7 +179,7 @@ const Trial2 = () => {
 
       {/* Sign-up Link */}
       <p>
-        Don't have an account? <a className="link">Sign up here!</a>
+        Don't have an account? <a className="link" onClick={()=>onTabClick("signupTab")}>Sign up here!</a>
       </p>
     </div>
   );

@@ -21,6 +21,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 import {
+  defaultImages,
   FOR_RENT,
   FOR_SALE,
   MEET_UP,
@@ -51,7 +52,6 @@ function ItemForSaleDetail() {
   } = useSelector((state) => state.approvedItemForSaleById);
   const studentUser = useSelector(selectStudentUser);
   const rentalDates = approvedItemForSaleById.rentalDates || [];
-  const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
   const [expandTerm, setExpandTerm] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -312,7 +312,9 @@ function ItemForSaleDetail() {
               className="item-type"
             />
           </Tooltip>
-          <ImageSlider images={images} />
+          <ImageSlider
+            images={approvedItemForSaleById.images && approvedItemForSaleById.images.length ? approvedItemForSaleById.images : [defaultImages]}
+          />
         </div>
         <div className="rental-details">
         <div className="item-header">

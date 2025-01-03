@@ -14,6 +14,7 @@ const getAllAvailable = async (req, res) => {
         "created_at",
         "status",
         "category",
+        "images",
       ],
       where: {
         status: "approved",
@@ -53,6 +54,7 @@ const getAllAvailable = async (req, res) => {
         status: item.status,
         category: item.category,
         itemType: "For Sale",
+        images: JSON.parse(item.images),
         availableDates: item.available_dates.map((date) => ({
           id: date.id,
           itemId: date.item_id,

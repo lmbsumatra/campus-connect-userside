@@ -212,7 +212,7 @@ const validateInput = (name, value, password) => {
         "image/gif",
         "image/webp",
       ];
-      const scannedIdMaxSize = 5 * 1024 * 1024; 
+      const scannedIdMaxSize = 5 * 1024 * 1024;
 
       if (!value) {
         hasError = true;
@@ -290,8 +290,11 @@ const signupFormSlice = createSlice({
           : !state[key].hasError
       );
     },
+    resetSignupForm: (state) => {
+      return initialState; // Reset the state to the initial state
+    },
   },
 });
 
-export const { updateField, blurField } = signupFormSlice.actions;
+export const { updateField, blurField,resetSignupForm } = signupFormSlice.actions;
 export default signupFormSlice.reducer;

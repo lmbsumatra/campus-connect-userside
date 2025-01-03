@@ -48,6 +48,7 @@ const getAllListingsByUser = async (req, res) => {
         status: item.status,
         category: item.category,
         itemType: "For Rent",
+        images: JSON.parse(item.images),
         itemCondition: item.listing_condition,
         deliveryMethod: item.delivery_mode,
         lateCharges: item.late_charges,

@@ -31,3 +31,7 @@ export const categories = [
   "Event",
   "Travel",
 ];
+
+export const defaultImages = [
+  `https://res.cloudinary.com/campusconnectcl/image/upload/v1735920030/cc/upjauojvyedsriwhdcks.svg`,
+];

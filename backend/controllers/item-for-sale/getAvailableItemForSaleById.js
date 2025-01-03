@@ -55,6 +55,7 @@ const getAvailableItemForSaleById = async (req, res) => {
       itemType: "For Sale",
       desc: item.description,
       specs: item.specifications,
+      images: JSON.parse(item.images),
       rentalDates: item.available_dates.map((date) => ({
         id: date.id,
         itemId: date.item_id,
