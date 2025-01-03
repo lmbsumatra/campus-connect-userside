@@ -118,40 +118,53 @@ const MessagePage = () => {
     }
   }, [activeChat?.messages]);
 
-  const handleSendMessage = async (message, recipientId) => {
-    if (!newMessage.trim() || !activeChat) return;
+ const handleSendMessage = async (message, recipientId) => {
+  if (!newMessage.trim() || !activeChat) return;
 
-    const messageData = {
-      sender: userId,
-      recipient: recipientId,
-      text: message,
-      conversationId: activeChat.id,
-      otherUser: { userId: recipientId },
-    };
-
-    try {
-      const res = await fetch(
-        `${"http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(messageData),
-        }
-      );
-      const savedMessage = await res.json();
-
-      setActiveChat((prev) => ({
-        ...prev,
-        messages: [...prev.messages, savedMessage],
-      }));
-
-      socket.current.emit("sendMessageToUser", messageData);
-      setNewMessage("");
-    } catch (err) {
-      console.error("Error sending message:", err);
-    }
+  const messageData = {
+    sender: userId,
+    recipient: recipientId, 
+    text: message,
+    conversationId: activeChat.id,
+    otherUser: { userId: recipientId }
   };
 
+  try {
+    // Send message
+    const res = await fetch(`${baseApi}/api/conversations/${activeChat.id}/message`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(messageData),
+    });
+    const savedMessage = await res.json();
+
+    // Create notification
+    await fetch(`${baseApi}/api/notifications/message`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "message",
+        title: "New Message",
+        message: message,
+        timestamp: new Date(),
+        isRead: false,
+        user_id: recipientId,
+        conversation_id: activeChat.id,
+        priority: "normal"
+      }),
+    });
+
+    setActiveChat((prev) => ({
+      ...prev,
+      messages: [...prev.messages, savedMessage],
+    }));
+
+    socket.current.emit("sendMessageToUser", messageData);
+    setNewMessage("");
+  } catch (err) {
+    console.error("Error:", err);
+  }
+};
   const handleConversationClick = (conversation) => {
     setActiveChat(conversation);
   };
