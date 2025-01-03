@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createSelector } from "reselect";
 import axios from "axios";
 
-const BASE_URL = "http://192.168.100.34:3001/posts/available";
+const BASE_URL = "http://localhost:3001/posts/available";
 
 const initialState = {
   approvedPostById: [],

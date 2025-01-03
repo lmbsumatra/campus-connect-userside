@@ -4,9 +4,7 @@ const sequelize = require("../../models").sequelize;
 const bcrypt = require("bcrypt");
 const { rollbackUpload } = require("../../config/multer");
 const transporter = require("../../config/nodemailer");
-const fs = require("fs");
 
-// Register a new student
 const registerStudent = async (req, res) => {
   const t = await sequelize.transaction();
   let publicIds = [];
@@ -24,7 +22,6 @@ const registerStudent = async (req, res) => {
 
     const { scanned_id, photo_with_id } = req.files;
 
-    // Validate required fields
     if (
       !first_name ||
       !last_name ||
@@ -38,7 +35,6 @@ const registerStudent = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Check for duplicate email or TUP ID
     const existingUser = await models.User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(409).json({ message: "Email already in use" });
@@ -48,14 +44,10 @@ const registerStudent = async (req, res) => {
     if (existingStudent) {
       return res.status(409).json({ message: "TUP ID already registered" });
     }
-
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save public IDs for cleanup in case of failure
     publicIds.push(scanned_id[0].filename, photo_with_id[0].filename);
 
-    // Create a new user
     const newUser = await models.User.create(
       {
         first_name,
@@ -64,12 +56,11 @@ const registerStudent = async (req, res) => {
         role: "student",
         email,
         password: hashedPassword,
-        email_verified: false, // Add email_verified flag
+        email_verified: false,
       },
       { transaction: t }
     );
 
-    // Create a new student record
     const newStudent = await models.Student.create(
       {
         tup_id,
@@ -81,11 +72,9 @@ const registerStudent = async (req, res) => {
       { transaction: t }
     );
 
-    // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString("hex");
-    const verificationTokenExpiration = Date.now() + 3600000; // 1 hour expiration time
+    const verificationTokenExpiration = Date.now() + 3600000; 
 
-    // Save verification token and expiration to the user
     await models.User.update(
       {
         verification_token: verificationToken,
@@ -98,7 +87,8 @@ const registerStudent = async (req, res) => {
       from: "jione.capstone@gmail.com",
       to: email,
       subject: "Verify Your Email - Campus Connect",
-      html: `<!DOCTYPE html>
+      html:
+       `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -300,7 +290,6 @@ const registerStudent = async (req, res) => {
   } catch (error) {
     await t.rollback();
 
-    // Rollback uploaded files if any
     if (publicIds.length > 0) {
       await rollbackUpload(publicIds);
     }
@@ -309,8 +298,6 @@ const registerStudent = async (req, res) => {
       message: error.message,
       stack: error.stack,
     });
-
-    // Handle validation or database constraint errors
     if (error.name === "SequelizeValidationError") {
       return res
         .status(400)

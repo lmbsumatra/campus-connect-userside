@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const BASE_URL = "http://192.168.100.34:3001/listings/users";
+const BASE_URL = "http://localhost:3001/listings/users";
 
 const initialState = {
   listingById: null,  // item data (e.g., {id, name, rate, etc.})

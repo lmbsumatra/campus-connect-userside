@@ -130,9 +130,7 @@ const validateInput = (name, value, password) => {
         !hasDigit ||
         !hasSpecialChar;
       break;
-    // Add other fields validation here
     case "confirmPassword":
-      // Password validation
       const isConfirmPasswordNotEmpty = value.trim() !== "";
       const isPasswordEmpty = password.length !== 0;
       const isPasswordEqual = value === password;
@@ -173,7 +171,7 @@ const validateInput = (name, value, password) => {
         error = "TUP Id incomplete";
       } else {
         hasError = false;
-        error = ""; // Reset error when TUP Id is valid
+        error = "";
       }
       break;
     case "imgWithId":
@@ -184,13 +182,12 @@ const validateInput = (name, value, password) => {
         "image/gif",
         "image/webp",
       ];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
 
       if (!value) {
         hasError = true;
         error = "A photo with your ID is required.";
       } else {
-        // Extract the file extension from the filename
         const fileExtension = value.filename.split(".").pop().toLowerCase();
         const isValidExtension = allowedTypes.some((type) =>
           type.includes(fileExtension)
@@ -215,13 +212,12 @@ const validateInput = (name, value, password) => {
         "image/gif",
         "image/webp",
       ];
-      const scannedIdMaxSize = 5 * 1024 * 1024; // 5MB
+      const scannedIdMaxSize = 5 * 1024 * 1024; 
 
       if (!value) {
         hasError = true;
         error = "Scan of your ID is required.";
       } else {
-        // Extract the file extension from the filename
         const fileExtension = value.filename.split(".").pop().toLowerCase();
         const isValidExtension = scannedIdAllowedTypes.some((type) =>
           type.includes(fileExtension)
@@ -249,8 +245,6 @@ const signupFormSlice = createSlice({
   reducers: {
     updateField: (state, action) => {
       const { name, value } = action.payload;
-
-      // Call validateInput with password for consistency
       const password = state.password.value;
       const { hasError, error, validations } = validateInput(
         name,
@@ -267,7 +261,6 @@ const signupFormSlice = createSlice({
         triggered: true,
       };
 
-      // Recalculate form validity
       state.isFormValid = Object.keys(state).every((key) =>
         key === "isFormValid" || key === "triggered"
           ? true
@@ -277,8 +270,6 @@ const signupFormSlice = createSlice({
     blurField: (state, action) => {
       const { name, value } = action.payload;
 
-      // Call validateInput with password for consistency
-
       const password = state.password.value;
       const { hasError, error, validations } = validateInput(
         name,
@@ -293,8 +284,6 @@ const signupFormSlice = createSlice({
         validations,
         triggered: true,
       };
-
-      // Recalculate form validity
       state.isFormValid = Object.keys(state).every((key) =>
         key === "isFormValid" || key === "triggered"
           ? true

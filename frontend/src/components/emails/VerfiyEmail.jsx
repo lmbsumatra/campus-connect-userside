@@ -2,14 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const VerifyEmail = () => {
-  const { token } = useParams(); // Get the token from the URL parameter
+  const { token } = useParams(); 
   const [status, setStatus] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // Using useNavigate in place of useHistory
+  const navigate = useNavigate();
   console.log(token);
 
   useEffect(() => {
-    // Function to verify the email
     const verifyEmail = async () => {
       try {
         const response = await fetch(
@@ -22,7 +21,7 @@ const VerifyEmail = () => {
         if (response.ok) {
           setStatus("success");
           setMessage("Your email has been successfully verified!");
-          setTimeout(() => navigate("/login"), 3000); // Redirect to login after 3 seconds
+          setTimeout(() => navigate("/login"), 3000); 
         } else {
           const error = await response.json();
           setStatus("error");
@@ -35,7 +34,7 @@ const VerifyEmail = () => {
     };
 
     verifyEmail();
-  }, [token, navigate]); // Add navigate to the dependency array
+  }, [token, navigate]);
 
   return (
     <div className="verify-email-container">

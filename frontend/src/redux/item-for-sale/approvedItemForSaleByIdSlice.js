@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const BASE_URL = "http://192.168.100.34:3001/item-for-sale/available";
+const BASE_URL = "http://localhost:3001/item-for-sale/available";
 
 const initialState = {
   approvedItemForSaleById: [],

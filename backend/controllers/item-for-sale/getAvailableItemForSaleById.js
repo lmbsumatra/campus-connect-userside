@@ -44,7 +44,7 @@ const getAvailableItemForSaleById = async (req, res) => {
     const formattedItem = {
       id: item.id,
       name: item.item_for_sale_name,
-      tags: item.tags,
+      tags: JSON.parse(item.tags),
       price: item.price,
       createdAt: item.created_at,
       deliveryMethod: item.delivery_mode,

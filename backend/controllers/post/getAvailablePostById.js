@@ -47,7 +47,7 @@ const getAvailablePostById = async (req, res) => {
     const formattedPost = {
       id: post.id,
       name: post.post_item_name,
-      tags: post.tags,
+      tags: JSON.parse(post.tags),
       price: post.price,
       createdAt: post.created_at,
       status: post.status,
