@@ -1,0 +1,19 @@
+.top-bar-notification {
+    background-color:blueviolet;
+    color: white !important;
+    padding: 10px;
+    text-align: center;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+  
+  .top-bar-notification a {
+    color: #c5e1ff;
+    text-decoration: underline;
+    font-weight: bold;
+  }
+  .top-bar-notification p {
+    color: white;
+  }
+  

@@ -45,7 +45,6 @@ import axios from "axios";
 import ViewToolbar from "../../common/ViewToolbar.js";
 
 function ListingDetail() {
-  
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();

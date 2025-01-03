@@ -7,18 +7,17 @@
   padding: 20px;
 }
 
-.verify-container .verify-card {
+.verify-card {
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 30px;
   text-align: center;
   max-width: 400px;
   width: 100%;
-  transition: all 0.3s ease;
 }
 
-.verify-container .icon {
+.icon {
   width: 60px;
   height: 60px;
   margin: 0 auto 20px;
@@ -26,29 +25,23 @@
   position: relative;
 }
 
-.verify-container .loading .icon {
-  border: 3px solid #e0e0e0;
-  border-top-color: #2196f3;
-  animation: spin 1s linear infinite;
-}
 
-.verify-container .verify-container .success .icon::before,
-.success .icon::after {
-  content: '';
-  position: absolute;
-  background: #4caf50;
-}
 
 .success .icon::before {
   width: 3px;
   height: 30px;
-  transform: rotate(45deg) translate(20px, 5px);
+  transform: rotate(45deg) translate(10px, 0);
 }
 
 .success .icon::after {
   width: 3px;
   height: 15px;
-  transform: rotate(-45deg) translate(-5px, 20px);
+  transform: rotate(-45deg) translate(0, 10px);
+}
+
+.success h1,
+.success p {
+  opacity: 1;
 }
 
 .error .icon::before,
@@ -70,37 +63,24 @@
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-.loading { border-color: #2196f3; }
-.success { border-color: #4caf50; }
-.verify-container .error { 
+.error {
   border-color: #f44336;
-  animation: shake 0.5s ease-in-out;
 }
 
-.verify-container h1 {
+h1 {
   margin: 0 0 15px;
   font-size: 24px;
   color: #333;
 }
 
-.verify-container p {
+p {
   margin: 0;
   color: #666;
   line-height: 1.5;
 }
 
-.verify-container .redirect-text {
+.redirect-text {
   margin-top: 15px;
   font-size: 14px;
   color: #888;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
 }

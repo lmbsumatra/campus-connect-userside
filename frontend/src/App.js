@@ -6,7 +6,7 @@ import {
   Navigate,
   Outlet,
 } from "react-router-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import "./styles/buttons.css";
 import "./styles/icons.css";
@@ -14,7 +14,7 @@ import "./styles/cards.css";
 import "./styles/containers.css";
 import "./styles/status.css";
 import "./trials/Trial.css";
-import { Provider } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import store from "../src/store/store";
 
 import LoginSignUp from "./pages/public/login-signup/LoginSignup.js";
@@ -76,6 +76,9 @@ import AddNewLItem from "./pages/private/users/item/AddNewItem.js";
 import AddNewPost from "./pages/private/users/post/AddNewPost.js";
 import EditItem from "./pages/private/users/item/EditItem.js";
 import VerifyEmail from "./components/emails/VerfiyEmail.jsx";
+import { fetchUser } from "./redux/user/userSlice.js";
+import TopBar from "./components/topbar/TopBar.jsx";
+import { selectStudentUser } from "./redux/auth/studentAuthSlice.js";
 
 function App() {
   console.log(baseApi);
@@ -298,8 +301,27 @@ function Content() {
 
 // Public Layout with NavBar and Footer
 function PublicLayout() {
+  const dispatch = useDispatch();
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const studentUser = useSelector(selectStudentUser);
+
+  useEffect(() => {
+    if (studentUser?.userId) {
+      dispatch(fetchUser(studentUser.userId));
+    }
+  }, [dispatch, studentUser?.userId]);
+
+  const isVerified = user?.user?.emailVerified ?? false; // Default to false if undefined
+
+  if (loadingFetchUser) {
+    return <div>Loading...</div>; // Show a loading indicator while fetching user data
+  }
+
+  console.log(studentUser?.userId, user.user, isVerified)
+
   return (
     <>
+      {studentUser?.userId && <TopBar isVerified={isVerified} user={user.user} />}
       <NavBar2 />
       <FAB icon="+" />
       <Outlet />
@@ -307,6 +329,7 @@ function PublicLayout() {
     </>
   );
 }
+
 
 // Admin Layout without NavBar and Footer
 function AdminLayout() {
