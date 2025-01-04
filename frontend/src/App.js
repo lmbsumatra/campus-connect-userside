@@ -49,6 +49,7 @@ import UserOverview from "./pages/private/admin/user-management/UserOverview.js"
 import UserVerification from "./pages/private/admin/user-management/student-profile/UserVerification.js";
 import ReportDashboard from "./pages/private/admin/ReportManagement/ReportDashboard.js";
 import ReportOverview from "./pages/private/admin/ReportManagement/ReportOverview.js";
+import ReportItemView from "./pages/private/admin/ReportManagement/ReportItemView.js";
 import AdminTransactionDashboard from "./pages/private/admin/TransactionManagement/AdminTransactionDashboard.js";
 import AdminTransactionOverview from "./pages/private/admin/TransactionManagement/AdminTransactionOverview.js";
 import ViewTransaction from "./pages/private/admin/TransactionManagement/ViewTransaction.js";
@@ -281,6 +282,7 @@ function Content() {
           {/* REPORT MANAGEMENT */}
           <Route path="reports" element={<ReportDashboard />} />
           <Route path="reports/report-overview" element={<ReportOverview />} />
+          <Route path="reports/:entity_type/:reported_entity_id" element={<ReportItemView />} />
 
           {/* TRANSACTION MANAGEMENT */}
           <Route path="transactions" element={<AdminTransactionDashboard />} />

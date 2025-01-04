@@ -84,3 +84,68 @@ exports.deleteReport = async (req, res) => {
     res.status(500).json({ error: "Failed to delete report." });
   }
 };
+
+exports.getReportDetails = async (req, res) => {
+  console.log("Query Params:", req.query); // Debugging query params
+  const { entity_type, entity_id } = req.query;
+  console.log("Entity Type:", entity_type);
+  console.log("Entity ID:", entity_id);
+
+  if (!entity_type || !entity_id) {
+    return res.status(400).json({ error: "Entity type and ID are required." });
+  }
+
+  try {
+    let entityData;
+
+    switch (entity_type) {
+      case "listing":
+        entityData = await models.Listing.findByPk(entity_id, {
+          include: [
+            {
+              model: models.User,
+              as: "owner", 
+              attributes: ["first_name", "last_name"], 
+            },
+          ],
+        });
+        break;
+        case "post":
+          entityData = await models.Post.findByPk(entity_id, {
+            include: [
+              {
+                model: models.User,
+                as: "renter", 
+                attributes: ["first_name", "last_name"], 
+              },
+            ],
+          });
+          break;
+      case "user":
+        entityData = await models.User.findByPk(entity_id);
+        break;
+      case "sale":
+        entityData = await models.ItemForSale.findByPk(entity_id, {
+          include: [
+            {
+              model: models.User,
+              as: "seller", 
+              attributes: ["first_name", "last_name"], 
+            },
+          ],
+        });
+        break;
+      default:
+        return res.status(400).json({ error: "Invalid entity type." });
+    }
+
+    if (!entityData) {
+      return res.status(404).json({ error: "Entity not found." });
+    }
+
+    res.status(200).json(entityData);
+  } catch (error) {
+    console.error("Error fetching entity data:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};

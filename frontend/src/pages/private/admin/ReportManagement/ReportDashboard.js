@@ -42,9 +42,10 @@ const ReportDashboard = () => {
     }
   }, [reports]);
 
-  const handleView = (reportId) => {
-    navigate(`/admin/reports/view/${reportId}`);
+  const handleView = (report) => {
+    navigate(`/admin/reports/${report.entity_type}/${report.reported_entity_id}`);
   };
+  
 
   const handleResolve = (reportId) => {
     console.log(`Resolving report with ID: ${reportId}`);
@@ -154,7 +155,7 @@ const ReportDashboard = () => {
       <div className="d-flex flex-column align-items-center gap-1">
         <button
           className="btn btn-action view"
-          onClick={() => handleView(report.id)}
+          onClick={() => handleView(report)}
         >
           View
         </button>

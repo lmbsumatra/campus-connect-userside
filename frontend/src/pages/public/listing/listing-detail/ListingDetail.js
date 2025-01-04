@@ -43,6 +43,7 @@ import ImageSlider from "../../common/ImageSlider.jsx";
 import ItemBadges from "../../common/ItemBadges.jsx";
 import axios from "axios";
 import ViewToolbar from "../../common/ViewToolbar.js";
+import ReportModal from "../../../../components/report/ReportModal.js";
 
 function ListingDetail() {
   const navigate = useNavigate();
@@ -61,6 +62,8 @@ function ListingDetail() {
   const rentalDates = approvedListingById.availableDates || [];
   const [redirecting, setRedirecting] = useState(false);
   const isYou = approvedListingById?.owner?.id === studentUser?.userId;
+    const [showReportModal, setShowReportModal] = useState(false);
+    const loggedInUserId = studentUser.userId;
 
   const handleDateClick = (dateId) => {
     const formatDate = (d) => d.toLocaleDateString("en-CA");
@@ -258,6 +261,27 @@ function ListingDetail() {
     }
   };
 
+  const handleReportSubmit = async (reason) => {
+    const reportData = {
+      reporter_id: loggedInUserId, // ID of the logged-in user
+      reported_entity_id:approvedListingById.id, // ID of the item being reported
+      entity_type: "listing", // Type of entity being reported
+      reason: reason, // Reason for the report
+    };
+
+    try {
+      console.log(reportData);
+      const response = await axios.post("http://localhost:3001/api/reports", reportData); // API endpoint
+      console.log("Report submitted:", response.data);
+      alert("Report submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("Failed to submit the report.");
+    }
+
+    setShowReportModal(false); // Close the modal
+  };
+
   return (
     <div className="container-content listing-detail">
       {isYou && <ViewToolbar />}
@@ -302,12 +326,29 @@ function ListingDetail() {
           />
         </div>
         <div className="rental-details">
-          <ItemBadges
+        <div className="item-header">
+        <ItemBadges
             values={{
               college: approvedListingById?.owner?.college,
               category: approvedListingById.category,
             }}
           />
+          <div className="report-button">
+            <button
+              className="btn btn-rectangle danger"
+              onClick={() => setShowReportModal(true)} // Open the modal
+            >
+              Report
+            </button>
+          </div>
+          {/* Report Modal */}
+          <ReportModal
+            show={showReportModal}
+            handleClose={() => setShowReportModal(false)} // Close the modal
+            handleSubmit={handleReportSubmit} // Submit the report
+          />
+        </div>
+          
           <div className="item-title">
             <>
               <i>For rent </i>

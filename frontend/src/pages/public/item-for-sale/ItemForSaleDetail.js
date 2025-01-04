@@ -260,7 +260,7 @@ function ItemForSaleDetail() {
     const reportData = {
       reporter_id: loggedInUserId, // ID of the logged-in user
       reported_entity_id: approvedItemForSaleById.id, // ID of the item being reported
-      entity_type: "items_for_sale", // Type of entity being reported
+      entity_type: "sale", // Type of entity being reported
       reason: reason, // Reason for the report
     };
 
