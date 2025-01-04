@@ -17,6 +17,7 @@ module.exports = (sequelize) => {
           model: "users",
           key: "user_id",
         },
+        onDelete: "CASCADE", // Cascading delete for user_id
       },
       owner_id: {
         type: DataTypes.INTEGER,
@@ -25,17 +26,17 @@ module.exports = (sequelize) => {
           model: "users",
           key: "user_id",
         },
+        onDelete: "CASCADE", // Cascading delete for owner_id
       },
       item_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-
       transaction_type: {
         type: DataTypes.ENUM("buy", "rent"),
         allowNull: false,
       },
-      date: {  // Keep this attribute name
+      date: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -71,29 +72,31 @@ module.exports = (sequelize) => {
     Cart.belongsTo(models.User, {
       as: "user",
       foreignKey: "user_id",
+      onDelete: "CASCADE", // Cascading delete for user association
     });
 
     Cart.belongsTo(models.User, {
       as: "owner",
       foreignKey: "owner_id",
+      onDelete: "CASCADE", // Cascading delete for owner association
     });
 
-   Cart.belongsTo(models.Listing, {
+    Cart.belongsTo(models.Listing, {
       as: "listing_item",
-      foreignKey: "item_id", 
-      constraints: false, 
+      foreignKey: "item_id",
+      constraints: false,
     });
 
     Cart.belongsTo(models.ItemForSale, {
       as: "sale_item",
-      foreignKey: "item_id", 
-      constraints: false, 
+      foreignKey: "item_id",
+      constraints: false,
     });
 
     // Change the alias for the `date` association to avoid collision
     Cart.belongsTo(models.Date, {
-      as: "transaction_date",  // Renamed to avoid collision
-      foreignKey: "date",      // Use the original attribute `date`
+      as: "transaction_date", // Renamed to avoid collision
+      foreignKey: "date", // Use the original attribute `date`
     });
 
     Cart.belongsTo(models.Duration, {

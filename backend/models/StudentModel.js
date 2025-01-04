@@ -35,6 +35,10 @@ Student.init(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    profile_pic: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
     // status: {
     //   type: DataTypes.ENUM("pending", "verified"),
     //   defaultValue: "pending", // Default status is 'pending'

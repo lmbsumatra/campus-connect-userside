@@ -12,8 +12,6 @@ export const fetchAllApprovedItemForSale = createAsyncThunk(
   "item-for-sale/allApprovedItemForSale",
   async () => {
     const response = await fetch(BASE_URL);
-
-    console.log(response);
     return response.json();
   }
 );

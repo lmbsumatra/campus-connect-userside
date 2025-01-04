@@ -319,11 +319,9 @@ function PublicLayout() {
     return <div>Loading...</div>; // Show a loading indicator while fetching user data
   }
 
-  console.log(studentUser?.userId, user.user, isVerified)
-
   return (
     <>
-      {studentUser?.userId && <TopBar isVerified={isVerified} user={user.user} />}
+      {studentUser?.userId && <TopBar isVerified={isVerified} user={user?.user} />}
       <NavBar2 />
       <FAB icon="+" />
       <Outlet />

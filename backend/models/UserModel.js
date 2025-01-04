@@ -37,15 +37,19 @@ const User = sequelize.define(
     // New columns for email verification
     verification_token: {
       type: DataTypes.STRING(255),
-      allowNull: true,  // The token will be generated upon registration
+      allowNull: true, // The token will be generated upon registration
     },
     verification_token_expiration: {
       type: DataTypes.DATE,
-      allowNull: true,  // Set to null initially and later updated
+      allowNull: true, // Set to null initially and later updated
     },
     email_verified: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,  // Default to false, will be updated upon email verification
+      defaultValue: false, // Default to false, will be updated upon email verification
+    },
+    stripe_acct_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true, // Allow null initially, update when Stripe account is linked
     },
   },
   { sequelize, modelName: "User", tableName: "users" }

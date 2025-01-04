@@ -11,8 +11,6 @@ export const fetchAllApprovedPosts = createAsyncThunk(
   "post/allApprovedPosts",
   async () => {
     const response = await fetch(BASE_URL);
-
-    console.log(response);
     return response.json();
   }
 );

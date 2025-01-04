@@ -28,6 +28,7 @@
   align-items: center;
   height: 100%;
   width: auto;
+  
 }
 
 .holder {
@@ -42,6 +43,7 @@
   object-fit: cover;
   background-color: white;
   border-radius: 100px;
+  border: 8px solid white;
 }
 
 .profile-info h1 {

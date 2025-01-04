@@ -21,13 +21,16 @@ const getStudentDataById = async (req, res) => {
         lname: user.last_name,
         role: user.role,
         emailVerified: user.email_verified,
+        stripeAcctId: user.stripe_acct_id,
         email: user.email,
+        joinDate: user.createdAt,
       },
       student: {
         id: student.tup_id,
         college: student.college,
         scannedId: student.scanned_id,
         photoWithId: student.photo_with_id,
+        profilePic: student.profile_pic,
       },
     });
   } catch (error) {

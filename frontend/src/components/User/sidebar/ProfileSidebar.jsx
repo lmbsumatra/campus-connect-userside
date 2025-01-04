@@ -8,6 +8,14 @@ const ProfileSidebar = () => {
       <ul>
         <li>
           <NavLink
+            to="dashboard"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Dashboard
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
             to="my-posts"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
@@ -28,14 +36,6 @@ const ProfileSidebar = () => {
             className={({ isActive }) => (isActive ? "active" : "")}
           >
             My For Sales
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="my-rentals"
-            className={({ isActive }) => (isActive ? "active" : "")}
-          >
-            My Rentals
           </NavLink>
         </li>
 

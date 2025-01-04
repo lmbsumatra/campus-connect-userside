@@ -5,7 +5,7 @@ const authenticateToken = require("../middlewares/StudentAuthMiddleware");
 const StudentController = require("../controllers/student/StudentController");
 const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 
-const { upload } = require("../config/multer");
+const { upload, upload_prof } = require("../config/multer");
 
 router.post(
   "/register",
@@ -23,6 +23,18 @@ router.post(
   "/change-password",
   authenticateToken,
   studentAuthController.userChangePassword
+);
+
+router.post(
+  "/create-onboarding-link",
+  StudentController.createStripeOnBoardingLink
+);
+
+router.get("/merchant-details/:userId", StudentController.getMerchantDetails);
+router.post(
+  "/info/:userId/upload-profile-image",
+  upload_prof,
+  StudentController.uploadProfileImage
 );
 
 module.exports = router;

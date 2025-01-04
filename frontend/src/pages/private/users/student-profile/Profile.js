@@ -69,11 +69,11 @@ function Profile() {
   const pathToBreadcrumb = {
     "my-posts": { label: "My Posts", href: "/profile/my-posts" },
     "my-listings": { label: "My Listings", href: "/profile/my-listings" },
-    "my-forsale-items": {
+    "my-for-sale": {
       label: "My For Sale Items",
-      href: "/profile/my-forsale-items",
+      href: "/profile/my-for-sale",
     },
-    "my-rentals": { label: "My Rentals", href: "/profile/my-rentals" },
+    "dashboard": { label: "Dashboard", href: "/profile/dashboard" },
     transactions: { label: "Transactions", href: "/profile/transactions" },
     "edit-profile": { label: "Edit Profile", href: "/profile/edit-profile" },
   };
@@ -118,7 +118,7 @@ function Profile() {
                   />
                 }
               />
-              <Route path="my-rentals" element={<MyTransactions />} />
+              <Route path="dashboard" element={<MyTransactions />} />
               <Route path="my-listings" element={<MyListings />} />
               <Route path="my-posts" element={<MyPosts />} />
               <Route path="my-for-sale" element={<MyForSale />} />

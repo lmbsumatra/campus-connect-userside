@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import profilePhoto from "../../../assets/images/icons/user-icon.svg";
 import editIcon from "../../../assets/images/icons/edit.png";
 import "./profileHeaderStyles.css";
@@ -6,6 +6,9 @@ import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { formatDate } from "../../../utils/dateFormat";
 import { useLocation, useNavigate } from "react-router-dom";
 import useFetchRentalTransactionsByUserId from "../../../utils/useFetchRentalTransactionsByUserId";
+import { fetchUser, updateProfileImage } from "../../../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import ShowAlert from "../../../utils/ShowAlert";
 
 const ProfileHeader = ({
   userId,
@@ -14,17 +17,14 @@ const ProfileHeader = ({
   onOptionChange,
 }) => {
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState({ user: {}, student: {} });
+  const { user, loadingFetchUser, errorFetchUser } = useSelector(
+    (state) => state.user
+  );
+  const fileInputRef = useRef(null);
 
-
-  const {
-    user,
-    student,
-    errorMessage: fetchErrorMessage,
-  } = FetchUserInfo({
-    userId,
-  });
-  const [errorMessage, setErrorMessage] = useState(fetchErrorMessage);
+  // State for profile image
+  const [profileImage, setProfileImage] = useState(profilePhoto);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Fetch rental transactions
   const {
@@ -33,12 +33,52 @@ const ProfileHeader = ({
     loading,
   } = useFetchRentalTransactionsByUserId(userId);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    if (user.user_id && student.college) {
-      setUserInfo({ user, student });
-      setErrorMessage(errorMessage);
+    if (userId && !user.user) {
+      dispatch(fetchUser(userId));
     }
-  }, [user, student]);
+  }, [userId, dispatch, user.user]);
+
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleImageClick = () => {
+    if (!isProfileVisit) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleImageChange = async (event) => {
+    ShowAlert(dispatch, "loading", "Uploading profile image...");
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file");
+      return;
+    }
+
+    // Check file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert("File size should be less than 5MB");
+      return;
+    }
+
+    // Create FormData
+    const formData = new FormData();
+    formData.append("profile_pic", file);
+
+    // Dispatch the update action
+    try {
+      await dispatch(updateProfileImage({ userId, formData })).unwrap();
+      ShowAlert(dispatch, "success", "Image Uploaded!");
+    } catch (error) {
+      ShowAlert(dispatch, "error", error);
+    }
+  };
 
   const countTransactions = {
     Renter: 0,
@@ -49,7 +89,6 @@ const ProfileHeader = ({
 
   if (rentalItems && rentalItems.length > 0) {
     rentalItems.forEach((transaction) => {
-      // Count transactions for each role
       if (transaction.owner_id === userId) {
         countTransactions.Owner++;
       }
@@ -99,9 +138,6 @@ const ProfileHeader = ({
   const handleDropDown = () => {
     setIsExpanded((prev) => !prev);
   };
-  useEffect(() => {
-    console.log(isExpanded);
-  }, [isExpanded]);
 
   return (
     <div className="profile-header">
@@ -109,17 +145,58 @@ const ProfileHeader = ({
         className="profile-banner"
         style={{ background: getBackgroundColor() }}
       >
-        <div className="profile-picture">
-          <div className="holder">
-            <img src={profilePhoto} alt="Profile" className="profile-photo" />
+        <div
+          className="profile-picture"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div
+            className="holder"
+            style={{
+              position: "relative",
+              cursor: !isProfileVisit ? "pointer" : "default",
+            }}
+            onClick={handleImageClick}
+          >
+            <img
+              src={user ? user.student.profilePic : profileImage}
+              alt="Profile"
+              className="profile-photo"
+              style={{ opacity: isUploading ? 0.5 : 1 }}
+            />
+            {isHovered && !isProfileVisit && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  borderRadius: "50%",
+                }}
+              >
+                {isUploading ? "Uploading..." : "Change Photo"}
+              </div>
+            )}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              accept="image/*"
+              style={{ display: "none" }}
+            />
           </div>
         </div>
         <div>
-          {userInfo.user ? (
+          {user.user ? (
             <>
               <h4 className="text-white">
-                {userInfo.user.first_name}{" "}
-                {userInfo.user.last_name || "User Name"}
+                {user.user.fname} {user.user.lname || "User Name"}
               </h4>
               <div className="profile-info d-flex">
                 <div className="d-block">
@@ -128,14 +205,10 @@ const ProfileHeader = ({
                   <span className="label">Joined</span>
                 </div>
                 <div className="d-block">
+                  <span className="value">{user.student.college || "N/A"}</span>
+                  <span className="value">{user.student.rating || "N/A"}</span>
                   <span className="value">
-                    {userInfo.student.college || "N/A"}
-                  </span>
-                  <span className="value">
-                    {userInfo.student.rating || "N/A"}
-                  </span>
-                  <span className="value">
-                    {formatDate(userInfo.user.createdAt) || "N/A"}
+                    {formatDate(user.user.joinDate) || "N/A"}
                   </span>
                 </div>
               </div>
@@ -143,7 +216,6 @@ const ProfileHeader = ({
           ) : (
             <p className="text-white">Loading user info...</p>
           )}
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
           {isProfileVisit ? (
             <div>
               <button className="btn btn-rectangle secondary white my-2">
@@ -155,7 +227,8 @@ const ProfileHeader = ({
             <div>
               <button
                 className="btn btn-rectangle secondary white my-2"
-                onClick={handleEditButton} disabled={location.pathname === "/profile/edit-profile"}
+                onClick={handleEditButton}
+                disabled={location.pathname === "/profile/edit-profile"}
               >
                 <img src={editIcon} alt="Edit" />
                 Edit
@@ -169,9 +242,8 @@ const ProfileHeader = ({
               As {selectedOption === "Owner" ? "an" : "a"}
             </span>
             <div className={`custom-dropdown ${isExpanded ? "active" : ""}`}>
-              {/* Define the options in an array */}
               {["Renter", "Owner", "Seller", "Buyer"]
-                .sort((a, b) => (a === selectedOption ? -1 : 1)) // Sort selected option to the top
+                .sort((a, b) => (a === selectedOption ? -1 : 1))
                 .map((option) => (
                   <div
                     key={option}

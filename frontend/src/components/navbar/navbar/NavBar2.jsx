@@ -9,6 +9,8 @@ import LoginSignUp from "../../../pages/public/login-signup/LoginSignup.js";
 import searchIcon from "../../../assets/images/navbar/search.svg";
 import "./navbarStyles.css";
 import { logoutStudent, selectStudentUser } from "../../../redux/auth/studentAuthSlice.js";
+import { resetLoginForm } from "../../../redux/login-form/loginFormSlice.js";
+import { resetSignupForm } from "../../../redux/signup-form/signupFormSlice.js";
 
 const NavBar2 = () => {
   const dispatch = useDispatch();
@@ -61,6 +63,8 @@ const NavBar2 = () => {
   };
 
   const closeLoginSignUp = () => {
+    dispatch(resetLoginForm(authTab)); 
+    dispatch(resetSignupForm(authTab)); 
     setShowLoginSignUp(false);
   };
 

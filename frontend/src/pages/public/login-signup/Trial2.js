@@ -56,7 +56,7 @@ const Trial2 = ({ onTabClick }) => {
         navigate("/");
       })
       .catch((error) => {
-        console.log("Error:", error);
+        ShowAlert(dispatch, "error", error);
       });
   };
 

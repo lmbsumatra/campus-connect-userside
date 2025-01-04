@@ -18,6 +18,14 @@ const loginStudent = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+
+    // Check if user is a student
+    if (user.role !== "student") {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized: User is not a student" });
+    }
+
     // Compare password
     let isMatch;
     try {

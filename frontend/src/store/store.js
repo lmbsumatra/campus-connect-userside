@@ -34,6 +34,9 @@ import tagReducer from "../redux/tag/tagSlice";
 // ** User-related Reducers **
 import userReducer from "../redux/user/userSlice";
 
+// ** Merchant-related Reducers **
+import merchantReducer from "../redux/merchant/merchantSlice";
+
 // ** Form-related Reducers **
 import itemFormReducer from "../redux/item-form/itemFormSlice";
 import postFormReducer from "../redux/post-form/postFormSlice";
@@ -64,6 +67,7 @@ const store = configureStore({
     loginForm: loginFormReducer,
     signupForm: signupFormReducer,
     user: userReducer,
+    merchant: merchantReducer,
     //
     itemForm: itemFormReducer,
     postForm: postFormReducer,
