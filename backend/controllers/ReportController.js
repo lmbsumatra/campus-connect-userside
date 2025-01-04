@@ -51,9 +51,11 @@ exports.updateReportStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+    //console.log("Updating report ID:", id, "to status:", status); // Debugging
 
     const report = await Report.findByPk(id);
     if (!report) {
+      console.error("Report not found:", id); // Debugging
       return res.status(404).json({ error: "Report not found." });
     }
 
@@ -66,6 +68,7 @@ exports.updateReportStatus = async (req, res) => {
     res.status(500).json({ error: "Failed to update report status." });
   }
 };
+
 
 // Delete a report
 exports.deleteReport = async (req, res) => {
@@ -85,11 +88,12 @@ exports.deleteReport = async (req, res) => {
   }
 };
 
+//Get the selected report Details
 exports.getReportDetails = async (req, res) => {
-  console.log("Query Params:", req.query); // Debugging query params
+  // console.log("Query Params:", req.query); // Debugging query params
   const { entity_type, entity_id } = req.query;
-  console.log("Entity Type:", entity_type);
-  console.log("Entity ID:", entity_id);
+  // console.log("Entity Type:", entity_type);
+  // console.log("Entity ID:", entity_id);
 
   if (!entity_type || !entity_id) {
     return res.status(400).json({ error: "Entity type and ID are required." });
@@ -101,6 +105,7 @@ exports.getReportDetails = async (req, res) => {
     switch (entity_type) {
       case "listing":
         entityData = await models.Listing.findByPk(entity_id, {
+          attributes: ["listing_name", "rate", "category","delivery_mode","late_charges","specifications","description","tags","created_at"],
           include: [
             {
               model: models.User,
@@ -112,6 +117,7 @@ exports.getReportDetails = async (req, res) => {
         break;
         case "post":
           entityData = await models.Post.findByPk(entity_id, {
+            attributes: ["post_item_name", "category", "description","specifications", "tags", "created_at"],
             include: [
               {
                 model: models.User,
@@ -122,10 +128,20 @@ exports.getReportDetails = async (req, res) => {
           });
           break;
       case "user":
-        entityData = await models.User.findByPk(entity_id);
+        entityData = await models.User.findByPk(entity_id, {
+          attributes: ["first_name", "last_name","middle_name", "email"],
+          include: [
+            {
+              model: models.Student,
+              as: "student", 
+              attributes: ["tup_id", "college"], 
+            },
+          ],
+        });
         break;
       case "sale":
         entityData = await models.ItemForSale.findByPk(entity_id, {
+          attributes: ["item_for_sale_name", "price", "category","delivery_mode", "item_condition","description","specifications", "tags", "created_at"],
           include: [
             {
               model: models.User,

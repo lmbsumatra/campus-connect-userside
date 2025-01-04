@@ -83,3 +83,16 @@
     background-color: #5a6268;
   }
   
+  /* Report Details Section */
+.report-details {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.report-details h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}

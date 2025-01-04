@@ -1,14 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./ReportItemView.css";
+import PostEntityView from "./ReportItemDetails/PostEntityView";
+import ListingEntityView from "./ReportItemDetails/ListingEntityView";
+import SaleEntityView from "./ReportItemDetails/SaleEntityView";
+import UserEntityView from "./ReportItemDetails/UserEntityView";
+import ReportActionModal from "../../../../components/report/ReportActionModal";
+
+
 
 const ReportItemView = () => {
   const { entity_type, reported_entity_id } = useParams();
+  const location = useLocation();
+  const { reportDetails } = location.state || {};
   const [entityDetails, setEntityDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const handleOpenModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
 
   useEffect(() => {
     const fetchEntityDetails = async () => {
@@ -32,6 +44,37 @@ const ReportItemView = () => {
   if (loading) return <div className="loading-container">Loading...</div>;
   if (error) return <div className="error-container">Error: {error}</div>;
 
+  const renderEntityView = () => {
+    switch (entity_type) {
+      case "post":
+        return <PostEntityView entityDetails={entityDetails} />;
+      case "listing":
+        return <ListingEntityView entityDetails={entityDetails} />;
+      case "sale":
+        return <SaleEntityView entityDetails={entityDetails} />;
+      case "user":
+        return <UserEntityView entityDetails={entityDetails} />;
+      default:
+        return <div>Invalid entity type.</div>;
+    }
+  };
+
+
+  const handleStatusChange = async (selectedAction, reason) => {
+    try {
+      await axios.patch(`http://localhost:3001/api/reports/${reportDetails.id}`, {
+        status: selectedAction,
+      });
+      reportDetails.status = selectedAction; // Update UI
+    } catch (error) {
+      console.error("Error updating status:", error);
+    } finally {
+      handleCloseModal();
+    }
+  };
+
+
+ 
   return (
     <div className="report-item-view-container">
       <div className="header">
@@ -42,36 +85,27 @@ const ReportItemView = () => {
       </div>
       <div className="entity-card">
         <h3>Entity Details</h3>
-        <div className="entity-details">
-          {Object.entries(entityDetails).map(([key, value]) => (
-            <div className="entity-row" key={key}>
-              <span className="entity-label">{key.replace(/_/g, " ")}</span>
-              <span className="entity-value">
-                {typeof value === "object" ? JSON.stringify(value) : value || "N/A"}
-              </span>
-            </div>
-          ))}
-
-          {/* Display renter or seller details if available */}
-          {(entityDetails.renter || entityDetails.seller || entityDetails.owner) && (
-            <div className="entity-details">
-                <h4>{entityDetails.renter || entityDetails.owner? "Renter Details" : "Seller Details"}</h4>
-                <div className="entity-row">
-                <span className="entity-label">First Name:</span>
-                <span className="entity-value">
-                    {(entityDetails.renter || entityDetails.seller || entityDetails.owner).first_name || "N/A"}
-                </span>
-                </div>
-                <div className="entity-row">
-                <span className="entity-label">Last Name:</span>
-                <span className="entity-value">
-                    {(entityDetails.renter || entityDetails.seller || entityDetails.owner).last_name || "N/A"}
-                </span>
-                </div>
-            </div>
-            )}
-        </div>
+        {renderEntityView()}
       </div>
+      {/* Report Details Section */}
+      <div className="report-details">
+        <h3>Report Details</h3>
+        <p><strong>Reporter:</strong> {reportDetails?.reporter}</p>
+        <p><strong>Reason:</strong> {reportDetails?.reason}</p>
+        <p><strong>Status:</strong> {reportDetails?.status}</p>
+        <p><strong>Date Added:</strong> {reportDetails?.createdAt}</p>
+      </div>
+      <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+        <button className="btn btn-primary btn-lg" onClick={handleOpenModal}>
+          Action
+        </button>
+      </div>
+      <ReportActionModal
+        show={showModal}
+        onHide={handleCloseModal}
+        onConfirm={handleStatusChange}
+        currentStatus={reportDetails.status}
+      />
     </div>
   );
 };

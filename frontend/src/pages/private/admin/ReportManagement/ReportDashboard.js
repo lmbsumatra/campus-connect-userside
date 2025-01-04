@@ -43,17 +43,45 @@ const ReportDashboard = () => {
   }, [reports]);
 
   const handleView = (report) => {
-    navigate(`/admin/reports/${report.entity_type}/${report.reported_entity_id}`);
+    navigate(`/admin/reports/${report.entity_type}/${report.reported_entity_id}`, {
+      state: {
+        reportDetails: {
+          reporter: `${report.reporter.first_name} ${report.reporter.last_name}`,
+          reason: report.reason,
+          status: report.status,
+          createdAt: formatDate(report.createdAt),
+        }
+      }
+    });
   };
   
 
-  const handleResolve = (reportId) => {
-    console.log(`Resolving report with ID: ${reportId}`);
+  const handleDelete = async (reportId) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this report? This action cannot be undone."
+    );
+  
+    if (isConfirmed) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/reports/${reportId}`, {
+          method: "DELETE",
+        });
+  
+        if (response.ok) {
+          alert("Report deleted successfully.");
+          setOriginalData((prevData) =>
+            prevData.filter((report) => report.id !== reportId)
+          );
+        } else {
+          alert("Failed to delete the report. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error deleting the report:", error);
+        alert("An error occurred while deleting the report.");
+      }
+    }
   };
-
-  const handleDelete = (reportId) => {
-    console.log(`Deleting report with ID: ${reportId}`);
-  };
+  
 
   const getStatusInfo = (status) => {
     const { label, className } = ReportStatus(status);
@@ -158,12 +186,6 @@ const ReportDashboard = () => {
           onClick={() => handleView(report)}
         >
           View
-        </button>
-        <button
-          className="btn btn-action edit"
-          onClick={() => handleResolve(report.id)}
-        >
-          Edit
         </button>
         <button
           className="btn btn-action delete"
