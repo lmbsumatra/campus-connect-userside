@@ -315,9 +315,9 @@ function PublicLayout() {
 
   const isVerified = user?.user?.emailVerified ?? false; // Default to false if undefined
 
-  if (loadingFetchUser) {
-    return <div>Loading...</div>; // Show a loading indicator while fetching user data
-  }
+  // if (loadingFetchUser) {
+  //   return <div>Loading...</div>; // Show a loading indicator while fetching user data
+  // }
 
   return (
     <>

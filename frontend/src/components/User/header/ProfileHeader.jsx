@@ -9,6 +9,7 @@ import useFetchRentalTransactionsByUserId from "../../../utils/useFetchRentalTra
 import { fetchUser, updateProfileImage } from "../../../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import ShowAlert from "../../../utils/ShowAlert";
+import { defaultImages } from "../../../utils/consonants";
 
 const ProfileHeader = ({
   userId,
@@ -140,10 +141,11 @@ const ProfileHeader = ({
   };
 
   return (
-    <div className="profile-header">
+    <div className="header-container profile-header">
       <div
         className="profile-banner"
         style={{ background: getBackgroundColor() }}
+        
       >
         <div
           className="profile-picture"
@@ -159,7 +161,7 @@ const ProfileHeader = ({
             onClick={handleImageClick}
           >
             <img
-              src={user ? user.student.profilePic : profileImage}
+              src={user ? user.student.profilePic : [defaultImages]}
               alt="Profile"
               className="profile-photo"
               style={{ opacity: isUploading ? 0.5 : 1 }}

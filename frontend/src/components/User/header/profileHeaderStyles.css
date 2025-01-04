@@ -1,13 +1,13 @@
-.profile-header {
+.header-container.profile-header {
   background-color: white;
   padding: 14px;
   overflow: hidden;
   border-radius: 10px;
-  color: white;
-  width: auto;
+  
+  width: 100%;
 }
 
-.profile-banner {
+.header-container .profile-banner {
   height: 200px;
   background: var(--clr-main);
   position: relative;
@@ -16,13 +16,15 @@
   align-items: center;
   overflow: hidden;
   padding: 36px;
+  width: 100%;
 }
 
-.profile-banner > * {
+.header-container .profile-banner > * {
   padding: 10px;
+  
 }
 
-.profile-picture {
+.header-container .profile-picture {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,13 +33,13 @@
   
 }
 
-.holder {
+.header-container .holder {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.profile-photo {
+.header-container .profile-photo {
   width: 148px;
   height: 148px;
   object-fit: cover;
@@ -46,35 +48,42 @@
   border: 8px solid white;
 }
 
-.profile-info h1 {
+.header-container .profile-info h1, .header-container .profile-info span {
   display: block;
   width: auto;
+  color: white;
+}
+.header-container .profile-info span {
+  display: block;
+  width: auto;
+  color: white;
+  margin: 7px;
 }
 
-.banner-image {
+.header-container .banner-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.profile-details > div {
+.header-container .profile-details > div {
   text-align: center;
 }
 
-.profile-details .profile-label {
+.header-container .profile-details .profile-label {
   font-weight: bold;
-  color: #6c757d;
+  color: white;
 }
 
-.profile-details .profile-value {
+.header-container .profile-details .profile-value {
   display: block;
 }
 
-.profile-bio {
+.header-container .profile-bio {
   text-align: center;
 }
 
-.edit-profile-button {
+.header-container .edit-profile-button {
   border: none;
   background: var(--clr-main-reverse);
   color: white;
@@ -82,26 +91,26 @@
   cursor: pointer;
 }
 
-.edit-profile-button:hover {
+.header-container .edit-profile-button:hover {
   background: var(--clr-main-darker);
 }
 
-.profile-info {
+.header-container .profile-info {
   gap: 36px;
 }
-.profile-header .label,
-.profile-header .value {
+.header-container .profile-header .label,
+.header-container .profile-header .value {
   display: block;
   color: white;
   line-height: 1.2;
   margin-bottom: 8px
 }
 
-.profile-header .value {
+.header-container .profile-header .value {
   font-weight: 500;
 }
 
-.profile-header .select-option {
+.header-container.profile-header .select-option {
   /* background-color: #6c757d; */
   height: 100%;
   position: absolute;
@@ -115,7 +124,7 @@
 }
 
 
-.select-option .custom-dropdown {
+.header-container .select-option .custom-dropdown {
   background-color: white;
   width: 128px;
   border-radius: 8px;
@@ -126,12 +135,12 @@
   cursor: pointer;
   transition: ease-in-out 0.3s height ;
 }
-.select-option .custom-dropdown.active {
+.header-container .select-option .custom-dropdown.active {
   transition: ease-in-out 0.3s ;
   height: 162px;
 }
 
-.custom-dropdown > .dropdown-item {
+.header-container .custom-dropdown > .dropdown-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -140,10 +149,10 @@
   transition: 1s background-color;
 }
 
-.custom-dropdown > .dropdown-item:hover {
+.header-container .custom-dropdown > .dropdown-item:hover {
   background-color: var(--clr-muted);
 }
-.transaction-indicator {
+.header-container .transaction-indicator {
   background-color: red;
   color: white;         
   border-radius: 50%;    
@@ -156,6 +165,19 @@
   line-height: 0;
 }
 
-.transaction-indicator.not-active {
+.header-container .transaction-indicator.not-active {
   background-color:var(--clr-secondary);
+}
+
+
+/* For Tablets (minimum width: 600px) */
+@media (min-width: 600px) {
+}
+
+/* For Desktops (minimum width: 1024px) */
+@media (min-width: 1024px) {
+}
+
+/* For Large Screens (minimum width: 1440px) */
+@media (min-width: 1440px) {
 }
