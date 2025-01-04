@@ -1,17 +1,24 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {
+  FOR_SALE,
+  GCASH,
+  MEET_UP,
+  PAY_UPON_MEETUP,
+  PICK_UP,
+} from "../../utils/consonants";
 
 // Utility function to validate available dates
-const validateRequestDates = (dates) => {
+const validateAvailableDates = (dates) => {
   const errors = [];
 
   if (!dates || dates.length === 0) {
-    errors.push("At least one request date is required.");
+    errors.push("At least one available date is required.");
     return errors;
   }
 
   // Check if each date has at least one time period
   const datesWithoutTime = dates.filter(
-    (date) => !date.timePeriods || date.timePeriods.length === 0
+    (date) => !date.durations || date.durations.length === 0
   );
   if (datesWithoutTime.length > 0) {
     errors.push("Each selected date must have at least one time period.");
@@ -19,11 +26,11 @@ const validateRequestDates = (dates) => {
 
   // Validate time periods
   dates.forEach((dateItem) => {
-    if (dateItem.timePeriods) {
-      dateItem.timePeriods.forEach((period) => {
-        if (!period.startTime || !period.endTime) {
+    if (dateItem.durations) {
+      dateItem.durations.forEach((period) => {
+        if (!period.timeFrom || !period.timeTo) {
           errors.push("Start and end times are required for all time periods.");
-        } else if (period.startTime >= period.endTime) {
+        } else if (period.timeFrom >= period.timeTo) {
           errors.push("End time must be after start time.");
         }
       });
@@ -32,17 +39,17 @@ const validateRequestDates = (dates) => {
 
   // Check for overlapping time periods on the same date
   dates.forEach((dateItem) => {
-    if (dateItem.timePeriods && dateItem.timePeriods.length > 1) {
-      for (let i = 0; i < dateItem.timePeriods.length; i++) {
-        for (let j = i + 1; j < dateItem.timePeriods.length; j++) {
-          const period1 = dateItem.timePeriods[i];
-          const period2 = dateItem.timePeriods[j];
+    if (dateItem.durations && dateItem.durations.length > 1) {
+      for (let i = 0; i < dateItem.durations.length; i++) {
+        for (let j = i + 1; j < dateItem.durations.length; j++) {
+          const period1 = dateItem.durations[i];
+          const period2 = dateItem.durations[j];
 
           if (
-            (period1.startTime <= period2.endTime &&
-              period1.endTime >= period2.startTime) ||
-            (period2.startTime <= period1.endTime &&
-              period2.endTime >= period1.startTime)
+            (period1.timeFrom <= period2.timeTo &&
+              period1.timeTo >= period2.timeFrom) ||
+            (period2.timeFrom <= period1.timeTo &&
+              period2.timeTo >= period1.timeFrom)
           ) {
             errors.push("Time periods cannot overlap on the same date.");
             break;
@@ -56,14 +63,14 @@ const validateRequestDates = (dates) => {
 };
 
 // Utility function for input validation
-export const validateInput = (name, value) => {
+export const validateInput = (name, value, itemType) => {
   let hasError = false;
   let error = "";
   switch (name) {
     case "category":
       if (value.trim() === "") {
         hasError = true;
-        error = "Category :P be empty.";
+        error = "Category cannot be empty.";
       } else {
         hasError = false;
         error = "";
@@ -80,8 +87,22 @@ export const validateInput = (name, value) => {
       }
       break;
 
+    case "price":
+      if (value.trim() === "") {
+        hasError = true;
+        error = "Price cannot be empty.";
+      } else if (!/^(?:\d{1,10}|\d{1,10}\.\d{1,2})$/.test(value)) {
+        hasError = true;
+        error =
+          "Price should be whole number, can be decimal, and only up to 2 decimals.";
+      } else {
+        hasError = false;
+        error = "";
+      }
+      break;
+
     case "requestDates":
-      const dateValidation = validateRequestDates(value);
+      const dateValidation = validateAvailableDates(value);
       if (dateValidation.length > 0) {
         hasError = true;
         error = dateValidation.join(" ");
@@ -91,6 +112,86 @@ export const validateInput = (name, value) => {
       }
       break;
 
+    case "deliveryMethod":
+      if (value.trim() === "") {
+        hasError = true;
+        error = "Delivery method cannot be empty.";
+      } else if (value !== PICK_UP && value !== MEET_UP) {
+        // Changed to AND
+        console.log(value, PICK_UP, MEET_UP);
+        hasError = true;
+        error = "Please choose between pickup and meetup only.";
+      } else {
+        hasError = false;
+        error = "";
+      }
+      break;
+
+    case "paymentMethod":
+      if (value.trim() === "") {
+        hasError = true;
+        error = "Payment method cannot be empty.";
+      } else if (value !== PAY_UPON_MEETUP && value !== GCASH) {
+        // Changed to AND
+        hasError = true;
+        error = "Please choose between Payment upon meetup and Gcash only.";
+      } else {
+        hasError = false;
+        error = "";
+      }
+      break;
+    case "itemCondition":
+      if (value.trim() === "") {
+        hasError = true;
+        error = "Item condition cannot be empty.";
+      } else {
+        hasError = false;
+        error = "";
+      }
+      break;
+
+    case "lateCharges":
+      if (itemType === FOR_SALE) break;
+      if (value.trim() === "") {
+        hasError = true;
+        error =
+          "Late charges cannot be empty. Set as 0(zero) if you don't want to add.";
+      } else if (!/^(?:\d{1,10}|\d{1,10}\.\d{1,2})$/.test(value)) {
+        hasError = true;
+        error =
+          "Late charges should be whole number, can be decimal, and only up to 2 decimals.";
+      } else {
+        hasError = false;
+        error = "";
+      }
+      break;
+
+    case "securityDeposit":
+      if (itemType === FOR_SALE) break;
+      if (value.trim() === "") {
+        hasError = true;
+        error =
+          "Security deposit cannot be empty. Set as 0(zero) if you don't want to add.";
+      } else if (!/^(?:\d{1,10}|\d{1,10}\.\d{1,2})$/.test(value)) {
+        hasError = true;
+        error =
+          "Security deposit should be whole number, can be decimal, and only up to 2 decimals.";
+      } else {
+        hasError = false;
+        error = "";
+      }
+      break;
+
+    case "repairReplacement":
+      if (itemType === FOR_SALE) break;
+      if (value.trim() === "") {
+        hasError = true;
+        error = "Repair and replacement condition is required.";
+      } else {
+        hasError = false;
+        error = "";
+      }
+      break;
     case "desc":
       if (value.trim() === "") {
         hasError = true;
@@ -155,6 +256,7 @@ export const validateInput = (name, value) => {
       break;
     case "images": {
       const allowedTypes = [
+        "image/jpg",
         "image/jpeg",
         "image/png",
         "image/gif",
@@ -169,18 +271,17 @@ export const validateInput = (name, value) => {
         hasError = true;
         error = "Maximum of 5 images only.";
       } else {
-        for (const file of value) {
-          if (!allowedTypes.includes(file.type)) {
+        for (const fileName of value) {
+          const fileExtension = fileName.split(".").pop().toLowerCase();
+
+          if (!allowedTypes.includes(`image/${fileExtension}`)) {
             hasError = true;
             error =
               "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.";
             break;
           }
-          if (file.size > maxSize) {
-            hasError = true;
-            error = "File size exceeds the 5MB limit.";
-            break;
-          }
+          // Assuming you're not validating file sizes since you don't have the full file object
+          // If needed, you could add a validation step for sizes in metadata as well
         }
       }
 
@@ -221,10 +322,8 @@ const postFormSlice = createSlice({
   initialState,
   reducers: {
     updateRequestDates: (state, action) => {
-      const { hasError, error } = validateInput(
-        "requestDates",
-        action.payload
-      );
+      console.log(action.payload)
+      const { hasError, error } = validateInput("requestDates", action.payload);
       state.requestDates = {
         value: action.payload,
         hasError,
@@ -256,12 +355,24 @@ const postFormSlice = createSlice({
         (key) => key === "isFormValid" || !state[key].hasError
       );
     },
+    updateAvailableDates: (state, action) => {
+      const { hasError, error } = validateInput(
+        "requestDates",
+        action.payload
+      );
+      state.requestDates = {
+        value: action.payload,
+        hasError,
+        error,
+        triggered: true,
+      };
+    },
   },
 });
 
 // Export actions
 export const { updateField, blurField, updateRequestDates } =
-postFormSlice.actions;
+  postFormSlice.actions;
 
 // Export the reducer
 export default postFormSlice.reducer;

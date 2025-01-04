@@ -192,7 +192,7 @@ if (!user?.user) {
         {durations.map((duration, index) => (
           <div key={index} className="duration-item">
             <input type="checkbox" id={`duration-${index}`} checked readOnly />
-            {formatTimeTo12Hour(duration.startTime)} -{" "}
+            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
             {formatTimeTo12Hour(duration.timeTo)}
           </div>
         ))}

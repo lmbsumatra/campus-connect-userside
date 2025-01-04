@@ -182,122 +182,124 @@ exports.getAllPosts = async (req, res) => {
 };
 
 // Create a post
-exports.createPost = async (req, res, next) => {
-  const transaction = await sequelize.transaction();
+// exports.createPost = async (req, res, next) => {
+//   const transaction = await sequelize.transaction();
 
-  try {
-    // Check if required post data is provided
-    if (!req.body.post) {
-      throw new Error("Post data is missing");
-    }
+//   console.log(req.body.post)
 
-    let createdPost;
+//   try {
+//     // Check if required post data is provided
+//     if (!req.body.post) {
+//       throw new Error("Post data is missing");
+//     }
 
-    // Create the post
-    req.body.post.status = "pending";  // Set the post status to "pending" initially
-    createdPost = await models.Post.create(req.body.post, { transaction });
+//     let createdPost;
+
+//     // Create the post
+//     req.body.post.status = "pending";  // Set the post status to "pending" initially
+//     createdPost = await models.Post.create(req.body.post, { transaction });
     
-    // Handle rental dates and durations if provided
-    const rentalDates = req.body.rental_dates || [];
-    if (Array.isArray(rentalDates)) {
-      for (const date of rentalDates) {
-        if (!date.date) {
-          throw new Error("Rental date is missing");
-        }
+//     // Handle rental dates and durations if provided
+//     const rentalDates = req.body.rental_dates || [];
+//     if (Array.isArray(rentalDates)) {
+//       for (const date of rentalDates) {
+//         if (!date.date) {
+//           throw new Error("Rental date is missing");
+//         }
 
-        // Create rental date associated with the post
-        const rentalDate = await models.Date.create(
-          {
-            item_id: createdPost.id,
-            date: date.date,
-            item_type: 'post',  // This assumes 'item_type' can be "post" in the rental date
-          },
-          { transaction }
-        );
-        console.log("Created rental date:", rentalDate);
+//         // Create rental date associated with the post
+//         const rentalDate = await models.Date.create(
+//           {
+//             item_id: createdPost.id,
+//             date: date.date,
+//             item_type: 'post',  // This assumes 'item_type' can be "post" in the rental date
+//           },
+//           { transaction }
+//         );
+//         console.log("Created rental date:", rentalDate);
 
-        // Handle rental times (if provided)
-        if (date.times && Array.isArray(date.times)) {
-          for (const time of date.times) {
-            if (!time.from || !time.to) {
-              throw new Error("Rental time is missing from or to fields");
-            }
+//         // Handle rental times (if provided)
+//         if (date.times && Array.isArray(date.times)) {
+//           for (const time of date.times) {
+//             if (!time.from || !time.to) {
+//               throw new Error("Rental time is missing from or to fields");
+//             }
 
-            // Create rental duration associated with the rental date
-            await models.Duration.create(
-              {
-                date_id: rentalDate.id,
-                rental_time_from: time.from,
-                rental_time_to: time.to,
-              },
-              { transaction }
-            );
-          }
-        } else {
-          console.warn(`No rental times provided for date: ${date.date}`);
-        }
-      }
-    }
+//             // Create rental duration associated with the rental date
+//             await models.Duration.create(
+//               {
+//                 date_id: rentalDate.id,
+//                 rental_time_from: time.from,
+//                 rental_time_to: time.to,
+//               },
+//               { transaction }
+//             );
+//           }
+//         } else {
+//           console.warn(`No rental times provided for date: ${date.date}`);
+//         }
+//       }
+//     }
 
-    // Commit the transaction
-    await transaction.commit();
+//     // Commit the transaction
+//     await transaction.commit();
 
-    // Fetch the post owner information
-    const owner = await models.User.findOne({
-      where: { user_id: req.body.post.renter_id },
-      attributes: ["user_id", "first_name", "last_name"],
-    });
+//     // Fetch the post owner information
+//     const owner = await models.User.findOne({
+//       where: { user_id: req.body.post.renter_id },
+//       attributes: ["user_id", "first_name", "last_name"],
+//     });
 
-    const ownerName = owner ? `${owner.first_name} ${owner.last_name}` : "Unknown";
+//     const ownerName = owner ? `${owner.first_name} ${owner.last_name}` : "Unknown";
 
-    // Create notification object
-    const notification = {
-      type: "new-post",
-      title: "New Post Awaiting Approval",
-      message: `Created a new post titled "${createdPost.title}"`,
-      timestamp: new Date(),
-      postId: createdPost.id,
-      category: createdPost.category,
-      owner: {
-        id: owner.user_id,
-        name: ownerName,
-      }
-    };
+//     // Create notification object
+//     const notification = {
+//       type: "new-post",
+//       title: "New Post Awaiting Approval",
+//       message: `Created a new post titled "${createdPost.title}"`,
+//       timestamp: new Date(),
+//       postId: createdPost.id,
+//       category: createdPost.category,
+//       owner: {
+//         id: owner.user_id,
+//         name: ownerName,
+//       }
+//     };
 
-    // Log the details for debugging
-    console.log("CreatedPost:", {
-      id: createdPost.id,
-      title: createdPost.title,
-      category: createdPost.category,
-    });
-    console.log("Owner:", {
-      id: owner.user_id,
-      name: ownerName
-    });
+//     // Log the details for debugging
+//     console.log("CreatedPost:", {
+//       id: createdPost.id,
+//       title: createdPost.title,
+//       category: createdPost.category,
+//     });
+//     console.log("Owner:", {
+//       id: owner.user_id,
+//       name: ownerName
+//     });
 
-    // Notify admins via socket
-    req.notifyAdmins(notification);  // This triggers the socket event on the backend
+//     // Notify admins via socket
+//     req.notifyAdmins(notification);  // This triggers the socket event on the backend
 
-    // Return the created post as a response
-    res.status(201).json(createdPost);
-  } catch (error) {
-    if (transaction.finished !== 'commit') {
-      await transaction.rollback();
-    }
+//     // Return the created post as a response
+//     res.status(201).json(createdPost);
+//   } catch (error) {
+//     if (transaction.finished !== 'commit') {
+//       await transaction.rollback();
+//     }
 
-    console.error("Error creating post:", {
-      message: error.message,
-      stack: error.stack,
-      body: req.body,
-    });
+//     console.error("Error creating post:", {
+//       message: error.message,
+//       stack: error.stack,
+//       body: req.body,
+//     });
 
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message,
-      details: "Failed to create post. Please check the input data and try again.",
-    });
-  }
-};
+//     res.status(500).json({
+//       error: "Internal Server Error",
+//       message: error.message,
+//       details: "Failed to create post. Please check the input data and try again.",
+//     });
+//   }
+// };
 
 // Get a single post by ID with associated rental dates, durations, and renter info
 exports.getPostById = async (req, res) => {

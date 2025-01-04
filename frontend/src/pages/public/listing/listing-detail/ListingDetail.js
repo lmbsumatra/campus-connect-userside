@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice.js";
 import { Modal, Button } from "react-bootstrap";
@@ -9,10 +9,6 @@ import store from "../../../../store/store.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import Tooltip from "@mui/material/Tooltip";
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
-import itemImage1 from "../../../../assets/images/item/item_1.jpg";
-import itemImage2 from "../../../../assets/images/item/item_2.jpg";
-import itemImage3 from "../../../../assets/images/item/item_3.jpg";
-import itemImage4 from "../../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../assets/images/card/buy.svg";
 import "./listingDetailStyles.css";
@@ -62,8 +58,17 @@ function ListingDetail() {
   const rentalDates = approvedListingById.availableDates || [];
   const [redirecting, setRedirecting] = useState(false);
   const isYou = approvedListingById?.owner?.id === studentUser?.userId;
-    const [showReportModal, setShowReportModal] = useState(false);
-    const loggedInUserId = studentUser.userId;
+  const [showReportModal, setShowReportModal] = useState(false);
+  const loggedInUserId = studentUser.userId;
+
+  const location = useLocation();
+  const { item, warnSelectDateAndTime } = location.state || {};
+  console.log(location );
+  useEffect(() => {
+    if (warnSelectDateAndTime) {
+      
+    }
+  }, [warnSelectDateAndTime]);
 
   const handleDateClick = (dateId) => {
     const formatDate = (d) => d.toLocaleDateString("en-CA");
@@ -85,8 +90,6 @@ function ListingDetail() {
   const availableDates = rentalDates
     .filter((rentalDate) => rentalDate.status === "available")
     .map((rentalDate) => new Date(rentalDate.date));
-
-  console.log(approvedListingById);
 
   const handleOfferClick = async () => {
     if (selectedDate && selectedDuration) {
@@ -264,14 +267,17 @@ function ListingDetail() {
   const handleReportSubmit = async (reason) => {
     const reportData = {
       reporter_id: loggedInUserId, // ID of the logged-in user
-      reported_entity_id:approvedListingById.id, // ID of the item being reported
+      reported_entity_id: approvedListingById.id, // ID of the item being reported
       entity_type: "listing", // Type of entity being reported
       reason: reason, // Reason for the report
     };
 
     try {
       console.log(reportData);
-      const response = await axios.post("http://localhost:3001/api/reports", reportData); // API endpoint
+      const response = await axios.post(
+        "http://localhost:3001/api/reports",
+        reportData
+      ); // API endpoint
       console.log("Report submitted:", response.data);
       alert("Report submitted successfully!");
     } catch (error) {
@@ -326,29 +332,29 @@ function ListingDetail() {
           />
         </div>
         <div className="rental-details">
-        <div className="item-header">
-        <ItemBadges
-            values={{
-              college: approvedListingById?.owner?.college,
-              category: approvedListingById.category,
-            }}
-          />
-          <div className="report-button">
-            <button
-              className="btn btn-rectangle danger"
-              onClick={() => setShowReportModal(true)} // Open the modal
-            >
-              Report
-            </button>
+          <div className="item-header">
+            <ItemBadges
+              values={{
+                college: approvedListingById?.owner?.college,
+                category: approvedListingById.category,
+              }}
+            />
+            <div className="report-button">
+              <button
+                className="btn btn-rectangle danger"
+                onClick={() => setShowReportModal(true)} // Open the modal
+              >
+                Report
+              </button>
+            </div>
+            {/* Report Modal */}
+            <ReportModal
+              show={showReportModal}
+              handleClose={() => setShowReportModal(false)} // Close the modal
+              handleSubmit={handleReportSubmit} // Submit the report
+            />
           </div>
-          {/* Report Modal */}
-          <ReportModal
-            show={showReportModal}
-            handleClose={() => setShowReportModal(false)} // Close the modal
-            handleSubmit={handleReportSubmit} // Submit the report
-          />
-        </div>
-          
+
           <div className="item-title">
             <>
               <i>For rent </i>

@@ -14,6 +14,7 @@ import "./styles/cards.css";
 import "./styles/containers.css";
 import "./styles/status.css";
 import "./trials/Trial.css";
+import "./styles/loadingOverlayStyles.css";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import store from "../src/store/store";
 
@@ -282,7 +283,10 @@ function Content() {
           {/* REPORT MANAGEMENT */}
           <Route path="reports" element={<ReportDashboard />} />
           <Route path="reports/report-overview" element={<ReportOverview />} />
-          <Route path="reports/:entity_type/:reported_entity_id" element={<ReportItemView />} />
+          <Route
+            path="reports/:entity_type/:reported_entity_id"
+            element={<ReportItemView />}
+          />
 
           {/* TRANSACTION MANAGEMENT */}
           <Route path="transactions" element={<AdminTransactionDashboard />} />
@@ -301,7 +305,6 @@ function Content() {
   );
 }
 
-// Public Layout with NavBar and Footer
 function PublicLayout() {
   const dispatch = useDispatch();
   const { user, loadingFetchUser } = useSelector((state) => state.user);
@@ -315,13 +318,19 @@ function PublicLayout() {
 
   const isVerified = user?.user?.emailVerified ?? false; // Default to false if undefined
 
-  // if (loadingFetchUser) {
-  //   return <div>Loading...</div>; // Show a loading indicator while fetching user data
-  // }
+  if (!user & loadingFetchUser) {
+    return (
+      <div className="loading-overlay">
+        <div className="spinner"></div> {/* Add a spinner or animation */}
+      </div>
+    ); // Show a loading indicator while fetching user data
+  }
 
   return (
     <>
-      {studentUser?.userId && <TopBar isVerified={isVerified} user={user?.user} />}
+      {studentUser?.userId && !loadingFetchUser && (
+        <TopBar isVerified={isVerified} user={user?.user} />
+      )}
       <NavBar2 />
       <FAB icon="+" />
       <Outlet />
@@ -329,7 +338,6 @@ function PublicLayout() {
     </>
   );
 }
-
 
 // Admin Layout without NavBar and Footer
 function AdminLayout() {

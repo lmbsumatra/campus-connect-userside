@@ -78,9 +78,31 @@ const ItemCard = ({
     }
   };
 
-  const handleAddToCart = (e, item) => {
+  const handleActionBtnClick = (e, item) => {
+    let warnSelectDateAndTime: "Please select date and duation first!";
     e.stopPropagation();
-    console.log(`Added ${item.name} to cart`);
+    if (item.itemType === "For Rent")
+      if (item.owner && isYou) {
+        navigate(`/profile/my-listings/edit/${item.id}`, {
+          state: {
+            warnSelectDateAndTime,
+          },
+        });
+      } else {
+        navigate(`/rent/${item.id}`);
+      }
+    else if (item.itemType === "For Sale") {
+      if (item.seller && isYou) {
+        navigate(`/profile/my-for-sale/edit/${item.id}`, {
+          state: {
+            item,
+            warnSelectDateAndTime: "Please select date and duation first!",
+          },
+        });
+      } else {
+        navigate(`/shop/${item.id}`);
+      }
+    }
   };
 
   const handleDropdownToggle = (e, index) => {
@@ -183,12 +205,16 @@ const ItemCard = ({
             </p>
 
             <div className="action-btns">
-              <button className="btn btn-rectangle primary" disabled={isYou}>
+              <button
+                className="btn btn-rectangle primary"
+                onClick={(e) => handleActionBtnClick(e, item)}
+                disabled={isYou}
+              >
                 {item.itemType === FOR_RENT ? "Rent" : "Buy"}
               </button>
               <button
                 className="btn btn-icon primary"
-                onClick={(e) => handleAddToCart(e, item)}
+                onClick={(e) => handleActionBtnClick(e, item)}
                 disabled={isYou}
               >
                 <img src={cartIcon} alt="Add to cart" />

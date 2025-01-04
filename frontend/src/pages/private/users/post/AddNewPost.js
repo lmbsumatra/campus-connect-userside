@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
-import { formatDate } from "../../../../utils/dateFormat.js";
+import { formatDate, formatDateFromSelectDate } from "../../../../utils/dateFormat.js";
 
 // Components
 import UserToolbar from "../common/UserToolbar";
@@ -97,11 +97,13 @@ const AddNewPost = () => {
   });
 
   const [category, setCategory] = useState("");
-  const [itemType, setItemType] = useState("For Rent");
+  const [itemType, setItemType] = useState("To Rent");
   const [redirecting, setRedirecting] = useState(false);
   const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
+  const [removedImages, setRemovedImages] = useState([]);
+  const [localImages, setLocalImages] = useState([]);
 
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
@@ -124,12 +126,14 @@ const AddNewPost = () => {
     dispatch(blurField({ name, value }));
   };
 
+
   const getDurationsForDate = (date) => {
     if (!date) return [];
     const dateItem = selectedDatesDurations.find(
-      (item) => item.date.toDateString() === date.toDateString()
+      (item) =>
+        formatDateFromSelectDate(item.date) === formatDateFromSelectDate(date)
     );
-    return dateItem ? dateItem.timePeriods : [];
+    return dateItem ? dateItem.durations : [];
   };
 
   const renderDurations = () => {
@@ -152,12 +156,24 @@ const AddNewPost = () => {
         {durations.map((duration, index) => (
           <div key={index} className="duration-item">
             <input type="checkbox" id={`duration-${index}`} checked readOnly />
-            {formatTimeTo12Hour(duration.startTime)} -{" "}
-            {formatTimeTo12Hour(duration.endTime)}
+            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+            {formatTimeTo12Hour(duration.timeTo)}
           </div>
         ))}
       </div>
     );
+  };
+
+  const handleSaveDatesDurations = (datesDurations) => {
+    console.log(datesDurations)
+    // Assuming datesDurations is an array
+    const serializedDates = datesDurations.map((dateObj) => ({
+      ...dateObj,
+      date: formatDateFromSelectDate(dateObj.date),
+    }));
+
+    setSelectedDatesDurations(serializedDates);
+    dispatch(updateRequestDates(serializedDates));
   };
 
   useEffect(() => {
@@ -189,10 +205,6 @@ const AddNewPost = () => {
     return <LoadingItemDetailSkeleton />;
   }
 
-  const handleSaveDatesDurations = (datesDurations) => {
-    setSelectedDatesDurations(datesDurations);
-    dispatch(updateRequestDates(datesDurations));
-  };
 
   const handleCategoryChange = (selectedCategory) => {
     setCategory(selectedCategory);
@@ -200,105 +212,122 @@ const AddNewPost = () => {
     dispatch(blurField({ name: "category", value: selectedCategory }));
   };
 
-  const handleImagesChange = (newImages) => {
-    dispatch(updateField({ name: "images", value: newImages }));
-    dispatch(blurField({ name: "images", value: newImages }));
+  const handleImagesChange = ({ currentImages, removedImagesList }) => {
+    setLocalImages(currentImages);
+    setRemovedImages(removedImagesList);
+    console.log({ localImages });
+
+    // Extract filenames
+    const filenames = currentImages.map((image) => {
+      if (image.file && image.file.name) {
+        return image.file.name; // For files
+      }
+      // For blob URLs, extract a default or placeholder filename
+      const blobFilename = image.preview || image;
+      return (
+        blobFilename.substring(blobFilename.lastIndexOf("/") + 1) || "blob-file"
+      );
+    });
+
+    console.log("Filenames:", filenames); // Debugging: log the filenames
+
+    // Dispatch updates to Redux
+    dispatch(updateField({ name: "images", value: filenames })); // Use filenames instead of full objects
+    dispatch(blurField({ name: "images", value: filenames }));
   };
 
   const handleSubmit = async () => {
-    // Validate all fields and trigger errors if needed
     let hasErrors = false;
-    console.log(postDataState);
-
+    console.log("Initial Post Data State:", postDataState);
+  
     Object.keys(postDataState).forEach((key) => {
       if (key !== "isFormValid") {
         const field = postDataState[key];
-        console.log("Validating field:", key, "Value:", field.value); // Add this
+        console.log("Validating field:", key, "Value:", field.value);
+  
         const { hasError, error } = validateInput(key, field.value);
-
+  
         if (hasError) {
           hasErrors = true;
-          dispatch(
-            blurField({ name: key, value: "" }) // This updates the Redux state to include the error
-          );
+          dispatch(blurField({ name: key, value: "" }));
           dispatch(updateRequestDates(postDataState.requestDates.value));
         }
       }
     });
-
-    console.log(postDataState);
-
-    // Prevent submission if there are errors
+  
+    console.log("Post Data State after Validation:", postDataState);
+  
     if (hasErrors) {
-      ShowAlert(
-        dispatch,
-        "error",
-        "Error",
-        "Please correct the highlighted errors."
-      );
+      ShowAlert(dispatch, "error", "Error", "Please correct the highlighted errors.");
       const firstError = document.querySelector(".validation.error");
       firstError?.scrollIntoView({ behavior: "smooth" });
       return;
     }
-
-    console.log(postDataState);
-
+  
     try {
       const formData = new FormData();
-
-      // Append images to form data
-      postDataState.images.value.forEach((image) =>
-        formData.append("item_images", image)
-      );
-
-      // Prepare item data
+  
+      console.log("Adding Local Images to FormData:");
+      localImages
+        .filter((image) => image.file instanceof File)
+        .forEach((image) => {
+          console.log("Adding image:", image.file.name);
+          formData.append("upload_images", image.file);
+        });
+  
       const itemData = {
         [itemType === TO_RENT ? "renterId" : "buyerId"]: userId,
         category: postDataState.category.value,
         itemName: postDataState.itemName.value,
         desc: postDataState.desc.value,
         tags: postDataState.tags.value,
-        dates: postDataState.availableDates.value,
+        dates: postDataState.requestDates.value,
         specs: postDataState.specs.value,
       };
-
-      formData.append("item", JSON.stringify(itemData));
-
-      const endpoint =
-        itemType === TO_RENT ? "/posts/create" : "/item-for-sale/add";
+  
+      console.log("Item Data:", itemData);
+  
+      formData.append("post", JSON.stringify(itemData));
+  
+      console.log("FormData before submission:");
+      formData.forEach((value, key) => {
+        console.log(key, value);
+      });
+  
+      const endpoint = itemType === TO_RENT ? "/posts/create" : "/posts/create";
       const notificationType =
         itemType === TO_RENT ? "new-post-to-rent" : "new-post-to-buy";
-
-      // Submit the item data
+  
       const response = await axios.post(`${baseApi}${endpoint}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      // Send socket notification
+  
+      console.log("Backend Response Data:", response.data);
+  
       if (socket) {
         socket.emit("new-listing-notification", {
-          title: `${
-            itemType === TO_RENT ? "New Post to Rent" : "New Post to Buy"
-          } Item`,
+          title: `${itemType === TO_RENT ? "New Post to Rent" : "New Post to Buy"} Item`,
           owner: `${user?.fname} ${user?.lname}`,
-          message: `posted an item to ${
-            itemType === TO_RENT ? "rent" : "buy"
-          }.`,
+          message: `posted an item to ${itemType === TO_RENT ? "rent" : "buy"}.`,
           type: notificationType,
         });
       }
-
+  
       ShowAlert(dispatch, "loading", "Redirecting");
-      navigate(`/items/${response.data.item.id}`);
+      // navigate(`/items/${response.data.item.id}`);
     } catch (error) {
+      console.error("Error Response:", error.response?.data);
+      console.error("Error Object:", error);
+  
       const errorMessage =
-        error.response?.data?.message ||
-        "Failed to create listing. Please try again.";
+        error.response?.data?.message || "Failed to create listing. Please try again.";
       ShowAlert(dispatch, "error", "Error", errorMessage);
+  
       const firstError = document.querySelector(".validation.error");
       firstError?.scrollIntoView({ behavior: "smooth" });
     }
   };
+  
 
   return (
     <div className="container-content add-post-detail">
@@ -319,8 +348,9 @@ const AddNewPost = () => {
             </div>
           )}
           <AddImage
-            images={postDataState.images.value}
+            images={localImages}
             onChange={handleImagesChange}
+            removedImages={removedImages}
           />
         </div>
 
@@ -394,13 +424,14 @@ const AddNewPost = () => {
               >
                 Add Dates and Durations
               </button>
-
               <DatePicker
                 inline
                 selected={selectedDisplayDate}
                 onChange={setSelectedDisplayDate}
-                highlightDates={selectedDatesDurations.map((item) => item.date)}
-                excludeDates={UNAVAILABLE_DATES}
+                highlightDates={selectedDatesDurations.map(
+                  (item) => new Date(item.date)
+                )}
+                excludeDates={UNAVAILABLE_DATES.map((date) => new Date(date))}
               />
             </div>
 

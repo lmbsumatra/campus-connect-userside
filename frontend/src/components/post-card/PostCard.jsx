@@ -48,50 +48,6 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
     <div>
       <h2 className="fs-2 fw-bold">{title}</h2>
       <div className="card-container">
-        <div className="card variant-2">
-          <div className="item-type">Looking for...</div>
-          <div className="details">
-            <div className="description">
-              <p className="item-name">nikon cameral dlsr dlsr</p>
-              <div className="rental-desc-holder">
-                <label className="label">Rental Details</label>
-                <span className="rental-date">November 24, 2002</span>
-                <span className="rental-duration">9:00am - 11:00am (2hrs)</span>
-                <a className="link more" href="./">
-                  More details
-                </a>
-              </div>
-
-              <div className="tags-holder">
-                <span className="tag">tags tags tag</span>
-                <Tooltip
-                  title="more tags"
-                  componentsProps={{
-                    popper: {
-                      modifiers: [
-                        { name: "offset", options: { offset: [0, -10] } },
-                      ],
-                    },
-                  }}
-                >
-                  <span className="tag">More +</span>
-                </Tooltip>
-              </div>
-              <div className="action-btns">
-                <button className="btn btn-rectangle primary">Offer</button>
-                <button className="btn btn-icon primary">
-                  <img src={cartIcon} alt="Message poster" />
-                </button>
-                <button className="btn btn-icon secondary option">
-                  <img src={moreIcon} alt="More options" />
-                </button>
-              </div>
-            </div>
-            <div className="img-holder">
-              <img src={item1} alt="nikon" className="img" />
-            </div>
-          </div>
-        </div>
         {/* sample ui */}
         {borrowingPosts.length > 0 ? (
           borrowingPosts.map((item, index) => (
@@ -114,23 +70,24 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
                     <span className="rental-duration">
                       {item.rental_dates.length > 0 &&
                       item.rental_dates[0].durations.length > 0
-                        ? item.rental_dates[0].durations
-                            .map((duration) => {
-                              const from = formatTimeTo12Hour(
-                                duration.rental_time_from
-                              );
-                              const to = formatTimeTo12Hour(
-                                duration.rental_time_to
-                              );
-                              const computedDuration = computeDuration(
-                                duration.rental_time_from,
-                                duration.rental_time_to
-                              );
-                              return `${from} - ${to} (${computedDuration})`;
-                            })
-                            .join(", ")
+                        ? (() => {
+                            const firstDuration =
+                              item.rental_dates[0].durations[0];
+                            const from = formatTimeTo12Hour(
+                              firstDuration.rental_time_from
+                            );
+                            const to = formatTimeTo12Hour(
+                              firstDuration.rental_time_to
+                            );
+                            const computedDuration = computeDuration(
+                              firstDuration.rental_time_from,
+                              firstDuration.rental_time_to
+                            );
+                            return `${from} - ${to} (${computedDuration})`;
+                          })()
                         : "N/A"}
                     </span>
+
                     <a className="link more" href="./">
                       More details
                     </a>

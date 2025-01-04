@@ -2,18 +2,23 @@
 /*     Header      */
 /* * * * * * * * * */
 header {
-  background: url("../../../assets/images/header/header.jpg") no-repeat center center/cover;
   height: 439px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: background-image 1s ease-in-out;
+  margin:  2% 5%;
+  border-radius: 42px;
 }
 
 .header-content {
   max-width: 600px;
   color: #fff;
+  margin: 16px
 }
 
 .header-content h1 {
@@ -26,53 +31,25 @@ header {
   margin-bottom: 24px;
 }
 
-/* Main container for dropdown, search box, and button */
-.search-container {
+/* Slider controls */
+.slider-controls {
+  position: absolute;
+  bottom: 20px;
   display: flex;
-  align-items: center;
-  border-radius: 5px;
-  padding: 5px;
-  background-color: white; 
-  width: 100%;
-  max-width: 500px;
+  gap: 10px;
 }
 
-/* Dropdown menu */
-.search-dropdown {
-  background-color: white;
+.slider-dot {
+  width: 12px;
+  height: 12px;
+  background-color: rgba(255, 255, 255, 0.5);
   border: none;
-  border-radius: 5px;
-  height: 100%;
-  padding: 5px;
-  margin-right: 10px;
-  outline: none;
-  background-color: var(--clr-light);
-}
-
-/* Search box */
-.search-box {
-  background-color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 5px;
-  margin-right: 10px;
-  flex: 2;
-  outline: none;
-  font-size: 16px;
-}
-
-/* Search button */
-.search-button {
-  background-color: var(--clr-main);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 0px 15px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 16px;
   transition: background-color 0.3s ease;
 }
 
-.search-button:hover {
-  background-color: var(--clr-dark);
+.slider-dot.active,
+.slider-dot:hover {
+  background-color: white;
 }

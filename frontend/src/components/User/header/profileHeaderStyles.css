@@ -175,9 +175,9 @@
 }
 
 /* For Desktops (minimum width: 1024px) */
-@media (min-width: 1024px) {
+@media (min-width: 601px) and (max-width: 1024px) {
 }
 
 /* For Large Screens (minimum width: 1440px) */
-@media (min-width: 1440px) {
+@media (min-width: 1025px) {
 }
