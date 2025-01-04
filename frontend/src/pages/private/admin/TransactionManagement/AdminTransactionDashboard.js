@@ -23,7 +23,7 @@ const AdminTransactionDashboard = () => {
     "Type",
     "Buyer/Renter",
     "Seller/Owner",
-    "Amount",
+    // "Amount",
     "Date",
     "Status",
     "Action",
@@ -149,7 +149,7 @@ const AdminTransactionDashboard = () => {
       transaction.type,
       <>{transaction.buyer?.first_name || transaction.renter?.first_name} {transaction.buyer?.last_name || transaction.renter?.last_name}</>,
       <>{transaction.seller?.first_name || transaction.owner?.first_name} {transaction.seller?.last_name || transaction.owner?.last_name}</>,
-      transaction.amount || "N/A",
+      // transaction.amount || "N/A",
       formatDate(transaction.createdAt),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">

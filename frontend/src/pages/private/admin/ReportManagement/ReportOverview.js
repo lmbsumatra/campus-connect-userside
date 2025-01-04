@@ -6,8 +6,8 @@ import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
-import CardComponent from "../../../../components/Table/CardComponent"; 
 import { ReportStatus } from "../../../../utils/Status";
+import CardComponent from "../../../../components/Table/CardComponent"; 
 
 const ReportOverview = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,13 +17,14 @@ const ReportOverview = () => {
   const [reportsPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
   const navigate = useNavigate();
-   const [viewMode, setViewMode] = useState("table");
+  const [viewMode, setViewMode] = useState("table");
 
   const headers = [
     "Report ID",
     "Reason",
     "Reporter",
-    "Reported Item",
+    "Reported ID",
+    "Entity",
     "Date Added",
     "Status",
     "Action",
@@ -37,30 +38,59 @@ const ReportOverview = () => {
     }
   }, [reports]);
 
-  const handleView = (reportId) => {
-    navigate(`/admin/reports/view/${reportId}`);
+  const handleView = (report) => {
+    navigate(`/admin/reports/${report.entity_type}/${report.reported_entity_id}`, {
+      state: {
+        reportDetails: {
+          id: report.id,
+          reporter: `${report.reporter.first_name} ${report.reporter.last_name}`,
+          reason: report.reason,
+          status: report.status,
+          createdAt: formatDate(report.createdAt),
+        }
+      }
+    });
   };
+  
 
-  const handleResolve = (reportId) => {
-    console.log(`Resolving report with ID: ${reportId}`);
+  const handleDelete = async (reportId) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this report? This action cannot be undone."
+    );
+  
+    if (isConfirmed) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/reports/${reportId}`, {
+          method: "DELETE",
+        });
+  
+        if (response.ok) {
+          alert("Report deleted successfully.");
+          setOriginalData((prevData) =>
+            prevData.filter((report) => report.id !== reportId)
+          );
+        } else {
+          alert("Failed to delete the report. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error deleting the report:", error);
+        alert("An error occurred while deleting the report.");
+      }
+    }
   };
-
-  const handleDelete = (reportId) => {
-    console.log(`Deleting report with ID: ${reportId}`);
-  };
+  
 
   const getStatusInfo = (status) => {
     const { label, className } = ReportStatus(status);
     return { label, className };
   };
-  
+
   const filterableStatusOptions = [
     "pending",
     "reviewed",
     "flagged",
     "dismissed",
   ];
-  
 
   const handleSortChange = (column, order) => {
     if (order === "default") {
@@ -89,13 +119,13 @@ const ReportOverview = () => {
     if (normalizedSearchQuery) {
       filteredData = filteredData.filter((report) => {
         const reporterName = `${report.reporter.first_name} ${report.reporter.last_name}`.toLowerCase();
-        const reportedItem = report.item_name.toLowerCase();
         const normalizedReason = report.reason.toLowerCase();
         const normalizedDateAdded = formatDate(report.createdAt).toLowerCase();
 
         return (
           reporterName.includes(normalizedSearchQuery) ||
-          reportedItem.includes(normalizedSearchQuery) ||
+          report.reported_entity_id.toString().includes(normalizedSearchQuery) ||
+          report.entity_type.toLowerCase().includes(normalizedSearchQuery) ||
           normalizedReason.includes(normalizedSearchQuery) ||
           normalizedDateAdded.includes(normalizedSearchQuery)
         );
@@ -143,21 +173,16 @@ const ReportOverview = () => {
       report.id,
       report.reason,
       <>{report.reporter.first_name} {report.reporter.last_name}</>,
-      report.item_name,
+      report.reported_entity_id,
+      report.entity_type,
       formatDate(report.createdAt),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
         <button
           className="btn btn-action view"
-          onClick={() => handleView(report.id)}
+          onClick={() => handleView(report)}
         >
           View
-        </button>
-        <button
-          className="btn btn-action edit"
-          onClick={() => handleResolve(report.id)}
-        >
-          Edit
         </button>
         <button
           className="btn btn-action delete"
@@ -181,8 +206,10 @@ const ReportOverview = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
-          {/* View switcher */}
-       <div className="admin-view-toggle">
+          {loading && <p>Loading ...</p>}
+          {error && <p>Error: {error}</p>}
+            {/* View switcher */}
+            <div className="admin-view-toggle">
             <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
             <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
           </div>
@@ -200,8 +227,6 @@ const ReportOverview = () => {
             <CardComponent data={data} headers={headers}/>
 
           )}
-            {loading && <p>Loading ...</p>}
-            {error && <p>Error: {error}</p>}
           <PaginationComponent
             currentPage={currentPage}
             totalPages={totalPages}

@@ -60,7 +60,7 @@ const ReportItemView = () => {
   };
 
 
-  const handleStatusChange = async (selectedAction, reason) => {
+  const handleStatusChange = async (selectedAction) => {
     try {
       await axios.patch(`http://localhost:3001/api/reports/${reportDetails.id}`, {
         status: selectedAction,

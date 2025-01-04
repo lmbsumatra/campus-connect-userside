@@ -46,6 +46,7 @@ const ReportDashboard = () => {
     navigate(`/admin/reports/${report.entity_type}/${report.reported_entity_id}`, {
       state: {
         reportDetails: {
+          id: report.id,
           reporter: `${report.reporter.first_name} ${report.reporter.last_name}`,
           reason: report.reason,
           status: report.status,
