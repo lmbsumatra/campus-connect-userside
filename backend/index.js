@@ -20,6 +20,7 @@ const nodemailer = require("nodemailer");
 const reportRoutes = require("./routes/ReportRoute");
 const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js")
 const notificationRoutes = require("./routes/NotificationRoute");
+const recentActivities = require('./routes/RecentActivitiesRoutes.js')
 
 
 
@@ -80,6 +81,7 @@ app.use("/review-and-rate", reviewAndRateRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/admin/transactions", adminTransactionRoutes);
+app.use("/api/recent-activities", recentActivities)
 
 // Other routes
 app.use("/user", studentAuthRoutes);

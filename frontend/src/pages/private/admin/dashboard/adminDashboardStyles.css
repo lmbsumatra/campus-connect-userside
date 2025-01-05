@@ -74,9 +74,11 @@
 
 /* Activities Table Styles */
 .activities-table-container {
-    width: 100%;
-    overflow-x: auto;
-}
+    max-height: 300px; /* Adjust based on your design */
+    overflow-y: auto;
+    margin-top: 20px;
+  }
+  
 
 .activities-table {
     width: 100%;
