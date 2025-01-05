@@ -304,15 +304,15 @@ const AddNewPost = () => {
   
       console.log("Backend Response Data:", response.data);
   
-      if (socket) {
+     /* if (socket) {
         socket.emit("new-listing-notification", {
           title: `${itemType === TO_RENT ? "New Post to Rent" : "New Post to Buy"} Item`,
-          owner: `${user?.fname} ${user?.lname}`,
+          owner: `${user?.first_name} ${user?.last_name}`,
           message: `posted an item to ${itemType === TO_RENT ? "rent" : "buy"}.`,
           type: notificationType,
         });
       }
-  
+  */
       ShowAlert(dispatch, "loading", "Redirecting");
       // navigate(`/items/${response.data.item.id}`);
     } catch (error) {
