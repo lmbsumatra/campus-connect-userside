@@ -79,7 +79,7 @@ const ItemCard = ({
   };
 
   const handleActionBtnClick = (e, item) => {
-    let warnSelectDateAndTime: "Please select date and duation first!";
+    let warnSelectDateAndTime = "Please select date and duation first!";
     e.stopPropagation();
     if (item.itemType === "For Rent")
       if (item.owner && isYou) {
