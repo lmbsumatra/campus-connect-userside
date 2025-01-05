@@ -1,88 +1,163 @@
 .notification-item .icon-link img {
     width: 24px;
     height: 24px;
-  }
-  
-  .notifications {
+}
+
+.notification-container {
+    position: relative;
+}
+
+/* Notifications container */
+.notifications-user {
+        position: absolute;
+        /* Position the dropdown relative to the container */
+        top: 65px;
+        /* Adjust to align below the notification icon */
+        right: 0;
+        /* Align with the right edge of the container */
+        background-color: var(--clr-white);
+        border-radius: 10px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-in-out;
+        width: 300px;
+        padding: 10px;
+}
+
+/* Mobile responsive styling */
+@media (max-width: 600px) {
+    .notifications-user {
+        position: fixed;
+        /* Ensures the container stays fixed */
+        top: 0;
+        /* Align to the top */
+        right: 0;
+        /* Align to the right */
+        left: 0;
+        /* Align to the left */
+        width: 100vw;
+        /* Full width */
+        height: 100vh;
+        /* Full height */
+        border-radius: 0;
+        /* Remove rounded corners */
+        padding: 0;
+        /* Remove padding */
+        box-shadow: none;
+        /* Remove shadow */
+    }
+
+    .notifications-header {
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        background-color: var(--clr-white);
+        position: sticky;
+        top: 0;
+        z-index: 1001;
+    }
+
+    .notification-list {
+        max-height: calc(100vh - 50px);
+        overflow-y: auto;
+    }
+
+    .notification-item {
+        padding: 10px 15px;
+    }
+
+    .notification-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .notification-content p {
+        font-size: 13px;
+    }
+
+    .notification-content span {
+        font-size: 11px;
+    }
+}
+
+/* Triangle for desktop view */
+.notifications-user .triangle {
     position: absolute;
-    top: 65px;
-    right: 140px;
-    width: 300px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    z-index: 1000;
-    overflow: hidden;
-  }
-  
-  .notifications-header {
+    top: -10px;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid var(--clr-white);
+}
+
+@media (max-width: 600px) {
+    .notifications-user .triangle {
+        display: none;
+    }
+}
+
+/* Header for notifications */
+.notifications-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 15px;
     border-bottom: 1px solid #ddd;
-  }
-  
-  .notifications-header h5 {
+}
+
+.notifications-header h5 {
     margin: 0;
     font-size: 16px;
-  }
-  
-  .close-btn {
+}
+
+/* Close button */
+.close-btn {
     background: none;
     border: none;
     font-size: 20px;
     cursor: pointer;
-  }
-  
-  .notification-list {
+}
+
+/* Notification list container */
+.notification-list {
     max-height: 300px;
     overflow-y: auto;
-  }
-  
-  .notification-item {
+}
+
+/* Individual notification item */
+.notification-item {
     display: flex;
     align-items: center;
     padding: 10px 15px;
     text-decoration: none;
     color: #333;
     transition: background 0.3s;
-  }
-  
-  .notification-item:hover {
+}
+
+.notification-item:hover {
     background-color: #f9f9f9;
-  }
-  
-  .notification-avatar {
+}
+
+.notification-avatar {
     width: 50px;
     height: 50px;
     border-radius: 50%;
     margin-right: 15px;
-  }
-  
-  .notification-content {
+}
+
+.notification-content {
     display: flex;
     flex-direction: column;
-  }
-  
-  .notification-content p {
+}
+
+.notification-content p {
     margin: 0 0 5px;
     font-size: 14px;
-  }
-  
-  .notification-content span {
+}
+
+.notification-content span {
     font-size: 12px;
     color: #777;
-  }
-  
-  @media (max-width: 600px) {
-    .notifications {
-      top: 0;
-      right: 0;
-      width: 100vw;
-      height: 100vh;
-      border-radius: 0; /* Remove rounded corners */
-    }
-  }
-  
+}

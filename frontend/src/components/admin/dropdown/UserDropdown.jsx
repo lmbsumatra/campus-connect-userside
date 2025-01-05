@@ -6,7 +6,12 @@ import MyPostsIcon from "../../../assets/images/icons/post.svg";
 import LogoutIcon from "../../../assets/images/icons/logout.svg";
 import "./style.css";
 
-const UserDropdown = ({ showDropdown, toggleDropdown, handleClick, handleLogout }) => {
+const UserDropdown = ({
+  showDropdown,
+  toggleDropdown,
+  handleClick,
+  handleLogout,
+}) => {
   return (
     <div className="nav-item">
       <a className="icon-link" href="#" onClick={toggleDropdown}>
@@ -14,7 +19,7 @@ const UserDropdown = ({ showDropdown, toggleDropdown, handleClick, handleLogout 
       </a>
 
       {showDropdown && (
-        <div className="user-menu">
+        <div className="admin-menu">
           <div className="triangle"></div>
           <div className="dropdown-header">
             <img src={UserIcon} alt="User" className="profile-img" />
@@ -56,7 +61,13 @@ const UserDropdown = ({ showDropdown, toggleDropdown, handleClick, handleLogout 
               </div>
               <h6>My Posts</h6>
             </button> */}
-            <button className="dropdown-btn" onClick={() => { toggleDropdown(); handleLogout(); }}>
+            <button
+              className="dropdown-btn"
+              onClick={() => {
+                toggleDropdown();
+                handleLogout();
+              }}
+            >
               <div className="icon">
                 <img src={LogoutIcon} alt="Logout" />
               </div>

@@ -1,7 +1,7 @@
-.user-menu {
+.admin-menu {
   position: absolute;
   top: 65px;
-  right: 140px;
+  right: 10px;
   background-color: var(--clr-white);
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -12,7 +12,7 @@
   padding: 10px;
 }
 
-.user-menu .triangle {
+.admin-menu .triangle {
   position: absolute;
   top: -10px;
   right: 20px;
@@ -111,7 +111,7 @@
 
 /* Media query for small devices */
 @media (max-width: 600px) {
-  .user-menu {
+  .admin-menu {
     top: 0; /* Position at the top */
     right: 0; /* Align to the right */
     width: 100vw; /* Full width */
@@ -121,7 +121,7 @@
     box-shadow: none; /* Remove shadow */
   }
 
-  .user-menu .triangle {
+  .admin-menu .triangle {
     display: none; /* Hide triangle on small screens */
   }
 

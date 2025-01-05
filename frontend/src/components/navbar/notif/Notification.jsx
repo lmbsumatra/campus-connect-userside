@@ -1,26 +1,33 @@
-import React from 'react';
+import React from "react";
 import Bell from "../../../assets/images/icons/notif.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
 
 const Notification = ({ showNotifications, toggleNotifications }) => {
-  
   return (
-    <div className="">
+    <div className="notification-container">
       <a className="icon-link" href="#" onClick={toggleNotifications}>
         <img src={Bell} alt="Notification Icon" />
       </a>
       {showNotifications && (
-        <div className="notifications">
+        <div className="notifications-user">
           <div className="notifications-header">
             <h5>Notifications</h5>
-            <button className="close-btn" onClick={toggleNotifications}>×</button>
+            <button className="close-btn" onClick={toggleNotifications}>
+              ×
+            </button>
           </div>
           <div className="notification-list">
             <a href="#" className="notification-item">
-              <img src={UserIcon} className="notification-avatar" alt="User Avatar" />
+              <img
+                src={UserIcon}
+                className="notification-avatar"
+                alt="User Avatar"
+              />
               <div className="notification-content">
-                <p><strong>Hailey Bieber</strong> did something....</p>
+                <p>
+                  <strong>Hailey Bieber</strong> did something....
+                </p>
                 <span>3 weeks ago</span>
               </div>
             </a>

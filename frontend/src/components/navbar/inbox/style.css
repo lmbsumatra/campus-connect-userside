@@ -5,7 +5,7 @@
 .message-menu {
   position: absolute;
   top: 65px;
-  right: 140px;
+  right: 10px;
   background-color: var(--clr-white);
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -80,7 +80,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 15px;
-  border-bottom: 1px solid var(--clr-light);
+  border-bottom: 1px solid #ddd;
 }
 
 .menu-header h5 {
@@ -120,7 +120,7 @@
   flex-grow: 1;
 }
 
-.message-info h6 {
+.message-info h5 {
   margin: 0;
   font-size: 16px;
   color: var(--clr-primary);
@@ -158,4 +158,15 @@
     max-height: 80vh;
     overflow-y: auto;
   }
+}
+
+.message-item.unread {
+  background-color: #f9f9f9;
+  font-weight: bold;
+
+}
+
+.message-item.read {
+  background-color: #ffffff;
+  font-weight: normal;
 }
