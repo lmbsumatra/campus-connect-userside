@@ -245,7 +245,15 @@ function ItemForSaleDetail() {
   
       if (response.ok) {
         navigate("/messages", {
-          state: { sellerId: approvedItemForSaleById.seller.id }, // Pass sellerId to MessagePage
+          state: { 
+            sellerId: approvedItemForSaleById.seller.id,
+            product: {
+              name: approvedItemForSaleById.name,
+              price: approvedItemForSaleById.price,
+              image: approvedItemForSaleById.images[0],
+              title: approvedItemForSaleById.itemType
+            } 
+          }, // Pass sellerId to MessagePage
         });
       } else {
         const error = await response.json();

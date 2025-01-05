@@ -1,43 +1,64 @@
 const router = require("express").Router();
 const Message = require("../models/MessageModel");
 
-//add
-
+// Add a new message
 router.post("/", async (req, res) => {
-  const newMessage = new Message(req.body);
-
   try {
-    const savedMessage = await newMessage.save();
-    res.status(200).json(savedMessage);
+    const { conversationId, sender, text, isProductCard, productDetails } = req.body;
+
+    console.log("Incoming Request Body:", req.body); // Log the incoming data
+
+    // Validate the incoming payload
+    if (!conversationId || !sender) {
+      return res.status(400).json({ error: "Conversation ID and Sender are required." });
+    }
+
+    // Handle product card validation
+    if (isProductCard && !productDetails) {
+      return res.status(400).json({ error: "Product details are required for product cards." });
+    }
+
+    // Create the new message
+    const newMessage = await Message.create({
+      conversationId,
+      sender,
+      text: isProductCard ? null : text, // Nullify text for product cards
+      isProductCard: isProductCard || false,
+      productDetails: isProductCard ? productDetails : null,
+    });
+
+    res.status(200).json(newMessage);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("Error saving message:", err);
+    res.status(500).json({ error: "Failed to save message." });
   }
 });
 
 // Get all messages for a specific conversation
 router.get("/:conversationId", async (req, res) => {
-    try {
-      const { conversationId } = req.params;  // Get the conversationId from the URL params
-      
-      // Query the database using Sequelize's findAll() method
-      const messages = await Message.findAll({
-        where: {
-          conversationId: conversationId  // Filter messages by conversationId
-        }
-      });
-  
-      // If no messages are found, return an empty array
-      if (messages.length === 0) {
-        return res.status(200).json([]);
-      }
-  
-      // Return the messages as a JSON response
-      res.status(200).json(messages);
-    } catch (err) {
-      console.error(err);  // Log the error for debugging
-      res.status(500).json({ error: err.message });  // Send a 500 error with the error message
-    }
-  });
-  
+  try {
+    const { conversationId } = req.params;
+
+    // Fetch messages for the conversation
+    const messages = await Message.findAll({
+      where: { conversationId },
+      order: [["createdAt", "ASC"]], // Sort messages by creation date
+      attributes: [
+        "id", 
+        "sender", 
+        "text", 
+        "isProductCard", 
+        "productDetails", 
+        "createdAt",
+      ], // Include required fields
+    });
+
+    // Return the messages or an empty array
+    res.status(200).json(messages);
+  } catch (err) {
+    console.error("Error fetching messages:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;

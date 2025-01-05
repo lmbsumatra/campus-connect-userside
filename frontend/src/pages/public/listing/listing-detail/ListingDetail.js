@@ -252,10 +252,19 @@ function ListingDetail() {
       );
 
       if (response.ok) {
+        // Navigate to the message page with product details
         navigate("/messages", {
-          state: { ownerId: approvedListingById.owner.id },
-        }); // Navigate and pass ownerId as state
-      } else {
+          state: {
+            ownerId: approvedListingById.owner.id,
+            product: {
+              name: approvedListingById.name,
+              price: approvedListingById.rate,
+              image: approvedListingById.images[0], // Use the first image for the product card
+              title: approvedListingById.itemType,
+            },
+          },
+        });
+      }  else {
         const error = await response.json();
         console.error("Error creating conversation:", error.error);
       }

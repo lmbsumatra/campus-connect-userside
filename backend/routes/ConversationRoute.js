@@ -105,6 +105,15 @@ router.post("/createBySeller", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const userId = req.params.id;  // Extract userId from URL parameters
 
+// Fetch associated student record for the user
+  const student = await models.Student.findOne({ where: { user_id: userId } });
+    if (!student) {
+    console.warn(`Student record not found for user ID: ${userId}`);
+    return res.status(404).json({
+        message: `Student record not found for user ID: ${userId}`,
+    });
+    }
+
   // Validate if userId is provided
   if (!userId) {
       return res.status(400).json({ error: "Invalid user ID" });
@@ -171,7 +180,10 @@ router.get("/:id", async (req, res) => {
                       id: message.id,
                       sender: message.sender,
                       text: message.text,
+                      isProductCard: message.isProductCard, // Include isProductCard
+                      productDetails: message.productDetails, // Include productDetails
                       createdAt: message.createdAt,
+                      updatedAt: message.updatedAt,
                   })),
               };
           })),
@@ -190,7 +202,7 @@ router.get("/:id", async (req, res) => {
 // Handle sending a message in a conversation
 router.post("/:conversationId/message", async (req, res) => {
   const { conversationId } = req.params;  // Extract conversation ID from URL params
-  const { sender, text } = req.body;  // Extract sender and message text from request body
+  const { sender, text, isProductCard, productDetails } = req.body;  // Extract sender and message text from request body
 
   try {
       // Ensure the conversation exists before sending a message
@@ -199,11 +211,18 @@ router.post("/:conversationId/message", async (req, res) => {
           return res.status(404).json({ error: "Conversation not found" });
       }
 
+      // Validate product card data
+     if (isProductCard && !productDetails) {
+        return res.status(400).json({ error: "Product details are required for product cards." });
+      }
+
       // Create the new message for the conversation
       const newMessage = await Message.create({
           conversationId,
           sender,
-          text,
+          text: isProductCard ? null : text,
+          isProductCard: isProductCard || false,
+          productDetails: isProductCard ? productDetails : null,
       });
       
        // Update the conversation's updatedAt timestamp
@@ -220,13 +239,23 @@ router.post("/:conversationId/message", async (req, res) => {
 // Get all messages in a conversation
 router.get("/:conversationId/messages", async (req, res) => {
   try {
-      const conversationId = req.params.conversationId;  // Get conversation ID from URL params
+    const { conversationId } = req.params; // Get conversation ID from URL params
 
-      // Fetch all messages for the given conversation, ordered by creation date
-      const messages = await models.Message.findAll({
-          where: { conversationId },
-          order: [["createdAt", "ASC"]],
-      });
+    // Fetch all messages for the given conversation, ordered by creation date
+    const messages = await models.Message.findAll({
+      where: { conversationId },
+      order: [["createdAt", "ASC"]],
+      attributes: [
+        "id",
+        "conversationId",
+        "sender",
+        "text",
+        "isProductCard",
+        "productDetails",
+        "createdAt",
+        "updatedAt",
+      ], // Ensure these fields are included in the response
+    });
 
       // Return the messages as a JSON response
       res.status(200).json(messages);

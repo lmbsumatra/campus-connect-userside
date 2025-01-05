@@ -4,183 +4,234 @@ import UserIcon from "../../../../assets/images/icons/user-icon.svg";
 import { useAuth } from "../../../../context/AuthContext";
 import { io } from "socket.io-client";
 import { baseApi } from "../../../../App";
-import ProductCard from "./ProductCard";
-import { useLocation, useNavigate, useParams} from "react-router-dom";
-import { useChat } from "../../../../context/ChatContext";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useLocation, useNavigate  } from "react-router-dom";
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
   const { state } = useLocation(); // Get ownerId from navigate state
   const [conversations, setConversations] = useState([]);
-  const { activeChat, setActiveChat } = useChat();
+  const [activeChat, setActiveChat] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [highlightNewMessage, setHighlightNewMessage] = useState(false);
   const chatContentRef = useRef(null);
   const socket = useRef(null);
+
+  const product = state?.product;
   const navigate = useNavigate();
-  const { userId } = studentUser || {}; 
-  const { conversationId } = useParams();
 
-useEffect(() => {
-  if (!userId) return;
+  const { userId } = studentUser || {};
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  socket.current = io(process.env.REACT_APP_SOCKET_URL || "http://localhost:3001");
+  useEffect(() => {
+    if (!userId) return;
 
-  socket.current.on("connect", () => {
-    console.log("Connected to WebSocket", socket.current.id);
-    socket.current.emit("registerUser", userId);
-  });
+    socket.current = io(
+      process.env.REACT_APP_SOCKET_URL || "http://localhost:3001"
+    );
 
-  socket.current.on("receiveMessage", (message) => {
-    console.log("Received message:", message);
-
-    setConversations((prevConversations) => {
-      const updatedConversations = prevConversations.map((conversation) => {
-        if (conversation.id === message.conversationId) {
-          return {
-            ...conversation,
-            messages: [...conversation.messages, message],
-            updatedAt: new Date().toISOString(), // Update the timestamp
-          };
-        }
-        return conversation;
-      });
-
-      // Sort updated conversations by most recent
-      return updatedConversations.sort(
-        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-      );
+    socket.current.on("connect", () => {
+      console.log("Connected to WebSocket", socket.current.id);
+      socket.current.emit("registerUser", userId);
     });
 
-    // Ensure active chat messages are updated if the received message belongs to the active chat
-    if (activeChat?.id === message.conversationId) {
-      setActiveChat((prev) => ({
-        ...prev,
-        messages: [...prev.messages, message],
-      }));
-      setHighlightNewMessage(true);
-      setTimeout(() => setHighlightNewMessage(false), 3000);
-    }
-  });
+    socket.current.on("receiveMessage", (message) => {
+      console.log("Received message:", message);
 
-  return () => {
-    socket.current.disconnect();
-  };
-}, [userId, activeChat]); // Make sure activeChat is included to re-run when it changes
-useEffect(() => {
-    const loadConversationFromId = async () => {
-      if (!conversationId || !userId) return;
-
-      try {
-        // Check if the current activeChat matches the URL parameter
-        if (activeChat?.id !== conversationId) {
-          const res = await fetch(
-            `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/${conversationId}`
-          );
-          const data = await res.json();
-          
-          if (data.conversation) {
-            setActiveChat(data.conversation);
+      setConversations((prevConversations) => {
+        const updatedConversations = prevConversations.map((conversation) => {
+          if (conversation.id === message.conversationId) {
+            return {
+              ...conversation,
+              messages: [...conversation.messages, message],
+              updatedAt: new Date().toISOString(), // Update the timestamp
+            };
           }
-        }
-      } catch (err) {
-        console.error("Error loading conversation from ID:", err);
-      }
-    };
+          return conversation;
+        });
 
-    loadConversationFromId();
-  }, [conversationId, userId, activeChat?.id]);
- useEffect(() => {
+        // Sort updated conversations
+        return updatedConversations.sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+      });
+
+      if (activeChat && message.conversationId === activeChat.id) {
+        setActiveChat((prev) => ({
+          ...prev,
+          messages: [...prev.messages, message],
+        }));
+        setHighlightNewMessage(true);
+        setTimeout(() => setHighlightNewMessage(false), 3000);
+      }
+    });
+
+    return () => {
+      socket.current.disconnect();
+    };
+  }, [userId, activeChat]);
+
+  useEffect(() => {
     const fetchConversations = async () => {
       if (!userId) return;
 
       try {
         const res = await fetch(
-          `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/${userId}`
+          `${
+            process.env.REACT_APP_API_URL || "http://localhost:3001"
+          }/api/conversations/${userId}`
         );
         const data = await res.json();
+        setConversations(data.conversations);
 
+         // Sort conversations by the most recent activity
         const sortedConversations = data.conversations.sort(
           (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
         );
         setConversations(sortedConversations);
 
-        // If we have a conversationId but no activeChat, set it from the sorted conversations
-        if (conversationId && !activeChat) {
-          const targetConversation = sortedConversations.find(
-            conv => conv.id === conversationId
-          );
-          if (targetConversation) {
-            setActiveChat(targetConversation);
+          // Automatically set the conversation with the owner as active
+          if (state?.ownerId || state?.sellerId) {
+            const targetConversation = data.conversations.find((conversation) =>
+              conversation.members.includes(String(state.ownerId || state.sellerId))
+            );
+            setActiveChat(targetConversation || null);
           }
-        }
 
         setIsLoading(false);
+
       } catch (err) {
         console.error("Error fetching conversations:", err);
       }
     };
 
     fetchConversations();
-  }, [userId, conversationId]);
+  }, [studentUser.userId, state?.ownerId, state?.sellerId]);
+  
+  
+  useEffect(() => {
+    if (chatContentRef.current) {
+      chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+    }
+  }, [activeChat?.messages]);
 
-useEffect(() => {
-  if (chatContentRef.current) {
-    chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-  }
-}, [activeChat?.messages]);
+  // const handleSendMessage = async (message, recipientId) => {
+  //   if (!newMessage.trim() || !activeChat) return;
 
-const handleSendMessage = async (message, recipientId) => {
-  if (!newMessage.trim() || !activeChat) return;
+  //   const messageData = {
+  //     sender: userId,
+  //     recipient: recipientId,
+  //     text: message,
+  //     conversationId: activeChat.id,
+  //     otherUser: { userId: recipientId },
+  //   };
 
-  const messageData = {
-    sender: userId,
-    recipient: recipientId,
-    text: message,
-    conversationId: activeChat.id,
-    otherUser: { userId: recipientId }
+  //   try {
+  //     const res = await fetch(
+  //       `${"http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify(messageData),
+  //       }
+  //     );
+  //     const savedMessage = await res.json();
+
+  //     setActiveChat((prev) => ({
+  //       ...prev,
+  //       messages: [...prev.messages, savedMessage],
+  //     }));
+
+  //     socket.current.emit("sendMessageToUser", messageData);
+  //     setNewMessage("");
+  //   } catch (err) {
+  //     console.error("Error sending message:", err);
+  //   }
+  // };
+
+  const handleSendMessage = async (message, recipientId) => {
+    if (!activeChat) return;
+  
+    try {
+      // Send product card as a message if it exists
+      if (product) {
+        const productMessage = {
+          sender: userId,
+          recipient: recipientId,
+          conversationId: activeChat.id,
+          text: "",
+          isProductCard: true,
+          productDetails: {
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            title: product.title,
+          },
+        };
+        console.log("Sending product message payload:", productMessage);
+
+        await fetch(
+          `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(productMessage),
+          }
+        );
+
+  
+        setActiveChat((prev) => ({
+          ...prev,
+          messages: [...prev.messages, productMessage],
+        }));
+  
+         // Clear the product after sending it as a card
+         navigate("/messages", { replace: true }); // Clear state
+      }
+  
+      // Send user's message
+      if (message.trim()) {
+        const messageData = {
+              sender: userId,
+              recipient: recipientId,
+              text: message,
+              conversationId: activeChat.id,
+              otherUser: { userId: recipientId },
+              isProductCard: false, // Regular message
+              productDetails: null, // No product details for a regular message
+        };
+  
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(messageData),
+          }
+        );
+        const savedMessage = await res.json();
+  
+        setActiveChat((prev) => ({
+          ...prev,
+          messages: [...prev.messages, savedMessage],
+        }));
+        socket.current.emit("sendMessageToUser", messageData);
+        setNewMessage("");
+      }
+    } catch (err) {
+      console.error("Error sending message:", err);
+    }
   };
-
-  try {
-    const res = await fetch(`${baseApi}/api/conversations/${activeChat.id}/message`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(messageData),
-    });
-    const savedMessage = await res.json();
-
-    await fetch(`${baseApi}/api/notifications/message`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "message",
-        title: "New Message",
-        message: newMessage,
-        timestamp: new Date(),
-        isRead: false,
-        user_id: recipientId,
-        conversation_id: activeChat.id,
-        priority: "normal"
-      }),
-    });
-
-    setActiveChat((prev) => ({
-      ...prev,
-      messages: [...prev.messages, savedMessage],
-    }));
-
-    socket.current.emit("sendMessageToUser", messageData);
-    setNewMessage("");
-  } catch (err) {
-    console.error("Error sending message:", err);
-  }
-};
+  
 
   const handleConversationClick = (conversation) => {
-    setActiveChat(conversation); 
-    navigate(`/messages/${conversation.id}`);
+    setActiveChat(conversation);
   };
 
   return (
@@ -201,7 +252,7 @@ const handleSendMessage = async (message, recipientId) => {
               >
                 <img src={UserIcon} alt="User Icon" className="user-icon" />
                 <div className="message-info">
-                  <h5>{chat.otherUser?.first_name} {chat.otherUser?.last_name || ''}</h5>
+                  <h5>{chat.otherUser.first_name}</h5>
                   <p>{chat.preview}</p>
                 </div>
                 <span>{new Date(chat.updatedAt).toLocaleString()}</span>
@@ -221,11 +272,26 @@ const handleSendMessage = async (message, recipientId) => {
               >
                 Back
               </button>
-               <h4>{activeChat.otherUser?.first_name} {activeChat.otherUser?.last_name || ''}</h4>
+              <h4>{activeChat.otherUser.first_name}</h4>
             </div>
             <div className="chat-content" ref={chatContentRef}>
-              {activeChat.messages && activeChat.messages.length > 0 ? (
-                activeChat.messages.map((message, index) => (
+            {activeChat.messages && activeChat.messages.length > 0 ? (
+              activeChat.messages.map((message, index) =>
+                message.isProductCard ? (
+                  <div key={index} className="product-card">
+                      <h6>You're inquiring about this item</h6>
+                        <div className="d-flex align-items-start">
+                          <img src={message.productDetails?.image} // Safely access product details
+                               alt={message.productDetails?.name} 
+                               className="me-3" 
+                               style={{ width: "60px", height: "60px" }} />
+                          <div>
+                            <p className="mb-1"><strong>{message.productDetails?.title} {message.productDetails?.name}</strong></p>
+                            <p className="mb-0">Price: ₱{message.productDetails?.price}</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
                   <div
                     key={index}
                     className={`chat-message ${
@@ -238,7 +304,13 @@ const handleSendMessage = async (message, recipientId) => {
                     }`}
                   >
                     <p>{message.text}</p>
-                    <span>{new Date(message.updatedAt).toLocaleString()}</span>
+                      <span>
+                        {new Date(
+                          index === activeChat.messages.length - 1
+                            ? message.createdAt
+                            : message.updatedAt
+                        ).toLocaleString()}
+                      </span>
                   </div>
                 ))
               ) : (

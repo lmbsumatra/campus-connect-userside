@@ -15,7 +15,16 @@ Message.init(
     },
     text: {
       type: DataTypes.TEXT, // Use TEXT if message content might be long
+      allowNull: true,
+    },
+    isProductCard: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: false, // Default is false (not a product card)
+    },
+    productDetails: {
+      type: DataTypes.JSON, // Use JSON for storing product details
+      allowNull: true, // Allow null for non-product card messages
     },
   },
   {
