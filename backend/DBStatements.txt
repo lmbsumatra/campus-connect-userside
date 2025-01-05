@@ -307,3 +307,17 @@ CREATE TABLE `end_semester_dates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_date` (`date`)
 ) 
+
+CREATE TABLE messages_notif (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recipient_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    conversation_id INT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (recipient_id) REFERENCES users(user_id),
+    FOREIGN KEY (sender_id) REFERENCES users(user_id),
+    FOREIGN KEY (conversation_id) REFERENCES conversations(id)
+);
