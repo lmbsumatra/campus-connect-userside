@@ -61,7 +61,7 @@ export const ReportsByCategory = ({ reports }) => {
 // Reports Growth
 export const ReportsGrowth = ({ reports }) => {
   const growthData = reports.reduce((acc, report) => {
-    const month = new Date(report.created_at).toLocaleString("default", {
+    const month = new Date(report.createdAt).toLocaleString("default", {
       month: "short",
     });
     acc[month] = (acc[month] || 0) + 1;
@@ -143,20 +143,20 @@ export const TopReportUsers = ({ reports }) => {
         now.setHours(0, 0, 0, 0);
         return reports.filter(
           (report) =>
-            new Date(report.created_at) >= now &&
-            new Date(report.created_at) < new Date(now).setDate(now.getDate() + 1)
+            new Date(report.createdAt) >= now &&
+            new Date(report.createdAt) < new Date(now).setDate(now.getDate() + 1)
         );
       case "weekly":
         const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
         startOfWeek.setHours(0, 0, 0, 0);
         return reports.filter(
-          (report) => new Date(report.created_at) >= startOfWeek
+          (report) => new Date(report.createdAt) >= startOfWeek
         );
       case "monthly":
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         startOfMonth.setHours(0, 0, 0, 0);
         return reports.filter(
-          (report) => new Date(report.created_at) >= startOfMonth
+          (report) => new Date(report.createdAt) >= startOfMonth
         );
       default:
         return reports;
@@ -165,7 +165,9 @@ export const TopReportUsers = ({ reports }) => {
 
   const calculateTopUsers = (reports) => {
     const userCounts = reports.reduce((acc, report) => {
-      const user = report.reporter || "Anonymous";
+      const user = report.reporter
+        ? `${report.reporter.first_name} ${report.reporter.last_name}` // Concatenate first and last name
+        : "Anonymous"; // Fallback to "Anonymous" if no reporter is available
       acc[user] = (acc[user] || 0) + 1;
       return acc;
     }, {});

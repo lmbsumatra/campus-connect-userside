@@ -6,7 +6,7 @@ import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
-import { TopTransactionUsers, TransactionStatusDistribution, TransactionsByType, TransactionsGrowth } from "../../../../components/Analytics/TransactionAnalyticsComponent";
+import { TransactionStatusDistribution, TransactionsByType, TransactionsGrowth } from "../../../../components/Analytics/TransactionAnalyticsComponent";
 import { TransactionStatus} from "../../../../utils/Status";
 
 const AdminTransactionDashboard = () => {
@@ -190,7 +190,6 @@ const AdminTransactionDashboard = () => {
           <TransactionStatusDistribution transactions={transactions} />
           <TransactionsByType transactions={transactions} />
           <TransactionsGrowth transactions={transactions} />
-          <TopTransactionUsers transactions={transactions} />
         </div>
       </div>
     </div>

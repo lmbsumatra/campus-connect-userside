@@ -106,6 +106,10 @@ export const ListingStatusDistribution = ({ listings }) => {
           "#ffc107", // Pending
           "#dc3545", // Flagged/Removed
           "#17a2b8", // Other statuses
+          "#ff69b4", 
+          "#ff4500", 
+          "#1e90ff",  
+          "#8a2be2", 
         ],
       },
     ],

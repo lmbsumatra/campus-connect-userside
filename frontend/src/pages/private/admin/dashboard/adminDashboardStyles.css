@@ -134,7 +134,7 @@
 /* Charts Section */
 .charts-section {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr; 
     gap: 20px;
 }
 
@@ -144,7 +144,10 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
+    width: 100%; /* Ensure chart cards take full width */
+    height: 100%; /* Allow flexibility */
 }
+
 
 .chart-header {
     display: flex;
@@ -259,7 +262,10 @@
     .charts-section {
         grid-template-columns: 1fr;
     }
-
+    
+    .chart-card {
+        padding: 12px;
+    }
     .status-section {
         grid-template-columns: 1fr 1fr;
     }
@@ -310,9 +316,12 @@
     }
 
     .charts-section {
+        grid-template-columns: 1fr; 
         gap: 10px;
-        
+    }
 
+    .chart-card {
+        padding: 8px;
     }
 
     .status-section {

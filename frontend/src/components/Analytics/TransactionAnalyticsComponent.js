@@ -40,6 +40,10 @@ export const TransactionStatusDistribution = ({ transactions }) => {
           "#ffc107", // Pending
           "#dc3545", // Failed
           "#17a2b8", // Other statuses
+          "#ff69b4",  
+          "#ff4500",  
+          "#1e90ff", 
+          "#8a2be2", 
         ],
       },
     ],
@@ -118,54 +122,54 @@ export const TransactionsByType = ({ transactions }) => {
   );
 };
 
-export const TopTransactionUsers = ({ transactions }) => {
-  const [topUsers, setTopUsers] = useState([]);
+// export const TopTransactionUsers = ({ transactions }) => {
+//   const [topUsers, setTopUsers] = useState([]);
 
-  useEffect(() => {
-    const userActivity = calculateTopUsers(transactions);
-    setTopUsers(userActivity);
-  }, [transactions]);
+//   useEffect(() => {
+//     const userActivity = calculateTopUsers(transactions);
+//     setTopUsers(userActivity);
+//   }, [transactions]);
 
-  const calculateTopUsers = (transactions) => {
-    const userCounts = {};
+//   const calculateTopUsers = (transactions) => {
+//     const userCounts = {};
 
-    transactions.forEach((transaction) => {
-      const buyerName = `${transaction.buyer?.first_name} ${transaction.buyer?.last_name}`;
-      const sellerName = `${transaction.seller?.first_name} ${transaction.seller?.last_name}`;
-      if (buyerName) {
-        if (!userCounts[buyerName]) userCounts[buyerName] = 0;
-        userCounts[buyerName]++;
-      }
-      if (sellerName) {
-        if (!userCounts[sellerName]) userCounts[sellerName] = 0;
-        userCounts[sellerName]++;
-      }
-    });
+//     transactions.forEach((transaction) => {
+//       const buyerName = `${transaction.buyer?.first_name} ${transaction.buyer?.last_name}`;
+//       const sellerName = `${transaction.seller?.first_name} ${transaction.seller?.last_name}`;
+//       if (buyerName) {
+//         if (!userCounts[buyerName]) userCounts[buyerName] = 0;
+//         userCounts[buyerName]++;
+//       }
+//       if (sellerName) {
+//         if (!userCounts[sellerName]) userCounts[sellerName] = 0;
+//         userCounts[sellerName]++;
+//       }
+//     });
 
-    return Object.entries(userCounts)
-      .sort(([, countA], [, countB]) => countB - countA)
-      .slice(0, 5)
-      .map(([user, count]) => ({ user, count }));
-  };
+//     return Object.entries(userCounts)
+//       .sort(([, countA], [, countB]) => countB - countA)
+//       .slice(0, 5)
+//       .map(([user, count]) => ({ user, count }));
+//   };
 
-  return (
-    <div className="p-3 bg-white rounded shadow-sm mb-2">
-      <h5>Top Transaction Users</h5>
-      {topUsers.length > 0 ? (
-        <ol className="list-group list-group-numbered">
-          {topUsers.map((user, index) => (
-            <li key={index} className="list-group-item d-flex justify-content-between">
-              <span>{user.user}</span>
-              <span>{user.count} Transactions</span>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <p>No data available.</p>
-      )}
-    </div>
-  );
-};
+//   return (
+//     <div className="p-3 bg-white rounded shadow-sm mb-2">
+//       <h5>Top Transaction Users</h5>
+//       {topUsers.length > 0 ? (
+//         <ol className="list-group list-group-numbered">
+//           {topUsers.map((user, index) => (
+//             <li key={index} className="list-group-item d-flex justify-content-between">
+//               <span>{user.user}</span>
+//               <span>{user.count} Transactions</span>
+//             </li>
+//           ))}
+//         </ol>
+//       ) : (
+//         <p>No data available.</p>
+//       )}
+//     </div>
+//   );
+// };
 
 
 

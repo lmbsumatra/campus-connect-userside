@@ -13,6 +13,9 @@ import useFetchAllTransactionsData from "../../../../../utils/FetchAllTransactio
 import useFetchAllItemsForSaleData from '../../../../../utils/FetchAllItemsForSaleData';
 
 import useFetchRecentActivities from '../../../../../utils/FetchRecentActivities';
+import { UserAnalytics } from '../../../../../components/Analytics/UserAnalyticsComponents';
+import { ListingsGrowth, ListingStatusDistribution } from '../../../../../components/Analytics/ListingAnalyticsComponent';
+import { TransactionStatusDistribution, TransactionsGrowth } from '../../../../../components/Analytics/TransactionAnalyticsComponent';
 
 const AdminDashboard = () => {
 
@@ -35,24 +38,6 @@ const AdminDashboard = () => {
       sales: 0,
     });
 
-  const growthData = [
-    { month: 'SEP', users: 85 },
-    { month: 'OCT', users: 82 },
-    { month: 'NOV', users: 108 },
-    { month: 'DEC', users: 75 },
-    { month: 'JAN', users: 90 },
-    { month: 'FEB', users: 95 }
-  ];
-
-  const listingData = [
-    { day: '12', added: 30, approved: 45, rejected: 25 },
-    { day: '13', added: 40, approved: 35, rejected: 25 },
-    { day: '14', added: 35, approved: 40, rejected: 25 },
-    { day: '15', added: 25, approved: 50, rejected: 25 },
-    { day: '16', added: 20, approved: 30, rejected: 50 },
-    { day: '17', added: 35, approved: 45, rejected: 20 },
-    { day: '18', added: 30, approved: 40, rejected: 30 }
-  ];
 
   useEffect(() => {
     setStatusData(prevState => ({
@@ -75,155 +60,100 @@ const AdminDashboard = () => {
     { title: 'Sales', value: `${statusData.sales}`, icon: require('../../../../../assets/images/icons/report.png'), color: '#2E3192' },
 ];
 
-  return (
-    <div className="dashboard">
-      <div className="status-section">
-        {/* Swiper for swipeable cards */}
-        <Swiper spaceBetween={10}
-                slidesPerView={1}
-                pagination={{ clickable: true }}
-                breakpoints={{
-                    480: { slidesPerView: 1 },  // For mobile screens
-                    768: { slidesPerView: 3 },  // For tablets
-                    1024: { slidesPerView: 5 }, // For desktop
-  }}
-  >
-          {statusCards.map((card, index) => (
-            <SwiperSlide key={index}>
-              <div className="status-card">
-                <div className="status-content">
-                  <img src={card.icon} alt={card.title} className="status-icon" />
-                  <div>
-                    <h6>{card.title}</h6>
-                    <span 
-                      className="status-value" 
-                      style={{ color: card.color }} 
-                    >
-                      {card.value}
-                    </span>
-                  </div>
+return (
+  <div className="dashboard">
+    <div className="status-section">
+      <Swiper spaceBetween={10}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              breakpoints={{
+                  480: { slidesPerView: 1 },  // For mobile screens
+                  768: { slidesPerView: 3 },  // For tablets
+                  1024: { slidesPerView: 5 }, // For desktop
+}}>
+        {statusCards.map((card, index) => (
+          <SwiperSlide key={index}>
+            <div className="status-card">
+              <div className="status-content">
+                <img src={card.icon} alt={card.title} className="status-icon" />
+                <div>
+                  <h6>{card.title}</h6>
+                  <span className="status-value" style={{ color: card.color }}>
+                    {card.value}
+                  </span>
                 </div>
               </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
-
-      <div className="recent-activities-section">
-  <h3 className="section-title">Recent Activities</h3>
-  <div className="activities-table-container">
-    <table className="activities-table">
-      <thead>
-        <tr>
-          <th>ACTIVITY</th>
-          <th>DESCRIPTION</th>
-          <th>DATE</th>
-          <th>ACTION</th>
-        </tr>
-      </thead>
-      <tbody>
-        {activities.map((activity, index) => (
-          <tr key={index}>
-            <td>
-              <img 
-                // Conditionally display the appropriate icon based on activity type
-                src={
-                  activity.type === 'New User' ? require('../../../../../assets/images/icons/user-icon.png') :
-                  activity.type === 'New Listing' ? require('../../../../../assets/images/icons/new-listing.png') :
-                  activity.type === 'New Transaction' ? require('../../../../../assets/images/icons/new-transact.png') :
-                  activity.type === 'New Post' ? require('../../../../../assets/images/icons/new-post.png') :
-                  null // Default if no matching type
-                }
-                alt=""className="activity-icon"/>
-              {activity.type}
-            </td>
-            <td>{activity.description}</td>
-            <td>{new Date(activity.date).toLocaleDateString()}</td>
-            <td>
-              <button className="view-btn">View</button>
-              <button className="edit-btn">Edit</button>
-              <button className="delete-btn">Delete</button>
-            </td>
-          </tr>
+            </div>
+          </SwiperSlide>
         ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+      </Swiper>
+    </div>
 
-
-      <div className="charts-section">
-        <div className="chart-card">
-          <div className="chart-header">
-            <h5>User Growth</h5>
-            <div className="select-container">
-              <i className="fas fa-calendar select-icon" aria-hidden="true"></i>
-              <select>
-                <option>Monthly</option>
-                <option>Weekly</option>
-              </select>
-            </div>
-          </div>
-          <div className="growth-info">
-            <span className="growth-count">100+</span>
-            <span className="growth-rate">+2.45%</span>
-          </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={growthData}>
-              <XAxis dataKey="month" />
-              <YAxis hide />
-              <Tooltip />
-              <Line type="monotone" dataKey="users" stroke="#ff4d4f" strokeWidth={2} dot={{ r: 3 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="chart-card">
-          <div className="chart-header">
-            <h5>Listing Activity</h5>
-            <div className="select-container">
-              <i className="fas fa-calendar select-icon" aria-hidden="true"></i>
-              <select>
-                <option>Weekly</option>
-                <option>Monthly</option>
-              </select>
-            </div>
-          </div>
-          <div className="listing-activity">
-            {listingData.map((item, index) => (
-              <div key={index} className="activity-bar">
-                <span>{item.day}</span>
-                <div className="activity-bar-inner">
-                  <div style={{ width: `${item.added}%` }} className="bar added"></div>
-                  <div style={{ width: `${item.approved}%` }} className="bar approved"></div>
-                </div>
-              </div>
+    <div className="recent-activities-section">
+      <h3 className="section-title">Recent Activities</h3>
+      <div className="activities-table-container">
+        <table className="activities-table">
+          <thead>
+            <tr>
+              <th>ACTIVITY</th>
+              <th>DESCRIPTION</th>
+              <th>DATE</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            {activities.map((activity, index) => (
+              <tr key={index}>
+                <td>
+                  <img 
+                    src={
+                      activity.type === 'New User' ? require('../../../../../assets/images/icons/user-icon.png') :
+                      activity.type === 'New Listing' ? require('../../../../../assets/images/icons/new-listing.png') :
+                      activity.type === 'New Transaction' ? require('../../../../../assets/images/icons/new-transact.png') :
+                      activity.type === 'New Post' ? require('../../../../../assets/images/icons/new-post.png') :
+                      null
+                    }
+                    alt="" className="activity-icon"
+                  />
+                  {activity.type}
+                </td>
+                <td>{activity.description}</td>
+                <td>{new Date(activity.date).toLocaleDateString()}</td>
+                <td>
+                  <button className="view-btn">View</button>
+                  <button className="edit-btn">Edit</button>
+                  <button className="delete-btn">Delete</button>
+                </td>
+              </tr>
             ))}
-          </div>
-        </div>
-
-        <div className="chart-card">
-          <div className="chart-header">
-            <h5>Transactions</h5>
-            <div className="select-container">
-              <i className="fas fa-calendar select-icon" aria-hidden="true"></i>
-              <select>
-                <option>Monthly</option>
-                <option>Weekly</option>
-              </select>
-            </div>
-          </div>
-          <div className="transaction-pie">
-            <div className="pie-center">50%</div>
-          </div>
-          <div className="transaction-info">
-            <span>On Going - 25%</span>
-            <span>Cancelled - 25%</span>
-          </div>
-        </div>
+          </tbody>
+        </table>
       </div>
     </div>
-  );
+
+    <div className="charts-section">
+      <div className="chart-card">
+        <UserAnalytics users={users} />
+      </div>
+
+      <div className="chart-card">
+        <ListingsGrowth listings={listings} />
+      </div>
+
+      <div className="chart-card">
+        <TransactionsGrowth transactions={transactions} />
+      </div>
+
+      <div className="chart-card">
+        <ListingStatusDistribution listings={listings} />
+      </div>
+
+      <div className="chart-card">
+        <TransactionStatusDistribution transactions={transactions} />
+      </div>
+    </div>
+  </div>
+);
 };
 
 export default AdminDashboard;
