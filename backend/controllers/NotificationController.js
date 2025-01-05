@@ -15,20 +15,26 @@ const notificationController = {
   },
 
   // New message notification methods
-  createMessageNotification: async (req, res) => {
-    try {
-      const notification = await MessageNotification.create({
-        recipient_id: req.body.recipient_id,
-        sender_id: req.body.sender_id,
-        message: req.body.message,
-        conversation_id: req.body.conversation_id,
-        is_read: false
-      });
-      res.status(201).json(notification);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
+ 
+createMessageNotification: async (req, res) => {
+  try {
+    console.log('Creating message notification with body:', req.body);
+    const notification = await MessageNotification.create({
+      recipient_id: req.body.recipient_id,
+      sender_id: req.body.sender_id,
+      message: req.body.message,
+      conversation_id: req.body.conversation_id,
+      is_read: false
+    });
+    res.status(201).json(notification);
+  } catch (error) {
+    console.error('Error creating message notification:', error);
+    res.status(500).json({ 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+},
 
     getMessageNotifications: async (req, res) => {
   try {
@@ -55,48 +61,54 @@ const notificationController = {
     res.status(500).json({ error: error.message });
   }
 },
-
-
-    markMessageAsRead: async (req, res) => {
-    try {
-      const { id } = req.params;
-      console.log('Marking message as read. Notification ID:', id);
-
-      const updatedRows = await MessageNotification.update(
-        { is_read: true },
-        { where: { id } }
-      );
-      
-      if (updatedRows[0] === 0) {
-        console.log('No rows updated for this notification ID');
-        return res.status(404).json({ message: 'Message notification not found or already marked as read' });
-      }
-
-      console.log('Message notification marked as read successfully');
-      res.json({ message: 'Message notification marked as read' });
-    } catch (error) {
-      console.error('Error in markMessageAsRead:', error);
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-    markAllMessagesAsRead: async (userId) => {
+markAllMessagesAsRead: async (userId) => {
     try {
       console.log(`Marking all messages as read for user: ${userId}`);
       
       const updatedRows = await MessageNotification.update(
         { is_read: true },
-        { where: { is_read: false, recipient_id: userId } }
+        { 
+          where: { 
+            recipient_id: userId,
+            is_read: false 
+          } 
+        }
       );
 
-      if (updatedRows[0] === 0) {
-        return { status: 404, message: 'No unread message notifications found for this user' };
-      }
-
-      return { status: 200, message: 'All message notifications marked as read' };
+      // Send a proper response object
+      return {
+        status: updatedRows[0] > 0 ? 200 : 404,
+        message: updatedRows[0] > 0 
+          ? 'All messages marked as read'
+          : 'No unread messages found'
+      };
     } catch (error) {
       console.error('Error in markAllMessagesAsRead:', error);
       throw error;
+    }
+  },
+    markMessageAsRead: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updatedRows = await MessageNotification.update(
+        { is_read: true },
+        { 
+          where: { id: id }
+        }
+      );
+
+      if (updatedRows[0] === 0) {
+        return res.status(404).json({
+          message: 'Message notification not found'
+        });
+      }
+
+      res.json({
+        message: 'Message marked as read successfully'
+      });
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+      res.status(500).json({ error: error.message });
     }
   },
 

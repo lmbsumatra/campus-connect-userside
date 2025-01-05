@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import MessageIcon from "../../../assets/images/icons/message.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
+import { io } from "socket.io-client";
 import { useChat } from "../../../context/ChatContext";
 
 const Message = ({ showDropdown, toggleDropdown }) => {
@@ -12,9 +13,42 @@ const Message = ({ showDropdown, toggleDropdown }) => {
   const { userId } = studentUser || {};
   const { setActiveChat } = useChat();
   const navigate = useNavigate();
+  const socket = useRef(null);
 
   useEffect(() => {
-    if (userId) {
+    if (!userId) return;
+
+    // Initialize socket connection
+    socket.current = io(
+      process.env.REACT_APP_SOCKET_URL || "http://localhost:3001"
+    );
+
+    socket.current.on("connect", () => {
+      socket.current.emit("registerUser", userId);
+    });
+
+    // Listen for badge count updates
+    socket.current.on("updateBadgeCount", (count) => {
+      console.log("Received badge count update:", count);
+      fetchNotifications(); // Refresh notifications when count updates
+    });
+
+    // Listen for new messages
+    socket.current.on("receiveMessage", (message) => {
+      console.log("Received new message in Message.jsx:", message);
+      fetchNotifications(); // Refresh notifications when new message arrives
+    });
+
+    return () => {
+      if (socket.current) {
+        socket.current.disconnect();
+      }
+    };
+  }, [userId]);
+
+  // Fetch notifications when dropdown is toggled
+  useEffect(() => {
+    if (userId && showDropdown) {
       fetchNotifications();
     }
   }, [userId, showDropdown]);
@@ -44,6 +78,15 @@ const Message = ({ showDropdown, toggleDropdown }) => {
           method: "PUT",
         }
       );
+
+      // Emit socket event to update badge count
+      if (socket.current) {
+        socket.current.emit("markMessagesAsRead", {
+          userId,
+          notificationId,
+        });
+      }
+
       fetchNotifications();
     } catch (err) {
       console.error("Error marking notification as read:", err);
@@ -52,7 +95,6 @@ const Message = ({ showDropdown, toggleDropdown }) => {
 
   const markAllMessagesAsRead = async () => {
     try {
-      console.log(`Marking all messages as read for user: ${userId}`);
       const response = await fetch(
         `${
           process.env.REACT_APP_API_URL || "http://localhost:3001"
@@ -71,12 +113,20 @@ const Message = ({ showDropdown, toggleDropdown }) => {
         );
       }
 
-      // Optionally, refetch notifications after marking all as read
-      await fetchNotifications();
+      // Emit socket event to update badge count
+      if (socket.current) {
+        socket.current.emit("markMessagesAsRead", {
+          userId,
+          conversationId: "all",
+        });
+      }
+
+      fetchNotifications();
     } catch (err) {
       console.error("Error marking all notifications as read:", err);
     }
   };
+
   const handleNotificationClick = async (notif) => {
     if (!notif.conversation_id) {
       console.error("Conversation ID is undefined!");
@@ -102,11 +152,10 @@ const Message = ({ showDropdown, toggleDropdown }) => {
       const conversationData = await conversationRes.json();
       const messagesData = await messagesRes.json();
 
-      // Combine conversation and messages data
       const fullConversation = {
         ...conversationData,
         messages: messagesData,
-        otherUser: notif.sender, // Include sender info from notification
+        otherUser: notif.sender,
       };
 
       setActiveChat(fullConversation);

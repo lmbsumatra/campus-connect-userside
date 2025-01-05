@@ -136,29 +136,38 @@ function initializeSocket(server) {
 
     // Handle marking messages as read
     socket.on("markMessagesAsRead", async (data) => {
-      const { userId, conversationId } = data;
-      try {
-        await MessageNotification.update(
-          { is_read: true },
-          {
-            where: {
-              recipient_id: userId,
-              conversation_id: conversationId,
-              is_read: false
-            }
-          }
-        );
+  const { userId, conversationId, notificationId } = data;
+  try {
+    let whereClause = {
+      recipient_id: userId,
+      is_read: false
+    };
 
-        // Recalculate and send updated badge count
-        const unreadCount = await calculateUnreadMessages(userId);
-        const userSocketId = userSockets.get(userId);
-        if (userSocketId) {
-          io.to(userSocketId).emit("updateBadgeCount", unreadCount);
-        }
-      } catch (error) {
-        console.error("Error marking messages as read:", error);
-      }
-    });
+    // If specific conversation, add to where clause
+    if (conversationId && conversationId !== 'all') {
+      whereClause.conversation_id = conversationId;
+    }
+
+    // If specific notification, update only that one
+    if (notificationId) {
+      whereClause.id = notificationId;
+    }
+
+    await MessageNotification.update(
+      { is_read: true },
+      { where: whereClause }
+    );
+
+    // Recalculate and send updated badge count
+    const unreadCount = await calculateUnreadMessages(userId);
+    const userSocketId = userSockets.get(userId);
+    if (userSocketId) {
+      io.to(userSocketId).emit("updateBadgeCount", unreadCount);
+    }
+  } catch (error) {
+    console.error("Error marking messages as read:", error);
+  }
+});
 
     // Clean up on disconnect
     socket.on("disconnect", () => {
