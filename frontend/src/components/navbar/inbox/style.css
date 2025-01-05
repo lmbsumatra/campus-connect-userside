@@ -1,3 +1,7 @@
+:root {
+  --clr-white: #ffffff;
+}
+
 .message-menu {
   position: absolute;
   top: 65px;

@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import MessageIcon from "../../../assets/images/icons/message.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
+import { useChat } from "../../../context/ChatContext";
 
 const Message = ({ showDropdown, toggleDropdown }) => {
   const [notifications, setNotifications] = useState([]);
   const { studentUser } = useAuth();
   const { userId } = studentUser || {};
+  const { setActiveChat } = useChat();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (userId) {
@@ -23,18 +27,19 @@ const Message = ({ showDropdown, toggleDropdown }) => {
         }/api/notifications/unread/${userId}`
       );
       const data = await res.json();
+      console.log("Fetched Notifications:", data);
       setNotifications(data);
     } catch (err) {
       console.error("Error fetching notifications:", err);
     }
   };
 
-  const markAsRead = async (notificationId) => {
+  const markMessageAsRead = async (notificationId) => {
     try {
       await fetch(
         `${
           process.env.REACT_APP_API_URL || "http://localhost:3001"
-        }/api/notifications/read/${notificationId}`,
+        }/api/notifications/message/${notificationId}/read`,
         {
           method: "PUT",
         }
@@ -47,6 +52,7 @@ const Message = ({ showDropdown, toggleDropdown }) => {
 
   const markAllMessagesAsRead = async () => {
     try {
+      console.log(`Marking all messages as read for user: ${userId}`);
       const response = await fetch(
         `${
           process.env.REACT_APP_API_URL || "http://localhost:3001"
@@ -60,12 +66,54 @@ const Message = ({ showDropdown, toggleDropdown }) => {
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(
+          `Failed to mark all messages as read: ${response.statusText}`
+        );
       }
 
+      // Optionally, refetch notifications after marking all as read
       await fetchNotifications();
     } catch (err) {
       console.error("Error marking all notifications as read:", err);
+    }
+  };
+  const handleNotificationClick = async (notif) => {
+    if (!notif.conversation_id) {
+      console.error("Conversation ID is undefined!");
+      return;
+    }
+
+    try {
+      await markMessageAsRead(notif.id);
+
+      const [conversationRes, messagesRes] = await Promise.all([
+        fetch(
+          `${
+            process.env.REACT_APP_API_URL || "http://localhost:3001"
+          }/api/conversations/${notif.conversation_id}`
+        ),
+        fetch(
+          `${
+            process.env.REACT_APP_API_URL || "http://localhost:3001"
+          }/api/messages/${notif.conversation_id}`
+        ),
+      ]);
+
+      const conversationData = await conversationRes.json();
+      const messagesData = await messagesRes.json();
+
+      // Combine conversation and messages data
+      const fullConversation = {
+        ...conversationData,
+        messages: messagesData,
+        otherUser: notif.sender, // Include sender info from notification
+      };
+
+      setActiveChat(fullConversation);
+      toggleDropdown();
+      navigate(`/messages/${notif.conversation_id}`);
+    } catch (err) {
+      console.error("Error handling notification click:", err);
     }
   };
 
@@ -126,11 +174,17 @@ const Message = ({ showDropdown, toggleDropdown }) => {
                 <div
                   key={notif.id}
                   className="message-item"
-                  onClick={() => markAsRead(notif.id)}
+                  onClick={() => {
+                    markMessageAsRead(notif.id);
+                    handleNotificationClick(notif);
+                  }}
                 >
                   <img src={UserIcon} alt="User" className="message-img" />
                   <div className="message-info">
-                    <h6>New Message</h6>
+                    <h6>
+                      {`${notif.sender?.first_name} ${notif.sender?.last_name}` ||
+                        "Unknown Sender"}
+                    </h6>
                     <p>{notif.message}</p>
                     <span>{new Date(notif.createdAt).toLocaleString()}</span>
                   </div>

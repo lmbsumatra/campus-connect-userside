@@ -1,5 +1,6 @@
 const Notification = require('../models/NotificationModel');
 const MessageNotification = require('../models/MessageNotificationModel');
+const User = require('../models/UserModel'); 
 
 const notificationController = {
   // Existing admin notification methods
@@ -29,56 +30,78 @@ const notificationController = {
     }
   },
 
-  getMessageNotifications: async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const notifications = await MessageNotification.findAll({
-        where: { 
-          recipient_id: userId,
-          is_read: false 
-        },
-        order: [['createdAt', 'DESC']]
-      });
-      res.json(notifications);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-  markMessageAsRead: async (req, res) => {
-    try {
-      const { id } = req.params;
-      await MessageNotification.update(
-        { is_read: true },
-        { where: { id } }
-      );
-      res.json({ message: 'Message notification marked as read' });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-   markAllMessagesAsRead: async (req, res) => {
+    getMessageNotifications: async (req, res) => {
   try {
-    const { userId } = req.params;  // Get the userId from the route parameters
+    const { userId } = req.params;
+    console.log("Fetching notifications for userId:", userId);
 
-    // Ensure you target only the unread message notifications for this user
-    const updatedRows = await MessageNotification.update(
-      { is_read: true },
-      { where: { is_read: false, recipient_id: userId } }  // Filter by userId
-    );
+    const notifications = await MessageNotification.findAll({
+      where: { recipient_id: userId, is_read: false },
+      include: [{ model: User, as: "sender", attributes: ["first_name", "last_name"]}],
+      order: [["createdAt", "DESC"]],
+    });
 
-    if (updatedRows[0] === 0) {
-      return res.status(404).json({ message: 'No unread message notifications found for this user' });
-    }
+    // Ensure each notification includes the conversation_id
+    const notificationsWithConversationId = notifications.map(notification => ({
+      ...notification.toJSON(),  // Convert sequelize object to plain JSON
+      conversation_id: notification.conversation_id,  // Ensure conversation_id is in response
+    }));
 
-    res.json({ message: 'All message notifications marked as read' });
+    // Send the final response with the updated notifications
+    res.json(notificationsWithConversationId);  // Only send this once
+
   } catch (error) {
+    console.error("Error fetching notifications:", error);
     res.status(500).json({ error: error.message });
   }
 },
 
-  // Keep existing methods
+
+    markMessageAsRead: async (req, res) => {
+    try {
+      const { id } = req.params;
+      console.log('Marking message as read. Notification ID:', id);
+
+      const updatedRows = await MessageNotification.update(
+        { is_read: true },
+        { where: { id } }
+      );
+      
+      if (updatedRows[0] === 0) {
+        console.log('No rows updated for this notification ID');
+        return res.status(404).json({ message: 'Message notification not found or already marked as read' });
+      }
+
+      console.log('Message notification marked as read successfully');
+      res.json({ message: 'Message notification marked as read' });
+    } catch (error) {
+      console.error('Error in markMessageAsRead:', error);
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+    markAllMessagesAsRead: async (userId) => {
+    try {
+      console.log(`Marking all messages as read for user: ${userId}`);
+      
+      const updatedRows = await MessageNotification.update(
+        { is_read: true },
+        { where: { is_read: false, recipient_id: userId } }
+      );
+
+      if (updatedRows[0] === 0) {
+        return { status: 404, message: 'No unread message notifications found for this user' };
+      }
+
+      return { status: 200, message: 'All message notifications marked as read' };
+    } catch (error) {
+      console.error('Error in markAllMessagesAsRead:', error);
+      throw error;
+    }
+  },
+
+
+  // Admin side notification
   getNotifications: async (req, res) => {
     try {
       const notifications = await Notification.findAll({

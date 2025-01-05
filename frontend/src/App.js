@@ -81,6 +81,7 @@ import VerifyEmail from "./components/emails/VerfiyEmail.jsx";
 import { fetchUser } from "./redux/user/userSlice.js";
 import TopBar from "./components/topbar/TopBar.jsx";
 import { selectStudentUser } from "./redux/auth/studentAuthSlice.js";
+import { ChatProvider } from "./context/ChatContext.js";
 
 function App() {
   console.log(baseApi);
@@ -88,11 +89,13 @@ function App() {
     <Provider store={store}>
       <AuthProvider>
         <SocketProvider>
-          <BrowserRouter>
-            <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
-              <Content baseApi={baseApi} />
-            </GoogleOAuthProvider>
-          </BrowserRouter>
+          <ChatProvider>
+            <BrowserRouter>
+              <GoogleOAuthProvider clientId="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com">
+                <Content baseApi={baseApi} />
+              </GoogleOAuthProvider>
+            </BrowserRouter>
+          </ChatProvider>
         </SocketProvider>
       </AuthProvider>
     </Provider>
@@ -194,6 +197,14 @@ function Content() {
 
           <Route
             path="/messages"
+            element={
+              <StudentProtectedRoute allowedRoles="student">
+                <MessagePage />
+              </StudentProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages/:conversationId"
             element={
               <StudentProtectedRoute allowedRoles="student">
                 <MessagePage />

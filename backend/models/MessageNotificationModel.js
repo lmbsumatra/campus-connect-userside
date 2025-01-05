@@ -1,47 +1,41 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/database");
-
+const User = require("./UserModel.js");
 class MessageNotification extends Model {}
 
 MessageNotification.init({
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
   },
   recipient_id: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
   },
   sender_id: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
   },
   message: {
     type: DataTypes.TEXT,
-    allowNull: false
+    allowNull: false,
   },
   is_read: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
   conversation_id: {
     type: DataTypes.INTEGER,
-    allowNull: false
-  }
+    allowNull: false,
+  },
 }, {
   sequelize,
-  modelName: 'MessageNotification',
-  tableName: 'messages_notif',
-  timestamps: true
+  modelName: "MessageNotification",
+  tableName: "messages_notif",
+  timestamps: true,
 });
 
-MessageNotification.sync()
-  .then(() => {
-    console.log('MessageNotification model synced successfully');
-  })
-  .catch(error => {
-    console.error('Error syncing MessageNotification model:', error);
-  });
+MessageNotification.belongsTo(User, { foreignKey: "sender_id", as: "sender" });
 
 module.exports = MessageNotification;
