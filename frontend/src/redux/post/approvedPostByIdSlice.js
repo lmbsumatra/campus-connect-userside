@@ -9,9 +9,10 @@ const initialState = {
 };
 
 export const fetchApprovedPostById = createAsyncThunk(
-  "post/etchApprovedPostById",
+  "post/fetchApprovedPostById",
   async (id) => {
     const response = await fetch(`${BASE_URL}/${id}`);
+    
     return response.json();
   }
 );

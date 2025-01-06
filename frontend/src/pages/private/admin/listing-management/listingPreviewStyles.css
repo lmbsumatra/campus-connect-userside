@@ -1,0 +1,318 @@
+.container-content.listing-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+}
+.listing-container {
+  background-color: white;
+  border-radius: 8px;
+  /* overflow: hidden; */
+  padding: 8px;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  height: auto !important;
+  width: 100%;
+}
+
+.listing-container .imgs-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--clr-neutral-muted);
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.listing-container .imgs-container img.item-type {
+  position: absolute;
+  height: 44px;
+  width: 44px;
+  right: 0;
+  top: 0;
+  padding: 4px;
+  margin: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  transform: rotate(45deg);
+  transition: ease 0.5s background-color;
+  z-index: 4;
+}
+
+.listing-container .imgs-container img.item-type:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.listing-container .imgs-container:hover .img-slider {
+  display: flex;
+  visibility: visible;
+}
+
+.listing-container .imgs-container .img-slider img.item-img {
+  height: 100%;
+  width: auto;
+  filter: brightness(0.5);
+}
+
+.listing-container .imgs-container .img-slider img.item-img:hover {
+  filter: brightness(0.8);
+}
+.listing-container .imgs-container .img-slider img.item-img.center {
+  filter: brightness(1);
+  border: 1px solid white;
+}
+
+.listing-container .rental-details {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.error-msg {
+  color: red;
+  font-style: italic;
+}
+.item-title .title {
+  font-weight: 600;
+}
+
+.delivery-method,
+.payment-method,
+.item-condition {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.label,
+.value {
+  font-size: 14px;
+  color: var(--clr-neutral-dark-gray);
+  display: flex;
+  line-height: 1;
+}
+
+.group-container.terms-group .value {
+  color: var(--clr-secondary);
+  font-weight: 600;
+  font-size: 18px;
+}
+.item-price .price {
+  color: var(--clr-secondary);
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.delivery-method .value,
+.payment-method .value,
+.item-condition .value {
+  border: solid 1px var(--clr-neutral-gray);
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 2px;
+  background-color: white !important;
+  overflow: hidden;
+}
+
+.delivery-method .value:hover,
+.payment-method .value:hover {
+  border: solid 1px var(--clr-secondary);
+  color: var(--clr-secondary);
+}
+
+.delivery-method .value.selected,
+.payment-method .value.selected,
+.item-condition .value {
+  border: solid 1px var(--clr-secondary) !important;
+  background-color: var(--clr-secondary) !important;
+  color: white !important;
+}
+
+.delivery-method .value.selected:hover,
+.payment-method .value.selected:hover {
+  border: solid 1px var(--clr-secondary-dark) !important;
+  background-color: var(--clr-secondary-dark) !important;
+  color: white !important;
+}
+
+.action-btns {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* gen design */
+.sub-section-label {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  color: var(--clr-neutral-black);
+  font-weight: 500;
+  background-color: var(--clr-neutral-muted);
+  padding: 12px 8px;
+  border-radius: 4px;
+}
+
+.listing-container .rental-dates-durations {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8px !important;
+}
+
+.listing-container .rental-dates-durations .duration-item {
+  background-color: white !important;
+  border-radius: 4px !important;
+  padding: 4px !important;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.listing-container .rental-dates-durations .duration-item input {
+  height: 18px;
+  width: 18px;
+}
+
+.listing-container .rental-dates-durations .date-picker,
+.listing-container .rental-dates-durations .duration-picker {
+  display: flex;
+  flex-direction: column;
+}
+/* move to gen design */
+.group-container {
+  background-color: var(--clr-neutral-muted);
+  width: 100%;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.listing-detail .group-container.terms {
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+
+.terms-popup {
+  position: absolute;
+  top: 100%; /* Position right below the label */
+  left: 0;
+  margin-top: 8px;
+  width: 100%;
+  background-color: white;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+/* gen design */
+.sub-section-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+.expand-btn {
+  all: unset;
+  cursor: pointer;
+}
+
+.expand-btn img {
+  height: 24px;
+  width: 24px;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+.expand-btn.expand img {
+  transform: rotate(45deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+.group-container.item-condition {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .listing-container {
+    display: flex;
+    flex-direction: column !important;
+    height: auto !important;
+  }
+
+  .listing-container .imgs-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .listing-container .imgs-container .img-slider img.item-img {
+    height: auto;
+    width: 48px;
+    filter: brightness(0.5);
+  }
+
+  .listing-container .rental-dates-durations {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: auto;
+    gap: 8px !important;
+  }
+
+  .listing-container .rental-dates-durations .date-picker {
+    display: inline-block;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+}
+
+@media (min-width: 1025px) {
+}
+
+.listing-container .group-container.terms {
+  padding: 0;
+  margin: 0;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between the badge and button */
+  margin-bottom: 10px;
+}
+
+.report-button {
+  margin-left: auto; /* Push the button to the far right */
+}
+
+.item-header .btn {
+  background-color: #dc3545; /* Bootstrap danger color */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.item-header .btn:hover {
+  background-color: #b02a37; /* Darker red for hover effect */
+}

@@ -38,65 +38,66 @@ const generateRandomPost = () => {
 
 // Seeder function to insert dummy post data
 const seedPost = async () => {
-  let transaction;
-
-  try {
-    transaction = await sequelize.transaction();
-    const postData = generateRandomPost();
-
-    // Create the post
-    const post = await models.Post.create(
-      {
-        renter_id: postData.renterId,
-        category: postData.category,
-        post_item_name: postData.itemName,
-        title: postData.itemName,
-        description: postData.desc,
-        tags: postData.tags,
-        status: "pending",
-        specifications: postData.specs,
-        images: JSON.stringify(postData.images),
-      },
-      { transaction }
-    );
-
-    // Process rental dates and durations
-    const datePromises = postData.dates.map(async ({ date, durations }) => {
-      const rentalDate = await models.Date.create(
+    let transaction;
+  
+    try {
+      transaction = await sequelize.transaction();
+      const postData = generateRandomPost();
+  
+      // Create the post
+      const post = await models.Post.create(
         {
-          item_id: post.id,
-          date,
-          item_type: "post",
+          renter_id: postData.renterId,
+          category: postData.category,
+          post_item_name: postData.itemName,
+          title: postData.itemName,
+          description: postData.desc,
+          tags: postData.tags,
+          status: "approved",
+          specifications: postData.specs,
+          images: postData.images, // Store as an array, no stringify
         },
         { transaction }
       );
-
-      const durationPromises = durations.map((time) =>
-        models.Duration.create(
+  
+      // Process rental dates and durations
+      const datePromises = postData.dates.map(async ({ date, durations }) => {
+        const rentalDate = await models.Date.create(
           {
-            date_id: rentalDate.id,
-            rental_time_from: time.timeFrom,
-            rental_time_to: time.timeTo,
+            item_id: post.id,
+            date,
+            item_type: "post",
           },
           { transaction }
-        )
-      );
-
-      await Promise.all(durationPromises);
-      return rentalDate;
-    });
-
-    await Promise.all(datePromises);
-
-    await transaction.commit();
-    console.log(`Post created successfully with ID: ${post.id}`);
-    return post;
-  } catch (error) {
-    if (transaction) await transaction.rollback();
-    console.error("Error creating post:", error);
-    throw error;
-  }
-};
+        );
+  
+        const durationPromises = durations.map((time) =>
+          models.Duration.create(
+            {
+              date_id: rentalDate.id,
+              rental_time_from: time.timeFrom,
+              rental_time_to: time.timeTo,
+            },
+            { transaction }
+          )
+        );
+  
+        await Promise.all(durationPromises);
+        return rentalDate;
+      });
+  
+      await Promise.all(datePromises);
+  
+      await transaction.commit();
+      console.log(`Post created successfully with ID: ${post.id}`);
+      return post;
+    } catch (error) {
+      if (transaction) await transaction.rollback();
+      console.error("Error creating post:", error);
+      throw error;
+    }
+  };
+  
 
 // Run the seeder with proper error handling
 const runSeeder = async () => {

@@ -12,6 +12,7 @@ import cartIcon from "../../assets/images/card/message.svg";
 import moreIcon from "../../assets/images/card/more.svg";
 import forRentIcon from "../../assets/images/card/looking-for.svg";
 import "./postCardStyles.css";
+import { defaultImages } from "../../utils/consonants";
 
 const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -44,6 +45,8 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
     }
   };
 
+  console.log(borrowingPosts);
+
   return (
     <div>
       <h2 className="fs-2 fw-bold">{title}</h2>
@@ -59,29 +62,27 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
               <div className="item-type">Looking for...</div>
               <div className="details">
                 <div className="description">
-                  <p className="item-name">{item.post_item_name}</p>
+                  <p className="item-name">{item.name}</p>
                   <div className="rental-desc-holder">
                     <label className="label">Rental Details</label>
                     <span className="rental-date">
-                      {item.rental_dates.length > 0
-                        ? formatDate(item.rental_dates[0].date)
+                      {item.rentalDates.length > 0
+                        ? formatDate(item.rentalDates[0].date)
                         : "N/A"}
                     </span>
                     <span className="rental-duration">
-                      {item.rental_dates.length > 0 &&
-                      item.rental_dates[0].durations.length > 0
+                      {item.rentalDates.length > 0 &&
+                      item.rentalDates[0].durations.length > 0
                         ? (() => {
                             const firstDuration =
-                              item.rental_dates[0].durations[0];
+                              item.rentalDates[0].durations[0];
                             const from = formatTimeTo12Hour(
-                              firstDuration.rental_time_from
+                              firstDuration.timeFrom
                             );
-                            const to = formatTimeTo12Hour(
-                              firstDuration.rental_time_to
-                            );
+                            const to = formatTimeTo12Hour(firstDuration.timeTo);
                             const computedDuration = computeDuration(
-                              firstDuration.rental_time_from,
-                              firstDuration.rental_time_to
+                              firstDuration.timeFrom,
+                              firstDuration.timeTo
                             );
                             return `${from} - ${to} (${computedDuration})`;
                           })()
@@ -94,18 +95,14 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
                   </div>
 
                   <div className="tags-holder">
-                    <span className="tag">
-                      {JSON.parse(item.tags).slice(0, 1)}
-                    </span>
+                    <span className="tag">{item.tags.slice(0, 1)}</span>
                     <Tooltip
-                      title={JSON.parse(item.tags)
-                        .slice(1)
-                        .map((tag, index) => (
-                          <>
-                            {tag}
-                            <br />
-                          </>
-                        ))}
+                      title={item.tags.slice(1).map((tag, index) => (
+                        <>
+                          {tag}
+                          <br />
+                        </>
+                      ))}
                       componentsProps={{
                         popper: {
                           modifiers: [
@@ -153,7 +150,15 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
                   </div>
                 </div>
                 <div className="img-holder">
-                  <img src={item1} alt={item.post_item_name} className="img" />
+                  <img
+                    src={item.images[0] || [defaultImages]}
+                    alt={item.name}
+                    className="img"
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite loop
+                      e.target.src = [defaultImages]; // Provide a backup fallback image
+                    }}
+                  />
                 </div>
               </div>
             </div>

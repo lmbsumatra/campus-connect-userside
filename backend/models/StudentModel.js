@@ -37,7 +37,7 @@ Student.init(
     },
     profile_pic: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
     },
     // status: {
     //   type: DataTypes.ENUM("pending", "verified"),

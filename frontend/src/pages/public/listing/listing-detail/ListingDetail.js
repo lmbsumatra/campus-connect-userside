@@ -58,17 +58,30 @@ function ListingDetail() {
   const rentalDates = approvedListingById.availableDates || [];
   const [redirecting, setRedirecting] = useState(false);
   const isYou = approvedListingById?.owner?.id === studentUser?.userId;
+  const [isAdmin, setIsAdmin] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const loggedInUserId = studentUser.userId;
 
   const location = useLocation();
   const { item, warnSelectDateAndTime } = location.state || {};
-  console.log(location );
+
   useEffect(() => {
     if (warnSelectDateAndTime) {
-      
     }
   }, [warnSelectDateAndTime]);
+
+  useEffect(() => {
+    // Retrieve isAdmin from localStorage
+    const storedIsAdmin =
+      JSON.parse(localStorage.getItem("adminUser")).role ===
+      ("superadmin" || "admin");
+    setIsAdmin(storedIsAdmin);
+    console.log(storedIsAdmin);
+
+    if (id) {
+      dispatch(fetchApprovedListingById(id));
+    }
+  }, [id, dispatch]);
 
   const handleDateClick = (dateId) => {
     const formatDate = (d) => d.toLocaleDateString("en-CA");
@@ -121,9 +134,13 @@ function ListingDetail() {
       );
     }
 
-    const selectedDateId = approvedListingById.rentalDates.find(
+    console.log(approvedListingById)
+
+    const selectedDateId = approvedListingById.availableDates.find(
       (rentalDate) => rentalDate.date === selectedDate
     )?.id;
+
+    
 
     if (!selectedDateId) {
       // Remove the loading notification on error

@@ -55,7 +55,7 @@ const getAvailablePostById = async (req, res) => {
       itemType: "To Rent",
       desc: post.description,
       specs: post.specifications,
-      images: post.images,
+      images: JSON.parse(post.images),
       rentalDates: post.rental_dates.map((date) => ({
         id: date.id,
         postId: date.post_id,

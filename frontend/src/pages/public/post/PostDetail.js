@@ -20,6 +20,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 import {
+  defaultImages,
   FOR_RENT,
   FOR_SALE,
   MEET_UP,
@@ -43,11 +44,8 @@ function PostDetail() {
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [showDurations, setShowDurations] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const {
-    approvedPostById,
-    loadingApprovedPostById,
-    errorApprovedPostById,
-  } = useSelector((state) => state.approvedPostById);
+  const { approvedPostById, loadingApprovedPostById, errorApprovedPostById } =
+    useSelector((state) => state.approvedPostById);
   const studentUser = useSelector(selectStudentUser);
   const rentalDates = approvedPostById.rentalDates || [];
   const [loading, setLoading] = useState(true);
@@ -95,15 +93,12 @@ function PostDetail() {
     }
   };
 
-  const handleSelectDeliveryMethod = (method) => {
-    console.log(method);
-  };
-
-
   useEffect(() => {
     if (id) {
       dispatch(fetchApprovedPostById(id));
     }
+
+    console.log({approvedPostById});
   }, [id, dispatch]);
 
   useEffect(() => {
@@ -125,7 +120,10 @@ function PostDetail() {
       );
     }
 
-    if (errorApprovedPostById || (!loadingApprovedPostById && !approvedPostById)) {
+    if (
+      errorApprovedPostById ||
+      (!loadingApprovedPostById && !approvedPostById)
+    ) {
       setRedirecting(true); // Start the redirect process
       const timer = setTimeout(() => {
         dispatch(
@@ -138,7 +136,12 @@ function PostDetail() {
 
       return () => clearTimeout(timer); // Clean up the timeout if dependencies change
     }
-  }, [errorApprovedPostById, loadingApprovedPostById, approvedPostById, dispatch]);
+  }, [
+    errorApprovedPostById,
+    loadingApprovedPostById,
+    approvedPostById,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (redirecting) {
@@ -165,7 +168,10 @@ function PostDetail() {
 
     try {
       console.log(reportData);
-      const response = await axios.post("http://localhost:3001/api/reports", reportData); // API endpoint
+      const response = await axios.post(
+        "http://localhost:3001/api/reports",
+        reportData
+      ); // API endpoint
       console.log("Report submitted:", response.data);
       alert("Report submitted successfully!");
     } catch (error) {
@@ -203,38 +209,42 @@ function PostDetail() {
                   ? forRentIcon
                   : forSaleIcon
               }
-              alt={
-                approvedPostById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
-              }
+              alt={approvedPostById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE}
               className="item-type"
             />
           </Tooltip>
-          <ImageSlider images={images} />
+          <ImageSlider
+            images={
+              approvedPostById.images && approvedPostById.images.length
+                ? approvedPostById.images
+                : ""
+            }
+          />
         </div>
         <div className="rental-details">
-        <div className="item-header">
-        <ItemBadges
-            values={{
-              college: approvedPostById?.renter?.college,
-              category: approvedPostById.category,
-            }}
-          />
-          <div className="report-button">
-            <button
-              className="btn btn-rectangle danger"
-              onClick={() => setShowReportModal(true)} // Open the modal
-            >
-              Report
-            </button>
-          </div>
+          <div className="item-header">
+            <ItemBadges
+              values={{
+                college: approvedPostById?.renter?.college,
+                category: approvedPostById.category,
+              }}
+            />
+            <div className="report-button">
+              <button
+                className="btn btn-rectangle danger"
+                onClick={() => setShowReportModal(true)} // Open the modal
+              >
+                Report
+              </button>
+            </div>
 
-          {/* Report Modal */}
-          <ReportModal
-            show={showReportModal}
-            handleClose={() => setShowReportModal(false)} // Close the modal
-            handleSubmit={handleReportSubmit} // Submit the report
-          />
-        </div>
+            {/* Report Modal */}
+            <ReportModal
+              show={showReportModal}
+              handleClose={() => setShowReportModal(false)} // Close the modal
+              handleSubmit={handleReportSubmit} // Submit the report
+            />
+          </div>
           <div className="item-title">
             <>
               <i>Looking for </i>
@@ -245,9 +255,8 @@ function PostDetail() {
               )}
             </>
           </div>
-        
+
           <div className="action-btns">
-         
             <button className="btn btn-rectangle secondary">Message</button>
             <button
               className="btn btn-rectangle primary"
@@ -261,7 +270,7 @@ function PostDetail() {
             <div className="date-picker">
               <span>
                 Pick a date to{" "}
-                {approvedPostById.itemType === TO_RENT? "offer" : "buy"}:
+                {approvedPostById.itemType === TO_RENT ? "offer" : "buy"}:
               </span>
               <DatePicker
                 inline
@@ -321,7 +330,6 @@ function PostDetail() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
