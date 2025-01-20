@@ -1,24 +1,27 @@
 // Imports
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
-import ItemList from "../../components/item-card/ItemCard";
-import { baseApi } from "../../App";
+import React, { useEffect, useState } from "react";
+import ItemCard from "../../components/item-card/ItemCard";
+import TimeoutComponent from "../../utils/TimeoutComponent";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllApprovedItemForSale } from "../../redux/item-for-sale/allApprovedItemsForSaleSlice";
+import LoadingItemCardSkeleton from "../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton";
 
 // Shop Component
 const Shop = () => {
   // State Variables
   const [categoryFilter, setCategoryFilter] = useState("COE");
   const [rateFilter, setRateFilter] = useState("1");
+  const dispatch = useDispatch();
 
-  // API Base URL
-  const baseUrl = "http://localhost:3001";
+  useEffect(() => {
+    dispatch(fetchAllApprovedItemForSale());
+  }, [dispatch]);
 
-  // Construct URL for Fetching Data
-  // const fetchUrl = `${baseUrl}/item-for-sale/info?category=${categoryFilter}&rate=${rateFilter}`;
-
-  // Fetch Listings Data (approved items for sale or rent)
-  const { items, loading, error } = useFetchApprovedItems(`${baseApi}/item-for-sale/available`);
+  const {
+    allApprovedItemForSale,
+    loadingAllApprovedItemForSale,
+    errorAllApprovedItemForSale,
+  } = useSelector((state) => state.allApprovedItemForSale);
 
   // Event Handlers for Filters
   const handleCategoryChange = (e) => setCategoryFilter(e.target.value);
@@ -64,13 +67,20 @@ const Shop = () => {
 
         {/* Item Display Section */}
         <div className="col-md-10">
-          {loading ? (
-            <div>Loading items...</div>
-          ) : error ? (
-            <div>Error: {error}</div>
-          ) : (
-            <ItemList items={items} title="Shop" />
-          )}
+          <TimeoutComponent
+            timeoutDuration={5000}
+            fallback={
+              <div className="card-container vertical">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <LoadingItemCardSkeleton key={index} />
+                ))}
+              </div>
+            }
+          >
+            {!loadingAllApprovedItemForSale && (
+              <ItemCard items={allApprovedItemForSale} title="For Sale" />
+            )}
+          </TimeoutComponent>
         </div>
       </div>
     </div>

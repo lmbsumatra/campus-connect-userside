@@ -5,6 +5,8 @@ import BorrowingPost from "../../../../components/post-card/PostCard";
 import { baseApi } from "../../../../App";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllApprovedPosts } from "../../../../redux/post/allApprovedPostsSlice";
+import TimeoutComponent from "../../../../utils/TimeoutComponent";
+import LoadingPostCardSkeleton from "../../../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
 
 function MyPosts() {
   const [posts, setPosts] = useState([]);
@@ -43,11 +45,22 @@ function MyPosts() {
 
   return (
     <div className="container rounded bg-white">
-      <BorrowingPost
-        borrowingPosts={allApprovedPosts}
-        title="Looking for..."
-        isProfileVisit={false}
-      />
+      <TimeoutComponent
+        timeoutDuration={5000}
+        fallback={
+          <div className="card-container">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <LoadingPostCardSkeleton key={index} />
+            ))}
+          </div>
+        }
+      >
+        <BorrowingPost
+          borrowingPosts={allApprovedPosts}
+          title="Looking for..."
+          isProfileVisit={false}
+        />
+      </TimeoutComponent>
     </div>
   );
 }

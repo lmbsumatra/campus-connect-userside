@@ -10,6 +10,9 @@ import {
 } from "../../../../redux/item-for-sale/allItemForSaleByUserSlice";
 import ShowAlert from "../../../../utils/ShowAlert";
 import { FOR_SALE } from "../../../../utils/consonants";
+import LoadingPostCardSkeleton from "../../../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
+import TimeoutComponent from "../../../../utils/TimeoutComponent";
+import LoadingItemCardSkeleton from "../../../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton";
 
 function MyForSale() {
   const [error, setError] = useState(null);
@@ -137,25 +140,35 @@ function MyForSale() {
             items={allItemForSaleByUser}
             onSearch={setSearchTerm}
           />
-
-          <ItemList
-            itemType={FOR_SALE}
-            items={allItemForSaleByUser.filter((item) =>
-              item.name.toLowerCase().includes(searchTerm.toLowerCase())
-            )}
-            title="For Sale"
-            isYou={true}
-            onOptionClick={handleOptionClick}
-            selectedItems={selectedItems}
-            onSelectItem={(itemId) => {
-              setSelectedItems((prev) =>
-                prev.includes(itemId)
-                  ? prev.filter((id) => id !== itemId)
-                  : [...prev, itemId]
-              );
-            }}
-            viewType={viewType}
-          />
+          <TimeoutComponent
+            timeoutDuration={5000}
+            fallback={
+              <div className="card-container">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <LoadingItemCardSkeleton key={index} />
+                ))}
+              </div>
+            }
+          >
+            <ItemList
+              itemType={FOR_SALE}
+              items={allItemForSaleByUser.filter((item) =>
+                item.name.toLowerCase().includes(searchTerm.toLowerCase())
+              )}
+              title="For Sale"
+              isYou={true}
+              onOptionClick={handleOptionClick}
+              selectedItems={selectedItems}
+              onSelectItem={(itemId) => {
+                setSelectedItems((prev) =>
+                  prev.includes(itemId)
+                    ? prev.filter((id) => id !== itemId)
+                    : [...prev, itemId]
+                );
+              }}
+              viewType={viewType}
+            />
+          </TimeoutComponent>
         </>
       )}
     </div>

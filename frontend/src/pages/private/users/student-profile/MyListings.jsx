@@ -10,6 +10,8 @@ import {
 import ShowAlert from "../../../../utils/ShowAlert";
 import Toolbar from "../../../../components/toolbar/Toolbar";
 import { FOR_RENT } from "../../../../utils/consonants.js";
+import TimeoutComponent from "../../../../utils/TimeoutComponent.jsx";
+import LoadingItemCardSkeleton from "../../../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton.js";
 
 function MyListings() {
   const [error, setError] = useState(null);
@@ -38,7 +40,6 @@ function MyListings() {
       setError(errorAllListingsByUser);
     }
   }, [errorAllListingsByUser]);
-
 
   const handleOptionClick = useCallback(
     async (e, option, item) => {
@@ -77,8 +78,6 @@ function MyListings() {
     },
     [dispatch, navigate, userId]
   );
-
-  
 
   const handleBulkDelete = useCallback(async () => {
     if (!selectedItems.length) {
@@ -136,24 +135,35 @@ function MyListings() {
             onSearch={setSearchTerm}
           />
 
-          <ItemList
-          itemType={FOR_RENT}
-            items={allListingsByUser.filter((item) =>
-              item.name.toLowerCase().includes(searchTerm.toLowerCase())
-            )}
-            title="For Rent"
-            isYou={true}
-            onOptionClick={handleOptionClick}
-            selectedItems={selectedItems}
-            onSelectItem={(itemId) => {
-              setSelectedItems((prev) =>
-                prev.includes(itemId)
-                  ? prev.filter((id) => id !== itemId)
-                  : [...prev, itemId]
-              );
-            }}
-            viewType={viewType}
-          />
+          <TimeoutComponent
+            timeoutDuration={5000}
+            fallback={
+              <div className="card-container">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <LoadingItemCardSkeleton key={index} />
+                ))}
+              </div>
+            }
+          >
+            <ItemList
+              itemType={FOR_RENT}
+              items={allListingsByUser.filter((item) =>
+                item.name.toLowerCase().includes(searchTerm.toLowerCase())
+              )}
+              title="For Rent"
+              isYou={true}
+              onOptionClick={handleOptionClick}
+              selectedItems={selectedItems}
+              onSelectItem={(itemId) => {
+                setSelectedItems((prev) =>
+                  prev.includes(itemId)
+                    ? prev.filter((id) => id !== itemId)
+                    : [...prev, itemId]
+                );
+              }}
+              viewType={viewType}
+            />
+          </TimeoutComponent>
         </>
       )}
     </div>

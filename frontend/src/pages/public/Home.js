@@ -1,24 +1,23 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-// Importing components for different sections of the page
+// Importing components
 import Header from "../../components/users/header/Header";
 import Subheader from "../../components/common/subheader/Subheader";
 import Categories from "../../components/common/categories/Categories";
-import ItemList from "../../components/item-card/ItemCard";
-import Banner from "../../components/users/banner/Banner";
-import BorrowingPost from "../../components/post-card/PostCard";
-import FAB from "../../components/common/fab/FAB";
-import { baseApi } from "../../App";
-
-// Custom hook for fetching approved items
-import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
-import PostCard from "../../components/post-card/PostCard";
 import ItemCard from "../../components/item-card/ItemCard";
+import Banner from "../../components/users/banner/Banner";
+import PostCard from "../../components/post-card/PostCard";
+
+// Redux actions
+import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
 import { fetchAllApprovedListings } from "../../redux/listing/allApprovedListingsSlice";
 import { fetchAllApprovedItemForSale } from "../../redux/item-for-sale/allApprovedItemsForSaleSlice";
+import LoadingItemCardSkeleton from "../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton";
+import LoadingPostCardSkeleton from "../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
+import TimeoutComponent from "../../utils/TimeoutComponent";
+
+// TimeoutComponent
 
 function Home() {
   const dispatch = useDispatch();
@@ -37,6 +36,7 @@ function Home() {
     loadingAllApprovedListings,
     errorAllApprovedListings,
   } = useSelector((state) => state.allApprovedListings);
+
   const {
     allApprovedItemForSale,
     loadingAllApprovedItemForSale,
@@ -48,30 +48,70 @@ function Home() {
       <Header />
       <Subheader />
       <Categories />
+
+      {/* Listings Section */}
       <div className="container-content">
         {errorAllApprovedListings && (
           <p>Error loading listings: {errorAllApprovedListings}</p>
         )}
-        {loadingAllApprovedListings && <p>Loading listings...</p>}
-        <ItemCard items={allApprovedListings} title="Listings" />
+        <TimeoutComponent
+          timeoutDuration={5000}
+          fallback={
+            <div className="card-container vertical">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <LoadingItemCardSkeleton key={index} />
+              ))}
+            </div>
+          }
+        >
+          {!loadingAllApprovedListings && (
+            <ItemCard items={allApprovedListings} title="Listings" />
+          )}
+        </TimeoutComponent>
       </div>
 
+      {/* Items For Sale Section */}
       <div className="container-content">
         {errorAllApprovedItemForSale && (
-          <p>Error loading listings: {errorAllApprovedItemForSale}</p>
+          <p>Error loading items for sale: {errorAllApprovedItemForSale}</p>
         )}
-        {loadingAllApprovedItemForSale && <p>Loading listings...</p>}
-        <ItemCard items={allApprovedItemForSale} title="For sale" />
+        <TimeoutComponent
+          timeoutDuration={5000}
+          fallback={
+            <div className="card-container vertical">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <LoadingItemCardSkeleton key={index} />
+              ))}
+            </div>
+          }
+        >
+          {!loadingAllApprovedItemForSale && (
+            <ItemCard items={allApprovedItemForSale} title="For Sale" />
+          )}
+        </TimeoutComponent>
       </div>
 
       <Banner />
 
+      {/* Borrowing Posts Section */}
       <div className="container-content">
         {errorAllApprovedPosts && (
           <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>
         )}
-        {loadingAllApprovedPosts && <p>Loading borrowing posts...</p>}
-        <PostCard borrowingPosts={allApprovedPosts} title="Lend" />
+        <TimeoutComponent
+          timeoutDuration={5000}
+          fallback={
+            <div className="card-container">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <LoadingPostCardSkeleton key={index} />
+              ))}
+            </div>
+          }
+        >
+          {!loadingAllApprovedPosts && (
+            <PostCard borrowingPosts={allApprovedPosts} title="Lend" />
+          )}
+        </TimeoutComponent>
       </div>
     </div>
   );

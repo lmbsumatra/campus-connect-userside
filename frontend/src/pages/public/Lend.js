@@ -1,14 +1,22 @@
-import React from "react";
-import BorrowingPost from "../../components/post-card/PostCard";
+import React, { useEffect } from "react";
+import PostCard from "../../components/post-card/PostCard";
 import FAB from "../../components/common/fab/FAB";
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
 import { baseApi } from "../../App";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
+import TimeoutComponent from "../../utils/TimeoutComponent";
+import LoadingPostCardSkeleton from "../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
 
 const Lend = () => {
-  const baseUrl = "http://localhost:3001";
+  const dispatch = useDispatch();
 
-  // Fetch borrowing posts (approved posts for lending)
-  const { items: posts, loading: loadingPosts, error: errorPosts } = useFetchApprovedItems(`${baseApi}/posts/approved`);
+  useEffect(() => {
+    dispatch(fetchAllApprovedPosts());
+  }, [dispatch]);
+
+  const { allApprovedPosts, loadingAllApprovedPosts, errorAllApprovedPosts } =
+    useSelector((state) => state.allApprovedPosts);
 
   // Handle Floating Action Button (FAB) click
   const handleFabClick = (action) => {
@@ -22,9 +30,24 @@ const Lend = () => {
   return (
     <div className="container-content">
       {/* Display Borrowing Posts */}
-      {errorPosts && <p>Error loading borrowing posts: {errorPosts}</p>}
-      {loadingPosts && <p>Loading borrowing posts...</p>}
-      <BorrowingPost borrowingPosts={posts} title="Lend" />
+      {errorAllApprovedPosts && (
+        <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>
+      )}
+      {loadingAllApprovedPosts && <p>Loading borrowing posts...</p>}
+      <TimeoutComponent
+        timeoutDuration={5000}
+        fallback={
+          <div className="card-container">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <LoadingPostCardSkeleton key={index} />
+            ))}
+          </div>
+        }
+      >
+        {!loadingAllApprovedPosts && (
+          <PostCard borrowingPosts={allApprovedPosts} title="Lend" />
+        )}
+      </TimeoutComponent>
 
       {/* Floating Action Button (FAB) */}
       <FAB icon="+" onClick={handleFabClick} />

@@ -1,13 +1,17 @@
 // React Imports
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { baseApi } from "../../App";
 
 // Component Imports
-import ItemList from "../../components/item-card/ItemCard";
+import ItemCard from "../../components/item-card/ItemCard";
 
 // Hook Imports
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
+import LoadingItemCardSkeleton from "../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton";
+import { useDispatch, useSelector } from "react-redux";
+import TimeoutComponent from "../../utils/TimeoutComponent";
+import { fetchAllApprovedListings } from "../../redux/listing/allApprovedListingsSlice";
 
 const Rent = () => {
   const location = useLocation();
@@ -15,8 +19,18 @@ const Rent = () => {
   // Data Constants
   const baseUrl = "http://localhost:3001";
 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchAllApprovedListings());
+  }, [dispatch]);
+
   // Fetch listings data (approved items for rent)
-  const { items: listings, loading: loadingListings, error: errorListings } = useFetchApprovedItems(`${baseApi}/listings/available`);
+  const {
+    allApprovedListings,
+    loadingAllApprovedListings,
+    errorAllApprovedListings,
+  } = useSelector((state) => state.allApprovedListings);
 
   return (
     <>
@@ -55,11 +69,30 @@ const Rent = () => {
           {/* Listings Display */}
           <div className="col-md-10">
             {/* Loading and Error Handling for Listings */}
-            {loadingListings && <p>Loading listings...</p>}
-            {errorListings && <p>Error loading listings: {errorListings}</p>}
-            
-            {/* Render the listings */}
-            <ItemList items={listings} title="Rent" />
+            {loadingAllApprovedListings && <p>Loading listings...</p>}
+            {errorAllApprovedListings && (
+              <p>Error loading listings: {errorAllApprovedListings}</p>
+            )}
+
+            <div className="container-content">
+              {errorAllApprovedListings && (
+                <p>Error loading listings: {errorAllApprovedListings}</p>
+              )}
+              <TimeoutComponent
+                timeoutDuration={5000}
+                fallback={
+                  <div className="card-container vertical">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                      <LoadingItemCardSkeleton key={index} />
+                    ))}
+                  </div>
+                }
+              >
+                {!loadingAllApprovedListings && (
+                  <ItemCard items={allApprovedListings} title="Listings" />
+                )}
+              </TimeoutComponent>
+            </div>
           </div>
         </div>
       </div>
