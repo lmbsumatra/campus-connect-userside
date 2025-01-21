@@ -6,6 +6,7 @@ const { rollbackUpload } = require("../../config/multer");
 const transporter = require("../../config/nodemailer");
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken");
+const TokenGenerator = require("../../middlewares/TokenGenerator.js");
 
 const registerStudent = async (req, res) => {
   const t = await sequelize.transaction();
@@ -99,8 +100,7 @@ const registerStudent = async (req, res) => {
       from: "jione.capstone@gmail.com",
       to: email,
       subject: "Verify Your Email - Campus Connect",
-      html:
-       `<!DOCTYPE html>
+      html: `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -303,10 +303,10 @@ const registerStudent = async (req, res) => {
     });
 
     // Generate JWT token
-    const token = jwt.sign(
-      { userId: registeredUser.user_id, role: registeredUser.role },
-      JWT_SECRET
-    );
+    const token = TokenGenerator.generateToken({
+      userId: registeredUser.user_id,
+      role: registeredUser.role,
+    });
 
     // Send response
     res.status(201).json({

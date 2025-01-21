@@ -15,7 +15,7 @@ router.post(
 );
 router.post("/login", StudentController.loginStudent);
 router.post("/verify-email/resend", StudentController.resendVerificationEmail);
-router.post("/google-login", studentAuthController.googleLogin);
+router.post("/google-login", StudentController.googleLogin);
 router.get("/info/:id", StudentController.getStudentDataById);
 router.get("/", studentAuthController.getAllStudents);
 router.get("/verify-email/:token", StudentController.verifyStudent);

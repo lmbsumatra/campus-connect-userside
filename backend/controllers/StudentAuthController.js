@@ -168,40 +168,40 @@ exports.getAllStudents = async (req, res) => {
 //   }
 // };
 
-exports.googleLogin = async (req, res) => {
-  const { token } = req.body;
+// exports.googleLogin = async (req, res) => {
+//   const { token } = req.body;
 
-  try {
-    const payload = await verify(token);
-    const email = payload.email;
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(404).json({ message: "Invalid email or password." });
-    }
+//   try {
+//     const payload = await verify(token);
+//     const email = payload.email;
+//     const user = await User.findOne({ where: { email } });
+//     if (!user) {
+//       return res.status(404).json({ message: "Invalid email or password." });
+//     }
 
-    // Check if user is a student
-    if (user.role !== "student") {
-      return res
-        .status(403)
-        .json({ message: "Unauthorized: User is not a student" });
-    }
+//     // Check if user is a student
+//     if (user.role !== "student") {
+//       return res
+//         .status(403)
+//         .json({ message: "Unauthorized: User is not a student" });
+//     }
 
-    const jwtToken = jwt.sign(
-      { userId: user.user_id, role: user.role },
-      JWT_SECRET
-    );
+//     const jwtToken = jwt.sign(
+//       { userId: user.user_id, role: user.role },
+//       JWT_SECRET
+//     );
 
-    res.status(200).json({
-      message: "Login successful",
-      token: jwtToken,
-      role: user.role,
-      userId: user.user_id,
-    });
-  } catch (error) {
-    console.error("Google login error:", error);
-    res.status(401).json({ message: "Invalid token" });
-  }
-};
+//     res.status(200).json({
+//       message: "Login successful",
+//       token: jwtToken,
+//       role: user.role,
+//       userId: user.user_id,
+//     });
+//   } catch (error) {
+//     console.error("Google login error:", error);
+//     res.status(401).json({ message: "Invalid token" });
+//   }
+// };
 
 // exports.getUserInformation = async (req, res) => {
 //   const userId = req.params.id;

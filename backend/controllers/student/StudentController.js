@@ -6,6 +6,7 @@ const resendVerificationEmail = require("./resendVerificationEmail");
 const createStripeOnBoardingLink = require("./createStripeOnBoardingLink");
 const getMerchantDetails = require("./getMerchantDetails.js");
 const uploadProfileImage = require("./uploadProfileImage");
+const googleLogin = require("./googleLoginStudent.js");
 
 const StudentController = {
   getStudentDataById,
@@ -16,6 +17,7 @@ const StudentController = {
   createStripeOnBoardingLink,
   getMerchantDetails,
   uploadProfileImage,
+  googleLogin,
 };
 
 module.exports = StudentController;

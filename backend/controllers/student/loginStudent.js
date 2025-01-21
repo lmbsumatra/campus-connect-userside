@@ -2,6 +2,7 @@ const { models } = require("../../models");
 const bcrypt = require("bcrypt");
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken");
+const TokenGenerator = require("../../middlewares/TokenGenerator.js");
 
 const loginStudent = async (req, res) => {
   const { email, password } = req.body;
@@ -14,10 +15,10 @@ const loginStudent = async (req, res) => {
   try {
     // Find user
     const user = await models.User.findOne({ where: { email } });
+    console.log(user);
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
 
     // Check if user is a student
     if (user.role !== "student") {
@@ -42,20 +43,14 @@ const loginStudent = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // JWT token creation
+    // Generate JWT using TokenMaker
     let token;
     try {
-      if (!JWT_SECRET) {
-        console.error("JWT_SECRET is not defined");
-        return res
-          .status(500)
-          .json({ message: "Server configuration error: Missing JWT secret" });
-      }
-      token = jwt.sign({ userId: user.user_id, role: user.role }, JWT_SECRET, {
-        expiresIn: "1h", // Optional: Set token expiration
+      token = TokenGenerator.generateToken({
+        userId: user.user_id,
+        role: user.role,
       });
     } catch (error) {
-      console.error("Error signing JWT:", error);
       return res.status(500).json({
         message: "Error generating authentication token",
         error: error.message,
@@ -70,23 +65,6 @@ const loginStudent = async (req, res) => {
       userId: user.user_id,
     });
   } catch (error) {
-    if (error.name === "SequelizeConnectionError") {
-      console.error("Database connection error:", error);
-      return res.status(500).json({
-        message: "Database connection error",
-        error: error.message,
-      });
-    }
-
-    if (error.name === "SequelizeDatabaseError") {
-      console.error("Database query error:", error);
-      return res.status(500).json({
-        message: "Database query error",
-        error: error.message,
-      });
-    }
-
-    // Catch-all for unexpected errors
     console.error("Login error:", error);
     return res
       .status(500)
