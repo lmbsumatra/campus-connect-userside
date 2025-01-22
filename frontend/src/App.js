@@ -82,6 +82,7 @@ import { fetchUser } from "./redux/user/userSlice.js";
 import TopBar from "./components/topbar/TopBar.jsx";
 import { selectStudentUser } from "./redux/auth/studentAuthSlice.js";
 import { ChatProvider } from "./context/ChatContext.js";
+import TrialOnHeroSection from "./trials/TrialOnHeroSection.js";
 
 function App() {
   console.log(baseApi);
@@ -109,11 +110,13 @@ function Content() {
     <>
       <Routes>
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
+        <Route path="/trial2" element={<TrialOnHeroSection />} />
         <Route element={<PublicLayout />}>
           {/* PUBLIC ROUTES */}
-          <Route path="/trial2" element={<Trial2 />} />
-          <Route path="/trial" element={<Trial />} />
-          <Route path="/trialChatAndNotif" element={<ChatAndNotif />} />
+          
+          {/* <Route path="/trial2" element={<Trial2 />} /> */}
+          {/* <Route path="/trial" element={<Trial />} /> */}
+          {/* <Route path="/trialChatAndNotif" element={<ChatAndNotif />} /> */}
           <Route path="/cart" element={<Cart />} />
 
           <Route path="/admin-login" element={<AdminLogin />} />

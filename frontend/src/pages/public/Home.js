@@ -12,6 +12,7 @@ import PostCard from "../../components/post-card/PostCard";
 import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
 import { fetchAllApprovedListings } from "../../redux/listing/allApprovedListingsSlice";
 import { fetchAllApprovedItemForSale } from "../../redux/item-for-sale/allApprovedItemsForSaleSlice";
+import TrialOnHeroSection from "../../trials/TrialOnHeroSection";
 
 function ContentSection({ error, loading, fallback, children }) {
   return (
@@ -25,9 +26,10 @@ function ContentSection({ error, loading, fallback, children }) {
 }
 
 function renderSkeleton(Component, count) {
-  return Array.from({ length: count }).map((_, index) => <Component key={index} />);
+  return Array.from({ length: count }).map((_, index) => (
+    <Component key={index} />
+  ));
 }
-
 
 function Home() {
   const dispatch = useDispatch();
@@ -63,7 +65,11 @@ function Home() {
       <ContentSection
         error={errorAllApprovedListings}
         loading={loadingAllApprovedListings}
-        fallback={<div className="card-container vertical">{renderSkeleton(LoadingItemCardSkeleton, 6)}</div>}
+        fallback={
+          <div className="card-container vertical">
+            {renderSkeleton(LoadingItemCardSkeleton, 6)}
+          </div>
+        }
       >
         <ItemCard items={allApprovedListings} title="Listings" />
       </ContentSection>
@@ -71,7 +77,11 @@ function Home() {
       <ContentSection
         error={errorAllApprovedItemForSale}
         loading={loadingAllApprovedItemForSale}
-        fallback={<div className="card-container vertical">{renderSkeleton(LoadingItemCardSkeleton, 6)}</div>}
+        fallback={
+          <div className="card-container vertical">
+            {renderSkeleton(LoadingItemCardSkeleton, 6)}
+          </div>
+        }
       >
         <ItemCard items={allApprovedItemForSale} title="For Sale" />
       </ContentSection>
@@ -83,7 +93,11 @@ function Home() {
       <ContentSection
         error={errorAllApprovedPosts}
         loading={loadingAllApprovedPosts}
-        fallback={<div className="card-container">{renderSkeleton(LoadingPostCardSkeleton, 4)}</div>}
+        fallback={
+          <div className="card-container">
+            {renderSkeleton(LoadingPostCardSkeleton, 4)}
+          </div>
+        }
       >
         <PostCard borrowingPosts={allApprovedPosts} title="Lend" />
       </ContentSection>

@@ -1,0 +1,58 @@
+.navbar2 {
+  position: absolute; /* Overlay the navbar */
+  top: 0;
+  left: 0;
+  z-index: 10; /* Ensure it's above the image */
+  height: 60px; /* Adjust height as needed */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: transparent !important;
+  width: 100%;
+}
+
+.nav-logo {
+  font-size: 18px;
+  padding: 10px;
+}
+
+.nav-searchbar input {
+  width: 100%;
+  padding: 5px;
+}
+
+.nav-items ul {
+  list-style: none;
+  display: flex;
+  justify-content: space-around;
+  padding: 0;
+}
+
+.nav-items li img {
+  width: 24px;
+  height: 24px;
+  margin: 0 10px;
+  opacity: 35%;
+}
+
+.header-image {
+  width: 100%;
+  height: 100vh; /* Full viewport height */
+  background-image: linear-gradient(to left, #0f395ed2, #913000be),
+    url("../assets/images/header/TUPheader.jpg");
+  background-size: cover; /* Ensure the image covers the entire container */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
+}
+
+.sample-box {
+  position: relative;
+  top: 100px;
+  height: 200px;
+  width: 250px;
+  background-color: rgba(255, 255, 255, 0.05); /* Semi-transparent background */
+  /* border: 1px solid white; */
+  border-radius: 8px;
+  backdrop-filter: blur(10px); /* Apply the blur effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari support */
+}
