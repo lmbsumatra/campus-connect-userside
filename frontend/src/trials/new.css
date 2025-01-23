@@ -1,22 +1,15 @@
-.section {
-  overflow: hidden;
-} /* Navbar Container */
 .navbar-container {
-  position: absolute; /* Keeps the navbar fixed on top */
+  position: absolute;
   top: 0;
   left: 0;
-  z-index: 10;
   width: 100%;
   display: flex;
-  flex-direction: column; /* Stacks the sections vertically */
-  /* background-color: rgba(0, 0, 0, 0.8); Semi-transparent background */
+  flex-direction: column;
   color: white;
 }
 
-/* Top Section */
 .navbar-top {
   padding: 5px 20px;
-  /* background-color: rgba(0, 0, 0, 0.6); Slightly darker */
   text-align: right;
 }
 
@@ -40,7 +33,6 @@
   color: #007bff;
 }
 
-/* Middle Section */
 .navbar-main {
   height: 60px;
   display: flex;
@@ -92,10 +84,8 @@
   transform: scale(1.1);
 }
 
-/* Bottom Section */
 .navbar-bottom {
   padding: 5px 20px;
-  /* background-color: rgba(0, 0, 0, 0.6); Matches top section */
   text-align: left;
 }
 
@@ -120,28 +110,29 @@
 }
 
 .header-image {
-  width: 100%;
-  height: 1000px; /* Full viewport height */
+  width: auto;
+  height: 800px; 
   background-image: linear-gradient(to right, #0f395edc, #913000cb),
     url("../assets/images/header/TUPheader.jpg");
-  background-size: cover; /* Ensure the image covers the entire container */
-  background-position: center; /* Center the image */
-  background-repeat: no-repeat; /* Prevent the image from repeating */
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat; 
   padding: 2% 5%;
+  overflow: hidden !important;
 }
 
 .sample-box {
   position: relative;
   top: 100px;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr; /* Larger first column for box1 */
-  grid-template-rows: auto auto auto; /* Adjust height based on content */
+  grid-template-columns: 2fr 1fr 1fr; 
+  grid-template-rows: auto auto auto; 
   grid-template-areas:
     "box1 box2 box3"
     "box1 box4 box5";
-  gap: 16px; /* Space between items */
-  height: 500px; /* Full height for hero section */
-  width: 100%; /* Full width */
+  gap: 16px; 
+  height: 500px; 
+  width: 100%; 
   padding: 16px;
   box-sizing: border-box;
   overflow: hidden;
@@ -190,8 +181,8 @@
 .divider {
   width: 100%;
   height: auto;
-  position: absolute;
-  top: 450px;
+  position: relative;
+  top: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -201,9 +192,9 @@
 .divider img {
   width: 100%;
   height: auto;
-  animation: spin 30s linear infinite; /* Main gear spinning */
+  animation: spin 30s linear infinite; 
   transform-origin: center;
-  transition: all 0.5s ease-in-out; /* Smooth scaling on scroll */
+  transition: all 0.5s ease-in-out; 
 }
 
 @keyframes spin {
@@ -215,84 +206,17 @@
   }
 }
 
-.small-gears {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
+/* Small devices (phones) */
+@media only screen and (max-width: 600px) {
+  /* Styles for small screens */
 }
 
-.small-gears img {
-  position: absolute;
-  width: 100px; /* Gear size */
-  height: 100px;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease-in-out;
+/* Medium devices (tablets) */
+@media only screen and (min-width: 600px) and (max-width: 991px) {
+  /* Styles for medium screens */
 }
 
-/* Center gear is larger and spins */
-.gear.center {
-  opacity: 1;
-  z-index: 2;
-  transform: scale(1.2);
-  animation: spin-center 0.8s linear;
-}
-
-/* Gear rolling left */
-.gear.left {
-  transform: translateX(-300px) scale(1) rotate(-360deg); /* Rolling left */
-  opacity: 0.7;
-  z-index: 1;
-  animation: roll-to-left 0.8s ease-in-out;
-}
-
-/* Gear rolling right */
-.gear.right {
-  transform: translateX(300px) scale(1) rotate(360deg); /* Rolling right */
-  opacity: 0.7;
-  z-index: 1;
-  animation: roll-to-right 0.8s ease-in-out;
-}
-
-/* Hidden gear is invisible */
-.gear.hidden {
-  transform: translateX(0) scale(0.5);
-  opacity: 0;
-  z-index: 0;
-}
-
-/* Animations for rolling directions */
-
-/* Rolling to the left */
-@keyframes roll-to-left {
-  0% {
-    transform: translateX(0px) scale(1) rotate(0deg);
-  }
-  100% {
-    transform: translateX(-300px) scale(1) rotate(-360deg);
-  }
-}
-
-/* Rolling to the right */
-@keyframes roll-to-right {
-  0% {
-    transform: translateX(0px) scale(1) rotate(0deg);
-  }
-  100% {
-    transform: translateX(300px) scale(1) rotate(360deg);
-  }
-}
-
-/* Center gear spinning effect */
-@keyframes spin-center {
-  0% {
-    transform: scale(1.2) rotate(0deg);
-  }
-  100% {
-    transform: scale(1.2) rotate(360deg);
-  }
+/* Large devices (desktops) */
+@media only screen and (min-width: 992px) {
+  /* Styles for large screens */
 }

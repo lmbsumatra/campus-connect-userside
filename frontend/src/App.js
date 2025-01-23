@@ -113,7 +113,7 @@ function Content() {
         <Route path="/trial2" element={<TrialOnHeroSection />} />
         <Route element={<PublicLayout />}>
           {/* PUBLIC ROUTES */}
-          
+
           {/* <Route path="/trial2" element={<Trial2 />} /> */}
           {/* <Route path="/trial" element={<Trial />} /> */}
           {/* <Route path="/trialChatAndNotif" element={<ChatAndNotif />} /> */}
