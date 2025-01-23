@@ -8,29 +8,59 @@ import "./new.css";
 
 const TrialOnNavbar = () => {
   return (
-    <div className="navbar2">
-      <div className="nav-logo">
-        <img src={logo} alt="RentTUPeers logo" />
-        <span>RenTUPeers</span>
+    <div className="navbar-container">
+      {/* Top Section */}
+      <div className="navbar-top">
+        <ul>
+          <li>
+            <a href="#privacy">Privacy Policy</a>
+          </li>
+          <li>
+            <a href="#terms">Terms of Service</a>
+          </li>
+        </ul>
       </div>
 
-      <div className="nav-searchbar">
-        <input type="text" placeholder="Search" />
+      {/* Middle Section */}
+      <div className="navbar-main">
+        <div className="nav-logo">
+          <img src={logo} alt="RentTUPeers logo" />
+          <span>RenTUPeers</span>
+        </div>
+
+        <div className="nav-searchbar">
+          <input type="text" placeholder="Search" />
+        </div>
+
+        <div className="nav-items">
+          <ul className="d-flex">
+            <li>
+              <img src={cartIcon} alt="Cart icon" />
+            </li>
+            <li>
+              <img src={notificationIcon} alt="Notification icon" />
+            </li>
+            <li>
+              <img src={messageIcon} alt="Message icon" />
+            </li>
+            <li>
+              <img src={userIcon} alt="User icon" />
+            </li>
+          </ul>
+        </div>
       </div>
 
-      <div className="nav-items">
-        <ul className="d-flex">
+      {/* Bottom Section */}
+      <div className="navbar-bottom">
+        <ul>
           <li>
-            <img src={cartIcon} alt="Cart icon" />
+            <a href="#home">Home</a>
           </li>
           <li>
-            <img src={notificationIcon} alt="Notification icon" />
+            <a href="#about">About</a>
           </li>
           <li>
-            <img src={messageIcon} alt="Message icon" />
-          </li>
-          <li>
-            <img src={userIcon} alt="User icon" />
+            <a href="#contact">Contact</a>
           </li>
         </ul>
       </div>
