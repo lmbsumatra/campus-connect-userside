@@ -46,6 +46,12 @@ const TrialOnNavbar = () => {
             <li>
               <img src={userIcon} alt="User icon" />
             </li>
+            <li>
+              <button className="btn btn-rounded primary opac">Login</button>
+            </li>
+            <li>
+              <button className="btn btn-rounded secondary opac">Register</button>
+            </li>
           </ul>
         </div>
       </div>

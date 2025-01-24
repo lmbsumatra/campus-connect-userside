@@ -1,3 +1,10 @@
+/* Import and Base Styles */
+@import url("https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap");
+body {
+  font-family: "Karla" !important;
+}
+
+/* Navbar Container */
 .navbar-container {
   position: absolute;
   top: 0;
@@ -8,31 +15,40 @@
   color: white;
 }
 
+/* Navbar Top Section */
 .navbar-top {
   padding: 5px 20px;
   text-align: right;
 }
 
-.navbar-top ul {
+.navbar-top ul,
+.navbar-bottom ul,
+.nav-items ul {
   list-style: none;
   display: flex;
-  justify-content: flex-end;
-  gap: 20px;
   margin: 0;
   padding: 0;
 }
 
-.navbar-top ul li a {
-  color: white;
+.navbar-top ul {
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+.navbar-top ul li a,
+.navbar-bottom ul li a {
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-size: 14px;
   transition: color 0.3s ease;
 }
 
-.navbar-top ul li a:hover {
-  color: #007bff;
+.navbar-top ul li a:hover,
+.navbar-bottom ul li a:hover {
+  color: #ffffff;
 }
 
+/* Navbar Main Section */
 .navbar-main {
   height: 60px;
   display: flex;
@@ -41,36 +57,42 @@
   padding: 0 20px;
 }
 
+/* Logo Styles */
 .nav-logo img {
   height: 40px;
   margin-right: 10px;
 }
 
 .nav-logo span {
-  font-size: 18px;
+  font-size: 24px;
   font-weight: bold;
+  color: white;
 }
 
+/* Searchbar Styles */
 .nav-searchbar input {
-  height: 35px;
-  border-radius: 5px;
+  height: 36px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
-  padding: 0 10px;
+  padding: 16px 10px !important;
   width: 300px;
+  font-size: 16px;
+}
+
+.nav-searchbar input:focus {
+  border: 1px solid white;
+  box-shadow: 0px 0px 0px 6px rgba(255, 255, 255, 0.3);
 }
 
 .nav-searchbar input::placeholder {
   color: rgba(255, 255, 255, 0.6);
 }
 
+/* Navigation Items */
 .nav-items ul {
-  list-style: none;
-  display: flex;
   gap: 15px;
-  margin: 0;
-  padding: 0;
 }
 
 .nav-items ul li img {
@@ -84,55 +106,42 @@
   transform: scale(1.1);
 }
 
+/* Navbar Bottom Section */
 .navbar-bottom {
   padding: 5px 20px;
   text-align: left;
 }
 
 .navbar-bottom ul {
-  list-style: none;
-  display: flex;
   justify-content: flex-start;
   gap: 20px;
-  margin: 0;
-  padding: 0;
 }
 
-.navbar-bottom ul li a {
-  color: white;
-  text-decoration: none;
-  font-size: 14px;
-  transition: color 0.3s ease;
-}
-
-.navbar-bottom ul li a:hover {
-  color: #007bff;
-}
-
+/* Header Image */
 .header-image {
-  width: auto;
-  height: 800px; 
+  height: 800px;
   background-image: linear-gradient(to right, #0f395edc, #913000cb),
     url("../assets/images/header/TUPheader.jpg");
-  background-size: cover; 
-  background-position: center; 
-  background-repeat: no-repeat; 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding: 2% 5%;
   overflow: hidden !important;
 }
 
+/* Sample Box Grid */
 .sample-box {
   position: relative;
   top: 100px;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr; 
-  grid-template-rows: auto auto auto; 
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: auto auto auto;
   grid-template-areas:
     "box1 box2 box3"
     "box1 box4 box5";
-  gap: 16px; 
-  height: 500px; 
-  width: 100%; 
+  gap: 16px;
+  height: 500px;
+  width: 100%;
   padding: 16px;
   box-sizing: border-box;
   overflow: hidden;
@@ -141,19 +150,15 @@
 .sample-box > div:nth-child(1) {
   grid-area: box1;
 }
-
 .sample-box > div:nth-child(2) {
   grid-area: box2;
 }
-
 .sample-box > div:nth-child(3) {
   grid-area: box3;
 }
-
 .sample-box > div:nth-child(4) {
   grid-area: box4;
 }
-
 .sample-box > div:nth-child(5) {
   grid-area: box5;
 }
@@ -171,6 +176,7 @@
   -webkit-backdrop-filter: blur(3px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
+
 .sample-box div img {
   width: auto;
   height: auto;
@@ -178,6 +184,8 @@
   max-height: 100%;
   transform: rotate(45deg) scale(1.6);
 }
+
+/* Divider */
 .divider {
   width: 100%;
   height: auto;
@@ -192,11 +200,39 @@
 .divider img {
   width: 100%;
   height: auto;
-  animation: spin 30s linear infinite; 
+  animation: rotateCycle 30s infinite !important;
   transform-origin: center;
-  transition: all 0.5s ease-in-out; 
+  transition: all 0.5s ease-in-out;
 }
 
+@keyframes rotateCycle {
+  0%, 100% {
+    transform: rotate(0deg); /* Step 1 */
+  }
+  12.5% {
+    transform: rotate(45deg); /* Step 2 */
+  }
+  25% {
+    transform: rotate(90deg); /* Step 3 */
+  }
+  37.5% {
+    transform: rotate(135deg); /* Step 4 */
+  }
+  50% {
+    transform: rotate(180deg); /* Step 5 */
+  }
+  62.5% {
+    transform: rotate(225deg); /* Step 6 */
+  }
+  75% {
+    transform: rotate(270deg); /* Step 7 */
+  }
+  87.5% {
+    transform: rotate(315deg); /* Step 8 */
+  }
+}
+
+/* Spin Animation */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -206,17 +242,26 @@
   }
 }
 
-/* Small devices (phones) */
+/* Responsive Media Queries */
 @media only screen and (max-width: 600px) {
-  /* Styles for small screens */
+  /* Small devices (phones) styles */
 }
 
-/* Medium devices (tablets) */
 @media only screen and (min-width: 600px) and (max-width: 991px) {
-  /* Styles for medium screens */
+  /* Medium devices (tablets) styles */
 }
 
-/* Large devices (desktops) */
 @media only screen and (min-width: 992px) {
-  /* Styles for large screens */
+  /* Large devices (desktops) styles */
+}
+
+
+.text-info {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 20px;
+  text-align: center;
 }
