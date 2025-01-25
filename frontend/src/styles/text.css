@@ -1,0 +1,25 @@
+.headline.white {
+  font-size: 56px;
+  font-weight: 900;
+  color: white;
+}
+
+.subtitle.white {
+  font-size: 36px;
+  font-weight: 500;
+  color: white;
+}
+
+.p.white {
+  font-size: 18px;
+  font-weight: 300;
+  color: white;
+}
+
+.text-highlight.wavy-underline {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  font-style: italic;
+  font-weight: 900;
+  color: rgb(255, 120, 57);
+}

@@ -4,47 +4,40 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* Rectangular Button Variants */
-/* Muted Style */
+/* Rectangle Buttons */
+.btn.btn-rectangle {
+  border-radius: 4px;
+}
+
 .btn.btn-rectangle.muted {
   background-color: white;
   color: var(--clr-secondary) !important;
   border: solid 1px var(--clr-secondary);
-  border-radius: 4px;
 }
 .btn.btn-rectangle.muted:hover {
   background-color: var(--clr-secondary);
   color: white !important;
-  border: solid 1px var(--clr-secondary);
 }
 
-/* Secondary Style */
 .btn.btn-rectangle.secondary {
   background-color: white;
   color: var(--clr-primary) !important;
   border: solid 1px var(--clr-primary);
-  border-radius: 4px;
 }
 .btn.btn-rectangle.secondary:hover {
   background-color: var(--clr-primary-light);
   color: white !important;
-  border: solid 1px var(--clr-primary);
 }
 
-/* Primary Style */
 .btn.btn-rectangle.primary {
   background-color: var(--clr-primary);
   color: white !important;
   border: solid 1px var(--clr-primary);
-  border-radius: 4px;
 }
 .btn.btn-rectangle.primary:hover {
   background-color: var(--clr-primary-dark);
-  color: white !important;
-  border: solid 1px var(--clr-primary-dark);
 }
 
-/* White Secondary Style */
 .btn.btn-rectangle.secondary.white {
   background-color: transparent;
   color: white !important;
@@ -53,75 +46,59 @@
 }
 .btn.btn-rectangle.secondary.white:hover {
   background-color: rgba(0, 0, 0, 0.1);
-  color: white !important;
-  border: solid 1px rgba(0, 0, 0, 0.1);
 }
 
-/* Rounded Button Variants */
-/* Secondary Rounded */
+.btn.btn-rectangle.secondary.opac {
+  background-color: rgba(255, 255, 255, 0) !important;
+  color: white !important;
+  border: solid 1px white !important;
+}
+.btn.btn-rectangle.secondary:hover.opac {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.btn.btn-rectangle.primary.opac {
+  background-color: white !important;
+  color: var(--clr-secondary) !important;
+  border: solid 1px white !important;
+}
+.btn.btn-rectangle.primary:hover.opac {
+  border: 1px solid var(--clr-secondary) !important;
+  background-color: var(--clr-secondary) !important;
+  color: white !important;
+}
+
+/* Rounded Buttons */
+.btn.btn-rounded {
+  border-radius: 100px;
+}
+
 .btn.btn-rounded.secondary {
   background-color: white;
   color: var(--clr-primary) !important;
   border: solid 1px var(--clr-primary);
-  border-radius: 100px;
 }
 .btn.btn-rounded.secondary:hover {
   background-color: var(--clr-primary);
   color: white !important;
-  border: solid 1px var(--clr-primary);
 }
 
-/* Secondary Rounded Opaque */
 .btn.btn-rounded.secondary.opac {
   background-color: rgba(255, 255, 255, 0) !important;
   color: white !important;
   border: solid 1px white !important;
-  border-radius: 100px;
 }
 .btn.btn-rounded.secondary:hover.opac {
   background-color: rgba(255, 255, 255, 0.2) !important;
-  border: solid 1px white !important;
-  border-radius: 100px;
 }
 
-/* Primary Rounded Opaque */
-.btn.btn-rounded.primary.opac {
-  background-color: white !important;
-  color: var(--clr-secondary) !important;
-  border: solid 1px white !important;
-  border-radius: 100px;
-}
-.btn.btn-rounded.primary:hover.opac {
-  border: 1px solid var(--clr-secondary) !important;
-  background-color: var(--clr-secondary) !important;
-  color: white !important;
-  border-radius: 100px;
-}
-
-/* White Secondary Rounded */
-.btn.btn-rounded.secondary.white {
-  background-color: transparent;
-  color: white !important;
-  border: solid 1px white;
-  border-radius: 100px;
-}
-.btn.btn-rounded.secondary.white:hover {
-  background-color: var(--clr-primary-dark);
-  color: white !important;
-  border: solid 1px var(--clr-primary-dark);
-}
-
-/* Primary Rounded */
 .btn.btn-rounded.primary {
   background-color: var(--clr-primary) !important;
   color: white !important;
   border: solid 1px var(--clr-primary) !important;
-  border-radius: 100px !important;
 }
 .btn.btn-rounded.primary:hover {
   background-color: var(--clr-primary-dark) !important;
-  color: white !important;
-  border: solid 1px var(--clr-primary-dark) !important;
 }
 
 /* Thin Rounded Buttons */
@@ -135,73 +112,47 @@
 }
 .btn.btn-rounded.thin:hover {
   color: white;
-  border: 1px solid var(--clr-primary);
   background-color: var(--clr-primary);
-}
-
-.btn.btn-rounded.thin.primary {
-  color: white;
-  border-radius: 12px;
-  border: 1px solid var(--clr-primary);
-  background-color: var(--clr-primary);
-  padding: 0px 8px;
-  font-size: 14px;
-}
-.btn.btn-rounded.thin.primary:hover {
-  color: var(--clr-secondary);
-  border: 1px solid var(--clr-primary-dark);
-  background-color: var(--clr-primary-dark);
 }
 
 /* Action Buttons */
-.btn.btn-action.view {
+.btn.btn-action {
   width: auto;
   height: 27px;
-  background-color: rgb(146, 255, 160);
-  color: #026800;
   padding: 4px 8px;
   line-height: 0;
   font-weight: 500;
   border-radius: 100px;
+}
+.btn.btn-action.view {
+  background-color: rgb(146, 255, 160);
+  color: #026800;
 }
 .btn.btn-action.view:hover {
   background-color: rgb(115, 223, 129);
 }
 
 .btn.btn-action.edit {
-  width: auto;
-  height: 27px;
   background-color: rgb(146, 181, 255);
   color: #000a68;
-  padding: 4px 8px;
-  line-height: 0;
-  font-weight: 500;
-  border-radius: 100px;
 }
 .btn.btn-action.edit:hover {
   background-color: rgb(108, 144, 221);
 }
 
 .btn.btn-action.delete {
-  width: auto;
-  height: 27px;
   background-color: rgb(255, 146, 146);
   color: #680000;
-  padding: 4px 8px;
-  line-height: 0;
-  font-weight: 500;
-  border-radius: 100px;
 }
 .btn.btn-action.delete:hover {
   background-color: rgb(223, 116, 116);
 }
 
-/* Role-Specific Button Styles */
+/* Role-Specific Buttons */
 .btn.btn-rectangle.btn-owner-primary {
   background-color: var(--clr-owner-txt) !important;
   color: white;
   border: solid 1px var(--clr-owner-txt);
-  border-radius: 4px;
 }
 
 .btn.btn-rectangle.btn-owner-secondary {
@@ -213,7 +164,6 @@
   background-color: var(--clr-renter-txt) !important;
   color: white;
   border: solid 1px var(--clr-renter-txt);
-  border-radius: 4px;
 }
 
 .btn.btn-rectangle.btn-renter-secondary {
@@ -221,18 +171,7 @@
   color: var(--clr-renter-txt);
 }
 
-/* Default Button Styles */
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-secondary {
-  background-color: #f4f4f4;
-  color: #007bff;
-}
-
-/* Icon Button Styles */
+/* Icon Buttons */
 .btn.btn-icon {
   all: unset;
   display: inline-flex;
@@ -247,11 +186,9 @@
 
 .btn.btn-icon.primary {
   border: solid 1px var(--clr-primary);
-  background-color: none;
 }
 .btn.btn-icon.primary:hover {
   background-color: var(--clr-neutral-muted);
-  color: white !important;
 }
 
 .btn.btn-icon.secondary {
@@ -260,7 +197,6 @@
 }
 .btn.btn-icon.secondary:hover {
   background-color: var(--clr-neutral-muted);
-  color: white !important;
 }
 
 .btn.btn-icon img {

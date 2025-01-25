@@ -9,6 +9,7 @@ import {
 import React, { useEffect } from "react";
 import "./App.css";
 import "./styles/buttons.css";
+import "./styles/text.css";
 import "./styles/icons.css";
 import "./styles/cards.css";
 import "./styles/containers.css";

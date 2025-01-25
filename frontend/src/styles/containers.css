@@ -41,3 +41,8 @@
   padding: 24px;
   overflow: hidden;
 }
+
+.btn-container{
+  display: flex;
+  gap: 16px;
+}

@@ -1,0 +1,193 @@
+/* General Navbar Container */
+.navbar-container2 {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 60px;
+  height: auto;
+  padding: 4px 16px;
+}
+
+.navbar-container2.light {
+  color: white;
+}
+
+.navbar-container2.dark {
+  color: rgb(33, 121, 200);
+}
+
+/* Navbar Top Section */
+.navbar-top {
+  text-align: right;
+}
+
+.navbar-top ul,
+.navbar-bottom ul,
+.nav-items ul {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  gap: 20px;
+}
+
+.navbar-top ul {
+  justify-content: flex-end;
+}
+
+.navbar-bottom ul {
+  justify-content: flex-start;
+}
+
+.navbar-top ul li a,
+.navbar-bottom ul li a {
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.navbar-bottom ul li a {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.navbar-top ul li a.light,
+.navbar-bottom ul li a.light {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.navbar-top ul li a.dark,
+.navbar-bottom ul li a.dark {
+  color: rgba(33, 121, 200);
+}
+
+.navbar-top ul li a.light:hover,
+.navbar-bottom ul li a.light:hover {
+  color: #ffffff !important;
+}
+
+.navbar-top ul li a.dark:hover,
+.navbar-bottom ul li a.dark:hover {
+  color: rgb(33, 121, 200);
+}
+
+/* Navbar Main Section */
+.navbar-main {
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo Styles */
+.nav-logo img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.nav-logo span {
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.nav-logo span.light {
+  color: white;
+}
+
+.nav-logo span.dark {
+  color: rgb(33, 121, 200);
+}
+
+/* Searchbar Styles */
+.nav-searchbar input {
+  height: 36px;
+  border-radius: 8px;
+  padding: 16px 10px !important;
+  width: 300px;
+  font-size: 16px;
+  border: 1px solid;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.nav-searchbar input.light {
+  border-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-searchbar input.light:focus {
+  border-color: white;
+  box-shadow: 0px 0px 0px 6px rgba(255, 255, 255, 0.3);
+}
+
+.nav-searchbar input.light::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.nav-searchbar input.dark {
+  border-color: rgba(0, 0, 0, 0.3);
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+}
+
+.nav-searchbar input.dark:focus {
+  border-color: rgb(33, 121, 200);
+  box-shadow: 0px 0px 0px 6px rgba(33, 121, 200, 0.3);
+  color: rgba(33, 121, 200);
+}
+
+.nav-searchbar input.dark::placeholder,
+.nav-searchbar input.dark {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.nav-searchbar input.dark:focus::placeholder {
+  color: rgba(33, 121, 200, 0.6);
+}
+
+/* Navigation Items */
+.nav-items ul {
+  gap: 15px;
+  align-items: center;
+}
+
+.nav-items ul li img {
+  height: 24px;
+  opacity: 0.8;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.nav-items ul li img:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Icon Wrapper with Background */
+.icon-wrapper {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.icon-wrapper.light {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.icon-wrapper.dark {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.icon-wrapper.light:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.icon-wrapper.dark:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}

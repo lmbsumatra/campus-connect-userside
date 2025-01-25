@@ -2,55 +2,87 @@ import userIcon from "../assets/images/navbar/user.svg";
 import messageIcon from "../assets/images/navbar/message.svg";
 import notificationIcon from "../assets/images/navbar/notification.svg";
 import cartIcon from "../assets/images/navbar/cart.svg";
+import userIconDark from "../assets/images/navbar/userDark.svg";
+import messageIconDark from "../assets/images/navbar/messageDark.svg";
+import notificationIconDark from "../assets/images/navbar/notificationDark.svg";
+import cartIconDark from "../assets/images/navbar/cartDark.svg";
 import logo from "../assets/images/navbar/cc-logo-white.svg";
+import logoDark from "../assets/images/navbar/cc-logo.png";
 
-import "./new.css";
+import "./new2.css";
 
 const TrialOnNavbar = () => {
+  const theme = "light";
+  const isDarkTheme = theme === "dark";
+
+  // Define icons based on the theme
+  const icons = isDarkTheme
+    ? [cartIconDark, notificationIconDark, messageIconDark, userIconDark]
+    : [cartIcon, notificationIcon, messageIcon, userIcon];
+
   return (
-    <div className="navbar-container">
+    <div className={`navbar-container2 ${isDarkTheme ? "dark" : "light"}`}>
       {/* Top Section */}
       <div className="navbar-top">
         <ul>
-          <li>
-            <a href="#privacy">Privacy Policy</a>
-          </li>
-          <li>
-            <a href="#terms">Terms of Service</a>
-          </li>
+          {["Privacy Policy", "Terms of Service"].map((text, index) => (
+            <li key={index}>
+              <a
+                href={`#${text.toLowerCase().replace(/\s+/g, "")}`}
+                className={isDarkTheme ? "dark" : "light"}
+              >
+                {text}
+              </a>
+            </li>
+          ))}
         </ul>
       </div>
 
-      {/* Middle Section */}
+      {/* Main Section */}
       <div className="navbar-main">
+        {/* Logo */}
         <div className="nav-logo">
-          <img src={logo} alt="RentTUPeers logo" />
-          <span>RenTUPeers</span>
+          <img src={isDarkTheme ? logoDark : logo} alt="RentTUPeers logo" />
+          <span className={isDarkTheme ? "dark" : "light"}>RenTUPeers</span>
         </div>
 
+        {/* Search Bar */}
         <div className="nav-searchbar">
-          <input type="text" placeholder="Search" />
+          <input
+            type="text"
+            placeholder="Search"
+            className={isDarkTheme ? "dark" : "light"}
+          />
         </div>
 
+        {/* Navigation Items */}
         <div className="nav-items">
-          <ul className="d-flex">
+          <ul>
+            {icons.map((icon, index) => (
+              <li key={index} className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`}>
+                <img
+                  src={icon}
+                  alt={`${icon.split("/").pop().split(".")[0]} icon`}
+                />
+              </li>
+            ))}
             <li>
-              <img src={cartIcon} alt="Cart icon" />
+              <button
+                className={`btn btn-rounded primary ${
+                  isDarkTheme ? "" : "opac"
+                }`}
+              >
+                Login
+              </button>
             </li>
             <li>
-              <img src={notificationIcon} alt="Notification icon" />
-            </li>
-            <li>
-              <img src={messageIcon} alt="Message icon" />
-            </li>
-            <li>
-              <img src={userIcon} alt="User icon" />
-            </li>
-            <li>
-              <button className="btn btn-rounded primary opac">Login</button>
-            </li>
-            <li>
-              <button className="btn btn-rounded secondary opac">Register</button>
+              <button
+                className={`btn btn-rounded secondary ${
+                  isDarkTheme ? "" : "opac"
+                }`}
+              >
+                Register
+              </button>
             </li>
           </ul>
         </div>
@@ -59,15 +91,16 @@ const TrialOnNavbar = () => {
       {/* Bottom Section */}
       <div className="navbar-bottom">
         <ul>
-          <li>
-            <a href="#home">Home</a>
-          </li>
-          <li>
-            <a href="#about">About</a>
-          </li>
-          <li>
-            <a href="#contact">Contact</a>
-          </li>
+          {["Discover", "Shop", "Rent", "Lend"].map((text, index) => (
+            <li key={index}>
+              <a
+                href={`/${text.toLowerCase()}`}
+                className={isDarkTheme ? "dark" : "light"}
+              >
+                {text}
+              </a>
+            </li>
+          ))}
         </ul>
       </div>
     </div>

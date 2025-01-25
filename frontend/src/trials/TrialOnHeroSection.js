@@ -2,64 +2,152 @@ import React, { useEffect, useState } from "react";
 import "./new.css";
 import TrialOnNavbar from "./TrialOnNavbar";
 import img3 from "./img_3.svg";
+import item1 from "./item_1.png";
+import item2 from "./item_2.png";
+import item3 from "./item_3.png";
+import item4 from "./item_4.png";
+import item5 from "./item_5.png";
+import item6 from "./item_6.png";
+import item7 from "./item_7.png";
+import item8 from "./item_8.png";
 
 const TrialOnHeroSection = () => {
-  const [isShrinking, setIsShrinking] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0); // Tracks the current slide
+  const [animationClass, setAnimationClass] = useState("entering"); // Handles animation state
 
+  // Automatically transitions between steps with animation
   useEffect(() => {
-    // This function handles scroll event
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      if (scrollY > 200) {
-        setIsShrinking(true);
-      } else {
-        setIsShrinking(false);
-      }
-    };
+    const interval = setInterval(() => {
+      setAnimationClass("exiting");
+      setTimeout(() => {
+        setCurrentStep((prevStep) => (prevStep + 1) % 8); // Loop through steps
+        setAnimationClass("entering");
+      }, 500); // Animation duration
+    }, 4000); // Slide interval
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    // Function to update the current step based on time
-    const updateStep = () => {
-      setInterval(() => {
-        setCurrentStep((prevStep) => (prevStep + 1) % 8); // 8 steps in total
-      }, 3750); // 30 seconds / 8 steps = 3.75 seconds per step
-    };
-
-    updateStep();
-  }, []);
-
+  // Slide content
   const stepDescriptions = [
-    "Need a <span class='centered-text'>📚</span> textbook? Rent it here and avoid the textbook trauma!",
-    "Stressed about <span class='centered-text'>🔬</span> lab equipment? Rent it, relax, and ace that lab!",
-    "Forget the <span class='centered-text'>📊</span> graphing calculator drain on your wallet. Rent it and conquer those equations!",
-    "<span class='centered-text'>🎸</span> Musical instrument calling? Rent it and unleash your inner musician!",
-    "Got a spare <span class='centered-text'>💻</span> laptop? Lend it out and earn some extra cash (and good karma).",
-    "Tired of that <span class='centered-text'>🎮</span> gaming console collecting dust? Lend it out and let someone else enjoy it!",
-    "Time to declutter? Sell your old <span class='centered-text'>📚</span> study guides and fund your next adventure!",
-    "Craving a <span class='centered-text'>📱</span> new tablet? Buy it pre-loved and save your student budget!",
+    {
+      subText: "Need to read for an exam?",
+      headerText: (
+        <h1 className="headline white">
+          Rent a <span className="text-highlight wavy-underline">book</span>{" "}
+          here and ace that test!
+        </h1>
+      ),
+      paragraph:
+        "Accessing books has never been easier. Get the textbooks you need, save money, and focus on what matters most—your grades.",
+    },
+    {
+      subText: "Worried about acing that lab?",
+      headerText: (
+        <h1 className="headline white">
+          Rent <span className="text-highlight wavy-underline">lab equipment</span>,
+          relax, and ace that lab!
+        </h1>
+      ),
+      paragraph:
+        "Say goodbye to lab stress with affordable rentals. Get the gear you need to experiment confidently and perform your best in class.",
+    },
+    {
+      subText: "Stressed about tough equations?",
+      headerText: (
+        <h1 className="headline white">
+          Rent a <span className="text-highlight wavy-underline">scientific calculator</span> and solve them with ease!
+        </h1>
+      ),
+      paragraph:
+        "Tackle complex calculations with ease by renting a reliable scientific calculator. Keep your budget intact while excelling in math or science.",
+    },
+    {
+      subText: "Want to play some tunes?",
+      headerText: (
+        <h1 className="headline white">
+          Rent a <span className="text-highlight wavy-underline">guitar</span>{" "}
+          and unleash your inner musician!
+        </h1>
+      ),
+      paragraph:
+        "Explore your musical talents without breaking the bank. Renting a guitar is the perfect way to start your musical journey today.",
+    },
+    {
+      subText: "Have spare tech lying around?",
+      headerText: (
+        <h1 className="headline white">
+          Share your <span className="text-highlight wavy-underline">laptop</span> and earn extra cash (and good karma).
+        </h1>
+      ),
+      paragraph:
+        "Turn unused gadgets into a source of income. Lend your laptop to someone in need and make a difference.",
+    },
+    {
+      subText: "Got unused sports gear?",
+      headerText: (
+        <h1 className="headline white">
+          Lend your <span className="text-highlight wavy-underline">badminton racket</span> and let others enjoy it!
+        </h1>
+      ),
+      paragraph:
+        "Help others stay active while earning some extra money. Share your badminton racket and give it a new purpose.",
+    },
+    {
+      subText: "Thinking of decluttering?",
+      headerText: (
+        <h1 className="headline white">
+          Sell your old <span className="text-highlight wavy-underline">clothes</span> and fund your next fashion find!
+        </h1>
+      ),
+      paragraph:
+        "Make room for new trends by selling your gently used clothes. Help the environment and your wallet at the same time.",
+    },
+    {
+      subText: "Dreaming of new tech?",
+      headerText: (
+        <h1 className="headline white">
+          Buy a pre-loved <span className="text-highlight wavy-underline">tablet</span> and save your budget!
+        </h1>
+      ),
+      paragraph:
+        "Upgrade to a better device without overspending. Pre-loved tablets offer great value and functionality for students like you.",
+    },
   ];
 
+  // Slide images
+  const images = [item1, item2, item3, item4, item5, item6, item7, item8];
+
   return (
-    <div className="bg-dark">
+    <div className="hero header-image">
       <TrialOnNavbar />
-      <div className="header-image">
-        <div className={`divider ${isShrinking ? "shrinking" : ""}`}>
+      <div className="content2 d-flex align-items-content">
+        {/* Slide Text Content */}
+        <div className="header-container2">
+          <h4 className="sub-title white">{stepDescriptions[currentStep].subText}</h4>
+          {stepDescriptions[currentStep].headerText}
+          <p className="p white">{stepDescriptions[currentStep].paragraph}</p>
+          <div className="btn-container">
+            <button className="btn btn-rounded primary opac">Add now!</button>
+            <button className="btn btn-rounded secondary opac">Learn more</button>
+          </div>
+        </div>
+
+        {/* Rotating Gear Image */}
+        <div className="gear">
           <img
             src={img3}
-            style={{
-              animation: isShrinking ? "none" : "spin 30s linear infinite",
-            }}
+            style={{ animation: "spin 30s linear infinite" }}
+            alt="Decorative"
           />
         </div>
-      </div>
 
-      <div className="text-info">
-        <h2 dangerouslySetInnerHTML={{ __html: stepDescriptions[currentStep] }} />
+        {/* Animated Item Images */}
+        <div className={`items ${animationClass}`}>
+          <div className="image-box floating">
+            <img src={images[currentStep]} alt="Item" className="slide-item" />
+          </div>
+        </div>
       </div>
     </div>
   );
