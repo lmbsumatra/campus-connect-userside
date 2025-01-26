@@ -5,12 +5,15 @@ import createPostIcon from "../../../assets/images/fab/POSTS.svg";
 import addItemIcon from "../../../assets/images/fab/RENTALS.svg";
 import cartIcon from "../../../assets/images/fab/cart.svg";
 import Cart from "../../../pages/private/users/cart/Cart";
+import useHandleActionWithAuthCheck from "../../../utils/useHandleActionWithAuthCheck";
 
 const FAB = ({ cartItems }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -19,9 +22,10 @@ const FAB = ({ cartItems }) => {
   }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const createPost = () => navigate("/profile/my-posts/new");
-  const addItem = () => navigate("/profile/my-listings/add");
-  const toggleCart = () => (isMobile ? navigate("/cart") : setIsCartOpen(!isCartOpen));
+  const createPost = () => handleActionWithAuthCheck("/profile/my-posts/new");
+  const addItem = () => handleActionWithAuthCheck("/profile/my-listings/add");
+  const toggleCart = () =>
+    isMobile ? handleActionWithAuthCheck("/cart") : setIsCartOpen(!isCartOpen);
 
   return (
     <>
@@ -46,11 +50,20 @@ const FAB = ({ cartItems }) => {
             </button>
           </div>
         </div>
-        <button className={`fab-main ${isMenuOpen ? "open" : ""}`} onClick={toggleMenu}>
+        <button
+          className={`fab-main ${isMenuOpen ? "open" : ""}`}
+          onClick={toggleMenu}
+        >
           +
         </button>
       </div>
-      {!isMobile && <Cart items={cartItems} isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
+      {!isMobile && (
+        <Cart
+          items={cartItems}
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+        />
+      )}
     </>
   );
 };

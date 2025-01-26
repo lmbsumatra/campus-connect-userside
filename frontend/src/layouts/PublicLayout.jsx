@@ -25,9 +25,9 @@ function PublicLayout() {
 
   const isVerified = user?.user?.emailVerified ?? false;
 
-  if (loadingFetchUser) {
-    return "loading";
-  }
+  // if (loadingFetchUser) {
+  //   return "loading";
+  // }
 
   const isDarkTheme = !["/", "/home", "/discover"].includes(location.pathname);
 

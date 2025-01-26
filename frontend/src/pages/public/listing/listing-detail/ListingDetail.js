@@ -60,7 +60,7 @@ function ListingDetail() {
   const isYou = approvedListingById?.owner?.id === studentUser?.userId;
   const [isAdmin, setIsAdmin] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const loggedInUserId = studentUser.userId;
+  const loggedInUserId = studentUser?.userId || null;
 
   const location = useLocation();
   const { item, warnSelectDateAndTime } = location.state || {};

@@ -9,24 +9,37 @@ const alertPopupSlice = createSlice({
   initialState: {},
   reducers: {
     showNotification: (_, { payload }) => {
-      const { type, title, text } = payload;
+      const { type, title, text, customButton } = payload; // Added customButton
       if (type === "loading") {
         MySwal.fire({
           icon: "info",
           title: title || "Loading...",
           text: text || "Please wait while we process...",
-          
-          showConfirmButton: false, // Hide confirm button during loading
+          showConfirmButton: false,
         });
-
         Swal.showLoading();
       } else {
-        MySwal.fire({
+        const options = {
           icon: type,
           title,
           text,
-          showConfirmButton: type === "loading" ? false : true,
-        });
+          showCancelButton: !!customButton, // Show cancel button if customButton exists
+          showCloseButton: !!customButton,
+          showConfirmButton: true,
+        };
+
+        if (customButton) {
+          options.confirmButtonText = customButton.text; // Set custom button text
+          options.preConfirm = () => {
+            // Call the custom action when the button is clicked
+            if (customButton.action) {
+              customButton.action(); // Execute custom action
+            }
+            return true; // Resolve the promise
+          };
+        }
+
+        MySwal.fire(options);
       }
     },
 

@@ -39,6 +39,13 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
   const [showLoginSignUp, setShowLoginSignUp] = useState(false);
   const [authTab, setAuthTab] = useState("loginTab");
 
+  useEffect(() => {
+    if (location.state?.showLogin) {
+      setAuthTab(location.state.authTab || "loginTab"); // Default to login tab
+      setShowLoginSignUp(true);
+    }
+  }, [location.state]);
+
   const popupRef = useRef(null);
 
   // Define icons based on the theme
@@ -81,6 +88,8 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
     dispatch(resetLoginForm(authTab));
     dispatch(resetSignupForm(authTab));
     setShowLoginSignUp(false);
+
+    navigate(location.pathname, { replace: true });
   };
 
   const handleLogout = () => {

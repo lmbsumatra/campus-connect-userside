@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectStudentUser } from "../../redux/auth/studentAuthSlice"; // Adjust the path as needed
+import ShowAlert from "../../utils/ShowAlert";
 
 const StudentProtectedRoute = ({ allowedRoles, children }) => {
   // Use useSelector to get studentUser from Redux store
   const studentUser = useSelector(selectStudentUser);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -21,6 +23,7 @@ const StudentProtectedRoute = ({ allowedRoles, children }) => {
   }
 
   if (studentUser === null) {
+    ShowAlert(dispatch, "warning", "Please login first!");
     return <Navigate to="/" />; // Redirect if no student user
   }
 
@@ -34,7 +37,6 @@ const StudentProtectedRoute = ({ allowedRoles, children }) => {
 };
 
 export default StudentProtectedRoute;
-
 
 // import React from "react";
 // import { Navigate } from "react-router-dom";
@@ -62,4 +64,3 @@ export default StudentProtectedRoute;
 // };
 
 // export default StudentProtectedRoute;
-

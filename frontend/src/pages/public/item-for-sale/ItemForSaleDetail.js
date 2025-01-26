@@ -55,7 +55,7 @@ function ItemForSaleDetail() {
   const [redirecting, setRedirecting] = useState(false);
   const [expandTerm, setExpandTerm] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const loggedInUserId = studentUser.userId;
+  const loggedInUserId = studentUser?.userId || null;
 
   const images = [
     itemImage1,
@@ -101,7 +101,7 @@ function ItemForSaleDetail() {
   };
 
   const handleAddToCart = async (e, item) => {
-    console.log(item)
+    console.log(item);
     e.stopPropagation();
 
     dispatch(
@@ -138,16 +138,14 @@ function ItemForSaleDetail() {
     }
 
     const selectedDurationId = selectedDuration.id;
-    
 
     try {
       await dispatch(
         addCartItem({
           userId: studentUser.userId,
-          ownerId:  item.seller.id,
+          ownerId: item.seller.id,
           owner: { fname: item.seller.lname, lname: item.seller.lname },
-          itemType:
-            item.itemType === TO_RENT ? "rent" : "buy",
+          itemType: item.itemType === TO_RENT ? "rent" : "buy",
           dateId: selectedDateId,
           durationId: selectedDurationId,
           itemId: item.id,
@@ -199,7 +197,10 @@ function ItemForSaleDetail() {
       );
     }
 
-    if (errorApprovedItemForSaleById || (!loadingApprovedItemForSaleById && !approvedItemForSaleById)) {
+    if (
+      errorApprovedItemForSaleById ||
+      (!loadingApprovedItemForSaleById && !approvedItemForSaleById)
+    ) {
       setRedirecting(true); // Start the redirect process
       const timer = setTimeout(() => {
         dispatch(
@@ -212,7 +213,12 @@ function ItemForSaleDetail() {
 
       return () => clearTimeout(timer); // Clean up the timeout if dependencies change
     }
-  }, [errorApprovedItemForSaleById, loadingApprovedItemForSaleById, approvedItemForSaleById, dispatch]);
+  }, [
+    errorApprovedItemForSaleById,
+    loadingApprovedItemForSaleById,
+    approvedItemForSaleById,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (redirecting) {
@@ -232,7 +238,9 @@ function ItemForSaleDetail() {
   const handleMessageSellerClick = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createBySeller`,
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:3001"
+        }/api/conversations/createBySeller`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -242,17 +250,17 @@ function ItemForSaleDetail() {
           }),
         }
       );
-  
+
       if (response.ok) {
         navigate("/messages", {
-          state: { 
+          state: {
             sellerId: approvedItemForSaleById.seller.id,
             product: {
               name: approvedItemForSaleById.name,
               price: approvedItemForSaleById.price,
               image: approvedItemForSaleById.images[0],
-              title: approvedItemForSaleById.itemType
-            } 
+              title: approvedItemForSaleById.itemType,
+            },
           }, // Pass sellerId to MessagePage
         });
       } else {
@@ -274,7 +282,10 @@ function ItemForSaleDetail() {
 
     try {
       console.log(reportData);
-      const response = await axios.post("http://localhost:3001/api/reports", reportData); // API endpoint
+      const response = await axios.post(
+        "http://localhost:3001/api/reports",
+        reportData
+      ); // API endpoint
       console.log("Report submitted:", response.data);
       alert("Report submitted successfully!");
     } catch (error) {
@@ -284,16 +295,16 @@ function ItemForSaleDetail() {
 
     setShowReportModal(false); // Close the modal
   };
-  
 
   return (
     <div className="container-content itemforsale-detail">
       <div className="itemforsale-container">
-
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
-              approvedItemForSaleById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+              approvedItemForSaleById.itemType === FOR_RENT
+                ? FOR_RENT
+                : FOR_SALE
             }`}
             componentsProps={{
               popper: {
@@ -315,39 +326,46 @@ function ItemForSaleDetail() {
                   : forSaleIcon
               }
               alt={
-                approvedItemForSaleById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+                approvedItemForSaleById.itemType === FOR_RENT
+                  ? FOR_RENT
+                  : FOR_SALE
               }
               className="item-type"
             />
           </Tooltip>
           <ImageSlider
-            images={approvedItemForSaleById.images && approvedItemForSaleById.images.length ? approvedItemForSaleById.images : [defaultImages]}
+            images={
+              approvedItemForSaleById.images &&
+              approvedItemForSaleById.images.length
+                ? approvedItemForSaleById.images
+                : [defaultImages]
+            }
           />
         </div>
         <div className="rental-details">
-        <div className="item-header">
-          <ItemBadges
-            values={{
-              college: approvedItemForSaleById?.seller?.college,
-              category: approvedItemForSaleById.category,
-            }}
-          />
-          <div className="report-button">
-            <button
-              className="btn btn-rectangle danger"
-              onClick={() => setShowReportModal(true)} // Open the modal
-            >
-              Report
-            </button>
-          </div>
+          <div className="item-header">
+            <ItemBadges
+              values={{
+                college: approvedItemForSaleById?.seller?.college,
+                category: approvedItemForSaleById.category,
+              }}
+            />
+            <div className="report-button">
+              <button
+                className="btn btn-rectangle danger"
+                onClick={() => setShowReportModal(true)} // Open the modal
+              >
+                Report
+              </button>
+            </div>
 
-          {/* Report Modal */}
-          <ReportModal
-            show={showReportModal}
-            handleClose={() => setShowReportModal(false)} // Close the modal
-            handleSubmit={handleReportSubmit} // Submit the report
-          />
-        </div>
+            {/* Report Modal */}
+            <ReportModal
+              show={showReportModal}
+              handleClose={() => setShowReportModal(false)} // Close the modal
+              handleSubmit={handleReportSubmit} // Submit the report
+            />
+          </div>
           <div className="item-title">
             <>
               <i>For rent </i>
@@ -372,8 +390,12 @@ function ItemForSaleDetail() {
             >
               <img src={cartIcon} alt="Add to cart" />
             </button>
-            <button className="btn btn-rectangle secondary" onClick={handleMessageSellerClick}>
-              Message</button>
+            <button
+              className="btn btn-rectangle secondary"
+              onClick={handleMessageSellerClick}
+            >
+              Message
+            </button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
@@ -386,7 +408,8 @@ function ItemForSaleDetail() {
             <div className="date-picker">
               <span>
                 Pick a date to{" "}
-                {approvedItemForSaleById.itemType === FOR_RENT ? "rent" : "buy"}:
+                {approvedItemForSaleById.itemType === FOR_RENT ? "rent" : "buy"}
+                :
               </span>
               <DatePicker
                 inline

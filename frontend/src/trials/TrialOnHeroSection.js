@@ -5,10 +5,12 @@ import "./new.css";
 import TrialOnNavbar from "./TrialOnNavbar";
 import img3 from "./img_3.svg";
 import { stepDescriptions } from "./HeroDisplayLabels";
+import HeroActionCards from "./HeroActionCards.jsx";
 
 const TrialOnHeroSection = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [animationClass, setAnimationClass] = useState("entering");
+  const [actionPopup, setActionPopup] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -40,7 +42,12 @@ const TrialOnHeroSection = () => {
           {currentStepData.headerText}
           <p className="p white">{currentStepData.paragraph}</p>
           <div className="btn-container">
-            <button className="btn btn-rectangle primary opac">Add now!</button>
+            <button
+              className="btn btn-rectangle primary opac"
+              onClick={(e) => setActionPopup(true)}
+            >
+              Add now!
+            </button>
             <button className="btn btn-rectangle secondary opac">
               Learn more
             </button>
@@ -75,6 +82,11 @@ const TrialOnHeroSection = () => {
             )}
           </div>
         </div>
+
+        <HeroActionCards
+          show={actionPopup}
+          hide={() => setActionPopup(false)}
+        />
       </div>
     </div>
   );

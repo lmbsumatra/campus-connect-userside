@@ -52,7 +52,7 @@ function PostDetail() {
   const [redirecting, setRedirecting] = useState(false);
   const [expandTerm, setExpandTerm] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const loggedInUserId = studentUser.userId;
+  const loggedInUserId = studentUser?.userId || null;
 
   const images = [
     itemImage1,
@@ -98,7 +98,7 @@ function PostDetail() {
       dispatch(fetchApprovedPostById(id));
     }
 
-    console.log({approvedPostById});
+    console.log({ approvedPostById });
   }, [id, dispatch]);
 
   useEffect(() => {

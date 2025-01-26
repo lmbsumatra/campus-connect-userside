@@ -15,31 +15,7 @@ import AddNewPost from "../pages/private/users/post/AddNewPost.js";
 import EditItem from "../pages/private/users/item/EditItem.js";
 
 const StudentProtectedRoutes = [
-  <Route path="/cart" element={<Cart />} />,
-  <Route
-    path="/post/:id"
-    element={
-      <StudentProtectedRoute allowedRoles="student">
-        <PostDetail />
-      </StudentProtectedRoute>
-    }
-  />,
-  <Route
-    path="/rent/:id"
-    element={
-      <StudentProtectedRoute allowedRoles="student">
-        <ListingDetail />
-      </StudentProtectedRoute>
-    }
-  />,
-  <Route
-    path="/shop/:id"
-    element={
-      <StudentProtectedRoute allowedRoles="student">
-        <ItemForSaleDetail />
-      </StudentProtectedRoute>
-    }
-  />,
+
   <Route
     path="/profile/my-posts/new"
     element={
