@@ -16,7 +16,6 @@ import {
 } from "../../../../redux/cart/cartSlice";
 import { Modal, Button } from "react-bootstrap";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
-import { ConsoleWriter } from "istanbul-lib-report";
 
 const Cart = ({ isOpen, onClose }) => {
   const cartItems = useSelector(selectCartItems);
@@ -138,11 +137,11 @@ const Cart = ({ isOpen, onClose }) => {
     }
 
     const groupedItems = cartItems.reduce((acc, item) => {
-      if (!acc[item.owner_id]) {
-        acc[item.owner_id] = [];
+      if (!acc[item.owner.id]) {
+        acc[item.owner.id] = [];
       }
 
-      acc[item.owner_id].push(item);
+      acc[item.owner.id].push(item);
       return acc;
     }, {});
 
@@ -216,7 +215,7 @@ const Cart = ({ isOpen, onClose }) => {
             Remove Selected
           </button>
         </div>
-        <div className="items">{renderItems()}</div>
+        <div className="cart-items">{renderItems()}</div>
         <button className="checkout-btn">Checkout</button>
       </div>
 
