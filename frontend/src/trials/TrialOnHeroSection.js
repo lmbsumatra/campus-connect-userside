@@ -4,30 +4,26 @@ import { OrbitControls, useGLTF } from "@react-three/drei";
 import "./new.css";
 import TrialOnNavbar from "./TrialOnNavbar";
 import img3 from "./img_3.svg";
-
-import bookStack from '../';
 import { stepDescriptions } from "./HeroDisplayLabels";
 
 const TrialOnHeroSection = () => {
-  const [currentStep, setCurrentStep] = useState(0); // Tracks the current slide
-  const [animationClass, setAnimationClass] = useState("entering"); // Handles animation state
+  const [currentStep, setCurrentStep] = useState(0);
+  const [animationClass, setAnimationClass] = useState("entering");
 
   useEffect(() => {
     const interval = setInterval(() => {
       setAnimationClass("exiting");
       setTimeout(() => {
-        setCurrentStep((prevStep) => (prevStep + 1) % stepDescriptions.length); // Loop through steps
+        setCurrentStep((prevStep) => (prevStep + 1) % stepDescriptions.length);
         setAnimationClass("entering");
-      }, 500); // Animation duration
-    }, 4000); // Slide interval
+      }, 500);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, []);
 
-
   const currentStepData = stepDescriptions[currentStep];
 
-  // 3D Model Loader
   function Model({ path }) {
     const gltf = useGLTF(path);
     return <primitive object={gltf.scene} scale={1} />;
@@ -35,7 +31,7 @@ const TrialOnHeroSection = () => {
 
   return (
     <div className="hero header-image">
-      <TrialOnNavbar />
+      <TrialOnNavbar theme={"light"} />
 
       <div className="content2 d-flex align-items-content">
         {/* Slide Text Content */}

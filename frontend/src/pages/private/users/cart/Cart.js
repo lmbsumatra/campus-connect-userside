@@ -16,6 +16,7 @@ import {
 } from "../../../../redux/cart/cartSlice";
 import { Modal, Button } from "react-bootstrap";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
+import { ConsoleWriter } from "istanbul-lib-report";
 
 const Cart = ({ isOpen, onClose }) => {
   const cartItems = useSelector(selectCartItems);
@@ -35,6 +36,8 @@ const Cart = ({ isOpen, onClose }) => {
   useEffect(() => {
     dispatch(fetchCart());
   }, [dispatch]);
+
+  console.log(cartItems);
 
   // Close modal after success message
   useEffect(() => {
@@ -128,7 +131,6 @@ const Cart = ({ isOpen, onClose }) => {
         );
       });
   };
-
 
   const renderItems = () => {
     if (!cartItems || cartItems.length === 0) {

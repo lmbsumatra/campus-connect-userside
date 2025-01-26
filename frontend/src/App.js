@@ -85,6 +85,7 @@ import { selectStudentUser } from "./redux/auth/studentAuthSlice.js";
 import { ChatProvider } from "./context/ChatContext.js";
 import TrialOnHeroSection from "./trials/TrialOnHeroSection.js";
 import TrialHome from "./trials/TrialHome.js";
+import TrialOnNavbar from "./trials/TrialOnNavbar.js";
 
 function App() {
   console.log(baseApi);
@@ -323,6 +324,7 @@ function Content() {
 
 function PublicLayout() {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const studentUser = useSelector(selectStudentUser);
 
@@ -342,12 +344,18 @@ function PublicLayout() {
     ); // Show a loading indicator while fetching user data
   }
 
+  const theme =
+    location.pathname === "/" ||
+    location.pathname === "/home" ||
+    location.pathname === "/discover";
+    
   return (
     <>
       {studentUser?.userId && !loadingFetchUser && (
         <TopBar isVerified={isVerified} user={user?.user} />
       )}
-      <NavBar2 />
+      {!theme && <TrialOnNavbar theme={"dark"} />}
+      
       <FAB icon="+" />
       <Outlet />
       <Footer />

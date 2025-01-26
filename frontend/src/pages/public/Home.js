@@ -57,8 +57,8 @@ function Home() {
   }));
 
   return (
-    <div>
-      <Header />
+    <div className="over-flow-hidden">
+      <TrialOnHeroSection/>
       <Subheader />
       <Categories />
 

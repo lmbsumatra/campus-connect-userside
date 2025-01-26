@@ -19,7 +19,7 @@ const stepDescriptions = [
     paragraph:
       "Accessing books has never been easier. Get the textbooks you need, save money, and focus on what matters most—your grades.",
     image: item1,
-    modelPath: "/models/book_stack.glb", // Replace with your local model path
+    modelPath: null, // Replace with your local model path
   },
   {
     subText: "Worried about acing that lab?",
@@ -33,7 +33,7 @@ const stepDescriptions = [
     paragraph:
       "Say goodbye to lab stress with affordable rentals. Get the gear you need to experiment confidently and perform your best in class.",
     image: item2,
-    modelPath: "/models/lab_beaker.glb", // Replace with your local model path
+    modelPath: null, // Replace with your local model path
   },
   {
     subText: "Stressed about tough equations?",
@@ -49,7 +49,7 @@ const stepDescriptions = [
     paragraph:
       "Tackle complex calculations with ease by renting a reliable scientific calculator. Keep your budget intact while excelling in math or science.",
     image: item3,
-    modelPath: "/models/calculator.glb", // Replace with your local model path
+    modelPath: null, // Replace with your local model path
   },
   {
     subText: "Want to play some tunes?",
@@ -62,7 +62,7 @@ const stepDescriptions = [
     paragraph:
       "Explore your musical talents without breaking the bank. Renting a guitar is the perfect way to start your musical journey today.",
     image: item4,
-    modelPath: "/models/book_stack.glb", // Replace with your local model path
+    modelPath: null, // Replace with your local model path
   },
   {
     subText: "Have spare tech lying around?",
@@ -75,7 +75,7 @@ const stepDescriptions = [
     paragraph:
       "Turn unused gadgets into a source of income. Lend your laptop to someone in need and make a difference.",
     image: item5,
-    modelPath: "/models/book_stack.glb", // Replace with your local model path
+    modelPath: null, // Replace with your local model path
   },
   {
     subText: "Got unused sports gear?",
@@ -89,7 +89,7 @@ const stepDescriptions = [
     paragraph:
       "Help others stay active while earning some extra money. Share your badminton racket and give it a new purpose.",
     image: item6,
-    modelPath: "/models/book_stack.glb", // Replace with your local model path
+    modelPath: null, // Replace with your local model path
   },
   {
     subText: "Thinking of decluttering?",
@@ -103,7 +103,7 @@ const stepDescriptions = [
     paragraph:
       "Make room for new trends by selling your gently used clothes. Help the environment and your wallet at the same time.",
     image: item7,
-    modelPath: "/models/book_stack.glb", // Replace with your local model path
+    modelPath: null, // Replace with your local model path
   },
   {
     subText: "Dreaming of new tech?",
@@ -117,6 +117,6 @@ const stepDescriptions = [
     paragraph:
       "Upgrade to a better device without overspending. Pre-loved tablets offer great value and functionality for students like you.",
     image: item8,
-    modelPath: "/models/book_stack.glb", // Replace with your local model path
+    modelPath: null, // Replace with your local model path
   },
 ];

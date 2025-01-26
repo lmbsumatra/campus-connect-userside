@@ -7,7 +7,7 @@ import "./style.css";
 import { io } from "socket.io-client";
 import { useChat } from "../../../context/ChatContext";
 
-const Message = ({ showDropdown, toggleDropdown }) => {
+const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   const [notifications, setNotifications] = useState([]);
   const { studentUser } = useAuth();
   const { userId } = studentUser || {};
@@ -169,15 +169,14 @@ const Message = ({ showDropdown, toggleDropdown }) => {
   return (
     <div className="nav-item">
       <a
-        className="icon-link"
+        className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`}
         href="#"
         onClick={(e) => {
           e.preventDefault();
           toggleDropdown();
         }}
-        data-count={notifications.length}
       >
-        <img src={MessageIcon} alt="Message Icon" className="message-icon" />
+        <img src={icon} alt="Message Icon" />
       </a>
 
       {showDropdown && (

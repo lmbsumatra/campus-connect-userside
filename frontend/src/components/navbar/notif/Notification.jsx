@@ -3,11 +3,18 @@ import Bell from "../../../assets/images/icons/notif.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
 
-const Notification = ({ showNotifications, toggleNotifications }) => {
+const Notification = ({ icon, isDarkTheme, showNotifications, toggleNotifications }) => {
   return (
     <div className="notification-container">
-      <a className="icon-link" href="#" onClick={toggleNotifications}>
-        <img src={Bell} alt="Notification Icon" />
+       <a 
+        className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`} 
+        href="#" 
+        onClick={toggleNotifications}
+      >
+        <img 
+          src={icon} 
+          alt="Notification Icon" 
+        />
       </a>
       {showNotifications && (
         <div className="notifications-user">

@@ -4,6 +4,13 @@ body {
   font-family: "Karla", sans-serif !important;
 }
 
+.hero, .header-image {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
 /* Header Image */
 .header-image {
   background-image: linear-gradient(to right, #0f395edc, #913000cb),
@@ -20,6 +27,7 @@ body {
   height: 85vh;
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 /* Header Container */

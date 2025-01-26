@@ -10,21 +10,27 @@ import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 
 const UserDropdown = ({
+  icon,
+  isDarkTheme,
   showDropdown,
   toggleDropdown,
   handleLogout,
 }) => {
   const studentUser = useSelector(selectStudentUser);
   const { userId } = studentUser || {};
-  
+
   // Fetch user information
   const { user, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
 
   return (
     <div className="nav-item">
       {/* Dropdown Trigger */}
-      <a className="icon-link" href="#" onClick={toggleDropdown}>
-        <img src={UserIcon} alt="User Icon" className="user-icon" />
+      <a
+        className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`}
+        href="#"
+        onClick={toggleDropdown}
+      >
+        <img src={icon} alt="User Icon" />
       </a>
 
       {/* Dropdown Menu */}
@@ -41,7 +47,8 @@ const UserDropdown = ({
               ) : (
                 <>
                   <h5>
-                    {user?.first_name || "First Name"} {user?.last_name || "Last Name"}
+                    {user?.first_name || "First Name"}{" "}
+                    {user?.last_name || "Last Name"}
                   </h5>
                   <h6>
                     <a href="/profile">View Profile</a>

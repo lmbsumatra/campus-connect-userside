@@ -327,3 +327,7 @@ hr {
 .align-items-center {
   align-items: center;
 }
+
+.over-flow-hidden {
+  overflow: hidden !important;
+}
