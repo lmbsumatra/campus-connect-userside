@@ -3,6 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectStudentUser } from "../../redux/auth/studentAuthSlice"; // Adjust the path as needed
 import ShowAlert from "../../utils/ShowAlert";
+import LoadingOverlay from "../loading-overlay/LoadingOverlay";
 
 const StudentProtectedRoute = ({ allowedRoles, children }) => {
   // Use useSelector to get studentUser from Redux store
@@ -19,7 +20,7 @@ const StudentProtectedRoute = ({ allowedRoles, children }) => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Loading state
+    return <LoadingOverlay />; // Loading state
   }
 
   if (studentUser === null) {

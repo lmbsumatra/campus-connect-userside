@@ -135,6 +135,7 @@
 .nav-searchbar input.light {
   border-color: rgba(255, 255, 255, 0.3);
   background-color: rgba(255, 255, 255, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .nav-searchbar input.light:focus {
@@ -150,6 +151,7 @@
   border-color: rgba(0, 0, 0, 0.3);
   background-color: rgb(255, 255, 255);
   color: rgb(0, 0, 0);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .nav-searchbar input.dark:focus {
