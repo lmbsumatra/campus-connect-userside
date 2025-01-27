@@ -1,93 +1,110 @@
-// LoginSignUp.jsx
 import React, { useState, useEffect } from "react";
-import { Modal } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import Trial2 from "./Trial2";
-import Trial from "./Trial";
+import SignUpForm from "./SignupForm"; // Renamed from Trial
+import LoginForm from "./LoginForm";    // Renamed from Trial2
 import { resetLoginForm } from "../../../redux/login-form/loginFormSlice";
 import { resetSignupForm } from "../../../redux/signup-form/signupFormSlice";
-import loginImage from "../../../assets/images/auth/login.jpg";
 import "./loginSignupStyle.css";
+import gearIcon from "./gear-blue.svg"; // Renamed for clarity
 
-const LoginSignUp = ({ tab, onClose, show }) => {
-  const [authTab, setAuthTab] = useState(tab);
+const TRANSITION_DURATION = 300;
+const TABS = {
+  LOGIN: "loginTab",
+  SIGNUP: "signupTab"
+};
+
+const LoginSignup = ({ initialTab, onClose, isVisible }) => {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [errorMessage, setErrorMessage] = useState("");
-  const [transitioning, setTransitioning] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [gearPosition, setGearPosition] = useState(initialTab);
+  const [isFirstRender, setIsFirstRender] = useState(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setAuthTab(tab);
-  }, [tab]);
+    if (isVisible) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
 
-  const handleTabClick = (newTab) => {
-    setTransitioning(true);
+    return () => document.body.classList.remove("no-scroll");
+  }, [isVisible]);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
+  const handleTabSwitch = (newTab) => {
+    setIsTransitioning(true);
+    setGearPosition(prevPosition => 
+      prevPosition === "gear-left" ? "gear-right" : "gear-left"
+    );
+    setIsFirstRender(false);
+
     setTimeout(() => {
-      setAuthTab(newTab);
-      resetForm(newTab);
+      setActiveTab(newTab);
+      dispatch(newTab === TABS.LOGIN ? resetLoginForm() : resetSignupForm());
       setErrorMessage("");
-      setTransitioning(false);
-    }, 300);
+      setIsTransitioning(false);
+    }, TRANSITION_DURATION);
   };
 
-  const resetForm = (tab) => {
-    dispatch(tab === "loginTab" ? resetLoginForm() : resetSignupForm());
+  const getGearClassName = () => {
+    if (isFirstRender) {
+      return activeTab === TABS.LOGIN ? "left-position" : "right-position";
+    }
+    return gearPosition === "gear-left" ? "gear-left" : "gear-right";
+  };
+
+  const renderAuthContent = () => {
+    const sharedProps = {
+      onTabClick: handleTabSwitch,
+      errorMessage,
+      setErrorMessage
+    };
+
+    const contentClassName = `auth-content ${isTransitioning ? "fade-out" : "fade-in"}`;
+    const innerClassName = `${isTransitioning ? "fade-out" : "fade-in"}`;
+
+    return activeTab === TABS.LOGIN ? (
+      <div className={contentClassName}>
+        <div className={innerClassName}>
+          <h2>Welcome Back</h2>
+          <div className="form-container">
+            <LoginForm {...sharedProps} />
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div className={contentClassName}>
+        <div className={innerClassName}>
+          <h2>Create Account</h2>
+          <div className="form-container scrollable">
+            <SignUpForm {...sharedProps} />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <Modal 
-      show={show} 
-      onHide={onClose} 
-      centered 
-      dialogClassName="auth-modal"
-      contentClassName="modal-content-fixed"
-    >
-      <button className="modal-close" onClick={onClose}>
-        <svg viewBox="0 0 24 24" width="24" height="24">
-          <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        </svg>
-      </button>
-      
-      <div className="auth-wrapper">
-        {authTab === "loginTab" ? (
-          <div className={`auth-content ${transitioning ? 'transitioning' : ''}`}>
-            <div className={`image-section ${transitioning ? 'slide-left' : ''}`}>
-              <div className="image-gradient">
-                <img src={loginImage} alt="Login" />
-              </div>
-            </div>
-            <div className={`form-section ${transitioning ? 'fade-out' : 'fade-in'}`}>
-              <h2>Welcome Back</h2>
-              <div className="form-container">
-                <Trial2
-                  onTabClick={handleTabClick}
-                  errorMessage={errorMessage}
-                  setErrorMessage={setErrorMessage}
-                />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className={`auth-content ${transitioning ? 'transitioning' : ''}`}>
-            <div className={`form-section ${transitioning ? 'fade-out' : 'fade-in'}`}>
-              <h2>Create Account</h2>
-              <div className="form-container scrollable">
-                <Trial
-                  onTabClick={handleTabClick}
-                  errorMessage={errorMessage}
-                  setErrorMessage={setErrorMessage}
-                />
-              </div>
-            </div>
-            <div className={`image-section ${transitioning ? 'slide-right' : ''}`}>
-              <div className="image-gradient">
-                <img src={loginImage} alt="Sign Up" />
-              </div>
-            </div>
-          </div>
-        )}
+    <div className="overlay">
+      <div className="custom-modal overlay">
+        <button className="modal-close" onClick={onClose}>
+          Close
+        </button>
+
+        <div className={`bg-gear ${getGearClassName()}`}>
+          <img src={gearIcon} alt="Background gear" />
+        </div>
+
+        <div className={`auth-wrapper ${isTransitioning ? "transitioning" : ""}`}>
+          {renderAuthContent()}
+        </div>
       </div>
-    </Modal>
+    </div>
   );
 };
 
-export default LoginSignUp;
+export default LoginSignup;

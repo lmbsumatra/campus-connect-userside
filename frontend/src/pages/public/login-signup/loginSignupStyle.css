@@ -32,20 +32,21 @@
 
 .auth-wrapper {
   height: 100%;
+  overflow-y: scroll;
 }
 
 .auth-content {
   display: flex;
   width: 100%;
   height: 100%;
-  transition: transform 0.3s ease;
+  transition: transform 4s ease;
 }
 
 .image-section {
   width: 50%;
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s ease;
+  transition: transform 4s ease;
 }
 
 .image-gradient {
@@ -69,7 +70,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  transition: opacity 0.3s ease;
+  transition: opacity 4s ease;
 }
 
 .form-section h2 {
@@ -107,7 +108,7 @@
 
 /* Transitions and Animations */
 .transitioning .image-section {
-  transition: transform 0.3s ease;
+  transition: transform 4s ease;
 }
 
 .slide-left {
@@ -150,7 +151,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s ease;
+  transition: border-color 4s ease;
 }
 
 .input:focus {
@@ -187,5 +188,89 @@
 
   .form-container {
     padding: 1rem;
+  }
+}
+
+.no-scroll {
+  overflow: hidden; /* Prevent scrolling */
+  height: 100%; /* Prevent content from shifting */
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent white background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.custom-modal {
+  background-color: white;
+  position: relative;
+  overflow: hidden;
+  max-width: 100vw !important;
+  width: 50vw !important;
+  height: 90vh;
+  max-height: 90vh;
+  border: none;
+  overflow: hidden;
+} /* Container for the gear */
+
+.bg-gear {
+  position: absolute;
+  top: 100%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  scale: 1;
+  z-index: -1;
+}
+
+.bg-gear.left-position {
+  transform: translateX(-100%) translateY(-50%);
+}
+
+.bg-gear.right-position {
+  transform: translateX(0%) translateY(-50%);
+}
+
+.bg-gear img {
+  height: 700px;
+  width: auto;
+}
+
+/* Animation for left to right movement */
+.gear-left {
+  animation: gearLeftToRight 2s forwards; /* Add 'forwards' to keep final state */
+}
+
+/* Animation for right to left movement */
+.gear-right {
+  animation: gearRightToLeft 2s forwards; /* Add 'forwards' to keep final state */
+}
+
+@keyframes gearLeftToRight {
+  0% {
+    transform: translateX(0%) translateY(-50%) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-100%) rotate(90deg) scale(2);
+  }
+  100% {
+    transform: translateX(-100%) translateY(-50%) rotate(180deg) scale(1); /* Final position */
+  }
+}
+
+@keyframes gearRightToLeft {
+  0% {
+    transform: translateX(-100%) translateY(-50%) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-100%) rotate(-90deg) scale(2);
+  }
+  100% {
+    transform: translateX(0%) translateY(-50%) rotate(-180deg) scale(1); /* Final position */
   }
 }
