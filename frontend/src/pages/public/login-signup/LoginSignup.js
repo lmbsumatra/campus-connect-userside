@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import SignUpForm from "./SignupForm"; // Renamed from Trial
-import LoginForm from "./LoginForm";    // Renamed from Trial2
+import Trial2 from "./Trial2";
+import Trial from "./Trial";
 import { resetLoginForm } from "../../../redux/login-form/loginFormSlice";
 import { resetSignupForm } from "../../../redux/signup-form/signupFormSlice";
 import "./loginSignupStyle.css";
@@ -72,7 +72,7 @@ const LoginSignup = ({ initialTab, onClose, isVisible }) => {
         <div className={innerClassName}>
           <h2>Welcome Back</h2>
           <div className="form-container">
-            <LoginForm {...sharedProps} />
+            <Trial2 {...sharedProps} />
           </div>
         </div>
       </div>
@@ -81,7 +81,7 @@ const LoginSignup = ({ initialTab, onClose, isVisible }) => {
         <div className={innerClassName}>
           <h2>Create Account</h2>
           <div className="form-container scrollable">
-            <SignUpForm {...sharedProps} />
+            <Trial {...sharedProps} />
           </div>
         </div>
       </div>
