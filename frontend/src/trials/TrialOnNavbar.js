@@ -12,6 +12,8 @@ import notificationIconDark from "../assets/images/navbar/notificationDark.svg";
 import cartIconDark from "../assets/images/navbar/cartDark.svg";
 import logo from "../assets/images/navbar/cc-logo-white.svg";
 import logoDark from "../assets/images/navbar/cc-logo.png";
+import menuIcon from "../assets/images/navbar/menu.svg";
+import menuIconDark from "../assets/images/navbar/menu-dark.svg";
 
 import LoginSignUp from "../pages/public/login-signup/LoginSignup.js";
 
@@ -38,6 +40,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
   const [openPopup, setOpenPopup] = useState(null);
   const [showLoginSignUp, setShowLoginSignUp] = useState(false);
   const [authTab, setAuthTab] = useState("loginTab");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   useEffect(() => {
     if (location.state?.showLogin) {
@@ -144,13 +147,15 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
             type="text"
             placeholder="Search"
             className={isDarkTheme ? "dark" : "light"}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
           />
         </div>
 
         {/* Navigation Icons */}
-        <div className="nav-items">
+        <div className={`nav-items ${isSearchFocused ? "hidden" : ""}`}>
           {studentUser ? (
-            <ul>
+            <ul className="">
               <Notification
                 icon={icons[1]}
                 isDarkTheme={isDarkTheme}
@@ -173,7 +178,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
             </ul>
           ) : (
             <ul>
-              <li>
+              <li className="login">
                 <button
                   className={`btn btn-rounded secondary ${
                     isDarkTheme ? "" : "opac"
@@ -183,7 +188,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
                   Login
                 </button>
               </li>
-              <li>
+              <li className="register">
                 <button
                   className={`btn btn-rounded primary ${
                     isDarkTheme ? "" : "opac"
@@ -193,6 +198,13 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
                   Register
                 </button>
               </li>
+              {/* <li className="menu">
+                <img
+                  src={`${isDarkTheme ? menuIconDark : menuIcon}`}
+                  alt="Menu expand button"
+                  className="btn-icon"
+                />
+              </li> */}
             </ul>
           )}
         </div>
