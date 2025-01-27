@@ -1,33 +1,80 @@
-
-
-.no-scroll {
-  overflow: hidden; /* Prevent scrolling */
-  height: 100%; /* Prevent content from shifting */
-}
-
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent white background */
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+
+  /* Allow inner content to manage overflow */
+  overflow: hidden;
 }
+
+.no-scroll {
+  overflow: hidden;
+}
+
 .custom-modal {
+  display: block;
   background-color: white;
   position: relative;
-  overflow: hidden;
-  max-width: 100vw !important;
-  width: 50vw !important;
+  width: 60vw;
   height: 90vh;
   max-height: 90vh;
-  border: none;
+  border-radius: 16px;
+  /* Prevent cutting off child content */
   overflow: hidden;
-} /* Container for the gear */
+  padding: 24px;
+}
+
+.auth-wrapper {
+  height: 100%;
+  overflow: auto; /* Enable scrolling */
+}
+
+.auth-content {
+  max-height: 100%;
+  overflow: auto; /* Ensure content scrolls */
+}
+
+.form-container {
+  max-height: 70vh; /* Constrain height for scrolling */
+  overflow: auto; /* Enable scroll within form */
+  
+}
+
+.form-container.login-tab {
+  width: 50%;
+  float: right;
+}
+.form-container.signup-tab {
+  width: 50%;
+  float: left;
+}
+
+/* Webkit-based browsers (Chrome, Edge, Safari) */
+.form-container::-webkit-scrollbar {
+  width: 8px; /* Adjust width */
+}
+
+.form-container::-webkit-scrollbar-thumb {
+  background: #00000028; /* Thumb color */
+  border-radius: 4px; /* Rounded edges */
+}
+
+.form-container::-webkit-scrollbar-thumb:hover {
+  background: #00000028; /* Darker on hover */
+}
+
+.form-container::-webkit-scrollbar-track {
+  background: none; /* Track color */
+  border-radius: 4px;
+}
+
 
 .bg-gear {
   position: absolute;
@@ -82,4 +129,37 @@
   100% {
     transform: translateX(0%) translateY(-50%) rotate(-180deg) scale(1); /* Final position */
   }
+}
+
+
+
+.form-container {
+  max-height: 70vh; /* Constrain the height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  position: relative;
+  padding: 1rem;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Add shadow when scrolling is needed */
+.form-container.with-shadow {
+  box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.1); /* Bottom shadow */
+}
+
+/* Optional: Add a shadow at the top if scrolling upwards is needed */
+.form-container:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
+  pointer-events: none;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.3s ease;
+}
+
+.form-container.with-shadow:before {
+  opacity: 1; /* Show the shadow */
 }

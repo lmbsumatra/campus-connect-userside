@@ -10,26 +10,33 @@ import gearIcon from "./gear-blue.svg"; // Renamed for clarity
 const TRANSITION_DURATION = 300;
 const TABS = {
   LOGIN: "loginTab",
-  SIGNUP: "signupTab"
+  SIGNUP: "signupTab",
 };
 
-const LoginSignup = ({ initialTab, onClose, isVisible }) => {
+const LoginSignup = ({ initialTab, onClose, show }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [errorMessage, setErrorMessage] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [gearPosition, setGearPosition] = useState(initialTab);
   const [isFirstRender, setIsFirstRender] = useState(true);
+  const [isBottomShadowVisible, setIsBottomShadowVisible] = useState(false);
   const dispatch = useDispatch();
 
+  const handleScroll = (e) => {
+    const element = e.target;
+    const atBottom = element.scrollHeight - element.scrollTop === element.clientHeight;
+    setIsBottomShadowVisible(!atBottom);
+  };
+
   useEffect(() => {
-    if (isVisible) {
+    if (show) {
       document.body.classList.add("no-scroll");
     } else {
       document.body.classList.remove("no-scroll");
     }
 
     return () => document.body.classList.remove("no-scroll");
-  }, [isVisible]);
+  }, [show]);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -37,7 +44,7 @@ const LoginSignup = ({ initialTab, onClose, isVisible }) => {
 
   const handleTabSwitch = (newTab) => {
     setIsTransitioning(true);
-    setGearPosition(prevPosition => 
+    setGearPosition((prevPosition) =>
       prevPosition === "gear-left" ? "gear-right" : "gear-left"
     );
     setIsFirstRender(false);
@@ -61,17 +68,19 @@ const LoginSignup = ({ initialTab, onClose, isVisible }) => {
     const sharedProps = {
       onTabClick: handleTabSwitch,
       errorMessage,
-      setErrorMessage
+      setErrorMessage,
     };
 
-    const contentClassName = `auth-content ${isTransitioning ? "fade-out" : "fade-in"}`;
-    const innerClassName = `${isTransitioning ? "fade-out" : "fade-in"}`;
+    const contentClassName = `auth-content ${
+      isTransitioning ? "fade-out" : "fade-in"
+    }`;
+    const innerClassName = `newo${isTransitioning ? "fade-out" : "fade-in"}`;
 
     return activeTab === TABS.LOGIN ? (
       <div className={contentClassName}>
         <div className={innerClassName}>
-          <h2>Welcome Back</h2>
-          <div className="form-container">
+          <div className={`form-container login-tab ${isBottomShadowVisible ? "with-shadow" : ""}`}>
+            <h2>Welcome Back</h2>
             <Trial2 {...sharedProps} />
           </div>
         </div>
@@ -79,8 +88,8 @@ const LoginSignup = ({ initialTab, onClose, isVisible }) => {
     ) : (
       <div className={contentClassName}>
         <div className={innerClassName}>
-          <h2>Create Account</h2>
-          <div className="form-container scrollable">
+          <div className={`form-container signup-tab ${isBottomShadowVisible ? "with-shadow" : ""}`}>
+            <h2>Create Account</h2>
             <Trial {...sharedProps} />
           </div>
         </div>
@@ -99,7 +108,9 @@ const LoginSignup = ({ initialTab, onClose, isVisible }) => {
           <img src={gearIcon} alt="Background gear" />
         </div>
 
-        <div className={`auth-wrapper ${isTransitioning ? "transitioning" : ""}`}>
+        <div
+          className={`auth-wrapper ${isTransitioning ? "transitioning" : ""}`}
+        >
           {renderAuthContent()}
         </div>
       </div>

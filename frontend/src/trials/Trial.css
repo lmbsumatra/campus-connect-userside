@@ -1,6 +1,5 @@
 /* General Styles */
 
-
 .auth-container input {
   color: black;
   background-color: white !important;
@@ -60,40 +59,59 @@ ul.list li {
   margin-bottom: 5px;
 }
 
-/* Login Input Wrapper */
 .input-wrapper {
   position: relative;
-  background-color: var(--clr-muted);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
   width: 100%;
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: 24px 1fr 24px;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  border: 1px solid rgba(39, 28, 28, 0.3);
+  border-radius: 8px !important;
+  padding: 4px 8px;
+  overflow: hidden; /* Ensures child elements are clipped */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-wrapper > * {
+  overflow: hidden; /* Prevent child elements from spilling outside */
+  border-radius: inherit; /* Apply parent's border-radius to children */
 }
 
 .input-wrapper img.icon {
-  position: absolute;
-  left: 8px;
+  position: static; /* Remove absolute positioning */
   width: 24px;
   height: 24px;
 }
 
 .input-wrapper input {
-  border: none;
-  border-bottom: 2px solid var(--clr-muted);
-  background-color: var(--clr-muted);
-  font-size: 14px;
-  height: 40px;
-  padding: 8px 8px 8px 39px;
   width: 100%;
-  color: var(--clr-black);
-  outline: none;
-  transition: border-bottom 0.3s ease, color 0.3s ease;
+  height: 36px;
+  border: none; /* Remove border since wrapper has it */
+  padding: 8px 0; /* Remove side padding since grid handles spacing */
+  font-size: 16px;
+  background-color: transparent !important; /* Remove background since wrapper has it */
+  color: rgb(0, 0, 0);
+  border-radius: 8px;
+}
+
+img.password-toggle-icon {
+  position: static; /* Remove absolute positioning */
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+/* Focus styles move to wrapper */
+.input-wrapper:focus-within {
+  border-color: rgb(33, 121, 200);
+  box-shadow: 0px 0px 0px 6px rgba(33, 121, 200, 0.3);
 }
 
 .input-wrapper input:focus {
-  border-bottom: 2px solid var(--clr-primary);
-  color: var(--clr-primary);
+  outline: none; /* Remove default focus since wrapper handles it */
+  box-shadow: none;
 }
 
 /* Label Styles */
@@ -140,6 +158,25 @@ img.password-toggle-icon {
   display: flex;
   gap: 8px;
   justify-content: start;
+}
+.tupid-input-wrapper input {
+  width: 36px;
+  border-color: rgb(0, 0, 0) !important;
+  background-color: rgb(255, 255, 255) !important;
+  color: rgb(0, 0, 0) !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.tupid-input-wrapper input.input-box {
+  width: 36px;
+  border-color: rgb(0, 0, 0) !important;
+  background-color: rgb(255, 255, 255) !important;
+  color: rgb(0, 0, 0) !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.tupid-input-wrapper input:focus {
+  border-color: rgb(33, 121, 200);
+  box-shadow: 0px 0px 0px 6px rgba(33, 121, 200, 0.3);
+  color: rgba(33, 121, 200);
 }
 
 .input-box {

@@ -414,7 +414,7 @@ const Trial = ({ onTabClick }) => {
                   maxLength="1"
                   value={digit}
                   className="input-box"
-                  placeholder="-"
+                  placeholder="#"
                   required
                   onChange={(e) => handleTupIdChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)} // Handle the Backspace key
