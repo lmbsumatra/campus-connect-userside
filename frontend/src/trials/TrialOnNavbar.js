@@ -43,6 +43,20 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   useEffect(() => {
+    const path = location.pathname.toLowerCase();
+
+    const tabMapping = {
+      "/shop": "Shop",
+      "/rent": "Rent",
+      "/lend": "Lend",
+      "/discover": "Discover",
+    };
+
+    const activeTabName = tabMapping[path] || "Discover"; // Default to Discover
+    setActiveTab(activeTabName);
+  }, [location.pathname]);
+
+  useEffect(() => {
     if (location.state?.showLogin) {
       setAuthTab(location.state.authTab || "loginTab"); // Default to login tab
       setShowLoginSignUp(true);
@@ -215,15 +229,14 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
         <ul className={`${isDarkTheme ? "dark" : "light"}`}>
           {["Discover", "Shop", "Rent", "Lend"].map((text, index) => (
             <li key={index}>
-              <a
-                href={`/${text.toLowerCase()}`}
-                className={`${isDarkTheme ? "dark" : "light"} ${
+              <button
+                className={`nav-link ${isDarkTheme ? "dark" : "light"} ${
                   activeTab === text ? "active" : ""
                 }`}
                 onClick={() => setTab(text)}
               >
                 {text}
-              </a>
+              </button>
             </li>
           ))}
         </ul>

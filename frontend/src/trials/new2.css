@@ -35,15 +35,18 @@
 }
 
 .navbar-bottom ul {
+  gap: 42px;
   background-color: rgba(255, 255, 255, 0.1);
   padding: 8px 0;
   margin: 8px 0;
   border-radius: 8px;
+  justify-content: center;
 }
 
 .navbar-bottom ul.dark {
   background-color: rgba(0, 0, 0, 0.05);
 }
+
 .navbar-bottom ul.light {
   background-color: rgba(255, 255, 255, 0.1);
 }
@@ -52,40 +55,53 @@
   justify-content: flex-end;
 }
 
-.navbar-bottom ul {
-  justify-content: center;
-}
-
 .navbar-top ul li a,
-.navbar-bottom ul li a {
+.navbar-bottom ul li button {
   text-decoration: none;
   font-size: 14px;
   transition: color 0.3s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-.navbar-bottom ul li a {
+.navbar-bottom ul li button {
   font-size: 18px;
   font-weight: 600;
 }
 
 .navbar-top ul li a.light,
-.navbar-bottom ul li a.light {
-  color: rgba(255, 255, 255, 0.8);
+.navbar-bottom ul li button.light {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .navbar-top ul li a.dark,
-.navbar-bottom ul li a.dark {
-  color: rgba(33, 121, 200);
+.navbar-bottom ul li button.dark {
+  color: rgba(33, 121, 200, 0.6);
 }
 
 .navbar-top ul li a.light:hover,
-.navbar-bottom ul li a.light:hover {
+.navbar-bottom ul li button.light:hover {
   color: #ffffff !important;
 }
 
 .navbar-top ul li a.dark:hover,
-.navbar-bottom ul li a.dark:hover {
+.navbar-bottom ul li button.dark:hover {
   color: rgb(33, 121, 200);
+}
+
+/* Active State Styling */
+.navbar-bottom ul li button.active {
+  color: #ffffff; 
+  font-weight: bold;        
+}
+
+.navbar-bottom ul li button.active.light {
+  color: #fff;          
+}
+
+.navbar-bottom ul li button.active.dark {
+  color: rgb(33, 121, 200);  
 }
 
 /* Navbar Main Section */
@@ -97,7 +113,6 @@
 }
 
 /* Logo Styles */
-
 .nav-logo {
   cursor: pointer;
   display: flex;
@@ -237,6 +252,7 @@
     display: flex;
     gap: 8px;
   }
+
   .navbar-main .nav-searchbar {
     width: 100%;
     transition: width 1s ease-in-out;
@@ -262,6 +278,7 @@
     display: flex;
     gap: 8px;
   }
+
   .navbar-main .nav-searchbar {
     width: 100%;
     transition: width 1s ease-in-out;
