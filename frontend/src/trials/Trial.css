@@ -9,13 +9,13 @@
 
 .form-wrapper {
   min-height: 80px;
-  overflow: hidden;
+  /* overflow: hidden; */
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.field-container {
-  padding: 8px;
-}
 
 /* General Styles for validation messages */
 .validation {
@@ -59,7 +59,7 @@ ul.list li {
   margin-bottom: 5px;
 }
 
-.input-wrapper {
+.input-wrapper2 {
   position: relative;
   width: 100%;
   display: grid;
@@ -68,32 +68,23 @@ ul.list li {
   gap: 8px;
   background-color: white;
   border: 1px solid rgba(39, 28, 28, 0.3);
-  border-radius: 8px !important;
-  padding: 4px 8px;
-  overflow: hidden; /* Ensures child elements are clipped */
+  padding: 0px 8px;
+  overflow: auto; /* Ensures child elements are clipped */
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 8px !important;
 }
 
-.input-wrapper > * {
-  overflow: hidden; /* Prevent child elements from spilling outside */
-  border-radius: inherit; /* Apply parent's border-radius to children */
-}
-
-.input-wrapper img.icon {
+.input-wrapper2 img.icon {
   position: static; /* Remove absolute positioning */
   width: 24px;
   height: 24px;
 }
 
-.input-wrapper input {
+.input-wrapper2 input {
   width: 100%;
-  height: 36px;
+  height: auto;
   border: none; /* Remove border since wrapper has it */
   padding: 8px 0; /* Remove side padding since grid handles spacing */
-  font-size: 16px;
-  background-color: transparent !important; /* Remove background since wrapper has it */
-  color: rgb(0, 0, 0);
-  border-radius: 8px;
 }
 
 img.password-toggle-icon {
@@ -101,17 +92,15 @@ img.password-toggle-icon {
   width: 24px;
   height: 24px;
   cursor: pointer;
+  overflow: hidden;
+  border-radius: 8px !important;
 }
 
 /* Focus styles move to wrapper */
-.input-wrapper:focus-within {
+.input-wrapper2:focus-within {
   border-color: rgb(33, 121, 200);
   box-shadow: 0px 0px 0px 6px rgba(33, 121, 200, 0.3);
-}
-
-.input-wrapper input:focus {
-  outline: none; /* Remove default focus since wrapper handles it */
-  box-shadow: none;
+  /* border-radius: 8px !important; */
 }
 
 /* Label Styles */
@@ -129,13 +118,6 @@ img.password-toggle-icon {
 .label img.icon {
   height: 16px;
   width: auto;
-}
-
-.input-wrapper input:focus + .label,
-.input-wrapper input:not(:placeholder-shown) + .label {
-  color: var(--clr-primary);
-  font-size: 10px;
-  font-weight: 600;
 }
 
 /* Password Toggle Icon */
@@ -158,46 +140,24 @@ img.password-toggle-icon {
   display: flex;
   gap: 8px;
   justify-content: start;
+  width: 100%;
 }
 .tupid-input-wrapper input {
-  width: 36px;
-  border-color: rgb(0, 0, 0) !important;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgb(0, 0, 0, 0.5);
   background-color: rgb(255, 255, 255) !important;
   color: rgb(0, 0, 0) !important;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  font-weight: 700;
 }
-.tupid-input-wrapper input.input-box {
-  width: 36px;
-  border-color: rgb(0, 0, 0) !important;
-  background-color: rgb(255, 255, 255) !important;
-  color: rgb(0, 0, 0) !important;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
+
 .tupid-input-wrapper input:focus {
   border-color: rgb(33, 121, 200);
   box-shadow: 0px 0px 0px 6px rgba(33, 121, 200, 0.3);
-  color: rgba(33, 121, 200);
-}
-
-.input-box {
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--clr-muted);
-  border-radius: 4px;
-  text-align: center;
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--clr-black);
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-
-.input-box:focus {
-  border-color: var(--clr-primary);
-}
-
-.input-box::placeholder {
-  color: var(--clr-muted-dark);
+  color: rgba(33, 121, 200) !important;
 }
 
 /* Divider */
@@ -213,7 +173,7 @@ img.password-toggle-icon {
 .or-divider::after {
   content: "";
   flex: 1;
-  border-bottom: 1px solid #f44d4d;
+  border-bottom: 1px solid #666;
   margin: 0 10px;
 }
 
@@ -244,7 +204,7 @@ img.password-toggle-icon {
   position: relative;
   width: 100%;
   height: 100%;
-  border: 1px dashed #ccc;
+  border: 2px dashed #ccc;
   border-radius: 8px;
   display: flex;
   justify-content: center;
@@ -318,4 +278,33 @@ input[type="file"] {
 
 .remove-button:hover img {
   box-shadow: rgba(100, 100, 111, 0.6) 0px 7px 29px 0px;
+}
+
+
+.google-login-section {
+  width: 100%;
+}
+
+.btn-google {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #757575;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-google:hover {
+  background: #f1f1f1;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 0.5rem;
 }

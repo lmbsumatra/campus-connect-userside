@@ -1,87 +1,128 @@
+/* Base overlay styles */
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-
-  /* Allow inner content to manage overflow */
-  overflow: hidden;
 }
 
 .no-scroll {
   overflow: hidden;
 }
 
+/* Modal styles */
 .custom-modal {
-  display: block;
   background-color: white;
   position: relative;
-  width: 60vw;
+  width: 50vw; /* Increased width for better visibility */
   height: 90vh;
-  max-height: 90vh;
   border-radius: 16px;
-  /* Prevent cutting off child content */
   overflow: hidden;
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  
 }
 
+.modal-close {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 999;
+}
+
+/* Auth container styles */
 .auth-wrapper {
   height: 100%;
-  overflow: auto; /* Enable scrolling */
+  width: 100%;
+  padding: 20px; /* Increased left padding */
+  overflow: visible !important;
+  
 }
 
 .auth-content {
   max-height: 100%;
-  overflow: auto; /* Ensure content scrolls */
+  width: 100%;
+  overflow: visible;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Form container styling */
+.form-container-wrapper {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px; /* Ensures spacing between elements */
+  background-color: white;
 }
 
 .form-container {
-  max-height: 70vh; /* Constrain height for scrolling */
-  overflow: auto; /* Enable scroll within form */
-  
+  flex: 1;
+  min-width: 45%;
+  overflow: visible;
 }
 
-.form-container.login-tab {
-  width: 50%;
-  float: right;
-}
+/* Align login and signup sections */
+.form-container.login-tab,
 .form-container.signup-tab {
   width: 50%;
-  float: left;
+}
+.form-container.login-tab {
+ float: right;
 }
 
-/* Webkit-based browsers (Chrome, Edge, Safari) */
-.form-container::-webkit-scrollbar {
-  width: 8px; /* Adjust width */
+/* Input Field Fixes */
+.input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
 }
 
-.form-container::-webkit-scrollbar-thumb {
-  background: #00000028; /* Thumb color */
-  border-radius: 4px; /* Rounded edges */
+/* Scrollbar styles */
+.auth-content::-webkit-scrollbar {
+  width: 8px;
+  background: none;
 }
 
-.form-container::-webkit-scrollbar-thumb:hover {
-  background: #00000028; /* Darker on hover */
-}
-
-.form-container::-webkit-scrollbar-track {
-  background: none; /* Track color */
+.auth-content::-webkit-scrollbar-thumb {
+  background: #00000028;
   border-radius: 4px;
 }
 
+.auth-content::-webkit-scrollbar-thumb:hover {
+  background: #00000050 !important;
+}
 
+.auth-content::-webkit-scrollbar-track {
+  background: none !important;
+  border-radius: 4px;
+}
+
+/* Shadow effects */
+.form-container.with-shadow {
+  box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Background gear styles */
 .bg-gear {
   position: absolute;
-  top: 100%; /* Center vertically */
-  left: 50%; /* Center horizontally */
+  top: 100%;
+  left: 50%;
   scale: 1;
   z-index: -1;
+}
+
+.bg-gear img {
+  height: 700px;
+  width: auto;
 }
 
 .bg-gear.left-position {
@@ -92,74 +133,121 @@
   transform: translateX(0%) translateY(-50%);
 }
 
-.bg-gear img {
-  height: 700px;
-  width: auto;
-}
-
-/* Animation for left to right movement */
+/* Gear animations */
 .gear-left {
-  animation: gearLeftToRight 2s forwards; /* Add 'forwards' to keep final state */
+  animation: gearLeftToRight 2s forwards;
 }
 
-/* Animation for right to left movement */
 .gear-right {
-  animation: gearRightToLeft 2s forwards; /* Add 'forwards' to keep final state */
+  animation: gearRightToLeft 2s forwards;
 }
 
 @keyframes gearLeftToRight {
   0% {
     transform: translateX(0%) translateY(-50%) rotate(0deg) scale(1);
+    z-index: 1;
   }
   50% {
     transform: translateX(-50%) translateY(-100%) rotate(90deg) scale(2);
+    z-index: 1;
   }
   100% {
-    transform: translateX(-100%) translateY(-50%) rotate(180deg) scale(1); /* Final position */
+    transform: translateX(-100%) translateY(-50%) rotate(180deg) scale(1);
+    z-index: -1;
   }
 }
 
 @keyframes gearRightToLeft {
   0% {
     transform: translateX(-100%) translateY(-50%) rotate(0deg) scale(1);
+    z-index: 1;
   }
   50% {
     transform: translateX(-50%) translateY(-100%) rotate(-90deg) scale(2);
+    z-index: 1;
   }
   100% {
-    transform: translateX(0%) translateY(-50%) rotate(-180deg) scale(1); /* Final position */
+    transform: translateX(0%) translateY(-50%) rotate(-180deg) scale(1);
+    z-index: -1;
   }
 }
 
-
-
-.form-container {
-  max-height: 70vh; /* Constrain the height */
-  overflow-y: auto; /* Enable vertical scrolling */
-  position: relative;
-  padding: 1rem;
-  transition: box-shadow 0.3s ease;
+/* Responsive Styles */
+@media (max-width: 768px) {
+ 
 }
 
-/* Add shadow when scrolling is needed */
-.form-container.with-shadow {
-  box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.1); /* Bottom shadow */
-}
+@media (max-width: 480px) {
+  .gear-left {
+    animation: gearTopToBottom 2s forwards;
+  }
 
-/* Optional: Add a shadow at the top if scrolling upwards is needed */
-.form-container:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 10px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
-  pointer-events: none;
-  opacity: 0; /* Initially hidden */
-  transition: opacity 0.3s ease;
-}
+  .gear-right {
+    animation: gearBottomToTop 2s forwards;
+  }
 
-.form-container.with-shadow:before {
-  opacity: 1; /* Show the shadow */
+  .bg-gear.left-position {
+    transform: translateX(-50%) translateY(-35%);
+  }
+
+  .bg-gear.right-position {
+    transform: translateX(-50%) translateY(-230%);
+  }
+
+  @keyframes gearBottomToTop {
+    0% {
+      transform: translateX(-50%) translateY(-50%) rotate(0deg) scale(1);
+      z-index: 1;
+    }
+    50% {
+      transform: translateX(-50%) translateY(-125%) rotate(90deg) scale(2.5);
+      z-index: 1;
+    }
+    100% {
+      transform: translateX(-50%) translateY(-230%) rotate(180deg) scale(1);
+      z-index: -1;
+    }
+  }
+
+  @keyframes gearTopToBottom {
+    0% {
+      transform: translateX(-50%) translateY(-255%) rotate(0deg) scale(1);
+      z-index: 1;
+    }
+    50% {
+      transform: translateX(-50%) translateY(-125%) rotate(-90deg) scale(2.5);
+      z-index: 1;
+    }
+    100% {
+      transform: translateX(-50%) translateY(-35%) rotate(-180deg) scale(1);
+      z-index: -1;
+    }
+  }
+  .custom-modal {
+    width: 90vw;
+    height: 80vh;
+  }
+
+  .auth-content {
+    height: 90vh;
+  }
+
+  .bg-gear {
+    z-index: 9;
+  }
+
+  .bg-gear img {
+    height: 400px;
+    z-index: 9;
+  }
+
+
+  .form-container.login-tab,
+  .form-container.signup-tab {
+    width: 100%;
+  }
+
+  .form-container.signup-tab {
+    padding-top: 150px;
+  }
 }

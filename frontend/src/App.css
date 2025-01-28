@@ -331,3 +331,8 @@ hr {
 .over-flow-hidden {
   overflow: hidden !important;
 }
+
+
+.swal2-container {
+  z-index: 20000 !important;
+}

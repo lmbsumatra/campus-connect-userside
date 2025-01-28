@@ -22,6 +22,8 @@ import { saveUserData } from "../../../redux/auth/studentAuthSlice";
 
 const Trial = ({ onTabClick }) => {
   const dispatch = useDispatch();
+  const warningMessageRef = useRef(null);
+  const [showWarning, setShowWarning] = useState();
   const signupDataState = useSelector((state) => state.signupForm);
   const [step, setStep] = useState(1);
   const [isPasswordVisible, setPasswordVisible] = useState({
@@ -260,7 +262,7 @@ const Trial = ({ onTabClick }) => {
         {name.charAt(0).toUpperCase() +
           name.slice(1).replace(/([A-Z])/g, " $1")}
       </label>
-      <div className="input-wrapper">
+      <div className="input-wrapper2">
         {icon && <img className="icon" src={icon} alt={`${name} icon`} />}
         <input
           id={name}
@@ -337,11 +339,22 @@ const Trial = ({ onTabClick }) => {
       )}
     </div>
   );
-
   const handleNextStep = () => {
-    if (step < 4 && isStepValid()) setStep(step + 1);
-    else {
-      alert("please fill up completely!");
+    if (step < 4) {
+      if (isStepValid()) {
+        setStep(step + 1);
+      } else {
+        // Directly scroll to warning message if invalid
+        setShowWarning(true);
+        setTimeout(() => {
+          if (warningMessageRef.current) {
+            warningMessageRef.current.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        }, 0);
+      }
     }
   };
 
@@ -350,26 +363,25 @@ const Trial = ({ onTabClick }) => {
   };
 
   const isStepValid = () => {
+    let isValid = false;
     switch (step) {
       case 1:
-        // Check if the required fields have no errors and contain values
-        return (
+        isValid =
           signupDataState.firstName?.value &&
           signupDataState.lastName?.value &&
           !signupDataState.firstName?.hasError &&
           !signupDataState.middleName?.hasError &&
-          !signupDataState.lastName?.hasError
-        );
+          !signupDataState.lastName?.hasError;
+        break;
       case 2:
-        // Check if Tup ID is fully filled and both images are uploaded
-        return (
+        isValid =
           tupId.every((digit) => digit !== "") &&
           imgWithId.filename &&
-          scannedId.filename && signupDataState.college
-        );
+          scannedId.filename &&
+          signupDataState.college;
+        break;
       case 3:
-        // Check if email, password, and confirm password fields are valid and match
-        return (
+        isValid =
           signupDataState.email?.value &&
           signupDataState.password?.value &&
           signupDataState.confirmPassword?.value &&
@@ -377,17 +389,24 @@ const Trial = ({ onTabClick }) => {
           !signupDataState.password?.hasError &&
           !signupDataState.confirmPassword?.hasError &&
           signupDataState.password?.value ===
-            signupDataState.confirmPassword?.value
-        );
-      case 4:
-        return true; // Verification step does not require validation
+            signupDataState.confirmPassword?.value;
+        break;
       default:
-        return false;
+        isValid = true;
     }
+
+    setShowWarning(!isValid); // Show warning if the form is invalid
+    return isValid;
   };
 
   return (
     <div className="auth-container">
+      {showWarning && (
+        <div className="validation error" ref={warningMessageRef}>
+          <img src={warningIcon} className="icon" />
+          <span className="text">Please fill out completely!</span>
+        </div>
+      )}
       {step === 1 && (
         <div>
           <h4>Personal Details</h4>

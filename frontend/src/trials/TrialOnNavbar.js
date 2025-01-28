@@ -207,7 +207,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
                   className={`btn btn-rounded primary ${
                     isDarkTheme ? "" : "opac"
                   }`}
-                  onClick={() => handleAuth("registerTab")}
+                  onClick={() => handleAuth("signupTab")}
                 >
                   Register
                 </button>
@@ -245,7 +245,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
       {/* Login/Signup Modal */}
       {showLoginSignUp && (
         <LoginSignUp
-          tab={authTab}
+          initialTab={authTab}
           show={showLoginSignUp}
           onClose={closeLoginSignUp}
         />

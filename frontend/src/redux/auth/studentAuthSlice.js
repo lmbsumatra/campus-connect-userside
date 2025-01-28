@@ -11,9 +11,11 @@ export const googleLogin = createAsyncThunk(
   "studentAuth/googleLogin",
   async (token, { rejectWithValue }) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
 
     try {
+      console.log("Sending Google Token:", token); // Debug log
+
       const response = await fetch(`http://localhost:3001/user/google-login`, {
         method: "POST",
         headers: {
@@ -25,10 +27,13 @@ export const googleLogin = createAsyncThunk(
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Google Login Error Response:", errorData); // Debug log
         throw new Error(errorData.message || "Failed to log in with Google.");
       }
 
       const data = await response.json();
+      console.log("Google Login Response Data:", data); // Debug log
+
       if (data.token && data.role && data.userId) {
         localStorage.setItem("studentUser", JSON.stringify(data));
         return data; // Return successful login data
@@ -45,6 +50,7 @@ export const googleLogin = createAsyncThunk(
     }
   }
 );
+
 
 
 // Async thunk for manual login

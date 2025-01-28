@@ -16,6 +16,7 @@ const alertPopupSlice = createSlice({
           title: title || "Loading...",
           text: text || "Please wait while we process...",
           showConfirmButton: false,
+          container: 'my-swal'
         });
         Swal.showLoading();
       } else {
@@ -26,6 +27,7 @@ const alertPopupSlice = createSlice({
           showCancelButton: !!customButton, // Show cancel button if customButton exists
           showCloseButton: !!customButton,
           showConfirmButton: true,
+          container: 'my-swal'
         };
 
         if (customButton) {

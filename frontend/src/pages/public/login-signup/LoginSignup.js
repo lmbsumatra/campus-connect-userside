@@ -14,6 +14,7 @@ const TABS = {
 };
 
 const LoginSignup = ({ initialTab, onClose, show }) => {
+  console.log(initialTab);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [errorMessage, setErrorMessage] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -21,12 +22,6 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
   const [isFirstRender, setIsFirstRender] = useState(true);
   const [isBottomShadowVisible, setIsBottomShadowVisible] = useState(false);
   const dispatch = useDispatch();
-
-  const handleScroll = (e) => {
-    const element = e.target;
-    const atBottom = element.scrollHeight - element.scrollTop === element.clientHeight;
-    setIsBottomShadowVisible(!atBottom);
-  };
 
   useEffect(() => {
     if (show) {
@@ -43,10 +38,11 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
   }, [initialTab]);
 
   const handleTabSwitch = (newTab) => {
+    setGearPosition(activeTab === TABS.LOGIN ? "gear-left" : "gear-right");
     setIsTransitioning(true);
-    setGearPosition((prevPosition) =>
-      prevPosition === "gear-left" ? "gear-right" : "gear-left"
-    );
+    // setGearPosition((prevPosition) =>
+    //   prevPosition === "gear-left" ? "gear-right" : "gear-left"
+    // );
     setIsFirstRender(false);
 
     setTimeout(() => {
@@ -59,9 +55,10 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
 
   const getGearClassName = () => {
     if (isFirstRender) {
+     
       return activeTab === TABS.LOGIN ? "left-position" : "right-position";
     }
-    return gearPosition === "gear-left" ? "gear-left" : "gear-right";
+    return gearPosition === "gear-left" ? "gear-right" : "gear-left";
   };
 
   const renderAuthContent = () => {
@@ -74,12 +71,16 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
     const contentClassName = `auth-content ${
       isTransitioning ? "fade-out" : "fade-in"
     }`;
-    const innerClassName = `newo${isTransitioning ? "fade-out" : "fade-in"}`;
+    const innerClassName = `${isTransitioning ? "fade-out" : "fade-in"}`;
 
     return activeTab === TABS.LOGIN ? (
       <div className={contentClassName}>
         <div className={innerClassName}>
-          <div className={`form-container login-tab ${isBottomShadowVisible ? "with-shadow" : ""}`}>
+          <div
+            className={`form-container login-tab ${
+              isBottomShadowVisible ? "with-shadow" : ""
+            }`}
+          >
             <h2>Welcome Back</h2>
             <Trial2 {...sharedProps} />
           </div>
@@ -88,7 +89,11 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
     ) : (
       <div className={contentClassName}>
         <div className={innerClassName}>
-          <div className={`form-container signup-tab ${isBottomShadowVisible ? "with-shadow" : ""}`}>
+          <div
+            className={`form-container signup-tab ${
+              isBottomShadowVisible ? "with-shadow" : ""
+            }`}
+          >
             <h2>Create Account</h2>
             <Trial {...sharedProps} />
           </div>

@@ -81,7 +81,7 @@ const Trial2 = ({ onTabClick }) => {
   };
 
   return (
-    <div className="">
+    <div className="form-wrapper">
       {/* Email Input */}
       {errorManualLogin && (
         <div className="validation error">
@@ -93,7 +93,7 @@ const Trial2 = ({ onTabClick }) => {
         <label htmlFor="email" className="label">
           Email
         </label>
-        <div className="input-wrapper">
+        <div className="input-wrapper2">
           <img className="icon" src={emailIcon} alt="Email Icon" />
           <input
             id="email"
@@ -124,7 +124,7 @@ const Trial2 = ({ onTabClick }) => {
         <label htmlFor="password" className="label">
           Password
         </label>
-        <div className="input-wrapper">
+        <div className="input-wrapper2">
           <img className="icon" src={passwordIcon} alt="Password Icon" />
           <input
             id="password"
@@ -167,19 +167,23 @@ const Trial2 = ({ onTabClick }) => {
       {/* Forgot Password Link */}
       <button className="btn btn-secondary">Forgot Password</button>
 
-      {/* Google Login */}
-      <GoogleLogin
-        onSuccess={handleGoogleSuccess}
-        onError={handleGoogleError}
-      />
-
       <div className="or-divider">
         <span>or</span>
       </div>
-
+      <div className="d-flex justify-content-between align-items-center w-100">
+        <span>Login with</span>
+        {/* Google Login */}
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+        />
+      </div>
       {/* Sign-up Link */}
       <p>
-        Don't have an account? <a className="link" onClick={()=>onTabClick("signupTab")}>Sign up here!</a>
+        Don't have an account?{" "}
+        <a className="link" onClick={() => onTabClick("signupTab")}>
+          Sign up here!
+        </a>
       </p>
     </div>
   );
