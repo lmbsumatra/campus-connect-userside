@@ -141,6 +141,7 @@ const MessagePage = () => {
             price: product.price,
             image: product.image,
             title: product.title,
+            status: product.status, // Include item status
           },
         };
         console.log("Sending product message payload:", productMessage);
@@ -248,18 +249,28 @@ const MessagePage = () => {
               activeChat.messages.map((message, index) =>
                 message.isProductCard ? (
                   <div key={index} className="product-card">
-                      <h6>You're inquiring about this item</h6>
-                        <div className="d-flex align-items-start">
-                          <img src={message.productDetails?.image} // Safely access product details
-                               alt={message.productDetails?.name} 
-                               className="me-3" 
-                               style={{ width: "60px", height: "60px" }} />
-                          <div>
-                            <p className="mb-1"><strong>{message.productDetails?.title} {message.productDetails?.name}</strong></p>
-                            <p className="mb-0">Price: ₱{message.productDetails?.price}</p>
-                      </div>
-                    </div>
+                <h6>You're inquiring about this item</h6>
+                <div className="d-flex align-items-start">
+                  <img 
+                    src={message.productDetails?.image} 
+                    alt={message.productDetails?.name} 
+                    className="me-3" 
+                    style={{ width: "60px", height: "60px" }} 
+                  />
+                  <div>
+                    <p className="mb-1">
+                      <strong>{message.productDetails?.title} {message.productDetails?.name}</strong>
+                    </p>
+                    
+                    {/* Show Price if available, otherwise show Status */}
+                    {message.productDetails?.price ? (
+                      <p className="mb-0">Price: ₱{message.productDetails?.price}</p>
+                    ) : (
+                      <p className="mb-0">Status: {message.productDetails?.status}</p>
+                    )}
                   </div>
+                </div>
+              </div>
                 ) : (
                   <div
                     key={index}

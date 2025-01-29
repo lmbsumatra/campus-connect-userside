@@ -5,9 +5,12 @@ import itemImage from "../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../utils/dateFormat";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom"; // Import navigation
+
 
 function RentalItem({ item, onButtonClick, selectedOption }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate(); // React Router navigation
   const { studentUser } = useAuth();
   const { userId } = studentUser;
 
@@ -30,6 +33,33 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
       console.error("Error updating rental status:", error);
     }
   };
+
+    // Function to handle clicking "Message" button
+        const handleMessageClick = async () => {
+          try {
+            const recipientId = item.owner_id === userId ? item.renter_id : item.owner_id;
+            
+            // Create or get existing conversation
+            const response = await axios.post('http://localhost:3001/api/conversations/createConversation', {
+              senderId: userId,
+              ownerId: recipientId
+            });
+            
+            // Navigate to messages with conversation data
+            navigate("/messages", {
+              state: {
+                ownerId: recipientId,
+                product: {
+                  name: item.Listing.listing_name,
+                  status: item.status,
+                  image: itemImage,
+                }
+              }
+            });
+          } catch (error) {
+            console.error("Error creating/getting conversation:", error);
+          }
+        };
 
   // Define button configurations based on status
   const buttonConfig = useMemo(
@@ -60,7 +90,7 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
           : []),
         {
           label: "Message",
-          onClick: () => console.log("Message Sent"),
+          onClick: handleMessageClick, // Use handleMessageClick function
           primary: false,
         },
       ],
@@ -85,7 +115,7 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
         },
         {
           label: "Message",
-          onClick: () => console.log("Message Sent"),
+          onClick: handleMessageClick, // Use handleMessageClick function
           primary: false,
         },
       ],
@@ -110,7 +140,7 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
         },
         {
           label: "Message",
-          onClick: () => console.log("Message Sent"),
+          onClick: handleMessageClick, // Use handleMessageClick function
           primary: false,
         },
       ],
@@ -130,7 +160,7 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
         },
         {
           label: "Message",
-          onClick: () => console.log("Message Sent"),
+          onClick: handleMessageClick, // Use handleMessageClick function
           primary: false,
         },
       ],
