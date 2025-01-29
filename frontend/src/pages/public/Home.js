@@ -13,6 +13,7 @@ import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
 import { fetchAllApprovedListings } from "../../redux/listing/allApprovedListingsSlice";
 import { fetchAllApprovedItemForSale } from "../../redux/item-for-sale/allApprovedItemsForSaleSlice";
 import TrialOnHeroSection from "../../trials/TrialOnHeroSection";
+import BrowseByCollection from "../../components/browse-by-collection/BrowseByCollection.jsx";
 
 function ContentSection({ error, loading, fallback, children }) {
   return (
@@ -58,10 +59,11 @@ function Home() {
 
   return (
     <div className="over-flow-hidden">
-      <TrialOnHeroSection/>
+      <TrialOnHeroSection />
       <Subheader />
       <Categories />
-
+      <BrowseByCollection />
+      
       <ContentSection
         error={errorAllApprovedListings}
         loading={loadingAllApprovedListings}
@@ -73,6 +75,7 @@ function Home() {
       >
         <ItemCard items={allApprovedListings} title="Listings" />
       </ContentSection>
+      
 
       <ContentSection
         error={errorAllApprovedItemForSale}

@@ -12,7 +12,7 @@ export const fetchApprovedPostById = createAsyncThunk(
   "post/fetchApprovedPostById",
   async (id) => {
     const response = await fetch(`${BASE_URL}/${id}`);
-    
+    console.log(response.data)
     return response.json();
   }
 );

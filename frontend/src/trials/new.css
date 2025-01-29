@@ -20,6 +20,7 @@ body {
   background-repeat: no-repeat;
   height: auto;
   overflow: hidden !important;
+  border-radius: 0 0 72px 72px ;
 }
 
 /* Content Layout */

@@ -333,7 +333,7 @@ function PostDetail() {
         </div>
       </div>
 
-      <UserToolbar user={approvedPostById.owner} />
+      <UserToolbar user={approvedPostById.renter} />
 
       <ItemDescAndSpecs
         specs={approvedPostById.specs}

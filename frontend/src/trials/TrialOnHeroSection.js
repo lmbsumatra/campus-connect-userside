@@ -46,7 +46,7 @@ const TrialOnHeroSection = () => {
               className="btn btn-rectangle primary opac"
               onClick={(e) => setActionPopup(true)}
             >
-              Add now!
+              Get Started!
             </button>
             <button className="btn btn-rectangle secondary opac">
               Learn more
