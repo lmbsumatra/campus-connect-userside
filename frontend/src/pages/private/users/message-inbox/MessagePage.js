@@ -23,6 +23,8 @@ const MessagePage = () => {
   const product = state?.product;
   const navigate = useNavigate();
 
+  const [unreadMessages, setUnreadMessages] = useState({});
+
   
   const { userId } = studentUser || {};
   useEffect(() => {
@@ -46,22 +48,35 @@ const MessagePage = () => {
     socket.current.on("receiveMessage", (message) => {
       console.log("Received message:", message);
 
+        // Mark conversation as having unread messages if it's not the active chat
+      if (!activeChat || activeChat.id !== message.conversationId) {
+        setUnreadMessages(prev => ({
+          ...prev,
+          [message.conversationId]: true
+        }));
+      }
+
       setConversations((prevConversations) => {
         const updatedConversations = prevConversations.map((conversation) => {
           if (conversation.id === message.conversationId) {
+            // Create a new message object with proper timestamp
+            const newMessage = {
+              ...message,
+              createdAt: new Date().toISOString(), // Ensure proper timestamp format
+              updatedAt: new Date().toISOString()
+            };
+            
             return {
               ...conversation,
-              messages: [...conversation.messages, {
-                ...message,
-                sender: message.sender // Make sure sender is preserved
-              }],
-              updatedAt: new Date().toISOString(),
+              messages: [...conversation.messages, newMessage],
+              updatedAt: new Date().toISOString(), // Update conversation timestamp
+              hasUnread: !activeChat || activeChat.id !== message.conversationId
             };
           }
           return conversation;
         });
 
-        // Sort updated conversations
+       // Sort conversations by most recent message
         return updatedConversations.sort(
           (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
         );
@@ -70,11 +85,13 @@ const MessagePage = () => {
       if (activeChat && message.conversationId === activeChat.id) {
         setActiveChat((prev) => ({
           ...prev,
-         messages: [...prev.messages, {
-        ...message,
-        sender: message.sender // Make sure sender is preserved
-      }],
-    }));
+          messages: [...prev.messages, {
+            ...message,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }],
+          updatedAt: new Date().toISOString()
+        }));
         setHighlightNewMessage(true);
         setTimeout(() => setHighlightNewMessage(false), 3000);
       }
@@ -96,12 +113,21 @@ const MessagePage = () => {
           }/api/conversations/${userId}`
         );
         const data = await res.json();
-        setConversations(data.conversations);
+        
+          // Sort conversations by the most recent activity
+        const sortedConversations = data.conversations.sort((a, b) => {
+          // Get the latest message timestamp for each conversation
+          const aLastMessage = a.messages && a.messages.length > 0 
+            ? new Date(a.messages[a.messages.length - 1].createdAt)
+            : new Date(a.updatedAt);
+          
+          const bLastMessage = b.messages && b.messages.length > 0
+            ? new Date(b.messages[b.messages.length - 1].createdAt)
+            : new Date(b.updatedAt);
+          
+          return bLastMessage - aLastMessage;
+        });
 
-         // Sort conversations by the most recent activity
-        const sortedConversations = data.conversations.sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
         setConversations(sortedConversations);
 
           // Automatically set the conversation with the owner as active
@@ -179,6 +205,8 @@ const MessagePage = () => {
               conversationId: activeChat.id,
               isProductCard: false, // Regular message
               productDetails: null, // No product details for a regular message
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
         };
   
         const res = await fetch(
@@ -194,7 +222,27 @@ const MessagePage = () => {
         setActiveChat((prev) => ({
           ...prev,
           messages: [...prev.messages, savedMessage],
+          updatedAt: new Date().toISOString()
         }));
+
+         // Update conversations list to reflect new message
+      setConversations(prevConversations => {
+        const updated = prevConversations.map(conv => 
+          conv.id === activeChat.id 
+            ? {
+                ...conv,
+                messages: [...conv.messages, savedMessage],
+                updatedAt: new Date().toISOString()
+              }
+            : conv
+        );
+
+         // Sort by most recent message
+         return updated.sort((a, b) => 
+          new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+      });
+
         socket.current.emit("sendMessageToUser", {
           ...messageData,
           recipient: recipientId // Only needed for socket
@@ -209,7 +257,21 @@ const MessagePage = () => {
 
   const handleConversationClick = (conversation) => {
     setActiveChat(conversation);
-  };
+
+  // Clear unread status for this conversation
+  setUnreadMessages(prev => ({
+    ...prev,
+    [conversation.id]: false
+  }));
+
+  setConversations(prev => 
+    prev.map(conv => 
+      conv.id === conversation.id 
+        ? { ...conv, hasUnread: false }
+        : conv
+    )
+  );
+};
 
   return (
     <div className="container-content message-page">
@@ -217,28 +279,55 @@ const MessagePage = () => {
         <div
           className={`inbox ${isMobile && activeChat !== null ? "d-none" : ""}`}
         >
-          <h3>Messages</h3>
-          {isLoading ? (
-            <p>Loading conversations...</p>
-          ) : conversations.length > 0 ? (
-            conversations.map((chat) => (
-              <div
-                key={chat.id}
-                className="inbox-item"
-                onClick={() => handleConversationClick(chat)}
-              >
-                <img src={UserIcon} alt="User Icon" className="user-icon" />
-                <div className="message-info">
-                  <h5>{chat.otherUser.first_name}</h5>
-                  <p>{chat.preview}</p>
-                </div>
-                <span>{new Date(chat.updatedAt).toLocaleString()}</span>
-              </div>
-            ))
-          ) : (
-            <p>No conversations available.</p>
-          )}
-        </div>
+           <h3>Messages</h3>
+            {isLoading ? (
+              <p>Loading conversations...</p>
+            ) : conversations.length > 0 ? (
+              conversations.map((chat) => {
+                // Get the latest message
+                const latestMessage = chat.messages && chat.messages.length > 0 
+                  ? chat.messages[chat.messages.length - 1]
+                  : null;
+
+                // Check if there are unread messages (we'll implement this state later)
+                const hasUnreadMessages = chat.hasUnread;
+
+                return (
+                  <div
+                    key={chat.id}
+                    className={`inbox-item ${hasUnreadMessages ? 'unread' : ''}`}
+                    onClick={() => handleConversationClick(chat)}
+                  >
+                    <img src={UserIcon} alt="User Icon" className="user-icon" />
+                    <div className="message-info">
+                      <h5>{chat.otherUser.first_name}</h5>
+                      <p className="preview-message">
+                        {latestMessage ? (
+                          latestMessage.isProductCard ? (
+                            '📦 Shared a product'
+                          ) : (
+                            latestMessage.text && latestMessage.text.length > 30 
+                              ? `${latestMessage.text.substring(0, 30)}...` 
+                              : latestMessage.text
+                          )
+                        ) : (
+                          'No messages yet'
+                        )}
+                      </p>
+                    </div>
+                    <div className="message-meta">
+                      <span className="timestamp">
+                        {latestMessage ? new Date(latestMessage.createdAt).toLocaleString() : ''}
+                      </span>
+                      {hasUnreadMessages && <div className="unread-indicator"></div>}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p>No conversations available.</p>
+            )}
+          </div>
 
         {activeChat && (
           <div className="chat-box">
