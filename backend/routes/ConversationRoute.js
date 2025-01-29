@@ -219,7 +219,7 @@ router.post("/:conversationId/message", async (req, res) => {
       // Create the new message for the conversation
       const newMessage = await Message.create({
           conversationId,
-          sender,
+          sender: sender, 
           text: isProductCard ? null : text,
           isProductCard: isProductCard || false,
           productDetails: isProductCard ? productDetails : null,
