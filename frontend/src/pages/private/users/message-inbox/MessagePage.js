@@ -51,8 +51,11 @@ const MessagePage = () => {
           if (conversation.id === message.conversationId) {
             return {
               ...conversation,
-              messages: [...conversation.messages, message],
-              updatedAt: new Date().toISOString(), // Update the timestamp
+              messages: [...conversation.messages, {
+                ...message,
+                sender: message.sender // Make sure sender is preserved
+              }],
+              updatedAt: new Date().toISOString(),
             };
           }
           return conversation;
@@ -67,8 +70,11 @@ const MessagePage = () => {
       if (activeChat && message.conversationId === activeChat.id) {
         setActiveChat((prev) => ({
           ...prev,
-          messages: [...prev.messages, message],
-        }));
+         messages: [...prev.messages, {
+        ...message,
+        sender: message.sender // Make sure sender is preserved
+      }],
+    }));
         setHighlightNewMessage(true);
         setTimeout(() => setHighlightNewMessage(false), 3000);
       }
@@ -169,10 +175,8 @@ const MessagePage = () => {
       if (message.trim()) {
         const messageData = {
               sender: userId,
-              recipient: recipientId,
               text: message,
               conversationId: activeChat.id,
-              otherUser: { userId: recipientId },
               isProductCard: false, // Regular message
               productDetails: null, // No product details for a regular message
         };
@@ -191,7 +195,10 @@ const MessagePage = () => {
           ...prev,
           messages: [...prev.messages, savedMessage],
         }));
-        socket.current.emit("sendMessageToUser", messageData);
+        socket.current.emit("sendMessageToUser", {
+          ...messageData,
+          recipient: recipientId // Only needed for socket
+        });
         setNewMessage("");
       }
     } catch (err) {
@@ -275,7 +282,7 @@ const MessagePage = () => {
                   <div
                     key={index}
                     className={`chat-message ${
-                      message.sender === userId ? "sent" : "received"
+                      String(message.sender) === String(userId) ? "sent" : "received"
                     } ${
                       highlightNewMessage &&
                       index === activeChat.messages.length - 1
@@ -285,11 +292,7 @@ const MessagePage = () => {
                   >
                     <p>{message.text}</p>
                       <span>
-                        {new Date(
-                          index === activeChat.messages.length - 1
-                            ? message.createdAt
-                            : message.updatedAt
-                        ).toLocaleString()}
+                      {new Date(message.createdAt).toLocaleString()}
                       </span>
                   </div>
                 ))
