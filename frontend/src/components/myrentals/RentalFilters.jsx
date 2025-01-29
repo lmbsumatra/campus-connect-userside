@@ -7,57 +7,57 @@ function RentalFilters({
   onFilterClick,
   selectedOption,
   countTransactions,
-  onTabChange, // Fix prop name here
+  onTabChange,
 }) {
   const navigate = useNavigate();
 
-  // Get dynamic filter text color based on the selected option
   const getDynamicFilterTextColor = () => {
-    switch (selectedOption) {
-      case "Renter":
-        return "var(--clr-renter-txt)";
-      case "Owner":
-        return "var(--clr-owner-txt)";
-      case "Seller":
-        return "var(--clr-seller-txt)";
-      case "Buyer":
-        return "var(--clr-buyer-txt)";
-      default:
-        return "var(--clr-default-txt)";
-    }
+    const colorMap = {
+      renter: "var(--clr-renter-txt)",
+      owner: "var(--clr-owner-txt)",
+      seller: "var(--clr-seller-txt)",
+      buyer: "var(--clr-buyer-txt)",
+    };
+
+    return colorMap[selectedOption] || "var(--clr-default-txt)";
   };
 
   return (
     <div className="rental-filters">
       <div className="filter-buttons no-scrollbars">
         {filterOptions.map((filter) => {
-          // Get count and color for the current filter
           const { count, color } = countTransactions[filter] || {
             count: 0,
             color: "gray",
           };
 
+          const isActive = activeFilter.toLowerCase() === filter.toLowerCase();
+          const buttonStyle = {
+            color: getDynamicFilterTextColor(),
+            "--underline-color": isActive ? getDynamicFilterTextColor() : "#ccc",
+          };
+
           return (
             <button
               key={filter}
-              className={`filter-button ${activeFilter === filter ? "active" : ""}`}
+              className={`filter-button ${isActive ? "active" : ""}`}
               onClick={() => {
-                onFilterClick(filter); // Update filter
-                onTabChange(filter); // Change tab when a filter is clicked
+                onFilterClick(filter);
+                onTabChange(filter);
               }}
-              style={{
-                color: getDynamicFilterTextColor(),
-                "--underline-color":
-                  activeFilter === filter ? getDynamicFilterTextColor() : "#ccc",
-              }}
+              style={buttonStyle}
+              aria-selected={isActive}
+              aria-label={`Filter by ${filter}`}
             >
               {filter}
-              <span
-                className="transaction-indicator"
-                style={{ backgroundColor: color }}
-              >
-                {count} {/* Only show the count if greater than 0 */}
-              </span>
+              {count > 0 && (
+                <span
+                  className="transaction-indicator"
+                  style={{ backgroundColor: color }}
+                >
+                  {count}
+                </span>
+              )}
             </button>
           );
         })}

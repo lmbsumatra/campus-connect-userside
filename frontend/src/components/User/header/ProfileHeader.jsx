@@ -106,14 +106,14 @@ const ProfileHeader = ({
   }
 
   const getBackgroundColor = () => {
-    switch (selectedOption) {
-      case "Renter":
+    switch (selectedOption.toLowerCase()) {
+      case "renter":
         return "var(--clr-renter)";
-      case "Owner":
+      case "owner":
         return "var(--clr-owner)";
-      case "Seller":
+      case "seller":
         return "var(--clr-seller)";
-      case "Buyer":
+      case "buyer":
         return "var(--clr-buyer)";
       default:
         return "var(--clr-primary)";
@@ -128,7 +128,7 @@ const ProfileHeader = ({
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname === "/profile/transactions") {
+    if (location.pathname.startsWith("/profile/transactions")) {
       setTransactionPage(true);
     } else {
       setTransactionPage(false);
@@ -138,6 +138,10 @@ const ProfileHeader = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const handleDropDown = () => {
     setIsExpanded((prev) => !prev);
+  };
+
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   };
 
   return (
@@ -241,7 +245,7 @@ const ProfileHeader = ({
         {isTransactionPage && (
           <div className="select-option" onClick={() => handleDropDown()}>
             <span className="text-white mx-3">
-              As {selectedOption === "Owner" ? "an" : "a"}
+              As {capitalizeFirstLetter(selectedOption) === "Owner" ? "an" : "a"}
             </span>
             <div className={`custom-dropdown ${isExpanded ? "active" : ""}`}>
               {["Renter", "Owner", "Seller", "Buyer"]
@@ -252,9 +256,9 @@ const ProfileHeader = ({
                     className={`dropdown-item ${
                       option === selectedOption ? "selected" : ""
                     }`}
-                    onClick={() => onOptionChange(option)}
+                    onClick={() => onOptionChange(option.toLowerCase())} // Lowercase the option on change
                   >
-                    {option}
+                    {capitalizeFirstLetter(option)} {/* Capitalize first letter for display */}
                     <span
                       className={`transaction-indicator ${
                         !countTransactions[option] ? "not-active" : ""

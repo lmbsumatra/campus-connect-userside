@@ -1,15 +1,18 @@
-import { Route, Routes, NavLink, Navigate } from "react-router-dom";
-
+import { NavLink, useLocation } from "react-router-dom";
 import "./profileSidebarStyles.css";
 
 const ProfileSidebar = () => {
+  const location = useLocation();
+  
+  const isActiveLink = (path) => location.pathname.startsWith(path);
+
   return (
     <div className="profile-sidebar">
       <ul>
         <li>
           <NavLink
             to="dashboard"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive || isActiveLink('/profile/dashboard')) ? "active" : ""}
           >
             Dashboard
           </NavLink>
@@ -17,7 +20,7 @@ const ProfileSidebar = () => {
         <li>
           <NavLink
             to="my-posts"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive || isActiveLink('/profile/my-posts')) ? "active" : ""}
           >
             My Posts
           </NavLink>
@@ -25,7 +28,7 @@ const ProfileSidebar = () => {
         <li>
           <NavLink
             to="my-listings"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive || isActiveLink('/profile/my-listings')) ? "active" : ""}
           >
             My Listings
           </NavLink>
@@ -33,16 +36,15 @@ const ProfileSidebar = () => {
         <li>
           <NavLink
             to="my-for-sale"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            className={({ isActive }) => (isActive || isActiveLink('/profile/my-for-sale')) ? "active" : ""}
           >
-            My For Sales
+            My For Sale
           </NavLink>
         </li>
-
         <li>
           <NavLink
-            to="transactions"
-            className={({ isActive }) => (isActive ? "active" : "")}
+            to="transactions/renter/requests"
+            className={({ isActive }) => (isActive || isActiveLink('/profile/transactions')) ? "active" : ""}
           >
             Transactions
           </NavLink>

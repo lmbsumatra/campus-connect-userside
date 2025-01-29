@@ -1,56 +1,74 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 import useFetchRentalTransactionsByUserId from "../../utils/useFetchRentalTransactionsByUserId";
 import RentalFilters from "./RentalFilters";
 import RentalItem from "./RentalItem";
 import { useAuth } from "../../context/AuthContext";
 
+  // Format filter names for route (lowercase and hyphenated)
+  const formatForRoute = (name) => {
+    return name.toLowerCase();
+  };
+
+
 const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   const { studentUser } = useAuth();
   const userId = studentUser.userId;
-  const [activeFilter, setActiveFilter] = useState(selectedTab || "Requests");
+  const [activeFilter, setActiveFilter] = useState(selectedTab || "requests");
   const navigate = useNavigate();
 
-  const {
-    transactions: rentalItems,
-    error,
-    loading,
-  } = useFetchRentalTransactionsByUserId(userId);
+  const { transactions: rentalItems, error, loading } = useFetchRentalTransactionsByUserId(userId);
+
+  useEffect(() => {
+    // Ensure selectedTab is in the same format (lowercase with hyphens) as activeFilter
+    const formattedTab = formatForRoute(selectedTab);
+    setActiveFilter(formattedTab);
+  }, [selectedTab]);
 
   const handleFilterClick = (filter) => {
-    setActiveFilter(filter);
-    onTabChange(filter); // Call handleTabChange when filter is clicked
+    const formattedFilter = formatForRoute(filter);
+    setActiveFilter(formattedFilter);
+    onTabChange(filter); 
   };
 
   const openRentProgress = (rentalId) => {
-    navigate(`/rent-progress/${rentalId}`);
+    const formattedRentalId = rentalId.replace(/\s+/g, "-");
+    navigate(`/rent-progress/${formattedRentalId}`);
   };
 
   if (loading) return <p>Loading...</p>;
 
   const filterOptions = [
     { name: "Requests", statuses: ["Requested"] },
-    { name: selectedOption === "Owner" ? "To Hand Over" : "To Receive", statuses: ["Accepted"] },
-    { name: selectedOption === "Renter" ? "To Return" : "To Receive", statuses: ["HandedOver"] },
+    { name: selectedOption === "owner" ? "To Hand Over" : "To Receive", statuses: ["Accepted"] },
+    { name: selectedOption === "renter" ? "To Return" : "To Receive", statuses: ["HandedOver"] },
     { name: "Completed", statuses: ["Returned"] },
     { name: "To Review", statuses: ["Completed"] },
     { name: "Cancelled", statuses: ["Cancelled", "Declined"] },
   ];
 
-  const filteredItems = rentalItems.filter((item) => {
-    if (selectedOption === "Owner" && item.owner_id !== userId) return false;
-    if (selectedOption === "Renter" && item.renter_id !== userId) return false;
+  const formattedFilterOptions = filterOptions.map((option) => ({
+    ...option,
+    nameForLabel: option.name,
+    nameForRoute: formatForRoute(option.name),
+  }));
 
-    if (activeFilter === "All") return true; // Show all items for "All" filter
-    const filterOption = filterOptions.find(option => option.name === activeFilter);
+  const filteredItems = rentalItems.filter((item) => {
+    if (selectedOption === "owner" && item.owner_id !== userId) return false;
+    if (selectedOption === "renter" && item.renter_id !== userId) return false;
+
+    if (activeFilter === "all") return true;
+    const filterOption = formattedFilterOptions.find(
+      (option) => option.nameForRoute === activeFilter
+    );
     return filterOption && filterOption.statuses.includes(item.status);
   });
 
   const countByStatus = () => {
-    const counts = filterOptions.reduce((acc, option) => {
+    const counts = formattedFilterOptions.reduce((acc, option) => {
       const filtered = rentalItems.filter((item) => {
-        if (selectedOption === "Owner" && item.owner_id !== userId) return false;
-        if (selectedOption === "Renter" && item.renter_id !== userId) return false;
+        if (selectedOption === "owner" && item.owner_id !== userId) return false;
+        if (selectedOption === "renter" && item.renter_id !== userId) return false;
         if (option.statuses.length && !option.statuses.includes(item.status)) return false;
         return true;
       });
@@ -59,8 +77,9 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
 
       if (option.name === "To Review") {
         const reviewedCount = filtered.filter(
-          (item) => (userId === item.owner_id && item.owner_confirmed) ||
-                    (userId === item.renter_id && item.renter_confirmed)
+          (item) =>
+            (userId === item.owner_id && item.owner_confirmed) ||
+            (userId === item.renter_id && item.renter_confirmed)
         ).length;
         count -= reviewedCount;
       }
@@ -75,8 +94,9 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
       } else {
         statusColor = filtered.reduce((color, item) => {
           if (
-            (selectedOption === "Owner" && item.owner_confirmed) ||
-            (selectedOption === "Renter" && item.renter_confirmed) || (option.name === "To Review")
+            (selectedOption === "owner" && item.owner_confirmed) ||
+            (selectedOption === "renter" && item.renter_confirmed) ||
+            option.name === "To Review"
           ) {
             return "orange";
           } else {
@@ -85,7 +105,7 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
         }, "gray");
       }
 
-      acc[option.name] = { count, color: statusColor };
+      acc[option.nameForLabel] = { count, color: statusColor };
       return acc;
     }, {});
 
@@ -94,15 +114,18 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
 
   return (
     <div className="container rounded bg-white">
+      {activeFilter}
       <div className="w-100">
         <RentalFilters
-          filterOptions={filterOptions.map((option) => option.name)}
+          filterOptions={formattedFilterOptions.map(
+            (option) => option.nameForLabel
+          )}
           activeFilter={activeFilter}
           onFilterClick={handleFilterClick}
           selectedOption={selectedOption}
           countTransactions={countByStatus()}
           selectedTab={selectedTab}
-          onTabChange={onTabChange} // Pass the handleTabChange to RentalFilters
+          onTabChange={onTabChange}
         />
         <div className="rental-items">
           {filteredItems.length > 0 ? (

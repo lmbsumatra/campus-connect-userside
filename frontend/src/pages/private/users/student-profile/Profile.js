@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Route,
-  Routes,
-  Navigate,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../context/AuthContext.js";
 import ProfileSidebar from "../../../../components/User/sidebar/ProfileSidebar.jsx";
 import EditProfile from "./EditProfile.jsx";
@@ -24,13 +18,9 @@ function Profile() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const queryParams = new URLSearchParams(location.search);
-  const currentPage = queryParams.get("currentPage");
-  const currentTab = queryParams.get("currentTab");
-
   const [loading, setLoading] = useState(true);
-  const [selectedOption, setSelectedOption] = useState(currentPage || "Renter");
-  const [selectedTab, setSelectedTab] = useState(currentTab || "Requests");
+  const [selectedOption, setSelectedOption] = useState("renter");
+  const [selectedTab, setSelectedTab] = useState("requests");
 
   useEffect(() => {
     if (userId) {
@@ -38,54 +28,46 @@ function Profile() {
     }
   }, [userId]);
 
-  useEffect(() => {
-    if (currentPage) {
-      setSelectedOption(currentPage);
-    }
-    if (currentTab) {
-      setSelectedTab(currentTab);
-    }
-  }, [currentPage, currentTab]);
-
   const handleOptionChange = (option) => {
-    navigate(
-      `/profile/transactions?currentPage=${option}&currentTab=${selectedTab}`
-    );
-    setSelectedOption(option);
+    setSelectedOption(option.toLowerCase());
+    navigate(`/profile/transactions/${option.toLowerCase()}/${selectedTab}`);
   };
 
   const handleTabChange = (newSelectedTab) => {
-    navigate(
-      `/profile/transactions?currentPage=${selectedOption}&currentTab=${newSelectedTab}`
+    const path = newSelectedTab.toLowerCase() === "transactions"
+      ? `/profile/transactions/renter/requests`
+      : `/profile/transactions/${selectedOption}/${newSelectedTab.toLowerCase()}`;
+
+    setSelectedTab(newSelectedTab.toLowerCase());
+    navigate(path);
+  };
+
+  const getBreadcrumbs = () => {
+    const breadcrumbs = [
+      { label: "Home", href: "/" },
+      { label: "Profile", href: "/profile" },
+    ];
+
+    const pathToBreadcrumb = {
+      "my-posts": { label: "My Posts", href: "/profile/my-posts" },
+      "my-listings": { label: "My Listings", href: "/profile/my-listings" },
+      "my-for-sale": { label: "My For Sale Items", href: "/profile/my-for-sale" },
+      "dashboard": { label: "Dashboard", href: "/profile/dashboard" },
+      transactions: { label: "Transactions", href: "/profile/transactions" },
+      "edit-profile": { label: "Edit Profile", href: "/profile/edit-profile" },
+    };
+
+    const currentPath = location.pathname;
+    const pathKey = Object.keys(pathToBreadcrumb).find((key) =>
+      currentPath.includes(key)
     );
-    setSelectedTab(newSelectedTab);
+
+    if (pathKey) {
+      breadcrumbs.push(pathToBreadcrumb[pathKey]);
+    }
+
+    return breadcrumbs;
   };
-
-  const breadcrumbs = [
-    { label: "Home", href: "/" },
-    { label: "Profile", href: "/profile" },
-  ];
-
-  const pathToBreadcrumb = {
-    "my-posts": { label: "My Posts", href: "/profile/my-posts" },
-    "my-listings": { label: "My Listings", href: "/profile/my-listings" },
-    "my-for-sale": {
-      label: "My For Sale Items",
-      href: "/profile/my-for-sale",
-    },
-    "dashboard": { label: "Dashboard", href: "/profile/dashboard" },
-    transactions: { label: "Transactions", href: "/profile/transactions" },
-    "edit-profile": { label: "Edit Profile", href: "/profile/edit-profile" },
-  };
-
-  const currentPath = location.pathname;
-  const pathKey = Object.keys(pathToBreadcrumb).find((key) =>
-    currentPath.includes(key)
-  );
-  
-  if (pathKey) {
-    breadcrumbs.push(pathToBreadcrumb[pathKey]);
-  }
 
   if (loading) {
     return <div>Loading user information...</div>;
@@ -93,12 +75,9 @@ function Profile() {
 
   return (
     <div className="container-content profile-detail">
-      <BreadCrumb breadcrumbs={breadcrumbs} />
+      <BreadCrumb breadcrumbs={getBreadcrumbs()} />
       <div className="profile-container">
-        {userId && (
-          <ProfileSidebar />
-        )}
-
+        {userId && <ProfileSidebar />}
         <div className="profile-content">
           <ProfileHeader
             userId={userId}
@@ -106,24 +85,18 @@ function Profile() {
             selectedOption={selectedOption}
             onOptionChange={handleOptionChange}
           />
-            <Routes>
-              <Route path="edit-profile" element={<EditProfile />} />
-              <Route
-                path="transactions"
-                element={
-                  <MyRentals
-                    selectedOption={selectedOption}
-                    selectedTab={selectedTab}
-                    onTabChange={handleTabChange}
-                  />
-                }
-              />
-              <Route path="dashboard" element={<MyTransactions />} />
-              <Route path="my-listings" element={<MyListings />} />
-              <Route path="my-posts" element={<MyPosts />} />
-              <Route path="my-for-sale" element={<MyForSale />} />
-              <Route path="/" element={<Navigate to="my-listings" />} />
-            </Routes>
+          <Routes>
+            <Route path="edit-profile" element={<EditProfile />} />
+            <Route
+              path="transactions/:option/:tab"
+              element={<MyRentals selectedOption={selectedOption} selectedTab={selectedTab} onTabChange={handleTabChange} />}
+            />
+            <Route path="dashboard" element={<MyTransactions />} />
+            <Route path="my-listings" element={<MyListings />} />
+            <Route path="my-posts" element={<MyPosts />} />
+            <Route path="my-for-sale" element={<MyForSale />} />
+            <Route path="/" element={<Navigate to="my-listings" />} />
+          </Routes>
         </div>
       </div>
     </div>
