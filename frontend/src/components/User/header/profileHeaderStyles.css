@@ -119,8 +119,13 @@
   display: flex;
   height: auto;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
   line-height: 1;
+}
+.header-container.profile-header .select-option .dikoalam{
+  margin: 12px;
+  font-weight: 500;
+  color: white;
 }
 
 

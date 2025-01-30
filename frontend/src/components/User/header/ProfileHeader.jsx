@@ -243,13 +243,14 @@ const ProfileHeader = ({
           )}
         </div>
         {isTransactionPage && (
+          
           <div className="select-option" onClick={() => handleDropDown()}>
             <span className="text-white mx-3">
               As {capitalizeFirstLetter(selectedOption) === "Owner" ? "an" : "a"}
             </span>
             <div className={`custom-dropdown ${isExpanded ? "active" : ""}`}>
               {["Renter", "Owner", "Seller", "Buyer"]
-                .sort((a, b) => (a === selectedOption ? -1 : 1))
+                .sort((a, b) => (a.toLowerCase() === selectedOption ? -1 : 1))
                 .map((option) => (
                   <div
                     key={option}

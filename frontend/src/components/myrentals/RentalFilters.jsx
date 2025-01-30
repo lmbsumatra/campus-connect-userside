@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 
 function RentalFilters({
   filterOptions,
@@ -9,8 +8,6 @@ function RentalFilters({
   countTransactions,
   onTabChange,
 }) {
-  const navigate = useNavigate();
-
   const getDynamicFilterTextColor = () => {
     const colorMap = {
       renter: "var(--clr-renter-txt)",

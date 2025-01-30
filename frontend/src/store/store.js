@@ -34,6 +34,9 @@ import tagReducer from "../redux/tag/tagSlice";
 // ** User-related Reducers **
 import userReducer from "../redux/user/userSlice";
 
+// ** User transactions **
+import userTransactionsReducer from "../redux/transactions/rentalTransactionsSlice"
+
 // ** Merchant-related Reducers **
 import merchantReducer from "../redux/merchant/merchantSlice";
 
@@ -68,6 +71,7 @@ const store = configureStore({
     signupForm: signupFormReducer,
     user: userReducer,
     merchant: merchantReducer,
+    rentalTransactions: userTransactionsReducer,
     //
     itemForm: itemFormReducer,
     postForm: postFormReducer,

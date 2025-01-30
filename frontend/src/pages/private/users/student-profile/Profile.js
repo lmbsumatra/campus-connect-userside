@@ -12,20 +12,17 @@ import MyTransactions from "./MyTransactions.jsx";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import "./profileStyles.css";
 
-function Profile() {
+const Profile = () => {
   const { studentUser } = useAuth();
   const { userId } = studentUser || {};
   const location = useLocation();
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState("renter");
   const [selectedTab, setSelectedTab] = useState("requests");
 
   useEffect(() => {
-    if (userId) {
-      setLoading(false);
-    }
+    if (userId) setLoading(false);
   }, [userId]);
 
   const handleOptionChange = (option) => {
@@ -33,45 +30,41 @@ function Profile() {
     navigate(`/profile/transactions/${option.toLowerCase()}/${selectedTab}`);
   };
 
-  const handleTabChange = (newSelectedTab) => {
-    const path = newSelectedTab.toLowerCase() === "transactions"
+  const handleTabChange = (newTab) => {
+    const path = newTab.toLowerCase() === "transactions"
       ? `/profile/transactions/renter/requests`
-      : `/profile/transactions/${selectedOption}/${newSelectedTab.toLowerCase()}`;
+      : `/profile/transactions/${selectedOption}/${newTab.toLowerCase()}`;
 
-    setSelectedTab(newSelectedTab.toLowerCase());
+    setSelectedTab(newTab.toLowerCase());
     navigate(path);
   };
 
   const getBreadcrumbs = () => {
-    const breadcrumbs = [
+    const pathToBreadcrumb = {
+      "my-posts": "My Posts",
+      "my-listings": "My Listings",
+      "my-for-sale": "My For Sale Items",
+      "dashboard": "Dashboard",
+      transactions: "Transactions",
+      "edit-profile": "Edit Profile",
+    };
+
+    const currentPath = location.pathname;
+    const breadcrumb = [
       { label: "Home", href: "/" },
       { label: "Profile", href: "/profile" },
     ];
 
-    const pathToBreadcrumb = {
-      "my-posts": { label: "My Posts", href: "/profile/my-posts" },
-      "my-listings": { label: "My Listings", href: "/profile/my-listings" },
-      "my-for-sale": { label: "My For Sale Items", href: "/profile/my-for-sale" },
-      "dashboard": { label: "Dashboard", href: "/profile/dashboard" },
-      transactions: { label: "Transactions", href: "/profile/transactions" },
-      "edit-profile": { label: "Edit Profile", href: "/profile/edit-profile" },
-    };
+    Object.keys(pathToBreadcrumb).forEach((key) => {
+      if (currentPath.includes(key)) {
+        breadcrumb.push({ label: pathToBreadcrumb[key], href: `/profile/${key}` });
+      }
+    });
 
-    const currentPath = location.pathname;
-    const pathKey = Object.keys(pathToBreadcrumb).find((key) =>
-      currentPath.includes(key)
-    );
-
-    if (pathKey) {
-      breadcrumbs.push(pathToBreadcrumb[pathKey]);
-    }
-
-    return breadcrumbs;
+    return breadcrumb;
   };
 
-  if (loading) {
-    return <div>Loading user information...</div>;
-  }
+  if (loading) return <div>Loading user information...</div>;
 
   return (
     <div className="container-content profile-detail">
@@ -101,6 +94,6 @@ function Profile() {
       </div>
     </div>
   );
-}
+};
 
 export default Profile;

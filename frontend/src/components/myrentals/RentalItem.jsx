@@ -3,16 +3,19 @@ import ReviewModal from "../User/modalReview/ReviewModal";
 import "./MyRental.css";
 import itemImage from "../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../utils/dateFormat";
-import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom"; // Import navigation
-
+import { useDispatch } from 'react-redux';
+import { updateRentalStatus } from "../../redux/transactions/rentalTransactionsSlice";
+import axios from "axios";
 
 function RentalItem({ item, onButtonClick, selectedOption }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate(); // React Router navigation
   const { studentUser } = useAuth();
   const { userId } = studentUser;
+
+  const dispatch = useDispatch(); // Redux dispatch
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -22,44 +25,42 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
     setIsModalOpen(false);
   };
 
-  // API call function
-  const updateRentalStatus = async (action) => {
+  // Function to handle rental status update using Redux
+  const handleStatusUpdate = async (action) => {
     try {
-      const response = await axios.post(
-        `http://localhost:3001/rental-transaction/user/${item.id}/${action}`,
-        { userId }
-      );
+      // Dispatch the action to update rental status in the Redux state
+      dispatch(updateRentalStatus({ rentalId: item.id, newStatus: action, userId: userId }));
     } catch (error) {
       console.error("Error updating rental status:", error);
     }
   };
 
-    // Function to handle clicking "Message" button
-        const handleMessageClick = async () => {
-          try {
-            const recipientId = item.owner_id === userId ? item.renter_id : item.owner_id;
-            
-            // Create or get existing conversation
-            const response = await axios.post('http://localhost:3001/api/conversations/createConversation', {
-              senderId: userId,
-              ownerId: recipientId
-            });
-            
-            // Navigate to messages with conversation data
-            navigate("/messages", {
-              state: {
-                ownerId: recipientId,
-                product: {
-                  name: item.Listing.listing_name,
-                  status: item.status,
-                  image: itemImage,
-                }
-              }
-            });
-          } catch (error) {
-            console.error("Error creating/getting conversation:", error);
+  // Function to handle clicking "Message" button
+  const handleMessageClick = async () => {
+    try {
+      const recipientId = item.owner_id === userId ? item.renter_id : item.owner_id;
+      
+      // Create or get existing conversation
+      const response = await axios.post('http://localhost:3001/api/conversations/createConversation', {
+        senderId: userId,
+        ownerId: recipientId
+      });
+      
+      // Navigate to messages with conversation data
+      navigate("/messages", {
+        state: {
+          ownerId: recipientId,
+          product: {
+            name: item.Listing.listing_name,
+            status: item.status,
+            image: itemImage,
           }
-        };
+        }
+      });
+    } catch (error) {
+      console.error("Error creating/getting conversation:", error);
+    }
+  };
 
   // Define button configurations based on status
   const buttonConfig = useMemo(
@@ -69,12 +70,12 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
           ? [
               {
                 label: "Accept",
-                onClick: () => updateRentalStatus("accept"),
+                onClick: () => handleStatusUpdate("accept"),
                 primary: true,
               },
               {
                 label: "Decline",
-                onClick: () => updateRentalStatus("decline"),
+                onClick: () => handleStatusUpdate("decline"),
                 primary: true,
               },
             ]
@@ -83,7 +84,7 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
           ? [
               {
                 label: "Cancel",
-                onClick: () => updateRentalStatus("cancel"),
+                onClick: () => handleStatusUpdate("cancel"),
                 primary: true,
               },
             ]
@@ -100,13 +101,13 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
             item.owner_id === userId && item.owner_confirmed
               ? "Handed Over" // If Owner confirmed, show "Handed Over"
               : item.renter_id === userId && item.renter_confirmed
-              ? "Received" // If Renter confirmed, show "Handed Over"
+              ? "Received" // If Renter confirmed, show "Received"
               : item.owner_id === userId
               ? "Confirm Hand Over" // If Owner has not confirmed, show "Confirm Hand Over"
               : item.renter_id === userId
               ? "Confirm Item Receive" // If Renter has not confirmed, show "Confirm Hand Over"
               : "Confirm Hand Over", // Default fallback for any other situation
-          onClick: () => updateRentalStatus("hand-over"),
+          onClick: () => handleStatusUpdate("hand-over"),
           primary: true,
           disabled:
             item.owner_id === userId
@@ -131,7 +132,7 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
               : item.renter_id === userId
               ? "Confirm Return"
               : "Confirm Return",
-          onClick: () => updateRentalStatus("return"),
+          onClick: () => handleStatusUpdate("return"),
           primary: true,
           disabled:
             item.owner_id === userId
@@ -151,7 +152,7 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
             (item.renter_id === userId && item.renter_confirmed)
               ? "Completed"
               : "Complete",
-          onClick: () => updateRentalStatus("completed"),
+          onClick: () => handleStatusUpdate("completed"),
           primary: true,
           disabled:
             item.owner_id === userId
@@ -182,9 +183,7 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
       Reviewed: [],
       Cancelled: [],
     }),
-
-    [userId],
-    console.log("Rental Item Page: check dependencies on fetch...")
+    [userId]
   );
 
   // Define button color based on selected option (Owner or Renter)
@@ -225,22 +224,18 @@ function RentalItem({ item, onButtonClick, selectedOption }) {
 
         <div className="action-buttons d-flex gap-2">
           {buttonConfig[item.status]?.map((button, index) => (
-            <>
-              <button
-                key={index}
-                className={`btn btn-rectangle ${getButtonColor(
-                  button.primary
-                )} `}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onButtonClick(e); // Prevent outer click
-                  button.onClick(); // Call button's onClick function
-                }}
-                disabled={button.disabled}
-              >
-                {button.label}
-              </button>
-            </>
+            <button
+              key={index}
+              className={`btn btn-rectangle ${getButtonColor(button.primary)}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onButtonClick(e); // Prevent outer click
+                button.onClick(); // Call button's onClick function
+              }}
+              disabled={button.disabled}
+            >
+              {button.label}
+            </button>
           ))}
         </div>
       </div>

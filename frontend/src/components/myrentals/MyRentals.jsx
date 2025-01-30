@@ -1,15 +1,13 @@
+// MyRentals.js
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; 
-import useFetchRentalTransactionsByUserId from "../../utils/useFetchRentalTransactionsByUserId";
+import { useNavigate } from "react-router-dom";
 import RentalFilters from "./RentalFilters";
 import RentalItem from "./RentalItem";
 import { useAuth } from "../../context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchRentalTransactions } from "../../redux/transactions/rentalTransactionsSlice";
 
-  // Format filter names for route (lowercase and hyphenated)
-  const formatForRoute = (name) => {
-    return name.toLowerCase();
-  };
-
+const formatForRoute = (name) => name.toLowerCase();
 
 const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   const { studentUser } = useAuth();
@@ -17,18 +15,29 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   const [activeFilter, setActiveFilter] = useState(selectedTab || "requests");
   const navigate = useNavigate();
 
-  const { transactions: rentalItems, error, loading } = useFetchRentalTransactionsByUserId(userId);
+  const dispatch = useDispatch();
+
+  // Access Redux state
+  const {
+    transactions: rentalItems,
+    error,
+    loading,
+  } = useSelector((state) => state.rentalTransactions);
+  console.log({rentalItems });
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchRentalTransactions(userId));
+    }
+  }, [dispatch, userId]);
 
   useEffect(() => {
-    // Ensure selectedTab is in the same format (lowercase with hyphens) as activeFilter
-    const formattedTab = formatForRoute(selectedTab);
-    setActiveFilter(formattedTab);
+    setActiveFilter(formatForRoute(selectedTab));
   }, [selectedTab]);
 
   const handleFilterClick = (filter) => {
     const formattedFilter = formatForRoute(filter);
     setActiveFilter(formattedFilter);
-    onTabChange(filter); 
+    onTabChange(filter);
   };
 
   const openRentProgress = (rentalId) => {
@@ -40,8 +49,14 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
 
   const filterOptions = [
     { name: "Requests", statuses: ["Requested"] },
-    { name: selectedOption === "owner" ? "To Hand Over" : "To Receive", statuses: ["Accepted"] },
-    { name: selectedOption === "renter" ? "To Return" : "To Receive", statuses: ["HandedOver"] },
+    {
+      name: selectedOption === "owner" ? "To Hand Over" : "To Receive",
+      statuses: ["Accepted"],
+    },
+    {
+      name: selectedOption === "renter" ? "To Return" : "To Receive",
+      statuses: ["HandedOver"],
+    },
     { name: "Completed", statuses: ["Returned"] },
     { name: "To Review", statuses: ["Completed"] },
     { name: "Cancelled", statuses: ["Cancelled", "Declined"] },
@@ -54,9 +69,11 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   }));
 
   const filteredItems = rentalItems.filter((item) => {
-    if (selectedOption === "owner" && item.owner_id !== userId) return false;
-    if (selectedOption === "renter" && item.renter_id !== userId) return false;
-
+    if (
+      (selectedOption === "owner" && item.owner_id !== userId) ||
+      (selectedOption === "renter" && item.renter_id !== userId)
+    )
+      return false;
     if (activeFilter === "all") return true;
     const filterOption = formattedFilterOptions.find(
       (option) => option.nameForRoute === activeFilter
@@ -65,11 +82,15 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   });
 
   const countByStatus = () => {
-    const counts = formattedFilterOptions.reduce((acc, option) => {
+    return formattedFilterOptions.reduce((acc, option) => {
       const filtered = rentalItems.filter((item) => {
-        if (selectedOption === "owner" && item.owner_id !== userId) return false;
-        if (selectedOption === "renter" && item.renter_id !== userId) return false;
-        if (option.statuses.length && !option.statuses.includes(item.status)) return false;
+        if (
+          (selectedOption === "owner" && item.owner_id !== userId) ||
+          (selectedOption === "renter" && item.renter_id !== userId)
+        )
+          return false;
+        if (option.statuses.length && !option.statuses.includes(item.status))
+          return false;
         return true;
       });
 
@@ -84,37 +105,30 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
         count -= reviewedCount;
       }
 
-      let statusColor;
-      if (option.name === "To Review" && count === 0) {
-        statusColor = "gray";
-      } else if (option.name === "Request" && count > 0) {
-        statusColor = "orange";
-      } else if (option.name === "All" || option.name === "Cancelled") {
+      let statusColor = "gray";
+      if (option.name === "To Review" && count === 0) statusColor = "gray";
+      else if (option.name === "Request" && count > 0) statusColor = "orange";
+      else if (option.name === "Cancelled" || option.name === "All")
         statusColor = "white";
-      } else {
+      else {
         statusColor = filtered.reduce((color, item) => {
           if (
             (selectedOption === "owner" && item.owner_confirmed) ||
             (selectedOption === "renter" && item.renter_confirmed) ||
             option.name === "To Review"
-          ) {
+          )
             return "orange";
-          } else {
-            return "red";
-          }
+          return "red";
         }, "gray");
       }
 
       acc[option.nameForLabel] = { count, color: statusColor };
       return acc;
     }, {});
-
-    return counts;
   };
 
   return (
     <div className="container rounded bg-white">
-      {activeFilter}
       <div className="w-100">
         <RentalFilters
           filterOptions={formattedFilterOptions.map(

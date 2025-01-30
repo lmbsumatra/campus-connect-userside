@@ -72,11 +72,13 @@ function ListingDetail() {
 
   useEffect(() => {
     // Retrieve isAdmin from localStorage
-    const storedIsAdmin =
-      JSON.parse(localStorage.getItem("adminUser")).role ===
-      ("superadmin" || "admin");
-    setIsAdmin(storedIsAdmin);
-    console.log(storedIsAdmin);
+    // di ko alam kung ako gumawa nito, pero wala akong matandaan
+    // iccomment ko muna - missy
+    // const storedIsAdmin =
+    //   JSON.parse(localStorage.getItem("adminUser")).role ===
+    //   ("superadmin" || "admin");
+    // setIsAdmin(storedIsAdmin);
+    // console.log(storedIsAdmin);
 
     if (id) {
       dispatch(fetchApprovedListingById(id));
