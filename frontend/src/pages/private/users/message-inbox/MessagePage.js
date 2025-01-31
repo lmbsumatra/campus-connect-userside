@@ -135,9 +135,16 @@ const MessagePage = () => {
             const targetConversation = data.conversations.find((conversation) =>
               conversation.members.includes(String(state.ownerId || state.sellerId))
             );
-            setActiveChat(targetConversation || null);
-          }
 
+            if (targetConversation) {
+              setActiveChat(targetConversation || null);
+              // If there's a product in state, send it automatically
+              if (state?.product) {
+                handleSendMessage("", targetConversation.otherUser.user_id);
+              }
+            }
+          }
+          
         setIsLoading(false);
 
       } catch (err) {
@@ -304,7 +311,7 @@ const MessagePage = () => {
                       <p className="preview-message">
                         {latestMessage ? (
                           latestMessage.isProductCard ? (
-                            '📦 Shared a product'
+                            'Shared a product'
                           ) : (
                             latestMessage.text && latestMessage.text.length > 30 
                               ? `${latestMessage.text.substring(0, 30)}...` 
@@ -345,28 +352,34 @@ const MessagePage = () => {
               activeChat.messages.map((message, index) =>
                 message.isProductCard ? (
                   <div key={index} className="product-card">
-                <h6>You're inquiring about this item</h6>
-                <div className="d-flex align-items-start">
-                  <img 
-                    src={message.productDetails?.image} 
-                    alt={message.productDetails?.name} 
-                    className="me-3" 
-                    style={{ width: "60px", height: "60px" }} 
-                  />
-                  <div>
-                    <p className="mb-1">
-                      <strong>{message.productDetails?.title} {message.productDetails?.name}</strong>
-                    </p>
-                    
-                    {/* Show Price if available, otherwise show Status */}
-                    {message.productDetails?.price ? (
-                      <p className="mb-0">Price: ₱{message.productDetails?.price}</p>
-                    ) : (
-                      <p className="mb-0">Status: {message.productDetails?.status}</p>
-                    )}
+                  <h6>
+                    {message.productDetails?.title === "Offer" 
+                      ? "Offer for this item"
+                      : "Inquiring about this item"}
+                  </h6>
+                  <div className="d-flex align-items-start">
+                    <img 
+                      src={message.productDetails?.image} 
+                      alt={message.productDetails?.name} 
+                      className="me-3" 
+                      style={{ width: "60px", height: "60px" }} 
+                    />
+                    <div>
+                      <p className="mb-1">
+                        <strong>{message.productDetails?.name}</strong>
+                      </p>
+                      
+                      {/* Show Price if available, Status (including offer details) otherwise */}
+                      {message.productDetails?.price ? (
+                        <p className="mb-0">Price: ₱{message.productDetails?.price}</p>
+                      ) : message.productDetails?.status ? (
+                        <p className="mb-0 offer-details" style={{ whiteSpace: 'pre-line' }}>
+                          {message.productDetails?.status}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
-              </div>
                 ) : (
                   <div
                     key={index}

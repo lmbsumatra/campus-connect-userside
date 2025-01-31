@@ -62,6 +62,45 @@ router.post("/createConversation", async (req, res) => {
   }
 });
 
+// Create a conversation between user and lender
+router.post("/createConversationPost", async (req, res) => {
+    const { senderId, renterId } = req.body;  // Extract senderId and ownerId from request body
+  
+    try {
+        // Check if senderId and ownerId are provided
+        if (!senderId || !renterId) {
+            return res.status(400).json({ error: "Sender ID and Owner ID are required" });
+        }
+  
+        // Check if a conversation already exists between the sender and owner
+        const existingConversation = await Conversation.findOne({
+            where: {
+                members: sequelize.literal(
+                    `JSON_CONTAINS(members, '["${senderId}"]') AND JSON_CONTAINS(members, '["${renterId}"]')`
+                ),
+            },
+        });
+  
+        if (!existingConversation) {
+            // If no existing conversation, create a new one
+            const newConversation = await Conversation.create({
+                members: [String(senderId), String(renterId)],  // Store IDs as strings in the members array
+                user_id: senderId,  // Mark senderId as the user_id (creator)
+            });
+  
+            // Respond with the newly created conversation
+            return res.status(201).json(newConversation);
+        }
+  
+        // If conversation already exists, return the existing one
+        res.status(200).json(existingConversation);
+    } catch (err) {
+        // Log and return error message in case of failure
+        console.error("Error creating conversation:", err);
+        res.status(500).json({ error: err.message });
+    }
+  });
+
 // Create a conversation between user and seller
 router.post("/createBySeller", async (req, res) => {
   const { senderId, sellerId } = req.body;  // Extract senderId and sellerId from request body
@@ -223,11 +262,13 @@ router.post("/:conversationId/message", async (req, res) => {
           text: isProductCard ? null : text,
           isProductCard: isProductCard || false,
           productDetails: isProductCard ? productDetails : null,
+          createdAt: new Date(),
+          updatedAt: new Date()
       });
       
        // Update the conversation's updatedAt timestamp
     await conversation.update({ updatedAt: new Date() });
-
+    
       // Respond with the newly created message
       res.status(200).json(newMessage);
   } catch (err) {

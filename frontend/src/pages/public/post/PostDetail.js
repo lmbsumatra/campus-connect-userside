@@ -93,6 +93,57 @@ function PostDetail() {
     }
   };
 
+  const handleConfirmOffer = async () => {
+    try {
+      // First, check/create conversation with the owner
+      const createConversationResponse = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversationPost`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            senderId: studentUser.userId,
+            ownerId: approvedPostById.renter.id
+          }),
+        }
+      );
+
+      const conversation = await createConversationResponse.json();
+
+      // Prepare the offer details for the product card
+      const offerDetails = {
+        name: approvedPostById.name,
+        image: approvedPostById.images && approvedPostById.images.length > 0 
+          ? approvedPostById.images[0] 
+          : defaultImages[0],
+        title: "Offer",
+        status: `Date: ${new Date(selectedDate).toLocaleDateString()}\nDuration: ${
+          selectedDuration.timeFrom
+        } - ${selectedDuration.timeTo}`,
+      };
+
+      // Navigate to messages with the offer details
+      navigate("/messages", {
+        state: {
+          ownerId: approvedPostById.renter.id,
+          product: offerDetails,
+          isOffer: true
+        }
+      });
+
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error handling offer:", error);
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Failed to send offer. Please try again.",
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     if (id) {
       dispatch(fetchApprovedPostById(id));
@@ -363,7 +414,7 @@ function PostDetail() {
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary">Confirm</Button>
+          <Button variant="primary" onClick={handleConfirmOffer}>Confirm</Button>
         </Modal.Footer>
       </Modal>
     </div>
