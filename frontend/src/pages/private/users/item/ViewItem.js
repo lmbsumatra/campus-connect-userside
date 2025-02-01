@@ -6,10 +6,7 @@ import Tooltip from "@mui/material/Tooltip";
 import UserToolbar from "../common/UserToolbar.jsx";
 import { formatDateFromSelectDate } from "../../../../utils/dateFormat.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
-import {
-  FOR_RENT,
-  FOR_SALE,
-} from "../../../../utils/consonants.js";
+import { FOR_RENT, FOR_SALE } from "../../../../utils/consonants.js";
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../assets/images/card/buy.svg";
@@ -24,18 +21,28 @@ const ViewItem = () => {
   const location = useLocation();
   const itemData = location?.state?.item || {};
   const { user } = useSelector((state) => state.user);
-  
+
+  console.log(user, itemData);
+
   const renderDurations = (date) => {
     const dateItem = itemData.availableDates?.find(
-      (item) => formatDateFromSelectDate(new Date(item.date)) === formatDateFromSelectDate(date)
+      (item) =>
+        formatDateFromSelectDate(new Date(item.date)) ===
+        formatDateFromSelectDate(date)
     );
 
     if (!date) {
-      return <p className="select-date-message">Please select a date to view available times.</p>;
+      return (
+        <p className="select-date-message">
+          Please select a date to view available times.
+        </p>
+      );
     }
 
     if (!dateItem?.durations?.length) {
-      return <p className="no-duration-message">No available times for this date.</p>;
+      return (
+        <p className="no-duration-message">No available times for this date.</p>
+      );
     }
 
     return (
@@ -43,7 +50,8 @@ const ViewItem = () => {
         {dateItem.durations.map((duration, index) => (
           <div key={index} className="duration-item">
             <input type="checkbox" checked disabled />
-            {formatTimeTo12Hour(duration.timeFrom)} - {formatTimeTo12Hour(duration.timeTo)}
+            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+            {formatTimeTo12Hour(duration.timeTo)}
           </div>
         ))}
       </div>
@@ -52,21 +60,29 @@ const ViewItem = () => {
 
   return (
     <div className="container-content view-item-detail">
-      <BreadCrumb breadcrumbs={viewItemBreadcrumbs({ itemType: itemData.itemType })} />
-      
+      <BreadCrumb
+        breadcrumbs={viewItemBreadcrumbs({ itemType: itemData.itemType })}
+      />
+
       <div className="view-item-container">
+        
         <div className="imgs-container">
-          <Tooltip title={`This item is for ${itemData.itemType}`}>
+          <Tooltip title={`This item is for ${itemData.itemType}hiiiiiiiiiii`}>
             <img
               src={itemData.itemType === FOR_RENT ? forRentIcon : forSaleIcon}
               alt={itemData.itemType}
               className="item-type"
             />
           </Tooltip>
-          
+
           <div className="image-gallery">
             {itemData.images?.map((image, index) => (
-              <img key={index} src={image} alt={`Item image ${index + 1}`} className="item-image" />
+              <img
+                key={index}
+                src={image}
+                alt={`Item image ${index + 1}`}
+                className="item-image"
+              />
             ))}
           </div>
         </div>
@@ -114,7 +130,7 @@ const ViewItem = () => {
               <h3>Delivery Method</h3>
               <span className="value">{itemData.deliveryMethod}</span>
             </div>
-            
+
             <div className="method-group">
               <h3>Payment Method</h3>
               <span className="value">{itemData.paymentMethod}</span>
@@ -164,7 +180,9 @@ const ViewItem = () => {
 
       <div className="tags">
         {itemData.tags?.map((tag, index) => (
-          <span key={index} className="tag">#{tag}</span>
+          <span key={index} className="tag">
+            #{tag}
+          </span>
         ))}
       </div>
     </div>

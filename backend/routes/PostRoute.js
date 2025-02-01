@@ -11,6 +11,7 @@ router.get("/approved", PostController2.getAllAvailablePost);
 // isang post na available (approved, with available date and corresponding time)
 router.get("/available/:id", PostController2.getAvailablePostById);
 // lahat ng  post na available per user kapag nagvisit sa profile nila (approved, with available date and corresponding time)
+router.get("/user/:userId/available", PostController2.getAvailablePostsByUser); // get by query [item-for-sale/user?query=value]
 router.get("/all/available/user", PostContoller.getAvailablePostsByUser); // get by query [item-for-sale/user?query=value]
 
 // displayed for all admins

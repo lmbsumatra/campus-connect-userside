@@ -5,6 +5,7 @@ import filterReducer from "../redux/filter/filterSlice";
 
 // ** Cart-related Reducers **
 import cartReducer from "../redux/cart/cartSlice";
+import userReviewsReducer from "../redux/transactions/userReview"
 
 // ** Authentication-related Reducers **
 import studentAuthReducer from "../redux/auth/studentAuthSlice";
@@ -14,18 +15,21 @@ import signupFormReducer from "../redux/signup-form/signupFormSlice";
 // ** Post-related Reducers **
 import approvedPostByIdSliceReducer from "../redux/post/approvedPostByIdSlice";
 import allApprovedPostReducer from "../redux/post/allApprovedPostsSlice";
+import availablePostsByUserReducer from "../redux/post/availablePostsByUser";
 
 // ** Listing-related Reducers **
 import listingByIdSliceReducer from "../redux/listing/listingByIdSlice";
 import allApprovedListingsReducer from "../redux/listing/allApprovedListingsSlice";
 import approvedListingByIdSliceReducer from "../redux/listing/approvedListingByIdSlice";
 import allListingsByUserSliceReducer from "../redux/listing/allListingsByUserSlice";
+import availableListingsByUserReducer from "../redux/listing/availableListingsByUser";
 
 // ** Item-for-Sale-related Reducers **
 import itemForSaleByIdSliceReducer from "../redux/item-for-sale/itemForSaleByIdSlice";
 import allApprovedItemForSaleReducer from "../redux/item-for-sale/allApprovedItemsForSaleSlice";
 import approvedItemForSaleByIdReducer from "../redux/item-for-sale/approvedItemForSaleByIdSlice";
 import allItemForSaleByUserSliceReducer from "../redux/item-for-sale/allItemForSaleByUserSlice";
+import availableItemsForSaleByUserReducer from "../redux/item-for-sale/availableItemsForSaleByUser"
 
 // ** Alert and Tag-related Reducers **
 import alertPopupReducer from "../redux/alert-popup/alertPopupSlice";
@@ -35,7 +39,7 @@ import tagReducer from "../redux/tag/tagSlice";
 import userReducer from "../redux/user/userSlice";
 
 // ** User transactions **
-import userTransactionsReducer from "../redux/transactions/rentalTransactionsSlice"
+import userTransactionsReducer from "../redux/transactions/rentalTransactionsSlice";
 
 // ** Merchant-related Reducers **
 import merchantReducer from "../redux/merchant/merchantSlice";
@@ -48,18 +52,22 @@ const store = configureStore({
   reducer: {
     filter: filterReducer,
     cart: cartReducer,
+    userReviews: userReviewsReducer,
     studentAuth: studentAuthReducer,
     approvedPostById: approvedPostByIdSliceReducer,
+    availablePostsByUser: availablePostsByUserReducer,
     //
     listingById: listingByIdSliceReducer,
     allApprovedListings: allApprovedListingsReducer,
     approvedListingById: approvedListingByIdSliceReducer,
     allListingsByUser: allListingsByUserSliceReducer,
+    availableListingsByUser: availableListingsByUserReducer,
     //
     itemForSaleById: itemForSaleByIdSliceReducer,
     allApprovedItemForSale: allApprovedItemForSaleReducer,
     approvedItemForSaleById: approvedItemForSaleByIdReducer,
     allItemForSaleByUser: allItemForSaleByUserSliceReducer,
+    availableItemsForSaleByUser: availableItemsForSaleByUserReducer,
     //
     allApprovedPosts: allApprovedPostReducer,
     //

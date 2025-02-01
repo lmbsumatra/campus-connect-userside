@@ -638,7 +638,13 @@ function ListingDetail() {
         </div>
       </div>
 
-      <UserToolbar user={approvedListingById.owner} />
+      <UserToolbar user={approvedListingById.owner}isYou={
+          approvedListingById.owner
+            ? approvedListingById.owner.id === loggedInUserId
+            : false
+        } />
+
+        
 
       <ItemDescAndSpecs
         specs={approvedListingById.specs}

@@ -2,8 +2,19 @@
 .btn {
   padding: 7px 28px !important;
   transition: background-color 0.3s, color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: row;
+  justify-content: center;
 }
 
+.btn img {
+  height: 16px;
+}
+.btn.btn-rectangle.primary:hover svg {
+  fill: white; /* Change to white on hover */
+}
 /* Rectangle Buttons */
 .btn.btn-rectangle {
   border-radius: 4px;

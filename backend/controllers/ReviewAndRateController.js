@@ -58,7 +58,7 @@ exports.createReview = async (req, res) => {
     // Step 3: Handle updating the rental transaction fields
     // Set owner_confirmed or renter_confirmed to true based on the review_type
     let updateFields = {
-      has_review_rating: true,  // Indicate that a review has been submitted
+      has_review_rating: true, // Indicate that a review has been submitted
     };
 
     // If the review type is 'owner', set 'owner_confirmed' to true
@@ -72,13 +72,17 @@ exports.createReview = async (req, res) => {
     }
 
     // Only update the transaction if the status is 'completed'
-    if (transaction.status === 'Completed') {
+    if (transaction.status === "Completed") {
       await models.RentalTransaction.update(updateFields, {
         where: { id: transaction_id },
       });
-      console.log(`Transaction ${transaction_id} updated successfully with review confirmation.`);
+      console.log(
+        `Transaction ${transaction_id} updated successfully with review confirmation.`
+      );
     } else {
-      console.log(`Transaction ${transaction_id} is not 'completed'. No update to status or confirmations.`);
+      console.log(
+        `Transaction ${transaction_id} is not 'completed'. No update to status or confirmations.`
+      );
     }
 
     // Step 4: Send a success response
@@ -102,5 +106,87 @@ exports.createReview = async (req, res) => {
     }
     console.log({ error: errorMessage });
     res.status(500).json({ error: errorMessage });
+  }
+};
+
+exports.getUserReviews = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const reviews = await models.ReviewAndRate.findAll({
+      where: {
+        reviewee_id: userId,
+        reviewer_id: { [Op.ne]: userId }, // Exclude self-reviews
+      },
+      include: [
+        {
+          model: models.User,
+          as: "reviewer",
+          attributes: ["user_id", "first_name", "last_name", "email"],
+          include: [
+            {
+              model: models.Student,
+              as: "student",
+              attributes: ["id", "tup_id", "college"],
+            },
+          ],
+        },
+      ],
+      order: [
+        ["transaction_id", "ASC"],
+        ["created_at", "ASC"],
+      ], // Sort by transaction and time
+    });
+
+    // Group reviews by transactionId
+    const groupedReviews = reviews.reduce((acc, review) => {
+      const transactionId = review.transaction_id;
+
+      if (!acc[transactionId]) {
+        acc[transactionId] = {
+          transactionId,
+          rentalReview: [], // Holds owner + item reviews
+          renterReview: null, // Holds renter review
+        };
+      }
+
+      const formattedReview = {
+        id: review.id,
+        reviewType: review.review_type,
+        rate: review.rate,
+        review: review.review,
+        createdAt: review.created_at,
+        reviewer: {
+          userId: review.reviewer?.user_id,
+          fname: review.reviewer?.first_name,
+          lname: review.reviewer?.last_name,
+          email: review.reviewer?.email,
+          student: review.reviewer?.student
+            ? {
+                id: review.reviewer.student.id,
+                tupId: review.reviewer.student.tup_id,
+                college: review.reviewer.student.college,
+              }
+            : null,
+        },
+      };
+
+      if (review.review_type === "owner" || review.review_type === "item") {
+        acc[transactionId].rentalReview.push(formattedReview); // Add to rentalReview array
+      } else if (review.review_type === "renter") {
+        acc[transactionId].renterReview = formattedReview; // Store renterReview separately
+      }
+
+      return acc;
+    }, {});
+
+    res.status(200).json(Object.values(groupedReviews));
+  } catch (error) {
+    console.error("Error fetching user reviews:", error);
+    res.status(500).json({ error: "An error occurred while fetching reviews." });
   }
 };

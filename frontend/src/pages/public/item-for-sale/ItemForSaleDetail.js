@@ -606,7 +606,14 @@ function ItemForSaleDetail() {
         </div>
       </div>
 
-      <UserToolbar user={approvedItemForSaleById.seller} />
+      <UserToolbar
+        user={approvedItemForSaleById.seller}
+        isYou={
+          approvedItemForSaleById.seller
+            ? approvedItemForSaleById.seller.id === loggedInUserId
+            : false
+        }
+      />
 
       <ItemDescAndSpecs
         specs={approvedItemForSaleById.specs}

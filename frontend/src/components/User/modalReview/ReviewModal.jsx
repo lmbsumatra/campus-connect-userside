@@ -42,7 +42,7 @@ const ReviewModal = ({
     const reviewData = [];
 
     // For Renter: submit two reviews (item and owner)
-    if (selectedOption === "Renter") {
+    if (selectedOption === "renter") {
       // Review for the item
       reviewData.push({
         reviewer_id: item.renter.user_id,
@@ -64,7 +64,7 @@ const ReviewModal = ({
         rate: ownerRating,
         review: ownerReview, // Owner review
       });
-    } else if (selectedOption === "Owner") {
+    } else if (selectedOption === "owner") {
       // For Owner: Only one review (renter)
       reviewData.push({
         reviewer_id: item.owner.user_id,
@@ -119,16 +119,15 @@ const ReviewModal = ({
       <Modal.Body>
         {errorMessage && (
           <div className="alert alert-danger">{errorMessage}</div>
-        )}{" "}
-        {/* Show error message if any */}
+        )}
         {/* For Renter (Rating and reviewing item and owner) */}
-        {selectedOption === "Renter" && (
+        {selectedOption === "renter" && (
           <>
             <div className="mb-4">
               <h5>Rate Item</h5>
               <div className="d-flex mb-3">
                 <img
-                  src={item.image || "/default-image.jpg"}
+                  src={item.image || "/default-image.jpg"} // Default image if item image is missing
                   alt="Item"
                   className="me-3"
                   style={{
@@ -139,10 +138,9 @@ const ReviewModal = ({
                   }}
                 />
                 <div>
-                  <p>Item: {item.Listing.listing_name}</p>
-                  {/* <p>Rental Period: {item.RentalDate.date}</p> */}
-                  <p>Rental Duration: {item.Duration.rental_time_from}</p>
-                  <p>Rental Rate: 10 PHP</p>
+                  <p>Item: {item.Listing?.listing_name || "No listing name"}</p>
+                  <p>Rental Duration: {item.Duration?.rental_time_from || "N/A"}</p>
+                  <p>Rental Rate: {item.Listing?.rate || "N/A"} PHP</p>
                   <div className="d-flex align-items-center">
                     <p className="mb-0 me-2">Rate Item:</p>
                     <StarRatings
@@ -171,7 +169,7 @@ const ReviewModal = ({
 
             <div className="mb-4">
               <h5>Rate Owner</h5>
-              <p>Name: {item.owner ? item.owner.first_name : "Owner"}</p>
+              <p>Name: {item.owner?.first_name || "Owner"}</p>
               <div className="d-flex align-items-center">
                 <p className="mb-0 me-2">Rate Owner:</p>
                 <StarRatings
@@ -199,12 +197,12 @@ const ReviewModal = ({
           </>
         )}
         {/* For Owner (Rating the Renter and optional remarks) */}
-        {selectedOption === "Owner" && (
+        {selectedOption === "owner" && (
           <>
             <div className="mb-4">
               <h5>Rate Renter</h5>
-              <p>Name: {item.renter ? item.renter.first_name : "Renter"}</p>
-              <p>Rental Duration: {item.Duration.rental_time_from}</p>
+              <p>Name: {item.renter?.first_name || "Renter"}</p>
+              <p>Rental Duration: {item.Duration?.rental_time_from || "N/A"}</p>
               <div className="d-flex align-items-center">
                 <p className="mb-0 me-2">Rate Renter:</p>
                 <StarRatings
@@ -258,8 +256,8 @@ ReviewModal.propTypes = {
     Listing: PropTypes.shape({
       listing_name: PropTypes.string.isRequired,
     }).isRequired,
-    RentalDate: PropTypes.shape({
-      date: PropTypes.string.isRequired,
+    Duration: PropTypes.shape({
+      rental_time_from: PropTypes.string.isRequired,
     }).isRequired,
     owner: PropTypes.shape({
       first_name: PropTypes.string.isRequired,
@@ -270,10 +268,8 @@ ReviewModal.propTypes = {
       user_id: PropTypes.number.isRequired,
     }),
   }).isRequired,
-  selectedOption: PropTypes.oneOf(["Owner", "Renter"]).isRequired,
-  // handleCloseModal: PropTypes.func.isRequired,
-  // transactionId: PropTypes.number.isRequired,
-  // reviewerId: PropTypes.number.isRequired,
+  selectedOption: PropTypes.oneOf(["owner", "renter"]).isRequired,
+  handleCloseModal: PropTypes.func.isRequired,
 };
 
 export default ReviewModal;

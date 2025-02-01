@@ -19,6 +19,8 @@ router.get(
 
 /* * * * * * * * * displayed for all admins :: all regardless of status * * * * * * * * * * * * * */
 router.get("/info", ItemForSaleController.getAllItemForSale);
+
+router.get("/user/:userId/available", ItemForSaleController2.getAvailableItemsForSaleByUser);
 router.get("/users/:id", ItemForSaleController2.getAllItemForSaleByUser);
 
 // patch by admins

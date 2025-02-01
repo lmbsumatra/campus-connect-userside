@@ -2,7 +2,7 @@ import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
 import "./userToolbarStyles.css";
 
 export const UserToolbar = ({ user, isYou }) => {
-  console.log({ user });
+  console.log(user, isYou);
   return (
     <div className="owner-info">
       <div className="user-link">
@@ -13,17 +13,17 @@ export const UserToolbar = ({ user, isYou }) => {
         />
         <div>
           {isYou ? (
-            <span className="username">
-              {user && user.fname && user.lname
-                ? `${user.fname} ${user.lname}`
-                : "You"}
-            </span>
+            <a href={`/profile`} className="username">
+           You
+          </a>
           ) : (
-            <a href={``} className="username">
-              {user && user.fname && user.lname
-                ? `${user.fname} ${user.lname}`
-                : "You"}
-            </a>
+            user && (
+              <a href={`/user/${user.id}`} className="username">
+                {user.fname && user.lname
+                  ? `${user.fname} ${user.lname}`
+                  : "User"}
+              </a>
+            )
           )}
         </div>
       </div>

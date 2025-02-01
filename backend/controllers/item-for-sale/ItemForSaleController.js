@@ -5,6 +5,7 @@ const getAllItemForSaleByUser = require("./getAllItemForSaleByUser.js");
 const deleteItemForSaleById = require("./deleteItemForSaleById");
 const updateItemForSaleById = require("./updateItemForSaleById");
 const getItemForSaleById = require("./getItemForSaleById");
+const getAvailableItemsForSaleByUser = require("./getAvailableItemsForSaleByUser.js");
 
 const ItemForSaleContoller = {
   getAllAvailable,
@@ -14,6 +15,7 @@ const ItemForSaleContoller = {
   deleteItemForSaleById,
   updateItemForSaleById,
   getItemForSaleById,
+  getAvailableItemsForSaleByUser,
 };
 
 module.exports = ItemForSaleContoller;

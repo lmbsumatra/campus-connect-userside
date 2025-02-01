@@ -3,5 +3,6 @@ const router = express.Router();
 const ReviewAndRateController = require("../controllers/ReviewAndRateController");
 
 router.post("/submit", ReviewAndRateController.createReview);
+router.get("/get/user/:userId", ReviewAndRateController.getUserReviews);
 
 module.exports = router;
