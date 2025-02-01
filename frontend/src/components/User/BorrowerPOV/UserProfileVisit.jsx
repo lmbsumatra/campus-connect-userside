@@ -110,22 +110,32 @@ const UserProfileVisit = () => {
                     <div key={review.transactionId} className="review-card">
                       <h3>Transaction #{review.transactionId}</h3>
 
-                      {/* Rental Reviews (Owner + Item) */}
-                      {review.rentalReview.length > 0 ? (
+                      {/* Owner Review */}
+                      {review.ownerReview ? (
                         <div className="review-block">
-                          <h4>Rental Reviews</h4>
-                          {review.rentalReview.map((rentalReview, index) => (
-                            <div key={index} className="single-review">
-                              <p>
-                                <strong>{rentalReview.reviewer?.fname} {rentalReview.reviewer?.lname}:</strong> {rentalReview.review}
-                              </p>
-                              <p>⭐ Rating: {rentalReview.rate}</p>
-                              <p><small>Reviewed on: {new Date(rentalReview.createdAt).toLocaleDateString()}</small></p>
-                            </div>
-                          ))}
+                          <h4>Owner Review</h4>
+                          <p>
+                            <strong>{review.ownerReview.reviewer?.fname} {review.ownerReview.reviewer?.lname}:</strong> {review.ownerReview.review}
+                          </p>
+                          <p>⭐ Rating: {review.ownerReview.rate}</p>
+                          <p><small>Reviewed on: {new Date(review.ownerReview.createdAt).toLocaleDateString()}</small></p>
                         </div>
                       ) : (
-                        <p>No rental reviews available.</p>
+                        <p>No owner review available.</p>
+                      )}
+
+                      {/* Item Review */}
+                      {review.itemReview ? (
+                        <div className="review-block">
+                          <h4>Item Review</h4>
+                          <p>
+                            <strong>{review.itemReview.reviewer?.fname} {review.itemReview.reviewer?.lname}:</strong> {review.itemReview.review}
+                          </p>
+                          <p>⭐ Rating: {review.itemReview.rate}</p>
+                          <p><small>Reviewed on: {new Date(review.itemReview.createdAt).toLocaleDateString()}</small></p>
+                        </div>
+                      ) : (
+                        <p>No item review available.</p>
                       )}
 
                       {/* Renter Review */}

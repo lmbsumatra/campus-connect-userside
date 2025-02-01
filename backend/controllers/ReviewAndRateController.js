@@ -149,8 +149,9 @@ exports.getUserReviews = async (req, res) => {
       if (!acc[transactionId]) {
         acc[transactionId] = {
           transactionId,
-          rentalReview: [], // Holds owner + item reviews
-          renterReview: null, // Holds renter review
+          ownerReview: null, // For owner review
+          itemReview: null, // For item review
+          renterReview: null, // For renter review
         };
       }
 
@@ -175,10 +176,12 @@ exports.getUserReviews = async (req, res) => {
         },
       };
 
-      if (review.review_type === "owner" || review.review_type === "item") {
-        acc[transactionId].rentalReview.push(formattedReview); // Add to rentalReview array
+      if (review.review_type === "owner") {
+        acc[transactionId].ownerReview = formattedReview;
+      } else if (review.review_type === "item") {
+        acc[transactionId].itemReview = formattedReview;
       } else if (review.review_type === "renter") {
-        acc[transactionId].renterReview = formattedReview; // Store renterReview separately
+        acc[transactionId].renterReview = formattedReview;
       }
 
       return acc;
