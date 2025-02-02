@@ -65,6 +65,7 @@ module.exports = (sequelize, models) => {
     ReviewAndRate.belongsTo(models.User, { foreignKey: "reviewee_id", as: "reviewee" });
     ReviewAndRate.belongsTo(models.RentalTransaction, { foreignKey: "transaction_id", as: "transaction" });
     ReviewAndRate.belongsTo(models.Listing, { foreignKey: "item_id", as: "listing" });
+    ReviewAndRate.belongsTo(models.ItemForSale, { foreignKey: "item_id", as: "itemforsale" });
   };
 
   return ReviewAndRate;

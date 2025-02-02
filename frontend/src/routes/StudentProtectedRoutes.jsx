@@ -4,7 +4,7 @@ import { Route } from "react-router-dom";
 import Profile from "../pages/private/users/student-profile/Profile.js";
 import MessagePage from "../pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "../components/myrentals/RentProgress.jsx";
-import UserProfileVisit from "../components/User/BorrowerPOV/UserProfileVisit.jsx";
+import UserProfileVisit from "../pages/private/users/other-user-profile/UserProfileVisit.jsx"
 import StudentProtectedRoute from "../components/Protected Route/StudentProtectedRoute.js";
 import Cart from "../pages/private/users/cart/Cart.js";
 import PostDetail from "../pages/public/post/PostDetail.js";

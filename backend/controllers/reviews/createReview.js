@@ -1,7 +1,8 @@
-const { models } = require("../models/index");
+
+const { models } = require("../../models/index");
 const { Op } = require("sequelize");
 
-exports.createReview = async (req, res) => {
+const createReview = async (req, res) => {
   console.log(req.body);
   try {
     const {
@@ -109,87 +110,4 @@ exports.createReview = async (req, res) => {
   }
 };
 
-exports.getUserReviews = async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
-
-    const reviews = await models.ReviewAndRate.findAll({
-      where: {
-        reviewee_id: userId,
-        reviewer_id: { [Op.ne]: userId }, // Exclude self-reviews
-      },
-      include: [
-        {
-          model: models.User,
-          as: "reviewer",
-          attributes: ["user_id", "first_name", "last_name", "email"],
-          include: [
-            {
-              model: models.Student,
-              as: "student",
-              attributes: ["id", "tup_id", "college"],
-            },
-          ],
-        },
-      ],
-      order: [
-        ["transaction_id", "ASC"],
-        ["created_at", "ASC"],
-      ], // Sort by transaction and time
-    });
-
-    // Group reviews by transactionId
-    const groupedReviews = reviews.reduce((acc, review) => {
-      const transactionId = review.transaction_id;
-
-      if (!acc[transactionId]) {
-        acc[transactionId] = {
-          transactionId,
-          ownerReview: null, // For owner review
-          itemReview: null, // For item review
-          renterReview: null, // For renter review
-        };
-      }
-
-      const formattedReview = {
-        id: review.id,
-        reviewType: review.review_type,
-        rate: review.rate,
-        review: review.review,
-        createdAt: review.created_at,
-        reviewer: {
-          userId: review.reviewer?.user_id,
-          fname: review.reviewer?.first_name,
-          lname: review.reviewer?.last_name,
-          email: review.reviewer?.email,
-          student: review.reviewer?.student
-            ? {
-                id: review.reviewer.student.id,
-                tupId: review.reviewer.student.tup_id,
-                college: review.reviewer.student.college,
-              }
-            : null,
-        },
-      };
-
-      if (review.review_type === "owner") {
-        acc[transactionId].ownerReview = formattedReview;
-      } else if (review.review_type === "item") {
-        acc[transactionId].itemReview = formattedReview;
-      } else if (review.review_type === "renter") {
-        acc[transactionId].renterReview = formattedReview;
-      }
-
-      return acc;
-    }, {});
-
-    res.status(200).json(Object.values(groupedReviews));
-  } catch (error) {
-    console.error("Error fetching user reviews:", error);
-    res.status(500).json({ error: "An error occurred while fetching reviews." });
-  }
-};
+module.exports = createReview;

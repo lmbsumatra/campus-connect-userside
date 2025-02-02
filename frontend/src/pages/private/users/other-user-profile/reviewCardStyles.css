@@ -1,0 +1,46 @@
+.review-card {
+  border-radius: 8px;
+  box-shadow: 0px 0px 1px 1px #000;
+  padding: 8px;
+}
+
+.review-block {
+  background-color: bisque;
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1;
+}
+
+.item-block {
+  display: flex;
+  flex-direction: column;
+}
+.reviewer-block {
+  display: flex;
+  gap: 8px;
+  flex-direction: row;
+  align-items: center;
+  background-color: bisque;
+  border-radius: 8px;
+}
+
+.reviewer-profpic {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%; /* Ensures it's a perfect circle */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0; /* Optional: Placeholder background */
+  border: 4px white solid;
+}
+
+.reviewer-profpic img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover; /* Ensures the image covers the container without distortion */
+}
