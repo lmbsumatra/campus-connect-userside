@@ -1,6 +1,8 @@
 const { Server } = require("socket.io");
 const { getServerUrl } = require("./getServerUrl.js");
 const MessageNotification = require("./models/MessageNotificationModel.js");
+const StudentNotification = require("./models/StudentNotificationModel.js");
+
 
 // Function to calculate unread messages for a user
 async function calculateUnreadMessages(userId) {
@@ -69,6 +71,44 @@ function initializeSocket(server) {
         Array.from(adminSockets)
       );
       notifyAdmins(notification);
+    });
+
+     //Handle student notification events
+    socket.on("sendNotification", async (notificationData) => {
+      console.log("Received sendNotification event with data:", notificationData);
+      try {
+        // Standardize the data structure to match your model
+        const notificationPayload = {
+          sender_id: notificationData.sender,
+          recipient_id: notificationData.recipient,
+          type: notificationData.type,
+          message: notificationData.message,
+          is_read: false
+        };
+
+        console.log("Attempting to create notification with payload:", notificationPayload);
+        
+        const newNotification = await StudentNotification.create(notificationPayload);
+        console.log("Successfully created notification:", newNotification.toJSON());
+
+        // Emit to recipient if they're connected
+        const recipientSocketId = userSockets.get(notificationData.recipient);
+        if (recipientSocketId) {
+          io.to(recipientSocketId).emit("receiveNotification", newNotification);
+          console.log("Notification emitted to recipient socket:", recipientSocketId);
+        } else {
+          console.log("Recipient not connected, notification saved to database only");
+        }
+      } catch (err) {
+        console.error("Error in sendNotification event handler:", err);
+        // Log the full error details for debugging
+        console.error("Error details:", {
+          name: err.name,
+          message: err.message,
+          stack: err.stack,
+          cause: err.cause
+        });
+      }
     });
 
     // Register the userId to socket mapping

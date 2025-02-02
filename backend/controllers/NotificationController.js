@@ -1,6 +1,7 @@
 const Notification = require('../models/NotificationModel');
 const MessageNotification = require('../models/MessageNotificationModel');
-const User = require('../models/UserModel'); 
+const User = require('../models/UserModel');
+const StudentNotification = require('../models/StudentNotificationModel');
 
 const notificationController = {
   // Existing admin notification methods
@@ -9,6 +10,86 @@ const notificationController = {
       const notification = await Notification.create(req.body);
       req.notifyAdmins(notification);
       res.status(201).json(notification);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // ----- New Student Notification Methods -----
+
+  // Create a new student notification
+  createStudentNotification: async (req, res) => {
+  console.log("createStudentNotification called with body:", req.body);
+  try {
+    // Validate required fields
+    const requiredFields = ['sender_id', 'recipient_id', 'type', 'message'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      console.error("Missing required fields:", missingFields);
+      return res.status(400).json({
+        error: `Missing required fields: ${missingFields.join(', ')}`
+      });
+    }
+
+    const notification = await StudentNotification.create({
+      sender_id: req.body.sender_id,
+      recipient_id: req.body.recipient_id,
+      type: req.body.type,
+      message: req.body.message,
+      is_read: false
+    });
+
+    console.log("StudentNotification created successfully:", notification.toJSON());
+    res.status(201).json(notification);
+  } catch (error) {
+    console.error("Error in createStudentNotification:", error);
+    res.status(500).json({
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+});
+  }
+},
+  // Get all student notifications for a specific user
+  getStudentNotifications: async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const notifications = await StudentNotification.findAll({
+        where: { recipient_id: userId },
+        order: [['createdAt', 'DESC']],
+      });
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // Mark a single student notification as read
+  markStudentNotificationAsRead: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updated = await StudentNotification.update(
+        { is_read: true },
+        { where: { id } }
+      );
+      if (updated[0] === 0) {
+        return res.status(404).json({ error: 'Notification not found' });
+      }
+      res.json({ message: 'Notification marked as read' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // Mark all student notifications as read for a specific user
+  markAllStudentNotificationsAsRead: async (req, res) => {
+    try {
+      const { userId } = req.params;
+      await StudentNotification.update(
+        { is_read: true },
+        { where: { recipient_id: userId, is_read: false } }
+      );
+      res.json({ message: 'All notifications marked as read' });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

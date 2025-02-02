@@ -37,9 +37,28 @@ import ItemDescAndSpecs from "../../common/ItemDescAndSpecs.jsx";
 import Terms from "./Terms.jsx";
 import ImageSlider from "../../common/ImageSlider.jsx";
 import ItemBadges from "../../common/ItemBadges.jsx";
+import { useSocket } from "../../../../context/SocketContext.js";
 import axios from "axios";
 import ViewToolbar from "../../common/ViewToolbar.js";
 import ReportModal from "../../../../components/report/ReportModal.js";
+
+async function getUserFullName(userId) {
+  console.log("Fetching user details for userId:", userId);
+  try {
+    const res = await fetch(
+      `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/user/info/${userId}`
+    );
+    if (!res.ok) {
+      throw new Error("Failed to fetch user details");
+    }
+    const data = await res.json();
+    const { fname, lname } = data.user; // the endpoint returns an object with a user property
+    return `${fname} ${lname}`;
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    return "Unknown User";
+  }
+}
 
 function ListingDetail() {
   const navigate = useNavigate();
@@ -61,6 +80,7 @@ function ListingDetail() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const loggedInUserId = studentUser?.userId || null;
+  const socket = useSocket();
 
   const location = useLocation();
   const { item, warnSelectDateAndTime } = location.state || {};
@@ -184,12 +204,11 @@ function ListingDetail() {
     }
   };
 
-  const confirmRental = async () => {
+ const confirmRental = async () => {
+  try {
     const selectedDateId = approvedListingById.availableDates.find(
       (rentalDate) => rentalDate.date === selectedDate
     )?.id;
-
-    console.log(approvedListingById);
 
     const rentalDetails = {
       owner_id: approvedListingById.owner.id,
@@ -199,15 +218,50 @@ function ListingDetail() {
       rental_date_id: selectedDateId,
       rental_time_id: selectedDuration.id,
     };
-    try {
-      await axios.post(
-        "http://localhost:3001/rental-transaction/add",
-        rentalDetails
-      );
-    } catch (error) {
-      return error;
+
+    // First create the rental transaction
+    const rentalResponse = await axios.post(
+      "http://localhost:3001/rental-transaction/add",
+      rentalDetails
+    );
+
+    // Fetch the user's full name
+    const senderName = await getUserFullName(studentUser.userId);
+
+    // Prepare notification data
+    const notificationData = {
+      sender: studentUser.userId,
+      recipient: approvedListingById.owner.id,
+      type: "rental_request",
+      message: `${senderName} wants to rent ${approvedListingById.name}.`,
+    };
+
+    console.log("Socket instance in confirmRental:", socket);
+    if (!socket) {
+      console.error("❌ Socket is null or undefined. It may not have initialized properly.");
     }
-  };
+
+    // Emit the socket event
+    if (socket && socket.connected) {
+      socket.emit("sendNotification", notificationData);
+      console.log("✅ Notification emitted successfully via socket.");
+    } else {
+      console.error("❌ Socket not connected! Falling back to API request.");
+      await axios.post("http://localhost:3001/api/notifications/student", {
+        sender_id: notificationData.sender,
+        recipient_id: notificationData.recipient,
+        type: notificationData.type,
+        message: notificationData.message,
+      });
+    }
+
+    setShowModal(false);
+    ShowAlert(dispatch, "success", "Success", "Rental confirmed successfully!");
+  } catch (error) {
+    console.error("Error in confirmRental:", error);
+    ShowAlert(dispatch, "error", "Error", "Failed to confirm rental. Please try again.");
+  }
+};
 
   useEffect(() => {
     if (id) {

@@ -26,31 +26,32 @@ import { REACT_APP_API_URL, REACT_APP_GOOGLE_CLIENT_ID } from "./utils/consonant
 
 function App() {
   return (
-    <Provider store={store}>
-      <AuthProvider>
-        <SocketProvider>
-          <ChatProvider>
-            <BrowserRouter>
-              <GoogleOAuthProvider
-                clientId={REACT_APP_GOOGLE_CLIENT_ID}
-              >
-                <Routes>
-                  {/* Public Routes */}
-                  <Route element={<PublicLayout />}>
-                    {PublicRoutes}
-                    {StudentProtectedRoutes}
-                  </Route>
+    <SocketProvider>
+      <Provider store={store}>
+        <AuthProvider>
+            <ChatProvider>
+              <BrowserRouter>
+                <GoogleOAuthProvider
+                  clientId={REACT_APP_GOOGLE_CLIENT_ID}
+                >
+                  <Routes>
+                    {/* Public Routes */}
+                    <Route element={<PublicLayout />}>
+                      {PublicRoutes}
+                      {StudentProtectedRoutes}
+                    </Route>
 
-                  {/* Admin Routes */}
-                  <Route element={<AdminLayout />}>{AdminRoutes}</Route>
-                </Routes>
-              </GoogleOAuthProvider>
-            </BrowserRouter>
-          </ChatProvider>
-        </SocketProvider>
-      </AuthProvider>
-    </Provider>
+                    {/* Admin Routes */}
+                    <Route element={<AdminLayout />}>{AdminRoutes}</Route>
+                  </Routes>
+                </GoogleOAuthProvider>
+              </BrowserRouter>
+            </ChatProvider>
+        </AuthProvider>
+      </Provider>
+  </SocketProvider>
+
   );
 }
-export const baseApi = REACT_APP_API_URL;
+export const baseApi = REACT_APP_API_URL || "http://localhost:3001";
 export default App;
