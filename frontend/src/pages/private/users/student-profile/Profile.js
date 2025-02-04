@@ -1,5 +1,13 @@
+// Profile.js
 import React, { useState, useEffect } from "react";
-import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useMatch,
+} from "react-router-dom";
 import { useAuth } from "../../../../context/AuthContext.js";
 import ProfileSidebar from "../../../../components/User/sidebar/ProfileSidebar.jsx";
 import EditProfile from "./EditProfile.jsx";
@@ -17,26 +25,40 @@ const Profile = () => {
   const { userId } = studentUser || {};
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Use useMatch to extract URL parameters from transactions routes.
+  // This will match URLs like "/profile/transactions/:option/:tab"
+  const match = useMatch("/profile/transactions/:option/:tab");
+  const currentOption = match ? match.params.option.toLowerCase() : "renter";
+  const currentTab = match ? match.params.tab.toLowerCase() : "requests";
+
   const [loading, setLoading] = useState(true);
-  const [selectedOption, setSelectedOption] = useState("renter");
-  const [selectedTab, setSelectedTab] = useState("requests");
+  const [selectedOption, setSelectedOption] = useState(currentOption);
+  const [selectedTab, setSelectedTab] = useState(currentTab);
 
   useEffect(() => {
     if (userId) setLoading(false);
   }, [userId]);
 
+  // Whenever the URL changes, update the state so that
+  // ProfileHeader and MyRentals receive the correct values.
+  useEffect(() => {
+    setSelectedOption(currentOption);
+    setSelectedTab(currentTab);
+  }, [currentOption, currentTab]);
+
+  // Handler for when the dropdown in ProfileHeader changes
   const handleOptionChange = (option) => {
-    setSelectedOption(option.toLowerCase());
-    navigate(`/profile/transactions/${option.toLowerCase()}/${selectedTab}`);
+    const newOption = option.toLowerCase();
+    setSelectedOption(newOption);
+    navigate(`/profile/transactions/${newOption}/${selectedTab}`);
   };
 
+  // Handler for when MyRentals changes tabs (via RentalFilters)
   const handleTabChange = (newTab) => {
-    const path = newTab.toLowerCase() === "transactions"
-      ? `/profile/transactions/renter/requests`
-      : `/profile/transactions/${selectedOption}/${newTab.toLowerCase()}`;
-
-    setSelectedTab(newTab.toLowerCase());
-    navigate(path);
+    const newTabLower = newTab.toLowerCase();
+    setSelectedTab(newTabLower);
+    navigate(`/profile/transactions/${selectedOption}/${newTabLower}`);
   };
 
   const getBreadcrumbs = () => {
@@ -44,7 +66,7 @@ const Profile = () => {
       "my-posts": "My Posts",
       "my-listings": "My Listings",
       "my-for-sale": "My For Sale Items",
-      "dashboard": "Dashboard",
+      dashboard: "Dashboard",
       transactions: "Transactions",
       "edit-profile": "Edit Profile",
     };
@@ -57,7 +79,10 @@ const Profile = () => {
 
     Object.keys(pathToBreadcrumb).forEach((key) => {
       if (currentPath.includes(key)) {
-        breadcrumb.push({ label: pathToBreadcrumb[key], href: `/profile/${key}` });
+        breadcrumb.push({
+          label: pathToBreadcrumb[key],
+          href: `/profile/${key}`,
+        });
       }
     });
 
@@ -82,7 +107,13 @@ const Profile = () => {
             <Route path="edit-profile" element={<EditProfile />} />
             <Route
               path="transactions/:option/:tab"
-              element={<MyRentals selectedOption={selectedOption} selectedTab={selectedTab} onTabChange={handleTabChange} />}
+              element={
+                <MyRentals
+                  selectedOption={selectedOption}
+                  selectedTab={selectedTab}
+                  onTabChange={handleTabChange}
+                />
+              }
             />
             <Route path="dashboard" element={<MyTransactions />} />
             <Route path="my-listings" element={<MyListings />} />

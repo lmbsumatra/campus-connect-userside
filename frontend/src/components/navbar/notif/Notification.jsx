@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Bell from "../../../assets/images/icons/notif.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
@@ -7,7 +8,6 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 
-// NotificationMessage component for formatting messages
 const NotificationMessage = ({ message }) => {
   const formatMessage = (text) => {
     const match = text.match(/(.*?)\swants to rent\s(.*)/);
@@ -30,7 +30,6 @@ const NotificationMessage = ({ message }) => {
   return <div className="notification-message">{formatMessage(message)}</div>;
 };
 
-// Main Notification component
 const Notification = ({
   icon,
   isDarkTheme,
@@ -41,6 +40,7 @@ const Notification = ({
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const studentUser = useSelector(selectStudentUser);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!socket || !studentUser?.userId) return;
@@ -78,17 +78,36 @@ const Notification = ({
     };
   }, [socket, studentUser]);
 
-  const handleNotificationClick = async (notifId) => {
+  const handleNotificationClick = async (notifId, rentalId) => {
+    console.log("🔔 Notification Clicked!"); // ✅ Log when a notification is clicked
+    console.log("Notif ID:", notifId);
+    console.log("Rental ID:", rentalId); // ✅ Make sure rentalId is being passed
+
+    if (!rentalId) {
+      console.error(
+        "❌ Rental ID is missing! Cannot scroll to rental request."
+      );
+      return;
+    }
     try {
       await axios.put(
         `http://localhost:3001/api/notifications/student/${notifId}/read`
       );
+
       setNotifications((prev) =>
         prev.map((notif) =>
           notif.id === notifId ? { ...notif, is_read: true } : notif
         )
       );
+
       setUnreadCount((prev) => Math.max(0, prev - 1));
+
+      // Navigate to the transactions page and pass the rentalId to highlight
+      navigate("/profile/transactions/owner/requests", {
+        state: { highlight: rentalId },
+      });
+
+      console.log("✅ Navigated to rental requests with highlight:", rentalId);
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -144,7 +163,10 @@ const Notification = ({
                   className={`notification-item ${
                     notif.is_read ? "read" : "unread"
                   }`}
-                  onClick={() => handleNotificationClick(notif.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNotificationClick(notif.id, notif.rental_id);
+                  }}
                 >
                   <img
                     src={UserIcon}

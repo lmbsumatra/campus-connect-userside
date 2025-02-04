@@ -38,7 +38,10 @@ const notificationController = {
         type: req.body.type,
         message: req.body.message,
         is_read: false,
+        rental_id: req.body.rental_id,
       });
+
+      console.log("Creating notification with data:", notificationData);
 
       console.log(
         "StudentNotification created successfully:",
@@ -57,12 +60,36 @@ const notificationController = {
   getStudentNotifications: async (req, res) => {
     try {
       const { userId } = req.params;
+
+      // Fetch all notifications for the user
       const notifications = await StudentNotification.findAll({
-        where: { recipient_id: userId },
+        where: { recipient_id: userId }, // No need to filter by rental_id
+        attributes: [
+          "id",
+          "sender_id",
+          "recipient_id",
+          "type",
+          "message",
+          "is_read",
+          "rental_id", // Include rental_id in the response
+          "createdAt",
+        ],
         order: [["createdAt", "DESC"]],
       });
+
+      console.log(
+        "🔔 Fetched Notifications:",
+        notifications.map((n) => ({
+          id: n.id,
+          message: n.message,
+          rentalId: n.rental_id, // Debug rentalId presence
+          isRead: n.is_read,
+        }))
+      );
+
       res.json(notifications);
     } catch (error) {
+      console.error("❌ Error fetching notifications:", error);
       res.status(500).json({ error: error.message });
     }
   },

@@ -219,13 +219,19 @@ function ListingDetail() {
         rental_time_id: selectedDuration.id,
       };
 
-      // Send rental transaction request
-      await axios.post(
+      // Create rental transaction and get rentalId
+      const response = await axios.post(
         "http://localhost:3001/rental-transaction/add",
         rentalDetails
       );
 
-      // Fetch the sender's full name
+      if (!response.data || !response.data.id) {
+        console.error("❌ Failed to get rental ID from response", response);
+        return;
+      }
+
+      const rentalId = response.data.id; // Get rentalId from response
+
       const senderName = await getUserFullName(studentUser.userId);
 
       const notificationData = {
@@ -233,12 +239,16 @@ function ListingDetail() {
         recipient: approvedListingById.owner.id,
         type: "rental_request",
         message: `${senderName} wants to rent ${approvedListingById.name}.`,
+        rental_id: rentalId, // Pass rentalId here
       };
 
-      // **Use socket if connected, else fallback to API**
+      // Send notification
       if (socket && socket.connected) {
         socket.emit("sendNotification", notificationData);
-        console.log("✅ Notification sent via socket.");
+        console.log(
+          "✅ Notification sent via socket with rental_id:",
+          rentalId
+        );
       } else {
         console.warn("⚠️ Socket not connected. Using API fallback.");
         await axios.post(
@@ -255,7 +265,7 @@ function ListingDetail() {
         "Rental confirmed successfully!"
       );
     } catch (error) {
-      console.error("Error in confirmRental:", error);
+      console.error("❌ Error in confirmRental:", error);
       ShowAlert(dispatch, "error", "Error", "Failed to confirm rental.");
     }
   };

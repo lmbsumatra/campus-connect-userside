@@ -82,31 +82,32 @@ function initializeSocket(server) {
           type: notificationData.type,
           message: notificationData.message,
           is_read: false,
+          rental_id: notificationData.rental_id || null, // Include rental_id if provided
         };
 
-        console.log("📩 Saving notification:", notificationPayload);
-        const newNotification = await StudentNotification.create(
+        console.log("Creating notification with payload:", notificationPayload);
+
+        const notification = await StudentNotification.create(
           notificationPayload
         );
-        console.log("✅ Notification saved:", newNotification.toJSON());
 
-        // Log userSockets map to verify correct socket is retrieved
-        console.log("🧐 Current userSockets map:", userSockets);
+        console.log(
+          "✅ Notification saved to database:",
+          notification.toJSON()
+        );
 
-        // Emit ONLY to the recipient if they are online
-        const recipientSocketId = userSockets.get(notificationData.recipient);
+        // Optionally emit the notification to the recipient if they're connected
+        const recipientSocketId = getRecipientSocketId(
+          notificationData.recipient
+        ); // Implement this function if necessary
         if (recipientSocketId) {
+          io.to(recipientSocketId).emit("receiveNotification", notification);
           console.log(
-            `🚀 Sending notification to recipient (Socket ID: ${recipientSocketId})`
-          );
-          io.to(recipientSocketId).emit("receiveNotification", newNotification);
-        } else {
-          console.log(
-            `⚠️ User ${notificationData.recipient} is offline. Notification saved in database only.`
+            `✅ Notification emitted to recipient (socket ID: ${recipientSocketId})`
           );
         }
-      } catch (err) {
-        console.error("❌ Error in sendNotification:", err);
+      } catch (error) {
+        console.error("❌ Error handling sendNotification event:", error);
       }
     });
 

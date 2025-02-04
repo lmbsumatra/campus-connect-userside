@@ -1,6 +1,5 @@
-// MyRentals.js
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import RentalFilters from "./RentalFilters";
 import RentalItem from "./RentalItem";
 import { useAuth } from "../../context/AuthContext";
@@ -13,9 +12,12 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   const { studentUser } = useAuth();
   const userId = studentUser.userId;
   const [activeFilter, setActiveFilter] = useState(selectedTab || "requests");
+  const [highlightedItem, setHighlightedItem] = useState(null);
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
+  const location = useLocation();
+
+  const highlightId = location.state?.highlight;
 
   // Access Redux state
   const {
@@ -23,13 +25,18 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
     error,
     loading,
   } = useSelector((state) => state.rentalTransactions);
-  console.log({rentalItems });
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchRentalTransactions(userId));
     }
   }, [dispatch, userId]);
 
+  useEffect(() => {
+    console.log("Fetched rental transactions:", rentalItems);
+  }, [rentalItems]);
+
+  // Update active filter when the selected tab changes
   useEffect(() => {
     setActiveFilter(formatForRoute(selectedTab));
   }, [selectedTab]);
@@ -40,8 +47,41 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
     onTabChange(filter);
   };
 
+  useEffect(() => {
+    if (highlightId && rentalItems.length > 0) {
+      console.log("📌 Highlighting Rental ID:", highlightId);
+
+      // Set the highlighted item
+      setHighlightedItem(highlightId);
+
+      // Use RAF to ensure DOM is ready
+      requestAnimationFrame(() => {
+        const element = document.getElementById(`rental-${highlightId}`);
+
+        if (element) {
+          // Scroll into view
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          // Apply highlight
+          element.classList.add("highlighted");
+
+          // Remove highlight after animation
+          setTimeout(() => {
+            element.classList.remove("highlighted");
+            setHighlightedItem(null);
+          }, 2000); // Duration matches CSS transition
+        }
+      });
+    }
+  }, [highlightId, rentalItems]);
+
   const openRentProgress = (rentalId) => {
-    const formattedRentalId = rentalId.replace(/\s+/g, "-");
+    if (!rentalId) {
+      console.error("Invalid rentalId:", rentalId);
+      return;
+    }
+
+    const formattedRentalId = String(rentalId).replace(/\s+/g, "-");
     navigate(`/rent-progress/${formattedRentalId}`);
   };
 
@@ -144,9 +184,17 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
         <div className="rental-items">
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
-              <div key={item.id} onClick={() => openRentProgress(item.id)}>
+              <div
+                id={`rental-${item.id}`}
+                // className={`rental-item ${
+                //   item.id === highlightedItem ? "highlighted" : ""
+                // }`}
+                key={item.id}
+                onClick={() => openRentProgress(item.id)}
+              >
                 <RentalItem
                   item={item}
+                  highlighted={item.id === highlightedItem}
                   onButtonClick={(e) => e.stopPropagation()}
                   selectedOption={selectedOption}
                 />

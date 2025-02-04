@@ -3,14 +3,14 @@
 /* Common styles for MyRentals section */
 .my-rentals {
   padding: 20px;
-  position: relative; /* Added for positioning the button */
+  position: relative;
 }
 
 .filter-buttons {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  overflow-x: auto; /* This allows horizontal scrolling, but will be managed below */
+  overflow-x: auto;
   border-bottom: 1px solid #e0e0e0;
   margin: 8px 0;
 }
@@ -24,7 +24,7 @@
   color: #6c757d;
   position: relative;
   transition: color 0.3s, font-weight 0.3s;
-  white-space: nowrap; /* Prevent wrapping of text */
+  white-space: nowrap;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -68,7 +68,20 @@
   border: 1px solid #e0e0e0;
   border-radius: 5px;
   background-color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.5s ease;
 }
+
+.rental-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Ensure only the outer wrapper gets highlighted */
+.rental-items .rental-item.highlighted {
+  background-color: #e3f2fd !important; /* Bright yellow color */
+  transition: background-color 0.5s ease, border 0.5s ease;
+}
+
 
 .rental-item img {
   width: 100px;
@@ -83,7 +96,6 @@
   display: flex;
   flex-direction: column;
 }
-
 /* Responsive Design */
 
 /* @media (max-width: 768px) {
