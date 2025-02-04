@@ -9,6 +9,7 @@ import { useChat } from "../../../context/ChatContext";
 
 const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0); // Add badge count state
   const { studentUser } = useAuth();
   const { userId } = studentUser || {};
   const { setActiveChat } = useChat();
@@ -30,7 +31,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
     // Listen for badge count updates
     socket.current.on("updateBadgeCount", (count) => {
       console.log("Received badge count update:", count);
-      fetchNotifications(); // Refresh notifications when count updates
+      setUnreadCount(count); // Update badge count dynamically
     });
 
     // Listen for new messages
@@ -58,11 +59,16 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
       const res = await fetch(
         `${
           process.env.REACT_APP_API_URL || "http://localhost:3001"
-        }/api/notifications/unread/${userId}`
+        }/api/notifications/message/${userId}`
       );
       const data = await res.json();
       console.log("Fetched Notifications:", data);
+
       setNotifications(data);
+
+      // Update unread count
+      const unread = data.filter((notif) => !notif.is_read).length;
+      setUnreadCount(unread);
     } catch (err) {
       console.error("Error fetching notifications:", err);
     }
@@ -79,15 +85,15 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
         }
       );
 
-      // Emit socket event to update badge count
-      if (socket.current) {
-        socket.current.emit("markMessagesAsRead", {
-          userId,
-          notificationId,
-        });
-      }
+      // ✅ Instead of re-fetching, update the state to mark the message as read
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.id === notificationId ? { ...notif, is_read: true } : notif
+        )
+      );
 
-      fetchNotifications();
+      // Decrease unread count dynamically
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (err) {
       console.error("Error marking notification as read:", err);
     }
@@ -169,14 +175,19 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   return (
     <div className="nav-item">
       <a
-        className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`}
+        className={`icon-link ${isDarkTheme ? "dark" : "light"}`}
         href="#"
         onClick={(e) => {
           e.preventDefault();
           toggleDropdown();
         }}
+        data-count={unreadCount} /* Dynamically set the badge count */
       >
-        <img src={icon} alt="Message Icon" />
+        <img
+          src={icon || MessageIcon}
+          alt="Message Icon"
+          className="message-icon"
+        />
       </a>
 
       {showDropdown && (
@@ -185,7 +196,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
           <div className="menu-header">
             <h5>Inbox</h5>
             <div className="header-actions">
-              {notifications.length > 0 && (
+              {unreadCount > 0 && (
                 <button
                   className="mark-all-read"
                   onClick={markAllMessagesAsRead}
@@ -221,7 +232,9 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
               notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className="message-item"
+                  className={`message-item ${
+                    notif.is_read ? "read" : "unread"
+                  }`}
                   onClick={() => {
                     markMessageAsRead(notif.id);
                     handleNotificationClick(notif);

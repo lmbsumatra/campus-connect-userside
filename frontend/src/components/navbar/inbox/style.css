@@ -53,22 +53,30 @@
   transform: scale(1.1);
 }
 
-/* Added notification badge styles */
+/* Badge styling */
 .icon-link[data-count]:not([data-count="0"])::after {
   content: attr(data-count);
+  /* Display the badge count */
   position: absolute;
   top: -5px;
+  /* Adjust positioning */
   right: -5px;
+  /* Adjust positioning */
   width: 18px;
   height: 18px;
   line-height: 18px;
   text-align: center;
-  background-color: red;
+  background-color: #f44336;
+  /* Badge color */
   color: white;
+  /* Text color */
   border-radius: 50%;
+  /* Circular badge */
   font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  /* Optional for better visibility */
 }
-
 .message-icon {
   width: 35px;
   height: 35px;
@@ -161,7 +169,7 @@
 }
 
 .message-item.unread {
-  background-color: #f9f9f9;
+  background-color: #e3f2fd;
   font-weight: bold;
 
 }
@@ -169,4 +177,16 @@
 .message-item.read {
   background-color: #ffffff;
   font-weight: normal;
+}
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #f44336;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  min-width: 18px;
+  text-align: center;
 }

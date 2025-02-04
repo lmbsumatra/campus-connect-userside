@@ -7,6 +7,30 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 
+// NotificationMessage component for formatting messages
+const NotificationMessage = ({ message }) => {
+  const formatMessage = (text) => {
+    const match = text.match(/(.*?)\swants to rent\s(.*)/);
+
+    if (match) {
+      const [_, sender, item] = match;
+      return (
+        <>
+          <span className="font-large">{sender}</span>
+          <br />
+          <span className="default-text">wants to rent</span>
+          <br />
+          <span className="item-name">{item}</span>
+        </>
+      );
+    }
+    return text;
+  };
+
+  return <div className="notification-message">{formatMessage(message)}</div>;
+};
+
+// Main Notification component
 const Notification = ({
   icon,
   isDarkTheme,
@@ -15,62 +39,98 @@ const Notification = ({
 }) => {
   const socket = useSocket();
   const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const studentUser = useSelector(selectStudentUser);
 
   useEffect(() => {
     if (!socket || !studentUser?.userId) return;
 
-    // Register the user with the socket
     socket.emit("registerUser", studentUser.userId);
     console.log(`✅ Registered user ${studentUser.userId} to socket`);
-  }, [socket, studentUser]);
 
-  useEffect(() => {
-    if (!studentUser?.userId) return;
-
-    // Fetch notifications on mount
     const fetchNotifications = async () => {
       try {
         const res = await axios.get(
           `http://localhost:3001/api/notifications/student/${studentUser.userId}`
         );
         setNotifications(res.data);
+        const unread = res.data.filter((notif) => !notif.is_read).length;
+        setUnreadCount(unread);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
     };
-
     fetchNotifications();
 
-    // Listen for real-time notifications
-    if (socket) {
-      const handleReceiveNotification = (newNotification) => {
-        console.log("New notification received:", newNotification);
-        setNotifications((prev) => [newNotification, ...prev]); // Add new notification at the top
-      };
+    const handleReceiveNotification = (newNotification) => {
+      console.log("📩 Real-time notification received:", newNotification);
+      setNotifications((prev) => {
+        const exists = prev.some((notif) => notif.id === newNotification.id);
+        return exists ? prev : [newNotification, ...prev];
+      });
+      setUnreadCount((prev) => prev + 1);
+    };
 
-      socket.on("receiveNotification", handleReceiveNotification);
+    socket.on("receiveNotification", handleReceiveNotification);
 
-      // Cleanup listener when component unmounts
-      return () => {
-        socket.off("receiveNotification", handleReceiveNotification);
-      };
-    }
+    return () => {
+      socket.off("receiveNotification", handleReceiveNotification);
+    };
   }, [socket, studentUser]);
+
+  const handleNotificationClick = async (notifId) => {
+    try {
+      await axios.put(
+        `http://localhost:3001/api/notifications/student/${notifId}/read`
+      );
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.id === notifId ? { ...notif, is_read: true } : notif
+        )
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await axios.put(
+        `http://localhost:3001/api/notifications/student/mark-all-read/${studentUser.userId}`
+      );
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, is_read: true }))
+      );
+      setUnreadCount(0);
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
+  };
 
   return (
     <div className="notification-container">
       <a
-        className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`}
+        className={`icon-link ${isDarkTheme ? "dark" : "light"}`}
         href="#"
-        onClick={toggleNotifications}
+        onClick={(e) => {
+          e.preventDefault();
+          toggleNotifications();
+        }}
+        data-count={unreadCount}
       >
-        <img src={icon} alt="Notification Icon" />
+        <img src={icon || Bell} alt="Notification Icon" />
       </a>
+
       {showNotifications && (
-        <div className="notifications-user">
+        <div className={`notifications-user ${isDarkTheme ? "dark-mode" : ""}`}>
           <div className="notifications-header">
             <h5>Notifications</h5>
+            {unreadCount > 0 && (
+              <button className="mark-all-read" onClick={handleMarkAllAsRead}>
+                Mark all as read
+              </button>
+            )}
             <button className="close-btn" onClick={toggleNotifications}>
               ×
             </button>
@@ -78,7 +138,14 @@ const Notification = ({
           <div className="notification-list" key={notifications.length}>
             {notifications.length > 0 ? (
               notifications.map((notif) => (
-                <a href="#" key={notif.id} className="notification-item">
+                <a
+                  href="#"
+                  key={notif.id}
+                  className={`notification-item ${
+                    notif.is_read ? "read" : "unread"
+                  }`}
+                  onClick={() => handleNotificationClick(notif.id)}
+                >
                   <img
                     src={UserIcon}
                     className="notification-avatar"
@@ -86,7 +153,7 @@ const Notification = ({
                   />
                   <div className="notification-content">
                     <p>
-                      <strong>{notif.message}</strong>
+                      <NotificationMessage message={notif.message} />
                     </p>
                     <span>{new Date(notif.createdAt).toLocaleString()}</span>
                   </div>

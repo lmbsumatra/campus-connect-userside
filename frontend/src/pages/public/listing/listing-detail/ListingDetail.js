@@ -46,7 +46,9 @@ async function getUserFullName(userId) {
   console.log("Fetching user details for userId:", userId);
   try {
     const res = await fetch(
-      `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/user/info/${userId}`
+      `${
+        process.env.REACT_APP_API_URL || "http://localhost:3001"
+      }/user/info/${userId}`
     );
     if (!res.ok) {
       throw new Error("Failed to fetch user details");
@@ -156,13 +158,11 @@ function ListingDetail() {
       );
     }
 
-    console.log(approvedListingById)
+    console.log(approvedListingById);
 
     const selectedDateId = approvedListingById.availableDates.find(
       (rentalDate) => rentalDate.date === selectedDate
     )?.id;
-
-    
 
     if (!selectedDateId) {
       // Remove the loading notification on error
@@ -204,64 +204,61 @@ function ListingDetail() {
     }
   };
 
- const confirmRental = async () => {
-  try {
-    const selectedDateId = approvedListingById.availableDates.find(
-      (rentalDate) => rentalDate.date === selectedDate
-    )?.id;
+  const confirmRental = async () => {
+    try {
+      const selectedDateId = approvedListingById.availableDates.find(
+        (rentalDate) => rentalDate.date === selectedDate
+      )?.id;
 
-    const rentalDetails = {
-      owner_id: approvedListingById.owner.id,
-      renter_id: studentUser.userId,
-      item_id: approvedListingById.id,
-      delivery_method: approvedListingById.deliveryMethod,
-      rental_date_id: selectedDateId,
-      rental_time_id: selectedDuration.id,
-    };
+      const rentalDetails = {
+        owner_id: approvedListingById.owner.id,
+        renter_id: studentUser.userId,
+        item_id: approvedListingById.id,
+        delivery_method: approvedListingById.deliveryMethod,
+        rental_date_id: selectedDateId,
+        rental_time_id: selectedDuration.id,
+      };
 
-    // First create the rental transaction
-    const rentalResponse = await axios.post(
-      "http://localhost:3001/rental-transaction/add",
-      rentalDetails
-    );
+      // Send rental transaction request
+      await axios.post(
+        "http://localhost:3001/rental-transaction/add",
+        rentalDetails
+      );
 
-    // Fetch the user's full name
-    const senderName = await getUserFullName(studentUser.userId);
+      // Fetch the sender's full name
+      const senderName = await getUserFullName(studentUser.userId);
 
-    // Prepare notification data
-    const notificationData = {
-      sender: studentUser.userId,
-      recipient: approvedListingById.owner.id,
-      type: "rental_request",
-      message: `${senderName} wants to rent ${approvedListingById.name}.`,
-    };
+      const notificationData = {
+        sender: studentUser.userId,
+        recipient: approvedListingById.owner.id,
+        type: "rental_request",
+        message: `${senderName} wants to rent ${approvedListingById.name}.`,
+      };
 
-    console.log("Socket instance in confirmRental:", socket);
-    if (!socket) {
-      console.error("❌ Socket is null or undefined. It may not have initialized properly.");
+      // **Use socket if connected, else fallback to API**
+      if (socket && socket.connected) {
+        socket.emit("sendNotification", notificationData);
+        console.log("✅ Notification sent via socket.");
+      } else {
+        console.warn("⚠️ Socket not connected. Using API fallback.");
+        await axios.post(
+          "http://localhost:3001/api/notifications/student",
+          notificationData
+        );
+      }
+
+      setShowModal(false);
+      ShowAlert(
+        dispatch,
+        "success",
+        "Success",
+        "Rental confirmed successfully!"
+      );
+    } catch (error) {
+      console.error("Error in confirmRental:", error);
+      ShowAlert(dispatch, "error", "Error", "Failed to confirm rental.");
     }
-
-    // Emit the socket event
-    if (socket && socket.connected) {
-      socket.emit("sendNotification", notificationData);
-      console.log("✅ Notification emitted successfully via socket.");
-    } else {
-      console.error("❌ Socket not connected! Falling back to API request.");
-      await axios.post("http://localhost:3001/api/notifications/student", {
-        sender_id: notificationData.sender,
-        recipient_id: notificationData.recipient,
-        type: notificationData.type,
-        message: notificationData.message,
-      });
-    }
-
-    setShowModal(false);
-    ShowAlert(dispatch, "success", "Success", "Rental confirmed successfully!");
-  } catch (error) {
-    console.error("Error in confirmRental:", error);
-    ShowAlert(dispatch, "error", "Error", "Failed to confirm rental. Please try again.");
-  }
-};
+  };
 
   useEffect(() => {
     if (id) {
@@ -337,7 +334,7 @@ function ListingDetail() {
             },
           },
         });
-      }  else {
+      } else {
         const error = await response.json();
         console.error("Error creating conversation:", error.error);
       }
@@ -692,13 +689,14 @@ function ListingDetail() {
         </div>
       </div>
 
-      <UserToolbar user={approvedListingById.owner}isYou={
+      <UserToolbar
+        user={approvedListingById.owner}
+        isYou={
           approvedListingById.owner
             ? approvedListingById.owner.id === loggedInUserId
             : false
-        } />
-
-        
+        }
+      />
 
       <ItemDescAndSpecs
         specs={approvedListingById.specs}

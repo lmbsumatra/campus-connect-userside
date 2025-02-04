@@ -87,7 +87,7 @@ const Notification = ({
                     className="notification-avatar"
                     alt="User Avatar"
                   />
-                  <div className="notification-content">
+                  <div className="notification-content-admin">
                     <p>
                       <strong>{notification.ownerName}</strong>
                       <em>{notification.message}</em>

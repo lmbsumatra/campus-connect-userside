@@ -3,15 +3,14 @@ const { getServerUrl } = require("./getServerUrl.js");
 const MessageNotification = require("./models/MessageNotificationModel.js");
 const StudentNotification = require("./models/StudentNotificationModel.js");
 
-
 // Function to calculate unread messages for a user
 async function calculateUnreadMessages(userId) {
   try {
     const result = await MessageNotification.findAndCountAll({
-      where: { 
-        recipient_id: userId, 
-        is_read: false 
-      }
+      where: {
+        recipient_id: userId,
+        is_read: false,
+      },
     });
     return result.count;
   } catch (err) {
@@ -73,41 +72,41 @@ function initializeSocket(server) {
       notifyAdmins(notification);
     });
 
-     //Handle student notification events
+    //Handle student notification events
     socket.on("sendNotification", async (notificationData) => {
-      console.log("Received sendNotification event with data:", notificationData);
+      console.log("🔔 Received sendNotification event:", notificationData);
       try {
-        // Standardize the data structure to match your model
         const notificationPayload = {
           sender_id: notificationData.sender,
           recipient_id: notificationData.recipient,
           type: notificationData.type,
           message: notificationData.message,
-          is_read: false
+          is_read: false,
         };
 
-        console.log("Attempting to create notification with payload:", notificationPayload);
-        
-        const newNotification = await StudentNotification.create(notificationPayload);
-        console.log("Successfully created notification:", newNotification.toJSON());
+        console.log("📩 Saving notification:", notificationPayload);
+        const newNotification = await StudentNotification.create(
+          notificationPayload
+        );
+        console.log("✅ Notification saved:", newNotification.toJSON());
 
-        // Emit to recipient if they're connected
+        // Log userSockets map to verify correct socket is retrieved
+        console.log("🧐 Current userSockets map:", userSockets);
+
+        // Emit ONLY to the recipient if they are online
         const recipientSocketId = userSockets.get(notificationData.recipient);
         if (recipientSocketId) {
+          console.log(
+            `🚀 Sending notification to recipient (Socket ID: ${recipientSocketId})`
+          );
           io.to(recipientSocketId).emit("receiveNotification", newNotification);
-          console.log("Notification emitted to recipient socket:", recipientSocketId);
         } else {
-          console.log("Recipient not connected, notification saved to database only");
+          console.log(
+            `⚠️ User ${notificationData.recipient} is offline. Notification saved in database only.`
+          );
         }
       } catch (err) {
-        console.error("Error in sendNotification event handler:", err);
-        // Log the full error details for debugging
-        console.error("Error details:", {
-          name: err.name,
-          message: err.message,
-          stack: err.stack,
-          cause: err.cause
-        });
+        console.error("❌ Error in sendNotification:", err);
       }
     });
 
@@ -116,7 +115,7 @@ function initializeSocket(server) {
       try {
         userSockets.set(userId, socket.id);
         console.log(`User ${userId} registered with socket ID ${socket.id}`);
-        
+
         // Calculate and send initial unread count
         const unreadCount = await calculateUnreadMessages(userId);
         socket.emit("updateBadgeCount", unreadCount);
@@ -151,7 +150,7 @@ function initializeSocket(server) {
             sender_id: sender,
             message: text,
             conversation_id: conversationId,
-            is_read: false
+            is_read: false,
           });
 
           // Calculate unread message count and send badge update
@@ -166,7 +165,7 @@ function initializeSocket(server) {
             sender_id: sender,
             message: text,
             conversation_id: conversationId,
-            is_read: false
+            is_read: false,
           });
         }
       } catch (error) {
@@ -176,38 +175,38 @@ function initializeSocket(server) {
 
     // Handle marking messages as read
     socket.on("markMessagesAsRead", async (data) => {
-  const { userId, conversationId, notificationId } = data;
-  try {
-    let whereClause = {
-      recipient_id: userId,
-      is_read: false
-    };
+      const { userId, conversationId, notificationId } = data;
+      try {
+        let whereClause = {
+          recipient_id: userId,
+          is_read: false,
+        };
 
-    // If specific conversation, add to where clause
-    if (conversationId && conversationId !== 'all') {
-      whereClause.conversation_id = conversationId;
-    }
+        // If specific conversation, add to where clause
+        if (conversationId && conversationId !== "all") {
+          whereClause.conversation_id = conversationId;
+        }
 
-    // If specific notification, update only that one
-    if (notificationId) {
-      whereClause.id = notificationId;
-    }
+        // If specific notification, update only that one
+        if (notificationId) {
+          whereClause.id = notificationId;
+        }
 
-    await MessageNotification.update(
-      { is_read: true },
-      { where: whereClause }
-    );
+        await MessageNotification.update(
+          { is_read: true },
+          { where: whereClause }
+        );
 
-    // Recalculate and send updated badge count
-    const unreadCount = await calculateUnreadMessages(userId);
-    const userSocketId = userSockets.get(userId);
-    if (userSocketId) {
-      io.to(userSocketId).emit("updateBadgeCount", unreadCount);
-    }
-  } catch (error) {
-    console.error("Error marking messages as read:", error);
-  }
-});
+        // Recalculate and send updated badge count
+        const unreadCount = await calculateUnreadMessages(userId);
+        const userSocketId = userSockets.get(userId);
+        if (userSocketId) {
+          io.to(userSocketId).emit("updateBadgeCount", unreadCount);
+        }
+      } catch (error) {
+        console.error("Error marking messages as read:", error);
+      }
+    });
 
     // Clean up on disconnect
     socket.on("disconnect", () => {
