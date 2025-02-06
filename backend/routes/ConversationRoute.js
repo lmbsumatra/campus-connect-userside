@@ -3,6 +3,9 @@ const router = express.Router();
 const Conversation = require("../models/ConversationModel");
 const sequelize = require("../config/database"); // Import sequelize instance from the config file
 const Message = require("../models/MessageModel");
+const MessageNotification = require("../models/MessageNotificationModel");
+const User = require("../models/UserModel"); // Adjust the path if necessary
+
 // add lang
 
 const { models } = require("../models/index");
@@ -313,6 +316,71 @@ router.get("/:conversationId/messages", async (req, res) => {
     res.status(200).json(messages);
   } catch (err) {
     // Log and return error in case of failure
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Add this new route to get conversations with latest message and unread status
+router.get("/preview/:userId", async (req, res) => {
+  console.log("Fetching conversations for user:", req.params.userId);
+  try {
+    const userId = req.params.userId;
+
+    // Fetch conversations
+    const query = `
+      SELECT * 
+      FROM Conversations 
+      WHERE JSON_CONTAINS(members, '["${userId}"]')
+    `;
+    const [conversations] = await sequelize.query(query);
+
+    // Fetch unread notifications
+    const unreadNotifications = await MessageNotification.findAll({
+      where: { recipient_id: userId, is_read: false },
+      attributes: ["conversation_id"],
+      raw: true,
+    });
+    const unreadConvoIds = new Set(
+      unreadNotifications.map((n) => n.conversation_id)
+    );
+
+    // Process each conversation
+    const processed = await Promise.all(
+      conversations.map(async (conv) => {
+        const members = JSON.parse(conv.members);
+        const otherUserId = members.find((id) => id !== userId);
+        const otherUser = await User.findByPk(otherUserId);
+
+        // Get latest message
+        const latestMessage = await Message.findOne({
+          where: { conversationId: conv.id },
+          order: [["createdAt", "DESC"]],
+        });
+
+        return {
+          id: conv.id,
+          otherUser: {
+            user_id: otherUser.user_id,
+            first_name: otherUser.first_name,
+            last_name: otherUser.last_name,
+          },
+          latestMessage: latestMessage
+            ? {
+                text: latestMessage.text,
+                sender: latestMessage.sender,
+                createdAt: latestMessage.createdAt,
+                isProductCard: latestMessage.isProductCard,
+              }
+            : null,
+          hasUnread: unreadConvoIds.has(conv.id),
+          updatedAt: conv.updatedAt,
+        };
+      })
+    );
+
+    res.status(200).json(processed);
+  } catch (err) {
+    console.error("Error fetching conversation previews:", err);
     res.status(500).json({ error: err.message });
   }
 });

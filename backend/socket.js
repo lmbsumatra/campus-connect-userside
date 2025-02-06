@@ -131,6 +131,21 @@ function initializeSocket(server) {
       console.log(`Message from user ${sender} to user ${recipient}: ${text}`);
 
       try {
+        // Prevent self-notification
+        if (sender === recipient) {
+          console.log("Prevented self-notification");
+          return;
+        }
+
+        // Create notification for recipient
+        await MessageNotification.create({
+          recipient_id: recipient,
+          sender_id: sender,
+          message: text,
+          conversation_id: conversationId,
+          is_read: false,
+        });
+
         // Look up the recipient's socket.id
         const recipientSocketId = userSockets.get(recipient);
 
@@ -145,35 +160,20 @@ function initializeSocket(server) {
           });
           console.log(`Message sent to user ${recipient}`);
 
-          // Create message notification in database
-          await MessageNotification.create({
-            recipient_id: recipient,
-            sender_id: sender,
-            message: text,
-            conversation_id: conversationId,
-            is_read: false,
+          // Update badge count
+          const unreadCount = await MessageNotification.count({
+            where: { recipient_id: recipient, is_read: false },
           });
-
-          // Calculate unread message count and send badge update
-          const unreadCount = await calculateUnreadMessages(recipient);
           console.log(`Unread count for user ${recipient}:`, unreadCount);
           io.to(recipientSocketId).emit("updateBadgeCount", unreadCount);
         } else {
           console.log(`User ${recipient} not connected`);
-          // Still create notification even if user is offline
-          await MessageNotification.create({
-            recipient_id: recipient,
-            sender_id: sender,
-            message: text,
-            conversation_id: conversationId,
-            is_read: false,
-          });
+          // Notification is already created above, even if user is offline
         }
       } catch (error) {
         console.error("Error handling message:", error);
       }
     });
-
     // Handle marking messages as read
     socket.on("markMessagesAsRead", async (data) => {
       const { userId, conversationId, notificationId } = data;

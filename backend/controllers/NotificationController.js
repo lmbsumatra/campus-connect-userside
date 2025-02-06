@@ -231,6 +231,20 @@ const notificationController = {
     }
   },
 
+  // Add this method to mark all notifications in a conversation as read
+  markConversationAsRead: async (req, res) => {
+    try {
+      const { conversationId, userId } = req.params;
+      await MessageNotification.update(
+        { is_read: true },
+        { where: { conversation_id: conversationId, recipient_id: userId } }
+      );
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   // Admin side notification
   getNotifications: async (req, res) => {
     try {

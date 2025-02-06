@@ -16,6 +16,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   const { setActiveChat } = useChat();
   const navigate = useNavigate();
   const socket = useRef(null);
+  const [conversations, setConversations] = useState([]);
 
   useEffect(() => {
     if (!userId) return;
@@ -36,9 +37,9 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
     });
 
     // Listen for new messages
-    socket.current.on("receiveMessage", (message) => {
-      console.log("Received new message in Message.jsx:", message);
-      fetchNotifications(); // Refresh notifications when new message arrives
+    // Update socket listener to refresh conversations
+    socket.current.on("receiveMessage", () => {
+      fetchConversations();
     });
 
     return () => {
@@ -51,54 +52,76 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   // Fetch notifications when dropdown is toggled
   useEffect(() => {
     if (userId && showDropdown) {
-      fetchNotifications();
+      fetchConversations();
     }
   }, [userId, showDropdown]);
 
-  const fetchNotifications = async () => {
+  const fetchConversations = async () => {
     try {
       const res = await fetch(
-        `${
-          process.env.REACT_APP_API_URL || "http://localhost:3001"
-        }/api/notifications/message/${userId}`
+        `http://localhost:3001/api/conversations/preview/${userId}`
       );
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+
       const data = await res.json();
-      console.log("Fetched Notifications:", data);
+      console.log("Fetched conversations:", data); // Debugging log
 
-      setNotifications(data);
-
-      // Update unread count
-      const unread = data.filter((notif) => !notif.is_read).length;
-      setUnreadCount(unread);
+      setConversations(data);
+      setUnreadCount(data.filter((conv) => conv.hasUnread).length);
     } catch (err) {
-      console.error("Error fetching notifications:", err);
+      console.error("Error fetching conversations:", err);
     }
   };
 
-  const markMessageAsRead = async (notificationId) => {
+  // Update useEffect to fetch conversations
+  useEffect(() => {
+    if (userId && showDropdown) fetchConversations();
+  }, [userId, showDropdown]);
+
+  // Update click handler
+  const handleConversationClick = async (conv) => {
     try {
+      // Mark conversation as read
       await fetch(
-        `${
-          process.env.REACT_APP_API_URL || "http://localhost:3001"
-        }/api/notifications/message/${notificationId}/read`,
+        `http://localhost:3001/api/notifications/message/conversation/${conv.id}/user/${userId}/read`,
         {
           method: "PUT",
         }
       );
 
-      // ✅ Instead of re-fetching, update the state to mark the message as read
-      setNotifications((prev) =>
-        prev.map((notif) =>
-          notif.id === notificationId ? { ...notif, is_read: true } : notif
-        )
-      );
-
-      // Decrease unread count dynamically
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+      // Navigate to conversation
+      setActiveChat(conv);
+      navigate(`/messages/${conv.id}`);
+      toggleDropdown();
     } catch (err) {
-      console.error("Error marking notification as read:", err);
+      console.error("Error handling conversation click:", err);
     }
   };
+
+  // const markMessageAsRead = async (notificationId) => {
+  //   try {
+  //     await fetch(
+  //       `${
+  //         process.env.REACT_APP_API_URL || "http://localhost:3001"
+  //       }/api/notifications/message/${notificationId}/read`,
+  //       {
+  //         method: "PUT",
+  //       }
+  //     );
+
+  //     // ✅ Instead of re-fetching, update the state to mark the message as read
+  //     setNotifications((prev) =>
+  //       prev.map((notif) =>
+  //         notif.id === notificationId ? { ...notif, is_read: true } : notif
+  //       )
+  //     );
+
+  //     // Decrease unread count dynamically
+  //     setUnreadCount((prev) => Math.max(0, prev - 1));
+  //   } catch (err) {
+  //     console.error("Error marking notification as read:", err);
+  //   }
+  // };
 
   const markAllMessagesAsRead = async () => {
     try {
@@ -128,51 +151,61 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
         });
       }
 
-      fetchNotifications();
+      fetchConversations();
     } catch (err) {
       console.error("Error marking all notifications as read:", err);
     }
   };
 
-  const handleNotificationClick = async (notif) => {
-    if (!notif.conversation_id) {
-      console.error("Conversation ID is undefined!");
-      return;
-    }
+  // const handleNotificationClick = async (notif) => {
 
-    try {
-      await markMessageAsRead(notif.id);
+  //   if (!notif.conversation_id) {
+  //     console.error("Conversation ID is undefined!");
+  //     return;
+  //   }
 
-      const [conversationRes, messagesRes] = await Promise.all([
-        fetch(
-          `${
-            process.env.REACT_APP_API_URL || "http://localhost:3001"
-          }/api/conversations/${notif.conversation_id}`
-        ),
-        fetch(
-          `${
-            process.env.REACT_APP_API_URL || "http://localhost:3001"
-          }/api/messages/${notif.conversation_id}`
-        ),
-      ]);
+  //   try {
+  //     await markMessageAsRead(notif.id);
 
-      const conversationData = await conversationRes.json();
-      const messagesData = await messagesRes.json();
+  //     const [conversationRes, messagesRes] = await Promise.all([
+  //       fetch(
+  //         `${
+  //           process.env.REACT_APP_API_URL || "http://localhost:3001"
+  //         }/api/conversations/${notif.conversation_id}`
+  //       ),
+  //       fetch(
+  //         `${
+  //           process.env.REACT_APP_API_URL || "http://localhost:3001"
+  //         }/api/messages/${notif.conversation_id}`
+  //       ),
+  //     ]);
 
-      const fullConversation = {
-        ...conversationData,
-        messages: messagesData,
-        otherUser: notif.sender,
-      };
+  //     const conversationData = await conversationRes.json();
+  //     const messagesData = await messagesRes.json();
 
-      setActiveChat(fullConversation);
-      toggleDropdown();
-      navigate(`/messages/${notif.conversation_id}`);
-    } catch (err) {
-      console.error("Error handling notification click:", err);
-    }
+  //     const fullConversation = {
+  //       ...conversationData,
+  //       messages: messagesData,
+  //       otherUser: notif.sender,
+  //     };
+
+  //     setActiveChat(fullConversation);
+  //     toggleDropdown();
+  //     navigate(`/messages/${notif.conversation_id}`);
+  //   } catch (err) {
+  //     console.error("Error handling notification click:", err);
+  //   }
+  // };
+  const renderMessagePreview = (conv) => {
+    if (!conv.latestMessage) return "No messages yet";
+
+    if (conv.latestMessage.isProductCard) return "Shared a product";
+
+    const messageText = conv.latestMessage.text || "";
+    const isCurrentUserSender = conv.latestMessage.sender === String(userId); // Convert userId to string
+
+    return isCurrentUserSender ? `You: ${messageText}` : messageText;
   };
-
   return (
     <div className="nav-item">
       <a
@@ -229,33 +262,32 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
             </div>
           </div>
           <div className="menu-content">
-            {notifications.length > 0 ? (
-              notifications.map((notif) => (
-                <div
-                  key={notif.id}
-                  className={`message-item ${
-                    notif.is_read ? "read" : "unread"
-                  }`}
-                  onClick={() => {
-                    markMessageAsRead(notif.id);
-                    handleNotificationClick(notif);
-                  }}
-                >
-                  <img src={UserIcon} alt="User" className="message-img" />
-                  <div className="message-info">
-                    <h6>
-                      {`${notif.sender?.first_name} ${notif.sender?.last_name}` ||
-                        "Unknown Sender"}
-                    </h6>
-                    <p>{notif.message}</p>
-                    <span>
-                      {formatDistanceToNow(new Date(notif.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </span>
+            {conversations.length > 0 ? (
+              conversations.map((conv) => {
+                console.log("Rendering conversation:", conv); // Debugging log
+                return (
+                  <div
+                    key={conv.id}
+                    className={`message-item ${
+                      conv.hasUnread ? "unread" : "read"
+                    }`}
+                    onClick={() => handleConversationClick(conv)}
+                  >
+                    <img src={UserIcon} alt="User" className="message-img" />
+                    <div className="message-info">
+                      <h6>{`${conv.otherUser.first_name} ${conv.otherUser.last_name}`}</h6>
+                      <p>{renderMessagePreview(conv)}</p>
+                      <span>
+                        {conv.latestMessage &&
+                          formatDistanceToNow(
+                            new Date(conv.latestMessage.createdAt),
+                            { addSuffix: true }
+                          )}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p
                 className="no-notifications"
@@ -264,7 +296,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
                 No new messages
               </p>
             )}
-            {notifications.length > 0 && (
+            {conversations.length > 0 && (
               <div style={{ textAlign: "center", padding: "10px" }}>
                 <a
                   href="/messages"

@@ -67,7 +67,10 @@ router.put(
   "/student/mark-all-read/:userId",
   asyncHandler(notificationController.markAllStudentNotificationsAsRead)
 );
-
+router.put(
+  "/message/conversation/:conversationId/user/:userId/read",
+  asyncHandler(notificationController.markConversationAsRead)
+);
 // Error handling middleware
 router.use((err, req, res, next) => {
   console.error(err.stack);

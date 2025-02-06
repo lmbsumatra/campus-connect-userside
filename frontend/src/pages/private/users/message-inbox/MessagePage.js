@@ -5,8 +5,8 @@ import { useAuth } from "../../../../context/AuthContext";
 import { io } from "socket.io-client";
 import { baseApi } from "../../../../App";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useLocation, useNavigate, useParams  } from "react-router-dom";
-import {useChat} from "../../../../context/ChatContext";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useChat } from "../../../../context/ChatContext";
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
@@ -25,7 +25,6 @@ const MessagePage = () => {
 
   const [unreadMessages, setUnreadMessages] = useState({});
 
-  
   const { userId } = studentUser || {};
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -48,11 +47,11 @@ const MessagePage = () => {
     socket.current.on("receiveMessage", (message) => {
       console.log("Received message:", message);
 
-        // Mark conversation as having unread messages if it's not the active chat
+      // Mark conversation as having unread messages if it's not the active chat
       if (!activeChat || activeChat.id !== message.conversationId) {
-        setUnreadMessages(prev => ({
+        setUnreadMessages((prev) => ({
           ...prev,
-          [message.conversationId]: true
+          [message.conversationId]: true,
         }));
       }
 
@@ -63,20 +62,21 @@ const MessagePage = () => {
             const newMessage = {
               ...message,
               createdAt: new Date().toISOString(), // Ensure proper timestamp format
-              updatedAt: new Date().toISOString()
+              updatedAt: new Date().toISOString(),
             };
-            
+
             return {
               ...conversation,
               messages: [...conversation.messages, newMessage],
               updatedAt: new Date().toISOString(), // Update conversation timestamp
-              hasUnread: !activeChat || activeChat.id !== message.conversationId
+              hasUnread:
+                !activeChat || activeChat.id !== message.conversationId,
             };
           }
           return conversation;
         });
 
-       // Sort conversations by most recent message
+        // Sort conversations by most recent message
         return updatedConversations.sort(
           (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
         );
@@ -85,12 +85,15 @@ const MessagePage = () => {
       if (activeChat && message.conversationId === activeChat.id) {
         setActiveChat((prev) => ({
           ...prev,
-          messages: [...prev.messages, {
-            ...message,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }],
-          updatedAt: new Date().toISOString()
+          messages: [
+            ...prev.messages,
+            {
+              ...message,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          ],
+          updatedAt: new Date().toISOString(),
         }));
         setHighlightNewMessage(true);
         setTimeout(() => setHighlightNewMessage(false), 3000);
@@ -113,40 +116,43 @@ const MessagePage = () => {
           }/api/conversations/${userId}`
         );
         const data = await res.json();
-        
-          // Sort conversations by the most recent activity
+
+        // Sort conversations by the most recent activity
         const sortedConversations = data.conversations.sort((a, b) => {
           // Get the latest message timestamp for each conversation
-          const aLastMessage = a.messages && a.messages.length > 0 
-            ? new Date(a.messages[a.messages.length - 1].createdAt)
-            : new Date(a.updatedAt);
-          
-          const bLastMessage = b.messages && b.messages.length > 0
-            ? new Date(b.messages[b.messages.length - 1].createdAt)
-            : new Date(b.updatedAt);
-          
+          const aLastMessage =
+            a.messages && a.messages.length > 0
+              ? new Date(a.messages[a.messages.length - 1].createdAt)
+              : new Date(a.updatedAt);
+
+          const bLastMessage =
+            b.messages && b.messages.length > 0
+              ? new Date(b.messages[b.messages.length - 1].createdAt)
+              : new Date(b.updatedAt);
+
           return bLastMessage - aLastMessage;
         });
 
         setConversations(sortedConversations);
 
-          // Automatically set the conversation with the owner as active
-          if (state?.ownerId || state?.sellerId) {
-            const targetConversation = data.conversations.find((conversation) =>
-              conversation.members.includes(String(state.ownerId || state.sellerId))
-            );
+        // Automatically set the conversation with the owner as active
+        if (state?.ownerId || state?.sellerId) {
+          const targetConversation = data.conversations.find((conversation) =>
+            conversation.members.includes(
+              String(state.ownerId || state.sellerId)
+            )
+          );
 
-            if (targetConversation) {
-              setActiveChat(targetConversation || null);
-              // If there's a product in state, send it automatically
-              if (state?.product) {
-                handleSendMessage("", targetConversation.otherUser.user_id);
-              }
+          if (targetConversation) {
+            setActiveChat(targetConversation || null);
+            // If there's a product in state, send it automatically
+            if (state?.product) {
+              handleSendMessage("", targetConversation.otherUser.user_id);
             }
           }
-          
-        setIsLoading(false);
+        }
 
+        setIsLoading(false);
       } catch (err) {
         console.error("Error fetching conversations:", err);
       }
@@ -154,18 +160,16 @@ const MessagePage = () => {
 
     fetchConversations();
   }, [studentUser.userId, state?.ownerId, state?.sellerId]);
-  
-  
+
   useEffect(() => {
     if (chatContentRef.current) {
       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
     }
   }, [activeChat?.messages]);
 
-
   const handleSendMessage = async (message, recipientId) => {
     if (!activeChat) return;
-  
+
     try {
       // Send product card as a message if it exists
       if (product) {
@@ -186,7 +190,9 @@ const MessagePage = () => {
         console.log("Sending product message payload:", productMessage);
 
         await fetch(
-          `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
+          `${
+            process.env.REACT_APP_API_URL || "http://localhost:3001"
+          }/api/conversations/${activeChat.id}/message`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -194,30 +200,31 @@ const MessagePage = () => {
           }
         );
 
-  
         setActiveChat((prev) => ({
           ...prev,
           messages: [...prev.messages, productMessage],
         }));
-  
-         // Clear the product after sending it as a card
-         navigate("/messages", { replace: true }); // Clear state
+
+        // Clear the product after sending it as a card
+        navigate("/messages", { replace: true }); // Clear state
       }
-  
+
       // Send user's message
       if (message.trim()) {
         const messageData = {
-              sender: userId,
-              text: message,
-              conversationId: activeChat.id,
-              isProductCard: false, // Regular message
-              productDetails: null, // No product details for a regular message
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
+          sender: userId,
+          text: message,
+          conversationId: activeChat.id,
+          isProductCard: false, // Regular message
+          productDetails: null, // No product details for a regular message
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
-  
+
         const res = await fetch(
-          `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
+          `${
+            process.env.REACT_APP_API_URL || "http://localhost:3001"
+          }/api/conversations/${activeChat.id}/message`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -225,34 +232,34 @@ const MessagePage = () => {
           }
         );
         const savedMessage = await res.json();
-  
+
         setActiveChat((prev) => ({
           ...prev,
           messages: [...prev.messages, savedMessage],
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         }));
 
-         // Update conversations list to reflect new message
-      setConversations(prevConversations => {
-        const updated = prevConversations.map(conv => 
-          conv.id === activeChat.id 
-            ? {
-                ...conv,
-                messages: [...conv.messages, savedMessage],
-                updatedAt: new Date().toISOString()
-              }
-            : conv
-        );
+        // Update conversations list to reflect new message
+        setConversations((prevConversations) => {
+          const updated = prevConversations.map((conv) =>
+            conv.id === activeChat.id
+              ? {
+                  ...conv,
+                  messages: [...conv.messages, savedMessage],
+                  updatedAt: new Date().toISOString(),
+                }
+              : conv
+          );
 
-         // Sort by most recent message
-         return updated.sort((a, b) => 
-          new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
-      });
+          // Sort by most recent message
+          return updated.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+        });
 
         socket.current.emit("sendMessageToUser", {
           ...messageData,
-          recipient: recipientId // Only needed for socket
+          recipient: recipientId, // Only needed for socket
         });
         setNewMessage("");
       }
@@ -260,25 +267,22 @@ const MessagePage = () => {
       console.error("Error sending message:", err);
     }
   };
-  
 
   const handleConversationClick = (conversation) => {
     setActiveChat(conversation);
 
-  // Clear unread status for this conversation
-  setUnreadMessages(prev => ({
-    ...prev,
-    [conversation.id]: false
-  }));
+    // Clear unread status for this conversation
+    setUnreadMessages((prev) => ({
+      ...prev,
+      [conversation.id]: false,
+    }));
 
-  setConversations(prev => 
-    prev.map(conv => 
-      conv.id === conversation.id 
-        ? { ...conv, hasUnread: false }
-        : conv
-    )
-  );
-};
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === conversation.id ? { ...conv, hasUnread: false } : conv
+      )
+    );
+  };
 
   return (
     <div className="container-content message-page">
@@ -286,55 +290,56 @@ const MessagePage = () => {
         <div
           className={`inbox ${isMobile && activeChat !== null ? "d-none" : ""}`}
         >
-           <h3>Messages</h3>
-            {isLoading ? (
-              <p>Loading conversations...</p>
-            ) : conversations.length > 0 ? (
-              conversations.map((chat) => {
-                // Get the latest message
-                const latestMessage = chat.messages && chat.messages.length > 0 
+          <h3>Messages</h3>
+          {isLoading ? (
+            <p>Loading conversations...</p>
+          ) : conversations.length > 0 ? (
+            conversations.map((chat) => {
+              // Get the latest message
+              const latestMessage =
+                chat.messages && chat.messages.length > 0
                   ? chat.messages[chat.messages.length - 1]
                   : null;
 
-                // Check if there are unread messages (we'll implement this state later)
-                const hasUnreadMessages = chat.hasUnread;
+              // Check if there are unread messages (we'll implement this state later)
+              const hasUnreadMessages = chat.hasUnread;
 
-                return (
-                  <div
-                    key={chat.id}
-                    className={`inbox-item ${hasUnreadMessages ? 'unread' : ''}`}
-                    onClick={() => handleConversationClick(chat)}
-                  >
-                    <img src={UserIcon} alt="User Icon" className="user-icon" />
-                    <div className="message-info">
-                      <h5>{chat.otherUser.first_name}</h5>
-                      <p className="preview-message">
-                        {latestMessage ? (
-                          latestMessage.isProductCard ? (
-                            'Shared a product'
-                          ) : (
-                            latestMessage.text && latestMessage.text.length > 30 
-                              ? `${latestMessage.text.substring(0, 30)}...` 
-                              : latestMessage.text
-                          )
-                        ) : (
-                          'No messages yet'
-                        )}
-                      </p>
-                    </div>
-                    <div className="message-meta">
-                      <span className="timestamp">
-                        {latestMessage ? new Date(latestMessage.createdAt).toLocaleString() : ''}
-                      </span>
-                      {hasUnreadMessages && <div className="unread-indicator"></div>}
-                    </div>
+              return (
+                <div
+                  key={chat.id}
+                  className={`inbox-item ${hasUnreadMessages ? "unread" : ""}`}
+                  onClick={() => handleConversationClick(chat)}
+                >
+                  <img src={UserIcon} alt="User Icon" className="user-icon" />
+                  <div className="message-info">
+                    <h5>{chat.otherUser.first_name}</h5>
+                    <p className="preview-message">
+                      {latestMessage
+                        ? latestMessage.isProductCard
+                          ? "Shared a product"
+                          : latestMessage.text && latestMessage.text.length > 30
+                          ? `${latestMessage.text.substring(0, 30)}...`
+                          : latestMessage.text
+                        : "No messages yet"}
+                    </p>
                   </div>
-                );
-              })
-            ) : (
-              <p>No conversations available.</p>
-            )}
-          </div>
+                  <div className="message-meta">
+                    <span className="timestamp">
+                      {latestMessage
+                        ? new Date(latestMessage.createdAt).toLocaleString()
+                        : ""}
+                    </span>
+                    {hasUnreadMessages && (
+                      <div className="unread-indicator"></div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <p>No conversations available.</p>
+          )}
+        </div>
 
         {activeChat && (
           <div className="chat-box">
@@ -348,56 +353,64 @@ const MessagePage = () => {
               <h4>{activeChat.otherUser.first_name}</h4>
             </div>
             <div className="chat-content" ref={chatContentRef}>
-            {activeChat.messages && activeChat.messages.length > 0 ? (
-              activeChat.messages.map((message, index) =>
-                message.isProductCard ? (
-                  <div key={index} className="product-card">
-                  <h6>
-                    {message.productDetails?.title === "Offer" 
-                      ? "Offer for this item"
-                      : "Inquiring about this item"}
-                  </h6>
-                  <div className="d-flex align-items-start">
-                    <img 
-                      src={message.productDetails?.image} 
-                      alt={message.productDetails?.name} 
-                      className="me-3" 
-                      style={{ width: "60px", height: "60px" }} 
-                    />
-                    <div>
-                      <p className="mb-1">
-                        <strong>{message.productDetails?.name}</strong>
-                      </p>
-                      
-                      {/* Show Price if available, Status (including offer details) otherwise */}
-                      {message.productDetails?.price ? (
-                        <p className="mb-0">Price: ₱{message.productDetails?.price}</p>
-                      ) : message.productDetails?.status ? (
-                        <p className="mb-0 offer-details" style={{ whiteSpace: 'pre-line' }}>
-                          {message.productDetails?.status}
-                        </p>
-                      ) : null}
+              {activeChat.messages && activeChat.messages.length > 0 ? (
+                activeChat.messages.map((message, index) =>
+                  message.isProductCard ? (
+                    <div key={index} className="product-card">
+                      <h6>
+                        {message.productDetails?.title === "Offer"
+                          ? "Offer for this item"
+                          : "Inquiring about this item"}
+                      </h6>
+                      <div className="d-flex align-items-start">
+                        <img
+                          src={message.productDetails?.image}
+                          alt={message.productDetails?.name}
+                          className="me-3"
+                          style={{ width: "60px", height: "60px" }}
+                        />
+                        <div>
+                          <p className="mb-1">
+                            <strong>{message.productDetails?.name}</strong>
+                          </p>
+
+                          {/* Show Price if available, Status (including offer details) otherwise */}
+                          {message.productDetails?.price ? (
+                            <p className="mb-0">
+                              Price: ₱{message.productDetails?.price}
+                            </p>
+                          ) : message.productDetails?.status ? (
+                            <p
+                              className="mb-0 offer-details"
+                              style={{ whiteSpace: "pre-line" }}
+                            >
+                              {message.productDetails?.status}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                ) : (
-                  <div
-                    key={index}
-                    className={`chat-message ${
-                      String(message.sender) === String(userId) ? "sent" : "received"
-                    } ${
-                      highlightNewMessage &&
-                      index === activeChat.messages.length - 1
-                        ? "new-message"
-                        : ""
-                    }`}
-                  >
-                    <p>{message.text}</p>
+                  ) : (
+                    <div
+                      key={index}
+                      className={`chat-message ${
+                        String(message.sender) === String(userId)
+                          ? "sent"
+                          : "received"
+                      } ${
+                        highlightNewMessage &&
+                        index === activeChat.messages.length - 1
+                          ? "new-message"
+                          : ""
+                      }`}
+                    >
+                      <p>{message.text}</p>
                       <span>
-                      {new Date(message.createdAt).toLocaleString()}
+                        {new Date(message.createdAt).toLocaleString()}
                       </span>
-                  </div>
-                ))
+                    </div>
+                  )
+                )
               ) : (
                 <p>No messages yet.</p>
               )}
@@ -427,37 +440,37 @@ const MessagePage = () => {
 
 export default MessagePage;
 
-  // const { activeChat, setActiveChat } = useChat();
+// const { activeChat, setActiveChat } = useChat();
 
 // const navigate = useNavigate();
-  // const { userId } = studentUser || {}; 
-  // const { conversationId } = useParams();
+// const { userId } = studentUser || {};
+// const { conversationId } = useParams();
 
-  // useEffect(() => {
-  //   if (!userId) return;
-  //   socket.current = io(process.env.REACT_APP_SOCKET_URL || "http://localhost:3001");
-  //   socket.current.on("connect", () => {
-  //     console.log("Connected to WebSocket", socket.current.id);
-  //     socket.current.emit("registerUser", userId);
-  //   });
-  //   socket.current.on("receiveMessage", (message) => {
-  //     console.log("Received message:", message);
-  //     setConversations((prevConversations) => {
-  //       const updatedConversations = prevConversations.map((conversation) => {
-  //         if (conversation.id === message.conversationId) {
-  //           return {
-  //             ...conversation,
-  //             messages: [...conversation.messages, message],
-  //             updatedAt: new Date().toISOString(), // Update the timestamp
-  //           };
-  //         }
-  //         return conversation;
-  //       });
-  //   // Sort updated conversations by most recent
-  //   return updatedConversations.sort(
-  //     (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-  //   );
-  // });
+// useEffect(() => {
+//   if (!userId) return;
+//   socket.current = io(process.env.REACT_APP_SOCKET_URL || "http://localhost:3001");
+//   socket.current.on("connect", () => {
+//     console.log("Connected to WebSocket", socket.current.id);
+//     socket.current.emit("registerUser", userId);
+//   });
+//   socket.current.on("receiveMessage", (message) => {
+//     console.log("Received message:", message);
+//     setConversations((prevConversations) => {
+//       const updatedConversations = prevConversations.map((conversation) => {
+//         if (conversation.id === message.conversationId) {
+//           return {
+//             ...conversation,
+//             messages: [...conversation.messages, message],
+//             updatedAt: new Date().toISOString(), // Update the timestamp
+//           };
+//         }
+//         return conversation;
+//       });
+//   // Sort updated conversations by most recent
+//   return updatedConversations.sort(
+//     (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+//   );
+// });
 // }, [userId, activeChat]);
 
 // useEffect(() => {
@@ -515,29 +528,29 @@ export default MessagePage;
 //       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
 //     }
 //   }, [activeChat?.messages]);
-  
+
 //   const handleSendMessage = async (message, recipientId) => {
 //     if (!newMessage.trim() || !activeChat) return;
-  
+
 //     const messageData = {
 //       sender: userId,
-//       recipient: recipientId, 
+//       recipient: recipientId,
 //       recipient: recipientId,
 //       text: message,
 //       conversationId: activeChat.id,
 //       otherUser: { userId: recipientId }
 //     };
-  
+
 //     try {
 //       // Send message
 //       const res = await fetch(`${baseApi}/api/conversations/${activeChat.id}/message`, {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
-  
+
 //   @@ -138,14 +151,13 @@ const MessagePage = () => {
 //       });
 //       const savedMessage = await res.json();
-  
+
 //       // Create notification
 //       await fetch(`${baseApi}/api/notifications/message`, {
 //         method: "POST",
@@ -550,7 +563,7 @@ export default MessagePage;
 //           timestamp: new Date(),
 //           isRead: false,
 //           user_id: recipientId,
-  
+
 //   @@ -162,11 +174,13 @@ const MessagePage = () => {
 //       socket.current.emit("sendMessageToUser", messageData);
 //       setNewMessage("");
@@ -559,10 +572,10 @@ export default MessagePage;
 //       console.error("Error sending message:", err);
 //     }
 //   };
-  
+
 //     const handleConversationClick = (conversation) => {
 //       setActiveChat(conversation);
-//       setActiveChat(conversation); 
+//       setActiveChat(conversation);
 //       navigate(`/messages/${conversation.id}`);
 //     };
 
@@ -570,35 +583,35 @@ export default MessagePage;
 
 //ignore mo to
 // const handleSendMessage = async (message, recipientId) => {
-  //   if (!newMessage.trim() || !activeChat) return;
+//   if (!newMessage.trim() || !activeChat) return;
 
-  //   const messageData = {
-  //     sender: userId,
-  //     recipient: recipientId,
-  //     text: message,
-  //     conversationId: activeChat.id,
-  //     otherUser: { userId: recipientId },
-  //   };
+//   const messageData = {
+//     sender: userId,
+//     recipient: recipientId,
+//     text: message,
+//     conversationId: activeChat.id,
+//     otherUser: { userId: recipientId },
+//   };
 
-  //   try {
-  //     const res = await fetch(
-  //       `${"http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
-  //       {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify(messageData),
-  //       }
-  //     );
-  //     const savedMessage = await res.json();
+//   try {
+//     const res = await fetch(
+//       `${"http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
+//       {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(messageData),
+//       }
+//     );
+//     const savedMessage = await res.json();
 
-  //     setActiveChat((prev) => ({
-  //       ...prev,
-  //       messages: [...prev.messages, savedMessage],
-  //     }));
+//     setActiveChat((prev) => ({
+//       ...prev,
+//       messages: [...prev.messages, savedMessage],
+//     }));
 
-  //     socket.current.emit("sendMessageToUser", messageData);
-  //     setNewMessage("");
-  //   } catch (err) {
-  //     console.error("Error sending message:", err);
-  //   }
-  // };
+//     socket.current.emit("sendMessageToUser", messageData);
+//     setNewMessage("");
+//   } catch (err) {
+//     console.error("Error sending message:", err);
+//   }
+// };
