@@ -6,6 +6,7 @@ import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
 import { io } from "socket.io-client";
 import { useChat } from "../../../context/ChatContext";
+import { formatDistanceToNow } from "date-fns";
 
 const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   const [notifications, setNotifications] = useState([]);
@@ -247,7 +248,11 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
                         "Unknown Sender"}
                     </h6>
                     <p>{notif.message}</p>
-                    <span>{new Date(notif.createdAt).toLocaleString()}</span>
+                    <span>
+                      {formatDistanceToNow(new Date(notif.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </span>
                   </div>
                 </div>
               ))

@@ -7,13 +7,14 @@ import { useSocket } from "../../../context/SocketContext";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
+import { formatDistanceToNow } from "date-fns";
 
 const NotificationMessage = ({ message }) => {
   const formatMessage = (text) => {
     const match = text.match(/(.*?)\swants to rent\s(.*)/);
 
     if (match) {
-      const [_, sender, item] = match;
+      const [, sender, item] = match;
       return (
         <>
           <span className="font-large">{sender}</span>
@@ -177,7 +178,11 @@ const Notification = ({
                     <p>
                       <NotificationMessage message={notif.message} />
                     </p>
-                    <span>{new Date(notif.createdAt).toLocaleString()}</span>
+                    <span className="time">
+                      {formatDistanceToNow(new Date(notif.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </span>
                   </div>
                 </a>
               ))
