@@ -19,6 +19,7 @@ const MessagePage = () => {
   const [highlightNewMessage, setHighlightNewMessage] = useState(false);
   const chatContentRef = useRef(null);
   const socket = useRef(null);
+  const [acceptedOffers, setAcceptedOffers] = useState(new Set());
 
   const product = state?.product;
   const navigate = useNavigate();
@@ -159,8 +160,9 @@ const MessagePage = () => {
     };
 
     fetchConversations();
-  }, [studentUser.userId, state?.ownerId, state?.sellerId]);
-
+  }, [studentUser.userId, state?.ownerId, state?.sellerId, state?.renterId]);
+  
+  
   useEffect(() => {
     if (chatContentRef.current) {
       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
@@ -277,12 +279,56 @@ const MessagePage = () => {
       [conversation.id]: false,
     }));
 
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === conversation.id ? { ...conv, hasUnread: false } : conv
-      )
-    );
+  setConversations(prev => 
+    prev.map(conv => 
+      conv.id === conversation.id 
+        ? { ...conv, hasUnread: false }
+        : conv
+    )
+  );
+};
+
+const isRecipient = (message) => {
+    const otherUserId = activeChat.otherUser.user_id;
+    return String(message.sender) === String(otherUserId) && String(userId) !== String(message.sender);
   };
+
+const handleAcceptOffer = async (message) => {
+    try {
+      // Add the message ID to accepted offers
+      setAcceptedOffers(prev => new Set([...prev, message.id]));
+      
+       // Emit socket event to notify other user
+       socket.current.emit("offerAccepted", {
+        messageId: message.id,
+        conversationId: activeChat.id,
+        recipient: message.sender
+      });
+
+    } catch (error) {
+      console.error("Error accepting offer:", error);
+      // Optionally revert the UI state if the API call fails
+      setAcceptedOffers(prev => {
+        const newSet = new Set([...prev]);
+        newSet.delete(message.id);
+        return newSet;
+      });
+    }
+  };
+
+  // Add socket listener for offer acceptance
+  useEffect(() => {
+    if (!socket.current) return;
+
+    socket.current.on("offerAccepted", (data) => {
+      setAcceptedOffers(prev => new Set([...prev, data.messageId]));
+    });
+
+    return () => {
+      socket.current.off("offerAccepted");
+    };
+  }, []);
+
 
   return (
     <div className="container-content message-page">
@@ -353,58 +399,98 @@ const MessagePage = () => {
               <h4>{activeChat.otherUser.first_name}</h4>
             </div>
             <div className="chat-content" ref={chatContentRef}>
-              {activeChat.messages && activeChat.messages.length > 0 ? (
-                activeChat.messages.map((message, index) =>
-                  message.isProductCard ? (
-                    <div key={index} className="product-card">
-                      <h6>
-                        {message.productDetails?.title === "Offer"
-                          ? "Offer for this item"
-                          : "Inquiring about this item"}
-                      </h6>
-                      <div className="d-flex align-items-start">
-                        <img
-                          src={message.productDetails?.image}
-                          alt={message.productDetails?.name}
-                          className="me-3"
-                          style={{ width: "60px", height: "60px" }}
-                        />
-                        <div>
-                          <p className="mb-1">
-                            <strong>{message.productDetails?.name}</strong>
+            {activeChat.messages && activeChat.messages.length > 0 ? (
+              activeChat.messages.map((message, index) =>
+                message.isProductCard ? (
+                  <div key={index} className="product-card">
+                  <h6>
+                    {message.productDetails?.title === "Offer" 
+                      ? "Offer for this item"
+                      : "Inquiring about this item"}
+                  </h6>
+                  <div className="d-flex align-items-start">
+                    <img 
+                      src={message.productDetails?.image} 
+                      alt={message.productDetails?.name} 
+                      className="me-3" 
+                      style={{ width: "60px", height: "60px" }} 
+                    />
+                    <div>
+                      <p className="mb-1">
+                        <strong>{message.productDetails?.name}</strong>
+                      </p>
+                      
+                      {/* Show Price if available, Status (including offer details) otherwise */}
+                      {message.productDetails?.price ? (
+                        <p className="mb-0">Price: ₱{message.productDetails?.price}</p>
+                      ) : message.productDetails?.status ? (
+                        <>
+                      <div className="d-flex justify-content-between">
+                          <p className="mb-0 offer-details" style={{ whiteSpace: 'pre-line' }}>
+                            {message.productDetails?.status}
                           </p>
-
-                          {/* Show Price if available, Status (including offer details) otherwise */}
-                          {message.productDetails?.price ? (
-                            <p className="mb-0">
-                              Price: ₱{message.productDetails?.price}
-                            </p>
-                          ) : message.productDetails?.status ? (
-                            <p
-                              className="mb-0 offer-details"
-                              style={{ whiteSpace: "pre-line" }}
-                            >
-                              {message.productDetails?.status}
-                            </p>
-                          ) : null}
+                             {/* Show either Accept Offer button or Accepted status */}
+                             {isRecipient(message) ? (
+                                  acceptedOffers.has(message.id) ? (
+                                    <button 
+                                      type="button" 
+                                      style={{
+                                        float: "right", 
+                                        marginLeft: '100px',
+                                        backgroundColor: '#4CAF50',
+                                        cursor: 'default'
+                                      }} 
+                                      className="btn mt-2"
+                                      disabled
+                                    >
+                                      Accepted Offer
+                                    </button>
+                                  ) : (
+                                    <button 
+                                      type="button" 
+                                      style={{float:"right", marginLeft: '100px'}} 
+                                      className="btn btn-primary mt-2"
+                                      onClick={() => handleAcceptOffer(message)}
+                                    >
+                                      Accept Offer
+                                    </button>
+                                  )
+                                ) : (
+                                  acceptedOffers.has(message.id) && (
+                                    <button 
+                                      type="button" 
+                                      style={{
+                                        float: "right", 
+                                        marginLeft: '100px',
+                                        backgroundColor: '#4CAF50',
+                                        cursor: 'default'
+                                      }} 
+                                      className="btn mt-2"
+                                      disabled
+                                    >
+                                      Accepted Offer
+                                    </button>
+                                  )
+                                )}
                         </div>
-                      </div>
+                        </> 
+                      ) : null}
                     </div>
-                  ) : (
-                    <div
-                      key={index}
-                      className={`chat-message ${
-                        String(message.sender) === String(userId)
-                          ? "sent"
-                          : "received"
-                      } ${
-                        highlightNewMessage &&
-                        index === activeChat.messages.length - 1
-                          ? "new-message"
-                          : ""
-                      }`}
-                    >
-                      <p>{message.text}</p>
+                  </div>
+                </div>
+                ) : (
+                  <div
+                    key={index}
+                    className={`chat-message ${
+                      String(message.sender) === String(userId) ? "sent" : "received"
+                    } ${
+                      highlightNewMessage &&
+                      index === activeChat.messages.length - 1
+                        ? "new-message"
+                        : ""
+                    }`}
+                  >
+                    <p>{message.text}</p>
                       <span>
                         {new Date(message.createdAt).toLocaleString()}
                       </span>

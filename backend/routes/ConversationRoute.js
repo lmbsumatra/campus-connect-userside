@@ -67,7 +67,7 @@ router.post("/createConversation", async (req, res) => {
   }
 });
 
-// Create a conversation between user and lender
+// Create a conversation between user and renter
 router.post("/createConversationPost", async (req, res) => {
   const { senderId, renterId } = req.body; // Extract senderId and ownerId from request body
 
