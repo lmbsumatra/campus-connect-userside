@@ -331,6 +331,7 @@ router.get("/preview/:userId", async (req, res) => {
       SELECT * 
       FROM Conversations 
       WHERE JSON_CONTAINS(members, '["${userId}"]')
+      ORDER BY updatedAt DESC; 
     `;
     const [conversations] = await sequelize.query(query);
 

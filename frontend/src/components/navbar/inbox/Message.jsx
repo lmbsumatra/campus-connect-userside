@@ -64,9 +64,26 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
       if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
       const data = await res.json();
-      console.log("Fetched conversations:", data); // Debugging log
 
-      setConversations(data);
+      // Sort conversations based on the latest activity
+      const sortedConversations = data.sort((a, b) => {
+        const aTimestamp = a.latestMessage
+          ? new Date(a.latestMessage.createdAt).getTime()
+          : 0;
+        const bTimestamp = b.latestMessage
+          ? new Date(b.latestMessage.createdAt).getTime()
+          : 0;
+
+        if (a.hasUnread && !b.hasUnread) return -1; // Prioritize unread messages
+        if (!a.hasUnread && b.hasUnread) return 1;
+
+        if (a.recentlyAccessed && !b.recentlyAccessed) return -1; // Prioritize recently accessed
+        if (!a.recentlyAccessed && b.recentlyAccessed) return 1;
+
+        return bTimestamp - aTimestamp; // Default: Latest messages first
+      });
+
+      setConversations(sortedConversations);
       setUnreadCount(data.filter((conv) => conv.hasUnread).length);
     } catch (err) {
       console.error("Error fetching conversations:", err);
@@ -84,9 +101,16 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
       // Mark conversation as read
       await fetch(
         `http://localhost:3001/api/notifications/message/conversation/${conv.id}/user/${userId}/read`,
-        {
-          method: "PUT",
-        }
+        { method: "PUT" }
+      );
+
+      // Add a flag to indicate it was recently accessed
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === conv.id
+            ? { ...c, recentlyAccessed: true, hasUnread: false }
+            : c
+        )
       );
 
       // Navigate to conversation

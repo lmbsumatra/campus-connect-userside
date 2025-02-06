@@ -36,20 +36,22 @@ router.get(
   asyncHandler(notificationController.getMessageNotifications)
 );
 
-// // Route to mark all messages as read for a specific user
-// router.put('/message/mark-all-read/:userId', asyncHandler(async (req, res) => {
-//   try {
-//     console.log('Received params:', req.params); // Log the params to verify
-//     const { userId } = req.params;
-//     console.log(`Marking all messages as read for user: ${userId}`);
-//     await notificationController.markAllMessagesAsRead(req.params.userId);
-//     res.json({ message: 'All messages marked as read' });
-//   } catch (error) {
-//     console.error('Error in markAllMessagesAsRead:', error);
-//     res.status(500).json({ error: error.message });
-//   }
-// }));
-
+// Route to mark all messages as read for a specific user
+router.put(
+  "/message/mark-all-read/:userId",
+  asyncHandler(async (req, res) => {
+    try {
+      console.log("Received params:", req.params); // Log the params to verify
+      const { userId } = req.params;
+      console.log(`Marking all messages as read for user: ${userId}`);
+      await notificationController.markAllMessagesAsRead(req.params.userId);
+      res.json({ message: "All messages marked as read" });
+    } catch (error) {
+      console.error("Error in markAllMessagesAsRead:", error);
+      res.status(500).json({ error: error.message });
+    }
+  })
+);
 // ----- Student Notification Routes -----
 router.post(
   "/student",
