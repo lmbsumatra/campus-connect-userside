@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize"); 
+const { Sequelize } = require("sequelize");
 const sequelize = require("../config/database");
 
 const Listing = require("./ListingModel")(sequelize);
@@ -6,19 +6,21 @@ const Post = require("./PostModel")(sequelize);
 const Cart = require("./CartModel")(sequelize);
 const Date = require("./common/DatesModel")(sequelize);
 const Duration = require("./common/DurationsModel")(sequelize);
-const Student = require("./StudentModel"); 
+const Student = require("./StudentModel");
 const User = require("./UserModel");
-const ItemForSale = require('./ItemForSaleModel')(sequelize);
-const RentalTransaction = require('./RentalTransactionModel')(sequelize);
-const Conversation = require('./ConversationModel');
-const Message = require('./MessageModel');
+const ItemForSale = require("./ItemForSaleModel")(sequelize);
+const RentalTransaction = require("./RentalTransactionModel")(sequelize);
+const Conversation = require("./ConversationModel");
+const Message = require("./MessageModel");
 const ReviewAndRate = require("./ReviewAndRateModel")(sequelize);
 const UnavailableDate = require("./UnavailableDateModel");
 const Report = require("./ReportModel");
-const BuyAndSellTransaction = require("./BuyAndSellTransactionModel")(sequelize);
-const Notification = require('./NotificationModel');
-const MessageNotification = require('./MessageNotificationModel');
-
+const BuyAndSellTransaction = require("./BuyAndSellTransactionModel")(
+  sequelize
+);
+const Notification = require("./NotificationModel");
+const MessageNotification = require("./MessageNotificationModel");
+const StudentNotification = require("./StudentNotificationModel");
 
 const models = {
   Listing,
@@ -26,18 +28,19 @@ const models = {
   Cart,
   Student,
   User,
-  Date, 
+  Date,
   Duration,
   ItemForSale,
   RentalTransaction,
   Conversation,
   Message,
-  UnavailableDate,  
+  UnavailableDate,
   Report,
   BuyAndSellTransaction,
   ReviewAndRate,
   Notification,
-  MessageNotification
+  MessageNotification,
+  StudentNotification,
 };
 
 Object.values(models).forEach((model) => {
@@ -45,6 +48,5 @@ Object.values(models).forEach((model) => {
     model.associate(models);
   }
 });
-
 
 module.exports = { sequelize, models };

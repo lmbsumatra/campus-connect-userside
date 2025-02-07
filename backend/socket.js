@@ -82,7 +82,7 @@ function initializeSocket(server) {
           type: notificationData.type,
           message: notificationData.message,
           is_read: false,
-          rental_id: notificationData.rental_id || null, // Include rental_id if provided
+          rental_id: notificationData.rental_id || null,
         };
 
         console.log("Creating notification with payload:", notificationPayload);
@@ -96,10 +96,9 @@ function initializeSocket(server) {
           notification.toJSON()
         );
 
-        // Optionally emit the notification to the recipient if they're connected
         const recipientSocketId = getRecipientSocketId(
           notificationData.recipient
-        ); // Implement this function if necessary
+        );
         if (recipientSocketId) {
           io.to(recipientSocketId).emit("receiveNotification", notification);
           console.log(
@@ -115,7 +114,10 @@ function initializeSocket(server) {
     socket.on("registerUser", async (userId) => {
       try {
         userSockets.set(userId, socket.id);
-        console.log(`User ${userId} registered with socket ID ${socket.id}`);
+        socket.join(userId); // Join a room named after the user ID
+        console.log(
+          `User ${userId} registered with socket ID ${socket.id} and joined room ${userId}`
+        );
 
         // Calculate and send initial unread count
         const unreadCount = await calculateUnreadMessages(userId);

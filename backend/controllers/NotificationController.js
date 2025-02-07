@@ -125,7 +125,7 @@ const notificationController = {
     }
   },
 
-  // New message notification methods
+  // -------New message notification methods----------
 
   createMessageNotification: async (req, res) => {
     try {

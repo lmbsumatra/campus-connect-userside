@@ -1,21 +1,39 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const rentalTransactionController = require('../controllers/RentalTransactionController');
+const rentalTransactionController = require("../controllers/RentalTransactionController");
 
+module.exports = function (io) {
+  // Attach io to the controller methods that need it
+  const {
+    createRentalTransaction,
+    getAllRentalTransactions,
+    getRentalTransactionById,
+    updateRentalTransaction,
+    deleteRentalTransaction,
+    getTransactionsByUserId,
+    acceptRentalTransaction,
+    handOverRentalTransaction,
+    returnRentalTransaction,
+    completeRentalTransaction,
+    cancelRentalTransaction,
+    declineRentalTransaction,
+  } = rentalTransactionController(io); // Pass io to the controller
 
-router.post('/add', rentalTransactionController.createRentalTransaction);
-router.get('/', rentalTransactionController.getAllRentalTransactions);
-router.get('/:id', rentalTransactionController.getRentalTransactionById);
-router.put('/:id', rentalTransactionController.updateRentalTransaction);
-router.delete('/:id', rentalTransactionController.deleteRentalTransaction);
-router.get('/user/:userId', rentalTransactionController.getTransactionsByUserId)
+  // Routes that don't need io
+  router.post("/add", createRentalTransaction);
+  router.get("/", getAllRentalTransactions);
+  router.get("/:id", getRentalTransactionById);
+  router.put("/:id", updateRentalTransaction);
+  router.delete("/:id", deleteRentalTransaction);
+  router.get("/user/:userId", getTransactionsByUserId);
 
-router.post('/user/:id/accept', rentalTransactionController.acceptRentalTransaction);
-router.post('/user/:id/hand-over', rentalTransactionController.handOverRentalTransaction);
-router.post('/user/:id/return', rentalTransactionController.returnRentalTransaction);
-router.post('/user/:id/completed', rentalTransactionController.completeRentalTransaction);
-router.post('/user/:id/cancel', rentalTransactionController.cancelRentalTransaction);
-router.post('/user/:id/decline', rentalTransactionController.declineRentalTransaction);
+  // Routes that need io
+  router.post("/user/:id/accept", acceptRentalTransaction);
+  router.post("/user/:id/hand-over", handOverRentalTransaction);
+  router.post("/user/:id/return", returnRentalTransaction);
+  router.post("/user/:id/completed", completeRentalTransaction);
+  router.post("/user/:id/cancel", cancelRentalTransaction);
+  router.post("/user/:id/decline", declineRentalTransaction);
 
-
-module.exports = router;
+  return router;
+};

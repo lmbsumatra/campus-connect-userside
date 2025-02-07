@@ -7,6 +7,8 @@ import "./style.css";
 import { io } from "socket.io-client";
 import { useChat } from "../../../context/ChatContext";
 import { formatDistanceToNow } from "date-fns";
+import useSound from "use-sound";
+import notificationSound from "../../../assets/audio/message.mp3";
 
 const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   const [notifications, setNotifications] = useState([]);
@@ -17,6 +19,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   const navigate = useNavigate();
   const socket = useRef(null);
   const [conversations, setConversations] = useState([]);
+  const [receiveNotification] = useSound(notificationSound, { volume: 0.5 });
 
   useEffect(() => {
     if (!userId) return;
@@ -36,9 +39,9 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
       setUnreadCount(count); // Update badge count dynamically
     });
 
-    // Listen for new messages
     // Update socket listener to refresh conversations
     socket.current.on("receiveMessage", () => {
+      receiveNotification();
       fetchConversations();
     });
 

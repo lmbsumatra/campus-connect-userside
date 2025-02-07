@@ -13,16 +13,14 @@ const reviewAndRateRoutes = require("./routes/ReviewAndRateRoutes.js");
 const adminAuthRoutes = require("./routes/AdminAuthRoutes");
 const itemForSaleRoutes = require("./routes/ItemForSaleRoute");
 const rentalTransactionRoutes = require("./routes/RentalTransactionRoute");
-const cartRoutes = require("./routes/CartRoutes.js")
+const cartRoutes = require("./routes/CartRoutes.js");
 const http = require("http");
 const { initializeSocket } = require("./socket");
 const nodemailer = require("nodemailer");
 const reportRoutes = require("./routes/ReportRoute");
-const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js")
+const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
 const notificationRoutes = require("./routes/NotificationRoute");
-const recentActivities = require('./routes/RecentActivitiesRoutes.js')
-
-
+const recentActivities = require("./routes/RecentActivitiesRoutes.js");
 
 // cron
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -41,8 +39,8 @@ dotenv.config();
 
 // Initialize Express app and create HTTP server
 const app = express();
-const server = http.createServer(app); 
-const { io, notifyAdmins } = initializeSocket(server); 
+const server = http.createServer(app);
+const { io, notifyAdmins } = initializeSocket(server);
 
 // Middleware
 app.use(express.json());
@@ -76,12 +74,11 @@ app.use("/admin", adminAuthRoutes);
 app.use("/listings", listingRoutes); // Listings route that will trigger notifications
 app.use("/posts", postRoutes);
 app.use("/item-for-sale", itemForSaleRoutes);
-app.use("/rental-transaction", rentalTransactionRoutes);
 app.use("/review-and-rate", reviewAndRateRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/admin/transactions", adminTransactionRoutes);
-app.use("/api/recent-activities", recentActivities)
+app.use("/api/recent-activities", recentActivities);
 
 // Other routes
 app.use("/user", studentAuthRoutes);
@@ -89,7 +86,6 @@ app.use("/admin", adminAuthRoutes);
 app.use("/listings", listingRoutes);
 app.use("/posts", postRoutes);
 app.use("/item-for-sale", itemForSaleRoutes);
-app.use("/rental-transaction", rentalTransactionRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/admin/transactions", adminTransactionRoutes);
@@ -111,14 +107,11 @@ app.use("/listings", listingRoutes);
 
 app.use("/posts", postRoutes);
 app.use("/item-for-sale", itemForSaleRoutes);
-app.use("/rental-transaction", rentalTransactionRoutes);
-
+app.use("/rental-transaction", rentalTransactionRoutes(io));
 
 // messsaging
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
-
-
 
 // Sync database and start server
 sequelize

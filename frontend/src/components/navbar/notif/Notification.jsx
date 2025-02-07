@@ -9,26 +9,180 @@ import { useSelector } from "react-redux";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 import { formatDistanceToNow } from "date-fns";
 
-const NotificationMessage = ({ message }) => {
-  const formatMessage = (text) => {
-    const match = text.match(/(.*?)\swants to rent\s(.*)/);
+const NotificationMessage = ({ message, type }) => {
+  const getFormattedMessage = () => {
+    switch (type) {
+      case "rental_accepted": {
+        const match = message.match(
+          /(.*?)\shas accepted your rental request for\s(.*)\./
+        );
+        if (match) {
+          const [, sender, item] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">
+                has <span className="success-text">accepted</span> your rental
+                request for
+              </span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return <span className="success-text">{message}</span>;
+      }
 
-    if (match) {
-      const [, sender, item] = match;
-      return (
-        <>
-          <span className="font-large">{sender}</span>
-          <br />
-          <span className="default-text">wants to rent</span>
-          <br />
-          <span className="item-name">{item}</span>
-        </>
-      );
+      case "rental_declined": {
+        const match = message.match(
+          /(.*?)\shas declined your rental request for\s(.*)\./
+        );
+        if (match) {
+          const [, sender, item] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">
+                has <span className="error-text">declined</span> your rental
+                request for
+              </span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return <span className="error-text">{message}</span>;
+      }
+
+      case "rental_cancelled": {
+        const match = message.match(
+          /(.*?)\shas cancelled the rental request for\s(.*)\./
+        );
+        if (match) {
+          const [, sender, item] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">
+                has <span className="error-text">cancelled</span> the rental
+                request for
+              </span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return <span className="error-text">{message}</span>;
+      }
+
+      case "handover_confirmed": {
+        const match = message.match(
+          /(.*?)\shas confirmed (?:handover|receipt) of\s(.*?)\.\s?(.*)/
+        );
+        if (match) {
+          const [, sender, item, action] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">
+                has <span className="success-text">confirmed</span>{" "}
+                {action ? "handover of" : "receipt of"}
+              </span>
+              <br />
+              <span className="item-name">{item}</span>
+              {action && (
+                <>
+                  <br />
+                  <span className="action-text">{action}</span>
+                </>
+              )}
+            </>
+          );
+        }
+        return (
+          <>
+            <span className="highlight-text">{message}</span>
+            <br />
+            <span className="action-text">Tap to confirm.</span>
+          </>
+        );
+      }
+
+      case "return_confirmed": {
+        const match = message.match(
+          /(.*?)\shas confirmed (?:receiving|return of)\s(.*?)\.\s(.*)/
+        );
+        if (match) {
+          const [, sender, item, action] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">
+                has <span className="success-text">confirmed</span> return of
+              </span>
+              <br />
+              <span className="item-name">{item}</span>
+              <br />
+              <span className="action-text">{action}</span>
+            </>
+          );
+        }
+        return (
+          <>
+            <span className="highlight-text">{message}</span>
+            <br />
+            <span className="action-text">Tap to confirm.</span>
+          </>
+        );
+      }
+
+      case "transaction_completed": {
+        const match = message.match(
+          /Rental transaction with\s(.*?)\shas been completed/
+        );
+        if (match) {
+          const [, sender] = match;
+          return (
+            <>
+              <span className="font-large success-text">
+                Rental Transaction Complete
+              </span>
+              <span className="default-text"> with</span>
+              <br />
+              <span className="item-name">{sender}</span>
+            </>
+          );
+        }
+      }
+
+      case "rental_request": {
+        const match = message.match(/(.*?)\swants to rent\s(.*)/);
+        if (match) {
+          const [, sender, item] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">wants to rent</span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return message;
+      }
+
+      default:
+        return message;
     }
-    return text;
   };
 
-  return <div className="notification-message">{formatMessage(message)}</div>;
+  return <div className="notification-message">{getFormattedMessage()}</div>;
 };
 
 const Notification = ({
@@ -79,18 +233,51 @@ const Notification = ({
     };
   }, [socket, studentUser]);
 
-  const handleNotificationClick = async (notifId, rentalId) => {
-    console.log("🔔 Notification Clicked!"); // ✅ Log when a notification is clicked
-    console.log("Notif ID:", notifId);
-    console.log("Rental ID:", rentalId); // ✅ Make sure rentalId is being passed
+  const determineRoute = (rental, type, isOwner, isRenter) => {
+    const baseRoute = "/profile/transactions";
+
+    // Early return for missing rental
+    if (!rental) {
+      console.warn("No rental data available for routing");
+      return `${baseRoute}/owner/requests`;
+    }
+
+    switch (type) {
+      case "rental_request":
+        return `${baseRoute}/owner/requests`;
+      case "rental_accepted":
+        return `${baseRoute}/renter/to receive`;
+      case "rental_declined":
+        return `${baseRoute}/renter/cancelled`;
+      case "rental_cancelled":
+        return `${baseRoute}/owner/cancelled`;
+      case "handover_confirmed":
+        return isRenter
+          ? `${baseRoute}/renter/to return`
+          : `${baseRoute}/owner/to hand over`;
+      case "return_confirmed":
+        return isOwner
+          ? `${baseRoute}/owner/to receive`
+          : `${baseRoute}/renter/completed`;
+      case "transaction_completed":
+        return isOwner
+          ? `${baseRoute}/owner/to review`
+          : `${baseRoute}/renter/to review`;
+      default:
+        return `${baseRoute}/owner/requests`;
+    }
+  };
+
+  const handleNotificationClick = async (notifId, rentalId, type) => {
+    console.log("🔔 Notification Clicked!", { notifId, rentalId, type });
 
     if (!rentalId) {
-      console.error(
-        "❌ Rental ID is missing! Cannot scroll to rental request."
-      );
+      console.error("❌ Missing rental ID");
       return;
     }
+
     try {
+      // Mark notification as read
       await axios.put(
         `http://localhost:3001/api/notifications/student/${notifId}/read`
       );
@@ -100,17 +287,33 @@ const Notification = ({
           notif.id === notifId ? { ...notif, is_read: true } : notif
         )
       );
-
       setUnreadCount((prev) => Math.max(0, prev - 1));
 
-      // Navigate to the transactions page and pass the rentalId to highlight
-      navigate("/profile/transactions/owner/requests", {
-        state: { highlight: rentalId },
-      });
+      // Fetch rental details
+      const rentalRes = await axios.get(
+        `http://localhost:3001/rental-transaction/${rentalId}`
+      );
 
-      console.log("✅ Navigated to rental requests with highlight:", rentalId);
+      const rental = rentalRes.data.rental;
+      if (!rental) {
+        console.error("❌ No rental data received");
+        return;
+      }
+
+      const isOwner = studentUser.userId === rental.owner_id;
+      const isRenter = studentUser.userId === rental.renter_id;
+
+      // Determine the route
+      const route = determineRoute(rental, type, isOwner, isRenter);
+      console.log("🚀 Navigating to:", route);
+
+      // Close notifications panel before navigation
+      toggleNotifications();
+
+      // Navigate with rental ID in state
+      navigate(route, { state: { highlight: rentalId } });
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      console.error("Error handling notification:", error);
     }
   };
 
@@ -124,7 +327,7 @@ const Notification = ({
       );
       setUnreadCount(0);
     } catch (error) {
-      console.error("Error marking all notifications as read:", error);
+      console.error("Error marking all as read:", error);
     }
   };
 
@@ -166,7 +369,11 @@ const Notification = ({
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
-                    handleNotificationClick(notif.id, notif.rental_id);
+                    handleNotificationClick(
+                      notif.id,
+                      notif.rental_id,
+                      notif.type
+                    );
                   }}
                 >
                   <img
@@ -176,7 +383,10 @@ const Notification = ({
                   />
                   <div className="notification-content">
                     <p>
-                      <NotificationMessage message={notif.message} />
+                      <NotificationMessage
+                        message={notif.message}
+                        type={notif.type}
+                      />
                     </p>
                     <span className="time">
                       {formatDistanceToNow(new Date(notif.createdAt), {

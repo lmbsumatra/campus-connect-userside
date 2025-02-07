@@ -247,6 +247,23 @@
     font-style: italic;
 }
 
+.success-text {
+    color: #4CAF50;
+}
+
+.error-text {
+    color: #f44336;
+}
+
+.highlight-text {
+    font-weight: 600;
+}
+
+.action-text {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
 @keyframes pulse {
     0% {
         transform: scale(1);
