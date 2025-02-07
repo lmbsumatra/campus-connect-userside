@@ -68,6 +68,20 @@ const Rent = () => {
 
           {/* Listings Display */}
           <div className="col-md-10">
+            <TimeoutComponent
+              timeoutDuration={5000}
+              fallback={
+                <div className="card-container vertical">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <LoadingItemCardSkeleton key={index} />
+                  ))}
+                </div>
+              }
+            >
+              {!loadingAllApprovedListings && (
+                <ItemCard items={allApprovedListings} title="Listings" />
+              )}
+            </TimeoutComponent>
             {/* Loading and Error Handling for Listings */}
             {loadingAllApprovedListings && <p>Loading listings...</p>}
             {errorAllApprovedListings && (
@@ -78,20 +92,6 @@ const Rent = () => {
               {errorAllApprovedListings && (
                 <p>Error loading listings: {errorAllApprovedListings}</p>
               )}
-              <TimeoutComponent
-                timeoutDuration={5000}
-                fallback={
-                  <div className="card-container vertical">
-                    {Array.from({ length: 6 }).map((_, index) => (
-                      <LoadingItemCardSkeleton key={index} />
-                    ))}
-                  </div>
-                }
-              >
-                {!loadingAllApprovedListings && (
-                  <ItemCard items={allApprovedListings} title="Listings" />
-                )}
-              </TimeoutComponent>
             </div>
           </div>
         </div>

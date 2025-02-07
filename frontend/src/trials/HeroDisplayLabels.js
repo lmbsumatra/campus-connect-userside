@@ -12,7 +12,7 @@ const stepDescriptions = [
     subText: "Need to read for an exam?",
     headerText: (
       <h1 className="headline white">
-        Rent a <span className="text-highlight wavy-underline">book</span> here
+        Rent a <span className="text-highlight">book</span> here
         and ace that test!
       </h1>
     ),
@@ -26,7 +26,7 @@ const stepDescriptions = [
     headerText: (
       <h1 className="headline white">
         Rent{" "}
-        <span className="text-highlight wavy-underline">lab equipment</span>,
+        <span className="text-highlight">lab equipment</span>,
         relax, and ace that lab!
       </h1>
     ),
@@ -40,7 +40,7 @@ const stepDescriptions = [
     headerText: (
       <h1 className="headline white">
         Rent a{" "}
-        <span className="text-highlight wavy-underline">
+        <span className="text-highlight">
           scientific calculator
         </span>{" "}
         and solve them with ease!
@@ -55,7 +55,7 @@ const stepDescriptions = [
     subText: "Want to play some tunes?",
     headerText: (
       <h1 className="headline white">
-        Rent a <span className="text-highlight wavy-underline">guitar</span> and
+        Rent a <span className="text-highlight">guitar</span> and
         unleash your inner musician!
       </h1>
     ),
@@ -68,7 +68,7 @@ const stepDescriptions = [
     subText: "Have spare tech lying around?",
     headerText: (
       <h1 className="headline white">
-        Share your <span className="text-highlight wavy-underline">laptop</span>{" "}
+        Share your <span className="text-highlight">laptop</span>{" "}
         and earn extra cash (and good karma).
       </h1>
     ),
@@ -82,7 +82,7 @@ const stepDescriptions = [
     headerText: (
       <h1 className="headline white">
         Lend your{" "}
-        <span className="text-highlight wavy-underline">badminton racket</span>{" "}
+        <span className="text-highlight">badminton racket</span>{" "}
         and let others enjoy it!
       </h1>
     ),
@@ -96,7 +96,7 @@ const stepDescriptions = [
     headerText: (
       <h1 className="headline white">
         Sell your old{" "}
-        <span className="text-highlight wavy-underline">clothes</span> and fund
+        <span className="text-highlight">clothes</span> and fund
         your next fashion find!
       </h1>
     ),
@@ -110,7 +110,7 @@ const stepDescriptions = [
     headerText: (
       <h1 className="headline white">
         Buy a pre-loved{" "}
-        <span className="text-highlight wavy-underline">tablet</span> and save
+        <span className="text-highlight">tablet</span> and save
         your budget!
       </h1>
     ),

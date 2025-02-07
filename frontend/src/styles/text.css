@@ -16,10 +16,10 @@
   color: white;
 }
 
-.text-highlight.wavy-underline {
-  text-decoration-line: underline;
-  text-decoration-style: wavy;
+.text-highlight {
+  /* text-decoration-line: underline; */
+  /* text-decoration-style: wavy; */
   font-style: italic;
   font-weight: 900;
-  color: rgb(255, 120, 57);
+  color: rgb(57, 255, 245);
 }

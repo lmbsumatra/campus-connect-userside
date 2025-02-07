@@ -28,12 +28,19 @@ import "./new2.css";
 import Notification from "../components/navbar/notif/Notification.jsx";
 import Message from "../components/navbar/inbox/Message.jsx";
 import UserDropdown from "../components/navbar/dropdown/UserDropdown.jsx";
+import TrialOnSearchBar from "./TrialOnSearchResults.jsx";
+import TrialOnSearchResults from "./TrialOnSearchResults.jsx";
 
 const TrialOnNavbar = ({ theme = "dark" }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const isDarkTheme = theme === "dark";
+  const [keyword, setKeyword] = useState();
+
+  const handleKeyword = (event) => {
+    setKeyword(event.target.value);
+  };
 
   const studentUser = useSelector(selectStudentUser);
   const [activeTab, setActiveTab] = useState("");
@@ -41,6 +48,8 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
   const [showLoginSignUp, setShowLoginSignUp] = useState(false);
   const [authTab, setAuthTab] = useState("loginTab");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [showPopUpSearchBarResults, setShowPopUpSearchBarResults] =
+    useState(false);
 
   useEffect(() => {
     const path = location.pathname.toLowerCase();
@@ -127,6 +136,11 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
     };
   }, []);
 
+  const handleSearchBar = (e) => {
+    setIsSearchFocused(true);
+    setShowPopUpSearchBarResults(!showPopUpSearchBarResults);
+  };
+
   return (
     <div
       ref={popupRef}
@@ -161,10 +175,17 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
             type="text"
             placeholder="Search"
             className={isDarkTheme ? "dark" : "light"}
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setIsSearchFocused(false)}
+            onFocus={(e) => handleSearchBar(e)}
+            onBlur={(e) => handleSearchBar(e)}
+            onChange={(e) => handleKeyword(e)}
+            name="search-value"
+            value={keyword}
           />
         </div>
+
+        {showPopUpSearchBarResults && (
+          <TrialOnSearchResults keyword={keyword} />
+        )}
 
         {/* Navigation Icons */}
         <div className={`nav-items ${isSearchFocused ? "hidden" : ""}`}>
