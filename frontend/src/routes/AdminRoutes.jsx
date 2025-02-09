@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Navigate } from "react-router-dom";
 import Admin from "../pages/private/admin/Admin";
 import AdminDashboard from "../pages/private/admin/dashboard/admindashboard/AdminDashboard";
+import AdminLogin from "../pages/private/admin/login/AdminLogin";
 import UserDashboard from "../pages/private/admin/user-management/UserDashboard";
 import UserOverview from "../pages/private/admin/user-management/UserOverview";
 import UserVerification from "../pages/private/admin/user-management/student-profile/UserVerification";
@@ -20,8 +21,8 @@ import AdminSettings from "../pages/private/admin/settings/AdminSettings";
 import ViewTransaction from "../pages/private/admin/TransactionManagement/ViewTransaction";
 import AdminTransactionDashboard from "../pages/private/admin/TransactionManagement/AdminTransactionDashboard";
 import AdminTransactionOverview from "../pages/private/admin/TransactionManagement/AdminTransactionOverview";
-import ReportDashboard from "../pages/private/admin/ReportManagement/ReportItemView";
-import ReportItemView from "../pages/private/admin/ReportManagement/ReportDashboard";
+import ReportDashboard from "../pages/private/admin/ReportManagement/ReportDashboard";
+import ReportItemView from "../pages/private/admin/ReportManagement/ReportItemView";
 import ReportOverview from "../pages/private/admin/ReportManagement/ReportOverview";
 import SaleOverview from "../pages/private/admin/SaleManagement/SaleOverview";
 import ForSaleManagement from "../pages/private/admin/SaleManagement/ForSaleManagement";
@@ -29,6 +30,7 @@ import PostOverview from "../pages/private/admin/PostManagement/PostOverview";
 import PostApproval from "../pages/private/admin/PostManagement/PostApproval";
 import PostDashboard from "../pages/private/admin/PostManagement/PostDashboard";
 const AdminRoutes = [
+  <Route path="/admin-login" element={<AdminLogin />} />,
   <Route
     path="/admin"
     element={
@@ -38,6 +40,7 @@ const AdminRoutes = [
     }
   >
     <Route index element={<Navigate to="/admin/dashboard" />} />
+    
     <Route path="dashboard" element={<AdminDashboard />} />
 
     {/* USER MANAGEMENT */}

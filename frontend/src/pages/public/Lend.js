@@ -7,12 +7,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
 import TimeoutComponent from "../../utils/TimeoutComponent";
 import LoadingPostCardSkeleton from "../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
+import { useLocation } from "react-router-dom";
 
 const Lend = () => {
   const dispatch = useDispatch();
 
+  const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
+
+  const keyword = searchParams.get("q")?.trim() || "";
+
   useEffect(() => {
-    dispatch(fetchAllApprovedPosts());
+    dispatch(fetchAllApprovedPosts(keyword));
   }, [dispatch]);
 
   const { allApprovedPosts, loadingAllApprovedPosts, errorAllApprovedPosts } =

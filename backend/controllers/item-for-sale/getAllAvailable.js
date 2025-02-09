@@ -1,6 +1,7 @@
 // controllers/for-sale.js
 const { models } = require("../../models/index");
 const sequelize = require("../../config/database");
+const Fuse = require("fuse.js");
 
 const getAllAvailable = async (req, res) => {
   try {
@@ -74,6 +75,21 @@ const getAllAvailable = async (req, res) => {
         sellerLname: item.seller.last_name,
       };
     });
+
+    // Get query parameter
+        const { q } = req.query;
+    
+        if (q) {
+          // Apply Fuse.js fuzzy search
+          const fuse = new Fuse(formattedItems, {
+            keys: ["name", "desc", "category", "tags"], // Search in these fields
+            threshold: 0.3, // Adjust for fuzziness (0 = strict, 1 = loose)
+          });
+    
+          const results = fuse.search(q).map((result) => result.item);
+    
+          return res.status(200).json(results.length ? results : []);
+        }
 
     res.status(200).json(formattedItems);
   } catch (error) {

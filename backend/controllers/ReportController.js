@@ -51,16 +51,61 @@ exports.updateReportStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    //console.log("Updating report ID:", id, "to status:", status); // Debugging
 
+    // Validate status input
+    const validStatuses = ["pending", "reviewed", "flagged", "dismissed"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status value." });
+    }
+
+    // Find the report
     const report = await Report.findByPk(id);
     if (!report) {
-      console.error("Report not found:", id); // Debugging
+      console.error("Report not found:", id);
       return res.status(404).json({ error: "Report not found." });
     }
 
+    // Update the report status
     report.status = status;
     await report.save();
+
+    // If the report status is "flagged", update the entity status
+    if (status === "flagged") {
+      const { reported_entity_id, entity_type } = report;
+
+      let entityModel;
+      switch (entity_type) {
+        case "listing":
+          entityModel = models.Listing;
+          break;
+        case "post":
+          entityModel = models.Post;
+          break;
+        case "sale":
+          entityModel = models.ItemForSale;
+          break;
+        case "user":
+          entityModel = models.User;
+          break;
+        default:
+          console.error("Unsupported entity type:", entity_type);
+          return res.status(400).json({ error: "Invalid entity type." });
+      }
+
+      // Find and update the entity
+      const entity = await entityModel.findByPk(reported_entity_id);
+      if (entity) {
+        if (entity.status !== undefined) {
+          entity.status = "flagged"; // Ensure the entity has a status column
+          await entity.save();
+        } else {
+          console.warn("Entity does not have a 'status' field:", entity_type);
+        }
+      } else {
+        console.error("Reported entity not found:", reported_entity_id);
+        return res.status(404).json({ error: "Reported entity not found." });
+      }
+    }
 
     res.status(200).json(report);
   } catch (error) {
@@ -68,6 +113,7 @@ exports.updateReportStatus = async (req, res) => {
     res.status(500).json({ error: "Failed to update report status." });
   }
 };
+
 
 
 // Delete a report
