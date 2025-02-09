@@ -8,6 +8,7 @@ const { upload_item } = require("../config/multer");
 /* * * * * * * * * displayed for all users :: available * * * * * * * * * * * * * */
 // lahat ng available na post (approved, with available date and corresponding time)
 router.get("/approved", PostController2.getAllAvailablePost);
+
 // isang post na available (approved, with available date and corresponding time)
 router.get("/available/:id", PostController2.getAvailablePostById);
 // lahat ng  post na available per user kapag nagvisit sa profile nila (approved, with available date and corresponding time)

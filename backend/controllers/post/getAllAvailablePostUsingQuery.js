@@ -1,40 +1,28 @@
 const { models } = require("../../models/index");
 const Fuse = require("fuse.js");
 
-// Get a single approved post by ID with associated rental dates, durations, and renter info
-const getAllAvailablePost = async (req, res) => {
+const getAllAvailablePostUsingQuery = async (req, res) => {
   try {
+    // Fetch all approved posts
     const posts = await models.Post.findAll({
-      where: {
-        status: "approved", // Ensures only "approved" items are fetched
-      },
+      where: { status: "approved" },
       include: [
         {
           model: models.Date,
           as: "rental_dates",
-          where: {
-            status: "available", // Ensures only "available" rental dates are included
-            item_type: "post",
-          },
+          where: { status: "available", item_type: "post" },
           include: [
             {
               model: models.Duration,
               as: "durations",
-              where: {
-                status: "available", // Ensures only "available" rental durations are included
-              },
+              where: { status: "available" },
             },
           ],
         },
         {
           model: models.User,
           as: "renter",
-          include: [
-            {
-              model: models.Student,
-              as: "student",
-            },
-          ],
+          include: [{ model: models.Student, as: "student" }],
         },
       ],
     });
@@ -43,17 +31,18 @@ const getAllAvailablePost = async (req, res) => {
       return res.status(404).json({ error: "No approved posts found" });
     }
 
+    // Format posts before applying Fuse.js search
     const formattedPosts = posts.map((post) => ({
       id: post.id,
       name: post.post_item_name,
-      tags: post.tags ? JSON.parse(post.tags) : [], // Safely parse or use default
+      tags: post.tags ? JSON.parse(post.tags) : [],
       createdAt: post.created_at,
       status: post.status,
       category: post.category,
       itemType: "To Rent",
       desc: post.description,
       specs: post.specifications,
-      images: post.images ? JSON.parse(post.images) : [], // Safely parse or use default
+      images: post.images ? JSON.parse(post.images) : [],
       rentalDates: post.rental_dates.map((date) => ({
         id: date.id,
         postId: date.post_id,
@@ -75,21 +64,20 @@ const getAllAvailablePost = async (req, res) => {
       },
     }));
 
-     // Get query parameter
-     const { q } = req.query;
+    // Get query parameter
+    const { q } = req.query;
 
-     if (q) {
-       // Apply Fuse.js fuzzy search
-       const fuse = new Fuse(formattedPosts, {
-         keys: ["name", "desc", "category", "tags"], // Search in these fields
-         threshold: 0.3, // Adjust for fuzziness (0 = strict, 1 = loose)
-       });
- 
-       const results = fuse.search(q).map((result) => result.item);
- 
-       return res.status(200).json(results.length ? results : []);
-     }
- 
+    if (q) {
+      // Apply Fuse.js fuzzy search
+      const fuse = new Fuse(formattedPosts, {
+        keys: ["name", "desc", "category", "tags"], // Search in these fields
+        threshold: 0.3, // Adjust for fuzziness (0 = strict, 1 = loose)
+      });
+
+      const results = fuse.search(q).map((result) => result.item);
+
+      return res.status(200).json(results.length ? results : []);
+    }
 
     res.status(200).json(formattedPosts);
   } catch (error) {
@@ -98,4 +86,4 @@ const getAllAvailablePost = async (req, res) => {
   }
 };
 
-module.exports = getAllAvailablePost;
+module.exports = getAllAvailablePostUsingQuery;

@@ -5,6 +5,7 @@ import TimeoutComponent from "../../utils/TimeoutComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllApprovedItemForSale } from "../../redux/item-for-sale/allApprovedItemsForSaleSlice";
 import LoadingItemCardSkeleton from "../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton";
+import { useLocation } from "react-router-dom";
 
 // Shop Component
 const Shop = () => {
@@ -13,8 +14,13 @@ const Shop = () => {
   const [rateFilter, setRateFilter] = useState("1");
   const dispatch = useDispatch();
 
+  const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
+
+  const keyword = searchParams.get("q")?.trim() || "";
+
   useEffect(() => {
-    dispatch(fetchAllApprovedItemForSale());
+    dispatch(fetchAllApprovedItemForSale(keyword));
   }, [dispatch]);
 
   const {

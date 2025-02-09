@@ -21,8 +21,13 @@ const Rent = () => {
 
   const dispatch = useDispatch();
 
+  const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
+
+  const keyword = searchParams.get("q")?.trim() || "";
+
   useEffect(() => {
-    dispatch(fetchAllApprovedListings());
+    dispatch(fetchAllApprovedListings(keyword));
   }, [dispatch]);
 
   // Fetch listings data (approved items for rent)

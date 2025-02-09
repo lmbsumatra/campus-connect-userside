@@ -1,5 +1,6 @@
 const { models } = require("../../models/index.js");
 const { notifyAdmins } = require("../../socket.js");
+const Fuse = require("fuse.js");
 
 // Get all approved listing: displayed in home, listings page
 const getAllAvailable = async (req, res) => {
@@ -69,6 +70,21 @@ const getAllAvailable = async (req, res) => {
         },
       };
     });
+
+    // Get query parameter
+    const { q } = req.query;
+
+    if (q) {
+      // Apply Fuse.js fuzzy search
+      const fuse = new Fuse(formattedItems, {
+        keys: ["name", "desc", "category", "tags"], // Search in these fields
+        threshold: 0.3, // Adjust for fuzziness (0 = strict, 1 = loose)
+      });
+
+      const results = fuse.search(q).map((result) => result.item);
+
+      return res.status(200).json(results.length ? results : []);
+    }
 
     res.status(200).json(formattedItems);
   } catch (error) {

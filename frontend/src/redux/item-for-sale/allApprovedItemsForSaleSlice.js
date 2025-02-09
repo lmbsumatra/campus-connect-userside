@@ -10,8 +10,11 @@ const initialState = {
 
 export const fetchAllApprovedItemForSale = createAsyncThunk(
   "item-for-sale/allApprovedItemForSale",
-  async () => {
-    const response = await fetch(BASE_URL);
+  async (keyword = "") => {
+    const url = keyword
+      ? `${BASE_URL}?q=${encodeURIComponent(keyword)}`
+      : BASE_URL;
+    const response = await fetch(url);
     return response.json();
   }
 );
