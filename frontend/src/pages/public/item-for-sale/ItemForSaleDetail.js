@@ -36,6 +36,8 @@ import ItemDescAndSpecs from "../common/ItemDescAndSpecs";
 import ImageSlider from "../common/ImageSlider";
 import ItemBadges from "../common/ItemBadges";
 import ReportModal from "../../../components/report/ReportModal";
+import useHandleActionWithAuthCheck from "../../../utils/useHandleActionWithAuthCheck";
+import ShowAlert from "../../../utils/ShowAlert";
 
 function ItemForSaleDetail() {
   const navigate = useNavigate();
@@ -56,6 +58,7 @@ function ItemForSaleDetail() {
   const [expandTerm, setExpandTerm] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const loggedInUserId = studentUser?.userId || null;
+  const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
   const images = [
     itemImage1,
@@ -287,13 +290,44 @@ function ItemForSaleDetail() {
         reportData
       ); // API endpoint
       console.log("Report submitted:", response.data);
-      alert("Report submitted successfully!");
+  
+      // Show success notification instead of alert
+      await ShowAlert(dispatch, "success", "Report Submitted", "Your report has been submitted successfully.");
+  
     } catch (error) {
       console.error("Error submitting report:", error);
-      alert("Failed to submit the report.");
+  
+      // Show error notification instead of alert
+      await ShowAlert(dispatch, "error", "Submission Failed", "Failed to submit the report. Please try again.");
     }
 
     setShowReportModal(false); // Close the modal
+  };
+
+  
+  const handleReportClick = () => {
+    if (loggedInUserId) {
+      // Directly show the report modal if the user is logged in
+      setShowReportModal(true);
+    } else {
+      // If the user is not logged in, use the authentication check
+      handleActionWithAuthCheck(
+        () => setShowReportModal(true),
+        () =>
+          ShowAlert(
+            dispatch,
+            "warning",
+            "Action Required",
+            "Please login to report this post.",
+            {
+              text: "Login",
+              action: () => {
+                navigate("/", { state: { showLogin: true, authTab: "loginTab" } });
+              },
+            }
+          )
+      );
+    }
   };
 
   return (
@@ -350,14 +384,16 @@ function ItemForSaleDetail() {
                 category: approvedItemForSaleById.category,
               }}
             />
-            <div className="report-button">
+             {loggedInUserId !== approvedItemForSaleById?.seller?.id && (
+              <div className="report-button">
               <button
                 className="btn btn-rectangle danger"
-                onClick={() => setShowReportModal(true)} // Open the modal
+                onClick={handleReportClick}
               >
                 Report
               </button>
             </div>
+            )}
 
             {/* Report Modal */}
             <ReportModal

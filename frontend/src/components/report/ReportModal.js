@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import ShowAlert from "../../utils/ShowAlert";
 
 const ReportModal = ({ show, handleClose, handleSubmit }) => {
   const [reason, setReason] = useState("");
+  const dispatch = useDispatch(); // Get the Redux dispatch function
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (reason.trim()) {
       handleSubmit(reason); // Pass the reason back to the parent component
       setReason(""); // Reset the form
     } else {
-      alert("Please provide a reason for the report.");
+      // Show a notification instead of alert()
+      await ShowAlert(dispatch, "warning", "Missing Reason", "Please provide a reason for the report.");
     }
   };
 
