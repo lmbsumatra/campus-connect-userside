@@ -41,6 +41,8 @@ import { useSocket } from "../../../../context/SocketContext.js";
 import axios from "axios";
 import ViewToolbar from "../../common/ViewToolbar.js";
 import ReportModal from "../../../../components/report/ReportModal.js";
+import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
+
 
 async function getUserFullName(userId) {
   console.log("Fetching user details for userId:", userId);
@@ -83,6 +85,7 @@ function ListingDetail() {
   const [showReportModal, setShowReportModal] = useState(false);
   const loggedInUserId = studentUser?.userId || null;
   const socket = useSocket();
+  const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
   const location = useLocation();
   const { item, warnSelectDateAndTime } = location.state || {};
@@ -368,13 +371,43 @@ function ListingDetail() {
         reportData
       ); // API endpoint
       console.log("Report submitted:", response.data);
-      alert("Report submitted successfully!");
+  
+      // Show success notification instead of alert
+      await ShowAlert(dispatch, "success", "Report Submitted", "Your report has been submitted successfully.");
+  
     } catch (error) {
       console.error("Error submitting report:", error);
-      alert("Failed to submit the report.");
+  
+      // Show error notification instead of alert
+      await ShowAlert(dispatch, "error", "Submission Failed", "Failed to submit the report. Please try again.");
     }
 
     setShowReportModal(false); // Close the modal
+  };
+
+  const handleReportClick = () => {
+    if (loggedInUserId) {
+      // Directly show the report modal if the user is logged in
+      setShowReportModal(true);
+    } else {
+      // If the user is not logged in, use the authentication check
+      handleActionWithAuthCheck(
+        () => setShowReportModal(true),
+        () =>
+          ShowAlert(
+            dispatch,
+            "warning",
+            "Action Required",
+            "Please login to report this post.",
+            {
+              text: "Login",
+              action: () => {
+                navigate("/", { state: { showLogin: true, authTab: "loginTab" } });
+              },
+            }
+          )
+      );
+    }
   };
 
   return (
@@ -428,16 +461,19 @@ function ListingDetail() {
                 category: approvedListingById.category,
               }}
             />
-            <div className="report-button">
-              <button
-                className="btn btn-rectangle danger"
-                onClick={() => setShowReportModal(true)} // Open the modal
-              >
-                Report
-              </button>
-            </div>
-            {/* Report Modal */}
-            <ReportModal
+           {loggedInUserId !== approvedListingById?.owner?.id && (
+              <div className="report-button">
+                <button
+                  className="btn btn-rectangle danger"
+                  onClick={handleReportClick}
+                >
+                  Report
+                </button>
+              </div>
+              )}
+
+              {/* Report Modal */}
+              <ReportModal
               show={showReportModal}
               handleClose={() => setShowReportModal(false)} // Close the modal
               handleSubmit={handleReportSubmit} // Submit the report
