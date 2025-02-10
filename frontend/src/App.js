@@ -22,35 +22,37 @@ import "./styles/containers.css";
 import "./styles/status.css";
 import "./trials/Trial.css";
 import "./styles/loadingOverlayStyles.css";
-import { REACT_APP_API_URL, REACT_APP_GOOGLE_CLIENT_ID } from "./utils/consonants.js";
+import {
+  REACT_APP_API_URL,
+  REACT_APP_GOOGLE_CLIENT_ID,
+} from "./utils/consonants.js";
+import PageNotFound from "./pages/public/PageNotFound.js";
 
 function App() {
   return (
     <SocketProvider>
       <Provider store={store}>
         <AuthProvider>
-            <ChatProvider>
-              <BrowserRouter>
-                <GoogleOAuthProvider
-                  clientId={REACT_APP_GOOGLE_CLIENT_ID}
-                >
-                  <Routes>
-                    {/* Public Routes */}
-                    <Route element={<PublicLayout />}>
-                      {PublicRoutes}
-                      {StudentProtectedRoutes}
-                    </Route>
-
-                    {/* Admin Routes */}
-                    <Route element={<AdminLayout />}>{AdminRoutes}</Route>
-                  </Routes>
-                </GoogleOAuthProvider>
-              </BrowserRouter>
-            </ChatProvider>
+          <ChatProvider>
+            <BrowserRouter>
+              <GoogleOAuthProvider clientId={REACT_APP_GOOGLE_CLIENT_ID}>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route element={<PublicLayout />}>
+                    {PublicRoutes}
+                    {StudentProtectedRoutes}
+                  </Route>
+                  {/* Admin Routes */}
+                  <Route element={<AdminLayout />}>{AdminRoutes}</Route>
+                  {/* Page not found */}
+                  <Route path="/*" element={<PageNotFound />} />,
+                </Routes>
+              </GoogleOAuthProvider>
+            </BrowserRouter>
+          </ChatProvider>
         </AuthProvider>
       </Provider>
-  </SocketProvider>
-
+    </SocketProvider>
   );
 }
 export const baseApi = REACT_APP_API_URL || "http://localhost:3001";

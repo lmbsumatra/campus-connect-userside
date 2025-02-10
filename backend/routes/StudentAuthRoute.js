@@ -37,4 +37,6 @@ router.post(
   StudentController.uploadProfileImage
 );
 
+router.get("/get", )
+
 module.exports = router;

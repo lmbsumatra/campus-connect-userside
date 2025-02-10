@@ -1,0 +1,39 @@
+.user-card {
+  background-color: white;
+  width: auto;
+  max-width: 238px;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.user {
+  display: flex;
+  gap: 8px;
+}
+
+.user-img {
+  background-color: black;
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: auto;
+}
+
+.mutuals-container .mutual-user {
+  display: flex;
+  flex-direction: row;
+}
+
+.mutual-user .user-img {
+  background-color: black;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  border: 6px solid rgb(188, 245, 255);
+}

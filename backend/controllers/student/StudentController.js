@@ -7,6 +7,7 @@ const createStripeOnBoardingLink = require("./createStripeOnBoardingLink");
 const getMerchantDetails = require("./getMerchantDetails.js");
 const uploadProfileImage = require("./uploadProfileImage");
 const googleLogin = require("./googleLoginStudent.js");
+const getUsers = require("./getUsers.js")
 
 const StudentController = {
   getStudentDataById,
@@ -18,6 +19,7 @@ const StudentController = {
   getMerchantDetails,
   uploadProfileImage,
   googleLogin,
+  getUsers,
 };
 
 module.exports = StudentController;

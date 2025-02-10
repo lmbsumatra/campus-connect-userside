@@ -6,6 +6,7 @@ import { fetchAllApprovedItemForSale } from "../../redux/item-for-sale/allApprov
 import { useEffect } from "react";
 import ItemCard from "../../components/item-card/ItemCard";
 import PostCard from "../../components/post-card/PostCard";
+import UserCard from "../../components/user-card/UserCard";
 
 const SearchResults = () => {
   const { search } = useLocation();
@@ -43,6 +44,8 @@ const SearchResults = () => {
       <p>
         Showing results for <strong>{type}</strong>: <em>{keyword}</em>
       </p>
+
+      <UserCard />
 
       <ItemCard items={allApprovedListings} title="Listings" />
       <ItemCard items={allApprovedItemForSale} title="For Sale" />

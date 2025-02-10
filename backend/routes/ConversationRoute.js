@@ -70,7 +70,7 @@ router.post("/createConversation", async (req, res) => {
 // Create a conversation between user and renter
 router.post("/createConversationPost", async (req, res) => {
   const { senderId, renterId } = req.body; // Extract senderId and ownerId from request body
-
+  console.log({ senderId, renterId });
   try {
     // Check if senderId and ownerId are provided
     if (!senderId || !renterId) {
@@ -232,7 +232,7 @@ router.get("/:id", async (req, res) => {
               sender: message.sender,
               text: message.text,
               isProductCard: message.isProductCard, // Include isProductCard
-              productDetails: message.productDetails, // Include productDetails
+              productDetails: JSON.parse(message.productDetails), // Include productDetails
               createdAt: message.createdAt,
               updatedAt: message.updatedAt,
             })),
