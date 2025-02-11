@@ -21,7 +21,7 @@ const BuyAndSellTransaction = require("./BuyAndSellTransactionModel")(
 const Notification = require("./NotificationModel");
 const MessageNotification = require("./MessageNotificationModel");
 const StudentNotification = require("./StudentNotificationModel");
-
+const Follow = require("./FollowModel");
 const models = {
   Listing,
   Post,
@@ -41,6 +41,7 @@ const models = {
   Notification,
   MessageNotification,
   StudentNotification,
+  Follow,
 };
 
 Object.values(models).forEach((model) => {

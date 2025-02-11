@@ -21,6 +21,7 @@ const reportRoutes = require("./routes/ReportRoute");
 const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
 const notificationRoutes = require("./routes/NotificationRoute");
 const recentActivities = require("./routes/RecentActivitiesRoutes.js");
+const followRoutes = require("./routes/FollowRoutes.js");
 
 // cron
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -92,6 +93,7 @@ app.use("/api/admin/transactions", adminTransactionRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/follow", followRoutes);
 
 // Error handling middleware for unexpected errors
 app.use((err, req, res, next) => {

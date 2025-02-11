@@ -70,6 +70,16 @@ User.associate = (models) => {
     foreignKey: "user_id",
     as: "conversations",
   });
+
+  User.hasMany(models.Follow, {
+    foreignKey: "follower_id",
+    as: "follower",
+  });
+
+  User.hasMany(models.Follow, {
+    foreignKey: "followee_id",
+    as: "followee",
+  });
 };
 
 module.exports = User;
