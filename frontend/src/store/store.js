@@ -5,7 +5,7 @@ import filterReducer from "../redux/filter/filterSlice";
 
 // ** Cart-related Reducers **
 import cartReducer from "../redux/cart/cartSlice";
-import userReviewsReducer from "../redux/transactions/userReview"
+import userReviewsReducer from "../redux/transactions/userReview";
 
 // ** Authentication-related Reducers **
 import studentAuthReducer from "../redux/auth/studentAuthSlice";
@@ -29,7 +29,7 @@ import itemForSaleByIdSliceReducer from "../redux/item-for-sale/itemForSaleByIdS
 import allApprovedItemForSaleReducer from "../redux/item-for-sale/allApprovedItemsForSaleSlice";
 import approvedItemForSaleByIdReducer from "../redux/item-for-sale/approvedItemForSaleByIdSlice";
 import allItemForSaleByUserSliceReducer from "../redux/item-for-sale/allItemForSaleByUserSlice";
-import availableItemsForSaleByUserReducer from "../redux/item-for-sale/availableItemsForSaleByUser"
+import availableItemsForSaleByUserReducer from "../redux/item-for-sale/availableItemsForSaleByUser";
 
 // ** Alert and Tag-related Reducers **
 import alertPopupReducer from "../redux/alert-popup/alertPopupSlice";
@@ -37,6 +37,7 @@ import tagReducer from "../redux/tag/tagSlice";
 
 // ** User-related Reducers **
 import userReducer from "../redux/user/userSlice";
+import allUsersReducer from "../redux/user/allUsersSlice";
 
 // ** User transactions **
 import userTransactionsReducer from "../redux/transactions/rentalTransactionsSlice";
@@ -78,6 +79,7 @@ const store = configureStore({
     loginForm: loginFormReducer,
     signupForm: signupFormReducer,
     user: userReducer,
+    allUsers: allUsersReducer,
     merchant: merchantReducer,
     rentalTransactions: userTransactionsReducer,
     //

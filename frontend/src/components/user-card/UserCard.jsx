@@ -1,36 +1,52 @@
+import { useNavigate } from "react-router-dom";
 import "./userCardStyles.css";
-const UserCard = () => {
-  console.log();
+import { useSelector } from "react-redux";
+import { selectStudentUser } from "../../redux/auth/studentAuthSlice";
+const UserCard = ({ users }) => {
+  const navigate = useNavigate();
+  const studentUser = useSelector(selectStudentUser);
+  const loggedInUserId = studentUser?.userId || null;
   return (
-    <div className="user-card">
-      <div className="user">
-        <div className="user-img">
-          <img alt="User profile" />
-        </div>
+    <div className="users-container">
+      {users.slice(0, 4).map((user, index) => (
+        <div
+          className="user-card"
+          onClick={(e) => navigate(loggedInUserId === user.id ? `/profile` :`/user/${user.id}`)}
+        >
+          <div className="user">
+            <div className="user-img">
+              <img src={user.profilePic} alt="User profile" />
+            </div>
 
-        <div className="user-details">
-          <span>Missy Sumatra</span>
-          <span>COS Rating</span>
-          <div className="mutuals-container">
-            <div className="mutual-user">
-              <div className="user-img">
-                <img alt="User profile" />
-              </div>
-              <div className="user-img">
-                <img alt="User profile" />
-              </div>
-              <div className="user-img">
-                <img alt="User profile" />
+            <div className="user-details">
+              <span>
+                {user.fname} {user?.mname} {user.lname}
+              </span>
+              <span>
+                {user.college} {user.rating}
+              </span>
+              <div className="mutuals-container">
+                <div className="mutual-user">
+                  <div className="user-img">
+                    <img alt="User profile" />
+                  </div>
+                  <div className="user-img">
+                    <img alt="User profile" />
+                  </div>
+                  <div className="user-img">
+                    <img alt="User profile" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="action-btns">
-        <button className="btn btn-rectangle primary">Follow</button>
-        <button className="btn btn-rectangle secondary">Message</button>
-      </div>
+          <div className="action-btns">
+            <button className="btn btn-rectangle primary">Follow</button>
+            <button className="btn btn-rectangle secondary">Message</button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
