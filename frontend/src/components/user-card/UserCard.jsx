@@ -15,7 +15,7 @@ const UserCard = ({ users }) => {
         users.slice(0, 4).map((user, index) => (
           <div
             className="user-card"
-            onClick={(e) =>
+            onClick={() =>
               navigate(
                 loggedInUserId === user.id ? `/profile` : `/user/${user.id}`
               )
@@ -24,40 +24,45 @@ const UserCard = ({ users }) => {
           >
             <div className="user">
               <div className="user-img">
-                <img src={user.profilePic} alt="User profile" />
+                <img src={user.profilePic} alt={`${user.fname} profile`} />
               </div>
 
               <div className="user-details">
-                <span>
-                  {user.fname} {user?.mname} {user.lname}
-                </span>
-                <span>
-                  {user.college} {user.rating}
-                </span>
-                <div className="mutuals-container">
-                  <div className="mutual-user">
-                    <div className="user-img">
-                      <img alt="User profile" />
-                    </div>
-                    <div className="user-img">
-                      <img alt="User profile" />
-                    </div>
-                    <div className="user-img">
-                      <img alt="User profile" />
+                <span><strong>{user.fname} {user?.mname} {user.lname}</strong></span>
+                <span>{user.college} | ⭐ {user.rating}</span>
+                {user.mutualFriends?.length > 0 && (
+                  <div className="mutuals-container">
+                    <div className="mutual-user">
+                      {user.mutualFriends.slice(0, 3).map((mutual, idx) => (
+                        <div className="user-img" key={idx}>
+                          <img src={mutual.profilePic} alt="Mutual friend" />
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
             <div className="action-btns">
               <button
-                className="btn btn-rectangle primary"
-                onClick={(e) => handleFollowButton(e, loggedInUserId, user.id)}
+                className="btn btn-primary"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevents navigating when clicking the button
+                  handleFollowButton(e, loggedInUserId, user.id);
+                }}
               >
                 {user.action}
               </button>
-              <button className="btn btn-rectangle secondary">Message</button>
+              <button
+                className="btn btn-secondary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log("Message button clicked");
+                }}
+              >
+                Message
+              </button>
             </div>
           </div>
         ))}
