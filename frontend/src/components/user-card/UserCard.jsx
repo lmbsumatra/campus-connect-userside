@@ -12,6 +12,7 @@ const UserCard = ({ users }) => {
         <div
           className="user-card"
           onClick={(e) => navigate(loggedInUserId === user.id ? `/profile` :`/user/${user.id}`)}
+          key={index}
         >
           <div className="user">
             <div className="user-img">
