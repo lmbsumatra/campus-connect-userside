@@ -72,6 +72,27 @@ function initializeSocket(server) {
       notifyAdmins(notification);
     });
 
+    // Register the userId to socket mapping
+    socket.on("registerUser", async (userId) => {
+      try {
+        const userIdStr = userId.toString(); // Convert to string
+        userSockets.set(userIdStr, socket.id);
+        socket.join(userIdStr); // Join room using string ID
+        console.log(
+          `User ${userIdStr} registered with socket ID ${socket.id} and joined room ${userIdStr}`
+        );
+
+        const rooms = Array.from(socket.rooms);
+        console.log(`Current rooms for user ${userIdStr}:`, rooms);
+
+        // Calculate and send initial unread count
+        const unreadCount = await calculateUnreadMessages(userId);
+        socket.emit("updateBadgeCount", unreadCount);
+      } catch (error) {
+        console.error(`Error registering user ${userId}:`, error);
+      }
+    });
+
     //Handle student notification events
     socket.on("sendNotification", async (notificationData) => {
       console.log("🔔 Received sendNotification event:", notificationData);
@@ -90,40 +111,21 @@ function initializeSocket(server) {
         const notification = await StudentNotification.create(
           notificationPayload
         );
-
         console.log(
           "✅ Notification saved to database:",
           notification.toJSON()
         );
 
-        const recipientSocketId = getRecipientSocketId(
-          notificationData.recipient
+        // Emit to the recipient's room using their user ID
+        io.to(notificationData.recipient.toString()).emit(
+          "receiveNotification",
+          notification.toJSON()
         );
-        if (recipientSocketId) {
-          io.to(recipientSocketId).emit("receiveNotification", notification);
-          console.log(
-            `✅ Notification emitted to recipient (socket ID: ${recipientSocketId})`
-          );
-        }
+        console.log(
+          `✅ Notification emitted to room: ${notificationData.recipient}`
+        );
       } catch (error) {
         console.error("❌ Error handling sendNotification event:", error);
-      }
-    });
-
-    // Register the userId to socket mapping
-    socket.on("registerUser", async (userId) => {
-      try {
-        userSockets.set(userId, socket.id);
-        socket.join(userId); // Join a room named after the user ID
-        console.log(
-          `User ${userId} registered with socket ID ${socket.id} and joined room ${userId}`
-        );
-
-        // Calculate and send initial unread count
-        const unreadCount = await calculateUnreadMessages(userId);
-        socket.emit("updateBadgeCount", unreadCount);
-      } catch (error) {
-        console.error(`Error registering user ${userId}:`, error);
       }
     });
 
@@ -246,7 +248,18 @@ function initializeSocket(server) {
     });
   };
 
-  return { io, notifyAdmins };
+  // Notification emitter for users (using rooms)
+  const emitNotification = (recipientId, notification) => {
+    const recipientStr = recipientId.toString();
+    try {
+      io.to(recipientStr).emit("receiveNotification", notification);
+      console.log(`✅ Notification sent to user ${recipientStr}'s room`);
+    } catch (error) {
+      console.error("❌ Error emitting user notification:", error);
+    }
+  };
+
+  return { io, notifyAdmins, emitNotification };
 }
 
 module.exports = { initializeSocket };

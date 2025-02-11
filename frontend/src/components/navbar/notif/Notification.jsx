@@ -199,8 +199,8 @@ const Notification = ({
 
   useEffect(() => {
     if (!socket || !studentUser?.userId) return;
-
-    socket.emit("registerUser", studentUser.userId);
+    const userIdStr = studentUser.userId.toString();
+    socket.emit("registerUser", userIdStr);
     console.log(`✅ Registered user ${studentUser.userId} to socket`);
 
     const fetchNotifications = async () => {

@@ -2,9 +2,7 @@ const { models } = require("../models/index");
 const { Op } = require("sequelize");
 const StudentNotification = require("../models/StudentNotificationModel");
 
-module.exports = (io) => {
-  let socketIO = io;
-
+module.exports = ({ emitNotification }) => {
   // Helper function to get user names
   const getUserNames = async (userId) => {
     const user = await models.User.findByPk(userId, {
@@ -364,13 +362,10 @@ module.exports = (io) => {
         rental_id: rental.id,
       });
 
-      /// Emit the notification using the stored io instance
-      if (socketIO) {
-        socketIO
-          .to(rental.renter_id.toString())
-          .emit("receiveNotification", notification);
+      // Emit notification using centralized emitter
+      if (emitNotification) {
+        emitNotification(rental.renter_id, notification.toJSON());
       }
-
       // Return the updated rental transaction
       res.json(rental);
     } catch (error) {
@@ -445,13 +440,11 @@ module.exports = (io) => {
         is_read: false,
         rental_id: rental.id,
       });
-      // Use the stored socketIO instance
-      if (socketIO) {
-        socketIO
-          .to(recipientId.toString())
-          .emit("receiveNotification", notification);
-      }
 
+      // Emit notification using centralized emitter
+      if (emitNotification) {
+        emitNotification(recipientId, notification.toJSON());
+      }
       // Return the updated rental transaction
       res.json(rental);
     } catch (error) {
@@ -525,10 +518,9 @@ module.exports = (io) => {
         is_read: false,
         rental_id: rental.id,
       });
-      if (socketIO) {
-        socketIO
-          .to(recipientId.toString())
-          .emit("receiveNotification", notification);
+      // Emit notification using centralized emitter
+      if (emitNotification) {
+        emitNotification(recipientId, notification.toJSON());
       }
       res.json(rental);
     } catch (error) {
@@ -660,12 +652,10 @@ module.exports = (io) => {
             rental_id: rental.id,
           });
 
-          if (socketIO) {
-            socketIO
-              .to(recipientId.toString())
-              .emit("receiveNotification", notification);
+          // Emit notification using centralized emitter
+          if (emitNotification) {
+            emitNotification(recipientId, notification.toJSON());
           }
-
           return notification;
         });
 
@@ -727,11 +717,11 @@ module.exports = (io) => {
         is_read: false,
         rental_id: rental.id,
       });
-      if (socketIO) {
-        socketIO
-          .to(rental.renter_id.toString())
-          .emit("receiveNotification", notification);
+      // Emit notification using centralized emitter
+      if (emitNotification) {
+        emitNotification(rental.renter_id, notification.toJSON());
       }
+
       res.json(rental);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -828,10 +818,9 @@ module.exports = (io) => {
         is_read: false,
         rental_id: rental.id,
       });
-      if (socketIO) {
-        socketIO
-          .to(rental.owner_id.toString())
-          .emit("receiveNotification", notification);
+      // Emit notification using centralized emitter
+      if (emitNotification) {
+        emitNotification(rental.renter_id, notification.toJSON());
       }
 
       // Return the updated rental data

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const rentalTransactionController = require("../controllers/RentalTransactionController");
 
-module.exports = function (io) {
+module.exports = function (rentalTransactionController) {
   // Attach io to the controller methods that need it
   const {
     createRentalTransaction,
@@ -17,7 +17,7 @@ module.exports = function (io) {
     completeRentalTransaction,
     cancelRentalTransaction,
     declineRentalTransaction,
-  } = rentalTransactionController(io); // Pass io to the controller
+  } = rentalTransactionController; // Pass io to the controller
 
   // Routes that don't need io
   router.post("/add", createRentalTransaction);
