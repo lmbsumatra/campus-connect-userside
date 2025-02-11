@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import ItemCard from "../../components/item-card/ItemCard";
 import PostCard from "../../components/post-card/PostCard";
 import UserCard from "../../components/user-card/UserCard";
+import { fetchAllUsers } from "../../redux/user/allUsersSlice";
 
 const SearchResults = () => {
   const { search } = useLocation();
@@ -20,6 +21,7 @@ const SearchResults = () => {
     dispatch(fetchAllApprovedPosts(keyword));
     dispatch(fetchAllApprovedListings(keyword));
     dispatch(fetchAllApprovedItemForSale(keyword));
+    dispatch(fetchAllUsers(keyword));
   }, [dispatch, keyword]);
 
   const {
@@ -32,11 +34,17 @@ const SearchResults = () => {
     allApprovedItemForSale,
     loadingAllApprovedItemForSale,
     errorAllApprovedItemForSale,
+    allUsers,
+    loadingAllUsers,
+    errorAllUsers,
   } = useSelector((state) => ({
     ...state.allApprovedPosts,
     ...state.allApprovedListings,
     ...state.allApprovedItemForSale,
+    ...state.allUsers,
   }));
+
+  console.log({allUsers});
 
   return (
     <div className="container-content">
@@ -45,7 +53,7 @@ const SearchResults = () => {
         Showing results for <strong>{type}</strong>: <em>{keyword}</em>
       </p>
 
-      <UserCard />
+      <UserCard users={allUsers} />
 
       <ItemCard items={allApprovedListings} title="Listings" />
       <ItemCard items={allApprovedItemForSale} title="For Sale" />

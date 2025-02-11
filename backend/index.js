@@ -5,6 +5,23 @@ const sequelize = require("./config/database");
 const dotenv = require("dotenv");
 const http = require("http");
 const { initializeSocket } = require("./socket");
+const nodemailer = require("nodemailer");
+const reportRoutes = require("./routes/ReportRoute");
+const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
+const notificationRoutes = require("./routes/NotificationRoute");
+const recentActivities = require("./routes/RecentActivitiesRoutes.js");
+
+// cron
+const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
+const cron = require("node-cron");
+//const endSemesterCron = require("./cron-job/endSemester.js"); for resetting status of verified student
+
+// cron.schedule("1 * * * * * *", async () => {
+//   console.log("Running cron job to auto-decline expired rentals...");
+//   await autoDeclineExpired(); // Call the function to decline expired rentals
+// });
+const conversationRoutes = require("./routes/ConversationRoute");
+const messageRoutes = require("./routes/MessageRoute");
 
 // Load environment variables
 dotenv.config();
@@ -79,6 +96,7 @@ app.use("/api/recent-activities", recentActivitiesRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/follow", followRoutes);
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use(
