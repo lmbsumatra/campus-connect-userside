@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import ShowAlert from "../../utils/ShowAlert";
+import { useDispatch } from "react-redux";
 
 const ReportActionModal = ({ show, onHide, onConfirm, currentStatus }) => {
   const [selectedAction, setSelectedAction] = useState(currentStatus || "pending");
+  const dispatch = useDispatch();
 
   const handleConfirm = () => {
     onConfirm(selectedAction);
+    ShowAlert(dispatch, "success", "Report Status", "Report status changed successfully.");
   };
 
   return (

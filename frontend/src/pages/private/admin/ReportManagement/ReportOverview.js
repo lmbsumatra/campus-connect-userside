@@ -8,6 +8,8 @@ import SearchBarComponent from "../../../../components/Search/SearchBarComponent
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import { ReportStatus } from "../../../../utils/Status";
 import CardComponent from "../../../../components/Table/CardComponent"; 
+import {useDispatch} from "react-redux";
+import ShowAlert from "../../../../utils/ShowAlert";
 
 const ReportOverview = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,6 +19,7 @@ const ReportOverview = () => {
   const [reportsPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [viewMode, setViewMode] = useState("table");
 
   const headers = [
@@ -65,12 +68,12 @@ const ReportOverview = () => {
         });
   
         if (response.ok) {
-          alert("Report deleted successfully.");
+          await ShowAlert(dispatch, "success", "Report Deleted", "Report deleted successfully.");
           setOriginalData((prevData) =>
             prevData.filter((report) => report.id !== reportId)
           );
         } else {
-          alert("Failed to delete the report. Please try again.");
+          await ShowAlert(dispatch, "error", "Report Deletion Failed", "Failed to delete the report. Please try again.");
         }
       } catch (error) {
         console.error("Error deleting the report:", error);
