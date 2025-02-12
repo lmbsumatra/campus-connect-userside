@@ -1,20 +1,55 @@
-const Student = require("../../models/StudentModel");
-const User = require("../../models/UserModel");
+const { models } = require("../../models");
+const Fuse = require("fuse.js");
 
-const getStudentDataById = async (req, res) => {
-  const userId = req.params.id;
+const getUserById = async (req, res) => {
+  const loggedInUserId = req.user.userId;
+  const userId = req.params.id; // Get the userId from the request params
+
   try {
-    const student = await Student.findOne({ where: { user_id: userId } });
-    if (!student) {
-      return res.status(404).json({ message: "Student record not found" });
-    }
+    // Find the specific user based on userId
+    const user = await models.User.findOne({
+      where: {
+        user_id: userId,
+        role: "student", // Ensure the user is a student
+      },
+      include: [
+        {
+          model: models.Student,
+          as: "student",
+          required: true,
+        },
+      ],
+    });
 
-    const user = await User.findByPk(student.user_id);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ error: "User not found!" });
     }
 
-    res.status(200).json({
+    // Check the follow status with the logged-in user
+    const isFollowing = await models.Follow.findOne({
+      where: { followee_id: user.user_id, follower_id: loggedInUserId },
+    });
+
+    const isFollowedBy = await models.Follow.findOne({
+      where: {
+        followee_id: loggedInUserId,
+        follower_id: user.user_id,
+      },
+    });
+
+    let action = "Follow";
+
+    if (loggedInUserId === user.user_id) {
+      action = "You";
+    } else if (isFollowedBy && isFollowing) {
+      action = "Following";
+    } else if (isFollowedBy) {
+      action = "Follow back";
+    } else if (isFollowing) {
+      action = "Following";
+    }
+
+    const formattedUser = {
       user: {
         fname: user.first_name,
         mname: user.middle_name,
@@ -26,20 +61,20 @@ const getStudentDataById = async (req, res) => {
         joinDate: user.createdAt,
       },
       student: {
-        id: student.tup_id,
-        college: student.college,
-        scannedId: student.scanned_id,
-        photoWithId: student.photo_with_id,
-        profilePic: student.profile_pic,
+        id: user.student.tup_id,
+        college: user.student.college,
+        scannedId: user.student.scanned_id,
+        photoWithId: user.student.photo_with_id,
+        profilePic: user.student.profile_pic,
       },
-    });
+      action: action,
+    };
+
+    return res.status(200).json(formattedUser);
   } catch (error) {
-    console.error("Error retrieving user information:", error);
-    res.status(500).json({
-      message: "Error retrieving user information",
-      error: error.message,
-    });
+    console.log("Error fetching user by ID: ", error);
+    res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = getStudentDataById;
+module.exports = getUserById;

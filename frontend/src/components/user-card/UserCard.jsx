@@ -1,18 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import "./userCardStyles.css";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { selectStudentUser } from "../../redux/auth/studentAuthSlice";
-import handleFollowButton from "../../pages/public/handleFollowButton";
+import { updateUserAction } from "../../redux/user/allUsersSlice";
 
 const UserCard = ({ users }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const studentUser = useSelector(selectStudentUser);
   const loggedInUserId = studentUser?.userId || null;
 
   return (
     <div className="users-container">
       {Array.isArray(users) &&
-        users.slice(0, 4).map((user, index) => (
+        users.map((user, index) => (
           <div
             className="user-card"
             onClick={() =>
@@ -51,24 +52,48 @@ const UserCard = ({ users }) => {
             </div>
 
             <div className="action-btns">
-              <button
-                className="btn btn-rectangle primary"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevents navigating when clicking the button
-                  handleFollowButton(e, loggedInUserId, user.id, user.action);
-                }}
-              >
-                {user.action}
-              </button>
-              <button
-                className="btn btn-rectangle secondary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log("Message button clicked");
-                }}
-              >
-                Message
-              </button>
+              {user.action && user.action === "You" ? (
+                <>
+                  <button
+                    className="btn btn-rectangle primary"
+                    onClick={(e) => navigate("/profile")}
+                  >
+                    Go to profile
+                  </button>
+                  <button
+                    className="btn btn-rectangle secondary"
+                    onClick={(e) => navigate("/profile")}
+                  >
+                    Edit profile
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="btn btn-rectangle primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dispatch(
+                        updateUserAction({
+                          loggedInUserId: loggedInUserId,
+                          otherUserId: user.id,
+                        })
+                      );
+                    }}
+                  >
+                    {user.action}
+                  </button>
+                  <button
+                    className="btn btn-rectangle secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Message button clicked");
+                    }}
+                  >
+                    Message
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ))}
