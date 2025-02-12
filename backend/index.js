@@ -19,6 +19,9 @@ const conversationRoutes = require("./routes/ConversationRoute");
 const messageRoutes = require("./routes/MessageRoute");
 const notificationRoutes = require("./routes/NotificationRoute");
 const followRoutes = require("./routes/FollowRoutes");
+const reportRoutes = require("./routes/ReportRoute");
+const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
+
 
 // Cron Jobs
 // const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -78,6 +81,8 @@ app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/follow", followRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/admin/transactions", adminTransactionRoutes);
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use("/rental-transaction", rentalTransactionRoutes(rentalTransactionController));
