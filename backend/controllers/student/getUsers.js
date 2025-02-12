@@ -2,8 +2,7 @@ const { models } = require("../../models");
 const Fuse = require("fuse.js");
 
 const getUsers = async (req, res) => {
-  const logged_in_user_id = req.user.userId;
-  console.log({ logged_in_user_id });
+  const loggedInUserId = req.user.userId;
 
   try {
     const users = await models.User.findAll({
@@ -26,18 +25,18 @@ const getUsers = async (req, res) => {
     const formattedUsers = await Promise.all(
       users.map(async (user) => {
         const isFollowing = await models.Follow.findOne({
-          where: { followee_id: user.user_id, follower_id: logged_in_user_id },
+          where: { followee_id: user.user_id, follower_id: loggedInUserId },
         });
 
         const isFollowedBy = await models.Follow.findOne({
           where: {
-            followee_id: logged_in_user_id,
+            followee_id: loggedInUserId,
             follower_id: user.user_id,
           },
         });
         let action = "Follow";
 
-        if (logged_in_user_id === user.user_id) {
+        if (loggedInUserId === user.user_id) {
           action = "You";
         } else if (isFollowedBy && isFollowing) {
           action = "Following";

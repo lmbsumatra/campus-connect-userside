@@ -11,9 +11,9 @@ const initialState = {
 
 export const fetchAllUsers = createAsyncThunk(
   "users/allUsers",
-  async (keyword = "", {getState}) => {
+  async (keyword = "", { getState }) => {
     const { studentUser } = getState().studentAuth;
-    console.log("here", studentUser.token)
+
     const url = keyword
       ? `${BASE_URL}?q=${encodeURIComponent(keyword)}`
       : BASE_URL;
@@ -22,7 +22,7 @@ export const fetchAllUsers = createAsyncThunk(
         Authorization: `Bearer ${studentUser.token}`,
       },
     });
-    console.log(response.data); // bat kaya minsan, need muna i-print yung result sa console then saka sya maggign ok?
+    // console.log(response.data); // bat kaya minsan, need muna i-print yung result sa console then saka sya maggign ok?
     return response.json();
   }
 );

@@ -36,8 +36,6 @@ const Cart = ({ isOpen, onClose }) => {
     dispatch(fetchCart());
   }, [dispatch]);
 
-  console.log(cartItems);
-
   // Close modal after success message
   useEffect(() => {
     if (successMessage) {

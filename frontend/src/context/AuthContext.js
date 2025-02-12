@@ -17,14 +17,14 @@ export const AuthProvider = ({ children }) => {
 
     if (storedAdminUser) {
       setAdminUser(JSON.parse(storedAdminUser)); 
-      console.log("Restored admin from localStorage:", JSON.parse(storedAdminUser));
+      // console.log("Restored admin from localStorage:", JSON.parse(storedAdminUser));
     }
   }, []);
   useEffect(() => {
     const storedStudentUser = localStorage.getItem("studentUser");
     if (storedStudentUser) {
       setStudentUser(JSON.parse(storedStudentUser)); 
-      console.log("Restored student from localStorage:", JSON.parse(storedStudentUser));
+      // console.log("Restored student from localStorage:", JSON.parse(storedStudentUser));
     }
   }, []);
 

@@ -45,7 +45,6 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
     }
   };
 
-  console.log(borrowingPosts);
 
   return (
     <div>

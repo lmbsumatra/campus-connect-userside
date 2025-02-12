@@ -28,8 +28,14 @@ const UserCard = ({ users }) => {
               </div>
 
               <div className="user-details">
-                <span><strong>{user.fname} {user?.mname} {user.lname}</strong></span>
-                <span>{user.college} | ⭐ {user.rating}</span>
+                <span>
+                  <strong>
+                    {user.fname} {user?.mname} {user.lname}
+                  </strong>
+                </span>
+                <span>
+                  {user.college} | ⭐ {user.rating}
+                </span>
                 {user.mutualFriends?.length > 0 && (
                   <div className="mutuals-container">
                     <div className="mutual-user">
@@ -46,16 +52,16 @@ const UserCard = ({ users }) => {
 
             <div className="action-btns">
               <button
-                className="btn btn-primary"
+                className="btn btn-rectangle primary"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevents navigating when clicking the button
-                  handleFollowButton(e, loggedInUserId, user.id);
+                  handleFollowButton(e, loggedInUserId, user.id, user.action);
                 }}
               >
                 {user.action}
               </button>
               <button
-                className="btn btn-secondary"
+                className="btn btn-rectangle secondary"
                 onClick={(e) => {
                   e.stopPropagation();
                   console.log("Message button clicked");

@@ -1,18 +1,21 @@
-const handleFollowButton = async (e, followerId, followeeId) => {
+const handleFollowButton = async (e, loggedInUserId, otherUserId, userAction) => {
   e.stopPropagation();
 
   try {
-    console.log("Follow!", followerId, followeeId);
+    console.log("Follow!", loggedInUserId, otherUserId, userAction);
     const response = await fetch(
       "http://localhost:3001/api/follow/follow-user",
       {
         method: "POST",
-        headers: { // Corrected: headers should be inside the fetch options
+        headers: {
+          // Corrected: headers should be inside the fetch options
           "Content-Type": "application/json", // Corrected: Content-Type is hyphenated
         },
-        body: JSON.stringify({ // Corrected: Construct a proper JSON object
-          followerId: followerId,
-          followeeId: followeeId,
+        body: JSON.stringify({
+          // Corrected: Construct a proper JSON object
+          loggedInUserId: loggedInUserId,
+          otherUserId: otherUserId,
+          userAction: userAction,
         }),
       }
     );
@@ -27,7 +30,6 @@ const handleFollowButton = async (e, followerId, followeeId) => {
 
     // Process the response data here (e.g., update UI, display messages)
     console.log("Follow API response:", data);
-
   } catch (error) {
     console.error("Error during follow request:", error);
   }

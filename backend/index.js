@@ -21,7 +21,7 @@ const notificationRoutes = require("./routes/NotificationRoute");
 const followRoutes = require("./routes/FollowRoutes");
 
 // Cron Jobs
-const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
+// const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
 
 // Initialize environment variables
 dotenv.config();
