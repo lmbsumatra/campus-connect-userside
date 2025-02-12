@@ -151,7 +151,7 @@ exports.getReportDetails = async (req, res) => {
     switch (entity_type) {
       case "listing":
         entityData = await models.Listing.findByPk(entity_id, {
-          attributes: ["listing_name", "rate", "category","delivery_mode","late_charges","specifications","description","tags","created_at"],
+          attributes: ["listing_name", "rate", "category","delivery_mode","late_charges","specifications","description","tags","created_at","images"],
           include: [
             {
               model: models.User,
@@ -163,7 +163,7 @@ exports.getReportDetails = async (req, res) => {
         break;
         case "post":
           entityData = await models.Post.findByPk(entity_id, {
-            attributes: ["post_item_name", "category", "description","specifications", "tags", "created_at"],
+            attributes: ["post_item_name", "category", "description","specifications", "tags", "created_at","images"],
             include: [
               {
                 model: models.User,
@@ -175,7 +175,7 @@ exports.getReportDetails = async (req, res) => {
           break;
       case "user":
         entityData = await models.User.findByPk(entity_id, {
-          attributes: ["first_name", "last_name","middle_name", "email"],
+          attributes: ["first_name", "last_name","middle_name", "email","profile_pic"],
           include: [
             {
               model: models.Student,
@@ -187,7 +187,7 @@ exports.getReportDetails = async (req, res) => {
         break;
       case "sale":
         entityData = await models.ItemForSale.findByPk(entity_id, {
-          attributes: ["item_for_sale_name", "price", "category","delivery_mode", "item_condition","description","specifications", "tags", "created_at"],
+          attributes: ["item_for_sale_name", "price", "category","delivery_mode", "item_condition","description","specifications", "tags", "created_at","images"],
           include: [
             {
               model: models.User,

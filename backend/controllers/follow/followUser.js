@@ -1,20 +1,44 @@
 const { models } = require("../../models");
 
 const followUser = async (req, res) => {
-  // const { followerId, followeeId } = req.body;
-  // console.log("try!", followerId, followeeId);
+  const { loggedInUserId, otherUserId } = req.body;
 
-  // const existingFollowee = await models.Follow.findOne({
-  //   followee_id: followeeId,
-  //   follower_id: followerId,
-  // });
+  if (loggedInUserId === otherUserId) {
+    return res.status(400).json({ error: "You cannot follow yourself!" });
+  }
 
-  // console.log(existingFollowee === true? true : false);
+  try {
+    const isFollowing = await models.Follow.findOne({
+      where: { follower_id: loggedInUserId, followee_id: otherUserId },
+    });
 
-  // const newFollow = await models.Follow.create({
-  //   followee_id: followeeId,
-  //   follower_id: followerId,
-  // });
+    const isFollowedBy = await models.Follow.findOne({
+      where: { follower_id: otherUserId, followee_id: loggedInUserId },
+    });
+
+    if (isFollowing) {
+      // Unfollow logic
+      await isFollowing.destroy();
+      return res.json({
+        message: "Unfollowed successfully!",
+        action: isFollowedBy ? "Follow Back" : "Follow",
+      });
+    } else {
+      // Follow logic
+      await models.Follow.create({
+        follower_id: loggedInUserId,
+        followee_id: otherUserId,
+      });
+
+      return res.json({
+        message: "Followed successfully!",
+        action: isFollowedBy ? "Following" : "Following",
+      });
+    }
+  } catch (error) {
+    console.error("Error following user:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
 };
 
 module.exports = followUser;

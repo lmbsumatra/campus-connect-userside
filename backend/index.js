@@ -1,11 +1,13 @@
 const express = require("express");
 const cors = require("cors");
-const mysql = require("mysql2");
-const sequelize = require("./config/database");
-const dotenv = require("dotenv");
 const http = require("http");
+const dotenv = require("dotenv");
 const { initializeSocket } = require("./socket");
 const nodemailer = require("nodemailer");
+const reportRoutes = require("./routes/ReportRoute");
+const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
+const notificationRoutes = require("./routes/NotificationRoute");
+const recentActivities = require("./routes/RecentActivitiesRoutes.js");
 
 // cron
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -16,6 +18,8 @@ const cron = require("node-cron");
 //   console.log("Running cron job to auto-decline expired rentals...");
 //   await autoDeclineExpired(); // Call the function to decline expired rentals
 // });
+const conversationRoutes = require("./routes/ConversationRoute");
+const messageRoutes = require("./routes/MessageRoute");
 
 // Load environment variables
 dotenv.config();
@@ -54,22 +58,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Import Routes
-const studentAuthRoutes = require("./routes/StudentAuthRoute");
-const adminAuthRoutes = require("./routes/AdminAuthRoutes");
-const listingRoutes = require("./routes/ListingRoute");
-const postRoutes = require("./routes/PostRoute");
-const reviewAndRateRoutes = require("./routes/ReviewAndRateRoutes.js");
-const itemForSaleRoutes = require("./routes/ItemForSaleRoute");
-const rentalTransactionRoutes = require("./routes/RentalTransactionRoute");
-const cartRoutes = require("./routes/CartRoutes.js");
-const reportRoutes = require("./routes/ReportRoute");
-const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
-const notificationRoutes = require("./routes/NotificationRoute");
-const recentActivitiesRoutes = require("./routes/RecentActivitiesRoutes.js");
-const conversationRoutes = require("./routes/ConversationRoute");
-const messageRoutes = require("./routes/MessageRoute");
-
 // Inject emitNotification into Rental Transaction Controller
 const rentalTransactionController =
   require("./controllers/RentalTransactionController.js")({
@@ -84,12 +72,11 @@ app.use("/posts", postRoutes);
 app.use("/item-for-sale", itemForSaleRoutes);
 app.use("/review-and-rate", reviewAndRateRoutes);
 app.use("/api/cart", cartRoutes);
-app.use("/api/reports", reportRoutes);
-app.use("/api/admin/transactions", adminTransactionRoutes);
 app.use("/api/recent-activities", recentActivitiesRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/follow", followRoutes);
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use(

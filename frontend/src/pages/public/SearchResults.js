@@ -44,7 +44,6 @@ const SearchResults = () => {
     ...state.allUsers,
   }));
 
-  console.log({allUsers});
 
   return (
     <div className="container-content">

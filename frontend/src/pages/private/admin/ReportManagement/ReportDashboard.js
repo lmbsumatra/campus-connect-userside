@@ -6,6 +6,9 @@ import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
+import {useDispatch} from "react-redux";
+import ShowAlert from "../../../../utils/ShowAlert";
+
 import {
   ReportsByCategory,
   ReportStatusDistribution,
@@ -14,6 +17,7 @@ import {
 } from "../../../../components/Analytics/ReportAnalyticsComponent";
 import { ReportStatus } from "../../../../utils/Status";
 
+
 const ReportDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOptions, setSortOptions] = useState({});
@@ -21,6 +25,7 @@ const ReportDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [reportsPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const headers = [
@@ -69,12 +74,13 @@ const ReportDashboard = () => {
         });
   
         if (response.ok) {
-          alert("Report deleted successfully.");
+          // Show success notification instead of alert
+          await ShowAlert(dispatch, "success", "Report Deleted", "Report deleted successfully.");
           setOriginalData((prevData) =>
             prevData.filter((report) => report.id !== reportId)
           );
         } else {
-          alert("Failed to delete the report. Please try again.");
+          await ShowAlert(dispatch, "error", "Report Deletion Failed", "Failed to delete the report. Please try again.");
         }
       } catch (error) {
         console.error("Error deleting the report:", error);

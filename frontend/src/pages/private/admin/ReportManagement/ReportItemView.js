@@ -96,7 +96,7 @@ const ReportItemView = () => {
         <p><strong>Date Added:</strong> {reportDetails?.createdAt}</p>
       </div>
       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-        <button className="btn btn-primary btn-lg" onClick={handleOpenModal}>
+        <button className="btn btn-primary btn-lg mt-2" onClick={handleOpenModal}>
           Action
         </button>
       </div>

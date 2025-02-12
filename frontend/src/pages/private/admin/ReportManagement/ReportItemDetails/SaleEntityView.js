@@ -1,4 +1,5 @@
 import React from "react";
+import "./EntityView.css"
 
 const SaleEntityView = ({ entityDetails }) => {
   if (!entityDetails) return <div>No details available for this listing.</div>;
@@ -33,6 +34,17 @@ const SaleEntityView = ({ entityDetails }) => {
       return tags;
     }
   };
+
+   const getImages = (images) => {
+    if (!images) return [];
+    try {
+      return typeof images === "string" ? JSON.parse(images) : images;
+    } catch {
+      return [];
+    }
+  };
+
+  const images = getImages(entityDetails.images);
 
   return (
     <div className="entity-details">
@@ -82,6 +94,18 @@ const SaleEntityView = ({ entityDetails }) => {
             : "N/A"}
         </span>
       </div>
+
+       {/* Image Display Section */}
+       {images.length > 0 && (
+        <div className="entity-row">
+          <span className="entity-label">Images:</span>
+          <div className="image-gallery">
+            {images.map((imgSrc, index) => (
+              <img key={index} src={imgSrc} alt={`Post Image ${index + 1}`} className="entity-image" />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
