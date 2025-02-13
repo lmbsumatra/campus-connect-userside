@@ -1,5 +1,7 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import studentAuthReducer, { logoutStudent } from "../redux/auth/studentAuthSlice";
+import studentAuthReducer, {
+  logoutStudent,
+} from "../redux/auth/studentAuthSlice";
 import filterReducer from "../redux/filter/filterSlice";
 import cartReducer from "../redux/cart/cartSlice";
 import userReviewsReducer from "../redux/transactions/userReview";
@@ -26,6 +28,7 @@ import userTransactionsReducer from "../redux/transactions/rentalTransactionsSli
 import merchantReducer from "../redux/merchant/merchantSlice";
 import itemFormReducer from "../redux/item-form/itemFormSlice";
 import postFormReducer from "../redux/post-form/postFormSlice";
+import notificationReducer from "../redux/notif/notificationSlice";
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -47,6 +50,7 @@ const appReducer = combineReducers({
   availableItemsForSaleByUser: availableItemsForSaleByUserReducer,
   allApprovedPosts: allApprovedPostReducer,
   notification: alertPopupReducer,
+  notifications: notificationReducer,
   tags: tagReducer,
   loginForm: loginFormReducer,
   signupForm: signupFormReducer,

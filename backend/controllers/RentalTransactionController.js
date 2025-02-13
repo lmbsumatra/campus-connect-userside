@@ -65,6 +65,25 @@ module.exports = ({ emitNotification }) => {
       const rental = await models.RentalTransaction.create(rentalData);
       console.log("Rental transaction created:", rental);
 
+      // Add Notification Logic Here >>>>
+      const renterName = await getUserNames(renter_id);
+      const itemName = await getRentalItemName(item_id);
+
+      // Create notification
+      const notification = await models.StudentNotification.create({
+        sender_id: renter_id,
+        recipient_id: owner_id,
+        type: "rental_request",
+        message: `${renterName} wants to rent ${itemName}.`,
+        is_read: false,
+        rental_id: rental.id,
+      });
+
+      // Emit notification using centralized emitter
+      if (emitNotification) {
+        emitNotification(owner_id, notification.toJSON());
+      }
+
       // After creating the rental transaction, update the duration's status to 'requested'
       const duration = await models.Duration.findOne({
         where: {
@@ -366,6 +385,7 @@ module.exports = ({ emitNotification }) => {
       if (emitNotification) {
         emitNotification(rental.renter_id, notification.toJSON());
       }
+
       // Return the updated rental transaction
       res.json(rental);
     } catch (error) {
@@ -518,6 +538,7 @@ module.exports = ({ emitNotification }) => {
         is_read: false,
         rental_id: rental.id,
       });
+
       // Emit notification using centralized emitter
       if (emitNotification) {
         emitNotification(recipientId, notification.toJSON());
@@ -656,9 +677,9 @@ module.exports = ({ emitNotification }) => {
           if (emitNotification) {
             emitNotification(recipientId, notification.toJSON());
           }
+
           return notification;
         });
-
         await Promise.all(notificationPromises);
       }
 

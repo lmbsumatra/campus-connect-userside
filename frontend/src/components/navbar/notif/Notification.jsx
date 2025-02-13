@@ -1,13 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Bell from "../../../assets/images/icons/notif.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
 import { useSocket } from "../../../context/SocketContext";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 import { formatDistanceToNow } from "date-fns";
+import {
+  fetchNotifications,
+  markAllRead,
+  addNotification,
+  selectNotifications,
+  selectUnreadCount,
+  markNotificationAsRead,
+} from "../../../redux/notif/notificationSlice";
 
 const NotificationMessage = ({ message, type }) => {
   const getFormattedMessage = () => {
@@ -192,46 +200,37 @@ const Notification = ({
   toggleNotifications,
 }) => {
   const socket = useSocket();
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const dispatch = useDispatch();
   const studentUser = useSelector(selectStudentUser);
+  const { notifications, unreadCount } = useSelector((state) => ({
+    notifications: selectNotifications(state),
+    unreadCount: selectUnreadCount(state),
+  }));
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!socket || !studentUser?.userId) return;
-    const userIdStr = studentUser.userId.toString();
-    socket.emit("registerUser", userIdStr);
-    console.log(`✅ Registered user ${studentUser.userId} to socket`);
+    if (!studentUser?.userId) return;
 
-    const fetchNotifications = async () => {
+    const fetchAndSubscribe = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:3001/api/notifications/student/${studentUser.userId}`
-        );
-        setNotifications(res.data);
-        const unread = res.data.filter((notif) => !notif.is_read).length;
-        setUnreadCount(unread);
+        await dispatch(fetchNotifications(studentUser.userId)).unwrap();
+        // Socket registration
+        const userIdStr = studentUser.userId.toString();
+        socket.emit("registerUser", userIdStr);
+
+        const handler = (notification) => {
+          dispatch(addNotification(notification));
+        };
+        socket.on("receiveNotification", handler);
+
+        return () => socket.off("receiveNotification", handler);
       } catch (error) {
-        console.error("Error fetching notifications:", error);
+        console.error("Failed to load notifications:", error);
       }
     };
-    fetchNotifications();
 
-    const handleReceiveNotification = (newNotification) => {
-      console.log("📩 Real-time notification received:", newNotification);
-      setNotifications((prev) => {
-        const exists = prev.some((notif) => notif.id === newNotification.id);
-        return exists ? prev : [newNotification, ...prev];
-      });
-      setUnreadCount((prev) => prev + 1);
-    };
-
-    socket.on("receiveNotification", handleReceiveNotification);
-
-    return () => {
-      socket.off("receiveNotification", handleReceiveNotification);
-    };
-  }, [socket, studentUser]);
+    fetchAndSubscribe();
+  }, [socket, studentUser, dispatch]);
 
   const determineRoute = (rental, type, isOwner, isRenter) => {
     const baseRoute = "/profile/transactions";
@@ -277,22 +276,21 @@ const Notification = ({
     }
 
     try {
-      // Mark notification as read
-      await axios.put(
-        `http://localhost:3001/api/notifications/student/${notifId}/read`
-      );
+      // Ensure notifId is a string or number
+      if (typeof notifId !== "string" && typeof notifId !== "number") {
+        console.error("❌ Invalid notification ID:", notifId);
+        return;
+      }
 
-      setNotifications((prev) =>
-        prev.map((notif) =>
-          notif.id === notifId ? { ...notif, is_read: true } : notif
-        )
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+      // Mark notification as read using Redux action
+      await dispatch(markNotificationAsRead(notifId)).unwrap(); // Pass notifId directly
+      console.log("✅ Notification marked as read");
 
       // Fetch rental details
       const rentalRes = await axios.get(
         `http://localhost:3001/rental-transaction/${rentalId}`
       );
+      console.log("✅ Rental details fetched:", rentalRes.data);
 
       const rental = rentalRes.data.rental;
       if (!rental) {
@@ -302,6 +300,7 @@ const Notification = ({
 
       const isOwner = studentUser.userId === rental.owner_id;
       const isRenter = studentUser.userId === rental.renter_id;
+      console.log("✅ User roles determined:", { isOwner, isRenter });
 
       // Determine the route
       const route = determineRoute(rental, type, isOwner, isRenter);
@@ -309,28 +308,62 @@ const Notification = ({
 
       // Close notifications panel before navigation
       toggleNotifications();
+      console.log("✅ Notifications panel closed");
 
-      // Navigate with rental ID in state
-      navigate(route, { state: { highlight: rentalId } });
+      // Navigate with rental ID and notification type in state
+      navigate(route, {
+        state: { notificationType: type, highlight: rentalId },
+      });
+      console.log("✅ Navigation triggered");
     } catch (error) {
       console.error("Error handling notification:", error);
     }
   };
 
-  const handleMarkAllAsRead = async () => {
-    try {
-      await axios.put(
-        `http://localhost:3001/api/notifications/student/mark-all-read/${studentUser.userId}`
-      );
-      setNotifications((prev) =>
-        prev.map((notif) => ({ ...notif, is_read: true }))
-      );
-      setUnreadCount(0);
-    } catch (error) {
-      console.error("Error marking all as read:", error);
+  const handleMarkAllAsRead = () => {
+    if (studentUser?.userId) {
+      dispatch(markAllRead(studentUser.userId.toString()));
     }
   };
 
+  const memoizedNotifications = useMemo(
+    () => notifications,
+    [notifications.length, unreadCount, notifications]
+  );
+
+  const renderedNotifications = useMemo(() => {
+    return memoizedNotifications.length > 0 ? (
+      memoizedNotifications.map((notif) => (
+        <a
+          href="#"
+          key={notif.id}
+          className={`notification-item ${notif.is_read ? "read" : "unread"}`}
+          onClick={(e) => {
+            e.preventDefault();
+            handleNotificationClick(notif.id, notif.rental_id, notif.type);
+          }}
+        >
+          <img
+            src={UserIcon}
+            className="notification-avatar"
+            alt="User Avatar"
+          />
+          <div className="notification-content">
+            <p>
+              <NotificationMessage message={notif.message} type={notif.type} />
+            </p>
+            <span className="time">
+              {formatDistanceToNow(new Date(notif.createdAt), {
+                addSuffix: true,
+              })}
+            </span>
+          </div>
+        </a>
+      ))
+    ) : (
+      <p>No new notifications</p>
+    );
+  }, [memoizedNotifications, handleNotificationClick]);
   return (
     <div className="notification-container">
       <a
@@ -359,46 +392,7 @@ const Notification = ({
             </button>
           </div>
           <div className="notification-list" key={notifications.length}>
-            {notifications.length > 0 ? (
-              notifications.map((notif) => (
-                <a
-                  href="#"
-                  key={notif.id}
-                  className={`notification-item ${
-                    notif.is_read ? "read" : "unread"
-                  }`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNotificationClick(
-                      notif.id,
-                      notif.rental_id,
-                      notif.type
-                    );
-                  }}
-                >
-                  <img
-                    src={UserIcon}
-                    className="notification-avatar"
-                    alt="User Avatar"
-                  />
-                  <div className="notification-content">
-                    <p>
-                      <NotificationMessage
-                        message={notif.message}
-                        type={notif.type}
-                      />
-                    </p>
-                    <span className="time">
-                      {formatDistanceToNow(new Date(notif.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </span>
-                  </div>
-                </a>
-              ))
-            ) : (
-              <p>No new notifications</p>
-            )}
+            {renderedNotifications}
           </div>
         </div>
       )}
