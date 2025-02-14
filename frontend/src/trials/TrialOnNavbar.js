@@ -134,7 +134,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
       {/* Top Section */}
       <div className="navbar-top">
         <ul>
-          {["Privacy Policy", "Terms of Service"].map((text, index) => (
+          {["Privacy Policy", "Terms and Condition"].map((text, index) => (
             <li key={index}>
               <a href={`/${text.toLowerCase().replace(/\s+/g, "-")}`} className={isDarkTheme ? "dark" : "light"}>
                 {text}
