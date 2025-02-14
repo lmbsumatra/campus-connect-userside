@@ -7,7 +7,6 @@ const http = require("http");
 const { initializeSocket } = require("./socket");
 const nodemailer = require("nodemailer");
 
-const sequelize = require("./config/database");
 
 // Route Imports
 const studentAuthRoutes = require("./routes/StudentAuthRoute");
@@ -35,8 +34,6 @@ const cron = require("node-cron");
 //   console.log("Running cron job to auto-decline expired rentals...");
 //   await autoDeclineExpired(); // Call the function to decline expired rentals
 // });
-const conversationRoutes = require("./routes/ConversationRoute");
-const messageRoutes = require("./routes/MessageRoute");
 
 // Load environment variables
 dotenv.config();
@@ -75,22 +72,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Import Routes
-const studentAuthRoutes = require("./routes/StudentAuthRoute");
-const adminAuthRoutes = require("./routes/AdminAuthRoutes");
-const listingRoutes = require("./routes/ListingRoute");
-const postRoutes = require("./routes/PostRoute");
-const reviewAndRateRoutes = require("./routes/ReviewAndRateRoutes.js");
-const itemForSaleRoutes = require("./routes/ItemForSaleRoute");
-const rentalTransactionRoutes = require("./routes/RentalTransactionRoute");
-const cartRoutes = require("./routes/CartRoutes.js");
-const recentActivitiesRoutes = require("./routes/RecentActivitiesRoutes.js");
-const reportRoutes = require("./routes/ReportRoute");
-const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
-const notificationRoutes = require("./routes/NotificationRoute");
-const conversationRoutes = require("./routes/ConversationRoute");
-const messageRoutes = require("./routes/MessageRoute");
-const followRoutes = require("./routes/FollowRoutes");
 
 // Inject emitNotification into Rental Transaction Controller
 const rentalTransactionController =
