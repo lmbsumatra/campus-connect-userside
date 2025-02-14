@@ -13,7 +13,7 @@
   height: 80vh;
   overflow: auto;
   background-color: white;
-  padding: 8px;
+  padding: 24px;
   border-radius: 8px;
 }
 
@@ -59,4 +59,23 @@
 
 .nav-links ul li:hover.active {
   background-color: var(--clr-secondary-dark);
+}
+
+.container-content.terms-condition .section-title {
+  font-size: 22px;
+  font-weight: 600;
+  text-decoration: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: var(--clr-secondary);
+}
+
+.container-content.terms-condition .section-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }

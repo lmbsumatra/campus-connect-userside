@@ -131,7 +131,7 @@ const TermsAndCondition = () => {
 
           <div className="content">
             <div ref={section0Ref}>
-              <p>Welcome to Campus Connect!</p>
+              <h3>Welcome to Campus Connect!</h3>
               <p>
                 Please carefully read these Terms and Conditions, as they will
                 explain your legal rights and obligations. By accessing the
@@ -154,7 +154,7 @@ const TermsAndCondition = () => {
 
             <div ref={section1Ref}>
               <ul>
-                <li>Introduction </li>
+                <li className="section-title">Introduction </li>
                 <ul>
                   <li>
                     1.1. Campus Connect (“Campus Connect”, “platform”, “we”,
@@ -177,9 +177,11 @@ const TermsAndCondition = () => {
 
             <div ref={section2Ref}>
               <ul>
-                <li>User Registration and Eligibility</li>
+                <li className="section-title">
+                  User Registration and Eligibility
+                </li>
                 <ul>
-                  <li>2.1. Eligibility</li>
+                  <li className="section-subtitle">2.1. Eligibility</li>
                   <ul>
                     <li>
                       2.1.1. You must be at least 18 and capable of forming a
@@ -196,7 +198,9 @@ const TermsAndCondition = () => {
                       verification.
                     </li>
                   </ul>
-                  <li>2.2. Account Responsibilities</li>
+                  <li className="section-subtitle">
+                    2.2. Account Responsibilities
+                  </li>
                   <ul>
                     <li>
                       2.2.1. You must provide accurate, current, and complete
@@ -230,9 +234,9 @@ const TermsAndCondition = () => {
 
             <div ref={section3Ref}>
               <ul>
-                <li>Use of the Platform</li>
+                <li className="section-title">Use of the Platform</li>
                 <ul>
-                  <li>3.1. Permitted Services</li>
+                  <li className="section-subtitle">3.1. Permitted Services</li>
                   <ul>
                     <li>3.1.1. You may use the platform:</li>
                     <ul>
@@ -250,7 +254,9 @@ const TermsAndCondition = () => {
                       </li>
                     </ul>
                   </ul>
-                  <li>3.2. Transaction Restrictions</li>
+                  <li className="section-subtitle">
+                    3.2. Transaction Restrictions
+                  </li>
                   <ul>
                     <li>
                       3.2.1. All transactions must occur within the TUP-M campus
@@ -273,7 +279,7 @@ const TermsAndCondition = () => {
                       suspension.
                     </li>
                   </ul>
-                  <li>3.3. Prohibited Items</li>
+                  <li className="section-subtitle">3.3. Prohibited Items</li>
                   <ul>
                     <li>
                       3.3.1. As a user, you agreed not to list and post items
@@ -317,7 +323,9 @@ const TermsAndCondition = () => {
                       prohibited items at any time for any reason.
                     </li>
                   </ul>
-                  <li>3.4. Guidelines for Listings and Posts</li>
+                  <li className="section-subtitle">
+                    3.4. Guidelines for Listings and Posts
+                  </li>
                   <ul>
                     <li>
                       3.4.1. Items, to list for rent or for sale, must be in
@@ -351,9 +359,9 @@ const TermsAndCondition = () => {
                       others.{" "}
                     </li>
                   </ul>
-                  <li>3.5. Payment Methods</li>
+                  <li className="section-subtitle">3.5. Payment Methods</li>
                   <ul>
-                    <li>3.5.1. Cash on Meetup</li>
+                    <li className="section-subtitle">3.5.1. Cash on Meetup</li>
                     <ul>
                       <li>
                         3.5.1.1. For Rental transactions, cash payment shall be
@@ -364,7 +372,7 @@ const TermsAndCondition = () => {
                         done upon the handover of the item to the Buyer.
                       </li>
                     </ul>
-                    <li>3.5.2. Online Payment</li>
+                    <li className="section-subtitle">3.5.2. Online Payment</li>
                     <ul>
                       <li>
                         3.5.2.1. Payments made through RenTUPeers are processed
@@ -389,7 +397,7 @@ const TermsAndCondition = () => {
                       </li>
                     </ul>
                   </ul>
-                  <li>3.6. Communication</li>
+                  <li className="section-subtitle">3.6. Communication</li>
                   <ul>
                     <li>
                       3.6.1. All communication between Renters and Owners, and
@@ -414,7 +422,7 @@ const TermsAndCondition = () => {
                       Please read our Privacy Policy for further information.
                     </li>
                   </ul>
-                  <li>3.7. Leaving a Review</li>
+                  <li className="section-subtitle">3.7. Leaving a Review</li>
                   <ul>
                     <li>
                       3.7.1. For every transaction completed, you agree to leave
@@ -432,7 +440,7 @@ const TermsAndCondition = () => {
 
             <div ref={section4Ref}>
               <ul>
-                <li>Renter Rules</li>
+                <li className="section-title">Renter Rules</li>
                 <p>
                   Please carefully read these rules (“Renter Rules”) before
                   becoming a Renter using RenTUPeers. By using RenTUPeers, you
@@ -440,7 +448,7 @@ const TermsAndCondition = () => {
                   Conditions.{" "}
                 </p>
                 <ul>
-                  <li>4.1. Renting of an Item</li>
+                  <li className="section-subtitle">4.1. Renting of an Item</li>
                   <ul>
                     <li>
                       4.1.1. Renters may submit a rental request and appropriate
@@ -504,7 +512,7 @@ const TermsAndCondition = () => {
                       </li>
                     </ul>
                   </ul>
-                  <li>4.2. Liability</li>
+                  <li className="section-subtitle">4.2. Liability</li>
                   <ul>
                     <li>
                       4.2.1. Renters are granted a limited license to borrow the
@@ -527,7 +535,7 @@ const TermsAndCondition = () => {
 
             <div ref={section5Ref}>
               <ul>
-                <li>Owner’s Rules</li>
+                <li className="section-title">Owner’s Rules</li>
                 <p>
                   Please carefully read these rules (“Owner Rules”) before
                   becoming an Owner using RenTUPeers. By using RenTUPeers, you
@@ -535,7 +543,9 @@ const TermsAndCondition = () => {
                   Conditions.{" "}
                 </p>
                 <ul>
-                  <li>5.1. Renting out of an Item</li>
+                  <li className="section-subtitle">
+                    5.1. Renting out of an Item
+                  </li>
                   <ul>
                     <li>
                       5.1.1. All rental requests have to be declined by the
@@ -594,7 +604,7 @@ const TermsAndCondition = () => {
                       </li>
                     </ul>
                   </ul>
-                  <li>5.2. Liability</li>
+                  <li className="section-subtitle">5.2. Liability</li>
                   <ul>
                     <li>
                       5.2.1. You are granting a limited license to borrow and/or
@@ -623,9 +633,9 @@ const TermsAndCondition = () => {
 
             <div ref={section6Ref}>
               <ul>
-                <li>Rental Terms</li>
+                <li className="section-title">Rental Terms</li>
                 <ul>
-                  <li>6.1. Rental Agreement</li>
+                  <li className="section-subtitle">6.1. Rental Agreement</li>
                   <ul>
                     <li>
                       6.1.1. You acknowledge that you are not renting from
@@ -644,7 +654,9 @@ const TermsAndCondition = () => {
                       honoring the rental terms.
                     </li>
                   </ul>
-                  <li>6.2. Item Condition and Inspection</li>
+                  <li className="section-subtitle">
+                    6.2. Item Condition and Inspection
+                  </li>
                   <ul>
                     <li>
                       6.2.1. Owners must provide accurate descriptions of the
@@ -655,7 +667,7 @@ const TermsAndCondition = () => {
                       and report any pre-existing damage immediately.
                     </li>
                   </ul>
-                  <li>6.3. Rental Duration</li>
+                  <li className="section-subtitle">6.3. Rental Duration</li>
                   <ul>
                     <li>
                       6.3.1. Items must be returned on or before the agreed-upon
@@ -666,7 +678,7 @@ const TermsAndCondition = () => {
                       specified in the rental listing.
                     </li>
                   </ul>
-                  <li>6.4. Damage and Loss</li>
+                  <li className="section-subtitle">6.4. Damage and Loss</li>
                   <ul>
                     <li>
                       6.4.1. Renters are responsible for any damage or loss
@@ -677,7 +689,7 @@ const TermsAndCondition = () => {
                       deposit to cover repair or replacement costs.
                     </li>
                   </ul>
-                  <li>6.5. Deposits</li>
+                  <li className="section-subtitle">6.5. Deposits</li>
                   <ul>
                     <li>6.5.1. Some rentals may require a security deposit.</li>
                     <li>
@@ -691,7 +703,7 @@ const TermsAndCondition = () => {
 
             <div ref={section7Ref}>
               <ul>
-                <li>Buyer’s Rules</li>
+                <li className="section-title">Buyer’s Rules</li>
                 <p>
                   Please carefully read these rules (“Buyer Rules”) before
                   becoming a Buyer using RenTUPeers. By using RenTUPeers, you
@@ -699,7 +711,7 @@ const TermsAndCondition = () => {
                   Conditions.
                 </p>
                 <ul>
-                  <li>7.1. Buying an Item</li>
+                  <li className="section-subtitle">7.1. Buying an Item</li>
                   <ul>
                     <li>
                       7.1.1. Buyers may submit a request and appropriate
@@ -760,7 +772,7 @@ const TermsAndCondition = () => {
                       seller in the listing or in cases of misrepresentation.{" "}
                     </li>
                   </ul>
-                  <li>7.2. Liability</li>
+                  <li className="section-subtitle">7.2. Liability</li>
                   <ul>
                     <li>
                       7.2.1. By purchasing an item, you acknowledge that you
@@ -779,7 +791,7 @@ const TermsAndCondition = () => {
 
             <div ref={section8Ref}>
               <ul>
-                <li>Seller’s Rules</li>
+                <li className="section-title">Seller’s Rules</li>
                 <p>
                   Please carefully read these rules (“Seller Rules”) before
                   becoming a Seller using RenTUPeers. By using RenTUPeers, you
@@ -787,7 +799,7 @@ const TermsAndCondition = () => {
                   Conditions.
                 </p>
                 <ul>
-                  <li>8.1. Selling an Item</li>
+                  <li className="section-subtitle">8.1. Selling an Item</li>
                   <ul>
                     <li>
                       8.1.1. All requests have to be declined by the Buyer
@@ -834,7 +846,7 @@ const TermsAndCondition = () => {
                       and you can no longer file a report.
                     </li>
                   </ul>
-                  <li>8.2. Liability</li>
+                  <li className="section-subtitle">8.2. Liability</li>
                   <ul>
                     <li>
                       8.2.1. By listing an item for sale, you represent and
@@ -853,9 +865,9 @@ const TermsAndCondition = () => {
 
             <div ref={section9Ref}>
               <ul>
-                <li>Buying and Selling Terms</li>
+                <li className="section-title">Buying and Selling Terms</li>
                 <ul>
-                  <li>9.1. Selling Agreement</li>
+                  <li className="section-subtitle">9.1. Selling Agreement</li>
                   <ul>
                     <li>
                       9.1.1. You acknowledge that you are not buying from
@@ -874,7 +886,9 @@ const TermsAndCondition = () => {
                       honoring the terms.
                     </li>
                   </ul>
-                  <li>9.2. Item Condition and Inspection</li>
+                  <li className="section-subtitle">
+                    9.2. Item Condition and Inspection
+                  </li>
                   <ul>
                     <li>
                       9.2.1. Sellers must provide accurate descriptions of the
@@ -891,9 +905,9 @@ const TermsAndCondition = () => {
 
             <div ref={section10Ref}>
               <ul>
-                <li>User Conduct</li>
+                <li className="section-title">User Conduct</li>
                 <ul>
-                  <li>10.1. Expected Behavior</li>
+                  <li className="section-subtitle">10.1. Expected Behavior</li>
                   <ul>
                     <li>10.1.1. As users, you agree to:</li>
                     <ul>
@@ -914,7 +928,7 @@ const TermsAndCondition = () => {
                       </li>
                     </ul>
                   </ul>
-                  <li>10.2. Prohibited Conduct</li>
+                  <li className="section-subtitle">10.2. Prohibited Conduct</li>
                   <ul>
                     <li>10.2.1. As users, you shall not:</li>
                     <ul>
@@ -948,7 +962,9 @@ const TermsAndCondition = () => {
                       </ul>
                     </ul>
                   </ul>
-                  <li>10.3. Reporting Violations</li>
+                  <li className="section-subtitle">
+                    10.3. Reporting Violations
+                  </li>
                   <ul>
                     <li>
                       10.3.1. Report any violations or suspicious activity to
@@ -961,9 +977,11 @@ const TermsAndCondition = () => {
 
             <div ref={section11Ref}>
               <ul>
-                <li>Platform Responsibilities and Limitations</li>
+                <li className="section-title">
+                  Platform Responsibilities and Limitations
+                </li>
                 <ul>
-                  <li>11.1. Platform Role </li>
+                  <li className="section-subtitle">11.1. Platform Role </li>
                   <ul>
                     <li>
                       11.1.1. RenTUPeers is a P2P rental platform exclusively
@@ -988,7 +1006,7 @@ const TermsAndCondition = () => {
                       transactions between users.
                     </li>
                   </ul>
-                  <li>11.2. Disclaimers</li>
+                  <li className="section-subtitle">11.2. Disclaimers</li>
                   <ul>
                     <li>
                       11.2.1. You, a Renter, acknowledge that you are not
@@ -1020,9 +1038,13 @@ const TermsAndCondition = () => {
 
             <div ref={section12Ref}>
               <ul>
-                <li>Account Suspension and Termination</li>
+                <li className="section-title">
+                  Account Suspension and Termination
+                </li>
                 <ul>
-                  <li>12.1. Grounds for Suspension</li>
+                  <li className="section-subtitle">
+                    12.1. Grounds for Suspension
+                  </li>
                   <ul>
                     <li>12.1.1. Violation of these Terms.</li>
                     <li>
@@ -1030,7 +1052,7 @@ const TermsAndCondition = () => {
                       behavior.
                     </li>
                   </ul>
-                  <li>12.2. Appeals</li>
+                  <li className="section-subtitle">12.2. Appeals</li>
                   <ul>
                     <li>
                       12.2.1. Users may appeal suspensions by contacting
@@ -1043,7 +1065,9 @@ const TermsAndCondition = () => {
 
             <div ref={section13Ref}>
               <ul>
-                <li>Changes to Terms and Conditions</li>
+                <li className="section-title">
+                  Changes to Terms and Conditions
+                </li>
                 <ul>
                   <li>
                     13.1. We may update these Terms from time to time. The
@@ -1057,7 +1081,7 @@ const TermsAndCondition = () => {
 
             <div ref={section14Ref}>
               <ul>
-                <li>Contact Information</li>
+                <li className="section-title">Contact Information</li>
                 <p>
                   For questions or support, contact us at: Email:
                   [support@example.com]
