@@ -36,6 +36,8 @@ const PublicRoutes = [
   <Route path="/results" element={<SearchResults />} />,
   <Route path="/privacy-policy" element={<PrivacyPolicy />} />,
   <Route path="/terms-and-condition" element={<TermsAndCondition />} />,
+  <Route path="/privacy-policy" element={<PrivacyPolicy />} />,
+  <Route path="/terms-and-condition" element={<TermsAndCondition />} />,
 ];
 
 export default PublicRoutes;

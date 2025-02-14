@@ -1,0 +1,47 @@
+/* Navbar Main Section */
+.navbar-main {
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+}
+
+
+/* Logo Styles */
+.nav-logo {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-logo img {
+  height: 64px;
+  margin-right: 10px;
+}
+
+.nav-logo span {
+  font-size: 24px;
+  font-weight: 900;
+}
+
+/* Responsive Media Queries */
+@media only screen and (max-width: 600px) {
+  .navbar-main .nav-searchbar input {
+    width: 100%;
+  }
+
+  .navbar-main .nav-logo span {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 991px) {
+}
+
+@media only screen and (min-width: 992px) {
+  .navbar-main .nav-items .menu {
+    display: none;
+  }
+}

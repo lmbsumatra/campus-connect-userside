@@ -1,0 +1,13 @@
+.container-content.privacy-policy .privacy-policy-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 36px;
+}
+
+.privacy-policy-wrapper .intro {
+  width: 50vw;
+}
+
+.privacy-policy-wrapper .accordion-wrapper {
+  width: 50vw;
+}

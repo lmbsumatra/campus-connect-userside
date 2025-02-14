@@ -1,0 +1,62 @@
+.container-content.terms-condition {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.tc-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.tc-wrapper .content {
+  height: 80vh;
+  overflow: auto;
+  background-color: white;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.tc-wrapper .nav-links {
+  width: 100vw;
+  height: 80vh;
+  overflow: auto;
+  background-color: white;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: auto;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.nav-links ul {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  gap: 3px !important;
+}
+
+.nav-links ul li {
+  text-decoration: none;
+  color: gray;
+  padding: 2px;
+  background-color: rgb(0, 0, 0, 0.05);
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.nav-links ul li.active {
+  background-color: var(--clr-secondary);
+  color: white;
+}
+
+.nav-links ul li:hover {
+  background-color: rgb(0, 0, 0, 0.1);
+}
+
+.nav-links ul li:hover.active {
+  background-color: var(--clr-secondary-dark);
+}
