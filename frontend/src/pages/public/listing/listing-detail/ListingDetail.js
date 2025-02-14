@@ -43,26 +43,35 @@ import ViewToolbar from "../../common/ViewToolbar.js";
 import ReportModal from "../../../../components/report/ReportModal.js";
 import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
 
+// async function getUserFullName(userId) {
+//   console.log("Fetching user details for userId:", userId);
+//   try {
+//     const studentUser = JSON.parse(localStorage.getItem("studentUser"));
+//     const token = studentUser?.token;
 
-async function getUserFullName(userId) {
-  console.log("Fetching user details for userId:", userId);
-  try {
-    const res = await fetch(
-      `${
-        process.env.REACT_APP_API_URL || "http://localhost:3001"
-      }/user/info/${userId}`
-    );
-    if (!res.ok) {
-      throw new Error("Failed to fetch user details");
-    }
-    const data = await res.json();
-    const { fname, lname } = data.user; // the endpoint returns an object with a user property
-    return `${fname} ${lname}`;
-  } catch (error) {
-    console.error("Error fetching user details:", error);
-    return "Unknown User";
-  }
-}
+//     console.log(JSON.parse(localStorage.getItem("studentUser")));
+
+//     const res = await fetch(
+//       `${
+//         process.env.REACT_APP_API_URL || "http://localhost:3001"
+//       }/user/info/${userId}`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
+//     if (!res.ok) throw new Error("Failed to fetch user details");
+//     const data = await res.json();
+//     // Access user data from the 'user' property of the response
+//     const userData = data.user || {}; // Fallback to empty object if undefined
+//     const { first_name, last_name } = userData;
+//     return `${first_name || ""} ${last_name || ""}`.trim() || "Unknown User";
+//   } catch (error) {
+//     console.error("Error fetching user details:", error);
+//     return "Unknown User";
+//   }
+// }
 
 function ListingDetail() {
   const navigate = useNavigate();
@@ -235,30 +244,30 @@ function ListingDetail() {
 
       const rentalId = response.data.id; // Get rentalId from response
 
-      const senderName = await getUserFullName(studentUser.userId);
+      // const senderName = await getUserFullName(studentUser.userId);
 
-      const notificationData = {
-        sender: studentUser.userId,
-        recipient: approvedListingById.owner.id,
-        type: "rental_request",
-        message: `${senderName} wants to rent ${approvedListingById.name}.`,
-        rental_id: rentalId, // Pass rentalId here
-      };
+      // const notificationData = {
+      //   sender: studentUser.userId,
+      //   recipient: approvedListingById.owner.id,
+      //   type: "rental_request",
+      //   message: `${senderName} wants to rent ${approvedListingById.name}.`,
+      //   rental_id: rentalId, // Pass rentalId here
+      // };
 
-      // Send notification
-      if (socket && socket.connected) {
-        socket.emit("sendNotification", notificationData);
-        console.log(
-          "✅ Notification sent via socket with rental_id:",
-          rentalId
-        );
-      } else {
-        console.warn("⚠️ Socket not connected. Using API fallback.");
-        await axios.post(
-          "http://localhost:3001/api/notifications/student",
-          notificationData
-        );
-      }
+      // // Send notification
+      // if (socket && socket.connected) {
+      //   socket.emit("sendNotification", notificationData);
+      //   console.log(
+      //     "✅ Notification sent via socket with rental_id:",
+      //     rentalId
+      //   );
+      // } else {
+      //   console.warn("⚠️ Socket not connected. Using API fallback.");
+      //   await axios.post(
+      //     "http://localhost:3001/api/notifications/student",
+      //     notificationData
+      //   );
+      // }
 
       setShowModal(false);
       ShowAlert(
@@ -371,15 +380,24 @@ function ListingDetail() {
         reportData
       ); // API endpoint
       console.log("Report submitted:", response.data);
-  
+
       // Show success notification instead of alert
-      await ShowAlert(dispatch, "success", "Report Submitted", "Your report has been submitted successfully.");
-  
+      await ShowAlert(
+        dispatch,
+        "success",
+        "Report Submitted",
+        "Your report has been submitted successfully."
+      );
     } catch (error) {
       console.error("Error submitting report:", error);
-  
+
       // Show error notification instead of alert
-      await ShowAlert(dispatch, "error", "Submission Failed", "Failed to submit the report. Please try again.");
+      await ShowAlert(
+        dispatch,
+        "error",
+        "Submission Failed",
+        "Failed to submit the report. Please try again."
+      );
     }
 
     setShowReportModal(false); // Close the modal
@@ -402,7 +420,9 @@ function ListingDetail() {
             {
               text: "Login",
               action: () => {
-                navigate("/", { state: { showLogin: true, authTab: "loginTab" } });
+                navigate("/", {
+                  state: { showLogin: true, authTab: "loginTab" },
+                });
               },
             }
           )
@@ -461,7 +481,7 @@ function ListingDetail() {
                 category: approvedListingById.category,
               }}
             />
-           {loggedInUserId !== approvedListingById?.owner?.id && (
+            {loggedInUserId !== approvedListingById?.owner?.id && (
               <div className="report-button">
                 <button
                   className="btn btn-rectangle danger"
@@ -470,10 +490,10 @@ function ListingDetail() {
                   Report
                 </button>
               </div>
-              )}
+            )}
 
-              {/* Report Modal */}
-              <ReportModal
+            {/* Report Modal */}
+            <ReportModal
               show={showReportModal}
               handleClose={() => setShowReportModal(false)} // Close the modal
               handleSubmit={handleReportSubmit} // Submit the report

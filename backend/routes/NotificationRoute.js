@@ -15,6 +15,10 @@ router.put(
   "/mark-all-read",
   asyncHandler(notificationController.markAllAsRead)
 );
+router.patch(
+  "/student/:id/read",
+  asyncHandler(notificationController.markStudentNotificationAsRead)
+);
 
 // Message notification routes
 router.post(
