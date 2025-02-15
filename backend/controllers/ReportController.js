@@ -138,8 +138,8 @@ exports.deleteReport = async (req, res) => {
 exports.getReportDetails = async (req, res) => {
   // console.log("Query Params:", req.query); // Debugging query params
   const { entity_type, entity_id } = req.query;
-  // console.log("Entity Type:", entity_type);
-  // console.log("Entity ID:", entity_id);
+  //  console.log("Entity Type:", entity_type);
+  //  console.log("Entity ID:", entity_id);
 
   if (!entity_type || !entity_id) {
     return res.status(400).json({ error: "Entity type and ID are required." });
@@ -175,12 +175,12 @@ exports.getReportDetails = async (req, res) => {
           break;
       case "user":
         entityData = await models.User.findByPk(entity_id, {
-          attributes: ["first_name", "last_name","middle_name", "email","profile_pic"],
+          attributes: ["first_name", "last_name","middle_name", "email"],
           include: [
             {
               model: models.Student,
               as: "student", 
-              attributes: ["tup_id", "college"], 
+              attributes: ["tup_id", "college", "profile_pic"], 
             },
           ],
         });

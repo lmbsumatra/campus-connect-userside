@@ -1,7 +1,11 @@
 import React from "react";
+import "./EntityView.css"
 
 const UserEntityView = ({ entityDetails }) => {
   if (!entityDetails) return <div>No details available for this User.</div>;
+
+  // Extract profile picture URL
+  const profilePic = entityDetails.student?.profile_pic;
 
 
   return (
@@ -35,6 +39,25 @@ const UserEntityView = ({ entityDetails }) => {
             {entityDetails.student?.college || "Not Available"}
         </span>
         </div>
+       {/* Profile Picture Display */}
+       {profilePic ? (
+        <div className="entity-row">
+          <span className="entity-label">Profile Picture:</span>
+          <div className="image-gallery">
+            <img
+              src={profilePic}
+              alt="Profile"
+              className="entity-image"
+              style={{ width: "150px", height: "150px", borderRadius: "50%" }}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="entity-row">
+          <span className="entity-label">Profile Picture:</span>
+          <span className="entity-value">No Profile Picture Available</span>
+        </div>
+      )}
     </div>
   );
 };

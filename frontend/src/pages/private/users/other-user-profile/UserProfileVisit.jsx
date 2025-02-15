@@ -10,12 +10,21 @@ import { fetchAvailableItemsForSaleByUser } from "../../../../redux/item-for-sal
 import { fetchUserReviews } from "../../../../redux/transactions/userReview.js"; // Import review thunk
 import ReviewCard from "./ReviewCard.jsx"; // Import the new ReviewCard component
 
+import axios from "axios";
+import ReportModal from "../../../../components/report/ReportModal";
+import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck";
+import ShowAlert from "../../../../utils/ShowAlert";
+import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
+import "./UserProfileVisit.css"
+
 const UserProfileVisit = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // User ID from URL params
   const location = useLocation();
   const dispatch = useDispatch();
-  
+  const [showReportModal, setShowReportModal] = useState(false);
+   const studentUser = useSelector(selectStudentUser);
+   const loggedInUserId = studentUser?.userId || null;
 
   const { availableListingsByUser } = useSelector(
     (state) => state.availableListingsByUser
@@ -63,9 +72,78 @@ const UserProfileVisit = () => {
     navigate(`/user/${id}?tab=${tab.toLowerCase().replace(/\s+/g, "-")}`);
   };
 
+  const handleReportSubmit = async (reason) => {
+    const reportData = {
+      reporter_id: loggedInUserId,
+      reported_entity_id: id,
+      entity_type: "user",
+      reason: reason,
+    };
+  
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/api/reports",
+        reportData
+      ); // API endpoint
+      console.log("Report submitted:", response.data);
+  
+      // Show success notification instead of alert
+      await ShowAlert(dispatch, "success", "Report Submitted", "Your report has been submitted successfully.");
+  
+    } catch (error) {
+      console.error("Error submitting report:", error);
+  
+      // Show error notification instead of alert
+      await ShowAlert(dispatch, "error", "Submission Failed", "Failed to submit the report. Please try again.");
+    }
+  
+    setShowReportModal(false); // Close the modal
+  };
+
+  const handleReportClick = () => {
+    if (loggedInUserId) {
+      // Directly show the report modal if the user is logged in
+      setShowReportModal(true);
+    } else {
+      // If the user is not logged in, use the authentication check
+      useHandleActionWithAuthCheck(
+        () => setShowReportModal(true),
+        () =>
+          ShowAlert(
+            dispatch,
+            "warning",
+            "Action Required",
+            "Please login to report this user.",
+            {
+              text: "Login",
+              action: () => {
+                navigate("/", { state: { showLogin: true, authTab: "loginTab" } });
+              },
+            }
+          )
+      );
+    }
+  };
+
   return (
     <div className="container-content">
       <div className="profile-container d-flex flex-column gap-3">
+              {/* Report Button */}
+      {loggedInUserId !== id && (
+        <div className="report-button">
+        <button className="btn-report" onClick={handleReportClick}>
+          ⚠
+        </button>
+      </div>
+      )}
+
+      {/* Report Modal */}
+      <ReportModal
+        show={showReportModal}
+        handleClose={() => setShowReportModal(false)}
+        handleSubmit={handleReportSubmit}
+      />
+      
         <ProfileHeader userId={id} isProfileVisit={true} className="m-0 p-0" />
         <div className="prof-content-wrapper bg-white rounded p-3">
           <div className="profile-content">
