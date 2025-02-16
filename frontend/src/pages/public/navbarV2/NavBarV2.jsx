@@ -1,6 +1,6 @@
 import "./navBarV2Styles.css";
 import React, { useState, useEffect, useRef } from "react";
-import logoDark from "../../assets/images/navbar/cc-logo.png";
+import logoDark from "../../../assets/images/navbar/cc-logo.png";
 import { useNavigate } from "react-router-dom";
 
 const NavBarV2 = () => {

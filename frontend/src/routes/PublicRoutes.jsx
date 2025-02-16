@@ -12,8 +12,8 @@ import VerifyEmail from "../components/emails/VerifyEmail.jsx";
 import PostDetail from "../pages/public/post/PostDetail.js";
 import ListingDetail from "../pages/public/listing/listing-detail/ListingDetail.js";
 import ItemForSaleDetail from "../pages/public/item-for-sale/ItemForSaleDetail.js";
-import PrivacyPolicy from "../pages/public/PrivacyPolicy.js";
-import TermsAndCondition from "../pages/public/TermsAndCondition.js";
+import PrivacyPolicy from "../pages/public/privacy-policy/PrivacyPolicy.js";
+import TermsAndCondition from "../pages/public/t&c/TermsAndCondition.js";
 
 const PublicRoutes = [
   <Route

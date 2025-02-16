@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import "./termsAndConditionStyles.css";
-import NavBarV2 from "./NavBarV2";
+import NavBarV2 from "../navbarV2/NavBarV2";
 const TermsAndCondition = () => {
   const section0Ref = useRef();
   const section1Ref = useRef();

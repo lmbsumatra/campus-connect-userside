@@ -1,6 +1,6 @@
 import { Accordion } from "react-bootstrap";
 import "./privacyPolicyStyles.css";
-import NavBarV2 from "./NavBarV2";
+import NavBarV2 from "../navbarV2/NavBarV2";
 const PrivacyPolicy = () => {
   return (
     <>
