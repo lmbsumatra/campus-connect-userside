@@ -5,15 +5,12 @@ import { useSelector, useDispatch } from "react-redux";
 import userIcon from "../assets/images/navbar/user.svg";
 import messageIcon from "../assets/images/navbar/message.svg";
 import notificationIcon from "../assets/images/navbar/notification.svg";
-import cartIcon from "../assets/images/navbar/cart.svg";
 import userIconDark from "../assets/images/navbar/userDark.svg";
 import messageIconDark from "../assets/images/navbar/messageDark.svg";
 import notificationIconDark from "../assets/images/navbar/notificationDark.svg";
-import cartIconDark from "../assets/images/navbar/cartDark.svg";
+
 import logo from "../assets/images/navbar/cc-logo-white.svg";
 import logoDark from "../assets/images/navbar/cc-logo.png";
-import menuIcon from "../assets/images/navbar/menu.svg";
-import menuIconDark from "../assets/images/navbar/menu-dark.svg";
 
 import LoginSignUp from "../pages/public/login-signup/LoginSignup.js";
 
@@ -35,17 +32,21 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isDarkTheme = theme === "dark";
+
   const [keyword, setKeyword] = useState("");
   const [showPopUpSearchBarResults, setShowPopUpSearchBarResults] =
     useState(false);
-  const popupRef = useRef(null);
   const searchRef = useRef(null);
+  const notificationRef = useRef(null);
+  const messageRef = useRef(null);
+  const userDropdownRef = useRef(null);
 
   const studentUser = useSelector(selectStudentUser);
   const [activeTab, setActiveTab] = useState("");
   const [openPopup, setOpenPopup] = useState(null);
   const [showLoginSignUp, setShowLoginSignUp] = useState(false);
   const [authTab, setAuthTab] = useState("loginTab");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   useEffect(() => {
     const path = location.pathname.toLowerCase();
@@ -74,26 +75,31 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
 
   const handleClickOutside = (event) => {
     if (
-      popupRef.current &&
-      !popupRef.current.contains(event.target) &&
-      searchRef.current &&
-      !searchRef.current.contains(event.target)
+      (notificationRef.current &&
+        notificationRef.current.contains(event.target)) ||
+      (messageRef.current && messageRef.current.contains(event.target)) ||
+      (userDropdownRef.current &&
+        userDropdownRef.current.contains(event.target)) ||
+      (searchRef.current && searchRef.current.contains(event.target))
     ) {
-      setShowPopUpSearchBarResults(false);
+      return; // Clicked inside the active popup, do nothing
     }
+
+    if (
+      event.target.closest("#notif-popup") ||
+      event.target.closest("#message-popup") ||
+      event.target.closest("#user-dropdown-popup")
+    ) {
+      return; // Clicked inside a popup, do nothing
+    }
+
+    setOpenPopup(null);
+    setShowPopUpSearchBarResults(false);
   };
 
   const handleKeyword = (event) => {
     setKeyword(event.target.value);
     setShowPopUpSearchBarResults(true);
-  };
-
-  const handleSearchFocus = () => {
-    setShowPopUpSearchBarResults(true);
-  };
-
-  const handleSearchBlur = () => {
-    setTimeout(() => setShowPopUpSearchBarResults(false), 200);
   };
 
   const handleSearchKeyDown = (event) => {
@@ -125,18 +131,22 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
   };
 
   const handleLogout = () => {
+    console.log("clicked");
     dispatch(logoutStudent());
     navigate("/");
   };
 
   return (
-    <div ref={popupRef} className={`navbar-container2 ${isDarkTheme ? "dark" : "light"}`}>
+    <div className={`navbar-container2 ${isDarkTheme ? "dark" : "light"}`}>
       {/* Top Section */}
       <div className="navbar-top">
         <ul>
           {["Privacy Policy", "Terms and Condition"].map((text, index) => (
             <li key={index}>
-              <a href={`/${text.toLowerCase().replace(/\s+/g, "-")}`} className={isDarkTheme ? "dark" : "light"}>
+              <a
+                href={`/${text.toLowerCase().replace(/\s+/g, "-")}`}
+                className={isDarkTheme ? "dark" : "light"}
+              >
                 {text}
               </a>
             </li>
@@ -158,34 +168,39 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
             type="text"
             placeholder="Search"
             className={isDarkTheme ? "dark" : "light"}
-            onFocus={handleSearchFocus}
-            onBlur={handleSearchBlur}
             onChange={handleKeyword}
             onKeyDown={handleSearchKeyDown}
             name="search-value"
             value={keyword}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
           />
         </div>
 
-        {showPopUpSearchBarResults && <TrialOnSearchResults keyword={keyword} />}
+        {showPopUpSearchBarResults && (
+          <TrialOnSearchResults keyword={keyword} />
+        )}
 
         {/* Navigation Icons */}
-        <div className="nav-items">
+        <div className={`nav-items ${isSearchFocused ? "hidden" : ""}`}>
           {studentUser ? (
             <ul>
               <Notification
+                ref={notificationRef}
                 icon={isDarkTheme ? notificationIconDark : notificationIcon}
                 isDarkTheme={isDarkTheme}
                 showNotifications={openPopup === "notifications"}
                 toggleNotifications={() => togglePopup("notifications")}
               />
               <Message
+                ref={messageRef}
                 icon={isDarkTheme ? messageIconDark : messageIcon}
                 isDarkTheme={isDarkTheme}
                 showDropdown={openPopup === "messages"}
                 toggleDropdown={() => togglePopup("messages")}
               />
               <UserDropdown
+                ref={userDropdownRef}
                 icon={isDarkTheme ? userIconDark : userIcon}
                 isDarkTheme={isDarkTheme}
                 showDropdown={openPopup === "dropdown"}
@@ -196,12 +211,22 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
           ) : (
             <ul>
               <li className="login">
-                <button className={`btn btn-rounded secondary ${isDarkTheme ? "" : "opac"}`} onClick={() => handleAuth("loginTab")}>
+                <button
+                  className={`btn btn-rounded secondary ${
+                    isDarkTheme ? "" : "opac"
+                  }`}
+                  onClick={() => handleAuth("loginTab")}
+                >
                   Login
                 </button>
               </li>
               <li className="register">
-                <button className={`btn btn-rounded primary ${isDarkTheme ? "" : "opac"}`} onClick={() => handleAuth("signupTab")}>
+                <button
+                  className={`btn btn-rounded primary ${
+                    isDarkTheme ? "" : "opac"
+                  }`}
+                  onClick={() => handleAuth("signupTab")}
+                >
                   Register
                 </button>
               </li>
@@ -215,7 +240,12 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
         <ul className={isDarkTheme ? "dark" : "light"}>
           {["Discover", "Shop", "Rent", "Lend"].map((text, index) => (
             <li key={index}>
-              <button className={`nav-link ${isDarkTheme ? "dark" : "light"} ${activeTab === text ? "active" : ""}`} onClick={() => setTab(text)}>
+              <button
+                className={`nav-link ${isDarkTheme ? "dark" : "light"} ${
+                  activeTab === text ? "active" : ""
+                }`}
+                onClick={() => setTab(text)}
+              >
                 {text}
               </button>
             </li>
@@ -224,7 +254,13 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
       </div>
 
       {/* Login/Signup Modal */}
-      {showLoginSignUp && <LoginSignUp initialTab={authTab} show={showLoginSignUp} onClose={closeLoginSignUp} />}
+      {showLoginSignUp && (
+        <LoginSignUp
+          initialTab={authTab}
+          show={showLoginSignUp}
+          onClose={closeLoginSignUp}
+        />
+      )}
     </div>
   );
 };

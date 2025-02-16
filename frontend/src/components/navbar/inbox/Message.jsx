@@ -234,9 +234,9 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
     return isCurrentUserSender ? `You: ${messageText}` : messageText;
   };
   return (
-    <div className="nav-item">
+    <div className="message-menu-container" id="message-popup">
       <a
-        className={`icon-link ${isDarkTheme ? "dark" : "light"}`}
+        className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`}
         href="#"
         onClick={(e) => {
           e.preventDefault();

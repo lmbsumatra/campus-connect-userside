@@ -23,7 +23,7 @@ const UserDropdown = ({
   const { user, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
 
   return (
-    <div className="nav-item">
+    <div className="user-dropdown-container" id="user-dropdown-popup">
       {/* Dropdown Trigger */}
       <a
         className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`}

@@ -52,7 +52,7 @@ const Trial2 = ({ onTabClick }) => {
     dispatch(manualLogin(loginData))
       .unwrap()
       .then(() => {
-        ShowAlert(dispatch, "success", "Login successful!");
+        ShowAlert(dispatch, "success", "Login successful!", "You are now logged in!", { text: "OK" });
         navigate("/");
       })
       .catch((error) => {

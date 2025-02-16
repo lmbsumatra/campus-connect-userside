@@ -2,10 +2,14 @@
   --clr-white: #ffffff;
 }
 
+.message-menu-container {
+  position: relative;
+}
+
 .message-menu {
   position: absolute;
   top: 65px;
-  right: 10px;
+  right: 0px;
   background-color: var(--clr-white);
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);

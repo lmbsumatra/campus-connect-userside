@@ -365,9 +365,9 @@ const Notification = ({
     );
   }, [memoizedNotifications, handleNotificationClick]);
   return (
-    <div className="notification-container">
+    <div className="notification-container" id="notif-popup">
       <a
-        className={`icon-link ${isDarkTheme ? "dark" : "light"}`}
+        className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`}
         href="#"
         onClick={(e) => {
           e.preventDefault();

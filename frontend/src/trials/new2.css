@@ -254,12 +254,12 @@
   }
 
   .navbar-main .nav-searchbar {
-    width: 100%;
+    width: 100% !important;
     transition: width 1s ease-in-out;
   }
 
   .navbar-main .nav-searchbar:focus {
-    width: 100%;
+    width: 100% !important;
     transition: width 1s ease-in-out;
   }
 
@@ -270,7 +270,7 @@
 
 @media only screen and (min-width: 600px) and (max-width: 991px) {
   .navbar-main .nav-searchbar input {
-    width: 100%;
+    width: 100% !important;
   }
 
   .navbar-main,
@@ -280,12 +280,12 @@
   }
 
   .navbar-main .nav-searchbar {
-    width: 100%;
+    width: 100% !important;
     transition: width 1s ease-in-out;
   }
 
   .navbar-main .nav-searchbar:focus {
-    width: 100%;
+    width: 100% !important;
     transition: width 1s ease-in-out;
   }
 
