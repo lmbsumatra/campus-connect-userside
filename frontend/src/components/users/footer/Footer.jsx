@@ -5,53 +5,42 @@ import "./footerStyles.css";
 
 const Footer = () => {
   return (
-    <div className="container-content d-block">
+    <div className="container-content footer-container">
       <div className="footer">
-        <div className="flag d-flex align-items-center">
-          <img src={Logo} alt="Campus Connect Logo" />
-          <h5 className="fs-5 fw-bold text-white">Campus Connect</h5>
+        <div className="footer-flag">
+          <img src={Logo} alt="Campus Connect Logo" className="footer-logo" />
+          <h5 className="footer-title">RenTUPeers</h5>
         </div>
 
         <div className="footer-links">
-          <div className="link-header">
-            <h5 className="fs-5 text-accent fw-bold">ABOUT</h5>
+          <div className="link-section">
+            <h5 className="link-title">ABOUT</h5>
             <ul>
-              <li>
-                <a href="#" className="">Our Story</a>
-              </li>
-              <li>
-                <a href="#" className="">Mission</a>
-              </li>
-              <li>
-                <a href="#" className="">Benefits</a>
-              </li>
-              <li>
-                <a href="#" className="">Team</a>
-              </li>
+              <li><a href="#">Our Story</a></li>
+              <li><a href="#">Mission</a></li>
+              <li><a href="#">Benefits</a></li>
+              <li><a href="#">Team</a></li>
             </ul>
           </div>
-          <div className="link-header">
-            <h5 className="fs-5 text-accent fw-bold">LEGAL</h5>
+          <div className="link-section">
+            <h5 className="link-title">LEGAL</h5>
             <ul>
-              <li>
-                <a href="#" className="">Terms and Conditions</a>
-              </li>
-              <li>
-                <a href="#" className="">Privacy Policy</a>
-              </li>
-              <li>
-                <a href="#" className="">Terms of Use</a>
-              </li>
-              <li>
-                <a href="#" className="">Do not Sell or Share My Personal Information</a>
-              </li>
+              <li><a href="/terms-and-condition">Terms and Conditions</a></li>
+              <li><a href="/privacy-policy">Privacy Policy</a></li>
+            </ul>
+          </div>
+          <div className="link-section">
+            <h5 className="link-title">CONTACT US</h5>
+            <ul>
+              <li><a href="#">rentupeers.team@tup.edu.ph</a></li>
+              <li><a href="#">+639 123 456 789</a></li>
             </ul>
           </div>
         </div>
       </div>
-      
-      <hr />
-      <div className="d-flex justify-content-center w-100">
+
+      <hr className="footer-divider" />
+      <div className="footer-bottom">
         <span>©2024 Campus Connect. All Rights Reserved</span>
       </div>
     </div>

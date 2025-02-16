@@ -20,7 +20,6 @@ import MyTransactions from "./MyTransactions.jsx";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import "./profileStyles.css";
 import { useDispatch } from "react-redux";
-import ShowAlert from "../../../../utils/ShowAlert.js";
 import { clearNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
 
 const Profile = () => {

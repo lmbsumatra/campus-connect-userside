@@ -1,21 +1,43 @@
 /* * * * * * * * * */
 /*     Footer      */
 /* * * * * * * * * */
+
+.footer-container {
+  display: flex;
+  flex-direction: column !important;
+  gap: 16px;
+}
 .footer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   width: 100%;
-  gap: 100px;
+  gap: 36px;
 }
 
-.flag {
+.footer-flag {
   width: 100%;
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 20px;
   height: 170px;
   background-color: var(--clr-primary);
+  display: flex;
+  flex-direction: row;
+  gap: 2%;
+  align-items: center;
+  padding: 16px;
+}
+
+.footer-logo {
+  width: auto;
+  height: 100px;
+}
+
+.footer-title {
+  color: white;
+  font-weight: bold;
+  font-size: 36px;
 }
 
 .footer-links {
@@ -25,48 +47,62 @@
   margin: 0;
 }
 
-.link-header ul {
+.link-section ul {
   list-style: none;
   padding: 0;
   margin: 0;
   flex-direction: column;
-  width: 200px;
+  width: 150px;
 }
 
-.link-header ul li {
+.link-section ul li {
   padding: 2px 0;
 }
 
-.link-header ul li a {
+.link-section ul li a {
   color: var(--clr-primary);
   text-decoration: none;
 }
 
-.link-header h5 {
+.link-title {
   line-height: 1;
+  color: var(--clr-secondary);
+}
+
+.footer-divider {
+  width: 100%;
+  border: 0.5px solid #ccc;
+}
+
+.footer-bottom {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 /* Large Devices */
 @media (min-width: 993px) {
-  .footer {
+  .footer-container {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
   }
 
-  .flag {
+  .footer-flag {
     flex: 1 auto;
     margin-bottom: 0;
   }
 
-  .link-header {
+  .link-section {
     flex: 1 1 auto;
   }
 }
 
 /* Medium Devices */
 @media (max-width: 992px) {
-  .footer {
+  .footer-container {
     align-items: flex-start;
   }
 
@@ -75,15 +111,21 @@
     justify-content: space-around;
   }
 
-  .footer  {
+  .footer-container {
     gap: 1px;
   }
-  
+
+  .footer {
+    flex-direction: column;
+  }
 }
 
 /* Small Devices */
 @media (max-width: 768px) {
   .footer {
+    flex-direction: column;
+  }
+  .footer-container {
     align-items: center;
     text-align: center;
   }
@@ -94,7 +136,31 @@
     gap: 24px;
   }
 
-  .link-header ul li {
+  .link-section ul li {
+    text-align: center;
+    width: 100%;
+  }
+
+  .link-section ul li a {
+    display: block; /* Ensures the anchor takes full width */
+    text-align: center; /* Centers text inside the anchor */
+  }
+
+  .link-section ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers items horizontally */
+    justify-content: center; /* Centers items vertically */
+    text-align: center;
+    width: 100%;
+  }
+
+  .link-section ul li {
+    width: 100%;
+  }
+
+  .link-section ul li a {
+    display: inline-block;
     text-align: center;
     width: 100%;
   }
