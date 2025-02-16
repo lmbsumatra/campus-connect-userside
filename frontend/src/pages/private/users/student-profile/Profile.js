@@ -19,6 +19,9 @@ import MyListings from "./MyListings.jsx";
 import MyTransactions from "./MyTransactions.jsx";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import "./profileStyles.css";
+import { useDispatch } from "react-redux";
+import ShowAlert from "../../../../utils/ShowAlert.js";
+import { clearNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
 
 const Profile = () => {
   const { studentUser } = useAuth();
@@ -35,6 +38,15 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState(currentOption);
   const [selectedTab, setSelectedTab] = useState(currentTab);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (location.state?.redirecting) {
+      console.log(location.state?.redirecting);
+      dispatch(clearNotification());
+    }
+  }, [location.state?.redirecting, dispatch]);
 
   useEffect(() => {
     if (userId) setLoading(false);

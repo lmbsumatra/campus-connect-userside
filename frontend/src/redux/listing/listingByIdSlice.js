@@ -4,9 +4,9 @@ import axios from "axios";
 const BASE_URL = "http://localhost:3001/listings/users";
 
 const initialState = {
-  listingById: null,  // item data (e.g., {id, name, rate, etc.})
-  loadingListingById: false,  // loading state
-  errorListingById: null,  // error state
+  listingById: null, // item data (e.g., {id, name, rate, etc.})
+  loadingListingById: false, // loading state
+  errorListingById: null, // error state
 };
 
 // Asynchronous action using createAsyncThunk with axios
@@ -26,6 +26,8 @@ const listingByIdSlice = createSlice({
     builder
       .addCase(fetchListingById.pending, (state) => {
         state.loadingListingById = true;
+        state.errorListingById = null; // Clear previous error
+        state.listingById = null;
       })
       .addCase(fetchListingById.fulfilled, (state, action) => {
         state.loadingListingById = false;

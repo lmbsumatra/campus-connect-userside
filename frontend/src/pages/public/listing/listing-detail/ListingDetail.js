@@ -288,6 +288,7 @@ function ListingDetail() {
     }
   }, [id, dispatch]);
 
+  // item not found alert
   useEffect(() => {
     if (errorApprovedListingById) {
       ShowAlert(dispatch, "error", "Error", "Item not found!");

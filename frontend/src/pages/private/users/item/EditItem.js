@@ -122,15 +122,16 @@ const EditItem = () => {
   const [showComparison, setShowComparison] = useState(false);
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [removedDates, setRemovedDates] = useState([]);
-  const [loading, setLoading] = useState();
+  const [loading, setLoading] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
+  const [error, setError] = useState(null);
 
   const [itemData, setItemData] = useState();
 
-  const { itemForSaleById, loadingItemForSaleById } = useSelector(
-    (state) => state.itemForSaleById
-  );
+  const { itemForSaleById, loadingItemForSaleById, errorItemForSaleById } =
+    useSelector((state) => state.itemForSaleById);
 
-  const { listingById, loadingListingById } = useSelector(
+  const { listingById, loadingListingById, errorListingById } = useSelector(
     (state) => state.listingById
   );
 
@@ -144,16 +145,39 @@ const EditItem = () => {
     }
   }, [dispatch, isForSaleUrl, isForRentUrl, userId, id]);
 
-  // Update local state when Redux data changes
   useEffect(() => {
-    if (isForSaleUrl && itemForSaleById) {
-      setItemData(itemForSaleById);
-      setLoading(loadingItemForSaleById);
-    } else if (isForRentUrl && listingById) {
-      setItemData(listingById);
-      setLoading(loadingListingById);
+    setLoading(true);
+    setError(null);
+
+    if (isForSaleUrl) {
+      if (errorItemForSaleById) {
+        setError(errorItemForSaleById);
+        setLoading(false);
+      } else if (!loadingItemForSaleById && itemForSaleById) {
+        setItemData(itemForSaleById);
+        setError(null);
+        setLoading(false);
+      }
+    } else if (isForRentUrl) {
+      if (errorListingById) {
+        setError(errorListingById);
+        setLoading(false);
+      } else if (!loadingListingById && listingById) {
+        setItemData(listingById);
+        setError(null);
+        setLoading(false);
+      }
     }
-  }, [isForSaleUrl, isForRentUrl, itemForSaleById, listingById]);
+  }, [
+    isForSaleUrl,
+    isForRentUrl,
+    itemForSaleById,
+    listingById,
+    loadingItemForSaleById,
+    loadingListingById,
+    errorItemForSaleById,
+    errorListingById,
+  ]);
 
   console.log("Item Data:", itemData);
 
@@ -220,6 +244,36 @@ const EditItem = () => {
     }
   }, [itemDataState.images?.value]);
 
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchUser(userId));
+    }
+  }, [userId, dispatch]);
+
+  // item not found alert add here
+  useEffect(() => {
+    const handleError = async () => {
+      if (!loading && error) {
+        await ShowAlert(dispatch, "error", "Error", "Item not found!", {
+          text: "Ok",
+        }); 
+        setRedirecting(true);
+
+        ShowAlert(dispatch, "loading", "Redirecting"); 
+
+        setTimeout(() => {
+          navigate("/profile", { state: { redirecting: true } });
+        }, 3000);
+      }
+    };
+
+    handleError();
+  }, [loading, error, dispatch, navigate]);
+
+  if (loading || error || loadingFetchUser || (!loading && error)) {
+    return <LoadingItemDetailSkeleton />;
+  }
+
   const handleImagesChange = ({ currentImages, removedImagesList }) => {
     setLocalImages(currentImages);
     setRemovedImages(removedImagesList);
@@ -241,19 +295,9 @@ const EditItem = () => {
     dispatch(blurField({ name: "images", value: filenames }));
   };
 
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchUser(userId));
-    }
-  }, [userId, dispatch]);
-
   const handleGenerateData = () => {
     dispatch(generateSampleData());
   };
-
-  if (loadingFetchUser) {
-    return <LoadingItemDetailSkeleton />;
-  }
 
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
