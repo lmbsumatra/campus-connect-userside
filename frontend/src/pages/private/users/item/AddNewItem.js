@@ -24,6 +24,10 @@ import {
   PICK_UP,
   MEET_UP,
   FOR_SALE,
+  RENT,
+  SHOP,
+  MY_LISTINGS,
+  MY_ITEMS,
 } from "../../../../utils/consonants.js";
 
 // Redux
@@ -105,8 +109,6 @@ const AddNewItem = () => {
     (state) => state.user
   );
 
-  console.log(itemDataState);
-
   const { userId } = useSelector(selectStudentUser);
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
@@ -125,30 +127,28 @@ const AddNewItem = () => {
 
   useEffect(() => {
     if (userId) {
-      console.log("Fetching user with ID:", userId);
       dispatch(fetchUser(userId))
-      .then((response) => console.log("User fetch response:", response))
-      .catch((error) => console.error("User fetch error:", error));
+        .then((response) => console.log("User fetch response:", response))
+        .catch((error) => console.error("User fetch error:", error));
     }
   }, [userId, dispatch]);
-  console.log("Current user state:", { user, loadingFetchUser, errorFetchUser });
 
   if (loadingFetchUser) {
     return <LoadingItemDetailSkeleton />;
   }
 
-// Show error state if user fetch failed
-if (errorFetchUser) {
-  return (
-    <div className="error-container">
-      <p>Error loading user data. Please try again later.</p>
-    </div>
-  );
-}
-// Ensure user data exists before rendering main content
-if (!user?.user) {
-  return <LoadingItemDetailSkeleton />;
-}
+  // Show error state if user fetch failed
+  if (errorFetchUser) {
+    return (
+      <div className="error-container">
+        <p>Error loading user data. Please try again later.</p>
+      </div>
+    );
+  }
+  // Ensure user data exists before rendering main content
+  if (!user?.user) {
+    return <LoadingItemDetailSkeleton />;
+  }
 
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
@@ -220,8 +220,6 @@ if (!user?.user) {
   const handleImagesChange = ({ currentImages, removedImagesList }) => {
     setLocalImages(currentImages);
     setRemovedImages(removedImagesList);
-    console.log({ localImages });
-
     // Extract filenames
     const filenames = currentImages.map((image) => {
       if (image.file && image.file.name) {
@@ -234,15 +232,12 @@ if (!user?.user) {
       );
     });
 
-    console.log("Filenames:", filenames); // Debugging: log the filenames
-
     // Dispatch updates to Redux
     dispatch(updateField({ name: "images", value: filenames })); // Use filenames instead of full objects
     dispatch(blurField({ name: "images", value: filenames }));
   };
 
   const handleSubmit = async () => {
-    console.log(itemDataState);
     if (!user?.user) {
       ShowAlert(
         dispatch,
@@ -273,7 +268,6 @@ if (!user?.user) {
           if (hasError) {
             hasErrors = true;
             errors[key] = error;
-            console.log(error);
             dispatch(
               blurField({ name: key, value: field.value, itemType: FOR_SALE })
             );
@@ -335,8 +329,6 @@ if (!user?.user) {
         }),
       };
 
-      console.log("Submitting item data:", itemData);
-
       formData.append(
         itemType === FOR_RENT ? "listing" : "item",
         JSON.stringify(itemData)
@@ -353,7 +345,9 @@ if (!user?.user) {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-    /* if (socket) {
+      console.log(response.data);
+
+      /* if (socket) {
         const notification = {
           title: `New ${itemType === FOR_RENT ? "Listing!" : "Item for Sale!"}`,
           owner: {
@@ -382,7 +376,20 @@ if (!user?.user) {
         "Success",
         `Item for ${itemType === FOR_RENT ? "listing" : "sale"} added!`
       );
-      // navigate(`/items/${response.data.listing.id}`);
+
+      const itemWithType = {
+        ...(itemType === FOR_RENT ? response.data.listing : response.data.item),
+        itemType,
+      };
+
+      navigate(
+        `/${itemType === FOR_RENT ? MY_LISTINGS : MY_ITEMS}/${
+          itemType === FOR_RENT
+            ? response.data.listing.id
+            : response.data.item.id
+        }`,
+        { state: { item: itemWithType } }
+      );
     } catch (error) {
       ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
 

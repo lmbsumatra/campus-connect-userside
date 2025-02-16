@@ -109,6 +109,9 @@ const EditItem = () => {
       ? state.listingById
       : state.itemForSaleById
   );
+
+  console.log(itemData);
+  
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
   });
@@ -296,7 +299,7 @@ const EditItem = () => {
 
     // Format the removed dates to 'yy-mm-dd'
     const formattedRemovedDates = removed.map((removedDate) => {
-      return formatDateFromSelectDate(removedDate.date)
+      return formatDateFromSelectDate(removedDate.date);
     });
 
     // Set the formatted removed dates
@@ -309,7 +312,6 @@ const EditItem = () => {
     // Log the formatted removed dates for debugging
     console.log(formattedRemovedDates);
   };
-
 
   const handleCategoryChange = (selectedCategory) => {
     setCategory(selectedCategory);

@@ -36,11 +36,19 @@ export const defaultImages = [
   `https://res.cloudinary.com/campusconnectcl/image/upload/v1735920030/cc/upjauojvyedsriwhdcks.svg`,
 ];
 
-
-export const REACT_APP_API_URL="http://localhost:3001"
-export const REACT_APP_GOOGLE_CLIENT_ID="474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com"
+export const REACT_APP_API_URL = "http://localhost:3001";
+export const REACT_APP_GOOGLE_CLIENT_ID =
+  "474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com";
 
 // Follow system actions
 export const Follow = "Follow";
 export const FollowBack = "Follow Back";
 export const Following = "Following";
+
+// paths, outes
+export const RENT = "rent";
+export const SHOP = "shop";
+export const LEND = "lend";
+
+export const MY_LISTINGS = "profile/my-listings/edit"
+export const MY_ITEMS = "profile/my-for-sale/edit"
