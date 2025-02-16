@@ -12,10 +12,10 @@ import ReviewCard from "./ReviewCard.jsx"; // Import the new ReviewCard componen
 
 import axios from "axios";
 import ReportModal from "../../../../components/report/ReportModal";
-import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck";
 import ShowAlert from "../../../../utils/ShowAlert";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import "./UserProfileVisit.css"
+import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
 
 const UserProfileVisit = () => {
   const navigate = useNavigate();
@@ -100,13 +100,15 @@ const UserProfileVisit = () => {
     setShowReportModal(false); // Close the modal
   };
 
+  const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
+
   const handleReportClick = () => {
     if (loggedInUserId) {
       // Directly show the report modal if the user is logged in
       setShowReportModal(true);
     } else {
       // If the user is not logged in, use the authentication check
-      useHandleActionWithAuthCheck(
+      handleActionWithAuthCheck(
         () => setShowReportModal(true),
         () =>
           ShowAlert(
