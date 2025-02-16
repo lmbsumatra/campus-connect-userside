@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
@@ -95,28 +95,24 @@ const EditItem = () => {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const { userId, role } = useSelector(selectStudentUser);
   const location = useLocation();
+  const { id } = useParams();
+  console.log(id);
 
-  const itemData = location?.state?.item || {};
-  const {
-    [location.state.item.itemType === FOR_RENT
-      ? "listingById"
-      : "itemForSaleById"]: itemById,
-    [location.state.item.itemType === FOR_RENT
-      ? "loadingListingById"
-      : "loadingItemForSaleById"]: loading,
-  } = useSelector((state) =>
-    location.state.item.itemType === FOR_RENT
-      ? state.listingById
-      : state.itemForSaleById
-  );
-
-  console.log(itemData);
-  
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
   });
   const [category, setCategory] = useState("");
-  const [itemType, setItemType] = useState(location.state.item.itemType || "");
+
+  // getting item type
+  const urlPath = location.pathname;
+  const isForSaleUrl = urlPath.includes("/profile/my-for-sale");
+  const isForRentUrl = urlPath.includes("/profile/my-listings");
+  const [itemType, setItemType] = useState(
+    isForSaleUrl ? FOR_SALE : isForRentUrl ? FOR_RENT : null
+  );
+
+  // const itemData = location?.state?.item || {};
+
   const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
@@ -126,30 +122,50 @@ const EditItem = () => {
   const [showComparison, setShowComparison] = useState(false);
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [removedDates, setRemovedDates] = useState([]);
+  const [loading, setLoading] = useState();
+
+  const [itemData, setItemData] = useState();
+
+  const { itemForSaleById, loadingItemForSaleById } = useSelector(
+    (state) => state.itemForSaleById
+  );
+
+  const { listingById, loadingListingById } = useSelector(
+    (state) => state.listingById
+  );
 
   useEffect(() => {
-    if (!itemData) {
-      navigate("/unauthorized");
-      return;
+    if (id) {
+      if (isForSaleUrl) {
+        dispatch(fetchItemForSaleById({ userId, itemForSaleId: id }));
+      } else if (isForRentUrl) {
+        dispatch(fetchListingById({ userId, listingId: id }));
+      }
     }
+  }, [dispatch, isForSaleUrl, isForRentUrl, userId, id]);
 
-    if (location.state?.item?.itemType === FOR_SALE) {
-      const itemForSaleId = location.state.item.id;
-      dispatch(fetchItemForSaleById({ userId, itemForSaleId }));
-    } else if (location.state?.item?.itemType === FOR_RENT) {
-      const listingId = location.state.item.id;
-      dispatch(fetchListingById({ userId, listingId }));
-    }
-  }, [itemData, userId, role, navigate, dispatch]);
+  // Update local state when Redux data changes
   useEffect(() => {
-    if (!loading && itemById) {
+    if (isForSaleUrl && itemForSaleById) {
+      setItemData(itemForSaleById);
+      setLoading(loadingItemForSaleById);
+    } else if (isForRentUrl && listingById) {
+      setItemData(listingById);
+      setLoading(loadingListingById);
+    }
+  }, [isForSaleUrl, isForRentUrl, itemForSaleById, listingById]);
+
+  console.log("Item Data:", itemData);
+
+  useEffect(() => {
+    if (!loading && itemData) {
       const initialData = {
-        ...itemById,
-        images: itemById.images,
-        availableDates: itemById.availableDates,
+        ...itemData,
+        images: itemData.images,
+        availableDates: itemData.availableDates,
       };
       setOriginalData(initialData);
-      dispatch(populateItemData(itemById));
+      dispatch(populateItemData(itemData));
 
       const newSelectedDatesDurations = [];
       const unavailableDates = [];
@@ -181,7 +197,7 @@ const EditItem = () => {
       setSelectedDatesDurations(newSelectedDatesDurations);
       setUnavailableDates(unavailableDates);
     }
-  }, [loading, itemById, dispatch]);
+  }, [loading, itemData, dispatch]);
 
   useEffect(() => {
     if (itemDataState.category && itemDataState.category.value !== category) {
@@ -408,8 +424,8 @@ const EditItem = () => {
 
       const endpoint =
         itemType === FOR_RENT
-          ? `/listings/users/${userId}/update/${itemById.id}`
-          : `/item-for-sale/users/${userId}/update/${itemById.id}`;
+          ? `/listings/users/${userId}/update/${id}`
+          : `/item-for-sale/users/${userId}/update/${id}`;
 
       ShowAlert(dispatch, "loading", "Submitting changes", "Please wait...");
       const response = await axios.patch(`${baseApi}${endpoint}`, formData, {

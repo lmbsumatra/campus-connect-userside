@@ -14,7 +14,6 @@ export const fetchItemForSaleById = createAsyncThunk(
   "itemForSale/fetchItemForSaleById",
   async ({ userId, itemForSaleId }) => {
     const response = await axios.get(`${BASE_URL}/${userId}/get/${itemForSaleId}`);
-    console.log("HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", response.data, userId, itemForSaleId )
     return response.data;
   }
 );

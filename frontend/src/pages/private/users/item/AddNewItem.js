@@ -32,7 +32,6 @@ import {
 
 // Redux
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
-import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
 import { fetchUser } from "../../../../redux/user/userSlice.js";
 import {
   blurField,
