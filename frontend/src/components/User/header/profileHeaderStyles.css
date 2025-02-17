@@ -3,7 +3,6 @@
   padding: 14px;
   overflow: hidden;
   border-radius: 10px;
-  
   width: 100%;
 }
 
@@ -11,7 +10,7 @@
   height: 200px;
   background: var(--clr-main);
   position: relative;
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   overflow: hidden;

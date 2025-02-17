@@ -42,7 +42,20 @@
   overflow: hidden;
 }
 
-.btn-container{
+.btn-container {
   display: flex;
   gap: 16px;
+}
+
+.item-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 0;
+  margin: 0;
+  width: auto !important;
+  overflow: hidden;
+}
+
+.card-items-container {
+  padding: 8px;
 }

@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import deleteIcon from "../../assets/images/table/delete.svg";
+import deleteIcon from "../../assets/images/toolbar/delete.svg";
 import listIcon from "../../assets/images/toolbar/list.svg";
 import cardIcon from "../../assets/images/toolbar/card.svg";
 import filterIcon from "../../assets/images/toolbar/filter.svg";
 import "./toolbarStyles.css";
 import FilterModal from "../../pages/private/users/student-profile/FilterModal";
+import { Tooltip } from "@mui/material";
 
 function Toolbar({
-  selectedItems,
+  selectedItems = [],
   onSelectAll,
   onViewToggle,
   viewType,
@@ -37,7 +38,7 @@ function Toolbar({
   };
 
   return (
-    <div className="toolbar items">
+    <div className="toolbar">
       {/* Select/Deselect All Checkbox */}
       <div className="select-container">
         <label className="select">
@@ -51,24 +52,27 @@ function Toolbar({
       </div>
 
       {/* Search Input */}
-      <div className="search-container">
+      <div className="search-container light">
         <input
           type="text"
-          className="form-control"
+          className="light"
           placeholder="Search..."
           value={searchTerm}
           onChange={handleSearchChange}
         />
       </div>
 
-      <div>
-        <button
-          className="btn btn-icon primary"
-          onClick={() => handleShowFilterModal()}
-        >
-          <img src={filterIcon} alt="Filter icon" />
-        </button>
+      <div className="">
+        <Tooltip title="Click to use advance filter">
+          <button
+            className="btn btn-icon tertiary"
+            onClick={() => handleShowFilterModal()}
+          >
+            <img src={filterIcon} alt="Filter icon" />
+          </button>
+        </Tooltip>
       </div>
+
       {/* Filter Modal */}
       <FilterModal
         show={showFilterModal}
@@ -78,24 +82,36 @@ function Toolbar({
 
       {/* Toggle View Button */}
       <div className="view-type">
-        <button className="btn btn-icon primary" onClick={onViewToggle}>
-          {viewType === "card" ? (
-            <img src={listIcon} alt="List view" />
-          ) : (
-            <img src={cardIcon} alt="Card view" />
-          )}
-        </button>
+        <Tooltip
+          title={`Click to view in ${viewType === "card" ? "list" : "card"}`}
+        >
+          <button className="btn btn-icon tertiary" onClick={onViewToggle}>
+            {viewType === "card" ? (
+              <img src={listIcon} alt="List view" />
+            ) : (
+              <img src={cardIcon} alt="Card view" />
+            )}
+          </button>
+        </Tooltip>
       </div>
 
       {/* Action Button (Delete) */}
       <div className="">
-        <button
-          className="btn btn-icon primary"
-          disabled={selectedItems.length === 0}
-          onClick={onAction}
+        <Tooltip
+          title={`${
+            selectedItems.length === 0
+              ? "Select an item to delete "
+              : "Click to delete selected item"
+          }`}
         >
-          <img src={deleteIcon} alt="Delete" />
-        </button>
+          <button
+            className="btn btn-icon tertiary"
+            disabled={selectedItems.length === 0}
+            onClick={onAction}
+          >
+            <img src={deleteIcon} alt="Delete" />
+          </button>
+        </Tooltip>
       </div>
     </div>
   );

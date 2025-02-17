@@ -48,6 +48,7 @@ const allItemForSaleByUser = createSlice({
       // Fetch ItemForSale Cases
       .addCase(fetchAllItemForSaleByUser.pending, (state) => {
         state.loadingAllItemForSaleByUser = true;
+        state.allItemForSaleByUser = null;
       })
       .addCase(fetchAllItemForSaleByUser.fulfilled, (state, action) => {
         state.loadingAllItemForSaleByUser = false;
@@ -60,7 +61,7 @@ const allItemForSaleByUser = createSlice({
 
       // Delete itemForSaleId Cases
       .addCase(deleteItemForSaleById.pending, (state) => {
-        state.deletingitemForSaleId = true; // Show loading for delete
+        state.deletingItemForSale = true; // Show loading for delete
         state.deleteError = null; // Reset error
         state.deleteStatus = null;
       })
@@ -72,7 +73,7 @@ const allItemForSaleByUser = createSlice({
         state.deleteStatus = "success";
       })
       .addCase(deleteItemForSaleById.rejected, (state, action) => {
-        state.deletingItemForSaleById = false; // Stop loading
+        state.deletingItemForSale = false; // Stop loading
         state.deleteError = action.payload; // Capture the error
         state.deleteStatus = "failed";
       });

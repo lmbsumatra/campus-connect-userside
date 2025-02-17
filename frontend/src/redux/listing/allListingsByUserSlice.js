@@ -48,6 +48,7 @@ const allListingsByUser = createSlice({
       // Fetch Listings Cases
       .addCase(fetchAllListingsByUser.pending, (state) => {
         state.loadingAllListingsByUser = true;
+        state.allListingsByUser = null;
       })
       .addCase(fetchAllListingsByUser.fulfilled, (state, action) => {
         state.loadingAllListingsByUser = false;

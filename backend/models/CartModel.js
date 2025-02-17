@@ -85,12 +85,14 @@ module.exports = (sequelize) => {
       as: "listing_item",
       foreignKey: "item_id",
       constraints: false,
+      onDelete: "CASCADE",
     });
 
     Cart.belongsTo(models.ItemForSale, {
       as: "sale_item",
       foreignKey: "item_id",
       constraints: false,
+      onDelete: "CASCADE",
     });
 
     // Change the alias for the `date` association to avoid collision

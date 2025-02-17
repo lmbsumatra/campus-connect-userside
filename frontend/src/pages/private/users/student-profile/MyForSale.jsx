@@ -118,7 +118,7 @@ function MyForSale() {
   }
 
   return (
-    <div className="container rounded bg-white">
+    <div className="item-container">
       {error ? (
         <div>Error: {error}</div>
       ) : (
@@ -140,35 +140,38 @@ function MyForSale() {
             items={allItemForSaleByUser}
             onSearch={setSearchTerm}
           />
-          <TimeoutComponent
-            timeoutDuration={5000}
-            fallback={
-              <div className="card-container">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <LoadingItemCardSkeleton key={index} />
-                ))}
-              </div>
-            }
-          >
-            <ItemList
-              itemType={FOR_SALE}
-              items={allItemForSaleByUser.filter((item) =>
-                item.name.toLowerCase().includes(searchTerm.toLowerCase())
-              )}
-              title="For Sale"
-              isYou={true}
-              onOptionClick={handleOptionClick}
-              selectedItems={selectedItems}
-              onSelectItem={(itemId) => {
-                setSelectedItems((prev) =>
-                  prev.includes(itemId)
-                    ? prev.filter((id) => id !== itemId)
-                    : [...prev, itemId]
-                );
-              }}
-              viewType={viewType}
-            />
-          </TimeoutComponent>
+
+          <div className="card-items-container">
+            <TimeoutComponent
+              timeoutDuration={5000}
+              fallback={
+                <div className="card-container">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <LoadingItemCardSkeleton key={index} />
+                  ))}
+                </div>
+              }
+            >
+              <ItemList
+                itemType={FOR_SALE}
+                items={allItemForSaleByUser.filter((item) =>
+                  item.name.toLowerCase().includes(searchTerm.toLowerCase())
+                )}
+                title="For Sale"
+                isYou={true}
+                onOptionClick={handleOptionClick}
+                selectedItems={selectedItems}
+                onSelectItem={(itemId) => {
+                  setSelectedItems((prev) =>
+                    prev.includes(itemId)
+                      ? prev.filter((id) => id !== itemId)
+                      : [...prev, itemId]
+                  );
+                }}
+                viewType={viewType}
+              />
+            </TimeoutComponent>
+          </div>
         </>
       )}
     </div>

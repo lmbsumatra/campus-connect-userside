@@ -3,7 +3,8 @@ const { rollbackUpload } = require("../../config/multer");
 
 const deleteItemForSaleById = async (req, res) => {
   try {
-    const itemForSaleId = req.params.itemForSaleId;
+    const { itemForSaleId, userId } = req.params;
+    console.log("Attempting to delete itemForSale:", itemForSaleId, "by user:", userId);
 
     if (!itemForSaleId || isNaN(itemForSaleId)) {
       return res.status(400).json({ error: "Invalid itemForSale ID" });
@@ -14,10 +15,11 @@ const deleteItemForSaleById = async (req, res) => {
       return res.status(404).json({ error: "itemForSale not found" });
     }
 
-    if (itemForSale.seller_id && itemForSale.seller_id.toString() !== req.params.userId) {
+    if (itemForSale.seller_id.toString() !== userId) {
       return res.status(403).json({ error: "Unauthorized to delete this itemForSale" });
     }
 
+    // Handle Cloudinary Image Deletion
     let images = [];
     if (itemForSale.images && typeof itemForSale.images === "string") {
       try {
@@ -29,45 +31,24 @@ const deleteItemForSaleById = async (req, res) => {
 
     if (Array.isArray(images) && images.length > 0) {
       try {
-        await rollbackUpload(images);
-        console.log("Cloudinary rollback completed for images:", images);
+        const cloudinaryBaseUrl = "https://res.cloudinary.com/";
+        const cloudinaryImages = images.filter((url) => url.startsWith(cloudinaryBaseUrl));
+
+        if (cloudinaryImages.length > 0) {
+          await rollbackUpload(cloudinaryImages);
+          console.log("Cloudinary rollback completed for images:", cloudinaryImages);
+        } else {
+          console.log("No Cloudinary images to delete.");
+        }
       } catch (error) {
         console.error("Error during Cloudinary rollback:", error.message);
       }
     }
 
-    const dates = await models.Date.findAll({
-      where: {
-        item_id: itemForSaleId,
-        item_type: "item_for_sale", // Ensure only dates linked to `itemForSale` are targeted
-      },
-      attributes: ["id"],
-    });
-
-    const dateIds = dates.map((date) => date.id);
-
-    if (dateIds.length > 0) {
-      await models.Duration.destroy({
-        where: {
-          date_id: dateIds,
-        },
-      });
-
-      await models.Date.destroy({
-        where: {
-          id: dateIds,
-        },
-      });
-
-      console.log(`Deleted associated dates and durations for itemForSale ID ${itemForSaleId}`);
-    }
-
+    // Delete the item (Cascade deletes related records)
     await itemForSale.destroy();
 
-    console.log(
-      `itemForSale ID ${itemForSaleId} and associated images deleted by User ID ${req.params.userId}`
-    );
-
+    console.log(`ItemForSale ID ${itemForSaleId} deleted successfully by User ID ${userId}`);
     res.status(204).send();
   } catch (error) {
     console.error("Error deleting itemForSale:", error.message);

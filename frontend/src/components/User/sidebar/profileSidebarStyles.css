@@ -5,7 +5,7 @@
 .profile-sidebar {
   background-color: white;
   border-radius: 10px;
-  width: 200px;
+  min-width: 200px;
   height: 100%; /* Match parent height */
   overflow-y: auto;
 }
