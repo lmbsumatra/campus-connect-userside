@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
 import {
-  formatDate,
   formatDateFromSelectDate,
 } from "../../../../utils/dateFormat.js";
 
@@ -47,11 +46,6 @@ import axios from "axios";
 import { baseApi } from "../../../../App";
 import { io } from "socket.io-client";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
-
-const UNAVAILABLE_DATES = [
-  new Date(2024, 11, 25), // Christmas
-  new Date(2025, 0, 1), // New Year's
-];
 
 const ValidationError = ({ message }) => (
   <div className="validation error">

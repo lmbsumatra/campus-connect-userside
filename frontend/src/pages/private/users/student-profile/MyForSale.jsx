@@ -10,7 +10,6 @@ import {
 } from "../../../../redux/item-for-sale/allItemForSaleByUserSlice";
 import ShowAlert from "../../../../utils/ShowAlert";
 import { FOR_SALE } from "../../../../utils/consonants";
-import LoadingPostCardSkeleton from "../../../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
 import TimeoutComponent from "../../../../utils/TimeoutComponent";
 import LoadingItemCardSkeleton from "../../../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton";
 

@@ -262,7 +262,7 @@ export const validateInput = (name, value, itemType) => {
         "image/gif",
         "image/webp",
       ];
-      const maxSize = 5 * 1024 * 1024; // 5MB limit
+      // const maxSize = 5 * 1024 * 1024; // 5MB limit
 
       if (!value || value.length === 0) {
         hasError = true;

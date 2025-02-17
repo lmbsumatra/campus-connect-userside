@@ -264,7 +264,7 @@
     opacity: 0.8;
 }
 
-@keyframes pulse {
+/* @keyframes pulse {
     0% {
         transform: scale(1);
     }
@@ -280,4 +280,4 @@
 
 .icon-link[data-count]:not([data-count="0"])::after {
     animation: pulse 0.3s ease-in-out;
-}
+} */

@@ -367,7 +367,7 @@ const Notification = ({
   return (
     <div className="notification-container" id="notif-popup">
       <a
-        className={`icon-wrapper ${isDarkTheme ? "dark" : "light"}`}
+        className={`icon-link ${isDarkTheme ? "dark" : "light"}`}
         href="#"
         onClick={(e) => {
           e.preventDefault();

@@ -396,6 +396,7 @@ module.exports = ({ emitNotification }) => {
       });
     }
   };
+
   const handOverRentalTransaction = async (req, res) => {
     const { id } = req.params;
     const { userId } = req.body; // userId to identify who is confirming the handover
@@ -686,15 +687,8 @@ module.exports = ({ emitNotification }) => {
       // Save all changes to the rental
       await rental.save();
 
-      // Return the updated rental with a success message
-      return res.json({
-        success: true,
-        message:
-          rental.status === "Completed"
-            ? "Rental transaction has been completed successfully."
-            : "Confirmation recorded successfully.",
-        rental: rental,
-      });
+      // Return the updated rental data
+      res.json(rental);
     } catch (error) {
       console.error("Error completing rental transaction:", error);
       return res.status(500).json({
