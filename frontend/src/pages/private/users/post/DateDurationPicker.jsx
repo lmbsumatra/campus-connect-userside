@@ -257,9 +257,9 @@ const DateDurationPicker = ({
     if (dateFound) {
       setRemovedDate((prev) => [...prev, dateFound]); // Add to removed dates array
       setDates(dates.filter((d) => d.date !== dateToRemove.date)); // Remove from dates
-      console.log("Removed Date:", dateFound); // Debug log
+      // console.log("Removed Date:", dateFound); // Debug log
     } else {
-      console.log("Date not found:", dateToRemove.date); // Debug log
+      // console.log("Date not found:", dateToRemove.date); // Debug log
     }
   };
 
@@ -289,45 +289,70 @@ const DateDurationPicker = ({
                     (item) => new Date(item.date)
                   )}
                   dayClassName={(date) => {
+                    // Normalize the date (remove time part)
                     const dateWithoutTime = new Date(
                       date.getFullYear(),
                       date.getMonth(),
                       date.getDate()
-                    ); // Normalize to date without time
+                    );
                     const unavailableDateWithoutTime = unavailableDates.map(
-                      (d) =>
-                        new Date(d.getFullYear(), d.getMonth(), d.getDate()) // Normalize to date without time
+                      (d) => new Date(d.date).setHours(0, 0, 0, 0) // Normalize to date without time
                     );
 
-                    if (
-                      unavailableDateWithoutTime.some(
-                        (d) => d.getTime() === dateWithoutTime.getTime()
-                      )
-                    ) {
-                      return "bg-danger"; // Mark the unavailable dates with bg-danger
+                    // Check if the date is unavailable
+                    const isUnavailable = unavailableDateWithoutTime.some(
+                      (d) => d === dateWithoutTime.getTime()
+                    );
+
+                    // Return the appropriate class for unavailable or selected dates
+                    if (isUnavailable) {
+                      return "bg-danger"; // Highlight unavailable dates (red)
                     } else if (isSelected(date)) {
-                      return "bg-warning"; // Mark the selected dates with bg-warning
+                      return "bg-warning"; // Highlight selected dates (yellow)
                     } else if (
                       selectedDatesDurations.some(
                         (d) => new Date(d.date).getTime() === date.getTime()
                       )
                     ) {
-                      return "bg-blue"; // Mark the highlighted dates with bg-blue
+                      return "bg-blue"; // Highlight dates with durations (blue)
                     } else {
-                      return "bg-green"; // Mark other available dates with bg-green
+                      return "bg-green"; // Default available date (green)
                     }
                   }}
                   renderDayContents={(day, date) => {
-                    const isUnavailable = unavailableDates.some(
-                      (d) => d.getTime() === date.getTime()
+                    // Normalize the `date` to a date without the time (set the time to 00:00:00)
+                    const normalizedDate = new Date(
+                      date.getFullYear(),
+                      date.getMonth(),
+                      date.getDate()
                     );
+
+                    // Find if the current date is unavailable by checking against the unavailableDates
+                    const unavailableDate = unavailableDates.find((d) => {
+                      // Normalize the unavailable date to a date without time as well
+                      const unavailableNormalizedDate = new Date(d.date);
+                      unavailableNormalizedDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00
+
+
+                      // Compare the normalized dates (ignore time)
+                      return (
+                        normalizedDate.getTime() ===
+                        unavailableNormalizedDate.getTime()
+                      );
+                    });
+
                     return (
                       <Tooltip
-                        title={isUnavailable ? "This date is unavailable" : ""}
+                        title={
+                          unavailableDate ? unavailableDate.reason : ""
+                        }
                         arrow
-                        disableHoverListener={!isUnavailable}
+                        disableHoverListener={!unavailableDate}
                       >
-                        <span>{day}</span>
+                        <span
+                        >
+                          {day}
+                        </span>
                       </Tooltip>
                     );
                   }}

@@ -57,6 +57,7 @@ import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import { addItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
+import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
 
 const UNAVAILABLE_DATES = [
   new Date(2024, 11, 25), // Christmas
@@ -108,10 +109,14 @@ const AddNewItem = () => {
     (state) => state.user
   );
 
+  const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
+    useSelector((state) => state.unavailableDates);
+
   const { userId } = useSelector(selectStudentUser);
-  const socket = io("http://localhost:3001", {
-    transports: ["polling", "websocket"],
-  });
+  // comment ko lang to, insufficient resources
+  // const socket = io("http://localhost:3001", {
+  //   transports: ["polling", "websocket"],
+  // });
 
   const [category, setCategory] = useState("");
   const [itemType, setItemType] = useState(FOR_RENT);
@@ -123,6 +128,28 @@ const AddNewItem = () => {
   const handleGenerateData = () => {
     dispatch(generateSampleData());
   };
+
+  useEffect(() => {
+    dispatch(fetchUnavailableDates());
+  }, [dispatch]);
+
+  const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
+    []
+  );
+
+  useEffect(() => {
+    if (unavailableDates && unavailableDates.length > 0) {
+
+      setFormattedUnavailableDates(
+        unavailableDates.map((item) => {
+          return {
+            date: new Date(item.date), // Convert string to Date object
+            reason: item.description, // Keep the reason
+          };
+        })
+      );
+    }
+  }, [unavailableDates]);
 
   useEffect(() => {
     if (userId) {
@@ -522,7 +549,7 @@ const AddNewItem = () => {
               show={showDateDurationPicker}
               onClose={() => setShowDateDurationPicker(false)}
               onSaveDatesDurations={handleSaveDatesDurations}
-              unavailableDates={UNAVAILABLE_DATES}
+              unavailableDates={formattedUnavailableDates}
             />
 
             <div className="date-picker">
@@ -540,7 +567,9 @@ const AddNewItem = () => {
                 highlightDates={selectedDatesDurations.map(
                   (item) => new Date(item.date)
                 )}
-                excludeDates={UNAVAILABLE_DATES.map((date) => new Date(date))}
+                excludeDates={formattedUnavailableDates.map(
+                  (item) => new Date(item.date)
+                )}
               />
             </div>
 

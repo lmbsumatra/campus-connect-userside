@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
-import { formatDate, formatDateFromSelectDate } from "../../../../utils/dateFormat.js";
+import {
+  formatDate,
+  formatDateFromSelectDate,
+} from "../../../../utils/dateFormat.js";
 
 // Components
 import UserToolbar from "../common/UserToolbar";
@@ -42,6 +45,7 @@ import { ToastContainer } from "react-toastify";
 import axios from "axios";
 import { baseApi } from "../../../../App";
 import { io } from "socket.io-client";
+import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
 
 const UNAVAILABLE_DATES = [
   new Date(2024, 11, 25), // Christmas
@@ -104,6 +108,9 @@ const AddNewPost = () => {
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
   const [removedImages, setRemovedImages] = useState([]);
   const [localImages, setLocalImages] = useState([]);
+  const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
+    useSelector((state) => state.unavailableDates);
+
 
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
@@ -116,6 +123,27 @@ const AddNewPost = () => {
     }
   }, [userId, dispatch]);
 
+  useEffect(() => {
+    dispatch(fetchUnavailableDates());
+  }, [dispatch]);
+
+  const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
+    []
+  );
+
+  useEffect(() => {
+    if (unavailableDates && unavailableDates.length > 0) {
+      setFormattedUnavailableDates(
+        unavailableDates.map((item) => {
+          return {
+            date: new Date(item.date), // Convert string to Date object
+            reason: item.description, // Keep the reason
+          };
+        })
+      );
+    }
+  }, [unavailableDates]);
+
   const handleFieldChange = (name, value) => {
     dispatch(updateField({ name, value }));
 
@@ -125,7 +153,6 @@ const AddNewPost = () => {
   const handleFieldBlur = (name, value) => {
     dispatch(blurField({ name, value }));
   };
-
 
   const getDurationsForDate = (date) => {
     if (!date) return [];
@@ -165,7 +192,7 @@ const AddNewPost = () => {
   };
 
   const handleSaveDatesDurations = (datesDurations) => {
-    console.log(datesDurations)
+    console.log(datesDurations);
     // Assuming datesDurations is an array
     const serializedDates = datesDurations.map((dateObj) => ({
       ...dateObj,
@@ -205,7 +232,6 @@ const AddNewPost = () => {
     return <LoadingItemDetailSkeleton />;
   }
 
-
   const handleCategoryChange = (selectedCategory) => {
     setCategory(selectedCategory);
     dispatch(updateField({ name: "category", value: selectedCategory }));
@@ -239,14 +265,14 @@ const AddNewPost = () => {
   const handleSubmit = async () => {
     let hasErrors = false;
     console.log("Initial Post Data State:", postDataState);
-  
+
     Object.keys(postDataState).forEach((key) => {
       if (key !== "isFormValid") {
         const field = postDataState[key];
         console.log("Validating field:", key, "Value:", field.value);
-  
+
         const { hasError, error } = validateInput(key, field.value);
-  
+
         if (hasError) {
           hasErrors = true;
           dispatch(blurField({ name: key, value: "" }));
@@ -254,19 +280,24 @@ const AddNewPost = () => {
         }
       }
     });
-  
+
     console.log("Post Data State after Validation:", postDataState);
-  
+
     if (hasErrors) {
-      ShowAlert(dispatch, "error", "Error", "Please correct the highlighted errors.");
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Please correct the highlighted errors."
+      );
       const firstError = document.querySelector(".validation.error");
       firstError?.scrollIntoView({ behavior: "smooth" });
       return;
     }
-  
+
     try {
       const formData = new FormData();
-  
+
       console.log("Adding Local Images to FormData:");
       localImages
         .filter((image) => image.file instanceof File)
@@ -274,7 +305,7 @@ const AddNewPost = () => {
           console.log("Adding image:", image.file.name);
           formData.append("upload_images", image.file);
         });
-  
+
       const itemData = {
         [itemType === TO_RENT ? "renterId" : "buyerId"]: userId,
         category: postDataState.category.value,
@@ -284,27 +315,26 @@ const AddNewPost = () => {
         dates: postDataState.requestDates.value,
         specs: postDataState.specs.value,
       };
-  
+
       console.log("Item Data:", itemData);
-  
+
       formData.append("post", JSON.stringify(itemData));
-  
+
       console.log("FormData before submission:");
       formData.forEach((value, key) => {
         console.log(key, value);
       });
-  
+
       const endpoint = itemType === TO_RENT ? "/posts/create" : "/posts/create";
       const notificationType =
         itemType === TO_RENT ? "new-post-to-rent" : "new-post-to-buy";
-  
+
       const response = await axios.post(`${baseApi}${endpoint}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-  
-      console.log("Backend Response Data:", response.data);
-  
-     /* if (socket) {
+
+
+      /* if (socket) {
         socket.emit("new-listing-notification", {
           title: `${itemType === TO_RENT ? "New Post to Rent" : "New Post to Buy"} Item`,
           owner: `${user?.first_name} ${user?.last_name}`,
@@ -318,16 +348,16 @@ const AddNewPost = () => {
     } catch (error) {
       console.error("Error Response:", error.response?.data);
       console.error("Error Object:", error);
-  
+
       const errorMessage =
-        error.response?.data?.message || "Failed to create listing. Please try again.";
+        error.response?.data?.message ||
+        "Failed to create listing. Please try again.";
       ShowAlert(dispatch, "error", "Error", errorMessage);
-  
+
       const firstError = document.querySelector(".validation.error");
       firstError?.scrollIntoView({ behavior: "smooth" });
     }
   };
-  
 
   return (
     <div className="container-content add-post-detail">
@@ -414,7 +444,7 @@ const AddNewPost = () => {
               show={showDateDurationPicker}
               onClose={() => setShowDateDurationPicker(false)}
               onSaveDatesDurations={handleSaveDatesDurations}
-              unavailableDates={UNAVAILABLE_DATES}
+              unavailableDates={formattedUnavailableDates}
             />
 
             <div className="date-picker">
@@ -431,7 +461,9 @@ const AddNewPost = () => {
                 highlightDates={selectedDatesDurations.map(
                   (item) => new Date(item.date)
                 )}
-                excludeDates={UNAVAILABLE_DATES.map((date) => new Date(date))}
+                excludeDates={formattedUnavailableDates.map(
+                  (item) => new Date(item.date)
+                )}
               />
             </div>
 

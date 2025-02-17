@@ -29,6 +29,7 @@ import merchantReducer from "../redux/merchant/merchantSlice";
 import itemFormReducer from "../redux/item-form/itemFormSlice";
 import postFormReducer from "../redux/post-form/postFormSlice";
 import notificationReducer from "../redux/notif/notificationSlice";
+import unavailableDatesReducer from "../redux/dates/unavaibleDatesSlice";
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -60,6 +61,7 @@ const appReducer = combineReducers({
   rentalTransactions: userTransactionsReducer,
   itemForm: itemFormReducer,
   postForm: postFormReducer,
+  unavailableDates: unavailableDatesReducer,
 });
 
 // Root reducer with reset functionality
