@@ -29,6 +29,7 @@ import {
   updateRequestDates,
   updateField,
   validateInput,
+  clearPostForm,
 } from "../../../../redux/post-form/postFormSlice";
 
 // Assets
@@ -111,7 +112,6 @@ const AddNewPost = () => {
   const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
     useSelector((state) => state.unavailableDates);
 
-
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
     console.log(itemType);
@@ -125,6 +125,7 @@ const AddNewPost = () => {
 
   useEffect(() => {
     dispatch(fetchUnavailableDates());
+    dispatch(clearPostForm());
   }, [dispatch]);
 
   const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
@@ -329,10 +330,11 @@ const AddNewPost = () => {
       const notificationType =
         itemType === TO_RENT ? "new-post-to-rent" : "new-post-to-buy";
 
+      ShowAlert(dispatch, "loading", "Creating listing", "Please wait...");
+
       const response = await axios.post(`${baseApi}${endpoint}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
 
       /* if (socket) {
         socket.emit("new-listing-notification", {
@@ -342,9 +344,16 @@ const AddNewPost = () => {
           type: notificationType,
         });
       }
+
+      
   */
+
+      await ShowAlert(dispatch, "success", "Success", `Post added!`, {
+        text: "Ok",
+      });
+
       ShowAlert(dispatch, "loading", "Redirecting");
-      // navigate(`/items/${response.data.item.id}`);
+      navigate(`/profile/my-posts`, { state: { redirecting: true } });
     } catch (error) {
       console.error("Error Response:", error.response?.data);
       console.error("Error Object:", error);

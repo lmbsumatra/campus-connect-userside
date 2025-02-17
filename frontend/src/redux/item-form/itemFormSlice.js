@@ -460,8 +460,16 @@ const itemFormSlice = createSlice({
       );
     },
     populateItemData: (state, action) => {
+      Object.keys(state).forEach((key) => {
+        if (key !== "isFormValid") {
+          // Don't touch isFormValid here
+          state[key].value = "";
+          state[key].hasError = false;
+          state[key].error = "";
+          state[key].triggered = false;
+        }
+      });
       let itemData = action.payload;
-
 
       // Now itemData is guaranteed to be an object
       Object.keys(itemData).forEach((key) => {
@@ -480,6 +488,18 @@ const itemFormSlice = createSlice({
         (key) => key === "isFormValid" || !state[key].hasError
       );
     },
+    // Clear the form fields but retain structure
+    clearItemForm: (state) => {
+      Object.keys(state).forEach((key) => {
+        if (key !== "isFormValid") {
+          // Don't touch isFormValid here
+          state[key].value = "";
+          state[key].hasError = false;
+          state[key].error = "";
+          state[key].triggered = false;
+        }
+      });
+    },
   },
 });
 
@@ -490,6 +510,7 @@ export const {
   updateAvailableDates,
   generateSampleData,
   populateItemData,
+  clearItemForm,
 } = itemFormSlice.actions;
 
 // Export the reducer

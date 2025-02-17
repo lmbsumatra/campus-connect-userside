@@ -35,6 +35,7 @@ import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import { fetchUser } from "../../../../redux/user/userSlice.js";
 import {
   blurField,
+  clearItemForm,
   generateSampleData,
   updateAvailableDates,
   updateField,
@@ -131,6 +132,7 @@ const AddNewItem = () => {
 
   useEffect(() => {
     dispatch(fetchUnavailableDates());
+    dispatch(clearItemForm());
   }, [dispatch]);
 
   const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
@@ -139,7 +141,6 @@ const AddNewItem = () => {
 
   useEffect(() => {
     if (unavailableDates && unavailableDates.length > 0) {
-
       setFormattedUnavailableDates(
         unavailableDates.map((item) => {
           return {

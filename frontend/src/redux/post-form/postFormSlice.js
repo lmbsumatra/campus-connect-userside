@@ -322,7 +322,7 @@ const postFormSlice = createSlice({
   initialState,
   reducers: {
     updateRequestDates: (state, action) => {
-      console.log(action.payload)
+      console.log(action.payload);
       const { hasError, error } = validateInput("requestDates", action.payload);
       state.requestDates = {
         value: action.payload,
@@ -356,10 +356,7 @@ const postFormSlice = createSlice({
       );
     },
     updateAvailableDates: (state, action) => {
-      const { hasError, error } = validateInput(
-        "requestDates",
-        action.payload
-      );
+      const { hasError, error } = validateInput("requestDates", action.payload);
       state.requestDates = {
         value: action.payload,
         hasError,
@@ -367,11 +364,23 @@ const postFormSlice = createSlice({
         triggered: true,
       };
     },
+    // Clear the form fields but retain structure
+    clearPostForm: (state) => {
+      Object.keys(state).forEach((key) => {
+        if (key !== "isFormValid") {
+          // Don't touch isFormValid here
+          state[key].value = "";
+          state[key].hasError = false;
+          state[key].error = "";
+          state[key].triggered = false;
+        }
+      });
+    },
   },
 });
 
 // Export actions
-export const { updateField, blurField, updateRequestDates } =
+export const { updateField, blurField, updateRequestDates, clearPostForm } =
   postFormSlice.actions;
 
 // Export the reducer

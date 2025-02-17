@@ -26,6 +26,7 @@ import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.
 import { fetchUser } from "../../../../redux/user/userSlice.js";
 import {
   blurField,
+  clearItemForm,
   generateSampleData,
   populateItemData,
   updateAvailableDates,
@@ -49,8 +50,7 @@ import ComparisonView from "./ComparisonView.jsx";
 import { Modal } from "react-bootstrap";
 import { editItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
 import { fetchItemForSaleById } from "../../../../redux/item-for-sale/itemForSaleByIdSlice.js";
-
-const UNAVAILABLE_DATES = [new Date(2024, 11, 25), new Date(2025, 0, 1)];
+import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
@@ -92,6 +92,7 @@ const EditItem = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const itemDataState = useSelector((state) => state.itemForm);
+  console.log(itemDataState);
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const { userId, role } = useSelector(selectStudentUser);
   const location = useLocation();
@@ -134,6 +135,27 @@ const EditItem = () => {
   const { listingById, loadingListingById, errorListingById } = useSelector(
     (state) => state.listingById
   );
+
+  useEffect(() => {
+    dispatch(fetchUnavailableDates());
+  }, [dispatch]);
+
+  const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
+    []
+  );
+
+  useEffect(() => {
+    if (unavailableDates && unavailableDates.length > 0) {
+      setFormattedUnavailableDates(
+        unavailableDates.map((item) => {
+          return {
+            date: new Date(item.date), // Convert string to Date object
+            reason: item.description, // Keep the reason
+          };
+        })
+      );
+    }
+  }, [unavailableDates]);
 
   useEffect(() => {
     if (id) {
@@ -236,14 +258,14 @@ const EditItem = () => {
   }, [itemDataState.itemType.value, itemType]);
 
   useEffect(() => {
-    if (itemDataState.images?.value) {
+    // Check if itemData is available and itemDataState.images has value
+    if (itemData && itemDataState.images?.value && localImages.length === 0) {
       // Only set localImages once when initially loading the data
-      if (localImages.length === 0) {
-        setLocalImages(itemDataState.images.value);
-      }
+      setLocalImages(itemDataState.images.value);
     }
-  }, [itemDataState.images?.value]);
+  }, [itemData, itemDataState.images?.value, localImages.length]); // Depend on itemData and itemDataState.images
 
+ 
   useEffect(() => {
     if (userId) {
       dispatch(fetchUser(userId));
@@ -256,10 +278,10 @@ const EditItem = () => {
       if (!loading && error) {
         await ShowAlert(dispatch, "error", "Error", "Item not found!", {
           text: "Ok",
-        }); 
+        });
         setRedirecting(true);
 
-        ShowAlert(dispatch, "loading", "Redirecting"); 
+        ShowAlert(dispatch, "loading", "Redirecting");
 
         setTimeout(() => {
           navigate("/profile", { state: { redirecting: true } });
@@ -270,7 +292,13 @@ const EditItem = () => {
     handleError();
   }, [loading, error, dispatch, navigate]);
 
-  if (loading || error || loadingFetchUser || (!loading && error)) {
+  if (
+    loading ||
+    !itemData ||
+    error ||
+    loadingFetchUser ||
+    (!loading && error)
+  ) {
     return <LoadingItemDetailSkeleton />;
   }
 
@@ -625,8 +653,8 @@ const EditItem = () => {
               onClose={() => setShowDateDurationPicker(false)}
               onSaveDatesDurations={handleSaveDatesDurations}
               unavailableDates={[
-                ...UNAVAILABLE_DATES, // Add the hardcoded unavailable dates
-                ...unavailableDates.map((date) => new Date(date)), // Add dynamically determined unavailable dates
+                ...formattedUnavailableDates, // Add the hardcoded unavailable dates
+                ...formattedUnavailableDates.map((item) => new Date(item.date)), // Add dynamically determined unavailable dates
               ]}
               selectedDatesDurations={selectedDatesDurations}
             />
@@ -646,7 +674,9 @@ const EditItem = () => {
                 highlightDates={selectedDatesDurations.map(
                   (item) => new Date(item.date)
                 )}
-                excludeDates={UNAVAILABLE_DATES.map((date) => new Date(date))}
+                excludeDates={formattedUnavailableDates.map(
+                  (item) => new Date(item.date)
+                )}
                 dayClassName={(date) => {
                   const dateWithoutTime = new Date(
                     date.getFullYear(),
