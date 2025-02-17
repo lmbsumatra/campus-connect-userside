@@ -4,7 +4,7 @@ import { Route } from "react-router-dom";
 import Profile from "../pages/private/users/student-profile/Profile.js";
 import MessagePage from "../pages/private/users/message-inbox/MessagePage.js";
 import RentProgress from "../components/myrentals/RentProgress.jsx";
-import UserProfileVisit from "../pages/private/users/other-user-profile/UserProfileVisit.jsx"
+import UserProfileVisit from "../pages/private/users/other-user-profile/UserProfileVisit.jsx";
 import StudentProtectedRoute from "../components/Protected Route/StudentProtectedRoute.js";
 import Cart from "../pages/private/users/cart/Cart.js";
 import PostDetail from "../pages/public/post/PostDetail.js";
@@ -13,9 +13,10 @@ import ItemForSaleDetail from "../pages/public/item-for-sale/ItemForSaleDetail.j
 import AddNewLItem from "../pages/private/users/item/AddNewItem.js";
 import AddNewPost from "../pages/private/users/post/AddNewPost.js";
 import EditItem from "../pages/private/users/item/EditItem.js";
+import SuccessPayment from "../pages/private/users/success-payment/SuccessPayment.js";
+import CancelPayment from "../pages/private/users/cancel-payment/CancelPayment.js";
 
 const StudentProtectedRoutes = [
-
   <Route
     path="/profile/my-posts/new"
     element={
@@ -97,6 +98,23 @@ const StudentProtectedRoutes = [
     element={
       <StudentProtectedRoute allowedRoles="student">
         <UserProfileVisit />
+      </StudentProtectedRoute>
+    }
+  />,
+  <Route
+    path="/success-payment"
+    element={
+      <StudentProtectedRoute allowedRoles="student">
+        <SuccessPayment />
+      </StudentProtectedRoute>
+    }
+  />,
+
+  <Route
+    path="/cancel-payment"
+    element={
+      <StudentProtectedRoute allowedRoles="student">
+        <CancelPayment />
       </StudentProtectedRoute>
     }
   />,

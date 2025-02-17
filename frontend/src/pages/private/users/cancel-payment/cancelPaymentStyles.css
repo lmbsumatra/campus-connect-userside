@@ -1,0 +1,73 @@
+.cancel-payment-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f5f5;
+  padding: 36px;
+}
+.cancel-payment-container .wrapper {
+  width: auto;
+  height: auto;
+  max-width: 400px;
+  background-color: white;
+  padding: 36px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cancel-payment-container .transaction-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.cancel-payment-container .btn.btn-rectangle.primary,
+.cancel-payment-container .btn.btn-rectangle.secondary {
+  width: 100%;
+}
+
+.cancel-payment-container .action-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cancel-payment-container .context {
+  color: gray;
+}
+
+.cancel-payment-container .payment-details-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cancel-payment-container .payment-details-container .pd-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.cancel-payment-container .payment-details-container .pd-wrapper .icon img {
+  width: 52px;
+  height: auto;
+}
+
+.cancel-payment-container .payment-details-container .wallet-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1;
+}
+
+.cancel-payment-container .payment-details-container > * {
+  display: flex;
+  flex-direction: column;
+}
