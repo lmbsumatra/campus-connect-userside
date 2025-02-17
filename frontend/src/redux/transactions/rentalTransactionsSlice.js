@@ -2,7 +2,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Async thunk for fetching rental transactions
+/**
+ * Async thunk to fetch rental transactions for a user.
+ */
 export const fetchRentalTransactions = createAsyncThunk(
   'rentalTransactions/fetch',
   async (userId, { rejectWithValue }) => {
@@ -15,11 +17,7 @@ export const fetchRentalTransactions = createAsyncThunk(
       const response = await axios.get(`http://localhost:3001/rental-transaction/user/${userId}`);
       console.log('Fetch response:', response.data);
 
-      if (response.data && Array.isArray(response.data)) {
-        return response.data;
-      } else {
-        return [];
-      }
+      return Array.isArray(response.data) ? response.data : [];
     } catch (err) {
       console.error('Error fetching rental transactions:', err.message);
       return rejectWithValue(err.message);
@@ -27,64 +25,47 @@ export const fetchRentalTransactions = createAsyncThunk(
   }
 );
 
-// Async thunk to update rental status
+/**
+ * Async thunk to update rental transaction status and data.
+ */
 export const updateRentalStatus = createAsyncThunk(
   'rentalTransactions/updateStatus',
   async ({ rentalId, newStatus, userId }, { rejectWithValue, dispatch, getState }) => {
     console.log('Updating rental status:', { rentalId, newStatus, userId });
 
     try {
-      // Make API call to update status
+      // API call to update status
       const response = await axios.post(
         `http://localhost:3001/rental-transaction/user/${rentalId}/${newStatus}`,
         { userId }
       );
 
-      console.log('Update status response:', response.data);
+      console.log('Update response:', response.data);
 
       if (response.data) {
-        // Define a variable to hold the final status
-        let finalStatus = newStatus;  // Default is the newStatus provided
+        // Extract updated transaction from response
+        const updatedTransaction = response.data;
 
-        // Update the transaction based on the new status
-        const updatedTransactions = getState().rentalTransactions.transactions.map((transaction) => {
-          if (transaction.id === rentalId) {
-            // Update the transaction with the correct finalStatus
-            return { ...transaction, status: finalStatus };
-          }
-          return transaction; // Keep other transactions as is
-        });
+        // Get current state and update only the modified transaction
+        const updatedTransactions = getState().rentalTransactions.transactions.map((transaction) =>
+          transaction.id === rentalId ? updatedTransaction : transaction
+        );
 
-        // Dispatch the action to update the rental transaction list
-        dispatch(updateRentalTransactionList(updatedTransactions));
+        // Dispatch action to update Redux state
+        dispatch(setRentalTransactions(updatedTransactions));
 
-        // Return rentalId and the final status
-        return { rentalId, newStatus: finalStatus };
+        return updatedTransaction;
       } else {
-        throw new Error('Failed to update status');
+        throw new Error('Failed to update transaction');
       }
     } catch (err) {
-      console.error('Error updating rental status:', err.message);
+      console.error('Error updating rental transaction:', err.message);
       return rejectWithValue(err.message);
     }
   }
 );
 
-// Async thunk to update the list of rental transactions
-export const updateRentalTransactionList = createAsyncThunk(
-  'rentalTransactions/updateList',
-  async (updatedTransactions, { rejectWithValue }) => {
-    console.log('Updating rental transaction list:', updatedTransactions);
-    try {
-      return updatedTransactions; // Return the updated list
-    } catch (err) {
-      console.error('Error updating transaction list:', err.message);
-      return rejectWithValue(err.message);
-    }
-  }
-);
-
-// Rental transactions slice
+// Redux slice for rental transactions
 const rentalTransactionsSlice = createSlice({
   name: 'rentalTransactions',
   initialState: {
@@ -92,7 +73,11 @@ const rentalTransactionsSlice = createSlice({
     loading: false,
     error: null
   },
-  reducers: {},
+  reducers: {
+    setRentalTransactions: (state, action) => {
+      state.transactions = action.payload; // Update the transaction list
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchRentalTransactions.pending, (state) => {
@@ -112,13 +97,16 @@ const rentalTransactionsSlice = createSlice({
       })
       .addCase(updateRentalStatus.fulfilled, (state, action) => {
         console.log('Rental status updated:', action.payload);
-        // The update will be handled by updateRentalTransactionList automatically
+        state.transactions = state.transactions.map(transaction =>
+          transaction.id === action.payload.id ? action.payload : transaction
+        );
       })
-      .addCase(updateRentalTransactionList.fulfilled, (state, action) => {
-        console.log('Updated transaction list:', action.payload);
-        state.transactions = action.payload; // Update the transaction list
+      .addCase(updateRentalStatus.rejected, (state, action) => {
+        console.error('Failed to update rental transaction:', action.payload);
+        state.error = action.payload;
       });
   }
 });
 
+export const { setRentalTransactions } = rentalTransactionsSlice.actions;
 export default rentalTransactionsSlice.reducer;

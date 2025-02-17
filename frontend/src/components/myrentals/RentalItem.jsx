@@ -9,7 +9,14 @@ import { useDispatch } from "react-redux";
 import { updateRentalStatus } from "../../redux/transactions/rentalTransactionsSlice";
 import axios from "axios";
 
-function RentalItem({ item, onButtonClick, selectedOption, highlighted }) {
+function RentalItem({
+  item,
+  onButtonClick,
+  selectedOption,
+  highlighted,
+  selectedTab,
+  onTabChange,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate(); // React Router navigation
   const { studentUser } = useAuth();
@@ -28,18 +35,51 @@ function RentalItem({ item, onButtonClick, selectedOption, highlighted }) {
   // Function to handle rental status update using Redux
   const handleStatusUpdate = async (action) => {
     try {
-      // Dispatch the action to update rental status in the Redux state
-      dispatch(
-        updateRentalStatus({
-          rentalId: item.id,
-          newStatus: action,
-          userId: userId,
-        })
-      );
+      let updatePayload = {
+        rentalId: item.id,
+        newStatus: action,
+        userId: userId,
+      };
+  
+      // Update confirmation based on user role
+      if (item.owner_id === userId) {
+        updatePayload.ownerConfirmed = true;
+      } else if (item.renter_id === userId) {
+        updatePayload.renterConfirmed = true;
+      }
+  
+      // Dispatch the update
+      dispatch(updateRentalStatus(updatePayload));
+  
+      // Only proceed if both users have confirmed
+      const bothConfirmed =
+        (item.owner_id === userId && item.renter_confirmed) ||
+        (item.renter_id === userId && item.owner_confirmed);
+  
+      if (bothConfirmed) {
+        let nextTab = "";
+        switch (action) {
+          case "hand-over":
+            nextTab = "To Receive";
+            break;
+          case "return":
+            nextTab = "Completed";
+            break;
+          case "completed":
+            nextTab = "To Review";
+            break;
+          default:
+            nextTab = selectedTab;
+        }
+  
+        // Move to the next tab
+        onTabChange(nextTab);
+      }
     } catch (error) {
       console.error("Error updating rental status:", error);
     }
   };
+  
 
   // Function to handle clicking "Message" button
   const handleMessageClick = async () => {
@@ -193,7 +233,7 @@ function RentalItem({ item, onButtonClick, selectedOption, highlighted }) {
       Reviewed: [],
       Cancelled: [],
     }),
-    [userId]
+    [userId, item.status, item.owner_confirmed, item.renter_confirmed]
   );
 
   // Define button color based on selected option (Owner or Renter)

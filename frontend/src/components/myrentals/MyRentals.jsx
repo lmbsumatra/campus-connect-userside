@@ -197,6 +197,8 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
                   highlighted={item.id === highlightedItem}
                   onButtonClick={(e) => e.stopPropagation()}
                   selectedOption={selectedOption}
+                  selectedTab={selectedTab}
+          onTabChange={onTabChange}
                 />
               </div>
             ))

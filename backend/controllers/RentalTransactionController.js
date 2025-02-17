@@ -343,7 +343,30 @@ module.exports = ({ emitNotification }) => {
     const { userId } = req.body;
 
     try {
-      const rental = await models.RentalTransaction.findByPk(id);
+      const rental = await models.RentalTransaction.findByPk(id, {
+        include: [
+          {
+            model: models.User,
+            as: "owner",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.User,
+            as: "renter",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.Listing,
+            attributes: ["id", "listing_name", "description", "rate"],
+          },
+          { model: models.Post, attributes: ["id", "post_item_name"] },
+          { model: models.Date, attributes: ["id", "date"] },
+          {
+            model: models.Duration,
+            attributes: ["id", "rental_time_from", "rental_time_to"],
+          },
+        ],
+      });
 
       if (!rental) {
         return res.status(404).json({ error: "Rental transaction not found." });
@@ -402,7 +425,30 @@ module.exports = ({ emitNotification }) => {
     const { userId } = req.body; // userId to identify who is confirming the handover
 
     try {
-      const rental = await models.RentalTransaction.findByPk(id);
+      const rental = await models.RentalTransaction.findByPk(id, {
+        include: [
+          {
+            model: models.User,
+            as: "owner",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.User,
+            as: "renter",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.Listing,
+            attributes: ["id", "listing_name", "description", "rate"],
+          },
+          { model: models.Post, attributes: ["id", "post_item_name"] },
+          { model: models.Date, attributes: ["id", "date"] },
+          {
+            model: models.Duration,
+            attributes: ["id", "rental_time_from", "rental_time_to"],
+          },
+        ],
+      });
 
       if (!rental)
         return res.status(404).json({ error: "Rental transaction not found." });
@@ -478,7 +524,30 @@ module.exports = ({ emitNotification }) => {
     const { userId } = req.body; // userId to identify who is confirming the handover
 
     try {
-      const rental = await models.RentalTransaction.findByPk(id);
+      const rental = await models.RentalTransaction.findByPk(id, {
+        include: [
+          {
+            model: models.User,
+            as: "owner",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.User,
+            as: "renter",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.Listing,
+            attributes: ["id", "listing_name", "description", "rate"],
+          },
+          { model: models.Post, attributes: ["id", "post_item_name"] },
+          { model: models.Date, attributes: ["id", "date"] },
+          {
+            model: models.Duration,
+            attributes: ["id", "rental_time_from", "rental_time_to"],
+          },
+        ],
+      });
 
       if (!rental)
         return res.status(404).json({ error: "Rental transaction not found." });
@@ -558,16 +627,30 @@ module.exports = ({ emitNotification }) => {
       const rental = await models.RentalTransaction.findByPk(id, {
         include: [
           {
+            model: models.User,
+            as: "owner",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.User,
+            as: "renter",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
             model: models.Listing,
-            attributes: ["id", "status"],
+            attributes: ["id", "listing_name", "description", "rate", "status"],
+          },
+          {
+            model: models.Post,
+            attributes: ["id", "post_item_name", "status"],
           },
           {
             model: models.Date,
-            attributes: ["id", "status"],
+            attributes: ["id", "date", "status", "status"],
           },
           {
             model: models.Duration,
-            attributes: ["id", "status"],
+            attributes: ["id", "rental_time_from", "rental_time_to", "status"],
           },
         ],
       });
@@ -704,7 +787,30 @@ module.exports = ({ emitNotification }) => {
     const { userId } = req.body;
 
     try {
-      const rental = await models.RentalTransaction.findByPk(id);
+      const rental = await models.RentalTransaction.findByPk(id, {
+        include: [
+          {
+            model: models.User,
+            as: "owner",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.User,
+            as: "renter",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.Listing,
+            attributes: ["id", "listing_name", "description", "rate"],
+          },
+          { model: models.Post, attributes: ["id", "post_item_name"] },
+          { model: models.Date, attributes: ["id", "date"] },
+          {
+            model: models.Duration,
+            attributes: ["id", "rental_time_from", "rental_time_to"],
+          },
+        ],
+      });
 
       if (!rental)
         return res.status(404).json({ error: "Rental transaction not found." });
@@ -748,7 +854,30 @@ module.exports = ({ emitNotification }) => {
     const { userId } = req.body;
 
     try {
-      const rental = await models.RentalTransaction.findByPk(id);
+      const rental = await models.RentalTransaction.findByPk(id, {
+        include: [
+          {
+            model: models.User,
+            as: "owner",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.User,
+            as: "renter",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.Listing,
+            attributes: ["id", "listing_name", "description", "rate"],
+          },
+          { model: models.Post, attributes: ["id", "post_item_name"] },
+          { model: models.Date, attributes: ["id", "date"] },
+          {
+            model: models.Duration,
+            attributes: ["id", "rental_time_from", "rental_time_to"],
+          },
+        ],
+      });
 
       if (!rental) {
         return res.status(404).json({ error: "Rental transaction not found." });
