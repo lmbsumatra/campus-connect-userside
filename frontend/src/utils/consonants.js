@@ -45,10 +45,21 @@ export const Follow = "Follow";
 export const FollowBack = "Follow Back";
 export const Following = "Following";
 
-// paths, outes
+// paths, routes
 export const RENT = "rent";
 export const SHOP = "shop";
 export const LEND = "lend";
 
-export const MY_LISTINGS = "profile/my-listings/edit"
-export const MY_ITEMS = "profile/my-for-sale/edit"
+export const MY_LISTINGS = "profile/my-listings/edit";
+export const MY_ITEMS = "profile/my-for-sale/edit";
+
+// filters
+
+// item conditions
+export const CONDITIONS = [
+  "New",
+  "Used (like new)",
+  "Used (fair)",
+  "Used (good)",
+  "Poor",
+];
