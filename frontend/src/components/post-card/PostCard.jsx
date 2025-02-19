@@ -14,6 +14,19 @@ import forRentIcon from "../../assets/images/card/looking-for.svg";
 import "./postCardStyles.css";
 import { defaultImages } from "../../utils/consonants";
 
+const tooltipProps = {
+  componentsProps: {
+    popper: {
+      modifiers: [
+        {
+          name: "offset",
+          options: { offset: [0, -10] },
+        },
+      ],
+    },
+  },
+};
+
 const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(null);
@@ -44,7 +57,6 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
       console.log("Delete item:", item);
     }
   };
-
 
   return (
     <div>
@@ -110,7 +122,19 @@ const PostCard = ({ borrowingPosts, title, isProfileVisit }) => {
                         },
                       }}
                     >
-                      <span className="tag">More +</span>
+                      {item.tags.length > 1 && (
+                        <Tooltip
+                          title={item.tags.slice(1).map((tag, i) => (
+                            <div key={i}>
+                              {tag}
+                              <br />
+                            </div>
+                          ))}
+                          {...tooltipProps}
+                        >
+                          <span className="tag">More +</span>
+                        </Tooltip>
+                      )}
                     </Tooltip>
                   </div>
                   <div className="action-btns">

@@ -182,6 +182,7 @@ const ItemCard = ({
               {Array.isArray(item.tags) && item.tags.length > 0 && (
                 <>
                   <span className="tag">{item.tags[0]}</span>
+                  
                   {item.tags.length > 1 && (
                     <Tooltip
                       title={item.tags.slice(1).map((tag, i) => (
