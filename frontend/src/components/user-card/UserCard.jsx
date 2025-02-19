@@ -2,13 +2,50 @@ import { useNavigate } from "react-router-dom";
 import "./userCardStyles.css";
 import { useSelector, useDispatch } from "react-redux";
 import { selectStudentUser } from "../../redux/auth/studentAuthSlice";
-import { updateUserAction } from "../../redux/user/allUsersSlice";
+import {
+  resetFollowState,
+  updateUserAction,
+} from "../../redux/user/allUsersSlice";
+import { useEffect } from "react";
+import ShowAlert from "../../utils/ShowAlert";
+import { Follow, FollowBack, Following } from "../../utils/consonants";
 
 const UserCard = ({ users }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const studentUser = useSelector(selectStudentUser);
   const loggedInUserId = studentUser?.userId || null;
+
+  const { loadingFollow, successFollow, errorFollow } = useSelector(
+    (state) => state.allUsers
+  );
+
+  const handleFollowAction = async (e, user) => {
+    let action = "";
+    if (user.action === Follow) {
+      action = "Followed";
+    } else if (user.action === Following) {
+      action = "Unfollowed";
+    } else if (user.action === FollowBack) {
+      action = "Followed";
+    }
+    e.stopPropagation();
+    dispatch(
+      updateUserAction({
+        loggedInUserId: loggedInUserId,
+        otherUserId: user.id,
+      })
+    );
+
+    if (successFollow) {
+      ShowAlert(dispatch, "success", `${action} ${user.fname}`);
+      dispatch(resetFollowState());
+    }
+    if (errorFollow) {
+      ShowAlert(dispatch, "error", `${errorFollow}`);
+      dispatch(resetFollowState());
+    }
+  };
 
   return (
     <div className="users-container">
@@ -72,13 +109,7 @@ const UserCard = ({ users }) => {
                   <button
                     className="btn btn-rectangle primary"
                     onClick={(e) => {
-                      e.stopPropagation();
-                      dispatch(
-                        updateUserAction({
-                          loggedInUserId: loggedInUserId,
-                          otherUserId: user.id,
-                        })
-                      );
+                      handleFollowAction(e, user);
                     }}
                   >
                     {user.action}

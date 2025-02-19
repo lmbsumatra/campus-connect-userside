@@ -7,6 +7,9 @@ const initialState = {
   allUsers: [],
   loadingAllUsers: false,
   errorAllUsers: null,
+  loadingFollow: false,
+  successFollow: false,
+  errorFollow: null,
 };
 
 // Fetch all users
@@ -69,7 +72,12 @@ export const updateUserAction = createAsyncThunk(
 const allUsersSlice = createSlice({
   name: "users",
   initialState,
-  reducers: {},
+  reducers: {
+    resetFollowState: (state) => {
+      state.successFollow = false;
+      state.errorFollow = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAllUsers.pending, (state) => {
@@ -84,22 +92,29 @@ const allUsersSlice = createSlice({
         state.errorAllUsers = action.error.message;
       })
 
-      // Handle follow/unfollow update in Redux
+      // Follow/Unfollow User
+      .addCase(updateUserAction.pending, (state) => {
+        state.loadingFollow = true;
+        state.successFollow = false;
+        state.errorFollow = null;
+      })
       .addCase(updateUserAction.fulfilled, (state, action) => {
-        const { userId, action: newAction } = action.payload;
+        state.loadingFollow = false;
+        state.successFollow = true;
 
+        const { userId, action: newAction } = action.payload;
         state.allUsers = state.allUsers.map((user) =>
           user.id === userId ? { ...user, action: newAction } : user
         );
       })
-
       .addCase(updateUserAction.rejected, (state, action) => {
-        console.error(
-          "Error while updating user action:",
-          action.error.message
-        );
+        state.loadingFollow = false;
+        state.successFollow = false;
+        state.errorFollow = action.payload || "Something went wrong!";
       });
   },
 });
+
+export const { resetFollowState } = allUsersSlice.actions;
 
 export default allUsersSlice.reducer;
