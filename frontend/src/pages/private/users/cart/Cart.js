@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./Cart.css";
 import { useNavigate } from "react-router-dom";
 import rentIcon from "../../../../assets/images/cart/rent.svg";
@@ -30,11 +30,28 @@ const Cart = ({ isOpen, onClose }) => {
   const [itemToRemove, setItemToRemove] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false); // New state for Select All
+  const cartRef = useRef(null);
 
   // Fetch cart items on component mount
   useEffect(() => {
     dispatch(fetchCart());
   }, [dispatch]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   // Close modal after success message
   useEffect(() => {
@@ -194,8 +211,8 @@ const Cart = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div>
-      <div className={`cart container ${isOpen ? "open" : ""}`}>
+    <div id="cart-popup">
+      <div ref={cartRef} className={`cart container ${isOpen ? "open" : ""}`}>
         <div className="header">
           <h3 className="header-text">Your Cart</h3>
           <button className="close-btn" onClick={onClose}>
