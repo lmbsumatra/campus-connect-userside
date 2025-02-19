@@ -44,7 +44,7 @@ const ItemCard = ({
 
   // Use the custom sorting hook
   const { sortedItems, sortConfig, handleSort } = useSortItems(items);
-
+  console.log(items)
   useEffect(() => {
     const handleClickOutside = (event) => {
       const activeRef = dropdownRefs.current[activeDropdown];

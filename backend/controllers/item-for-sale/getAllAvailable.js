@@ -16,6 +16,7 @@ const getAllAvailable = async (req, res) => {
         "status",
         "category",
         "images",
+        "item_condition"
       ],
       where: {
         status: "approved",
@@ -56,6 +57,7 @@ const getAllAvailable = async (req, res) => {
         category: item.category,
         itemType: "For Sale",
         images: JSON.parse(item.images),
+        condition: item.item_condition,
         availableDates: item.available_dates.map((date) => ({
           id: date.id,
           itemId: date.item_id,
