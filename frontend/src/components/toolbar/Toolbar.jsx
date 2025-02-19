@@ -13,7 +13,7 @@ function Toolbar({
   onViewToggle,
   viewType,
   onAction,
-  items,
+  items = [],
   onSearch,
   onFilter,
   filterOptions,

@@ -1,15 +1,15 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./userCardStyles.css";
 import { useSelector, useDispatch } from "react-redux";
 import { selectStudentUser } from "../../redux/auth/studentAuthSlice";
 import {
   resetFollowState,
   updateUserAction,
 } from "../../redux/user/allUsersSlice";
-import { useEffect } from "react";
 import ShowAlert from "../../utils/ShowAlert";
 import { Follow, FollowBack, Following } from "../../utils/consonants";
 
+import "./userCardStyles.css";
 const UserCard = ({ users }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -20,7 +20,13 @@ const UserCard = ({ users }) => {
     (state) => state.allUsers
   );
 
-  const handleFollowAction = async (e, user) => {
+  // Local state to store the last action performed (Followed/Unfollowed)
+  const [lastAction, setLastAction] = useState(null);
+  const [lastUser, setLastUser] = useState(null); // Store the last user for the alert
+
+  const handleFollowAction = (e, user) => {
+    e.stopPropagation();
+
     let action = "";
     if (user.action === Follow) {
       action = "Followed";
@@ -29,23 +35,29 @@ const UserCard = ({ users }) => {
     } else if (user.action === FollowBack) {
       action = "Followed";
     }
-    e.stopPropagation();
+
+    setLastAction(action); // Save action for later alert
+    setLastUser(user); // Save user for later alert
+
     dispatch(
       updateUserAction({
         loggedInUserId: loggedInUserId,
         otherUserId: user.id,
       })
     );
+  };
 
-    if (successFollow) {
-      ShowAlert(dispatch, "success", `${action} ${user.fname}`);
+  // 🔥 Move ShowAlert to useEffect to trigger AFTER Redux state updates
+  useEffect(() => {
+    if (successFollow && lastUser) {
+      ShowAlert(dispatch, "success", `${lastAction} ${lastUser.fname}`);
       dispatch(resetFollowState());
     }
     if (errorFollow) {
       ShowAlert(dispatch, "error", `${errorFollow}`);
       dispatch(resetFollowState());
     }
-  };
+  }, [successFollow, errorFollow, dispatch, lastAction, lastUser]);
 
   return (
     <div className="users-container">

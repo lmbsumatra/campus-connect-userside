@@ -71,8 +71,8 @@ const FilterToolbar = ({ onFilterChange, showPriceRange }) => {
             onInput={handlePriceRangeChange}
           />
           <div>
-            <span>${filters.priceRange[0]}</span> -{" "}
-            <span>${filters.priceRange[1]}</span>
+            <span>₱{filters.priceRange[0]}</span> -{" "}
+            <span>₱{filters.priceRange[1]}</span>
           </div>
         </div>
       )}

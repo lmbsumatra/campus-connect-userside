@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllApprovedPosts } from "../../../../redux/post/allApprovedPostsSlice";
 import TimeoutComponent from "../../../../utils/TimeoutComponent";
 import LoadingPostCardSkeleton from "../../../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
+import Toolbar from "../../../../components/toolbar/Toolbar";
+import { fetchAllPostsByUser } from "../../../../redux/post/allPostsByUserSlice";
 
 function MyPosts() {
   const [posts, setPosts] = useState([]);
@@ -16,11 +18,11 @@ function MyPosts() {
 
   const { studentUser } = useAuth();
   const { userId } = studentUser;
-  const { allApprovedPosts, loadingAllApprovedPosts, errorAllApprovedPosts } =
-    useSelector((state) => state.allApprovedPosts);
+  const { allPostsByUser, loadingAllPostsByUser, errorAllPostsUser } =
+    useSelector((state) => state.allPostsByUser);
 
   useEffect(() => {
-    dispatch(fetchAllApprovedPosts());
+    dispatch(fetchAllPostsByUser(userId));
   }, [dispatch]);
 
   // useEffect(() => {
@@ -45,6 +47,7 @@ function MyPosts() {
 
   return (
     <div className="container rounded bg-white">
+      <Toolbar />
       <TimeoutComponent
         timeoutDuration={5000}
         fallback={
@@ -56,8 +59,8 @@ function MyPosts() {
         }
       >
         <BorrowingPost
-          borrowingPosts={allApprovedPosts}
-          title="Looking for..."
+          borrowingPosts={allPostsByUser}
+          title="Looking for...???"
           isProfileVisit={false}
         />
       </TimeoutComponent>
