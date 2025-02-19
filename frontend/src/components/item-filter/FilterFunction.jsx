@@ -1,7 +1,6 @@
-const FilterFunction = (items, filters) => {
+const FilterFunction = (items, filters, usePriceRange = true) => {
   let filteredItems = [...items];
 
-  console.log("🔥 Filters received:", filters);
 
   if (!filters) return items;
 
@@ -17,7 +16,7 @@ const FilterFunction = (items, filters) => {
     );
   }
 
-  if (filters.priceRange && Array.isArray(filters.priceRange) && filters.priceRange.length === 2) {
+  if (usePriceRange && filters.priceRange && Array.isArray(filters.priceRange) && filters.priceRange.length === 2) {
     const [minPrice, maxPrice] = filters.priceRange;
     filteredItems = filteredItems.filter(
       (item) => item.price >= minPrice && item.price <= maxPrice
@@ -30,7 +29,6 @@ const FilterFunction = (items, filters) => {
     filteredItems.sort((a, b) => b.price - a.price);
   }
 
-  console.log("✅ Filtered items:", filteredItems);
   return filteredItems;
 };
 

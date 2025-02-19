@@ -1,5 +1,5 @@
 // React Imports
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { baseApi } from "../../App";
 
@@ -12,6 +12,8 @@ import LoadingItemCardSkeleton from "../../components/loading-skeleton/loading-i
 import { useDispatch, useSelector } from "react-redux";
 import TimeoutComponent from "../../utils/TimeoutComponent";
 import { fetchAllApprovedListings } from "../../redux/listing/allApprovedListingsSlice";
+import FilterToolbar from "../../components/item-filter/FilterToolbar";
+import FilterFunction from "../../components/item-filter/FilterFunction";
 
 const Rent = () => {
   const location = useLocation();
@@ -26,10 +28,6 @@ const Rent = () => {
 
   const keyword = searchParams.get("q")?.trim() || "";
 
-  useEffect(() => {
-    dispatch(fetchAllApprovedListings(keyword));
-  }, [dispatch]);
-
   // Fetch listings data (approved items for rent)
   const {
     allApprovedListings,
@@ -37,39 +35,28 @@ const Rent = () => {
     errorAllApprovedListings,
   } = useSelector((state) => state.allApprovedListings);
 
+  const [filteredItems, setFilteredItems] = useState(allApprovedListings);
+
+  useEffect(() => {
+    dispatch(fetchAllApprovedListings(keyword));
+  }, [dispatch]);
+
+  useEffect(() => {
+      setFilteredItems(allApprovedListings);
+    }, [allApprovedListings]);
+
+
+  const handleFilterChange = (filters) => {
+    const updatedItems = FilterFunction(allApprovedListings, filters);
+    setFilteredItems(updatedItems);
+  };
+
   return (
     <>
       <div className="container-content">
         <div className="row">
           {/* Filters Sidebar */}
-          <div className="col-md-2">
-            <h5>Filters</h5>
-
-            {/* Category Filter */}
-            <div className="mb-3">
-              <label className="form-label">By Category</label>
-              <select className="form-select">
-                <option value="COE">COE</option>
-                <option value="CIT">CIT</option>
-                <option value="COS">COS</option>
-                <option value="CLA">CLA</option>
-                <option value="CE">CE</option>
-                <option value="CAFA">CAFA</option>
-              </select>
-            </div>
-
-            {/* Rate Filter */}
-            <div className="mb-3">
-              <label className="form-label">By Rate</label>
-              <select className="form-select">
-                <option value="1">1 star</option>
-                <option value="2">2 star</option>
-                <option value="3">3 star</option>
-                <option value="4">4 star</option>
-                <option value="5">5 star</option>
-              </select>
-            </div>
-          </div>
+          <FilterToolbar showPriceRange={true} onFilterChange={handleFilterChange} />
 
           {/* Listings Display */}
           <div className="col-md-10">
@@ -84,7 +71,7 @@ const Rent = () => {
               }
             >
               {!loadingAllApprovedListings && (
-                <ItemCard items={allApprovedListings} title="Listings" />
+                <ItemCard items={filteredItems} title="Listings" />
               )}
             </TimeoutComponent>
             {/* Loading and Error Handling for Listings */}

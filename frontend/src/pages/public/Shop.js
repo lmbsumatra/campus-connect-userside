@@ -32,12 +32,9 @@ const Shop = () => {
     dispatch(fetchAllApprovedItemForSale(keyword));
   }, [dispatch, keyword]);
 
-  // ✅ Sync filtered items when items are fetched
   useEffect(() => {
     setFilteredItems(allApprovedItemForSale);
   }, [allApprovedItemForSale]);
-
-  console.log(filteredItems);
 
   const handleFilterChange = (filters) => {
     const updatedItems = FilterFunction(allApprovedItemForSale, filters);
@@ -48,8 +45,10 @@ const Shop = () => {
   return (
     <div className="container-content">
       <div className="row">
-        <FilterToolbar onFilterChange={handleFilterChange} />
-
+        <FilterToolbar
+          showPriceRange={true}
+          onFilterChange={handleFilterChange}
+        />
         {/* Item Display Section */}
         <div className="col-md-10">
           <TimeoutComponent

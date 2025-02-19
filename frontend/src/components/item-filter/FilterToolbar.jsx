@@ -3,7 +3,7 @@ import RangeSlider from "react-range-slider-input";
 import "react-range-slider-input/dist/style.css";
 import { categories, CONDITIONS } from "../../utils/consonants";
 
-const FilterToolbar = ({ onFilterChange }) => {
+const FilterToolbar = ({ onFilterChange, showPriceRange }) => {
   const [selectedConditions, setSelectedCondition] = useState([]);
   const [filters, setFilters] = useState({
     category: "",
@@ -52,25 +52,30 @@ const FilterToolbar = ({ onFilterChange }) => {
         >
           <option value="">Reset</option>
           {categories.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
           ))}
         </select>
       </div>
 
       {/* Price Range Slider */}
-      <div className="mb-3">
-        <label className="form-label">Price Range</label>
-        <RangeSlider
-          min={0}
-          max={1000}
-          step={10}
-          value={filters.priceRange}
-          onInput={handlePriceRangeChange}
-        />
-        <div>
-          <span>${filters.priceRange[0]}</span> - <span>${filters.priceRange[1]}</span>
+      {showPriceRange && (
+        <div className="mb-3">
+          <label className="form-label">Price Range</label>
+          <RangeSlider
+            min={0}
+            max={1000}
+            step={10}
+            value={filters.priceRange}
+            onInput={handlePriceRangeChange}
+          />
+          <div>
+            <span>${filters.priceRange[0]}</span> -{" "}
+            <span>${filters.priceRange[1]}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Condition Filter */}
       <div>

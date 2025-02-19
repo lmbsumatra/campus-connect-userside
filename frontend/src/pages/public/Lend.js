@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PostCard from "../../components/post-card/PostCard";
 import FAB from "../../components/common/fab/FAB";
 import useFetchApprovedItems from "../../hooks/useFetchApprovedItems";
@@ -8,6 +8,8 @@ import { fetchAllApprovedPosts } from "../../redux/post/allApprovedPostsSlice";
 import TimeoutComponent from "../../utils/TimeoutComponent";
 import LoadingPostCardSkeleton from "../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
 import { useLocation } from "react-router-dom";
+import FilterToolbar from "../../components/item-filter/FilterToolbar";
+import FilterFunction from "../../components/item-filter/FilterFunction";
 
 const Lend = () => {
   const dispatch = useDispatch();
@@ -24,13 +26,15 @@ const Lend = () => {
   const { allApprovedPosts, loadingAllApprovedPosts, errorAllApprovedPosts } =
     useSelector((state) => state.allApprovedPosts);
 
-  // Handle Floating Action Button (FAB) click
-  const handleFabClick = (action) => {
-    if (action === "add-item") {
-      console.log("Add Item button clicked");
-    } else if (action === "create-post") {
-      console.log("Create Post button clicked");
-    }
+  const [filteredItems, setFilteredItems] = useState(allApprovedPosts);
+
+  useEffect(() => {
+    setFilteredItems(allApprovedPosts);
+  }, [allApprovedPosts]);
+
+  const handleFilterChange = (filters) => {
+    const updatedItems = FilterFunction(allApprovedPosts, filters, false);
+    setFilteredItems(updatedItems);
   };
 
   return (
@@ -40,6 +44,11 @@ const Lend = () => {
         <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>
       )}
       {loadingAllApprovedPosts && <p>Loading borrowing posts...</p>}
+
+      <FilterToolbar
+        showPriceRange={false}
+        onFilterChange={handleFilterChange}
+      />
       <TimeoutComponent
         timeoutDuration={5000}
         fallback={
@@ -51,12 +60,9 @@ const Lend = () => {
         }
       >
         {!loadingAllApprovedPosts && (
-          <PostCard borrowingPosts={allApprovedPosts} title="Lend" />
+          <PostCard borrowingPosts={filteredItems} title="Lend" />
         )}
       </TimeoutComponent>
-
-      {/* Floating Action Button (FAB) */}
-      <FAB icon="+" onClick={handleFabClick} />
     </div>
   );
 };
