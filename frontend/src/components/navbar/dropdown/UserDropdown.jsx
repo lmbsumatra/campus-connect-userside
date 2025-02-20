@@ -8,6 +8,7 @@ import LogoutIcon from "../../../assets/images/icons/logout.svg";
 import "./style.css";
 import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const UserDropdown = ({
   icon,
@@ -19,9 +20,14 @@ const UserDropdown = ({
   const studentUser = useSelector(selectStudentUser);
   const { userId } = studentUser || {};
 
-  // Fetch user information
-  const { user, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
+  const navigate = useNavigate();
 
+  // Fetch user information
+  // const { user, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
+
+  const { user, loadingFetchUser, errorFetchUser } = useSelector(
+    (state) => state.user
+  );
   return (
     <div className="user-dropdown-container" id="user-dropdown-popup">
       {/* Dropdown Trigger */}
@@ -42,13 +48,13 @@ const UserDropdown = ({
           <div className="dropdown-header">
             <img src={UserIcon} alt="User" className="profile-img" />
             <div className="profile-info d-flex flex-column gap-1 align-items-start">
-              {fetchErrorMessage ? (
-                <p className="error-message">{fetchErrorMessage}</p>
+              {errorFetchUser ? (
+                <p className="error-message">{errorFetchUser}</p>
               ) : (
                 <>
                   <h5>
-                    {user?.first_name || "First Name"}{" "}
-                    {user?.last_name || "Last Name"}
+                    {user?.user.fname || "First Name"}{" "}
+                    {user?.user.lname || "Last Name"}
                   </h5>
                   <h6>
                     <a href="/profile">View Profile</a>
@@ -65,30 +71,48 @@ const UserDropdown = ({
           <div className="dropdown-content">
             <button
               className="dropdown-btn"
-              onClick={() => console.log("My Rentals clicked")}
+              onClick={() => navigate("/profile/dashboard")}
             >
               <div className="icon">
                 <img src={MyRentalsIcon} alt="My Rentals" />
               </div>
-              <h6>My Rentals</h6>
+              <h6>Dashboard</h6>
             </button>
             <button
               className="dropdown-btn"
-              onClick={() => console.log("My Items clicked")}
+              onClick={() => navigate("/profile/my-listings")}
+            >
+              <div className="icon">
+                <img src={MyRentalsIcon} alt="My Rentals" />
+              </div>
+              <h6>My Listings</h6>
+            </button>
+            <button
+              className="dropdown-btn"
+              onClick={() => navigate("/profile/my-for-sale")}
             >
               <div className="icon">
                 <img src={MyItemsIcon} alt="My Items" />
               </div>
-              <h6>My Items</h6>
+              <h6>My Items For Sale</h6>
             </button>
             <button
               className="dropdown-btn"
-              onClick={() => console.log("My Posts clicked")}
+              onClick={() => navigate("/profile/my-posts")}
             >
               <div className="icon">
                 <img src={MyPostsIcon} alt="My Posts" />
               </div>
               <h6>My Posts</h6>
+            </button>
+            <button
+              className="dropdown-btn"
+              onClick={() => navigate("/profile/transactions/renter/requests")}
+            >
+              <div className="icon">
+                <img src={MyPostsIcon} alt="My Posts" />
+              </div>
+              <h6>Transactions</h6>
             </button>
             <button
               className="dropdown-btn"
