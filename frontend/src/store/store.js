@@ -23,6 +23,7 @@ import availableItemsForSaleByUserReducer from "../redux/item-for-sale/available
 import alertPopupReducer from "../redux/alert-popup/alertPopupSlice";
 import tagReducer from "../redux/tag/tagSlice";
 import userReducer from "../redux/user/userSlice";
+import otherUserReducer from "../redux/user/otherUserSlice";
 import allUsersReducer from "../redux/user/allUsersSlice";
 import userTransactionsReducer from "../redux/transactions/rentalTransactionsSlice";
 import merchantReducer from "../redux/merchant/merchantSlice";
@@ -57,6 +58,7 @@ const appReducer = combineReducers({
   loginForm: loginFormReducer,
   signupForm: signupFormReducer,
   user: userReducer,
+  otherUser: otherUserReducer,
   allUsers: allUsersReducer,
   merchant: merchantReducer,
   rentalTransactions: userTransactionsReducer,

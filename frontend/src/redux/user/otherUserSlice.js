@@ -1,11 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const BASE_URL = "http://localhost:3001/user/info";
+const BASE_URL = "http://localhost:3001/user/other-user/info";
 
-
-
-export const fetchUser = createAsyncThunk(
-  "user/fetchUser",
+export const fetchOtherUser = createAsyncThunk(
+  "otherUser/fetchOtherUser",
   async (id, { getState, rejectWithValue }) => {
     const state = getState(); // Log the whole state to debug
 
@@ -26,31 +24,7 @@ export const fetchUser = createAsyncThunk(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log({ user: data });
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const updateProfileImage = createAsyncThunk(
-  "user/updateProfileImage",
-  async ({ userId, formData }, { rejectWithValue }) => {
-    try {
-      const response = await fetch(
-        `${BASE_URL}/${userId}/upload-profile-image`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      console.log({ otherUser: data });
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -59,9 +33,10 @@ export const updateProfileImage = createAsyncThunk(
 );
 
 // Update follow/unfollow action
-export const updateUserAction = createAsyncThunk(
+export const updateUserActionById = createAsyncThunk(
   "users/updateUserActions",
   async ({ loggedInUserId, otherUserId }, { getState }) => {
+    console.log({ loggedInUserId, otherUserId });
     if (!loggedInUserId) {
       console.error("User must be logged in to follow");
       return;
@@ -85,8 +60,8 @@ export const updateUserAction = createAsyncThunk(
         console.error("Server error:", response.status, response.statusText);
         return;
       }
-
       const data = await response.json();
+      console.log({ otherUserId: otherUserId, action: data.action, data });
       return { userId: otherUserId, action: data.action };
     } catch (error) {
       console.error("Error during follow request:", error);
@@ -94,66 +69,73 @@ export const updateUserAction = createAsyncThunk(
   }
 );
 
-const userSlice = createSlice({
-  name: "user",
+const otherUserSlice = createSlice({
+  name: "otherUser",
   initialState: {
     user: {},
     loadingFetchUser: false,
     errorFetchUser: null,
-    loadingUpdateImage: false,
-    errorUpdateImage: null,
+    loadingFollow: false,
+    successFollow: false,
+    errorFollow: null,
   },
   reducers: {
-    clearUser: (state) => {
+    clearOtherUser: (state) => {
       state.user = null;
       state.errorFetchUser = null;
+      state.successFollow = false;
+      state.errorFollow = null;
+    },
+
+    resetFollowState: (state) => {
+      state.successFollow = false;
+      state.errorFollow = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUser.pending, (state) => {
+      .addCase(fetchOtherUser.pending, (state) => {
         state.loadingFetchUser = true;
         state.errorFetchUser = null;
       })
-      .addCase(fetchUser.fulfilled, (state, action) => {
+      .addCase(fetchOtherUser.fulfilled, (state, action) => {
         state.loadingFetchUser = false;
         state.user = action.payload;
         state.errorFetchUser = null;
       })
-      .addCase(fetchUser.rejected, (state, action) => {
+      .addCase(fetchOtherUser.rejected, (state, action) => {
         state.loadingFetchUser = false;
         state.errorFetchUser = action.payload;
         state.user = null;
       })
-      .addCase(updateProfileImage.pending, (state) => {
-        state.loadingUpdateImage = true;
-        state.errorUpdateImage = null;
+
+      // Handle Follow/Unfollow for otherUser
+      .addCase(updateUserActionById.pending, (state) => {
+        state.loadingFollow = true;
+        state.successFollow = false;
+        state.errorFollow = null;
       })
-      .addCase(updateProfileImage.fulfilled, (state, action) => {
-        state.loadingUpdateImage = false;
-        if (state.user?.user) {
-          state.user.user.profileImage = action.payload.imageUrl;
-        }
-        state.errorUpdateImage = null;
-      })
-      .addCase(updateProfileImage.rejected, (state, action) => {
-        state.loadingUpdateImage = false;
-        state.errorUpdateImage = action.payload;
-      })
-      // Handle follow/unfollow update in Redux
-      .addCase(updateUserAction.fulfilled, (state, action) => {
+      .addCase(updateUserActionById.fulfilled, (state, action) => {
+        state.loadingFollow = false;
+        state.successFollow = true;
         const { userId, action: newAction } = action.payload;
+
+        // ✅ Update `otherUser` if the ID matches, ayaw gumana ng condition?????????????????????????
+        if (state.user?.id === userId) {
+          state.user.action = newAction;
+          console.log(state.user?.id, userId, "?????");
+        }
+
         state.user.action = newAction;
       })
 
-      .addCase(updateUserAction.rejected, (state, action) => {
-        console.error(
-          "Error while updating user action:",
-          action.error.message
-        );
+      .addCase(updateUserActionById.rejected, (state, action) => {
+        state.loadingFollow = false;
+        state.successFollow = false;
+        state.errorFollow = action.payload || "Something went wrong!";
       });
   },
 });
 
-export const { clearUser } = userSlice.actions;
-export default userSlice.reducer;
+export const { clearOtherUser, resetFollowState } = otherUserSlice.actions;
+export default otherUserSlice.reducer;

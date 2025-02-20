@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { updateUserActionById } from "./otherUserSlice";
+import { useDispatch } from "react-redux";
 
 const BASE_URL = "http://localhost:3001/user/get";
 
@@ -35,6 +37,7 @@ export const fetchAllUsers = createAsyncThunk(
 export const updateUserAction = createAsyncThunk(
   "users/updateUserActions",
   async ({ loggedInUserId, otherUserId }, { getState }) => {
+    const dispatch = useDispatch();
     console.log({ loggedInUserId, otherUserId });
     if (!loggedInUserId) {
       console.error("User must be logged in to follow");
@@ -61,7 +64,14 @@ export const updateUserAction = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log({ userId: otherUserId, action: data.action });
+      console.log({ otherUserId: otherUserId, action: data.action, data });
+      dispatch(
+        updateUserActionById({
+          otherUserId: otherUserId,
+          action: data.action,
+          data,
+        })
+      );
       return { userId: otherUserId, action: data.action };
     } catch (error) {
       console.error("Error during follow request:", error);
@@ -103,8 +113,9 @@ const allUsersSlice = createSlice({
         state.successFollow = true;
 
         const { userId, action: newAction } = action.payload;
+        console.log(Number(userId), { action: newAction });
         state.allUsers = state.allUsers.map((user) =>
-          user.id === userId ? { ...user, action: newAction } : user
+          user.id === Number(userId) ? { ...user, action: newAction } : user
         );
       })
       .addCase(updateUserAction.rejected, (state, action) => {

@@ -10,20 +10,30 @@ import useFetchRentalTransactionsByUserId from "../../../utils/useFetchRentalTra
 import { fetchUser, updateProfileImage } from "../../../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import ShowAlert from "../../../utils/ShowAlert";
-import { defaultImages } from "../../../utils/consonants";
-import { updateUserAction } from "../../../redux/user/userSlice";
+import {
+  defaultImages,
+  Follow,
+  FollowBack,
+  Following,
+} from "../../../utils/consonants";
+import { updateUserActionById } from "../../../redux/user/otherUserSlice";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
+import { fetchOtherUser } from "../../../redux/user/otherUserSlice";
+import { resetFollowState } from "../../../redux/user/otherUserSlice";
 
 const ProfileHeader = ({
   userId,
-  isProfileVisit,
+  isProfileVisit = false,
   selectedOption,
   onOptionChange,
 }) => {
   const navigate = useNavigate();
-  const { user, loadingFetchUser, errorFetchUser } = useSelector(
-    (state) => state.user
+  const { user, loadingFetchUser, errorFetchUser } = useSelector((state) =>
+    !isProfileVisit ? state.user : state.otherUser
   );
+
+  console.log({ user });
+
   const fileInputRef = useRef(null);
   const studentUser = useSelector(selectStudentUser);
   const loggedInUserId = studentUser?.userId || null;
@@ -41,11 +51,58 @@ const ProfileHeader = ({
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (userId && isProfileVisit) {
-      dispatch(fetchUser(userId));
+  const { loadingFollow, successFollow, errorFollow } = useSelector(
+    (state) => state.otherUser
+  );
+
+  // Local state to store the last action performed (Followed/Unfollowed)
+  const [lastAction, setLastAction] = useState(null);
+  const [lastUser, setLastUser] = useState(null); // Store the last user for the alert
+
+  const handleFollowAction = (e, user) => {
+    e.stopPropagation();
+
+    let action = "";
+    if (user.action === Follow) {
+      action = "Followed";
+    } else if (user.action === Following) {
+      action = "Unfollowed";
+    } else if (user.action === FollowBack) {
+      action = "Followed";
     }
-  }, [userId, dispatch]);
+
+    setLastAction(action); // Save action for later alert
+    setLastUser(user); // Save user for later alert
+
+    dispatch(
+      updateUserActionById({
+        loggedInUserId: loggedInUserId,
+        otherUserId: userId,
+      })
+    );
+  };
+
+  // 🔥 Move ShowAlert to useEffect to trigger AFTER Redux state updates
+  useEffect(() => {
+    if (successFollow && lastUser) {
+      ShowAlert(dispatch, "success", `${lastAction} ${lastUser.user.fname}`);
+      dispatch(resetFollowState());
+    }
+    if (errorFollow) {
+      ShowAlert(dispatch, "error", `${errorFollow}`);
+      dispatch(resetFollowState());
+    }
+  }, [successFollow, errorFollow, dispatch, lastAction, lastUser]);
+
+  useEffect(() => {
+    if (userId) {
+      if (isProfileVisit) {
+        dispatch(fetchOtherUser(userId));
+      } else {
+        dispatch(fetchUser(userId));
+      }
+    }
+  }, [userId, isProfileVisit, dispatch]);
 
   const [isHovered, setIsHovered] = useState(false);
 
@@ -235,13 +292,7 @@ const ProfileHeader = ({
               <button
                 className="btn btn-rectangle primary opac"
                 onClick={(e) => {
-                  e.stopPropagation();
-                  dispatch(
-                    updateUserAction({
-                      loggedInUserId: loggedInUserId,
-                      otherUserId: userId,
-                    })
-                  );
+                  handleFollowAction(e, user);
                 }}
               >
                 <svg

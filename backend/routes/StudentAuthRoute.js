@@ -21,6 +21,11 @@ router.get(
   authenticateToken,
   StudentController.getStudentDataById
 );
+router.get(
+  "/other-user/info/:id",
+  authenticateToken,
+  StudentController.getOtherStudentDataById
+);
 router.get("/", studentAuthController.getAllStudents);
 router.get("/verify-email/:token", StudentController.verifyStudent);
 router.post(
