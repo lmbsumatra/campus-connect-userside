@@ -2,8 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BASE_URL = "http://localhost:3001/user/info";
 
-
-
 export const fetchUser = createAsyncThunk(
   "user/fetchUser",
   async (id, { getState, rejectWithValue }) => {
@@ -132,7 +130,8 @@ const userSlice = createSlice({
       .addCase(updateProfileImage.fulfilled, (state, action) => {
         state.loadingUpdateImage = false;
         if (state.user?.user) {
-          state.user.user.profileImage = action.payload.imageUrl;
+          console.log("img", action.payload.imageUrl);
+          state.user.student.profilePic = action.payload.imageUrl;
         }
         state.errorUpdateImage = null;
       })
