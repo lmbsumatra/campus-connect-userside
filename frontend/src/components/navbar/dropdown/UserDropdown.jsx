@@ -71,7 +71,10 @@ const UserDropdown = ({
           <div className="dropdown-content">
             <button
               className="dropdown-btn"
-              onClick={() => navigate("/profile/dashboard")}
+              onClick={() => {
+                navigate("/profile/dashboard");
+                toggleDropdown();
+              }}
             >
               <div className="icon">
                 <img src={MyRentalsIcon} alt="My Rentals" />
@@ -80,7 +83,10 @@ const UserDropdown = ({
             </button>
             <button
               className="dropdown-btn"
-              onClick={() => navigate("/profile/my-listings")}
+              onClick={() => {
+                navigate("/profile/my-listings");
+                toggleDropdown();
+              }}
             >
               <div className="icon">
                 <img src={MyRentalsIcon} alt="My Rentals" />
@@ -89,7 +95,10 @@ const UserDropdown = ({
             </button>
             <button
               className="dropdown-btn"
-              onClick={() => navigate("/profile/my-for-sale")}
+              onClick={() => {
+                navigate("/profile/my-for-sale");
+                toggleDropdown();
+              }}
             >
               <div className="icon">
                 <img src={MyItemsIcon} alt="My Items" />
@@ -98,7 +107,10 @@ const UserDropdown = ({
             </button>
             <button
               className="dropdown-btn"
-              onClick={() => navigate("/profile/my-posts")}
+              onClick={() => {
+                navigate("/profile/my-posts");
+                toggleDropdown();
+              }}
             >
               <div className="icon">
                 <img src={MyPostsIcon} alt="My Posts" />
@@ -107,7 +119,10 @@ const UserDropdown = ({
             </button>
             <button
               className="dropdown-btn"
-              onClick={() => navigate("/profile/transactions/renter/requests")}
+              onClick={() => {
+                navigate("/profile/transactions/renter/requests");
+                toggleDropdown();
+              }}
             >
               <div className="icon">
                 <img src={MyPostsIcon} alt="My Posts" />
