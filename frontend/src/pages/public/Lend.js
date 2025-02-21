@@ -10,12 +10,16 @@ import LoadingPostCardSkeleton from "../../components/loading-skeleton/loading-p
 import { useLocation } from "react-router-dom";
 import FilterToolbar from "../../components/item-filter/FilterToolbar";
 import FilterFunction from "../../components/item-filter/FilterFunction";
+import FilterModal from "../../components/item-filter/FilterModal";
+import ResetFilters from "../../components/item-filter/ResetFilters";
+import { defaultFilters } from "../../utils/consonants";
 
 const Lend = () => {
   const dispatch = useDispatch();
 
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
+  const [showAdvancefilter, setShowAdvanceFilter] = useState(false);
 
   const keyword = searchParams.get("q")?.trim() || "";
 
@@ -49,6 +53,27 @@ const Lend = () => {
         showPriceRange={false}
         onFilterChange={handleFilterChange}
       />
+      <button
+        className="btn btn-rectangle primary"
+        onClick={() => setShowAdvanceFilter(!showAdvancefilter)}
+      >
+        Advance Filter
+      </button>
+
+      <ResetFilters
+        setFilteredItems={setFilteredItems}
+        setFilters={(e) => handleFilterChange()}
+        allApprovedPosts={allApprovedPosts}
+      />
+
+      {showAdvancefilter && (
+        <FilterModal
+          showFilterModal={showAdvancefilter}
+          close={(e) => setShowAdvanceFilter(!showAdvancefilter)}
+          applyFilters={handleFilterChange}
+        />
+      )}
+
       <TimeoutComponent
         timeoutDuration={5000}
         fallback={

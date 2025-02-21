@@ -14,6 +14,7 @@ import TimeoutComponent from "../../utils/TimeoutComponent";
 import { fetchAllApprovedListings } from "../../redux/listing/allApprovedListingsSlice";
 import FilterToolbar from "../../components/item-filter/FilterToolbar";
 import FilterFunction from "../../components/item-filter/FilterFunction";
+import FilterModal from "../../components/item-filter/FilterModal";
 
 const Rent = () => {
   const location = useLocation();
@@ -25,6 +26,7 @@ const Rent = () => {
 
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
+  const [showAdvancefilter, setShowAdvanceFilter] = useState(false);
 
   const keyword = searchParams.get("q")?.trim() || "";
 
@@ -42,9 +44,8 @@ const Rent = () => {
   }, [dispatch]);
 
   useEffect(() => {
-      setFilteredItems(allApprovedListings);
-    }, [allApprovedListings]);
-
+    setFilteredItems(allApprovedListings);
+  }, [allApprovedListings]);
 
   const handleFilterChange = (filters) => {
     const updatedItems = FilterFunction(allApprovedListings, filters);
@@ -56,7 +57,25 @@ const Rent = () => {
       <div className="container-content">
         <div className="row">
           {/* Filters Sidebar */}
-          <FilterToolbar showPriceRange={true} onFilterChange={handleFilterChange} />
+          <FilterToolbar
+            showPriceRange={true}
+            onFilterChange={handleFilterChange}
+          />
+
+          <button
+            className="btn btn-rectangle primary"
+            onClick={() => setShowAdvanceFilter(!showAdvancefilter)}
+          >
+            Advance Filter
+          </button>
+
+          {showAdvancefilter && (
+            <FilterModal
+              showFilterModal={showAdvancefilter}
+              close={(e) => setShowAdvanceFilter(!showAdvancefilter)}
+              applyFilters={handleFilterChange}
+            />
+          )}
 
           {/* Listings Display */}
           <div className="col-md-10">

@@ -8,6 +8,9 @@ import LoadingItemCardSkeleton from "../../components/loading-skeleton/loading-i
 import { useLocation } from "react-router-dom";
 import FilterToolbar from "../../components/item-filter/FilterToolbar";
 import FilterFunction from "../../components/item-filter/FilterFunction";
+import FilterModal from "../../components/item-filter/FilterModal";
+import ResetFilters from "../../components/item-filter/ResetFilters";
+import { defaultFilters } from "../../utils/consonants";
 
 // Shop Component
 const Shop = () => {
@@ -17,6 +20,8 @@ const Shop = () => {
 
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
+
+  const [showAdvancefilter, setShowAdvanceFilter] = useState(false);
 
   const keyword = searchParams.get("q")?.trim() || "";
 
@@ -49,6 +54,28 @@ const Shop = () => {
           showPriceRange={true}
           onFilterChange={handleFilterChange}
         />
+
+        <button
+          className="btn btn-rectangle primary"
+          onClick={() => setShowAdvanceFilter(!showAdvancefilter)}
+        >
+          Advance Filter
+        </button>
+
+        <ResetFilters
+          setFilteredItems={setFilteredItems}
+          setFilters={(e) => handleFilterChange(defaultFilters)}
+          allApprovedPosts={allApprovedItemForSale}
+        />
+
+        {showAdvancefilter && (
+          <FilterModal
+            showFilterModal={showAdvancefilter}
+            close={(e) => setShowAdvanceFilter(!showAdvancefilter)}
+            applyFilters={handleFilterChange}
+          />
+        )}
+
         {/* Item Display Section */}
         <div className="col-md-10">
           <TimeoutComponent
