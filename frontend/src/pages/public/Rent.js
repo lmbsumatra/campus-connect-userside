@@ -20,8 +20,6 @@ import { defaultFilters } from "../../utils/consonants";
 
 const Rent = () => {
   const location = useLocation();
-
-  // Data Constants
   const baseUrl = "http://localhost:3001";
 
   const dispatch = useDispatch();
@@ -31,8 +29,6 @@ const Rent = () => {
   const [showAdvancefilter, setShowAdvanceFilter] = useState(false);
 
   const keyword = searchParams.get("q")?.trim() || "";
-
-  // Fetch listings data (approved items for rent)
   const {
     allApprovedListings,
     loadingAllApprovedListings,
@@ -60,25 +56,22 @@ const Rent = () => {
       <div className="container-content">
         <div className="row">
           <FilterToolbar
-            filters={filters} // 🔥 Pass filters state
-            setFilters={setFilters} // 🔥 Pass setFilters to update
+            filters={filters}
+            setFilters={setFilters}
             showPriceRange={true}
             onFilterChange={handleFilterChange}
           />
-
           <button
             className="btn btn-rectangle primary"
             onClick={() => setShowAdvanceFilter(!showAdvancefilter)}
           >
             Advance Filter
           </button>
-
           <ResetFilters
             setFilteredItems={setFilteredItems}
-            setFilters={setFilters} // 🔥 Reset filters properly
+            setFilters={setFilters}
             allApprovedPosts={allApprovedListings}
           />
-
           {showAdvancefilter && (
             <FilterModal
               showFilterModal={showAdvancefilter}
@@ -89,8 +82,7 @@ const Rent = () => {
               isListingsPage={true}
             />
           )}
-
-          {/* Listings Display */}
+          
           <div className="col-md-10">
             <TimeoutComponent
               timeoutDuration={5000}
@@ -106,7 +98,6 @@ const Rent = () => {
                 <ItemCard items={filteredItems} title="Listings" />
               )}
             </TimeoutComponent>
-            {/* Loading and Error Handling for Listings */}
             {loadingAllApprovedListings && <p>Loading listings...</p>}
             {errorAllApprovedListings && (
               <p>Error loading listings: {errorAllApprovedListings}</p>

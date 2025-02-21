@@ -58,10 +58,9 @@ const FilterModal = ({
 
   const handleApplyFilters = () => {
     applyFilters(filters);
-    close(); // Close modal after applying filters
+    close(); 
   };
 
-  console.log({ filters });
   return (
     <Modal show={showFilterModal} onHide={close} centered>
       <Modal.Header closeButton>
@@ -153,7 +152,6 @@ const FilterModal = ({
 
         {isListingsPage && (
           <>
-            {" "}
             {/* Late Charges Checkbox */}
             <Form.Group className="mb-3">
               <Form.Check

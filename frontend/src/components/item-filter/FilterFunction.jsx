@@ -10,14 +10,12 @@ const FilterFunction = (items, filters, usePriceRange = true) => {
   }
 
   if (filters.deliveryMethod && filters.deliveryMethod !== "") {
-    console.log(filters.deliveryMethod);
     filteredItems = filteredItems.filter(
       (item) => item.deliveryMethod === filters.deliveryMethod
     );
   }
 
   if (filters.paymentMethod && filters.paymentMethod !== "") {
-    console.log(filters.paymentMethod);
     filteredItems = filteredItems.filter(
       (item) => item.paymentMethod === filters.paymentMethod
     );

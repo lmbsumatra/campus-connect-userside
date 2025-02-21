@@ -10,7 +10,6 @@ const FilterToolbar = ({
   showPriceRange,
 }) => {
   useEffect(() => {
-    // Ensure selected conditions are synced with filters state
     setSelectedCondition(filters.condition || []);
   }, [filters.condition]);
 
@@ -21,7 +20,6 @@ const FilterToolbar = ({
   };
   const [selectedConditions, setSelectedCondition] = useState([]);
 
-  // Event Handlers
   const handleOnSelectCondition = (condition) => {
     setSelectedCondition((prevConditions) => {
       let updatedConditions;

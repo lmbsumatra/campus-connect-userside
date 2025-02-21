@@ -23,7 +23,7 @@ const Shop = () => {
 
   const [showAdvancefilter, setShowAdvanceFilter] = useState(false);
   const [filters, setFilters] = useState(defaultFilters);
-  
+
   const keyword = searchParams.get("q")?.trim() || "";
 
   const {
@@ -43,7 +43,7 @@ const Shop = () => {
   }, [allApprovedItemForSale]);
 
   const handleFilterChange = (updatedFilters) => {
-    setFilters(updatedFilters); // Update filters state
+    setFilters(updatedFilters);
     const updatedItems = FilterFunction(allApprovedItemForSale, updatedFilters);
     setFilteredItems(updatedItems);
   };
@@ -53,8 +53,8 @@ const Shop = () => {
     <div className="container-content">
       <div className="row">
         <FilterToolbar
-          filters={filters} // 🔥 Pass filters state
-          setFilters={setFilters} // 🔥 Pass setFilters to update
+          filters={filters} 
+          setFilters={setFilters} 
           showPriceRange={true}
           onFilterChange={handleFilterChange}
         />
@@ -68,7 +68,7 @@ const Shop = () => {
 
         <ResetFilters
           setFilteredItems={setFilteredItems}
-          setFilters={setFilters} // 🔥 Reset filters properly
+          setFilters={setFilters} 
           allApprovedPosts={allApprovedItemForSale}
         />
 

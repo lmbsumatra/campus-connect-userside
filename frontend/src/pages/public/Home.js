@@ -63,7 +63,7 @@ function Home() {
       <Subheader />
       <Categories />
       <BrowseByCollection />
-      
+
       <ContentSection
         error={errorAllApprovedListings}
         loading={loadingAllApprovedListings}
@@ -75,7 +75,6 @@ function Home() {
       >
         <ItemCard items={allApprovedListings} title="Listings" />
       </ContentSection>
-      
 
       <ContentSection
         error={errorAllApprovedItemForSale}

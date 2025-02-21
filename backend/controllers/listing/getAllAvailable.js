@@ -2,13 +2,11 @@ const { models } = require("../../models/index.js");
 const { notifyAdmins } = require("../../socket.js");
 const Fuse = require("fuse.js");
 
-// Get all approved listing: displayed in home, listings page
 const getAllAvailable = async (req, res) => {
   try {
-    // Fetch all approved listings
     const items = await models.Listing.findAll({
       where: {
-        status: "approved", // Filter for approved items
+        status: "approved", 
       },
       include: [
         {
@@ -17,7 +15,7 @@ const getAllAvailable = async (req, res) => {
           required: true,
           where: {
             item_type: "listing",
-            status: "available", // Filter for available dates
+            status: "available",
           },
           include: [
             {
@@ -25,7 +23,7 @@ const getAllAvailable = async (req, res) => {
               as: "durations",
               required: true,
               where: {
-                status: "available", // Filter for available durations
+                status: "available", 
               },
             },
           ],
@@ -81,14 +79,12 @@ const getAllAvailable = async (req, res) => {
       };
     });
 
-    // Get query parameter
     const { q } = req.query;
 
     if (q) {
-      // Apply Fuse.js fuzzy search
       const fuse = new Fuse(formattedItems, {
-        keys: ["name", "desc", "category", "tags"], // Search in these fields
-        threshold: 0.3, // Adjust for fuzziness (0 = strict, 1 = loose)
+        keys: ["name", "desc", "category", "tags"], 
+        threshold: 0.3, 
       });
 
       const results = fuse.search(q).map((result) => result.item);

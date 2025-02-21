@@ -5,7 +5,7 @@ const ResetFilters = ({ setFilteredItems, setFilters, allApprovedPosts }) => {
   const resetFilters = () => {
     setFilters(defaultFilters);
 
-    setFilteredItems(allApprovedPosts); // 🔥 Reset items
+    setFilteredItems(allApprovedPosts);
   };
 
   return (

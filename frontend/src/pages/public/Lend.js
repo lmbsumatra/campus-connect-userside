@@ -44,15 +44,14 @@ const Lend = () => {
 
   return (
     <div className="container-content">
-      {/* Display Borrowing Posts */}
       {errorAllApprovedPosts && (
         <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>
       )}
       {loadingAllApprovedPosts && <p>Loading borrowing posts...</p>}
 
       <FilterToolbar
-        filters={filters} // 🔥 Pass filters state
-        setFilters={setFilters} // 🔥 Pass setFilters to update
+        filters={filters} 
+        setFilters={setFilters}
         showPriceRange={true}
         onFilterChange={handleFilterChange}
       />
@@ -66,7 +65,7 @@ const Lend = () => {
 
       <ResetFilters
         setFilteredItems={setFilteredItems}
-        setFilters={setFilters} // 🔥 Reset filters properly
+        setFilters={setFilters}
         allApprovedPosts={allApprovedPosts}
       />
 
