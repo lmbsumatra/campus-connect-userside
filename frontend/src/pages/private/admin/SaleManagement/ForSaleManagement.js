@@ -135,6 +135,11 @@ const ForSaleManagement = () => {
   const sortedData = () => {
     let sorted = [...getFilteredData()];
 
+     // Always sort by Date Added (newest first) if no sort option is selected
+     if (!sortOptions["Date Added"]) {
+      sorted = sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+
     if (Object.keys(sortOptions).length > 0) {
       if (sortOptions["Title"]) {
         sorted = sorted.sort((a, b) =>

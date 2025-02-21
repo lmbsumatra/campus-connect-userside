@@ -135,28 +135,34 @@ const ListingDashboard = () => {
   };
 
   const sortedData = () => {
-    let sorted = [...getFilteredData()];
+  let sorted = [...getFilteredData()];
 
-    if (Object.keys(sortOptions).length > 0) {
-      if (sortOptions["Title"]) {
-        sorted = sorted.sort((a, b) =>
-          sortOptions["Title"] === "asc"
-            ? a.listing_name.localeCompare(b.listing_name)
-            : b.listing_name.localeCompare(a.listing_name)
-        );
-      }
+  // Always sort by Date Added (newest first) if no sort option is selected
+  if (!sortOptions["Date Added"]) {
+    sorted = sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
 
-      if (sortOptions["Date Added"]) {
-        sorted = sorted.sort((a, b) =>
-          sortOptions["Date Added"] === "newest"
-            ? new Date(b.created_at) - new Date(a.created_at)
-            : new Date(a.created_at) - new Date(b.created_at)
-        );
-      }
+  if (Object.keys(sortOptions).length > 0) {
+    if (sortOptions["Title"]) {
+      sorted = sorted.sort((a, b) =>
+        sortOptions["Title"] === "asc"
+          ? a.listing_name.localeCompare(b.listing_name)
+          : b.listing_name.localeCompare(a.listing_name)
+      );
     }
 
-    return sorted;
-  };
+    if (sortOptions["Date Added"]) {
+      sorted = sorted.sort((a, b) =>
+        sortOptions["Date Added"] === "newest"
+          ? new Date(b.created_at) - new Date(a.created_at)
+          : new Date(a.created_at) - new Date(b.created_at)
+      );
+    }
+  }
+
+  return sorted;
+};
+
 
   const sortedFilteredData = sortedData();
 

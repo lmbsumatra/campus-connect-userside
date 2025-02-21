@@ -153,7 +153,12 @@ const ReportDashboard = () => {
 
   const sortedData = () => {
     let sorted = [...getFilteredData()];
-
+  
+    // Default sorting by Date Added (newest first) if no sorting option is selected
+    if (!sortOptions["Date Added"]) {
+      sorted = sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+  
     if (Object.keys(sortOptions).length > 0) {
       if (sortOptions["Date Added"]) {
         sorted = sorted.sort((a, b) =>
@@ -163,10 +168,10 @@ const ReportDashboard = () => {
         );
       }
     }
-
+  
     return sorted;
   };
-
+  
   const sortedFilteredData = sortedData();
 
   const totalItems = sortedFilteredData.length;
