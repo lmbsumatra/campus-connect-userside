@@ -1,17 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RangeSlider from "react-range-slider-input";
 import "react-range-slider-input/dist/style.css";
 import { categories, CONDITIONS } from "../../utils/consonants";
 
-const FilterToolbar = ({ onFilterChange, showPriceRange }) => {
+const FilterToolbar = ({
+  filters,
+  setFilters,
+  onFilterChange,
+  showPriceRange,
+}) => {
+  useEffect(() => {
+    // Ensure selected conditions are synced with filters state
+    setSelectedCondition(filters.condition || []);
+  }, [filters.condition]);
+
+  const handleFilterChange = (key, value) => {
+    const updatedFilters = { ...filters, [key]: value };
+    setFilters(updatedFilters);
+    onFilterChange(updatedFilters);
+  };
   const [selectedConditions, setSelectedCondition] = useState([]);
-  
-  const [filters, setFilters] = useState({
-    category: "",
-    rating: "",
-    condition: [],
-    priceRange: [0, 1000], // Default range (adjust as needed)
-  });
 
   // Event Handlers
   const handleOnSelectCondition = (condition) => {
@@ -27,12 +35,6 @@ const FilterToolbar = ({ onFilterChange, showPriceRange }) => {
       handleFilterChange("condition", updatedConditions);
       return updatedConditions;
     });
-  };
-
-  const handleFilterChange = (key, value) => {
-    const updatedFilters = { ...filters, [key]: value };
-    setFilters(updatedFilters);
-    onFilterChange(updatedFilters);
   };
 
   const handlePriceRangeChange = (value) => {

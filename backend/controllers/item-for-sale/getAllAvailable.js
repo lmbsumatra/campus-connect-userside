@@ -1,4 +1,3 @@
-// controllers/for-sale.js
 const { models } = require("../../models/index");
 const sequelize = require("../../config/database");
 const Fuse = require("fuse.js");
@@ -16,7 +15,9 @@ const getAllAvailable = async (req, res) => {
         "status",
         "category",
         "images",
-        "item_condition"
+        "item_condition",
+        "delivery_mode",
+        "payment_mode",
       ],
       where: {
         status: "approved",
@@ -26,9 +27,7 @@ const getAllAvailable = async (req, res) => {
           model: models.Date,
           as: "available_dates",
           required: true,
-          where: {
-            item_type: "item_for_sale",
-          },
+          where: { item_type: "item_for_sale" },
           include: [
             {
               model: models.Duration,
@@ -41,22 +40,42 @@ const getAllAvailable = async (req, res) => {
           model: models.User,
           as: "seller",
           attributes: ["first_name", "last_name"],
+          include: [
+            { model: models.Student, as: "student", attributes: ["college"] },
+          ],
         },
       ],
     });
 
-    // Format the response to flatten fields like item_name, price, etc.
+    // Format the response
     const formattedItems = items.map((item) => {
+      let tags = [];
+      let images = [];
+
+      try {
+        tags = JSON.parse(item.tags);
+      } catch (error) {
+        console.warn(`Failed to parse tags for item ${item.id}`);
+      }
+
+      try {
+        images = JSON.parse(item.images);
+      } catch (error) {
+        console.warn(`Failed to parse images for item ${item.id}`);
+      }
+
       return {
         id: item.id,
         name: item.item_for_sale_name,
-        tags: JSON.parse(item.tags),
+        tags,
         price: item.price,
         createdAt: item.created_at,
         status: item.status,
         category: item.category,
         itemType: "For Sale",
-        images: JSON.parse(item.images),
+        images,
+        deliveryMethod: item.delivery_mode,
+        paymentMethod: item.payment_mode,
         condition: item.item_condition,
         availableDates: item.available_dates.map((date) => ({
           id: date.id,
@@ -66,7 +85,7 @@ const getAllAvailable = async (req, res) => {
           status: date.status,
           durations: date.durations.map((duration) => ({
             id: duration.id,
-            dateId: duration.date_id,
+            dateId: date.id, // Ensuring correct reference
             timeFrom: duration.rental_time_from,
             timeTo: duration.rental_time_to,
             status: duration.status,
@@ -75,23 +94,22 @@ const getAllAvailable = async (req, res) => {
         sellerId: item.seller_id,
         sellerFname: item.seller.first_name,
         sellerLname: item.seller.last_name,
+        college: item.seller.student ? item.seller.student.college : null, // Fixing the college reference
       };
     });
 
-    // Get query parameter
-        const { q } = req.query;
-    
-        if (q) {
-          // Apply Fuse.js fuzzy search
-          const fuse = new Fuse(formattedItems, {
-            keys: ["name", "desc", "category", "tags"], // Search in these fields
-            threshold: 0.3, // Adjust for fuzziness (0 = strict, 1 = loose)
-          });
-    
-          const results = fuse.search(q).map((result) => result.item);
-    
-          return res.status(200).json(results.length ? results : []);
-        }
+    // Get query parameter for search
+    const { q } = req.query;
+
+    if (q) {
+      const fuse = new Fuse(formattedItems, {
+        keys: ["name", "category", "tags"],
+        threshold: 0.3,
+      });
+
+      const results = fuse.search(q).map((result) => result.item);
+      return res.status(200).json(results.length ? results : []);
+    }
 
     res.status(200).json(formattedItems);
   } catch (error) {

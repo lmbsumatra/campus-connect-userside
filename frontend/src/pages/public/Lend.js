@@ -31,6 +31,7 @@ const Lend = () => {
     useSelector((state) => state.allApprovedPosts);
 
   const [filteredItems, setFilteredItems] = useState(allApprovedPosts);
+    const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
     setFilteredItems(allApprovedPosts);
@@ -50,9 +51,12 @@ const Lend = () => {
       {loadingAllApprovedPosts && <p>Loading borrowing posts...</p>}
 
       <FilterToolbar
-        showPriceRange={false}
+        filters={filters} // 🔥 Pass filters state
+        setFilters={setFilters} // 🔥 Pass setFilters to update
+        showPriceRange={true}
         onFilterChange={handleFilterChange}
       />
+
       <button
         className="btn btn-rectangle primary"
         onClick={() => setShowAdvanceFilter(!showAdvancefilter)}
@@ -62,7 +66,7 @@ const Lend = () => {
 
       <ResetFilters
         setFilteredItems={setFilteredItems}
-        setFilters={(e) => handleFilterChange()}
+        setFilters={setFilters} // 🔥 Reset filters properly
         allApprovedPosts={allApprovedPosts}
       />
 
@@ -71,6 +75,8 @@ const Lend = () => {
           showFilterModal={showAdvancefilter}
           close={(e) => setShowAdvanceFilter(!showAdvancefilter)}
           applyFilters={handleFilterChange}
+          filters={filters}
+          setFilters={setFilters}
         />
       )}
 

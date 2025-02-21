@@ -64,12 +64,21 @@ export const CONDITIONS = [
   "Poor",
 ];
 
+export const COLLEGES = ["COS", "CAFA", "CIE", "CIT", "COE", "CLA"];
+
+export const DELIVERYMODE = ["pickup", "meetup"];
+
+export const PAYMENTMODE = ["payment upon meetup", "gcash"];
 
 export const defaultFilters = {
-  category: "",
   condition: [],
+  college: [],
   priceRange: [0, 1000],
   sortBy: "",
+  category: "",
+  deliveryMethod: "",
+  paymentMethod: "",
+  lateCharges: false,
+  securityDeposit: false,
+  repairReplacement: false,
 };
-
-

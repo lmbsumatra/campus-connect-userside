@@ -34,6 +34,9 @@ const getAllAvailable = async (req, res) => {
           model: models.User,
           as: "owner",
           attributes: ["first_name", "last_name"],
+          include: [
+            { model: models.Student, as: "student", attributes: ["college"] },
+          ],
         },
       ],
     });
@@ -49,6 +52,12 @@ const getAllAvailable = async (req, res) => {
         category: item.category,
         itemType: "For Rent",
         images: JSON.parse(item.images),
+        deliveryMethod: item.delivery_mode,
+        paymentMethod: item.payment_mode,
+        condition: item.item_condition,
+        lateCharges: item.late_charges,
+        securityDeposit: item.security_deposit,
+        repairReplacement: item.repair_replacement,
         availableDates: item.rental_dates.map((date) => ({
           id: date.id,
           itemId: date.item_id,
@@ -68,6 +77,7 @@ const getAllAvailable = async (req, res) => {
           fname: item.owner.first_name,
           lname: item.owner.last_name,
         },
+        college: item.owner.student ? item.owner.student.college : null,
       };
     });
 

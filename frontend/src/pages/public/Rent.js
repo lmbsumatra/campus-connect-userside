@@ -15,6 +15,8 @@ import { fetchAllApprovedListings } from "../../redux/listing/allApprovedListing
 import FilterToolbar from "../../components/item-filter/FilterToolbar";
 import FilterFunction from "../../components/item-filter/FilterFunction";
 import FilterModal from "../../components/item-filter/FilterModal";
+import ResetFilters from "../../components/item-filter/ResetFilters";
+import { defaultFilters } from "../../utils/consonants";
 
 const Rent = () => {
   const location = useLocation();
@@ -38,6 +40,7 @@ const Rent = () => {
   } = useSelector((state) => state.allApprovedListings);
 
   const [filteredItems, setFilteredItems] = useState(allApprovedListings);
+  const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
     dispatch(fetchAllApprovedListings(keyword));
@@ -56,8 +59,9 @@ const Rent = () => {
     <>
       <div className="container-content">
         <div className="row">
-          {/* Filters Sidebar */}
           <FilterToolbar
+            filters={filters} // 🔥 Pass filters state
+            setFilters={setFilters} // 🔥 Pass setFilters to update
             showPriceRange={true}
             onFilterChange={handleFilterChange}
           />
@@ -69,11 +73,20 @@ const Rent = () => {
             Advance Filter
           </button>
 
+          <ResetFilters
+            setFilteredItems={setFilteredItems}
+            setFilters={setFilters} // 🔥 Reset filters properly
+            allApprovedPosts={allApprovedListings}
+          />
+
           {showAdvancefilter && (
             <FilterModal
               showFilterModal={showAdvancefilter}
               close={(e) => setShowAdvanceFilter(!showAdvancefilter)}
               applyFilters={handleFilterChange}
+              filters={filters}
+              setFilters={setFilters}
+              isListingsPage={true}
             />
           )}
 

@@ -2,16 +2,33 @@ import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import RangeSlider from "react-range-slider-input";
 import "react-range-slider-input/dist/style.css";
-import { categories, CONDITIONS } from "../../utils/consonants";
+import {
+  categories,
+  COLLEGES,
+  CONDITIONS,
+  DELIVERYMODE,
+  PAYMENTMODE,
+} from "../../utils/consonants";
 
-const FilterModal = ({ showFilterModal, close, applyFilters }) => {
-  const [filters, setFilters] = useState({
-    category: "",
+const FilterModal = ({
+  filters = {
     condition: [],
-    priceRange: [0, 1000], // Default range
+    college: [],
+    priceRange: [0, 1000],
     sortBy: "",
-  });
-
+    category: "",
+    deliveryMethod: "",
+    paymentMethod: "",
+    lateCharges: false,
+    securityDeposit: false,
+    repairReplacement: false,
+  },
+  setFilters,
+  showFilterModal,
+  close,
+  applyFilters,
+  isListingsPage = false,
+}) => {
   const handleFilterChange = (key, value) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -29,11 +46,22 @@ const FilterModal = ({ showFilterModal, close, applyFilters }) => {
     });
   };
 
+  const handleCollegeChange = (college) => {
+    setFilters((prevFilters) => {
+      const updatedColleges = prevFilters.college.includes(college)
+        ? prevFilters.condition.filter((c) => c !== college)
+        : [...prevFilters.college, college];
+
+      return { ...prevFilters, college: updatedColleges };
+    });
+  };
+
   const handleApplyFilters = () => {
     applyFilters(filters);
     close(); // Close modal after applying filters
   };
 
+  console.log({ filters });
   return (
     <Modal show={showFilterModal} onHide={close} centered>
       <Modal.Header closeButton>
@@ -51,6 +79,42 @@ const FilterModal = ({ showFilterModal, close, applyFilters }) => {
             {categories.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+
+        {/* Delivery Method Dropdown */}
+        <Form.Group className="mb-3">
+          <Form.Label>Category</Form.Label>
+          <Form.Select
+            value={filters.deliveryMethod}
+            onChange={(e) =>
+              handleFilterChange("deliveryMethod", e.target.value)
+            }
+          >
+            <option value="">Pick delivery method</option>
+            {DELIVERYMODE.map((mode) => (
+              <option key={mode} value={mode}>
+                {mode}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+
+        {/* Payment Method Dropdown */}
+        <Form.Group className="mb-3">
+          <Form.Label>Payment Method</Form.Label>
+          <Form.Select
+            value={filters.paymentMethod}
+            onChange={(e) =>
+              handleFilterChange("paymentMethod", e.target.value)
+            }
+          >
+            <option value="">Pick payment method</option>
+            {PAYMENTMODE.map((mode) => (
+              <option key={mode} value={mode}>
+                {mode}
               </option>
             ))}
           </Form.Select>
@@ -83,6 +147,60 @@ const FilterModal = ({ showFilterModal, close, applyFilters }) => {
               value={condition}
               checked={filters.condition.includes(condition)}
               onChange={() => handleConditionChange(condition)}
+            />
+          ))}
+        </Form.Group>
+
+        {isListingsPage && (
+          <>
+            {" "}
+            {/* Late Charges Checkbox */}
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label="Has Late Charges"
+                checked={filters.lateCharges}
+                onChange={(e) =>
+                  handleFilterChange("lateCharges", e.target.checked)
+                }
+              />
+            </Form.Group>
+            {/* Security Deposit Checkbox */}
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label="Requires Security Deposit"
+                checked={filters.securityDeposit}
+                onChange={(e) =>
+                  handleFilterChange("securityDeposit", e.target.checked)
+                }
+              />
+            </Form.Group>
+            {/* Repair & Replacement Checkbox */}
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label="Requires Repair/Replacement"
+                checked={filters.repairReplacement}
+                onChange={(e) =>
+                  handleFilterChange("repairReplacement", e.target.checked)
+                }
+              />
+            </Form.Group>
+          </>
+        )}
+
+        {/* College Checkboxes */}
+        <Form.Group className="mb-3">
+          <Form.Label>College</Form.Label>
+          {COLLEGES.map((college) => (
+            <Form.Check
+              key={college}
+              type="checkbox"
+              label={college}
+              value={college}
+              checked={filters.college.includes(college)}
+              onChange={() => handleCollegeChange(college)}
             />
           ))}
         </Form.Group>

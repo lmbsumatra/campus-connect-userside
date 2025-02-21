@@ -33,6 +33,7 @@ const getAllAvailablePost = async (req, res) => {
             {
               model: models.Student,
               as: "student",
+              attributes: ["college"],
             },
           ],
         },
@@ -73,23 +74,23 @@ const getAllAvailablePost = async (req, res) => {
         lname: post.renter?.last_name || "",
         college: post.renter?.student?.college || "",
       },
+      college: post.renter.student ? post.renter.student.college : null,
     }));
 
-     // Get query parameter
-     const { q } = req.query;
+    // Get query parameter
+    const { q } = req.query;
 
-     if (q) {
-       // Apply Fuse.js fuzzy search
-       const fuse = new Fuse(formattedPosts, {
-         keys: ["name", "desc", "category", "tags"], // Search in these fields
-         threshold: 0.3, // Adjust for fuzziness (0 = strict, 1 = loose)
-       });
- 
-       const results = fuse.search(q).map((result) => result.item);
- 
-       return res.status(200).json(results.length ? results : []);
-     }
- 
+    if (q) {
+      // Apply Fuse.js fuzzy search
+      const fuse = new Fuse(formattedPosts, {
+        keys: ["name", "desc", "category", "tags"], // Search in these fields
+        threshold: 0.3, // Adjust for fuzziness (0 = strict, 1 = loose)
+      });
+
+      const results = fuse.search(q).map((result) => result.item);
+
+      return res.status(200).json(results.length ? results : []);
+    }
 
     res.status(200).json(formattedPosts);
   } catch (error) {

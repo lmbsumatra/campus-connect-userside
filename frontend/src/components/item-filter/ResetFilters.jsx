@@ -1,14 +1,11 @@
 import React from "react";
+import { defaultFilters } from "../../utils/consonants";
 
 const ResetFilters = ({ setFilteredItems, setFilters, allApprovedPosts }) => {
   const resetFilters = () => {
-    setFilteredItems(allApprovedPosts);
-    setFilters({
-      category: "",
-      condition: [],
-      priceRange: [0, 1000],
-      sortBy: "",
-    });
+    setFilters(defaultFilters);
+
+    setFilteredItems(allApprovedPosts); // 🔥 Reset items
   };
 
   return (
