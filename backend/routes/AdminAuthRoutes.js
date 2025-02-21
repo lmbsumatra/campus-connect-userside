@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const adminAuthController = require("../controllers/AdminAuthController");
 const authenticateToken = require("../middlewares/AdminAuthMiddleware");
+const StudentController = require("../controllers/student/StudentController")
 
 const { upload_prof } = require("../config/multer"); // Configure storage options if necessary
 
@@ -30,6 +31,8 @@ router.delete("/unavailable-dates/:date", adminAuthController.deleteUnavailableD
 router.get("/end-semester-dates", adminAuthController.getEndSemesterDates);
 router.post("/end-semester-dates", adminAuthController.addEndSemesterDate);
 router.delete("/end-semester-dates/:date", adminAuthController.deleteEndSemesterDate);
+
+router.get("/student/info/:id", StudentController.getStudentDataForAdmin);
 
 
 module.exports = router;
