@@ -94,9 +94,7 @@ app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/follow", followRoutes);
-app.use("/api/reports", reportRoutes);
-app.use("/api/admin/transactions", adminTransactionRoutes);
-app.use("/api/recent-activities", recentActivitiesRoutes);
+
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use(

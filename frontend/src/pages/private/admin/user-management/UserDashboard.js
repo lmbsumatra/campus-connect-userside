@@ -5,6 +5,7 @@ import SearchBarComponent from "../../../../components/Search/SearchBarComponent
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import useFetchAllUsersData from "../../../../utils/FetchAllUsersData";
 import { formatDate } from "../../../../utils/dateFormat";
+import { StudentStatus } from "../../../../utils/Status";
 import "./postDashboard.css";
 import {
   UserAnalytics,
@@ -50,22 +51,12 @@ const UserDashboard = () => {
     console.log(`Deleting user with ID: ${userId}`);
   };
 
-  const getStatusInfo = (status) => {
-    switch (status) {
-      case "posted":
-        return { label: "Posted", className: "bg-success text-white" };
-      case "flagged":
-        return { label: "Flagged", className: "bg-warning text-dark" };
-      case "offered":
-        return { label: "Offered", className: "bg-info text-white" };
-      case "pending":
-        return { label: "Pending", className: "bg-secondary text-white" };
-      case "removed":
-        return { label: "Removed", className: "bg-danger text-white" };
-      default:
-        return { label: "Unknown", className: "bg-light text-dark" };
-    }
-  };
+  const filterableStatusOptions = [
+    "pending",
+    "approved",
+    "banned",
+    "flagged",
+  ];
 
   const handleSortChange = (column, order) => {
     if (order === "default") {
@@ -74,9 +65,14 @@ const UserDashboard = () => {
       setSortOptions({ [column]: order });
     }
   };
+ const getStatusInfo = (status) => {
+    const { label, className } = StudentStatus(status);
+    return { label, className };
+  };
+  
 
   const handleFilterChange = (column, value) => {
-    setFilterOptions((prev) => ({ ...prev, [column]: value }));
+    setFilterOptions({ ...filterOptions, [column]: value });
   };
 
   const handlePageChange = (pageNumber) => {
@@ -111,11 +107,13 @@ const UserDashboard = () => {
       );
     }
 
+    
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(
-        (user) => user.status === filterOptions["Status"]
+        (user) => user.student?.status === filterOptions["Status"]
       );
     }
+    
 
     return filteredData;
   };
@@ -160,7 +158,7 @@ const UserDashboard = () => {
   );
 
   const data = displayedData.map((user) => {
-    const { label, className } = getStatusInfo(user.status);
+    const { label, className } = getStatusInfo(user.student?.status || "pending");
     return [
       <div className="thumbnail-placeholder"></div>,
       <>{user.student?.college || ""}</>,
@@ -170,22 +168,13 @@ const UserDashboard = () => {
       formatDate(user.createdAt),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
-        <button
-          className="btn btn-action view"
-          onClick={() => handleView(user.user_id)}
-        >
+        <button className="btn btn-action view" onClick={() => handleView(user.user_id)}>
           View
         </button>
-        <button
-          className="btn btn-action edit"
-          onClick={() => handleEdit(user.user_id)}
-        >
+        <button className="btn btn-action edit" onClick={() => handleEdit(user.user_id)}>
           Edit
         </button>
-        <button
-          className="btn btn-action delete"
-          onClick={() => handleDelete(user.user_id)}
-        >
+        <button className="btn btn-action delete" onClick={() => handleDelete(user.user_id)}>
           Delete
         </button>
       </div>,
@@ -207,6 +196,7 @@ const UserDashboard = () => {
             data={data}
             onSortChange={handleSortChange}
             onFilterChange={handleFilterChange}
+            statusOptions={filterableStatusOptions}
           />
           {loading && <p>Loading ...</p>}
           {error && <p>Error: {error}</p>}

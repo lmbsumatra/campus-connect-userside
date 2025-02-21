@@ -28,7 +28,7 @@ exports.getAllStudents = async (req, res) => {
         {
           model: models.Student,
           as: "student",
-          attributes: ["college"],
+          attributes: ["college", "status"],
         },
       ],
     });
@@ -279,3 +279,5 @@ exports.userChangePassword = async (req, res) => {
     });
   }
 };
+
+

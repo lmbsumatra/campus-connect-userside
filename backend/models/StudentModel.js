@@ -39,11 +39,11 @@ Student.init(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
-    // status: {
-    //   type: DataTypes.ENUM("pending", "verified"),
-    //   defaultValue: "pending", // Default status is 'pending'
-    //   allowNull: false,
-    // },
+    status: {
+      type: DataTypes.ENUM("pending", "verified", "flagged", "banned"),
+      defaultValue: "pending", // Default status is 'pending'
+      allowNull: false,
+    },
   },
   {
     sequelize,

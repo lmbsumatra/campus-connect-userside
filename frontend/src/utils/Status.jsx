@@ -17,6 +17,21 @@ export const ItemStatus = (status) => {
   }
 };
 
+export const StudentStatus = (status) => {
+  switch (status) {
+    case "approved":
+      return { label: "Approved", className: "bg-success text-white" };
+    case "banned":
+      return { label: "Banned", className: "bg-warning text-dark" };
+    case "pending":
+      return { label: "Pending", className: "bg-warning text-white" };
+    case "flagged":
+      return { label: "Flagged", className: "bg-primary text-white" };
+    default:
+      return { label: "Unknown", className: "bg-light text-dark" };
+  }
+};
+
 export const TransactionStatus = (status) => {
   switch (status) {
     case "Requested":
