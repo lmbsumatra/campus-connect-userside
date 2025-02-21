@@ -63,3 +63,13 @@ export const CONDITIONS = [
   "Used (good)",
   "Poor",
 ];
+
+
+export const defaultFilters = {
+  category: "",
+  condition: [],
+  priceRange: [0, 1000],
+  sortBy: "",
+};
+
+

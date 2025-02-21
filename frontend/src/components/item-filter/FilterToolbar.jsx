@@ -5,6 +5,7 @@ import { categories, CONDITIONS } from "../../utils/consonants";
 
 const FilterToolbar = ({ onFilterChange, showPriceRange }) => {
   const [selectedConditions, setSelectedCondition] = useState([]);
+  
   const [filters, setFilters] = useState({
     category: "",
     rating: "",
