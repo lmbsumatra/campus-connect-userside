@@ -1,6 +1,7 @@
 // backend/controllers/ReportController.js
 const { models } = require("../models/index");
 const Report = models.Report; // Import the Report model
+// const Student = models.Student;
 
 //  Create a new report
 exports.createReport = async (req, res) => {
@@ -46,65 +47,79 @@ exports.getAllReports = async (req, res) => {
   }
 };
 
-// Update report status
+// update report status and the entity status
 exports.updateReportStatus = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    // Validate status input
-    const validStatuses = ["pending", "reviewed", "flagged", "dismissed"];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: "Invalid status value." });
-    }
+    const { reportId, reportStatus, entityAction } = req.body;
+    console.log("Request Body:", req.body); // Log the request body
 
     // Find the report
-    const report = await Report.findByPk(id);
+    const report = await models.Report.findByPk(reportId);
     if (!report) {
-      console.error("Report not found:", id);
-      return res.status(404).json({ error: "Report not found." });
+      console.log("Report not found for ID:", reportId);
+      return res.status(404).json({ message: "Report not found" });
     }
 
-    // Update the report status
-    report.status = status;
+    // Update report status
+    report.status = reportStatus;
     await report.save();
 
-    // If the report status is "flagged", update the entity status
-    if (status === "flagged") {
-      const { reported_entity_id, entity_type } = report;
+    // Only update entity status if report is reviewed
+    if (reportStatus === "reviewed" && entityAction) {
+      if (report.entity_type === "user") {
+        // Find the associated Student record
+        const student = await models.Student.findOne({
+          where: { user_id: report.reported_entity_id },
+        });
 
-      let entityModel;
-      switch (entity_type) {
-        case "listing":
-          entityModel = models.Listing;
-          break;
-        case "post":
-          entityModel = models.Post;
-          break;
-        case "sale":
-          entityModel = models.ItemForSale;
-          break;
-        case "user":
-          entityModel = models.User;
-          break;
-        default:
-          console.error("Unsupported entity type:", entity_type);
-          return res.status(400).json({ error: "Invalid entity type." });
-      }
-
-      // Find and update the entity
-      const entity = await entityModel.findByPk(reported_entity_id);
-      if (entity) {
-        if (entity.status !== undefined) {
-          entity.status = "flagged"; // Ensure the entity has a status column
-          await entity.save();
-        } else {
-          console.warn("Entity does not have a 'status' field:", entity_type);
+        if (!student) {
+          console.log("Student not found for User ID:", report.reported_entity_id);
+          return res.status(404).json({ error: "Student not found." });
         }
+
+        // Update student status
+        student.status = entityAction; // Set status to "flagged" or "banned"
+        await student.save();
       } else {
-        console.error("Reported entity not found:", reported_entity_id);
-        return res.status(404).json({ error: "Reported entity not found." });
+        // Handle other entity types (posts, listings, sales, etc.)
+        let entityModel;
+        switch (report.entity_type) {
+          case "listing":
+            entityModel = models.Listing;
+            break;
+          case "post":
+            entityModel = models.Post;
+            break;
+          case "sale":
+            entityModel = models.ItemForSale;
+            break;
+          default:
+            return res.status(400).json({ error: "Invalid entity type." });
+        }
+
+        // Update entity status to "flagged"
+        if (entityModel) {
+          const entity = await entityModel.findByPk(report.reported_entity_id);
+          if (entity) {
+            entity.status = "flagged"; // Non-user entities always get flagged
+            await entity.save();
+          } else {
+            return res.status(404).json({ error: "Reported entity not found." });
+          }
+        }
       }
+
+      // Update all reports for the same entity to "reviewed" status
+      await models.Report.update(
+        { status: "resolved" },
+        {
+          where: {
+            reported_entity_id: report.reported_entity_id,
+            entity_type: report.entity_type,
+            status: "pending", // Only update pending reports
+          },
+        }
+      );
     }
 
     res.status(200).json(report);

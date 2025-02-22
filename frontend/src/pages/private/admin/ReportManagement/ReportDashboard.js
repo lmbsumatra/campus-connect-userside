@@ -98,8 +98,8 @@ const ReportDashboard = () => {
   const filterableStatusOptions = [
     "pending",
     "reviewed",
-    "flagged",
     "dismissed",
+    "resolved"
   ];
 
   const handleSortChange = (column, order) => {

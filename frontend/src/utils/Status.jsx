@@ -64,10 +64,10 @@ export const ReportStatus = (status) => {
       return { label: "Pending", className: "bg-warning text-dark" };
     case "reviewed":
       return { label: "Reviewed", className: "bg-success text-white" };
-    case "flagged":
-      return { label: "Flagged", className: "bg-danger text-white" };
     case "dismissed":
       return { label: "Dismissed", className: "bg-secondary text-white" };
+      case "resolved":
+        return { label: "Resolved", className: "bg-primary text-white" };
     default:
       return { label: "Unknown", className: "bg-light text-dark" };
   }

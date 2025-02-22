@@ -31,7 +31,7 @@ Report.init(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM("pending", "reviewed", "flagged", "dismissed"),
+      type: DataTypes.ENUM("pending", "reviewed", "dismissed", "resolved"),
       defaultValue: "pending",
     },
     createdAt: {

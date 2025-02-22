@@ -59,11 +59,13 @@ const ReportItemView = () => {
     }
   };
 
-
-  const handleStatusChange = async (selectedAction) => {
+  const handleStatusChange = async (selectedAction, entityAction) => {
     try {
       await axios.patch(`http://localhost:3001/api/reports/${reportDetails.id}`, {
-        status: selectedAction,
+        reportId: reportDetails.id, // Include reportId in the payload
+        reportStatus: selectedAction,
+        entityAction: entityAction, // Include entityAction if applicable
+       
       });
       reportDetails.status = selectedAction; // Update UI
     } catch (error) {
@@ -105,6 +107,7 @@ const ReportItemView = () => {
         onHide={handleCloseModal}
         onConfirm={handleStatusChange}
         currentStatus={reportDetails.status}
+        entityType={entity_type} 
       />
     </div>
   );
