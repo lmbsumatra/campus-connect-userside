@@ -16,6 +16,7 @@ import ShowAlert from "../../../../utils/ShowAlert";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import "./UserProfileVisit.css"
 import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
+import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
 
 const UserProfileVisit = () => {
   const navigate = useNavigate();
@@ -93,9 +94,19 @@ const UserProfileVisit = () => {
     } catch (error) {
       console.error("Error submitting report:", error);
   
-      // Show error notification instead of alert
-      await ShowAlert(dispatch, "error", "Submission Failed", "Failed to submit the report. Please try again.");
-    }
+      // Handle 403 error separately
+      await handleUnavailableDateError(dispatch, error);
+
+      // If it's not a 403 error, handle other errors
+      if (error.response?.status !== 403) {
+        await ShowAlert(
+          dispatch,
+          "error",
+          "Submission Failed",
+          "Failed to submit the report. Please try again."
+        );
+      }
+      }
   
     setShowReportModal(false); // Close the modal
   };

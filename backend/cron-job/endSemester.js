@@ -2,11 +2,10 @@ const cron = require("node-cron");
 const { Op } = require("sequelize");
 const sequelize = require("../config/database");
 const EndSemesterDate = require("../models/EndSemesterDate");
-// const { Student } = require("../models/StudentModel");
 const moment = require("moment-timezone");
 const Student = require("../models/StudentModel");
 
-cron.schedule("*/1 * * * *", async () => {
+cron.schedule("0 * * * *", async () => {
   try {
     // console.log("Cron job started...");
 
@@ -29,17 +28,14 @@ cron.schedule("*/1 * * * *", async () => {
     // console.log("Matching Record:", endSemesterDate);
 
     if (endSemesterDate) {
-    //   console.log("End semester date found. Resetting student statuses to 'pending'...");
+      console.log("End semester date found. Resetting 'verified' students to 'pending'...");
+    
       await Student.update(
         { status: "pending" },
-        { where: {
-            [Op.or]: [
-              { status: { [Op.ne]: "pending" } },
-              { status: null }
-            ]
-          } }
+        { where: { status: "verified" } } // ✅ Only verified students are affected
       );
-    //   console.log("Student statuses have been reset to 'pending'.");
+    
+      console.log("Verified students have been reset to 'pending'.");
     } else {
       console.log("No matching end semester date found.");
     }

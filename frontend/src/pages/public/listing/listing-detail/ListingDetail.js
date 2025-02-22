@@ -42,6 +42,7 @@ import axios from "axios";
 import ViewToolbar from "../../common/ViewToolbar.js";
 import ReportModal from "../../../../components/report/ReportModal.js";
 import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
+import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
 
 // async function getUserFullName(userId) {
 //   console.log("Fetching user details for userId:", userId);
@@ -368,21 +369,18 @@ function ListingDetail() {
 
   const handleReportSubmit = async (reason) => {
     const reportData = {
-      reporter_id: loggedInUserId, // ID of the logged-in user
-      reported_entity_id: approvedListingById.id, // ID of the item being reported
-      entity_type: "listing", // Type of entity being reported
-      reason: reason, // Reason for the report
+      reporter_id: loggedInUserId,
+      reported_entity_id: approvedListingById.id,
+      entity_type: "listing",
+      reason: reason,
     };
-
+  
     try {
       console.log(reportData);
-      const response = await axios.post(
-        "http://localhost:3001/api/reports",
-        reportData
-      ); // API endpoint
+      const response = await axios.post("http://localhost:3001/api/reports", reportData);
       console.log("Report submitted:", response.data);
-
-      // Show success notification instead of alert
+  
+      // Show success notification
       await ShowAlert(
         dispatch,
         "success",
@@ -391,18 +389,24 @@ function ListingDetail() {
       );
     } catch (error) {
       console.error("Error submitting report:", error);
+      
+      // Handle 403 error separately
+      await handleUnavailableDateError(dispatch, error);
 
-      // Show error notification instead of alert
-      await ShowAlert(
-        dispatch,
-        "error",
-        "Submission Failed",
-        "Failed to submit the report. Please try again."
-      );
-    }
-
+      // If it's not a 403 error, handle other errors
+      if (error.response?.status !== 403) {
+        await ShowAlert(
+          dispatch,
+          "error",
+          "Submission Failed",
+          "Failed to submit the report. Please try again."
+        );
+      }
+      }
+  
     setShowReportModal(false); // Close the modal
   };
+  
 
   const handleReportClick = () => {
     if (loggedInUserId) {

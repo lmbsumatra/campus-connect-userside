@@ -1,16 +1,22 @@
 const UnavailableDate = require("../models/UnavailableDateModel");
 
+
 const checkUnavailableDate = async (req, res, next) => {
   try {
     const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD
-    const unavailableDates = await UnavailableDate.findAll({ attributes: ['date'] });
+    const unavailableDates = await UnavailableDate.findAll({ attributes: ['date', 'description'] });
 
-    const isUnavailable = unavailableDates.some(
+    const unavailableEntry = unavailableDates.find(
       (entry) => new Date(entry.date).toISOString().split("T")[0] === today
     );
 
-    if (isUnavailable) {
-      return res.status(403).json({ message: "This action is not allowed on unavailable dates." });
+    if (unavailableEntry) {
+      // Notify the user with the reason
+      const reason = unavailableEntry.description || "This date is unavailable.";
+      return res.status(403).json({ 
+        message: "This action is not allowed on unavailable dates.",
+        reason: reason 
+      });
     }
 
     next(); // Proceed to the next middleware or route handler

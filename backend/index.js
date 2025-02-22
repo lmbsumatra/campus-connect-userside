@@ -28,7 +28,7 @@ const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
 // Cron Jobs
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
 const cron = require("node-cron");
-//const endSemesterCron = require("./cron-job/endSemester.js"); for resetting status of verified student
+const endSemesterCron = require("./cron-job/endSemester.js"); //for resetting status of verified student
 
 // cron.schedule("1 * * * * * *", async () => {
 //   console.log("Running cron job to auto-decline expired rentals...");

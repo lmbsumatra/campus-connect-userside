@@ -38,6 +38,7 @@ import ItemBadges from "../common/ItemBadges";
 import ReportModal from "../../../components/report/ReportModal";
 import useHandleActionWithAuthCheck from "../../../utils/useHandleActionWithAuthCheck";
 import ShowAlert from "../../../utils/ShowAlert";
+import handleUnavailableDateError from "../../../utils/handleUnavailableDateError";
 
 function ItemForSaleDetail() {
   const navigate = useNavigate();
@@ -297,9 +298,19 @@ function ItemForSaleDetail() {
     } catch (error) {
       console.error("Error submitting report:", error);
   
-      // Show error notification instead of alert
-      await ShowAlert(dispatch, "error", "Submission Failed", "Failed to submit the report. Please try again.");
-    }
+       // Handle 403 error separately
+       await handleUnavailableDateError(dispatch, error);
+
+       // If it's not a 403 error, handle other errors
+       if (error.response?.status !== 403) {
+         await ShowAlert(
+           dispatch,
+           "error",
+           "Submission Failed",
+           "Failed to submit the report. Please try again."
+         );
+       }
+       }
 
     setShowReportModal(false); // Close the modal
   };
