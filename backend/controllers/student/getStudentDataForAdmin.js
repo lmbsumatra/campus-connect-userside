@@ -36,11 +36,13 @@ const getStudentDataForAdmin = async (req, res) => {
         joinDate: user.createdAt,
       },
       student: {
-        id: user.student.tup_id,
+        id: user.student.id,  // Use the primary key ID
+        tupId: user.student.tup_id,
         college: user.student.college,
         scannedId: user.student.scanned_id,
         photoWithId: user.student.photo_with_id,
         profilePic: user.student.profile_pic,
+        status: user.student.status,
       },
     };
 

@@ -6,6 +6,7 @@ const AdminUnavailableDates = ({ onClose }) => {
   const [newDate, setNewDate] = useState("");
   const [description, setDescription] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showInfo, setShowInfo] = useState(false); // Toggle for info section
 
   useEffect(() => {
     // Fetch unavailable dates from the server
@@ -92,12 +93,35 @@ const AdminUnavailableDates = ({ onClose }) => {
     <div className="modal show bg-shadow" style={{ display: "block" }}>
       <div className="modal-dialog">
         <div className="modal-content">
-          <div className="modal-header">
+          {/* Modal Header */}
+          <div className="modal-header d-flex justify-content-between align-items-center">
             <h5 className="modal-title">Manage Unavailable Dates</h5>
-            <button className="close" onClick={onClose}>
-              <span>&times;</span>
+            <button className="btn btn-info btn-sm" onClick={() => setShowInfo(!showInfo)}>
+              ℹ 
+            </button>
+            <button className="btn btn-light border shadow-sm px-3 py-2" onClick={onClose}>
+              <span className="fw-bold" style={{ fontSize: "1.2rem" }}>&times;</span>
             </button>
           </div>
+
+          {/* Info Section */}
+          {showInfo && (
+            <div className="alert alert-info m-3">
+              <strong>Purpose:</strong> This page allows you to set unavailable dates. On these dates, certain routes will be blocked to prevent user access.
+              <hr />
+              PWEDE BA DAGDAGAN BASED NALANG ANO ROUTES LALAGAY YUN MIDDLEWARE 
+              <hr/>
+              {/* PWEDE BA DAGDAGAN BASED NALNG ANO ROUTES LALAGAY YUN MIDDLEWARE */}
+              <strong>Affected routes: notes: check the routing</strong>
+              <ul className="mb-0">
+                <li>Reporting entity (user, listing, post, and sale)</li>
+                <li>Creating a Post</li>
+                <li>Adding listing</li>
+              </ul>
+            </div>
+          )}
+
+          {/* Modal Body */}
           <div className="modal-body">
             <div>
               <label>Date:</label>

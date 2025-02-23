@@ -27,6 +27,7 @@ const UserDashboard = () => {
     "College",
     "User",
     "Date Added",
+    "Date Updated",
     "Status",
     "Action",
   ];
@@ -43,17 +44,17 @@ const UserDashboard = () => {
     navigate(`/admin/users/user-verification/${userId}`);
   };
 
-  const handleEdit = (userId) => {
-    console.log(`Editing user with ID: ${userId}`);
-  };
+  // const handleEdit = (userId) => {
+  //   console.log(`Editing user with ID: ${userId}`);
+  // };
 
-  const handleDelete = (userId) => {
-    console.log(`Deleting user with ID: ${userId}`);
-  };
+  // const handleDelete = (userId) => {
+  //   console.log(`Deleting user with ID: ${userId}`);
+  // };
 
   const filterableStatusOptions = [
     "pending",
-    "approved",
+    "verified",
     "banned",
     "flagged",
   ];
@@ -65,6 +66,8 @@ const UserDashboard = () => {
       setSortOptions({ [column]: order });
     }
   };
+  
+
  const getStatusInfo = (status) => {
     const { label, className } = StudentStatus(status);
     return { label, className };
@@ -120,12 +123,12 @@ const UserDashboard = () => {
 
   const sortedData = () => {
     let sorted = [...getFilteredData()];
-
-        // Default sorting by Date Added (newest first) if no sorting option is selected
-        if (!sortOptions["Date Added"]) {
-          sorted = sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        }
-
+  
+    // Default sorting by Date Added (newest first) if no sorting option is selected
+    if (!sortOptions["Date Added"] && !sortOptions["Date Updated"]) {
+      sorted = sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+  
     if (Object.keys(sortOptions).length > 0) {
       if (sortOptions["User"]) {
         sorted = sorted.sort((a, b) =>
@@ -134,7 +137,7 @@ const UserDashboard = () => {
             : b.first_name.localeCompare(a.first_name)
         );
       }
-
+  
       if (sortOptions["Date Added"]) {
         sorted = sorted.sort((a, b) =>
           sortOptions["Date Added"] === "newest"
@@ -142,10 +145,19 @@ const UserDashboard = () => {
             : new Date(a.createdAt) - new Date(b.createdAt)
         );
       }
+  
+      if (sortOptions["Date Updated"]) {
+        sorted = sorted.sort((a, b) =>
+          sortOptions["Date Updated"] === "newest"
+            ? new Date(b.student?.updatedAt || b.createdAt) - new Date(a.student?.updatedAt || a.createdAt)
+            : new Date(a.student?.updatedAt || a.createdAt) - new Date(b.student?.updatedAt || b.createdAt)
+        );
+      }
     }
-
+  
     return sorted;
   };
+  
 
   const sortedFilteredData = sortedData();
 
@@ -166,17 +178,18 @@ const UserDashboard = () => {
         {user.first_name} {user.last_name}
       </>,
       formatDate(user.createdAt),
+      formatDate(user.student?.updatedAt || user.createdAt), 
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
         <button className="btn btn-action view" onClick={() => handleView(user.user_id)}>
           View
         </button>
-        <button className="btn btn-action edit" onClick={() => handleEdit(user.user_id)}>
+        {/* <button className="btn btn-action edit" onClick={() => handleEdit(user.user_id)}>
           Edit
         </button>
         <button className="btn btn-action delete" onClick={() => handleDelete(user.user_id)}>
           Delete
-        </button>
+        </button> */}
       </div>,
     ];
   });

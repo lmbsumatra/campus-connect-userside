@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+//import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css'
 import 'swiper/swiper-bundle.css';
 import "../adminDashboardStyles.css";
+import { useNavigate } from "react-router-dom";
 
 import useFetchAllUsersData from "../../../../../utils/FetchAllUsersData";
 import useFetchAllListingsData from "../../../../../utils/FetchAllListingsData";
@@ -27,6 +28,7 @@ const AdminDashboard = () => {
     const { reports } = useFetchAllReportsData();
     const { transactions } = useFetchAllTransactionsData();
     const sale = useFetchAllItemsForSaleData();
+    const navigate = useNavigate();
   
     // State to store fetched values for status cards
     const [statusData, setStatusData] = useState({
@@ -59,6 +61,36 @@ const AdminDashboard = () => {
     { title: 'Reports', value: `${statusData.reports}`, icon: require('../../../../../assets/images/icons/report.png'), color: '#2E3192' },
     { title: 'Sales', value: `${statusData.sales}`, icon: require('../../../../../assets/images/icons/report.png'), color: '#2E3192' },
 ];
+
+// Function to handle navigation based on activity type
+const handleViewActivity = (activity) => {
+  let route = "";
+
+  switch (activity.type) {
+    case "New User":
+      route = `/admin/users`;
+      break;
+    case "New Listing":
+      route = `/admin/listings`;
+      break;
+    case "New Post":
+      route = `/admin/posts`;
+      break;
+    case "New Transaction":
+      route = `/admin/transaction`;
+      break;
+    case "New Report":
+      route = `/admin/reports`;
+      break;
+    case "New Sale":
+      route = `/admin/sales`;
+      break;
+    default:
+      return;
+  }
+
+  navigate(route);
+};
 
 return (
   <div className="dashboard">
@@ -120,9 +152,9 @@ return (
                 <td>{activity.description}</td>
                 <td>{new Date(activity.date).toLocaleDateString()}</td>
                 <td>
-                  <button className="view-btn">View</button>
-                  <button className="edit-btn">Edit</button>
-                  <button className="delete-btn">Delete</button>
+                  <button className="view-btn" onClick={() => handleViewActivity(activity)}>
+                    View
+                  </button>
                 </td>
               </tr>
             ))}

@@ -6,6 +6,7 @@ const AdminResetStatus = ({ onClose }) => {
   const [newDate, setNewDate] = useState("");
   const [description, setDescription] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showInfo, setShowInfo] = useState(false); // Toggle for info section
 
   useEffect(() => {
     // Fetch end semester dates from the server
@@ -87,12 +88,28 @@ const AdminResetStatus = ({ onClose }) => {
     <div className="modal show bg-shadow" style={{ display: "block" }}>
       <div className="modal-dialog">
         <div className="modal-content">
-          <div className="modal-header">
+          {/* Modal Header */}
+          <div className="modal-header d-flex justify-content-between align-items-center">
             <h5 className="modal-title">Manage End Semester Dates</h5>
-            <button className="close" onClick={onClose}>
-              <span>&times;</span>
+            <button className="btn btn-info btn-sm" onClick={() => setShowInfo(!showInfo)}>
+              ℹ 
+            </button>
+            <button className="btn btn-light border shadow-sm px-3 py-2" onClick={onClose}>
+              <span className="fw-bold" style={{ fontSize: "1.2rem" }}>&times;</span>
             </button>
           </div>
+            {/* Info Section */}
+            {showInfo && (
+            <div className="alert alert-info m-3">
+              <strong>Purpose:</strong> This setting allows you to set **end semester dates**.  
+              <br />
+              <strong>On these dates:</strong>
+              <ul className="mb-0">
+                <li>- The system will --reset the status-- of all verified students to --"pending"--. </li>
+                <li>- Students must upload an --updated validated ID-- to confirm their enrollment for the current semester. </li>
+              </ul>
+            </div>
+          )}
           <div className="modal-body">
             <div>
               <label>Date:</label>

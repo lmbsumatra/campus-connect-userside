@@ -33,6 +33,7 @@ router.post("/end-semester-dates", adminAuthController.addEndSemesterDate);
 router.delete("/end-semester-dates/:date", adminAuthController.deleteEndSemesterDate);
 
 router.get("/student/info/:id", StudentController.getStudentDataForAdmin);
+router.put("/change-status", StudentController.changeStudentStatus );
 
 
 module.exports = router;

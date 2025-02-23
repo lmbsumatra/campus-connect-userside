@@ -54,6 +54,7 @@ const TableComponent = ({
             </select>
           );
       case "Date Added":
+      case "Date Updated":
       case "Date":
         return (
           <select

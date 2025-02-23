@@ -10,6 +10,7 @@ const googleLogin = require("./googleLoginStudent.js");
 const getUsers = require("./getUsers.js");
 const getOtherStudentDataById = require("./getOtherStudentDataById");
 const getStudentDataForAdmin = require("./getStudentDataForAdmin.js");
+const changeStudentStatus = require("./changeStudentStatus.js")
 
 const StudentController = {
   getStudentDataById,
@@ -23,7 +24,8 @@ const StudentController = {
   googleLogin,
   getUsers,
   getOtherStudentDataById,
-  getStudentDataForAdmin
+  getStudentDataForAdmin,
+  changeStudentStatus
 };
 
 module.exports = StudentController;

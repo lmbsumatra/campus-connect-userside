@@ -19,8 +19,8 @@ export const ItemStatus = (status) => {
 
 export const StudentStatus = (status) => {
   switch (status) {
-    case "approved":
-      return { label: "Approved", className: "bg-success text-white" };
+    case "verified":
+      return { label: "verified", className: "bg-success text-white" };
     case "banned":
       return { label: "Banned", className: "bg-warning text-dark" };
     case "pending":
