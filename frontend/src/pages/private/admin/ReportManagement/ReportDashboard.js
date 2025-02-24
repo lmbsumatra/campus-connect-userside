@@ -6,8 +6,9 @@ import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
-import {useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import ShowAlert from "../../../../utils/ShowAlert";
+import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
 
 import {
   ReportsByCategory,
@@ -16,7 +17,6 @@ import {
   TopReportUsers,
 } from "../../../../components/Analytics/ReportAnalyticsComponent";
 import { ReportStatus } from "../../../../utils/Status";
-
 
 const ReportDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,47 +48,72 @@ const ReportDashboard = () => {
   }, [reports]);
 
   const handleView = (report) => {
-    navigate(`/admin/reports/${report.entity_type}/${report.reported_entity_id}`, {
-      state: {
-        reportDetails: {
-          id: report.id,
-          reporter: `${report.reporter.first_name} ${report.reporter.last_name}`,
-          reason: report.reason,
-          status: report.status,
-          createdAt: formatDate(report.createdAt),
-        }
+    navigate(
+      `/admin/reports/${report.entity_type}/${report.reported_entity_id}`,
+      {
+        state: {
+          reportDetails: {
+            id: report.id,
+            reporter: `${report.reporter.first_name} ${report.reporter.last_name}`,
+            reason: report.reason,
+            status: report.status,
+            createdAt: formatDate(report.createdAt),
+          },
+        },
       }
-    });
+    );
   };
-  
 
   const handleDelete = async (reportId) => {
-    const isConfirmed = window.confirm(
-      "Are you sure you want to delete this report? This action cannot be undone."
+    dispatch(
+      showNotification({
+        type: "warning",
+        title: "Delete Report?",
+        text: "Are you sure you want to delete this report? This action cannot be undone.",
+        customButton: {
+          text: "Yes, Delete",
+          action: async () => {
+            try {
+              const response = await fetch(
+                `http://localhost:3001/api/reports/${reportId}`,
+                {
+                  method: "DELETE",
+                }
+              );
+
+              if (response.ok) {
+                await ShowAlert(
+                  dispatch,
+                  "success",
+                  "Report Deleted",
+                  "Report deleted successfully."
+                );
+                setOriginalData((prevData) =>
+                  prevData.filter((report) => report.id !== reportId)
+                );
+              } else {
+                await ShowAlert(
+                  dispatch,
+                  "error",
+                  "Report Deletion Failed",
+                  "Failed to delete the report. Please try again."
+                );
+              }
+            } catch (error) {
+              console.error("Error deleting the report:", error);
+              await ShowAlert(
+                dispatch,
+                "error",
+                "Error",
+                "An error occurred while deleting the report."
+              );
+            }
+          },
+          showCancel: true, // Enables the cancel button
+        },
+      })
     );
-  
-    if (isConfirmed) {
-      try {
-        const response = await fetch(`http://localhost:3001/api/reports/${reportId}`, {
-          method: "DELETE",
-        });
-  
-        if (response.ok) {
-          // Show success notification instead of alert
-          await ShowAlert(dispatch, "success", "Report Deleted", "Report deleted successfully.");
-          setOriginalData((prevData) =>
-            prevData.filter((report) => report.id !== reportId)
-          );
-        } else {
-          await ShowAlert(dispatch, "error", "Report Deletion Failed", "Failed to delete the report. Please try again.");
-        }
-      } catch (error) {
-        console.error("Error deleting the report:", error);
-        alert("An error occurred while deleting the report.");
-      }
-    }
   };
-  
 
   const getStatusInfo = (status) => {
     const { label, className } = ReportStatus(status);
@@ -99,7 +124,7 @@ const ReportDashboard = () => {
     "pending",
     "reviewed",
     "dismissed",
-    "resolved"
+    "resolved",
   ];
 
   const handleSortChange = (column, order) => {
@@ -128,13 +153,16 @@ const ReportDashboard = () => {
 
     if (normalizedSearchQuery) {
       filteredData = filteredData.filter((report) => {
-        const reporterName = `${report.reporter.first_name} ${report.reporter.last_name}`.toLowerCase();
+        const reporterName =
+          `${report.reporter.first_name} ${report.reporter.last_name}`.toLowerCase();
         const normalizedReason = report.reason.toLowerCase();
         const normalizedDateAdded = formatDate(report.createdAt).toLowerCase();
 
         return (
           reporterName.includes(normalizedSearchQuery) ||
-          report.reported_entity_id.toString().includes(normalizedSearchQuery) ||
+          report.reported_entity_id
+            .toString()
+            .includes(normalizedSearchQuery) ||
           report.entity_type.toLowerCase().includes(normalizedSearchQuery) ||
           normalizedReason.includes(normalizedSearchQuery) ||
           normalizedDateAdded.includes(normalizedSearchQuery)
@@ -153,12 +181,14 @@ const ReportDashboard = () => {
 
   const sortedData = () => {
     let sorted = [...getFilteredData()];
-  
+
     // Default sorting by Date Added (newest first) if no sorting option is selected
     if (!sortOptions["Date Added"]) {
-      sorted = sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      sorted = sorted.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
     }
-  
+
     if (Object.keys(sortOptions).length > 0) {
       if (sortOptions["Date Added"]) {
         sorted = sorted.sort((a, b) =>
@@ -168,10 +198,10 @@ const ReportDashboard = () => {
         );
       }
     }
-  
+
     return sorted;
   };
-  
+
   const sortedFilteredData = sortedData();
 
   const totalItems = sortedFilteredData.length;
@@ -187,7 +217,9 @@ const ReportDashboard = () => {
     return [
       report.id,
       report.reason,
-      <>{report.reporter.first_name} {report.reporter.last_name}</>,
+      <>
+        {report.reporter.first_name} {report.reporter.last_name}
+      </>,
       report.reported_entity_id,
       report.entity_type,
       formatDate(report.createdAt),

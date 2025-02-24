@@ -29,6 +29,7 @@ exports.getAllStudents = async (req, res) => {
           model: models.Student,
           as: "student",
           attributes: ["college", "status", "updatedAt"],
+          required: true,
         },
       ],
     });

@@ -1,115 +1,181 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { formatDate } from "../../../../utils/dateFormat";
 
 const AdminResetStatus = ({ onClose }) => {
+  const dispatch = useDispatch();
   const [dates, setDates] = useState([]);
   const [newDate, setNewDate] = useState("");
   const [description, setDescription] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [showInfo, setShowInfo] = useState(false); // Toggle for info section
+  const [showInfo, setShowInfo] = useState(false);
 
   useEffect(() => {
-    // Fetch end semester dates from the server
     fetch("http://localhost:3001/admin/end-semester-dates")
       .then((response) => response.json())
       .then((data) => setDates(data))
       .catch((error) => console.error("Error fetching dates:", error));
   }, []);
 
-  const handleAction = (action) => {
-    action(); // Proceed with the intended action
-  };
-
   const handleAddDate = () => {
     if (!newDate || !description) {
-        setErrorMessage("Please fill in both date and description.");
-        return;
+      setErrorMessage("Please fill in both date and description.");
+      return;
     }
 
-    // Check if the date already exists
     if (dates.some((dateObj) => dateObj.date === newDate)) {
-        setErrorMessage("This date already exists.");
-        return;
+      setErrorMessage("This date already exists.");
+      return;
     }
 
-    const newEntry = {
-        date: new Date(newDate).toISOString(),
-        description,
-    };
+    dispatch(
+      showNotification({
+        type: "warning",
+        title: "Confirm Addition",
+        text: `Are you sure you want to add ${newDate} as an end semester date?`,
+        customButton: {
+          text: "Yes, Add Date",
+          action: async () => {
+            const newEntry = {
+              date: new Date(newDate).toISOString(),
+              description,
+            };
 
-    fetch("http://localhost:3001/admin/end-semester-dates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newEntry),
-    })
-        .then((response) => {
-        if (response.ok) {
-            return response.json();
-        }
-        if (response.status === 409) {
-            throw new Error("This date already exists.");
-        }
-        throw new Error("Failed to add date.");
-        })
-        .then((newDate) => {
-        setDates([...dates, newDate]); // Add the new date to the list
-        setNewDate("");
-        setDescription("");
-        setErrorMessage("");
-        })
-        .catch((error) => {
-        console.error("Error adding date:", error);
-        setErrorMessage(error.message);
-        });  
-    };
+            try {
+              const response = await fetch(
+                "http://localhost:3001/admin/end-semester-dates",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(newEntry),
+                }
+              );
 
-  const handleRemoveDate = async (date) => {
-    try {
-      const response = await fetch(`http://localhost:3001/admin/end-semester-dates/${date}`, {
-        method: 'DELETE',
-      });
+              if (response.ok) {
+                const addedDate = await response.json();
+                setDates([...dates, addedDate]);
+                setNewDate("");
+                setDescription("");
+                setErrorMessage("");
 
-      if (!response.ok) {
-        throw new Error('Failed to remove date');
-      }
+                dispatch(
+                  showNotification({
+                    type: "success",
+                    title: "Date Added",
+                    text: "The end semester date has been successfully added.",
+                  })
+                );
+              } else {
+                throw new Error("Failed to add date.");
+              }
+            } catch (error) {
+              console.error("Error adding date:", error);
+              setErrorMessage(error.message);
+              dispatch(
+                showNotification({
+                  type: "error",
+                  title: "Error",
+                  text: "An error occurred while adding the date.",
+                })
+              );
+            }
+          },
+          showCancel: true,
+        },
+      })
+    );
+  };
 
-      const data = await response.json();
-      console.log(data.message); // Display success message from backend
+  const handleRemoveDate = (date) => {
+    dispatch(
+      showNotification({
+        type: "warning",
+        title: "Confirm Deletion",
+        text: `Are you sure you want to remove ${formatDate(date)}?`,
+        customButton: {
+          text: "Yes, Remove Date",
+          action: async () => {
+            try {
+              const response = await fetch(
+                `http://localhost:3001/admin/end-semester-dates/${date}`,
+                {
+                  method: "DELETE",
+                }
+              );
 
-      // Remove the date from the state
-      setDates(dates.filter((dateObj) => dateObj.date !== date));
-    } catch (error) {
-      console.error('Error removing date:', error); // Log error to the console
-      alert('Error removing date');
-    }
+              if (!response.ok) {
+                throw new Error("Failed to remove date");
+              }
+
+              setDates(dates.filter((dateObj) => dateObj.date !== date));
+
+              dispatch(
+                showNotification({
+                  type: "success",
+                  title: "Date Removed",
+                  text: "The end semester date has been successfully removed.",
+                })
+              );
+            } catch (error) {
+              console.error("Error removing date:", error);
+              dispatch(
+                showNotification({
+                  type: "error",
+                  title: "Error",
+                  text: "An error occurred while removing the date.",
+                })
+              );
+            }
+          },
+          showCancel: true,
+        },
+      })
+    );
   };
 
   return (
     <div className="modal show bg-shadow" style={{ display: "block" }}>
       <div className="modal-dialog">
         <div className="modal-content">
-          {/* Modal Header */}
           <div className="modal-header d-flex justify-content-between align-items-center">
             <h5 className="modal-title">Manage End Semester Dates</h5>
-            <button className="btn btn-info btn-sm" onClick={() => setShowInfo(!showInfo)}>
-              ℹ 
+            <button
+              className="btn btn-info btn-sm"
+              onClick={() => setShowInfo(!showInfo)}
+            >
+              ℹ
             </button>
-            <button className="btn btn-light border shadow-sm px-3 py-2" onClick={onClose}>
-              <span className="fw-bold" style={{ fontSize: "1.2rem" }}>&times;</span>
+            <button
+              className="btn btn-light border shadow-sm px-3 py-2"
+              onClick={onClose}
+            >
+              <span className="fw-bold" style={{ fontSize: "1.2rem" }}>
+                &times;
+              </span>
             </button>
           </div>
-            {/* Info Section */}
-            {showInfo && (
+
+          {showInfo && (
             <div className="alert alert-info m-3">
-              <strong>Purpose:</strong> This setting allows you to set **end semester dates**.  
+              <strong>Purpose:</strong> This setting allows you to set end
+              semester dates.
               <br />
               <strong>On these dates:</strong>
               <ul className="mb-0">
-                <li>- The system will --reset the status-- of all verified students to --"pending"--. </li>
-                <li>- Students must upload an --updated validated ID-- to confirm their enrollment for the current semester. </li>
+                <li>
+                  - The system will reset the status of all verified students to
+                  "pending".
+                </li>
+                <li>
+                  - Students must upload an updated validated ID to confirm
+                  their enrollment.
+                </li>
               </ul>
             </div>
           )}
+
           <div className="modal-body">
             <div>
               <label>Date:</label>
@@ -131,19 +197,17 @@ const AdminResetStatus = ({ onClose }) => {
               />
             </div>
             {errorMessage && <p className="text-danger">{errorMessage}</p>}
-            <button
-              className="btn btn-primary mt-2"
-              onClick={() => handleAction(handleAddDate)}
-            >
+            <button className="btn btn-primary mt-2" onClick={handleAddDate}>
               Add Date
             </button>
             <ul className="list-group mt-3">
               {dates.map((dateObj, index) => (
                 <li className="list-group-item" key={index}>
-                  <strong>{dateObj.date}</strong>: {dateObj.description}
+                  <strong>{formatDate(dateObj.date)}</strong>:{" "}
+                  {dateObj.description}
                   <button
                     className="btn btn-danger btn-sm float-end"
-                    onClick={() => handleAction(() => handleRemoveDate(dateObj.date), true)}
+                    onClick={() => handleRemoveDate(dateObj.date)}
                   >
                     Remove
                   </button>

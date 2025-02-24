@@ -26,7 +26,7 @@ const alertPopupSlice = createSlice({
           title,
           text,
           showCancelButton: !!customButton,
-          showCloseButton: !!customButton,
+          showCancelButton: !!customButton?.showCancel,
           showConfirmButton: true,
           confirmButtonText: "OK", // Default OK button
           container: "my-swal",
