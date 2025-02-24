@@ -29,6 +29,8 @@ const MessagePage = () => {
   const [unreadMessages, setUnreadMessages] = useState({});
   const [playSendSound] = useSound(sendSound, { volume: 0.5 });
 
+  const [lastOfferMessage, setLastOfferMessage] = useState(null);
+
   const { userId } = studentUser || {};
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -171,6 +173,17 @@ const MessagePage = () => {
     }
   }, [activeChat?.messages]);
 
+    // Add this useEffect to track the last offer message
+    useEffect(() => {
+      if (activeChat?.messages) {
+        // Find the last offer message in the chat
+        const lastOffer = [...activeChat.messages]
+          .reverse()
+          .find(msg => msg.isProductCard && msg.productDetails?.title === "Offer");
+        setLastOfferMessage(lastOffer);
+      }
+    }, [activeChat?.messages]);
+
   const handleSendMessage = async (message, recipientId) => {
     if (!activeChat) return;
 
@@ -185,7 +198,8 @@ const MessagePage = () => {
           isProductCard: true,
           productDetails: {
             name: product.name,
-            price: product.price,
+            inquiryPrice: product.title === "Offer" ? null : product.price, // Original item price for inquiries
+            offerPrice: product.title === "Offer" ? product.price : null, // Offered price for offers
             image: product.image,
             title: product.title,
             status: product.status, // Include item status
@@ -400,6 +414,7 @@ const MessagePage = () => {
               </button>
               <h4>{activeChat.otherUser.first_name}</h4>
             </div>
+
             <div className="chat-content" ref={chatContentRef}>
               {activeChat.messages && activeChat.messages.length > 0 ? (
                 activeChat.messages.map((message, index) =>
@@ -422,36 +437,41 @@ const MessagePage = () => {
                             <strong>{message.productDetails?.name}</strong>
                           </p>
 
-                          {/* Show Price if available, Status (including offer details) otherwise */}
-                          {message.productDetails?.price ? (
-                            <p className="mb-0">
-                              Price: ₱{message.productDetails?.price}
+                           {/* Display price based on whether it's an offer or inquiry */}
+                           {message.productDetails?.title === "Offer" ? (
+                          <p className="mb-1">
+                            Offered Price: ₱{message.productDetails?.offerPrice}
+                          </p>
+                        ) : (
+                          message.productDetails?.inquiryPrice && (
+                            <p className="mb-1">
+                              Price: ₱{message.productDetails?.inquiryPrice}
                             </p>
-                          ) : message.productDetails?.status ? (
-                            <>
-                              <div className="d-flex justify-content-between">
-                                <p
-                                  className="mb-0 offer-details"
-                                  style={{ whiteSpace: "pre-line" }}
-                                >
-                                  {message.productDetails?.status}
-                                </p>
-                                {/* Show either Accept Offer button or Accepted status */}
-                                {isRecipient(message) ? (
+                          )
+                        )}
+
+                        {/* Show Status (including offer details) */}
+                        {message.productDetails?.status ? (
+                          <>
+                            <div className="d-flex justify-content-between">
+                              <p
+                                className="mb-0 offer-details"
+                                style={{ whiteSpace: "pre-line" }}
+                              >
+                                {message.productDetails?.status}
+                              </p>
+                              {/* Show either Accept Offer button or Accepted status */}
+                              {isRecipient(message) ? (
                                   acceptedOffers.has(message.id) ? (
-                                    <button
-                                      type="button"
+                                    <span 
                                       style={{
-                                        float: "right",
-                                        marginLeft: "100px",
-                                        backgroundColor: "#4CAF50",
-                                        cursor: "default",
+                                        color: '#4CAF50',
+                                        fontWeight: 'bold',
+                                        marginLeft: '100px'
                                       }}
-                                      className="btn mt-2"
-                                      disabled
                                     >
-                                      Accepted Offer
-                                    </button>
+                                      Offer Accepted
+                                    </span>
                                   ) : (
                                     <button
                                       type="button"
@@ -467,19 +487,15 @@ const MessagePage = () => {
                                   )
                                 ) : (
                                   acceptedOffers.has(message.id) && (
-                                    <button
-                                      type="button"
+                                    <span 
                                       style={{
-                                        float: "right",
-                                        marginLeft: "100px",
-                                        backgroundColor: "#4CAF50",
-                                        cursor: "default",
+                                        color: '#4CAF50',
+                                        fontWeight: 'bold',
+                                        marginLeft: '100px'
                                       }}
-                                      className="btn mt-2"
-                                      disabled
                                     >
-                                      Accepted Offer
-                                    </button>
+                                      Offer Accepted
+                                    </span>
                                   )
                                 )}
                               </div>

@@ -22,6 +22,7 @@ const storage = new CloudinaryStorage({
   },
 });
 
+
 const upload = multer({ storage: storage }).fields([
   { name: "scanned_id" },
   { name: "photo_with_id" },
@@ -39,6 +40,10 @@ const upload_item_disabled = (req, res, next) => {
     .status(503)
     .json({ message: "Item upload is temporarily disabled." });
 };
+
+const upload_offer_image = multer({ storage: storage }).fields([
+  { name: "upload_images", maxCount: 1 } // Single image for offers
+]);
 
 const rollbackUpload = async (imageUrls) => {
   console.log("Received image URLs:", imageUrls);
@@ -79,6 +84,7 @@ module.exports = {
   upload_prof,
   upload,
   upload_item,
+  upload_offer_image,
   upload_item_disabled,
   rollbackUpload,
 };

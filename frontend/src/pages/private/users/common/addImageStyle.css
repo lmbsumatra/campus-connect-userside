@@ -1,0 +1,39 @@
+.single-image-upload-container {
+    position: relative;
+    width: fit-content;
+  }
+  
+  .upload-prompt {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  
+  .upload-prompt:hover {
+    border-color: #999;
+  }
+  
+  .preview-container {
+    position: relative;
+    width: fit-content;
+  }
+  
+  .small-preview {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .small-preview:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  .upload-label {
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .upload-label:hover {
+    color: #333;
+  }

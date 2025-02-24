@@ -39,6 +39,8 @@ import useHandleActionWithAuthCheck from "../../../utils/useHandleActionWithAuth
 import ShowAlert from "../../../utils/ShowAlert";
 import handleUnavailableDateError from "../../../utils/handleUnavailableDateError";
 
+import SingleImageUpload from "../../private/users/common/SingleImageUpload";
+
 function PostDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -57,6 +59,12 @@ function PostDetail() {
   const [showReportModal, setShowReportModal] = useState(false);
   const loggedInUserId = studentUser?.userId || null;
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
+
+
+  const [offerPrice, setOfferPrice] = useState("");
+
+  const [offerImage, setOfferImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const images = [
     itemImage1,
@@ -99,7 +107,29 @@ function PostDetail() {
 
   const handleConfirmOffer = async () => {
     try {
-      // First, check/create conversation with the owner
+      let imageUrl = approvedPostById.images?.[0] || defaultImages[0];
+      
+      // Upload image if exists
+      if (offerImage) {
+        const formData = new FormData();
+        formData.append("upload_images", offerImage); // Must match your Multer field name
+  
+        const uploadResponse = await axios.post(
+          `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/posts/upload-offer-image`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+          }
+        );
+  
+        // Get URL from Cloudinary response
+        imageUrl = uploadResponse.data.urls[0];
+      }
+  
+      // Then create conversation
       const createConversationResponse = await fetch(
         `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversationPost`,
         {
@@ -111,22 +141,20 @@ function PostDetail() {
           }),
         }
       );
-
+  
       const conversation = await createConversationResponse.json();
-
-      // Prepare the offer details for the product card
+  
+      // Prepare offer details with Cloudinary URL
       const offerDetails = {
         name: approvedPostById.name,
-        image: approvedPostById.images && approvedPostById.images.length > 0 
-          ? approvedPostById.images[0] 
-          : defaultImages[0],
+        image: imageUrl,
+        price: offerPrice,
         title: "Offer",
         status: `Date: ${new Date(selectedDate).toLocaleDateString()}\nDuration: ${
           selectedDuration.timeFrom
         } - ${selectedDuration.timeTo}`,
       };
-
-      // Navigate to messages with the offer details
+  
       navigate("/messages", {
         state: {
           ownerId: approvedPostById.renter.id,
@@ -134,6 +162,7 @@ function PostDetail() {
           isOffer: true
         }
       });
+  
 
       setShowModal(false);
     } catch (error) {
@@ -425,6 +454,30 @@ function PostDetail() {
                 )}
               </div>
             </div>
+
+            <div className="offer-details-section">
+                  <div className="form-group">
+                    <label>Offered Price</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={offerPrice}
+                      onChange={(e) => setOfferPrice(e.target.value)}
+                      placeholder="Enter offer amount"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Upload Item Image</label>
+                    <SingleImageUpload
+                      onChange={({ file, preview }) => {
+                        setOfferImage(file);
+                        setImagePreview(preview);
+                      }}
+                    />
+                  </div>
+                </div>    
+
           </div>
         </div>
       </div>
@@ -454,6 +507,18 @@ function PostDetail() {
                 : "Invalid duration"
               : "Nooooooooooo"}
           </p>
+          <p><strong>Offered Price:</strong> ₱{offerPrice}</p>
+              {imagePreview && (
+                <div className="mt-3">
+                  <strong>Item Image:</strong>
+                  <img 
+                    src={imagePreview} 
+                    alt="Offer preview" 
+                    style={{ width: "150px", display: "block" }}
+                    className="mt-2"
+                  />
+                </div>
+              )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>

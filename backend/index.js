@@ -25,6 +25,8 @@ const followRoutes = require("./routes/FollowRoutes");
 const reportRoutes = require("./routes/ReportRoute");
 const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
 
+const uploadRoutes = require("./routes/UploadRoute.js")
+
 // Cron Jobs
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
 const cron = require("node-cron");
@@ -95,6 +97,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/follow", followRoutes);
 
+app.use('/api/posts', uploadRoutes);
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use(
