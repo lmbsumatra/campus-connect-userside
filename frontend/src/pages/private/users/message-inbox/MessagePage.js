@@ -142,10 +142,10 @@ const MessagePage = () => {
         setConversations(sortedConversations);
 
         // Automatically set the conversation with the owner as active
-        if (state?.ownerId || state?.sellerId) {
+        if (state?.ownerId || state?.sellerId || state?.renterId) {
           const targetConversation = data.conversations.find((conversation) =>
             conversation.members.includes(
-              String(state.ownerId || state.sellerId)
+              String(state.ownerId || state.sellerId || state.renterId)
             )
           );
 
@@ -346,6 +346,8 @@ const MessagePage = () => {
     };
   }, []);
 
+  
+
   return (
     <div className="container-content message-page">
       <div className="message-content">
@@ -529,12 +531,17 @@ const MessagePage = () => {
                 <p>No messages yet.</p>
               )}
             </div>
-            {/* <ProductCard /> */}
+    
             <div className="chat-input">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSendMessage(newMessage, activeChat.otherUser.user_id);
+                  }
+                }}
                 placeholder="Type a message..."
               />
               <button

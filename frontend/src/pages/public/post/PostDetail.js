@@ -112,7 +112,7 @@ function PostDetail() {
       // Upload image if exists
       if (offerImage) {
         const formData = new FormData();
-        formData.append("upload_images", offerImage); // Must match your Multer field name
+        formData.append("upload_images", offerImage); // Must match Multer field name
   
         const uploadResponse = await axios.post(
           `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/posts/upload-offer-image`,
@@ -137,7 +137,7 @@ function PostDetail() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             senderId: studentUser.userId,
-            ownerId: approvedPostById.renter.id
+            renterId: approvedPostById.renter.id
           }),
         }
       );
@@ -157,7 +157,7 @@ function PostDetail() {
   
       navigate("/messages", {
         state: {
-          ownerId: approvedPostById.renter.id,
+          renterId: approvedPostById.renter.id,
           product: offerDetails,
           isOffer: true
         }
