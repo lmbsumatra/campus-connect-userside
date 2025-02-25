@@ -77,15 +77,15 @@ const notificationController = {
         order: [["createdAt", "DESC"]],
       });
 
-      console.log(
-        "🔔 Fetched Notifications:",
-        notifications.map((n) => ({
-          id: n.id,
-          message: n.message,
-          rentalId: n.rental_id, // Debug rentalId presence
-          isRead: n.is_read,
-        }))
-      );
+      // // console.log(
+      // //   "🔔 Fetched Notifications:",
+      // //   notifications.map((n) => ({
+      // //     id: n.id,
+      // //     message: n.message,
+      // //     rentalId: n.rental_id, // Debug rentalId presence
+      // //     isRead: n.is_read,
+      // //   }))
+      // // );
 
       res.json(notifications);
     } catch (error) {

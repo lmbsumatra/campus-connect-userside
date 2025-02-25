@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ItemList from "../../../../components/item-card/ItemCard";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
 import {
   fetchAllListingsByUser,
   deleteListingById,
 } from "../../../../redux/listing/allListingsByUserSlice";
+import "./myListingsStyles.css";
 import ShowAlert from "../../../../utils/ShowAlert";
 import Toolbar from "../../../../components/toolbar/Toolbar";
 import { FOR_RENT } from "../../../../utils/consonants.js";
@@ -22,6 +23,8 @@ function MyListings() {
   const { userId } = useSelector(selectStudentUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const highlightId = location.state?.highlight;
 
   const {
     allListingsByUser,
@@ -40,7 +43,17 @@ function MyListings() {
       setError(errorAllListingsByUser);
     }
   }, [errorAllListingsByUser]);
-
+  // Highlight logic for listing cards
+  useEffect(() => {
+    if (highlightId && allListingsByUser.length > 0) {
+      const element = document.getElementById(`listing-${highlightId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.classList.add("highlighted");
+        setTimeout(() => element.classList.remove("highlighted"), 2000);
+      }
+    }
+  }, [highlightId, allListingsByUser]);
   const handleOptionClick = useCallback(
     async (e, option, item) => {
       e.stopPropagation();

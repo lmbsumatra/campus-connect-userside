@@ -1,3 +1,4 @@
+// frontend/src/pages/private/admin/listing-management/ListingApproval.js
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./listingDashboard.css";
@@ -6,11 +7,13 @@ import FetchListingData from "../../../../utils/FetchListingData";
 import { useParams } from "react-router-dom";
 import ListingPreview from "./ListingPreview";
 import { ItemStatus } from "../../../../utils/Status";
+import { useAuth } from "../../../../context/AuthContext";
 
 const ListingApproval = () => {
   const [showModal, setShowModal] = useState(false);
   const { id } = useParams();
-  const [status, setStatus] = useState(null); // Store current status
+  const [status, setStatus] = useState(null);
+  const { adminUser } = useAuth(); // Get admin details (including token)
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -28,21 +31,23 @@ const ListingApproval = () => {
 
   const handleStatusChange = async (selectedAction, reason) => {
     try {
-      await fetch(`http://localhost:3001/listings/${id}`, {
+      await fetch(`http://localhost:3001/listings/${id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          // Include the admin token for authentication
+          Authorization: `Bearer ${adminUser?.token}`,
         },
-        body: JSON.stringify({ status: selectedAction }), // Update to new status
+        body: JSON.stringify({ status: selectedAction, reason: reason }),
       });
-      setStatus(selectedAction); // Update local status
+      setStatus(selectedAction);
       console.log(
         `Status updated to: ${selectedAction} with reason: ${reason}`
       );
     } catch (error) {
       console.error("Error updating status:", error);
     } finally {
-      handleCloseModal(); // Close modal after operation
+      handleCloseModal();
     }
   };
 
@@ -51,8 +56,8 @@ const ListingApproval = () => {
   return (
     <div className="admin-content-container">
       <span>
-          Status: <span className={`badge ${className} ms-2`}>{label}</span>
-        </span>
+        Status: <span className={`badge ${className} ms-2`}>{label}</span>
+      </span>
       {/* Display current status */}
       <ListingPreview
         selectedItem={selectedItem}
@@ -75,8 +80,8 @@ const ListingApproval = () => {
         onHide={handleCloseModal}
         title="Actions for Post"
         formLabels={formLabels}
-        onConfirm={handleStatusChange} // Pass the single handler
-        status={selectedItem?.status || status} // Ensure it reflects current status
+        onConfirm={handleStatusChange} // This function now sends status and reason
+        status={selectedItem?.status || status}
       />
     </div>
   );

@@ -150,7 +150,7 @@ const { models } = require("../models/index");
 //   try {
 //     // Extract userId from query params or route parameters
 //     const { userId } = req.query; // or req.params if userId is in URL params
-   
+
 //     // Validate userId
 //     if (!userId) {
 //       return res.status(400).json({ error: "User ID is required" });
@@ -197,14 +197,23 @@ const { models } = require("../models/index");
 exports.getAllListings = async (req, res) => {
   try {
     const listings = await models.Listing.findAll({
-      attributes: ["id", "listing_name", "tags", "rate", "owner_id", "category", "created_at", "status"],
+      attributes: [
+        "id",
+        "listing_name",
+        "tags",
+        "rate",
+        "owner_id",
+        "category",
+        "created_at",
+        "status",
+      ],
       include: [
         {
           model: models.Date,
           as: "rental_dates",
           required: false,
           where: {
-            item_type: "listing", 
+            item_type: "listing",
           },
           include: [
             {
@@ -251,7 +260,7 @@ exports.getAllListings = async (req, res) => {
 //       createdItem = await models.ItemForSale.create(req.body.item, { transaction });
 //       itemType = 'item-for-sale';
 //     }
-    
+
 //     // Handle rental dates and durations if provided
 //     const rentalDates = req.body.rental_dates || [];
 //     if (Array.isArray(rentalDates)) {
@@ -290,7 +299,6 @@ exports.getAllListings = async (req, res) => {
 //         }
 //       }
 //     }
-
 
 //     // Commit the transaction
 //     await transaction.commit();
@@ -353,7 +361,7 @@ exports.getAllListings = async (req, res) => {
 //   }
 // };
 
-// Get a single post by ID with associated rental dates, durations, and renter info: 
+// Get a single post by ID with associated rental dates, durations, and renter info:
 
 exports.getListingById = async (req, res) => {
   try {
@@ -382,7 +390,7 @@ exports.getListingById = async (req, res) => {
       ],
       where: {
         // Assuming you have a column 'item_type' in your Listing model
-        item_type: "listing",  // Filter for listings only
+        item_type: "listing", // Filter for listings only
       },
     });
 
@@ -396,7 +404,6 @@ exports.getListingById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // // Update a post
 // exports.updateListing = async (req, res) => {
@@ -428,8 +435,8 @@ exports.getListingById = async (req, res) => {
 
 // Update the status of a listing
 exports.updateStatus = async (req, res) => {
-  console.log(req.body)
-  const { status } = req.body; 
+  console.log(req.body);
+  const { status } = req.body;
 
   try {
     const listing = await models.Listing.findByPk(req.params.id);
@@ -440,8 +447,8 @@ exports.updateStatus = async (req, res) => {
     listing.status = status;
     await listing.save();
 
-    res.status(200).json(listing); 
-    console.log(listing)
+    res.status(200).json(listing);
+    console.log(listing);
   } catch (error) {
     console.error("Error updating listing status:", error);
     res.status(500).json({ error: error.message });

@@ -58,7 +58,7 @@
 }
 
 /* Badge styling */
-.icon-link[data-count]:not([data-count="0"])::after {
+.icon-wrapper[data-count]:not([data-count="0"])::after {
   content: attr(data-count);
   /* Display the badge count */
   position: absolute;

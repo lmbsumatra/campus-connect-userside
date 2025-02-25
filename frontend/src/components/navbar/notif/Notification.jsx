@@ -1,3 +1,4 @@
+// frontend/src/components/Notification/Notification.jsx
 import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Bell from "../../../assets/images/icons/notif.svg";
@@ -166,6 +167,7 @@ const NotificationMessage = ({ message, type }) => {
             </>
           );
         }
+        break;
       }
 
       case "rental_request": {
@@ -183,6 +185,15 @@ const NotificationMessage = ({ message, type }) => {
           );
         }
         return message;
+      }
+
+      case "listing_status": {
+        return (
+          <>
+            <br />
+            <span className="item-name">{message}</span>
+          </>
+        );
       }
 
       default:
@@ -214,7 +225,7 @@ const Notification = ({
     const fetchAndSubscribe = async () => {
       try {
         await dispatch(fetchNotifications(studentUser.userId)).unwrap();
-        // Socket registration
+        // Register the user with the socket
         const userIdStr = studentUser.userId.toString();
         socket.emit("registerUser", userIdStr);
 
@@ -235,7 +246,6 @@ const Notification = ({
   const determineRoute = (rental, type, isOwner, isRenter) => {
     const baseRoute = "/profile/transactions";
 
-    // Early return for missing rental
     if (!rental) {
       console.warn("No rental data available for routing");
       return `${baseRoute}/owner/requests`;
@@ -262,36 +272,32 @@ const Notification = ({
         return isOwner
           ? `${baseRoute}/owner/to review`
           : `${baseRoute}/renter/to review`;
+      case "listing_status":
+        return `${baseRoute}/profile/my-listings`;
       default:
         return `${baseRoute}/owner/requests`;
     }
   };
 
-  const handleNotificationClick = async (notifId, rentalId, type) => {
-    console.log("🔔 Notification Clicked!", { notifId, rentalId, type });
-
-    if (!rentalId) {
-      console.error("❌ Missing rental ID");
-      return;
-    }
-
+  const handleNotificationClick = async (
+    notifId,
+    type,
+    rentalId,
+    listingId
+  ) => {
     try {
-      // Ensure notifId is a string or number
-      if (typeof notifId !== "string" && typeof notifId !== "number") {
-        console.error("❌ Invalid notification ID:", notifId);
+      await dispatch(markNotificationAsRead(notifId)).unwrap();
+
+      if (type === "listing_status") {
+        toggleNotifications();
+        navigate(`/profile/my-listings`, { state: { highlight: listingId } });
         return;
       }
 
-      // Mark notification as read using Redux action
-      await dispatch(markNotificationAsRead(notifId)).unwrap(); // Pass notifId directly
-      console.log("✅ Notification marked as read");
-
-      // Fetch rental details
+      // Existing rental handling logic...
       const rentalRes = await axios.get(
         `http://localhost:3001/rental-transaction/${rentalId}`
       );
-      console.log("✅ Rental details fetched:", rentalRes.data);
-
       const rental = rentalRes.data.rental;
       if (!rental) {
         console.error("❌ No rental data received");
@@ -300,21 +306,12 @@ const Notification = ({
 
       const isOwner = studentUser.userId === rental.owner_id;
       const isRenter = studentUser.userId === rental.renter_id;
-      console.log("✅ User roles determined:", { isOwner, isRenter });
-
-      // Determine the route
       const route = determineRoute(rental, type, isOwner, isRenter);
-      console.log("🚀 Navigating to:", route);
 
-      // Close notifications panel before navigation
       toggleNotifications();
-      console.log("✅ Notifications panel closed");
-
-      // Navigate with rental ID and notification type in state
       navigate(route, {
         state: { notificationType: type, highlight: rentalId },
       });
-      console.log("✅ Navigation triggered");
     } catch (error) {
       console.error("Error handling notification:", error);
     }
@@ -340,7 +337,12 @@ const Notification = ({
           className={`notification-item ${notif.is_read ? "read" : "unread"}`}
           onClick={(e) => {
             e.preventDefault();
-            handleNotificationClick(notif.id, notif.rental_id, notif.type);
+            handleNotificationClick(
+              notif.id,
+              notif.type,
+              notif.rental_id,
+              notif.listing_id
+            );
           }}
         >
           <img
@@ -364,6 +366,7 @@ const Notification = ({
       <p>No new notifications</p>
     );
   }, [memoizedNotifications, handleNotificationClick]);
+
   return (
     <div className="notification-container" id="notif-popup">
       <a

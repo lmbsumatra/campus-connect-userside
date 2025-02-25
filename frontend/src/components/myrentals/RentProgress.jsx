@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // Import axios for API calls
-import "./RentProgress.css"; // Import the CSS file
-import item1 from "../../assets/images/item/item_1.jpg"; // Import the image
+import axios from "axios";
+import "./RentProgress.css";
+import item1 from "../../assets/images/item/item_1.jpg";
 import { useAuth } from "../../context/AuthContext";
 import { useParams } from "react-router-dom";
+import ReportModal from "../../components/report/ReportModalRental";
 
-function RentProgress({}) {
+function RentProgress() {
   const [transaction, setTransaction] = useState(null);
   const [error, setError] = useState(null);
   const { userId } = useAuth();
   const { id } = useParams();
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     const fetchTransaction = async () => {
@@ -28,81 +31,305 @@ function RentProgress({}) {
     };
 
     fetchTransaction();
+
+    // Auto-refresh every 5 seconds to check for status updates
+    const interval = setInterval(fetchTransaction, 5000);
+
+    return () => clearInterval(interval);
   }, [id]);
+  useEffect(() => {
+    if (transaction) {
+      setTransaction({ ...transaction });
+    }
+  }, [transaction?.rental?.status]);
+
+  useEffect(() => {
+    console.log("Fetched status:", transaction?.rental?.status);
+  }, [transaction]);
+
+  // Opens the report modal
+  const handleReportClick = () => {
+    setShowReportModal(true);
+  };
+
+  // Function to handle sending messages to owner/borrower
+  const handleSendMessage = () => {
+    // Navigate to messaging interface or open a chat modal
+    // This would be implemented based on your application's messaging system
+    alert("Messaging functionality will be implemented here");
+  };
+
+  // Calculate the total cost based on rental information
+  const calculateTotalCost = () => {
+    if (!transaction) return 0;
+
+    const rate = parseFloat(transaction.rental.Listing.rate) || 0;
+    // Assuming there's some duration information in the transaction
+    // This would need to be adjusted based on your actual data structure
+    const days = transaction.rental.duration || 1;
+
+    return (rate * days).toFixed(2);
+  };
+
+  // Called when the report modal form is submitted
+  const handleRentalReportSubmit = async (reportData) => {
+    try {
+      // Create FormData object to handle file uploads
+      const formData = new FormData();
+
+      // Add report data fields
+      formData.append("reporter_id", reportData.reporter_id);
+      formData.append("reported_entity_id", reportData.reported_entity_id);
+      formData.append("entity_type", reportData.entity_type);
+      formData.append("reason", reportData.reason);
+      formData.append("is_dispute", reportData.is_dispute);
+
+      // Add files if they exist
+      if (reportData.evidence && reportData.evidence.length > 0) {
+        reportData.evidence.forEach((evidence, index) => {
+          formData.append(`files`, evidence.file);
+          formData.append(`file_types[${index}]`, evidence.file_type);
+          formData.append(`uploaded_by[${index}]`, evidence.uploaded_by);
+        });
+      }
+
+      // Send request with FormData
+      await axios.post("http://localhost:3001/api/reports", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      alert("Report submitted successfully!");
+      setShowReportModal(false);
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("Failed to submit report. Please try again.");
+    }
+  };
 
   if (error) {
     return <div className="error">{error}</div>;
   }
 
   if (!transaction) {
-    return <div>Loading...</div>; // Optionally, show a loading indicator
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading transaction details...</p>
+      </div>
+    );
   }
 
+  // Define the progress steps based on the current status
+  const getProgressSteps = () => {
+    const status = transaction.rental.status.toLowerCase();
+
+    const statusOrder = [
+      "requested",
+      "confirmed",
+      "in_progress",
+      "returned",
+      "completed",
+    ];
+    const currentIndex = statusOrder.indexOf(status);
+
+    const steps = [
+      { id: 1, name: "Requested", completed: currentIndex >= 0 },
+      { id: 2, name: "Confirmed", completed: currentIndex >= 1 },
+      { id: 3, name: "In Progress", completed: currentIndex >= 2 },
+      { id: 4, name: "Returned", completed: currentIndex >= 3 },
+      { id: 5, name: "Completed", completed: currentIndex >= 4 },
+    ];
+
+    return steps;
+  };
+  // For mobile view, show only current and adjacent steps
+  const getMobileProgressSteps = () => {
+    const allSteps = getProgressSteps();
+    const currentStepIndex = allSteps.findIndex(
+      (step) =>
+        step.completed && !allSteps[allSteps.indexOf(step) + 1]?.completed
+    );
+
+    if (currentStepIndex === -1) {
+      // If all steps are completed or none are completed
+      return allSteps.slice(0, 3);
+    }
+
+    // Get current step and adjacent steps
+    const startIndex = Math.max(0, currentStepIndex - 1);
+    const endIndex = Math.min(allSteps.length, currentStepIndex + 2);
+
+    return allSteps.slice(startIndex, endIndex);
+  };
+
+  const progressSteps = isMobile
+    ? getMobileProgressSteps()
+    : getProgressSteps();
+
   return (
-    <div>
+    <div className="rent-progress-wrapper">
       <div className="rent-progress">
         <div className="progress-container">
-          <h2>Transaction ID: {transaction.rental.id}</h2>
-          <span className="status">Status: {transaction.rental.status}</span>
-          <div className="progress-tracker">
-            {/* Loop through the transaction steps dynamically if you have them */}
-            {/* {transaction.history.map((step, index) => (
-              <div key={index} className={`step ${step.completed ? "completed" : ""}`}>
-                <div className="bullet"></div>
-                <p>
-                  {step.date}
-                  <br />
-                  {step.description}
-                </p>
-              </div>
-            ))} */}
+          <div className="transaction-header">
+            <h2>Transaction ID: {transaction.rental.id}</h2>
+            <span className={`status status-${transaction.rental.status}`}>
+              Status:{" "}
+              {transaction.rental.status.replace("_", " ").toUpperCase()}
+            </span>
           </div>
+
+          <div className="progress-tracker">
+            {getProgressSteps().map((step, index) => (
+              <div
+                key={step.id}
+                className={`progress-step ${step.completed ? "completed" : ""}`}
+              >
+                <div className="step-circle">{step.id}</div>
+                <div className="step-name">{step.name}</div>
+                {index < getProgressSteps().length - 1 && (
+                  <div
+                    className={`step-line ${step.completed ? "completed" : ""}`}
+                  ></div>
+                )}
+              </div>
+            ))}
+          </div>
+
           <div className="transaction-details">
             <h3>Transaction Details</h3>
             <div className="item-info">
-              <img src={item1} alt="Item" />
-              <div>
+              <img
+                src={transaction.rental.Listing.image_url || item1}
+                alt={transaction.rental.Listing.listing_name}
+              />
+              <div className="item-details">
                 <p>
                   <strong>Item:</strong>{" "}
                   {transaction.rental.Listing.listing_name}
                 </p>
                 <p>
-                  <p>
-                    <strong>Rental Period:</strong>{" "}
-                    {transaction.rental.Date?.date}
-                  </p>
+                  <strong>Rental Period:</strong>{" "}
+                  {transaction.rental.Date?.date || "N/A"}
                 </p>
                 <p>
                   <strong>Rental Rate:</strong>{" "}
                   {transaction.rental.Listing.rate} php
                 </p>
                 <p>
-                  <strong>Total Cost:</strong> {/*{transaction.totalCost} */}php
+                  <strong>Total Cost:</strong> {calculateTotalCost()} php
                 </p>
               </div>
             </div>
           </div>
+
           <div className="delivery-info">
             <h3>Delivery Information</h3>
             <p>
-              <strong>Location:</strong>
+              <strong>Method:</strong>{" "}
+              {transaction.rental.delivery_method || "Not specified"}
             </p>
-            <p>
-              <strong>Method:</strong> {transaction.rental.delivery_method}
-            </p>
+            {transaction.rental.delivery_address && (
+              <p>
+                <strong>Address:</strong> {transaction.rental.delivery_address}
+              </p>
+            )}
+            {transaction.rental.delivery_notes && (
+              <p>
+                <strong>Notes:</strong> {transaction.rental.delivery_notes}
+              </p>
+            )}
           </div>
-          <div className="owner-info">
-            <h3>Owner/Borrower Information</h3>
-            <p>
-              <strong>Name:</strong> {transaction.rental.owner.first_name}
-            </p>
-            <p>
-              <strong>Rating:</strong> <span className="rating">★★★★★</span>
-            </p>
-            <button className="btn btn-rectangle secondary">Message</button>
+
+          <div className="borrower-info">
+            <h3>Borrower Information</h3>
+            <div className="borrower-card">
+              <div className="borrower-avatar">
+                {transaction.rental.owner.profile_pic ? (
+                  <img
+                    src={transaction.rental.owner.profile_pic}
+                    alt="Profile"
+                  />
+                ) : (
+                  <div className="avatar-placeholder">
+                    {transaction.rental.owner.first_name.charAt(0)}
+                  </div>
+                )}
+              </div>
+              <div className="borrower-details">
+                <p className="borrower-name">
+                  <strong>
+                    {transaction.rental.owner.first_name}{" "}
+                    {transaction.rental.owner.last_name}
+                  </strong>
+                </p>
+                <p className="borrower-rating">
+                  Rating:{" "}
+                  <span className="rating">
+                    {[...Array(5)].map((_, i) => (
+                      <span
+                        key={i}
+                        className={
+                          i < (transaction.rental.owner.rating || 0)
+                            ? "star filled"
+                            : "star"
+                        }
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </span>
+                </p>
+                <div className="borrower-actions">
+                  <button
+                    className="btn-rent message-btn"
+                    onClick={handleSendMessage}
+                  >
+                    Message
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons Container */}
+          <div className="actions-container">
+            <button
+              className="btn-rent btn-rectangle danger report-btn"
+              onClick={handleReportClick}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="report-icon"
+              >
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              Report Issue
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Render the enhanced report modal with all necessary props */}
+      <ReportModal
+        show={showReportModal}
+        handleClose={() => setShowReportModal(false)}
+        handleSubmit={handleRentalReportSubmit}
+        entityType="rental_transaction"
+        entityId={transaction?.rental.id}
+        currentUserId={userId}
+      />
     </div>
   );
 }

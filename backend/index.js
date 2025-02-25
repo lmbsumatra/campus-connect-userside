@@ -7,7 +7,6 @@ const http = require("http");
 const { initializeSocket } = require("./socket");
 const nodemailer = require("nodemailer");
 
-
 // Route Imports
 const studentAuthRoutes = require("./routes/StudentAuthRoute");
 const adminAuthRoutes = require("./routes/AdminAuthRoutes");
@@ -25,7 +24,7 @@ const followRoutes = require("./routes/FollowRoutes");
 const reportRoutes = require("./routes/ReportRoute");
 const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
 
-const uploadRoutes = require("./routes/UploadRoute.js")
+const uploadRoutes = require("./routes/UploadRoute.js");
 
 // Cron Jobs
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -71,9 +70,9 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   req.io = io;
   req.notifyAdmins = notifyAdmins;
+  req.emitNotification = emitNotification;
   next();
 });
-
 
 // Inject emitNotification into Rental Transaction Controller
 const rentalTransactionController =
@@ -97,7 +96,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/follow", followRoutes);
 
-app.use('/api/posts', uploadRoutes);
+app.use("/api/posts", uploadRoutes);
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use(

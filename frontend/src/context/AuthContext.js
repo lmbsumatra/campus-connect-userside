@@ -5,25 +5,24 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   // const [user, setUser] = useState(null);
   const [studentUser, setStudentUser] = useState(null);
-   const [adminUser, setAdminUser] = useState(() => {
+  const [adminUser, setAdminUser] = useState(() => {
     // Retrieve the adminUser from local storage
     const savedUser = localStorage.getItem("adminUser");
     return savedUser ? JSON.parse(savedUser) : null; // Parse the stored JSON string
   });
 
   useEffect(() => {
-    
     const storedAdminUser = localStorage.getItem("adminUser");
 
     if (storedAdminUser) {
-      setAdminUser(JSON.parse(storedAdminUser)); 
+      setAdminUser(JSON.parse(storedAdminUser));
       // console.log("Restored admin from localStorage:", JSON.parse(storedAdminUser));
     }
   }, []);
   useEffect(() => {
     const storedStudentUser = localStorage.getItem("studentUser");
     if (storedStudentUser) {
-      setStudentUser(JSON.parse(storedStudentUser)); 
+      setStudentUser(JSON.parse(storedStudentUser));
       // console.log("Restored student from localStorage:", JSON.parse(storedStudentUser));
     }
   }, []);
@@ -46,7 +45,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("adminUser", JSON.stringify(newUser));
     console.log("Admin logged in:", newUser);
   };
-  
 
   const logoutAdmin = () => {
     setAdminUser(null);
@@ -54,7 +52,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ adminUser, studentUser, loginStudent, logoutStudent, loginAdmin, logoutAdmin }}>
+    <AuthContext.Provider
+      value={{
+        adminUser,
+        studentUser,
+        loginStudent,
+        logoutStudent,
+        loginAdmin,
+        logoutAdmin,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

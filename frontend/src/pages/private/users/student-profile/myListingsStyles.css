@@ -1,0 +1,19 @@
+/* Add to your CSS */
+.highlighted {
+    animation: highlight-pulse 2s ease-in-out;
+    border: 2px solid #ffd700;
+}
+
+@keyframes highlight-pulse {
+    0% {
+        border-color: #ffd700;
+    }
+
+    50% {
+        border-color: transparent;
+    }
+
+    100% {
+        border-color: #ffd700;
+    }
+}

@@ -5,7 +5,8 @@ const getAllListingsByUser = require("./getAllListingsByUser");
 const deleteListingById = require("./deleteListingById");
 const getListingById = require("./getListingById");
 const updateListingById = require("./updateListingById");
-const getAvailableListingsByUser = require("./getAvailableListingsByUser")
+const getAvailableListingsByUser = require("./getAvailableListingsByUser");
+const updateListingStatus = require("./updateListingStatus.js");
 
 const ListingController = {
   getAllAvailable,
@@ -16,6 +17,7 @@ const ListingController = {
   getListingById,
   updateListingById,
   getAvailableListingsByUser,
+  updateListingStatus,
 };
 
 module.exports = ListingController;

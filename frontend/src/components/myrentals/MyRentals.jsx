@@ -198,7 +198,7 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
                   onButtonClick={(e) => e.stopPropagation()}
                   selectedOption={selectedOption}
                   selectedTab={selectedTab}
-          onTabChange={onTabChange}
+                  onTabChange={onTabChange}
                 />
               </div>
             ))
