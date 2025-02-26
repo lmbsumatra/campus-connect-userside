@@ -9,6 +9,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useChat } from "../../../../context/ChatContext";
 import useSound from "use-sound";
 import sendSound from "../../../../assets/audio/sent.mp3";
+import { Modal } from "react-bootstrap"
+
+import { FiPaperclip, FiX } from "react-icons/fi"; 
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
@@ -29,7 +32,12 @@ const MessagePage = () => {
   const [unreadMessages, setUnreadMessages] = useState({});
   const [playSendSound] = useSound(sendSound, { volume: 0.5 });
 
-  const [lastOfferMessage, setLastOfferMessage] = useState(null);
+  // New state variables
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [modalImage, setModalImage] = useState("");
+  
+  const [selectedImages, setSelectedImages] = useState([]);
+  const fileInputRef = useRef(null);
 
   const { userId } = studentUser || {};
   useEffect(() => {
@@ -173,17 +181,6 @@ const MessagePage = () => {
     }
   }, [activeChat?.messages]);
 
-    // Add this useEffect to track the last offer message
-    useEffect(() => {
-      if (activeChat?.messages) {
-        // Find the last offer message in the chat
-        const lastOffer = [...activeChat.messages]
-          .reverse()
-          .find(msg => msg.isProductCard && msg.productDetails?.title === "Offer");
-        setLastOfferMessage(lastOffer);
-      }
-    }, [activeChat?.messages]);
-
   const handleSendMessage = async (message, recipientId) => {
     if (!activeChat) return;
 
@@ -203,6 +200,7 @@ const MessagePage = () => {
             image: product.image,
             title: product.title,
             status: product.status, // Include item status
+            productId: product.id || product.productId, // Store the product ID for navigation
           },
         };
         console.log("Sending product message payload:", productMessage);
@@ -228,10 +226,11 @@ const MessagePage = () => {
       }
 
       // Send user's message
-      if (message.trim()) {
+      if (message.trim() || selectedImages.length > 0 ) {
         const messageData = {
           sender: userId,
           text: message,
+          images: selectedImages,
           conversationId: activeChat.id,
           isProductCard: false, // Regular message
           productDetails: null, // No product details for a regular message
@@ -281,6 +280,7 @@ const MessagePage = () => {
         });
         playSendSound();
         setNewMessage("");
+        setSelectedImages([]);
       }
     } catch (err) {
       console.error("Error sending message:", err);
@@ -346,6 +346,39 @@ const MessagePage = () => {
     };
   }, []);
 
+    // New function to handle image click
+    const handleImageClick = (imageUrl) => {
+      setModalImage(imageUrl);
+      setShowImageModal(true);
+    };
+  
+
+   // New image handling functions
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length + selectedImages.length > 5) {
+      alert('Maximum 5 images allowed');
+      return;
+    }
+    
+    const validFiles = files.filter(file => file.type.startsWith('image/'));
+    if (validFiles.length !== files.length) {
+      alert('Only image files are allowed');
+      return;
+    }
+
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setSelectedImages(prev => [...prev, event.target.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
   
 
   return (
@@ -421,19 +454,23 @@ const MessagePage = () => {
               {activeChat.messages && activeChat.messages.length > 0 ? (
                 activeChat.messages.map((message, index) =>
                   message.isProductCard ? (
-                    <div key={index} className="product-card">
+                    <div key={index} className="product-card" >
                       <h6>
                         {message.productDetails?.title === "Offer"
                           ? "Offer for this item"
                           : "Inquiring about this item"}
                       </h6>
                       <div className="d-flex align-items-start">
-                        <img
-                          src={message.productDetails?.image}
-                          alt={message.productDetails?.name}
-                          className="me-3"
-                          style={{ width: "60px", height: "60px" }}
-                        />
+                      <img
+                            src={message.productDetails?.image}
+                            alt={message.productDetails?.name}
+                            className="me-3"
+                            style={{ width: "60px", height: "60px", objectFit: "cover", cursor: "pointer" }}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent parent card click
+                              handleImageClick(message.productDetails?.image);
+                            }}
+                          />
                         <div>
                           <p className="mb-1">
                             <strong>{message.productDetails?.name}</strong>
@@ -520,7 +557,21 @@ const MessagePage = () => {
                           : ""
                       }`}
                     >
-                      <p>{message.text}</p>
+                      {message.text && <p>{message.text}</p>}
+                        {message.images && message.images.length > 0 && (
+                          <div className="image-grid">
+                            {message.images.map((img, idx) => (
+                              <img
+                                key={idx}
+                                src={img}
+                                alt={`Content ${idx}`}
+                                className="img-fluid rounded"
+                                onClick={() => handleImageClick(img)}
+                                style={{ cursor: 'pointer' }}
+                              />
+                            ))}
+                          </div>
+                        )}
                       <span>
                         {new Date(message.createdAt).toLocaleString()}
                       </span>
@@ -533,31 +584,101 @@ const MessagePage = () => {
             </div>
     
             <div className="chat-input">
+            {selectedImages.length > 0 && (
+              <div className="preview-container">
+                {selectedImages.map((img, index) => (
+                  <div key={index} className="position-relative" 
+                       style={{width: '60px', height: '60px'}}>
+                    <img
+                      src={img}
+                      alt={`Preview ${index}`}
+                      className="img-thumbnail"
+                      onClick={() => handleImageClick(img)}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <button
+                      className="position-absolute top-0 start-100 translate-middle p-0 border-0 bg-transparent"
+                      onClick={() => removeImage(index)}
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        minWidth: '20px',
+                        transform: 'translate(-50%, -50%)'
+                      }}
+                    >
+                     <div className="d-flex align-items-center justify-content-center rounded-circle bg-danger"
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                          }}>
+                          <FiX size={12} color="white" />
+                        </div>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="input-group">
+              <button
+                type="button"
+                className="attach-btn"
+                onClick={() => fileInputRef.current.click()}
+              >
+                <FiPaperclip size={20} />
+              </button>
+              
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="d-none"
+                accept="image/*"
+                multiple
+                onChange={handleImageUpload}
+              />
+
               <input
                 type="text"
+                className="form-control flex-grow-1"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSendMessage(newMessage, activeChat.otherUser.user_id);
-                  }
-                }}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(newMessage, activeChat.otherUser.user_id)}
                 placeholder="Type a message..."
               />
+
               <button
-                onClick={(e) =>
-                  handleSendMessage(newMessage, activeChat.otherUser.user_id)
-                }
+                className="btn btn-primary"
+                onClick={() => handleSendMessage(newMessage, activeChat.otherUser.user_id)}
               >
                 Send
               </button>
             </div>
           </div>
+        </div>
         )}
       </div>
-    </div>
-  );
-};
+
+          {/* Image Modal */}
+          <Modal 
+            show={showImageModal} 
+            onHide={() => setShowImageModal(false)}
+            centered
+            size="lg"
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>Image Preview</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="text-center">
+              <img 
+                src={modalImage} 
+                alt="Full Preview" 
+                style={{ maxWidth: '100%', maxHeight: '70vh' }} 
+              />
+            </Modal.Body>
+          </Modal>
+        </div>
+      );
+    };
 
 export default MessagePage;
 

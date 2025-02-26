@@ -172,13 +172,11 @@
 }
 
 .chat-input {
-  display: flex;
-  padding: 10px;
+  padding: 15px;
+  background: #fff;
   border-top: 1px solid #ddd;
-  background-color: #fff;
   position: sticky;
   bottom: 0;
-  z-index: 10;
 }
 
 .chat-input input {
@@ -268,6 +266,100 @@
 .product-card-content p {
   margin: 2px 0;
   font-size: 14px;
+}
+
+/* Image upload */
+
+.preview-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.img-thumbnail {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+/* Custom remove button styling */
+.position-absolute.bg-transparent {
+  padding: 0 !important;
+  z-index: 1;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
+  transition: background-color 0.2s;
+}
+
+.bg-danger:hover {
+  background-color: #bb2d3b !important;
+}
+
+/* Input styling */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.message-input {
+  flex: 1;
+  padding: 10px 15px !important;
+  border: 1px solid #ddd !important;
+  border-radius: 20px !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.attach-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.send-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.send-btn:hover {
+  background: #0056b3;
+}
+
+/* Image messages styling */
+.chat-message.sent .image-grid,
+.chat-message.received .image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.chat-message img {
+  max-width: 200px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.chat-message img:hover {
+  transform: scale(1.03);
 }
 
 

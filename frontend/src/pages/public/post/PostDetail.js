@@ -159,7 +159,7 @@ function PostDetail() {
         state: {
           renterId: approvedPostById.renter.id,
           product: offerDetails,
-          isOffer: true
+          isOffer: true,
         }
       });
   
