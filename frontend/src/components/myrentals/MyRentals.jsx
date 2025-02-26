@@ -5,6 +5,7 @@ import RentalItem from "./RentalItem";
 import { useAuth } from "../../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRentalTransactions } from "../../redux/transactions/rentalTransactionsSlice";
+import socket from "../../hooks/socket";
 
 const formatForRoute = (name) => name.toLowerCase();
 

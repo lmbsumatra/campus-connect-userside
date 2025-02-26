@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom"; // Import navigation
 import { useDispatch } from "react-redux";
 import { updateRentalStatus } from "../../redux/transactions/rentalTransactionsSlice";
 import axios from "axios";
+import socket from "../../hooks/socket";
 
 function RentalItem({
   item,
@@ -40,25 +41,28 @@ function RentalItem({
         newStatus: action,
         userId: userId,
       };
-  
+
       // Update confirmation based on user role
       if (item.owner_id === userId) {
         updatePayload.ownerConfirmed = true;
       } else if (item.renter_id === userId) {
         updatePayload.renterConfirmed = true;
       }
-  
+
       // Dispatch the update
       dispatch(updateRentalStatus(updatePayload));
-  
+
       // Only proceed if both users have confirmed
       const bothConfirmed =
         (item.owner_id === userId && item.renter_confirmed) ||
         (item.renter_id === userId && item.owner_confirmed);
-  
+
       if (bothConfirmed) {
         let nextTab = "";
         switch (action) {
+          case "accept": 
+          nextTab = "To Hand Over"
+          break;
           case "hand-over":
             nextTab = "To Receive";
             break;
@@ -70,16 +74,37 @@ function RentalItem({
             break;
           default:
             nextTab = selectedTab;
-        }
-  
+        } 
+
+        // Move to the next tab
+        onTabChange(nextTab);
+      } else {
+        let nextTab = "";
+        switch (action) {
+          case "accept": 
+          nextTab = "To Hand Over"
+          break;
+          default:
+            nextTab = selectedTab;
+        } 
+
         // Move to the next tab
         onTabChange(nextTab);
       }
+
+      // to update rental status
+      const transactionData = {
+        sender: userId,
+        recipient: item.owner_id === userId ? item.renter_id : item.owner_id,
+        rentalId: item.id,
+        status: action,
+      };
+
+      socket.emit("update-transaction-status", transactionData);
     } catch (error) {
       console.error("Error updating rental status:", error);
     }
   };
-  
 
   // Function to handle clicking "Message" button
   const handleMessageClick = async () => {

@@ -21,6 +21,8 @@ import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import "./profileStyles.css";
 import { useDispatch } from "react-redux";
 import { clearNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
+import socket from "../../../../hooks/socket.js";
+import { fetchRentalTransactions } from "../../../../redux/transactions/rentalTransactionsSlice.js";
 
 const Profile = () => {
   const { studentUser } = useAuth();
@@ -39,6 +41,37 @@ const Profile = () => {
   const [selectedTab, setSelectedTab] = useState(currentTab);
 
   const dispatch = useDispatch();
+
+    // trigger update rental status
+  // Add this to your Profile.js useEffect
+useEffect(() => {
+  if (!socket || !userId) return;
+  
+  socket.emit("registerUser", userId);
+  console.log("Registered user with socket:", userId);
+  
+}, [socket, userId]);
+
+useEffect(() => {
+  if (!socket) return;
+
+  // Log when connecting to help debug
+  socket.on("connect", () => {
+    console.log("Connected to socket server with ID:", socket.id);
+  });
+
+  // Make sure this event name exactly matches what the server is emitting
+  socket.on("receiveRentalUpdate", (data) => {
+    console.log("Received rental update:", data);
+    dispatch(fetchRentalTransactions(userId));
+  });
+
+  return () => {
+    socket.off("connect");
+    socket.off("receiveRentalUpdate");
+  };
+}, [dispatch, userId]);
+
 
   useEffect(() => {
     if (location.state?.redirecting) {

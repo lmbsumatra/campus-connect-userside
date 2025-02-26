@@ -75,9 +75,14 @@ function initializeSocket(server) {
     // Register the userId to socket mapping
     socket.on("registerUser", async (userId) => {
       try {
-        const userIdStr = userId.toString(); // Convert to string
-        userSockets.set(userIdStr, socket.id);
-        socket.join(userIdStr); // Join room using string ID
+        const userIdStr = userId.toString();
+
+        if (!userSockets.has(userIdStr)) {
+          userSockets.set(userIdStr, new Set());
+        }
+        userSockets.get(userIdStr).add(socket.id);
+
+        socket.join(userIdStr); // Join room
         console.log(
           `User ${userIdStr} registered with socket ID ${socket.id} and joined room ${userIdStr}`
         );
@@ -85,7 +90,7 @@ function initializeSocket(server) {
         const rooms = Array.from(socket.rooms);
         console.log(`Current rooms for user ${userIdStr}:`, rooms);
 
-        // Calculate and send initial unread count
+        // Send unread count
         const unreadCount = await calculateUnreadMessages(userId);
         socket.emit("updateBadgeCount", unreadCount);
       } catch (error) {
@@ -213,22 +218,71 @@ function initializeSocket(server) {
       }
     });
 
+    // handle trigger on transaction update status
+    socket.on("update-transaction-status", (data) => {
+      const { rentalId, sender, recipient, status } = data;
+      console.log(
+        `Rental update for rental ${rentalId}: Status changed to ${status} sender${sender} receiver${recipient}`
+      );
+
+      try {
+        if (sender === recipient) {
+          console.log("Self-notification prevented.");
+          return;
+        }
+
+        const recipientSockets = userSockets.get(recipient.toString());
+
+        if (recipientSockets && recipientSockets.size > 0) {
+          console.log(
+            `✅ Sending rental update to user ${recipient} on sockets:`,
+            recipientSockets
+          );
+
+          recipientSockets.forEach((socketId) => {
+            io.to(socketId).emit("receiveRentalUpdate", {
+              rentalId,
+              sender,
+              status,
+              timestamp: new Date(),
+            });
+          });
+
+          console.log(
+            `✅ Rental update successfully sent to user ${recipient}`
+          );
+        } else {
+          console.log(`⚠️ User ${recipient} is offline. Notification stored.`);
+        }
+      } catch (error) {
+        console.error("Error processing rental update:", error);
+      }
+    });
+
     // Clean up on disconnect
     socket.on("disconnect", () => {
       adminSockets.delete(socket.id);
-      userSockets.forEach((socketId, userId) => {
-        if (socketId === socket.id) {
-          userSockets.delete(userId);
-          console.log(`User ${userId} disconnected`);
+
+      // Properly handle user socket disconnections
+      for (const [userId, socketSet] of userSockets.entries()) {
+        if (socketSet.has(socket.id)) {
+          socketSet.delete(socket.id);
+          console.log(`Socket ${socket.id} removed for user ${userId}`);
+
+          // If no more sockets for this user, remove the user entry
+          if (socketSet.size === 0) {
+            userSockets.delete(userId);
+            console.log(`User ${userId} completely disconnected`);
+          }
         }
-      });
+      }
+
       console.log(
         "Client disconnected. Remaining admin sockets:",
         Array.from(adminSockets)
       );
     });
   });
-
   // Function to notify all connected admins
   const notifyAdmins = (notification) => {
     console.log("Sending notification to admins:", notification);
