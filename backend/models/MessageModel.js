@@ -26,6 +26,11 @@ Message.init(
       type: DataTypes.JSON, // Use JSON for storing product details
       allowNull: true, // Allow null for non-product card messages
     },
+    images: {
+      type: DataTypes.JSON, // Store array of image URLs as JSON
+      allowNull: true,
+      defaultValue: [],
+    },
   },
   {
     sequelize,

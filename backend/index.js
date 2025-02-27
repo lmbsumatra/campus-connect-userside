@@ -104,6 +104,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/follow", followRoutes);
 
 app.use("/api/posts", uploadRoutes);
+// app.use("/api/messages/upload-message-images", messageRoutes);
+
 
 app.use("/api/rental-reports", rentalReportRoutes);
 
