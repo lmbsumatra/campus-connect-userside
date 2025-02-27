@@ -68,6 +68,8 @@ const appReducer = combineReducers({
   postForm: postFormReducer,
   unavailableDates: unavailableDatesReducer,
   allPostsByUser: allPostsByUserReducer,
+  postMatchedItems: postMatchedItemsReducer,
+  rentalReports: rentalReportsReducer,
 });
 
 // Root reducer with reset functionality
