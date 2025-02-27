@@ -69,6 +69,8 @@ function PostDetail() {
   const [offerImage, setOfferImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
+  const [imageError, setImageError] = useState(false);
+
   const images = [
     itemImage1,
     itemImage2,
@@ -101,11 +103,26 @@ function PostDetail() {
     .map((rentalDate) => new Date(rentalDate.date));
 
   const handleOfferClick = async () => {
-    if (selectedDate && selectedDuration) {
-      setShowModal(true);
-    } else {
+    if (!selectedDate || !selectedDuration) {
       alert("Please select a date and duration before offering.");
+      return;
     }
+    
+    // Validate price is positive and not empty
+    if (!offerPrice || parseFloat(offerPrice) <= 0) {
+      alert("Please enter a valid price greater than zero.");
+      return;
+    }
+
+    // Validate image is uploaded
+      if (!offerImage) {
+        setImageError(true);
+        alert("Please upload an item image.");
+        return;
+      }
+      
+    setImageError(false);
+    setShowModal(true);
   };
 
   const handleConfirmOffer = async () => {
@@ -477,19 +494,34 @@ function PostDetail() {
                   type="number"
                   className="form-control"
                   value={offerPrice}
-                  onChange={(e) => setOfferPrice(e.target.value)}
+                  onChange={(e) => {
+                    // Only allow positive numbers
+                    const value = parseFloat(e.target.value);
+                    if (e.target.value === "" || !isNaN(value) && value > 0) {
+                      setOfferPrice(e.target.value);
+                    }
+                  }}
+                  min="0.01"
+                  step="0.01"
                   placeholder="Enter offer amount"
                 />
+                 {offerPrice && parseFloat(offerPrice) <= 0 && (
+                    <small className="text-danger">Price must be greater than zero</small>
+                  )}
               </div>
 
               <div className="form-group">
-                <label>Upload Item Image</label>
-                <SingleImageUpload
-                  onChange={({ file, preview }) => {
-                    setOfferImage(file);
-                    setImagePreview(preview);
-                  }}
-                />
+              <label>Upload Item Image <span className="text-danger">*</span></label>
+                  <SingleImageUpload
+                    onChange={({ file, preview }) => {
+                      setOfferImage(file);
+                      setImagePreview(preview);
+                      setImageError(false); // Clear error when image is uploaded
+                    }}
+                  />
+                  {imageError && (
+                    <small className="text-danger">Please upload an image</small>
+                  )}
               </div>
             </div>
           </div>

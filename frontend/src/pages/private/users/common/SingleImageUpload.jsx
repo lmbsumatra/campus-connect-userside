@@ -44,7 +44,14 @@ const SingleImageUpload = ({ onChange }) => {
           />
         </div>
       ) : (
-        <div className="preview-container">
+        <div className="preview-container"  
+        style={{ 
+          position: 'relative',
+          display: 'inline-block', // This ensures the container fits the content
+          width: '100px',          // Match image width
+          height: '100px'          // Match image height
+        }}>
+
           <img
             src={currentImage.preview}
             alt="Preview"
@@ -62,18 +69,22 @@ const SingleImageUpload = ({ onChange }) => {
             className="remove-button"
             style={{
               position: 'absolute',
-              top: '-10px',
-              right: '-10px',
+              top: '0px',               // Position inside the top edge
+              right: '-20px',             // Position inside the right edge
               borderRadius: '50%',
               border: 'none',
-              background: 'red',
+              backgroundColor: 'rgba(255, 0, 0, 0.8)',
               color: 'white',
               width: '20px',
               height: '20px',
+              padding: '0',
+              lineHeight: '1',
+              fontSize: '16px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              zIndex: 10
             }}
           >
             ×
