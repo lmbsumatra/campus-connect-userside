@@ -23,7 +23,6 @@ const notificationRoutes = require("./routes/NotificationRoute");
 const followRoutes = require("./routes/FollowRoutes");
 const reportRoutes = require("./routes/ReportRoute");
 const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
-
 const uploadRoutes = require("./routes/UploadRoute.js");
 
 // Cron Jobs
@@ -80,6 +79,14 @@ const rentalTransactionController =
     emitNotification,
   });
 
+const rentalReportController = require("./controllers/RentalReportController")({
+  emitNotification,
+});
+
+const rentalReportRoutes = require("./routes/RentalReportRoute")({
+  emitNotification,
+});
+
 // Define Routes
 app.use("/user", studentAuthRoutes);
 app.use("/admin", adminAuthRoutes);
@@ -97,6 +104,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/follow", followRoutes);
 
 app.use("/api/posts", uploadRoutes);
+
+app.use("/api/rental-reports", rentalReportRoutes);
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use(

@@ -1,6 +1,5 @@
 const { models } = require("../models/index");
 const { Op } = require("sequelize");
-const StudentNotification = require("../models/StudentNotificationModel");
 
 module.exports = ({ emitNotification }) => {
   // Helper function to get user names

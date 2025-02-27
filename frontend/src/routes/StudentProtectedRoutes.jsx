@@ -11,6 +11,7 @@ import AddNewPost from "../pages/private/users/post/AddNewPost.js";
 import EditItem from "../pages/private/users/item/EditItem.js";
 import SuccessPayment from "../pages/private/users/success-payment/SuccessPayment.js";
 import CancelPayment from "../pages/private/users/cancel-payment/CancelPayment.js";
+import RentalReportDetails from "../components/report/RentalReportDetails.js";
 
 const StudentProtectedRoutes = [
   <Route
@@ -111,6 +112,14 @@ const StudentProtectedRoutes = [
     element={
       <StudentProtectedRoute allowedRoles="student">
         <CancelPayment />
+      </StudentProtectedRoute>
+    }
+  />,
+  <Route
+    path="/reports/:reportId"
+    element={
+      <StudentProtectedRoute allowedRoles="student">
+        <RentalReportDetails />
       </StudentProtectedRoute>
     }
   />,

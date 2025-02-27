@@ -22,7 +22,6 @@ const storage = new CloudinaryStorage({
   },
 });
 
-
 const upload = multer({ storage: storage }).fields([
   { name: "scanned_id" },
   { name: "photo_with_id" },
@@ -42,7 +41,7 @@ const upload_item_disabled = (req, res, next) => {
 };
 
 const upload_offer_image = multer({ storage: storage }).fields([
-  { name: "upload_images", maxCount: 1 } // Single image for offers
+  { name: "upload_images", maxCount: 1 }, // Single image for offers
 ]);
 
 const rollbackUpload = async (imageUrls) => {
@@ -78,7 +77,7 @@ const rollbackUpload = async (imageUrls) => {
   }
 };
 
-
+const uploadEvidence = multer({ storage: storage }).array("evidence");
 
 module.exports = {
   upload_prof,
@@ -87,4 +86,5 @@ module.exports = {
   upload_offer_image,
   upload_item_disabled,
   rollbackUpload,
+  uploadEvidence,
 };

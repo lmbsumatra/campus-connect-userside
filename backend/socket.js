@@ -109,6 +109,7 @@ function initializeSocket(server) {
           message: notificationData.message,
           is_read: false,
           rental_id: notificationData.rental_id || null,
+          rental_report_id: notificationData.rental_report_id || null,
         };
 
         console.log("Creating notification with payload:", notificationPayload);

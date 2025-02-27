@@ -14,6 +14,7 @@ function RentProgress() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  // Fetch transaction data every 5 seconds.
   useEffect(() => {
     const fetchTransaction = async () => {
       try {
@@ -31,60 +32,44 @@ function RentProgress() {
     };
 
     fetchTransaction();
-
-    // Auto-refresh every 5 seconds to check for status updates
     const interval = setInterval(fetchTransaction, 5000);
-
     return () => clearInterval(interval);
   }, [id]);
-  useEffect(() => {
-    if (transaction) {
-      setTransaction({ ...transaction });
-    }
-  }, [transaction?.rental?.status]);
 
+  // Log the fetched status only when transaction is available.
   useEffect(() => {
-    console.log("Fetched status:", transaction?.rental?.status);
+    if (transaction && transaction.rental) {
+      console.log("Fetched status:", transaction.rental.status);
+    }
   }, [transaction]);
 
-  // Opens the report modal
   const handleReportClick = () => {
     setShowReportModal(true);
   };
 
-  // Function to handle sending messages to owner/borrower
   const handleSendMessage = () => {
     // Navigate to messaging interface or open a chat modal
-    // This would be implemented based on your application's messaging system
     alert("Messaging functionality will be implemented here");
   };
 
-  // Calculate the total cost based on rental information
   const calculateTotalCost = () => {
-    if (!transaction) return 0;
-
+    if (!transaction || !transaction.rental || !transaction.rental.Listing)
+      return 0;
     const rate = parseFloat(transaction.rental.Listing.rate) || 0;
-    // Assuming there's some duration information in the transaction
-    // This would need to be adjusted based on your actual data structure
     const days = transaction.rental.duration || 1;
-
     return (rate * days).toFixed(2);
   };
 
-  // Called when the report modal form is submitted
+  // Called when the report modal form is submitted.
   const handleRentalReportSubmit = async (reportData) => {
     try {
-      // Create FormData object to handle file uploads
       const formData = new FormData();
-
-      // Add report data fields
       formData.append("reporter_id", reportData.reporter_id);
       formData.append("reported_entity_id", reportData.reported_entity_id);
       formData.append("entity_type", reportData.entity_type);
       formData.append("reason", reportData.reason);
       formData.append("is_dispute", reportData.is_dispute);
 
-      // Add files if they exist
       if (reportData.evidence && reportData.evidence.length > 0) {
         reportData.evidence.forEach((evidence, index) => {
           formData.append(`files`, evidence.file);
@@ -93,11 +78,8 @@ function RentProgress() {
         });
       }
 
-      // Send request with FormData
       await axios.post("http://localhost:3001/api/reports", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       alert("Report submitted successfully!");
@@ -121,10 +103,9 @@ function RentProgress() {
     );
   }
 
-  // Define the progress steps based on the current status
+  // Define progress steps based on current status.
   const getProgressSteps = () => {
-    const status = transaction.rental.status.toLowerCase();
-
+    const status = transaction.rental?.status?.toLowerCase() || "";
     const statusOrder = [
       "requested",
       "confirmed",
@@ -133,18 +114,16 @@ function RentProgress() {
       "completed",
     ];
     const currentIndex = statusOrder.indexOf(status);
-
-    const steps = [
+    return [
       { id: 1, name: "Requested", completed: currentIndex >= 0 },
       { id: 2, name: "Confirmed", completed: currentIndex >= 1 },
       { id: 3, name: "In Progress", completed: currentIndex >= 2 },
       { id: 4, name: "Returned", completed: currentIndex >= 3 },
       { id: 5, name: "Completed", completed: currentIndex >= 4 },
     ];
-
-    return steps;
   };
-  // For mobile view, show only current and adjacent steps
+
+  // For mobile view, show only current and adjacent steps.
   const getMobileProgressSteps = () => {
     const allSteps = getProgressSteps();
     const currentStepIndex = allSteps.findIndex(
@@ -153,14 +132,11 @@ function RentProgress() {
     );
 
     if (currentStepIndex === -1) {
-      // If all steps are completed or none are completed
       return allSteps.slice(0, 3);
     }
 
-    // Get current step and adjacent steps
     const startIndex = Math.max(0, currentStepIndex - 1);
     const endIndex = Math.min(allSteps.length, currentStepIndex + 2);
-
     return allSteps.slice(startIndex, endIndex);
   };
 
@@ -173,22 +149,24 @@ function RentProgress() {
       <div className="rent-progress">
         <div className="progress-container">
           <div className="transaction-header">
-            <h2>Transaction ID: {transaction.rental.id}</h2>
-            <span className={`status status-${transaction.rental.status}`}>
+            <h2>Transaction ID: {transaction.rental?.id}</h2>
+            <span className={`status status-${transaction.rental?.status}`}>
               Status:{" "}
-              {transaction.rental.status.replace("_", " ").toUpperCase()}
+              {transaction.rental?.status
+                ? transaction.rental.status.replace("_", " ").toUpperCase()
+                : "N/A"}
             </span>
           </div>
 
           <div className="progress-tracker">
-            {getProgressSteps().map((step, index) => (
+            {getProgressSteps().map((step) => (
               <div
                 key={step.id}
                 className={`progress-step ${step.completed ? "completed" : ""}`}
               >
                 <div className="step-circle">{step.id}</div>
                 <div className="step-name">{step.name}</div>
-                {index < getProgressSteps().length - 1 && (
+                {step.id < getProgressSteps().length && (
                   <div
                     className={`step-line ${step.completed ? "completed" : ""}`}
                   ></div>
@@ -201,21 +179,21 @@ function RentProgress() {
             <h3>Transaction Details</h3>
             <div className="item-info">
               <img
-                src={transaction.rental.Listing.image_url || item1}
-                alt={transaction.rental.Listing.listing_name}
+                src={transaction.rental?.Listing?.image_url || item1}
+                alt={transaction.rental?.Listing?.listing_name || "Item"}
               />
               <div className="item-details">
                 <p>
                   <strong>Item:</strong>{" "}
-                  {transaction.rental.Listing.listing_name}
+                  {transaction.rental?.Listing?.listing_name}
                 </p>
                 <p>
                   <strong>Rental Period:</strong>{" "}
-                  {transaction.rental.Date?.date || "N/A"}
+                  {transaction.rental?.Date?.date || "N/A"}
                 </p>
                 <p>
                   <strong>Rental Rate:</strong>{" "}
-                  {transaction.rental.Listing.rate} php
+                  {transaction.rental?.Listing?.rate} php
                 </p>
                 <p>
                   <strong>Total Cost:</strong> {calculateTotalCost()} php
@@ -228,14 +206,14 @@ function RentProgress() {
             <h3>Delivery Information</h3>
             <p>
               <strong>Method:</strong>{" "}
-              {transaction.rental.delivery_method || "Not specified"}
+              {transaction.rental?.delivery_method || "Not specified"}
             </p>
-            {transaction.rental.delivery_address && (
+            {transaction.rental?.delivery_address && (
               <p>
                 <strong>Address:</strong> {transaction.rental.delivery_address}
               </p>
             )}
-            {transaction.rental.delivery_notes && (
+            {transaction.rental?.delivery_notes && (
               <p>
                 <strong>Notes:</strong> {transaction.rental.delivery_notes}
               </p>
@@ -246,32 +224,32 @@ function RentProgress() {
             <h3>Borrower Information</h3>
             <div className="borrower-card">
               <div className="borrower-avatar">
-                {transaction.rental.owner.profile_pic ? (
+                {transaction.rental?.renter?.profile_pic ? (
                   <img
-                    src={transaction.rental.owner.profile_pic}
+                    src={transaction.rental.renter.profile_pic}
                     alt="Profile"
                   />
                 ) : (
                   <div className="avatar-placeholder">
-                    {transaction.rental.owner.first_name.charAt(0)}
+                    {transaction.rental?.renter?.first_name?.charAt(0)}
                   </div>
                 )}
               </div>
               <div className="borrower-details">
                 <p className="borrower-name">
                   <strong>
-                    {transaction.rental.owner.first_name}{" "}
-                    {transaction.rental.owner.last_name}
+                    {transaction.rental?.renter?.first_name}{" "}
+                    {transaction.rental?.renter?.last_name}
                   </strong>
                 </p>
                 <p className="borrower-rating">
-                  Rating:{" "}
+                  Rating:
                   <span className="rating">
                     {[...Array(5)].map((_, i) => (
                       <span
                         key={i}
                         className={
-                          i < (transaction.rental.owner.rating || 0)
+                          i < (transaction.rental?.renter?.rating || 0)
                             ? "star filled"
                             : "star"
                         }
@@ -293,7 +271,6 @@ function RentProgress() {
             </div>
           </div>
 
-          {/* Action Buttons Container */}
           <div className="actions-container">
             <button
               className="btn-rent btn-rectangle danger report-btn"
@@ -321,13 +298,12 @@ function RentProgress() {
         </div>
       </div>
 
-      {/* Render the enhanced report modal with all necessary props */}
       <ReportModal
         show={showReportModal}
         handleClose={() => setShowReportModal(false)}
         handleSubmit={handleRentalReportSubmit}
         entityType="rental_transaction"
-        entityId={transaction?.rental.id}
+        entityId={transaction.rental?.id}
         currentUserId={userId}
       />
     </div>

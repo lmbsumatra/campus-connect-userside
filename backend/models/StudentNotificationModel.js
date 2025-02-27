@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
-const Listing = require("./ListingModel")(sequelize); // Ensure Listing model is properly imported
+const Listing = require("./ListingModel")(sequelize);
 
 const StudentNotification = sequelize.define(
   "StudentNotification",
@@ -34,6 +34,11 @@ const StudentNotification = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    // Add rental_report_id field:
+    rental_report_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     listing_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -50,7 +55,7 @@ const StudentNotification = sequelize.define(
   }
 );
 
-// Define association with Listing
+// Define association with Listing if needed
 StudentNotification.belongsTo(Listing, {
   foreignKey: "listing_id",
   as: "listing",

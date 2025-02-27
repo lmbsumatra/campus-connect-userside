@@ -22,6 +22,8 @@ const Notification = require("./NotificationModel");
 const MessageNotification = require("./MessageNotificationModel");
 const StudentNotification = require("./StudentNotificationModel");
 const Follow = require("./FollowModel");
+const RentalReport = require("./RentalReportModel");
+const RentalEvidence = require("./ReportEvidenceModel");
 const models = {
   Listing,
   Post,
@@ -42,6 +44,8 @@ const models = {
   MessageNotification,
   StudentNotification,
   Follow,
+  RentalReport,
+  RentalEvidence,
 };
 
 Object.values(models).forEach((model) => {

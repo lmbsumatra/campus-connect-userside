@@ -39,6 +39,7 @@ const notificationController = {
         message: req.body.message,
         is_read: false,
         rental_id: req.body.rental_id,
+        rental_report_id: req.body.rental_report_id,
       });
 
       console.log("Creating notification with data:", notificationData);
@@ -72,6 +73,7 @@ const notificationController = {
           "message",
           "is_read",
           "rental_id", // Include rental_id in the response
+          "rental_report_id",
           "createdAt",
         ],
         order: [["createdAt", "DESC"]],
