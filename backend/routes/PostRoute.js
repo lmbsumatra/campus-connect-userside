@@ -5,6 +5,8 @@ const PostController2 = require("../controllers/post/PostController");
 const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 const { upload_item } = require("../config/multer");
 
+router.get("/:id/matched-items", PostController2.matchedItems);
+
 /* * * * * * * * * displayed for all users :: available * * * * * * * * * * * * * */
 // lahat ng available na post (approved, with available date and corresponding time)
 router.get("/approved", PostController2.getAllAvailablePost);

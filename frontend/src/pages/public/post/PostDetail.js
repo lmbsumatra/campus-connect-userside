@@ -40,6 +40,8 @@ import ShowAlert from "../../../utils/ShowAlert";
 import handleUnavailableDateError from "../../../utils/handleUnavailableDateError";
 
 import SingleImageUpload from "../../private/users/common/SingleImageUpload";
+import ItemCard from "../../../components/item-card/ItemCard";
+import { fetchPostMatchedItems } from "../../../redux/post/postMatchedItems";
 
 function PostDetail() {
   const navigate = useNavigate();
@@ -51,6 +53,8 @@ function PostDetail() {
   const [showModal, setShowModal] = useState(false);
   const { approvedPostById, loadingApprovedPostById, errorApprovedPostById } =
     useSelector((state) => state.approvedPostById);
+  const { postMatchedItems, loadingPostMatchedItems, errorPostMatchedItems } =
+    useSelector((state) => state.postMatchedItems);
   const studentUser = useSelector(selectStudentUser);
   const rentalDates = approvedPostById.rentalDates || [];
   const [loading, setLoading] = useState(true);
@@ -59,7 +63,6 @@ function PostDetail() {
   const [showReportModal, setShowReportModal] = useState(false);
   const loggedInUserId = studentUser?.userId || null;
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
-
 
   const [offerPrice, setOfferPrice] = useState("");
 
@@ -108,61 +111,66 @@ function PostDetail() {
   const handleConfirmOffer = async () => {
     try {
       let imageUrl = approvedPostById.images?.[0] || defaultImages[0];
-      
+
       // Upload image if exists
       if (offerImage) {
         const formData = new FormData();
         formData.append("upload_images", offerImage); // Must match Multer field name
-  
+
         const uploadResponse = await axios.post(
-          `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/posts/upload-offer-image`,
+          `${
+            process.env.REACT_APP_API_URL || "http://localhost:3001"
+          }/api/posts/upload-offer-image`,
           formData,
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
         );
-  
+
         // Get URL from Cloudinary response
         imageUrl = uploadResponse.data.urls[0];
       }
-  
+
       // Then create conversation
       const createConversationResponse = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversationPost`,
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:3001"
+        }/api/conversations/createConversationPost`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             senderId: studentUser.userId,
-            renterId: approvedPostById.renter.id
+            renterId: approvedPostById.renter.id,
           }),
         }
       );
-  
+
       const conversation = await createConversationResponse.json();
-  
+
       // Prepare offer details with Cloudinary URL
       const offerDetails = {
         name: approvedPostById.name,
         image: imageUrl,
         price: offerPrice,
         title: "Offer",
-        status: `Date: ${new Date(selectedDate).toLocaleDateString()}\nDuration: ${
-          selectedDuration.timeFrom
-        } - ${selectedDuration.timeTo}`,
+        status: `Date: ${new Date(
+          selectedDate
+        ).toLocaleDateString()}\nDuration: ${selectedDuration.timeFrom} - ${
+          selectedDuration.timeTo
+        }`,
       };
-  
+
       navigate("/messages", {
         state: {
           renterId: approvedPostById.renter.id,
           product: offerDetails,
           isOffer: true,
-        }
+        },
       });
-  
 
       setShowModal(false);
     } catch (error) {
@@ -180,6 +188,7 @@ function PostDetail() {
   useEffect(() => {
     if (id) {
       dispatch(fetchApprovedPostById(id));
+      dispatch(fetchPostMatchedItems(id));
     }
 
     console.log({ approvedPostById });
@@ -249,7 +258,7 @@ function PostDetail() {
       entity_type: "post",
       reason: reason,
     };
-  
+
     try {
       console.log(reportData);
       const response = await axios.post(
@@ -257,13 +266,17 @@ function PostDetail() {
         reportData
       ); // API endpoint
       console.log("Report submitted:", response.data);
-  
+
       // Show success notification instead of alert
-      await ShowAlert(dispatch, "success", "Report Submitted", "Your report has been submitted successfully.");
-  
+      await ShowAlert(
+        dispatch,
+        "success",
+        "Report Submitted",
+        "Your report has been submitted successfully."
+      );
     } catch (error) {
       console.error("Error submitting report:", error);
-  
+
       // Handle 403 error separately
       await handleUnavailableDateError(dispatch, error);
 
@@ -276,7 +289,7 @@ function PostDetail() {
           "Failed to submit the report. Please try again."
         );
       }
-      }
+    }
     setShowReportModal(false); // Close the modal
   };
 
@@ -297,7 +310,9 @@ function PostDetail() {
             {
               text: "Login",
               action: () => {
-                navigate("/", { state: { showLogin: true, authTab: "loginTab" } });
+                navigate("/", {
+                  state: { showLogin: true, authTab: "loginTab" },
+                });
               },
             }
           )
@@ -456,28 +471,27 @@ function PostDetail() {
             </div>
 
             <div className="offer-details-section">
-                  <div className="form-group">
-                    <label>Offered Price</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={offerPrice}
-                      onChange={(e) => setOfferPrice(e.target.value)}
-                      placeholder="Enter offer amount"
-                    />
-                  </div>
+              <div className="form-group">
+                <label>Offered Price</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={offerPrice}
+                  onChange={(e) => setOfferPrice(e.target.value)}
+                  placeholder="Enter offer amount"
+                />
+              </div>
 
-                  <div className="form-group">
-                    <label>Upload Item Image</label>
-                    <SingleImageUpload
-                      onChange={({ file, preview }) => {
-                        setOfferImage(file);
-                        setImagePreview(preview);
-                      }}
-                    />
-                  </div>
-                </div>    
-
+              <div className="form-group">
+                <label>Upload Item Image</label>
+                <SingleImageUpload
+                  onChange={({ file, preview }) => {
+                    setOfferImage(file);
+                    setImagePreview(preview);
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -507,64 +521,71 @@ function PostDetail() {
                 : "Invalid duration"
               : "Nooooooooooo"}
           </p>
-          <p><strong>Offered Price:</strong> ₱{offerPrice}</p>
-              {imagePreview && (
-                <div className="mt-3">
-                  <strong>Item Image:</strong>
-                  <img 
-                    src={imagePreview} 
-                    alt="Offer preview" 
-                    style={{ width: "150px", display: "block" }}
-                    className="mt-2"
-                  />
-                </div>
-              )}
+          <p>
+            <strong>Offered Price:</strong> ₱{offerPrice}
+          </p>
+          {imagePreview && (
+            <div className="mt-3">
+              <strong>Item Image:</strong>
+              <img
+                src={imagePreview}
+                alt="Offer preview"
+                style={{ width: "150px", display: "block" }}
+                className="mt-2"
+              />
+            </div>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleConfirmOffer}>Confirm</Button>
+          <Button variant="primary" onClick={handleConfirmOffer}>
+            Confirm
+          </Button>
         </Modal.Footer>
       </Modal>
+
+      <div>
+        <ItemCard items={postMatchedItems} title="Matched Items!" />
+      </div>
     </div>
   );
 }
 
 export default PostDetail;
 
+// const handleMessageClick = async () => {
+//   try {
+//     const response = await fetch(
+//       `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversationPost`,
+//       {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           senderId: studentUser.userId,
+//           ownerId: approvedPostById.renter.id
+//         }),
+//       }
+//     );
 
-  // const handleMessageClick = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversationPost`,
-  //       {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({
-  //           senderId: studentUser.userId,
-  //           ownerId: approvedPostById.renter.id
-  //         }),
-  //       }
-  //     );
-
-  //     if (response.ok) {
-  //       // Navigate to the message page with product details
-  //       navigate("/messages", {
-  //         state: {
-  //           ownerId: approvedPostById.owner.id,
-  //           product: {
-  //             name: approvedPostById.name,
-  //             image: approvedPostById.images[0], // Use the first image for the product card
-  //             title: approvedPostById.itemType,
-  //           },
-  //         },
-  //       });
-  //     }  else {
-  //       const error = await response.json();
-  //       console.error("Error creating conversation:", error.error);
-  //     }
-  //   } catch (err) {
-  //     console.error("Error handling message click:", err);
-  //   }
-  // };
+//     if (response.ok) {
+//       // Navigate to the message page with product details
+//       navigate("/messages", {
+//         state: {
+//           ownerId: approvedPostById.owner.id,
+//           product: {
+//             name: approvedPostById.name,
+//             image: approvedPostById.images[0], // Use the first image for the product card
+//             title: approvedPostById.itemType,
+//           },
+//         },
+//       });
+//     }  else {
+//       const error = await response.json();
+//       console.error("Error creating conversation:", error.error);
+//     }
+//   } catch (err) {
+//     console.error("Error handling message click:", err);
+//   }
+// };
