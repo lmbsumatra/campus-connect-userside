@@ -45,6 +45,8 @@ const upload_offer_image = multer({ storage: storage }).fields([
   { name: "upload_images", maxCount: 1 } // Single image for offers
 ]);
 
+const upload_message_images = multer({ storage: storage }).array("message_images", 5); // Max 5 images per message
+
 const rollbackUpload = async (imageUrls) => {
   console.log("Received image URLs:", imageUrls);
 
@@ -87,4 +89,5 @@ module.exports = {
   upload_offer_image,
   upload_item_disabled,
   rollbackUpload,
+  upload_message_images,
 };

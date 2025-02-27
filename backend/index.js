@@ -97,6 +97,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/follow", followRoutes);
 
 app.use("/api/posts", uploadRoutes);
+// app.use("/api/messages/upload-message-images", messageRoutes);
+
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use(

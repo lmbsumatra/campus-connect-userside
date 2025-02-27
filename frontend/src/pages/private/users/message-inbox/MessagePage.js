@@ -32,13 +32,17 @@ const MessagePage = () => {
   const [unreadMessages, setUnreadMessages] = useState({});
   const [playSendSound] = useSound(sendSound, { volume: 0.5 });
 
-  // New state variables
+  // modal state variables
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImage, setModalImage] = useState("");
   
+  // Image state variables
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const fileInputRef = useRef(null);
-
+  
+  
   const { userId } = studentUser || {};
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -200,7 +204,7 @@ const MessagePage = () => {
             image: product.image,
             title: product.title,
             status: product.status, // Include item status
-            productId: product.id || product.productId, // Store the product ID for navigation
+            // productId: product.id || product.productId, // Store the product ID for navigation
           },
         };
         console.log("Sending product message payload:", productMessage);
@@ -225,12 +229,18 @@ const MessagePage = () => {
         navigate("/messages", { replace: true }); // Clear state
       }
 
+       // Upload images if any
+       let uploadedImageUrls = [];
+       if (selectedFiles.length > 0) {
+         uploadedImageUrls = await uploadImages();
+       }
+
       // Send user's message
-      if (message.trim() || selectedImages.length > 0 ) {
+      if (message.trim() || uploadedImageUrls.length > 0 ) {
         const messageData = {
           sender: userId,
           text: message,
-          images: selectedImages,
+          images: uploadedImageUrls,
           conversationId: activeChat.id,
           isProductCard: false, // Regular message
           productDetails: null, // No product details for a regular message
@@ -281,6 +291,8 @@ const MessagePage = () => {
         playSendSound();
         setNewMessage("");
         setSelectedImages([]);
+        setSelectedFiles([]);
+        setUploadingImages(false);
       }
     } catch (err) {
       console.error("Error sending message:", err);
@@ -353,20 +365,27 @@ const MessagePage = () => {
     };
   
 
-   // New image handling functions
+   // Updated handleImageUpload function
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length + selectedImages.length > 5) {
+    
+    // Check total count including previously selected files
+    if (files.length + selectedFiles.length > 5) {
       alert('Maximum 5 images allowed');
       return;
     }
     
+    // Validate file types
     const validFiles = files.filter(file => file.type.startsWith('image/'));
     if (validFiles.length !== files.length) {
       alert('Only image files are allowed');
       return;
     }
 
+    // Add new files to selectedFiles state
+    setSelectedFiles(prev => [...prev, ...validFiles]);
+    
+    // Create preview URLs for display
     validFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -376,9 +395,47 @@ const MessagePage = () => {
     });
   };
 
-  const removeImage = (index) => {
+   // Remove selected image
+   const removeImage = (index) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
+
+   // Upload images to server
+   const uploadImages = async () => {
+    if (selectedFiles.length === 0) return [];
+    
+    setUploadingImages(true);
+    
+    try {
+      const formData = new FormData();
+      selectedFiles.forEach(file => {
+        formData.append('message_images', file);
+      });
+      
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/messages/upload-message-images`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload images');
+      }
+      
+      const data = await response.json();
+      return data.images; // Array of image URLs
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      alert('Failed to upload images. Please try again.');
+      throw error; // Add this line to propagate the error
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+  
   
 
   return (

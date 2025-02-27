@@ -231,6 +231,7 @@ router.get("/:id", async (req, res) => {
               id: message.id,
               sender: message.sender,
               text: message.text,
+              images: message.images,
               isProductCard: message.isProductCard, // Include isProductCard
               productDetails: JSON.parse(message.productDetails), // Include productDetails
               createdAt: message.createdAt,
@@ -253,7 +254,7 @@ router.get("/:id", async (req, res) => {
 // Handle sending a message in a conversation
 router.post("/:conversationId/message", async (req, res) => {
   const { conversationId } = req.params; // Extract conversation ID from URL params
-  const { sender, text, isProductCard, productDetails } = req.body; // Extract sender and message text from request body
+  const { sender, text, isProductCard, productDetails, images  } = req.body; // Extract sender and message text from request body
 
   try {
     // Ensure the conversation exists before sending a message
@@ -276,6 +277,7 @@ router.post("/:conversationId/message", async (req, res) => {
       text: isProductCard ? null : text,
       isProductCard: isProductCard || false,
       productDetails: isProductCard ? productDetails : null,
+      images: images || [],
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -307,6 +309,7 @@ router.get("/:conversationId/messages", async (req, res) => {
         "text",
         "isProductCard",
         "productDetails",
+        "images",
         "createdAt",
         "updatedAt",
       ], // Ensure these fields are included in the response
@@ -371,6 +374,7 @@ router.get("/preview/:userId", async (req, res) => {
                 sender: latestMessage.sender,
                 createdAt: latestMessage.createdAt,
                 isProductCard: latestMessage.isProductCard,
+                images: latestMessage.images,
               }
             : null,
           hasUnread: unreadConvoIds.has(conv.id),
