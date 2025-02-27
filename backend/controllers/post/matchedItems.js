@@ -221,10 +221,15 @@ const matchedItems = async (req, res) => {
     ];
 
     const fuse = new Fuse(formattedItems, {
-      keys: ["name", "category", "tags"],
-      threshold: 0.3,
+      keys: ["name"],
+      threshold: 0.7,
     });
-    const results = fuse.search("concrete").map((result) => result.item);
+
+    console.log("here", typeof formattedPost.name, formattedPost.name);
+
+    const results = fuse
+      .search(formattedPost.name)
+      .map((result) => result.item);
 
     res.status(200).json({ matchedItems: results });
   } catch (error) {
