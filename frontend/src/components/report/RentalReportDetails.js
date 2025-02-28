@@ -331,111 +331,126 @@ const RentalReportDetails = () => {
           </div>
 
           {/* Conditional UI based on user role */}
-          {isReportee && reportDetails.status !== "resolved" && (
-            <div className="response-form-section">
-              <h3>Submit Your Response</h3>
-              {submitSuccess && (
-                <Alert variant="success">
-                  Response submitted successfully!
-                </Alert>
-              )}
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Your Response</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={4}
-                    value={response}
-                    onChange={(e) => setResponse(e.target.value)}
-                    placeholder="Enter your response here..."
-                    disabled={isSubmitting}
-                    required
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Upload Evidence</Form.Label>
-                  <div className="d-flex align-items-center">
-                    <Form.Control
-                      type="file"
-                      multiple
-                      onChange={handleFileChange}
-                      accept="image/*,video/mp4,application/pdf"
-                      className="d-none"
-                      ref={fileInputRef}
-                    />
-                    <Button
-                      variant="outline-primary"
-                      onClick={handleUploadClick}
-                      className="me-2"
-                    >
-                      <FiPaperclip className="me-1" /> Attach Files
-                    </Button>
-                    <Form.Text className="text-muted">
-                      Images, PDFs, or videos (max 10MB each)
-                    </Form.Text>
-                  </div>
-                  {fileValidationError && (
-                    <Alert variant="danger" className="mt-2">
-                      {fileValidationError}
-                    </Alert>
-                  )}
-                </Form.Group>
-
-                {files.length > 0 && (
-                  <div className="mb-3">
-                    <p className="mb-1 fw-bold">Uploaded files:</p>
-                    <ul className="list-group">
-                      {files.map((file, index) =>
-                        renderSelectedFileItem(file, index)
-                      )}
-                    </ul>
-                  </div>
+          {isReportee &&
+            reportDetails.status !== "resolved" &&
+            reportDetails.status !== "escalated" && (
+              <div className="response-form-section">
+                <h3>Submit Your Response</h3>
+                {submitSuccess && (
+                  <Alert variant="success">
+                    Response submitted successfully!
+                  </Alert>
                 )}
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Your Response</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={4}
+                      value={response}
+                      onChange={(e) => setResponse(e.target.value)}
+                      placeholder="Enter your response here..."
+                      disabled={isSubmitting}
+                      required
+                    />
+                  </Form.Group>
 
-                <Button
-                  variant="primary"
-                  type="submit"
-                  disabled={!response.trim() || isSubmitting}
-                  className="d-flex align-items-center"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="me-2"
+                  <Form.Group className="mb-3">
+                    <Form.Label>Upload Evidence</Form.Label>
+                    <div className="d-flex align-items-center">
+                      <Form.Control
+                        type="file"
+                        multiple
+                        onChange={handleFileChange}
+                        accept="image/*,video/mp4,application/pdf"
+                        className="d-none"
+                        ref={fileInputRef}
                       />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <FiSend className="me-2" />
-                      Submit Response
-                    </>
+                      <Button
+                        variant="outline-primary"
+                        onClick={handleUploadClick}
+                        className="me-2"
+                      >
+                        <FiPaperclip className="me-1" /> Attach Files
+                      </Button>
+                      <Form.Text className="text-muted">
+                        Images, PDFs, or videos (max 10MB each)
+                      </Form.Text>
+                    </div>
+                    {fileValidationError && (
+                      <Alert variant="danger" className="mt-2">
+                        {fileValidationError}
+                      </Alert>
+                    )}
+                  </Form.Group>
+
+                  {files.length > 0 && (
+                    <div className="mb-3">
+                      <p className="mb-1 fw-bold">Uploaded files:</p>
+                      <ul className="list-group">
+                        {files.map((file, index) =>
+                          renderSelectedFileItem(file, index)
+                        )}
+                      </ul>
+                    </div>
                   )}
-                </Button>
-              </Form>
-            </div>
-          )}
+
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    disabled={!response.trim() || isSubmitting}
+                    className="d-flex align-items-center"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"
+                        />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <FiSend className="me-2" />
+                        Submit Response
+                      </>
+                    )}
+                  </Button>
+                </Form>
+              </div>
+            )}
 
           {isReporter && reportDetails.status !== "resolved" && (
-            <div className="reporter-actions mt-3">
-              <h4>Actions</h4>
-              <Button
-                variant="success"
-                className="me-2"
-                onClick={handleResolve}
-              >
-                Mark as Resolved
-              </Button>
-              <Button variant="danger" onClick={handleEscalate}>
-                Escalate to Admin
-              </Button>
-            </div>
+            <>
+              {reportDetails.status === "escalated" ? (
+                <Alert
+                  variant="info"
+                  className="mt-3"
+                  style={{ maxWidth: "560px" }}
+                >
+                  Your report has been submitted for admin review. We'll keep
+                  you posted.
+                </Alert>
+              ) : (
+                <div className="reporter-actions mt-3">
+                  <h4>Actions</h4>
+                  <Button
+                    variant="success"
+                    className="me-2"
+                    onClick={handleResolve}
+                  >
+                    Mark as Resolved
+                  </Button>
+                  <Button variant="danger" onClick={handleEscalate}>
+                    Escalate to Admin
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
