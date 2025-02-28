@@ -48,7 +48,7 @@ RentalReport.init(
       },
     },
     status: {
-      type: DataTypes.ENUM("open", "under_review", "resolved"),
+      type: DataTypes.ENUM("open", "under_review", "resolved", "escalated"),
       defaultValue: "open",
     },
     createdAt: {
