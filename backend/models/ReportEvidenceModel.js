@@ -19,6 +19,15 @@ RentalEvidence.init(
       },
       onDelete: "CASCADE",
     },
+    rental_report_response_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "rental_report_responses",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+    },
     uploaded_by_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

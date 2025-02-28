@@ -49,6 +49,8 @@ const upload_message_images = multer({ storage: storage }).array(
   5
 ); // Max 5 images per message
 
+const uploadEvidence = multer({ storage: storage }).array("evidence", 5);
+
 const rollbackUpload = async (imageUrls) => {
   console.log("Received image URLs:", imageUrls);
 
@@ -81,8 +83,6 @@ const rollbackUpload = async (imageUrls) => {
     console.error("Error during Cloudinary rollback:", error);
   }
 };
-
-const uploadEvidence = multer({ storage: storage }).array("evidence");
 
 module.exports = {
   upload_prof,

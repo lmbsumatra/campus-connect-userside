@@ -83,66 +83,64 @@ module.exports = ({ emitNotification }) => {
 
   const addResponse = async (req, res) => {
     try {
-      // Use the reportId from req.params (ensure the parameter name matches your route)
       const { reportId } = req.params;
-      const { reason } = req.body;
-      const files = req.files;
+      const { response: responseText } = req.body; // text of the response
+      const files = req.files || [];
 
+      // Find the report being responded to
       const report = await models.RentalReport.findByPk(reportId);
       if (!report) {
-        console.error(
-          "addResponse error: Report not found with reportId:",
-          reportId
-        );
         return res.status(404).json({ error: "Report not found" });
       }
 
-      // Update report with response details
-      await report.update({
-        status: "under_review",
-        response_description: reason,
-        response_by_id: req.user.userId,
+      // Create a new response entry linked to the report
+      const newResponse = await models.RentalReportResponse.create({
         rental_report_id: report.id,
+        user_id: req.user.userId, // ID of the user submitting the response (the reportee)
+        response_text: responseText,
       });
 
-      // Create evidence records for each uploaded file
-      const evidence = await Promise.all(
-        files.map(async (file) => {
-          try {
-            return await models.RentalEvidence.create({
-              rental_report_id: report.id,
-              file_path: file.path,
-              uploaded_by_id: req.user.userId,
-            });
-          } catch (e) {
-            console.error("Error creating RentalEvidence for file:", file, e);
-            throw e;
-          }
-        })
+      // Save any uploaded evidence files for this response
+      const evidenceRecords = await Promise.all(
+        files.map((file) =>
+          models.RentalEvidence.create({
+            rental_report_id: report.id,
+            rental_report_response_id: newResponse.id, // link evidence to this response
+            file_path: file.path,
+            uploaded_by_id: req.user.userId,
+          })
+        )
       );
 
-      // Create student notification for the original reporter
-      const notification = await models.StudentNotification.create({
-        sender_id: req.user.userId,
-        recipient_id: report.reporter_id,
-        type: "report_response",
-        message: `Response added to your report #${report.id}`,
-        rental_report_id: report.id,
-        rental_id: report.rental_id,
-      });
-
-      // Emit the notification using the injected emitter (converted to plain object)
-      if (emitNotification) {
-        emitNotification(report.reporter_id, notification.toJSON());
+      // Update report status to "under_review" since the reportee has responded
+      if (report.status === "open") {
+        await report.update({ status: "under_review" });
       }
 
-      res
-        .status(200)
-        .json({ message: "Response added successfully", evidence });
+      // Notify the original reporter about the new response
+      await models.StudentNotification.create({
+        sender_id: req.user.userId, // reportee who responded
+        recipient_id: report.reporter_id, // original reporter
+        type: "report_response",
+        message: `New response posted for your report #${report.id}`,
+        rental_report_id: report.id,
+      });
+      if (emitNotification) {
+        // emitNotification is injected via dependencies for real-time updates
+        emitNotification(report.reporter_id, {
+          message: "New response added",
+          reportId: report.id,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Response added successfully",
+        response: newResponse,
+        evidence: evidenceRecords,
+      });
     } catch (error) {
       console.error("Error in addResponse:", error);
-      console.error("Stack Trace:", error.stack);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   };
 
@@ -168,25 +166,73 @@ module.exports = ({ emitNotification }) => {
   const getRentalReportById = async (req, res) => {
     try {
       const { reportId } = req.params;
+      console.log(`Fetching report with ID: ${reportId}`);
+
       const report = await models.RentalReport.findByPk(reportId, {
         include: [
           { model: models.User, as: "reporter" },
           { model: models.User, as: "reported" },
           { model: models.RentalEvidence, as: "evidence" },
-          { model: models.RentalTransaction, as: "rentalTransaction" },
+          {
+            model: models.RentalReportResponse,
+            as: "responses",
+            include: [{ model: models.RentalEvidence, as: "evidence" }],
+          },
+          {
+            model: models.RentalTransaction,
+            as: "rentalTransaction",
+            include: [{ model: models.Listing }], // ensure Listing is included
+          },
         ],
       });
+
       if (!report) {
-        console.error(
-          "getRentalReportById error: Report not found with reportId:",
-          reportId
-        );
+        console.log(`Report not found for ID: ${reportId}`); // Log if report is not found
         return res.status(404).json({ error: "Report not found" });
       }
-      res.status(200).json(report);
+      return res.status(200).json(report);
     } catch (error) {
       console.error("Error in getRentalReportById:", error);
-      console.error("Stack Trace:", error.stack);
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  const markReportResolved = async (req, res) => {
+    try {
+      const { reportId } = req.params;
+      const report = await models.RentalReport.findByPk(reportId);
+      if (!report) return res.status(404).json({ error: "Report not found" });
+      // Only the original reporter should close the report
+      if (req.user.userId !== report.reporter_id) {
+        return res
+          .status(403)
+          .json({ error: "Only the reporter can resolve this report" });
+      }
+      await report.update({ status: "resolved" });
+      // (Optional) notify the other party that the report was resolved
+      return res.status(200).json({ message: "Report marked as resolved" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  const escalateReport = async (req, res) => {
+    try {
+      const { reportId } = req.params;
+      const report = await models.RentalReport.findByPk(reportId);
+      if (!report) return res.status(404).json({ error: "Report not found" });
+      if (req.user.userId !== report.reporter_id) {
+        return res
+          .status(403)
+          .json({ error: "Only the reporter can escalate this report" });
+      }
+      // Update status to "escalated" for admin review (ensure "escalated" is allowed in model)
+      await report.update({ status: "escalated" });
+      // (Optional) send notification to admin or flag for admin review
+      return res
+        .status(200)
+        .json({ message: "Report escalated to admin for review" });
+    } catch (error) {
       res.status(500).json({ error: error.message });
     }
   };
@@ -196,5 +242,7 @@ module.exports = ({ emitNotification }) => {
     addResponse,
     getAllRentalReports,
     getRentalReportById,
+    markReportResolved,
+    escalateReport,
   };
 };

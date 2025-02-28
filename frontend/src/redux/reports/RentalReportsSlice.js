@@ -4,6 +4,7 @@ import axios from "axios";
 // Define the base URL for rental reports API endpoints
 const BASE_URL = "http://localhost:3001/api/rental-reports";
 
+// Thunk to submit a new rental report (unchanged)
 export const submitRentalReport = createAsyncThunk(
   "reports/submitRental",
   async ({ transactionId, reason, files }, { rejectWithValue }) => {
@@ -18,17 +19,6 @@ export const submitRentalReport = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      console.error("Error in submitRentalReport thunk:");
-      if (error.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
-        console.error("Response headers:", error.response.headers);
-      } else if (error.request) {
-        console.error("No response received. Error request:", error.request);
-      } else {
-        console.error("Error message:", error.message);
-      }
-      console.error("Error config:", error.config);
       return rejectWithValue(
         error.response ? error.response.data : error.message
       );
@@ -36,9 +26,10 @@ export const submitRentalReport = createAsyncThunk(
   }
 );
 
+// Thunk to submit a report response (threaded response)
 export const submitReportResponse = createAsyncThunk(
   "reports/submitResponse",
-  async ({ reportId, responseText, files }, { rejectWithValue }) => {
+  async ({ reportId, responseText, files, token }, { rejectWithValue }) => {
     try {
       const formData = new FormData();
       formData.append("response", responseText);
@@ -47,21 +38,15 @@ export const submitReportResponse = createAsyncThunk(
       const response = await axios.post(
         `${BASE_URL}/${reportId}/response`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
-      console.error("Error in submitReportResponse thunk:");
-      if (error.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
-        console.error("Response headers:", error.response.headers);
-      } else if (error.request) {
-        console.error("No response received. Error request:", error.request);
-      } else {
-        console.error("Error message:", error.message);
-      }
-      console.error("Error config:", error.config);
       return rejectWithValue(
         error.response ? error.response.data : error.message
       );
@@ -69,7 +54,7 @@ export const submitReportResponse = createAsyncThunk(
   }
 );
 
-// Modified thunk: now accepts an object with reportId and token
+// Thunk to fetch report details including responses
 export const fetchReportDetails = createAsyncThunk(
   "reports/fetchDetails",
   async ({ reportId, token }, { rejectWithValue }) => {
@@ -81,17 +66,44 @@ export const fetchReportDetails = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      console.error("Error in fetchReportDetails thunk:");
-      if (error.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
-        console.error("Response headers:", error.response.headers);
-      } else if (error.request) {
-        console.error("No response received. Error request:", error.request);
-      } else {
-        console.error("Error message:", error.message);
-      }
-      console.error("Error config:", error.config);
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+// Thunk to mark report as resolved (reporter only)
+export const resolveReport = createAsyncThunk(
+  "reports/resolveReport",
+  async ({ reportId, token }, { rejectWithValue }) => {
+    try {
+      await axios.put(
+        `${BASE_URL}/${reportId}/resolve`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return reportId;
+    } catch (error) {
+      return rejectWithValue(
+        error.response ? error.response.data : error.message
+      );
+    }
+  }
+);
+
+// Thunk to escalate report to admin review (reporter only)
+export const escalateReport = createAsyncThunk(
+  "reports/escalateReport",
+  async ({ reportId, token }, { rejectWithValue }) => {
+    try {
+      await axios.put(
+        `${BASE_URL}/${reportId}/escalate`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return reportId;
+    } catch (error) {
       return rejectWithValue(
         error.response ? error.response.data : error.message
       );
@@ -102,7 +114,7 @@ export const fetchReportDetails = createAsyncThunk(
 const rentalReportsSlice = createSlice({
   name: "rentalReports",
   initialState: {
-    reportDetails: null, // for storing fetched report details
+    reportDetails: null, // for storing fetched report details (including responses)
     status: "idle",
     error: null,
   },
@@ -139,6 +151,16 @@ const rentalReportsSlice = createSlice({
       .addCase(fetchReportDetails.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
+      })
+      .addCase(resolveReport.fulfilled, (state, action) => {
+        if (state.reportDetails) {
+          state.reportDetails.status = "resolved";
+        }
+      })
+      .addCase(escalateReport.fulfilled, (state, action) => {
+        if (state.reportDetails) {
+          state.reportDetails.status = "escalated";
+        }
       });
   },
 });

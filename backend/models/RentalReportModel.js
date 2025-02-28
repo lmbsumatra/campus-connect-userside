@@ -93,6 +93,11 @@ RentalReport.associate = (models) => {
     foreignKey: "rental_report_id",
     as: "evidence",
   });
+
+  RentalReport.hasMany(models.RentalReportResponse, {
+    foreignKey: "rental_report_id",
+    as: "responses",
+  });
 };
 
 module.exports = RentalReport;

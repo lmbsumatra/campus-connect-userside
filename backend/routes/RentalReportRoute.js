@@ -5,6 +5,19 @@ const { uploadEvidence } = require("../config/multer");
 const authenticateToken = require("../middlewares/StudentAuthMiddleware");
 
 module.exports = (dependencies) => {
+  // Get Report Details
+  router.get(
+    "/:reportId",
+    authenticateToken,
+    RentalReportController(dependencies).getRentalReportById
+  );
+
+  // Get All Reports
+  router.get(
+    "/",
+    authenticateToken,
+    RentalReportController(dependencies).getAllRentalReports
+  );
   // Create Report
   router.post(
     "/",
@@ -21,18 +34,18 @@ module.exports = (dependencies) => {
     RentalReportController(dependencies).addResponse
   );
 
-  // Get Report Details
-  router.get(
-    "/:reportId",
+  // Mark report as resolved (reporter only)
+  router.put(
+    "/:reportId/resolve",
     authenticateToken,
-    RentalReportController(dependencies).getRentalReportById
+    RentalReportController(dependencies).markReportResolved
   );
 
-  // Get All Reports
-  router.get(
-    "/",
+  // Escalate report to admin review (reporter only)
+  router.put(
+    "/:reportId/escalate",
     authenticateToken,
-    RentalReportController(dependencies).getAllRentalReports
+    RentalReportController(dependencies).escalateReport
   );
 
   return router;
