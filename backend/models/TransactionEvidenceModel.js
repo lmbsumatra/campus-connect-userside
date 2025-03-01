@@ -1,29 +1,29 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/database");
 
-class RentalEvidence extends Model {}
+class TransactionEvidence extends Model {}
 
-RentalEvidence.init(
+TransactionEvidence.init(
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    rental_report_id: {
+    transaction_report_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "rental_reports",
+        model: "transaction_reports",
         key: "id",
       },
       onDelete: "CASCADE",
     },
-    rental_report_response_id: {
+    transaction_report_response_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: "rental_report_responses",
+        model: "transaction_report_responses",
         key: "id",
       },
       onDelete: "CASCADE",
@@ -48,23 +48,23 @@ RentalEvidence.init(
   },
   {
     sequelize,
-    modelName: "RentalEvidence",
-    tableName: "rental_report_evidences",
+    modelName: "TransactionEvidence",
+    tableName: "transaction_report_evidences",
     timestamps: false,
   }
 );
 
-RentalEvidence.associate = (models) => {
-  RentalEvidence.belongsTo(models.RentalReport, {
-    foreignKey: "rental_report_id",
-    as: "rentalReport",
+TransactionEvidence.associate = (models) => {
+  TransactionEvidence.belongsTo(models.TransactionReport, {
+    foreignKey: "transaction_report_id",
+    as: "transactionReport",
     onDelete: "CASCADE",
   });
 
-  RentalEvidence.belongsTo(models.User, {
+  TransactionEvidence.belongsTo(models.User, {
     foreignKey: "uploaded_by_id",
     as: "uploader",
   });
 };
 
-module.exports = RentalEvidence;
+module.exports = TransactionEvidence;

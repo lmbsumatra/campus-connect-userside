@@ -290,13 +290,15 @@ const Notification = ({
 
         // If this is a report-related notification, navigate to the report detail page.
         if (
-          notif.type === "rental_report" ||
-          notif.type === "report_response"
+          notif.type === "transaction_report" ||
+          notif.type === "transaction_report_response" ||
+          notif.type === "report_resolved" ||
+          notif.type === "report_escalated"
         ) {
           toggleNotifications();
           // Navigate to the RentalReportDetails page with the report ID
           console.log("Notification object:", notif);
-          navigate(`/reports/${notif.rental_report_id}`, {
+          navigate(`/reports/${notif.transaction_report_id}`, {
             state: { notificationType: notif.type },
           });
           return;

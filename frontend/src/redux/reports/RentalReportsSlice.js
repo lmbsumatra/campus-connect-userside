@@ -1,16 +1,20 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Define the base URL for rental reports API endpoints
-const BASE_URL = "http://localhost:3001/api/rental-reports";
+// Base URL for transaction reports API
+const BASE_URL = "http://localhost:3001/api/transaction-reports";
 
-// Thunk to submit a new rental report (unchanged)
-export const submitRentalReport = createAsyncThunk(
-  "reports/submitRental",
-  async ({ transactionId, reason, files }, { rejectWithValue }) => {
+// Thunk to submit a new transaction report
+export const submitTransactionReport = createAsyncThunk(
+  "reports/submitTransaction",
+  async (
+    { transactionId, transactionType, reason, files },
+    { rejectWithValue }
+  ) => {
     try {
       const formData = new FormData();
-      formData.append("rental_transaction_id", transactionId);
+      formData.append("transaction_id", transactionId);
+      formData.append("transaction_type", transactionType);
       formData.append("reason", reason);
       files.forEach((file) => formData.append("evidence", file));
 
@@ -26,7 +30,7 @@ export const submitRentalReport = createAsyncThunk(
   }
 );
 
-// Thunk to submit a report response (threaded response)
+// Thunk to submit a report response
 export const submitReportResponse = createAsyncThunk(
   "reports/submitResponse",
   async ({ reportId, responseText, files, token }, { rejectWithValue }) => {
@@ -54,15 +58,13 @@ export const submitReportResponse = createAsyncThunk(
   }
 );
 
-// Thunk to fetch report details including responses
+// Thunk to fetch report details
 export const fetchReportDetails = createAsyncThunk(
   "reports/fetchDetails",
   async ({ reportId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${BASE_URL}/${reportId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
@@ -73,7 +75,7 @@ export const fetchReportDetails = createAsyncThunk(
   }
 );
 
-// Thunk to mark report as resolved (reporter only)
+// Thunk to mark report as resolved
 export const resolveReport = createAsyncThunk(
   "reports/resolveReport",
   async ({ reportId, token }, { rejectWithValue }) => {
@@ -92,7 +94,7 @@ export const resolveReport = createAsyncThunk(
   }
 );
 
-// Thunk to escalate report to admin review (reporter only)
+// Thunk to escalate report to admin
 export const escalateReport = createAsyncThunk(
   "reports/escalateReport",
   async ({ reportId, token }, { rejectWithValue }) => {
@@ -111,23 +113,24 @@ export const escalateReport = createAsyncThunk(
   }
 );
 
-const rentalReportsSlice = createSlice({
-  name: "rentalReports",
+// Slice definition
+const transactionReportsSlice = createSlice({
+  name: "transactionReports",
   initialState: {
-    reportDetails: null, // for storing fetched report details (including responses)
+    reportDetails: null,
     status: "idle",
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(submitRentalReport.pending, (state) => {
+      .addCase(submitTransactionReport.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(submitRentalReport.fulfilled, (state) => {
+      .addCase(submitTransactionReport.fulfilled, (state) => {
         state.status = "succeeded";
       })
-      .addCase(submitRentalReport.rejected, (state, action) => {
+      .addCase(submitTransactionReport.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       })
@@ -165,4 +168,4 @@ const rentalReportsSlice = createSlice({
   },
 });
 
-export default rentalReportsSlice.reducer;
+export default transactionReportsSlice.reducer;

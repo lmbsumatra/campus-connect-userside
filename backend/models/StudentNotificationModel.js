@@ -34,8 +34,7 @@ const StudentNotification = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    // Add rental_report_id field:
-    rental_report_id: {
+    transaction_report_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },

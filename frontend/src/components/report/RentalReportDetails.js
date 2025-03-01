@@ -235,7 +235,9 @@ const RentalReportDetails = () => {
 
   // Calculate top-level evidence once we know reportDetails exists.
   const topLevelEvidence = (reportDetails.evidence || []).filter(
-    (item) => !item.rental_report_response_id
+    (item) =>
+      !item.rental_report_response_id &&
+      item.uploaded_by_id === reportDetails.reporter_id
   );
 
   return (
@@ -265,26 +267,13 @@ const RentalReportDetails = () => {
           <div className="description-section">
             <h3>Description</h3>
             <div className="description-text">
+              <strong>
+                {reportDetails.reporter?.first_name}{" "}
+                {reportDetails.reporter?.last_name}:
+              </strong>{" "}
               {reportDetails.report_description}
             </div>
           </div>
-
-          {reportDetails.property && (
-            <div className="property-section">
-              <h3>Property Information</h3>
-              <div className="property-card">
-                <p>
-                  <strong>Address:</strong> {reportDetails.property.address}
-                </p>
-                <p>
-                  <strong>Unit:</strong> {reportDetails.property.unit}
-                </p>
-                <p>
-                  <strong>Property ID:</strong> {reportDetails.property.id}
-                </p>
-              </div>
-            </div>
-          )}
 
           <div className="evidence-section">
             <h3>Evidence Provided</h3>
@@ -317,9 +306,12 @@ const RentalReportDetails = () => {
                     <div className="response-text">{resp.response_text}</div>
                     {(resp.evidence || []).length > 0 && (
                       <div className="response-evidence">
-                        {(resp.evidence || []).map((file) =>
-                          renderEvidenceItem(file)
-                        )}
+                        {(resp.evidence || [])
+                          .filter(
+                            (file) =>
+                              file.uploaded_by_id === reportDetails.reported_id
+                          )
+                          .map((file) => renderEvidenceItem(file))}
                       </div>
                     )}
                   </div>

@@ -9,10 +9,9 @@ import { useAuth } from "../../context/AuthContext";
 const ReportModal = ({
   show,
   handleClose,
-  handleSubmit,
   entityType,
   entityId,
-  currentUserId,
+  transactionType,
   reportId = null,
 }) => {
   const [reason, setReason] = useState("");
@@ -94,8 +93,13 @@ const ReportModal = ({
     const formData = new FormData();
     formData.append("reason", reason);
 
+    // Add transaction type to form data
     if (!reportId) {
-      formData.append("rental_transaction_id", entityId);
+      formData.append(
+        "transaction_type",
+        entityType === "rental_transaction" ? "rental" : "buy_sell"
+      );
+      formData.append("transaction_id", entityId);
     }
 
     files.forEach((file) => {
@@ -103,8 +107,8 @@ const ReportModal = ({
     });
 
     const endpoint = reportId
-      ? `/api/rental-reports/${reportId}/response`
-      : "/api/rental-reports";
+      ? `/api/transaction-reports/${reportId}/response`
+      : "/api/transaction-reports";
 
     try {
       await axios.post(`${baseApi}${endpoint}`, formData, {

@@ -79,11 +79,12 @@ const rentalTransactionController =
     emitNotification,
   });
 
-const rentalReportController = require("./controllers/RentalReportController")({
-  emitNotification,
-});
+const transactionReportController =
+  require("./controllers/TransactionReportController")({
+    emitNotification,
+  });
 
-const rentalReportRoutes = require("./routes/RentalReportRoute")({
+const transactionReportsRoutes = require("./routes/TransactionReportsRoute")({
   emitNotification,
 });
 
@@ -106,8 +107,7 @@ app.use("/api/follow", followRoutes);
 app.use("/api/posts", uploadRoutes);
 // app.use("/api/messages/upload-message-images", messageRoutes);
 
-
-app.use("/api/rental-reports", rentalReportRoutes);
+app.use("/api/transaction-reports", transactionReportsRoutes);
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use(
