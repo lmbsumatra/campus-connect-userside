@@ -148,6 +148,7 @@ function PostDetail() {
             name: approvedPostById.name,
             image: approvedPostById.images[0], // Use the first image for the product card
             title: approvedPostById.itemType,
+            productId: approvedPostById.id,
             type: "post" // Add type identifier
           },
         },
