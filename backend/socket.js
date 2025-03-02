@@ -137,7 +137,7 @@ function initializeSocket(server) {
 
     // Listen for messages and send them to the recipient
     socket.on("sendMessageToUser", async (data) => {
-      const { sender, recipient, text, conversationId } = data;
+      const { sender, recipient, text, images, conversationId, isProductCard, productDetails } = data;
       console.log(`Message from user ${sender} to user ${recipient}: ${text}`);
 
       try {
@@ -158,6 +158,25 @@ function initializeSocket(server) {
 
         // Look up the recipient's socket.id
         const recipientSocketId = userSockets.get(recipient);
+        
+         //s Convert recipient to string to match how it's stored in the Map
+         const recipientStr = recipient.toString();
+
+         // Prepare the message data to send
+        const messageData = {
+          sender,
+          text,
+          images: images || [],
+          conversationId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isProductCard: data.isProductCard || false,
+          productDetails: data.productDetails || null,
+        };
+
+          //e Send message to the recipient's room
+          io.to(recipientStr).emit("receiveMessage", messageData);
+          console.log(`Message sent to user ${recipientStr}'s room`);
 
         if (recipientSocketId) {
           // Send message to recipient
@@ -180,6 +199,7 @@ function initializeSocket(server) {
           console.log(`User ${recipient} not connected`);
           // Notification is already created above, even if user is offline
         }
+
       } catch (error) {
         console.error("Error handling message:", error);
       }

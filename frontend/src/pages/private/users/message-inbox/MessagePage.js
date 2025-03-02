@@ -73,33 +73,49 @@ const MessagePage = () => {
         }));
       }
 
+      // Update the conversations list with the new message
       setConversations((prevConversations) => {
-        const updatedConversations = prevConversations.map((conversation) => {
-          if (conversation.id === message.conversationId) {
-            // Create a new message object with proper timestamp
-            const newMessage = {
-              ...message,
-              createdAt: new Date().toISOString(), // Ensure proper timestamp format
-              updatedAt: new Date().toISOString(),
-            };
-
-            return {
-              ...conversation,
-              messages: [...conversation.messages, newMessage],
-              updatedAt: new Date().toISOString(), // Update conversation timestamp
-              hasUnread:
-                !activeChat || activeChat.id !== message.conversationId,
-            };
-          }
-          return conversation;
-        });
-
-        // Sort conversations by most recent message
-        return updatedConversations.sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        // Find the conversation this message belongs to
+        const existingConversation = prevConversations.find(
+          (conversation) => conversation.id === message.conversationId
         );
+
+        if (existingConversation) {
+          // Create a new message object with proper timestamp
+          const newMessage = {
+            ...message,
+            createdAt: message.createdAt || new Date().toISOString(),
+            updatedAt: message.updatedAt || new Date().toISOString(),
+            // Add this to ensure product card data is properly included
+            isProductCard: message.isProductCard || false,
+            productDetails: message.productDetails || null,
+          };
+
+          // Update the existing conversation
+          const updatedConversations = prevConversations.map((conversation) => {
+            if (conversation.id === message.conversationId) {
+              return {
+                ...conversation,
+                messages: [...conversation.messages, newMessage],
+                updatedAt: new Date().toISOString(),
+                hasUnread: !activeChat || activeChat.id !== message.conversationId,
+              };
+            }
+            return conversation;
+          });
+
+          // Sort conversations by most recent message
+          return updatedConversations.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+        }
+
+        // If somehow the conversation doesn't exist, just return the current state
+        // (This shouldn't happen in normal operation but prevents errors)
+        return prevConversations;
       });
 
+      // If this message belongs to the active chat, update the active chat state
       if (activeChat && message.conversationId === activeChat.id) {
         setActiveChat((prev) => ({
           ...prev,
@@ -107,21 +123,36 @@ const MessagePage = () => {
             ...prev.messages,
             {
               ...message,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
+              createdAt: message.createdAt || new Date().toISOString(),
+              updatedAt: message.updatedAt || new Date().toISOString(),
+               // Ensure product card data is properly included
+              isProductCard: message.isProductCard || false,
+              productDetails: message.productDetails || null,
             },
           ],
           updatedAt: new Date().toISOString(),
         }));
+        
+        // Highlight the new message
         setHighlightNewMessage(true);
         setTimeout(() => setHighlightNewMessage(false), 3000);
+        
+        // Play sound when receiving a message
+        playSendSound();
       }
     });
 
+    // Listen for offer acceptance updates
+    socket.current.on("offerAccepted", (data) => {
+      setAcceptedOffers((prev) => new Set([...prev, data.messageId]));
+    });
+
     return () => {
-      socket.current.disconnect();
+      if (socket.current) {
+        socket.current.disconnect();
+      }
     };
-  }, [userId, activeChat]);
+  }, [userId, activeChat, playSendSound]);
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -177,7 +208,7 @@ const MessagePage = () => {
     };
 
     fetchConversations();
-  }, [studentUser.userId, state?.ownerId, state?.sellerId, state?.renterId]);
+  }, [studentUser.userId, state?.ownerId, state?.sellerId, state?.renterId, state?.product]);
 
   useEffect(() => {
     if (chatContentRef.current) {
@@ -209,6 +240,16 @@ const MessagePage = () => {
         };
         console.log("Sending product message payload:", productMessage);
 
+         // Add the message to the active chat first
+          setActiveChat((prev) => ({
+            ...prev,
+            messages: [...prev.messages, {
+              ...productMessage,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }],
+          }));
+
         await fetch(
           `${
             process.env.REACT_APP_API_URL || "http://localhost:3001"
@@ -220,10 +261,12 @@ const MessagePage = () => {
           }
         );
 
-        setActiveChat((prev) => ({
-          ...prev,
-          messages: [...prev.messages, productMessage],
-        }));
+       // Emit the message via socket
+        socket.current.emit("sendMessageToUser", {
+          ...productMessage,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
 
         // Clear the product after sending it as a card
         navigate("/messages", { replace: true }); // Clear state
