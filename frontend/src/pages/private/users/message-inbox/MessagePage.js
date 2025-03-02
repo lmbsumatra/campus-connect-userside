@@ -235,7 +235,8 @@ const MessagePage = () => {
             image: product.image,
             title: product.title,
             status: product.status, // Include item status
-            // productId: product.id || product.productId, // Store the product ID for navigation
+            productId: product.productId || product.id, // Store the product ID for navigation
+            type: product.type
           },
         };
         console.log("Sending product message payload:", productMessage);
@@ -406,7 +407,15 @@ const MessagePage = () => {
       setModalImage(imageUrl);
       setShowImageModal(true);
     };
-  
+
+    const handleProductCardClick = (productId, type) => {
+      console.log("Navigating with:", { productId, type });
+      if (productId && type) {
+        navigate(`/${type}/${productId}`);
+      } else {
+        console.log("Cannot navigate: Missing required data", { productId, type });
+      }
+    };
 
    // Updated handleImageUpload function
   const handleImageUpload = (e) => {
@@ -556,7 +565,14 @@ const MessagePage = () => {
               {activeChat.messages && activeChat.messages.length > 0 ? (
                 activeChat.messages.map((message, index) =>
                   message.isProductCard ? (
-                    <div key={index} className="product-card" >
+                    <div key={index} 
+                        className="product-card" 
+                        onClick={() => handleProductCardClick(
+                          message.productDetails?.productId,
+                          message.productDetails?.type
+                        )}
+                        style={{ cursor: message.productDetails?.productId ? 'pointer' : 'default' }}
+                      >
                       <h6>
                         {message.productDetails?.title === "Offer"
                           ? "Offer for this item"

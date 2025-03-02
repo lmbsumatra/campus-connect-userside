@@ -351,10 +351,12 @@ function ListingDetail() {
           state: {
             ownerId: approvedListingById.owner.id,
             product: {
+              productId: approvedListingById.id,
               name: approvedListingById.name,
               price: approvedListingById.rate,
               image: approvedListingById.images[0], // Use the first image for the product card
               title: approvedListingById.itemType,
+              type: "rent" // Add type identifier
             },
           },
         });

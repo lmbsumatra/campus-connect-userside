@@ -179,6 +179,8 @@ function PostDetail() {
         ).toLocaleDateString()}\nDuration: ${selectedDuration.timeFrom} - ${
           selectedDuration.timeTo
         }`,
+        productId: approvedPostById.id,
+        type: "post"
       };
 
       navigate("/messages", {

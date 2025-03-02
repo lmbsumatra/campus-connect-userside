@@ -260,10 +260,12 @@ function ItemForSaleDetail() {
           state: {
             sellerId: approvedItemForSaleById.seller.id,
             product: {
+              productId: approvedItemForSaleById.id, // Add product ID
               name: approvedItemForSaleById.name,
               price: approvedItemForSaleById.price,
               image: approvedItemForSaleById.images[0],
               title: approvedItemForSaleById.itemType,
+              type: "shop" // Add type identifier
             },
           }, // Pass sellerId to MessagePage
         });
