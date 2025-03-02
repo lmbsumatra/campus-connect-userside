@@ -125,6 +125,42 @@ function PostDetail() {
     setShowModal(true);
   };
 
+  const handleMessageClick = async () => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversationPost`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId: studentUser.userId,
+          renterId: approvedPostById.renter.id,
+        }),
+      }
+    );
+
+    if (response.ok) {
+      // Navigate to the message page with product details
+      navigate("/messages", {
+        state: {
+          renterId: approvedPostById.renter.id,
+          product: {
+            name: approvedPostById.name,
+            image: approvedPostById.images[0], // Use the first image for the product card
+            title: approvedPostById.itemType,
+            type: "post" // Add type identifier
+          },
+        },
+      });
+    }  else {
+      const error = await response.json();
+      console.error("Error creating conversation:", error.error);
+    }
+  } catch (err) {
+    console.error("Error handling message click:", err);
+  }
+};
+
   const handleConfirmOffer = async () => {
     try {
       let imageUrl = approvedPostById.images?.[0] || defaultImages[0];
@@ -416,7 +452,7 @@ function PostDetail() {
           </div>
 
           <div className="action-btns">
-            <button className="btn btn-rectangle secondary">Message</button>
+            <button className="btn btn-rectangle secondary" onClick={handleMessageClick}>Message</button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
@@ -589,37 +625,4 @@ function PostDetail() {
 
 export default PostDetail;
 
-// const handleMessageClick = async () => {
-//   try {
-//     const response = await fetch(
-//       `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversationPost`,
-//       {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({
-//           senderId: studentUser.userId,
-//           ownerId: approvedPostById.renter.id
-//         }),
-//       }
-//     );
 
-//     if (response.ok) {
-//       // Navigate to the message page with product details
-//       navigate("/messages", {
-//         state: {
-//           ownerId: approvedPostById.owner.id,
-//           product: {
-//             name: approvedPostById.name,
-//             image: approvedPostById.images[0], // Use the first image for the product card
-//             title: approvedPostById.itemType,
-//           },
-//         },
-//       });
-//     }  else {
-//       const error = await response.json();
-//       console.error("Error creating conversation:", error.error);
-//     }
-//   } catch (err) {
-//     console.error("Error handling message click:", err);
-//   }
-// };
