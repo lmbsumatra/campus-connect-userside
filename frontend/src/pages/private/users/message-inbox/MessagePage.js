@@ -468,8 +468,10 @@ const MessagePage = () => {
                   <div className="message-info">
                     <h5>{chat.otherUser.first_name}</h5>
                     <p className="preview-message">
-                      {latestMessage
-                        ? latestMessage.isProductCard
+                    {latestMessage
+                        ? latestMessage.images && latestMessage.images.length > 0
+                          ? "Sent a Photo"
+                          : latestMessage.isProductCard
                           ? "Shared a product"
                           : latestMessage.text && latestMessage.text.length > 30
                           ? `${latestMessage.text.substring(0, 30)}...`
