@@ -690,6 +690,7 @@ const MessagePage = () => {
                           </div>
                         )}
                       <span>
+                      {message.text && <p>{message.text}</p>}
                         {new Date(message.createdAt).toLocaleString()}
                       </span>
                     </div>
