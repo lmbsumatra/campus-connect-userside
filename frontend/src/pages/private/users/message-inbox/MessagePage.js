@@ -675,8 +675,7 @@ const MessagePage = () => {
                           : ""
                       }`}
                     >
-                      {message.text && <p>{message.text}</p>}
-                        {message.images && message.images.length > 0 && (
+                      {message.images && Array.isArray(message.images) && message.images.length > 0 && (
                           <div className="image-grid">
                             {message.images.map((img, idx) => (
                               <img
