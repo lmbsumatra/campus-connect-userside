@@ -606,7 +606,11 @@ function PostDetail() {
         </div>
       </div>
 
-      <UserToolbar user={approvedPostById.renter} />
+      <UserToolbar user={approvedPostById.renter}   isYou={
+         approvedPostById.renter
+            ? approvedPostById.renter.id === loggedInUserId
+            : false
+        }/>
 
       <ItemDescAndSpecs
         specs={approvedPostById.specs}
