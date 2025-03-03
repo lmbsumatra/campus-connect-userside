@@ -63,6 +63,7 @@ function PostDetail() {
   const [showReportModal, setShowReportModal] = useState(false);
   const loggedInUserId = studentUser?.userId || null;
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
+  const [hasReported, setHasReported] = useState(false);
 
   const [offerPrice, setOfferPrice] = useState("");
 
@@ -107,7 +108,7 @@ function PostDetail() {
       alert("Please select a date and duration before offering.");
       return;
     }
-    
+
     // Validate price is positive and not empty
     if (!offerPrice || parseFloat(offerPrice) <= 0) {
       alert("Please enter a valid price greater than zero.");
@@ -115,12 +116,12 @@ function PostDetail() {
     }
 
     // Validate image is uploaded
-      if (!offerImage) {
-        setImageError(true);
-        alert("Please upload an item image.");
-        return;
-      }
-      
+    if (!offerImage) {
+      setImageError(true);
+      alert("Please upload an item image.");
+      return;
+    }
+
     setImageError(false);
     setShowModal(true);
   };
@@ -251,6 +252,12 @@ function PostDetail() {
   }, [id, dispatch]);
 
   useEffect(() => {
+    if (loggedInUserId) {
+      checkIfReported();
+    }
+  }, [loggedInUserId, approvedPostById.id]);
+
+  useEffect(() => {
     if (errorApprovedPostById) {
       dispatch(
         showNotification({
@@ -323,6 +330,9 @@ function PostDetail() {
       ); // API endpoint
       console.log("Report submitted:", response.data);
 
+      // Update hasReported state
+      setHasReported(true);
+
       // Show success notification instead of alert
       await ShowAlert(
         dispatch,
@@ -376,6 +386,23 @@ function PostDetail() {
     }
   };
 
+  const checkIfReported = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/reports/check`,
+        {
+          params: {
+            reporter_id: loggedInUserId,
+            reported_entity_id: approvedPostById.id,
+          },
+        }
+      );
+      setHasReported(response.data.hasReported);
+    } catch (error) {
+      console.error("Error checking report:", error);
+    }
+  };
+
   return (
     <div className="container-content post-detail">
       <div className="post-container">
@@ -423,13 +450,21 @@ function PostDetail() {
                 category: approvedPostById.category,
               }}
             />
-            {loggedInUserId !== approvedPostById?.renter?.id && (
+            {loggedInUserId !== approvedPostById?.renter?.id &&
+              !hasReported && (
+                <div className="report-button">
+                  <button
+                    className="btn btn-rectangle danger"
+                    onClick={handleReportClick}
+                  >
+                    Report
+                  </button>
+                </div>
+              )}
+            {hasReported && (
               <div className="report-button">
-                <button
-                  className="btn btn-rectangle danger"
-                  onClick={handleReportClick}
-                >
-                  Report
+                <button className="btn btn-rectangle danger" disabled>
+                  Already Reported
                 </button>
               </div>
             )}
@@ -536,7 +571,7 @@ function PostDetail() {
                   onChange={(e) => {
                     // Only allow positive numbers
                     const value = parseFloat(e.target.value);
-                    if (e.target.value === "" || !isNaN(value) && value > 0) {
+                    if (e.target.value === "" || (!isNaN(value) && value > 0)) {
                       setOfferPrice(e.target.value);
                     }
                   }}
@@ -544,23 +579,27 @@ function PostDetail() {
                   step="0.01"
                   placeholder="Enter offer amount"
                 />
-                 {offerPrice && parseFloat(offerPrice) <= 0 && (
-                    <small className="text-danger">Price must be greater than zero</small>
-                  )}
+                {offerPrice && parseFloat(offerPrice) <= 0 && (
+                  <small className="text-danger">
+                    Price must be greater than zero
+                  </small>
+                )}
               </div>
 
               <div className="form-group">
-              <label>Upload Item Image <span className="text-danger">*</span></label>
-                  <SingleImageUpload
-                    onChange={({ file, preview }) => {
-                      setOfferImage(file);
-                      setImagePreview(preview);
-                      setImageError(false); // Clear error when image is uploaded
-                    }}
-                  />
-                  {imageError && (
-                    <small className="text-danger">Please upload an image</small>
-                  )}
+                <label>
+                  Upload Item Image <span className="text-danger">*</span>
+                </label>
+                <SingleImageUpload
+                  onChange={({ file, preview }) => {
+                    setOfferImage(file);
+                    setImagePreview(preview);
+                    setImageError(false); // Clear error when image is uploaded
+                  }}
+                />
+                {imageError && (
+                  <small className="text-danger">Please upload an image</small>
+                )}
               </div>
             </div>
           </div>

@@ -13,6 +13,20 @@ exports.createReport = async (req, res) => {
       return res.status(400).json({ error: "All fields are required." });
     }
 
+    // Check if the user has already reported this item
+    const existingReport = await Report.findOne({
+      where: {
+        reporter_id,
+        reported_entity_id,
+      },
+    });
+
+    if (existingReport) {
+      return res
+        .status(400)
+        .json({ error: "You have already reported this item." });
+    }
+
     // Create a new report
     const newReport = await Report.create({
       reporter_id,
@@ -28,6 +42,31 @@ exports.createReport = async (req, res) => {
   }
 };
 
+//Checking if user already reported the item
+
+exports.checkReport = async (req, res) => {
+  try {
+    const { reporter_id, reported_entity_id } = req.query;
+
+    // Validate inputs
+    if (!reporter_id || !reported_entity_id) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+
+    const existingReport = await Report.findOne({
+      where: {
+        reporter_id,
+        reported_entity_id,
+      },
+    });
+
+    res.status(200).json({ hasReported: !!existingReport });
+  } catch (error) {
+    console.error("Error checking report:", error);
+    res.status(500).json({ error: "Failed to check report." });
+  }
+};
+
 // Get all reports
 exports.getAllReports = async (req, res) => {
   try {
@@ -35,7 +74,7 @@ exports.getAllReports = async (req, res) => {
       include: [
         {
           model: models.User,
-          as: "reporter", 
+          as: "reporter",
           attributes: ["user_id", "first_name", "last_name"],
         },
       ],
@@ -73,7 +112,10 @@ exports.updateReportStatus = async (req, res) => {
         });
 
         if (!student) {
-          console.log("Student not found for User ID:", report.reported_entity_id);
+          console.log(
+            "Student not found for User ID:",
+            report.reported_entity_id
+          );
           return res.status(404).json({ error: "Student not found." });
         }
 
@@ -104,7 +146,9 @@ exports.updateReportStatus = async (req, res) => {
             entity.status = "flagged"; // Non-user entities always get flagged
             await entity.save();
           } else {
-            return res.status(404).json({ error: "Reported entity not found." });
+            return res
+              .status(404)
+              .json({ error: "Reported entity not found." });
           }
         }
       }
@@ -128,8 +172,6 @@ exports.updateReportStatus = async (req, res) => {
     res.status(500).json({ error: "Failed to update report status." });
   }
 };
-
-
 
 // Delete a report
 exports.deleteReport = async (req, res) => {
@@ -166,48 +208,78 @@ exports.getReportDetails = async (req, res) => {
     switch (entity_type) {
       case "listing":
         entityData = await models.Listing.findByPk(entity_id, {
-          attributes: ["listing_name", "rate", "category","delivery_mode","late_charges","specifications","description","tags","created_at","images"],
+          attributes: [
+            "listing_name",
+            "rate",
+            "category",
+            "delivery_mode",
+            "late_charges",
+            "specifications",
+            "description",
+            "tags",
+            "created_at",
+            "images",
+          ],
           include: [
             {
               model: models.User,
-              as: "owner", 
-              attributes: ["first_name", "last_name"], 
+              as: "owner",
+              attributes: ["first_name", "last_name"],
             },
           ],
         });
         break;
-        case "post":
-          entityData = await models.Post.findByPk(entity_id, {
-            attributes: ["post_item_name", "category", "description","specifications", "tags", "created_at","images"],
-            include: [
-              {
-                model: models.User,
-                as: "renter", 
-                attributes: ["first_name", "last_name"], 
-              },
-            ],
-          });
-          break;
+      case "post":
+        entityData = await models.Post.findByPk(entity_id, {
+          attributes: [
+            "post_item_name",
+            "category",
+            "description",
+            "specifications",
+            "tags",
+            "created_at",
+            "images",
+          ],
+          include: [
+            {
+              model: models.User,
+              as: "renter",
+              attributes: ["first_name", "last_name"],
+            },
+          ],
+        });
+        break;
       case "user":
         entityData = await models.User.findByPk(entity_id, {
-          attributes: ["first_name", "last_name","middle_name", "email"],
+          attributes: ["first_name", "last_name", "middle_name", "email"],
           include: [
             {
               model: models.Student,
-              as: "student", 
-              attributes: ["tup_id", "college", "profile_pic"], 
+              as: "student",
+              attributes: ["tup_id", "college", "profile_pic"],
             },
           ],
         });
         break;
       case "sale":
         entityData = await models.ItemForSale.findByPk(entity_id, {
-          attributes: ["item_for_sale_name", "price", "category","delivery_mode", "item_condition","description","specifications", "tags", "created_at","images"],
+          attributes: [
+            "item_for_sale_name",
+            "price",
+            "category",
+            "delivery_mode",
+            "item_condition",
+            "description",
+            "specifications",
+            "tags",
+            "created_at",
+            "images",
+          ],
           include: [
             {
               model: models.User,
-              as: "seller", 
-              attributes: ["first_name", "last_name"], 
+              as: "seller",
+              attributes: ["first_name", "last_name"],
             },
           ],
         });

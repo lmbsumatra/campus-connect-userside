@@ -96,6 +96,7 @@ function ListingDetail() {
   const loggedInUserId = studentUser?.userId || null;
   const socket = useSocket();
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
+  const [hasReported, setHasReported] = useState(false);
 
   const location = useLocation();
   const { item, warnSelectDateAndTime } = location.state || {};
@@ -289,6 +290,12 @@ function ListingDetail() {
     }
   }, [id, dispatch]);
 
+  useEffect(() => {
+    if (loggedInUserId) {
+      checkIfReported();
+    }
+  }, [loggedInUserId, approvedListingById.id]);
+
   // item not found alert
   useEffect(() => {
     if (errorApprovedListingById) {
@@ -376,12 +383,18 @@ function ListingDetail() {
       entity_type: "listing",
       reason: reason,
     };
-  
+
     try {
       console.log(reportData);
-      const response = await axios.post("http://localhost:3001/api/reports", reportData);
+      const response = await axios.post(
+        "http://localhost:3001/api/reports",
+        reportData
+      );
       console.log("Report submitted:", response.data);
-  
+
+      // Update hasReported state
+      setHasReported(true);
+
       // Show success notification
       await ShowAlert(
         dispatch,
@@ -391,7 +404,7 @@ function ListingDetail() {
       );
     } catch (error) {
       console.error("Error submitting report:", error);
-      
+
       // Handle 403 error separately
       await handleUnavailableDateError(dispatch, error);
 
@@ -404,11 +417,10 @@ function ListingDetail() {
           "Failed to submit the report. Please try again."
         );
       }
-      }
-  
+    }
+
     setShowReportModal(false); // Close the modal
   };
-  
 
   const handleReportClick = () => {
     if (loggedInUserId) {
@@ -434,6 +446,23 @@ function ListingDetail() {
             }
           )
       );
+    }
+  };
+
+  const checkIfReported = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/reports/check`,
+        {
+          params: {
+            reporter_id: loggedInUserId,
+            reported_entity_id: approvedListingById.id,
+          },
+        }
+      );
+      setHasReported(response.data.hasReported);
+    } catch (error) {
+      console.error("Error checking report:", error);
     }
   };
 
@@ -488,13 +517,21 @@ function ListingDetail() {
                 category: approvedListingById.category,
               }}
             />
-            {loggedInUserId !== approvedListingById?.owner?.id && (
+            {loggedInUserId !== approvedListingById?.owner?.id &&
+              !hasReported && (
+                <div className="report-button">
+                  <button
+                    className="btn btn-rectangle danger"
+                    onClick={handleReportClick}
+                  >
+                    Report
+                  </button>
+                </div>
+              )}
+            {hasReported && (
               <div className="report-button">
-                <button
-                  className="btn btn-rectangle danger"
-                  onClick={handleReportClick}
-                >
-                  Report
+                <button className="btn btn-rectangle danger" disabled>
+                  Already Reported
                 </button>
               </div>
             )}

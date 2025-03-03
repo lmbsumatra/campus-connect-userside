@@ -60,6 +60,7 @@ function ItemForSaleDetail() {
   const [showReportModal, setShowReportModal] = useState(false);
   const loggedInUserId = studentUser?.userId || null;
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
+  const [hasReported, setHasReported] = useState(false);
 
   const images = [
     itemImage1,
@@ -183,6 +184,12 @@ function ItemForSaleDetail() {
   }, [id, dispatch]);
 
   useEffect(() => {
+    if (loggedInUserId) {
+      checkIfReported();
+    }
+  }, [loggedInUserId, approvedItemForSaleById.id]);
+
+  useEffect(() => {
     if (errorApprovedItemForSaleById) {
       dispatch(
         showNotification({
@@ -293,31 +300,36 @@ function ItemForSaleDetail() {
         reportData
       ); // API endpoint
       console.log("Report submitted:", response.data);
-  
+      // Update hasReported state
+      setHasReported(true);
+
       // Show success notification instead of alert
-      await ShowAlert(dispatch, "success", "Report Submitted", "Your report has been submitted successfully.");
-  
+      await ShowAlert(
+        dispatch,
+        "success",
+        "Report Submitted",
+        "Your report has been submitted successfully."
+      );
     } catch (error) {
       console.error("Error submitting report:", error);
-  
-       // Handle 403 error separately
-       await handleUnavailableDateError(dispatch, error);
 
-       // If it's not a 403 error, handle other errors
-       if (error.response?.status !== 403) {
-         await ShowAlert(
-           dispatch,
-           "error",
-           "Submission Failed",
-           "Failed to submit the report. Please try again."
-         );
-       }
-       }
+      // Handle 403 error separately
+      await handleUnavailableDateError(dispatch, error);
+
+      // If it's not a 403 error, handle other errors
+      if (error.response?.status !== 403) {
+        await ShowAlert(
+          dispatch,
+          "error",
+          "Submission Failed",
+          "Failed to submit the report. Please try again."
+        );
+      }
+    }
 
     setShowReportModal(false); // Close the modal
   };
 
-  
   const handleReportClick = () => {
     if (loggedInUserId) {
       // Directly show the report modal if the user is logged in
@@ -335,11 +347,30 @@ function ItemForSaleDetail() {
             {
               text: "Login",
               action: () => {
-                navigate("/", { state: { showLogin: true, authTab: "loginTab" } });
+                navigate("/", {
+                  state: { showLogin: true, authTab: "loginTab" },
+                });
               },
             }
           )
       );
+    }
+  };
+
+  const checkIfReported = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/reports/check`,
+        {
+          params: {
+            reporter_id: loggedInUserId,
+            reported_entity_id: approvedItemForSaleById.id,
+          },
+        }
+      );
+      setHasReported(response.data.hasReported);
+    } catch (error) {
+      console.error("Error checking report:", error);
     }
   };
 
@@ -397,15 +428,23 @@ function ItemForSaleDetail() {
                 category: approvedItemForSaleById.category,
               }}
             />
-             {loggedInUserId !== approvedItemForSaleById?.seller?.id && (
+            {loggedInUserId !== approvedItemForSaleById?.seller?.id &&
+              !hasReported && (
+                <div className="report-button">
+                  <button
+                    className="btn btn-rectangle danger"
+                    onClick={handleReportClick}
+                  >
+                    Report
+                  </button>
+                </div>
+              )}
+            {hasReported && (
               <div className="report-button">
-              <button
-                className="btn btn-rectangle danger"
-                onClick={handleReportClick}
-              >
-                Report
-              </button>
-            </div>
+                <button className="btn btn-rectangle danger" disabled>
+                  Already Reported
+                </button>
+              </div>
             )}
 
             {/* Report Modal */}

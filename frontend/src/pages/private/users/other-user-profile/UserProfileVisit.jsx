@@ -14,7 +14,7 @@ import axios from "axios";
 import ReportModal from "../../../../components/report/ReportModal";
 import ShowAlert from "../../../../utils/ShowAlert";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
-import "./UserProfileVisit.css"
+import "./UserProfileVisit.css";
 import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
 import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
 
@@ -24,8 +24,10 @@ const UserProfileVisit = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const [showReportModal, setShowReportModal] = useState(false);
-   const studentUser = useSelector(selectStudentUser);
-   const loggedInUserId = studentUser?.userId || null;
+  const studentUser = useSelector(selectStudentUser);
+  const loggedInUserId = studentUser?.userId || null;
+  const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
+  const [hasReported, setHasReported] = useState(false);
 
   const { availableListingsByUser } = useSelector(
     (state) => state.availableListingsByUser
@@ -68,6 +70,12 @@ const UserProfileVisit = () => {
     }
   }, [location.search]);
 
+  useEffect(() => {
+    if (loggedInUserId) {
+      checkIfReported();
+    }
+  }, [loggedInUserId, id]);
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     navigate(`/user/${id}?tab=${tab.toLowerCase().replace(/\s+/g, "-")}`);
@@ -80,20 +88,27 @@ const UserProfileVisit = () => {
       entity_type: "user",
       reason: reason,
     };
-  
+
     try {
       const response = await axios.post(
         "http://localhost:3001/api/reports",
         reportData
       ); // API endpoint
       console.log("Report submitted:", response.data);
-  
+
+      // Update hasReported state
+      setHasReported(true);
+
       // Show success notification instead of alert
-      await ShowAlert(dispatch, "success", "Report Submitted", "Your report has been submitted successfully.");
-  
+      await ShowAlert(
+        dispatch,
+        "success",
+        "Report Submitted",
+        "Your report has been submitted successfully."
+      );
     } catch (error) {
       console.error("Error submitting report:", error);
-  
+
       // Handle 403 error separately
       await handleUnavailableDateError(dispatch, error);
 
@@ -106,12 +121,10 @@ const UserProfileVisit = () => {
           "Failed to submit the report. Please try again."
         );
       }
-      }
-  
+    }
+
     setShowReportModal(false); // Close the modal
   };
-
-  const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
   const handleReportClick = () => {
     if (loggedInUserId) {
@@ -130,7 +143,9 @@ const UserProfileVisit = () => {
             {
               text: "Login",
               action: () => {
-                navigate("/", { state: { showLogin: true, authTab: "loginTab" } });
+                navigate("/", {
+                  state: { showLogin: true, authTab: "loginTab" },
+                });
               },
             }
           )
@@ -138,25 +153,49 @@ const UserProfileVisit = () => {
     }
   };
 
+  const checkIfReported = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/reports/check`,
+        {
+          params: {
+            reporter_id: loggedInUserId,
+            reported_entity_id: id,
+          },
+        }
+      );
+      setHasReported(response.data.hasReported);
+    } catch (error) {
+      console.error("Error checking report:", error);
+    }
+  };
+
   return (
     <div className="container-content">
       <div className="profile-container d-flex flex-column gap-3">
-              {/* Report Button */}
-      {loggedInUserId !== id && (
-        <div className="report-button">
-        <button className="btn-report" onClick={handleReportClick}>
-          ⚠
-        </button>
-      </div>
-      )}
+        {/* Report Button */}
+        {loggedInUserId !== id && !hasReported && (
+          <div className="report-button">
+            <button className="btn-report" onClick={handleReportClick}>
+              ⚠
+            </button>
+          </div>
+        )}
+        {hasReported && (
+          <div className="report-button">
+            <button className="btn btn-rectangle danger" disabled>
+              ⚠
+            </button>
+          </div>
+        )}
 
-      {/* Report Modal */}
-      <ReportModal
-        show={showReportModal}
-        handleClose={() => setShowReportModal(false)}
-        handleSubmit={handleReportSubmit}
-      />
-      
+        {/* Report Modal */}
+        <ReportModal
+          show={showReportModal}
+          handleClose={() => setShowReportModal(false)}
+          handleSubmit={handleReportSubmit}
+        />
+
         <ProfileHeader userId={id} isProfileVisit={true} className="m-0 p-0" />
         <div className="prof-content-wrapper bg-white rounded p-3">
           <div className="profile-content">
