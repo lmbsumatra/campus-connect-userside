@@ -48,7 +48,6 @@ useEffect(() => {
   if (!socket || !userId) return;
   
   socket.emit("registerUser", userId);
-  console.log("Registered user with socket:", userId);
   
 }, [socket, userId]);
 
@@ -57,12 +56,10 @@ useEffect(() => {
 
   // Log when connecting to help debug
   socket.on("connect", () => {
-    console.log("Connected to socket server with ID:", socket.id);
   });
 
   // Make sure this event name exactly matches what the server is emitting
   socket.on("receiveRentalUpdate", (data) => {
-    console.log("Received rental update:", data);
     dispatch(fetchRentalTransactions(userId));
   });
 
@@ -75,7 +72,6 @@ useEffect(() => {
 
   useEffect(() => {
     if (location.state?.redirecting) {
-      console.log(location.state?.redirecting);
       dispatch(clearNotification());
     }
   }, [location.state?.redirecting, dispatch]);

@@ -32,8 +32,6 @@ const ProfileHeader = ({
     !isProfileVisit ? state.user : state.otherUser
   );
 
-  console.log({ user });
-
   const fileInputRef = useRef(null);
   const studentUser = useSelector(selectStudentUser);
   const loggedInUserId = studentUser?.userId || null;
@@ -177,8 +175,6 @@ const ProfileHeader = ({
         return "var(--clr-renter)";
       case "owner":
         return "var(--clr-owner)";
-      case "seller":
-        return "var(--clr-seller)";
       case "buyer":
         return "var(--clr-buyer)";
       default:
@@ -333,7 +329,7 @@ const ProfileHeader = ({
               {capitalizeFirstLetter(selectedOption) === "Owner" ? "an" : "a"}
             </span>
             <div className={`custom-dropdown ${isExpanded ? "active" : ""}`}>
-              {["Renter", "Owner", "Seller", "Buyer"]
+              {["Renter", "Owner", "Buyer"]
                 .sort((a, b) => (a.toLowerCase() === selectedOption ? -1 : 1))
                 .map((option) => (
                   <div
