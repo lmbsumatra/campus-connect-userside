@@ -23,6 +23,8 @@ import { useDispatch } from "react-redux";
 import { clearNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
 import socket from "../../../../hooks/socket.js";
 import { fetchRentalTransactions } from "../../../../redux/transactions/rentalTransactionsSlice.js";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import styles
 
 const Profile = () => {
   const { studentUser } = useAuth();
@@ -30,7 +32,6 @@ const Profile = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Use useMatch to extract URL parameters from transactions routes.
   // This will match URLs like "/profile/transactions/:option/:tab"
   const match = useMatch("/profile/transactions/:option/:tab");
   const currentOption = match ? match.params.option.toLowerCase() : "renter";
@@ -42,33 +43,33 @@ const Profile = () => {
 
   const dispatch = useDispatch();
 
-    // trigger update rental status
-  // Add this to your Profile.js useEffect
-useEffect(() => {
-  if (!socket || !userId) return;
-  
-  socket.emit("registerUser", userId);
-  
-}, [socket, userId]);
+  // trigger update rental status
+  useEffect(() => {
+    if (!socket || !userId) return;
+    socket.emit("registerUser", userId);
+  }, [socket, userId]);
 
-useEffect(() => {
-  if (!socket) return;
+  useEffect(() => {
+    if (!socket) return;
 
-  // Log when connecting to help debug
-  socket.on("connect", () => {
-  });
+    socket.on("receiveRentalUpdate", (data) => {
+      dispatch(fetchRentalTransactions(userId));
 
-  // Make sure this event name exactly matches what the server is emitting
-  socket.on("receiveRentalUpdate", (data) => {
-    dispatch(fetchRentalTransactions(userId));
-  });
+      toast.info(`🔔 Rental Update: ${data.status}`, {
+        position: "top-right",
+        autoClose: 3000, // Closes after 3s
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    });
 
-  return () => {
-    socket.off("connect");
-    socket.off("receiveRentalUpdate");
-  };
-}, [dispatch, userId]);
-
+    return () => {
+      socket.off("receiveRentalUpdate");
+    };
+  }, [dispatch, userId]);
 
   useEffect(() => {
     if (location.state?.redirecting) {
@@ -133,6 +134,7 @@ useEffect(() => {
 
   return (
     <div className="container-content profile-detail">
+      <ToastContainer position="top-right" autoClose={3000} />
       <BreadCrumb breadcrumbs={getBreadcrumbs()} />
       <div className="profile-container">
         {userId && <ProfileSidebar />}

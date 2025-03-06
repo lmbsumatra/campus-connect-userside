@@ -2,9 +2,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-/**
- * Async thunk to fetch rental transactions for a user.
- */
 export const fetchRentalTransactions = createAsyncThunk(
   'rentalTransactions/fetch',
   async (userId, { rejectWithValue }) => {

@@ -6,7 +6,10 @@ import { formatDate } from "../../utils/dateFormat";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom"; // Import navigation
 import { useDispatch } from "react-redux";
-import { updateRentalStatus } from "../../redux/transactions/rentalTransactionsSlice";
+import {
+  fetchRentalTransactions,
+  updateRentalStatus,
+} from "../../redux/transactions/rentalTransactionsSlice";
 import axios from "axios";
 import socket from "../../hooks/socket";
 
@@ -42,15 +45,24 @@ function RentalItem({
         userId: userId,
       };
 
-      // Update confirmation based on user role
       if (item.owner_id === userId) {
         updatePayload.ownerConfirmed = true;
       } else if (item.renter_id === userId) {
         updatePayload.renterConfirmed = true;
       }
 
-      // Dispatch the update
-      dispatch(updateRentalStatus(updatePayload));
+      await dispatch(updateRentalStatus(updatePayload));
+
+      // Now fetch the latest transactions
+      await dispatch(fetchRentalTransactions(userId));
+
+      // Emit update to socket
+      const transactionData = {
+        sender: userId,
+        recipient: item.owner_id === userId ? item.renter_id : item.owner_id,
+        rentalId: item.id,
+        status: action,
+      };
 
       // Only proceed if both users have confirmed
       const bothConfirmed =
@@ -60,9 +72,9 @@ function RentalItem({
       if (bothConfirmed) {
         let nextTab = "";
         switch (action) {
-          case "accept": 
-          nextTab = "To Hand Over"
-          break;
+          case "accept":
+            nextTab = "To Hand Over";
+            break;
           case "hand-over":
             nextTab = "To Receive";
             break;
@@ -74,31 +86,21 @@ function RentalItem({
             break;
           default:
             nextTab = selectedTab;
-        } 
+        }
 
-        // Move to the next tab
         onTabChange(nextTab);
       } else {
         let nextTab = "";
         switch (action) {
-          case "accept": 
-          nextTab = "To Hand Over"
-          break;
+          case "accept":
+            nextTab = "To Hand Over";
+            break;
           default:
             nextTab = selectedTab;
-        } 
+        }
 
-        // Move to the next tab
         onTabChange(nextTab);
       }
-
-      // to update rental status
-      const transactionData = {
-        sender: userId,
-        recipient: item.owner_id === userId ? item.renter_id : item.owner_id,
-        rentalId: item.id,
-        status: action,
-      };
 
       socket.emit("update-transaction-status", transactionData);
     } catch (error) {

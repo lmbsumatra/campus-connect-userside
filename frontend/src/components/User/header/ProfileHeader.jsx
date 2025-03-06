@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import profilePhoto from "../../../assets/images/icons/user-icon.svg";
 import editIcon from "../../../assets/images/icons/edit.png";
-import followIcon from "../../../assets/images/icons/follow.svg";
 import "./profileHeaderStyles.css";
-import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { formatDate } from "../../../utils/dateFormat";
 import { useLocation, useNavigate } from "react-router-dom";
 import useFetchRentalTransactionsByUserId from "../../../utils/useFetchRentalTransactionsByUserId";
@@ -31,31 +29,24 @@ const ProfileHeader = ({
   const { user, loadingFetchUser, errorFetchUser } = useSelector((state) =>
     !isProfileVisit ? state.user : state.otherUser
   );
-
   const fileInputRef = useRef(null);
   const studentUser = useSelector(selectStudentUser);
   const loggedInUserId = studentUser?.userId || null;
-
-  // State for profile image
   const [profileImage, setProfileImage] = useState(profilePhoto);
   const [isUploading, setIsUploading] = useState(false);
-
-  // Fetch rental transactions
   const {
     transactions: rentalItems,
     error,
     loading,
   } = useFetchRentalTransactionsByUserId(userId);
-
   const dispatch = useDispatch();
-
   const { loadingFollow, successFollow, errorFollow } = useSelector(
     (state) => state.otherUser
   );
 
   // Local state to store the last action performed (Followed/Unfollowed)
   const [lastAction, setLastAction] = useState(null);
-  const [lastUser, setLastUser] = useState(null); // Store the last user for the alert
+  const [lastUser, setLastUser] = useState(null); 
 
   const handleFollowAction = (e, user) => {
     e.stopPropagation();
@@ -80,7 +71,6 @@ const ProfileHeader = ({
     );
   };
 
-  // 🔥 Move ShowAlert to useEffect to trigger AFTER Redux state updates
   useEffect(() => {
     if (successFollow && lastUser) {
       ShowAlert(dispatch, "success", `${lastAction} ${lastUser.user.fname}`);
@@ -115,24 +105,20 @@ const ProfileHeader = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check file type
     if (!file.type.startsWith("image/")) {
       alert("Please upload an image file");
       return;
     }
 
-    // Check file size (5MB limit)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       alert("File size should be less than 5MB");
       return;
     }
 
-    // Create FormData
     const formData = new FormData();
     formData.append("profile_pic", file);
 
-    // Dispatch the update action
     try {
       await dispatch(updateProfileImage({ userId, formData })).unwrap();
       ShowAlert(dispatch, "success", "Image Uploaded!");
@@ -167,7 +153,6 @@ const ProfileHeader = ({
 
   const getBackgroundColor = () => {
     if (!selectedOption) {
-      // Handles cases where selectedOption is undefined, null, or empty string
       return "var(--clr-primary)";
     }
     switch (selectedOption.toLowerCase()) {
@@ -337,10 +322,9 @@ const ProfileHeader = ({
                     className={`dropdown-item ${
                       option === selectedOption ? "selected" : ""
                     }`}
-                    onClick={() => onOptionChange(option.toLowerCase())} // Lowercase the option on change
+                    onClick={() => onOptionChange(option.toLowerCase())} 
                   >
-                    {capitalizeFirstLetter(option)}{" "}
-                    {/* Capitalize first letter for display */}
+                    {capitalizeFirstLetter(option)}
                     <span
                       className={`transaction-indicator ${
                         !countTransactions[option] ? "not-active" : ""

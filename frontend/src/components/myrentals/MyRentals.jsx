@@ -5,9 +5,8 @@ import RentalItem from "./RentalItem";
 import { useAuth } from "../../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRentalTransactions } from "../../redux/transactions/rentalTransactionsSlice";
-import socket from "../../hooks/socket";
 
-const formatForRoute = (name) => name.toLowerCase();
+const formatForRoute = (name) => (name ? name.toLowerCase() : "");
 
 const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   const { studentUser } = useAuth();
@@ -19,8 +18,6 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   const location = useLocation();
 
   const highlightId = location.state?.highlight;
-
-  // Access Redux state
   const {
     transactions: rentalItems,
     error,
@@ -33,11 +30,8 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
     }
   }, [dispatch, userId]);
 
-  useEffect(() => {
-    console.log("Fetched rental transactions:", rentalItems);
-  }, [rentalItems]);
+  useEffect(() => {}, [rentalItems]);
 
-  // Update active filter when the selected tab changes
   useEffect(() => {
     setActiveFilter(formatForRoute(selectedTab));
   }, [selectedTab]);
@@ -50,27 +44,20 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
 
   useEffect(() => {
     if (highlightId && rentalItems.length > 0) {
-      console.log("📌 Highlighting Rental ID:", highlightId);
-
-      // Set the highlighted item
       setHighlightedItem(highlightId);
 
-      // Use RAF to ensure DOM is ready
       requestAnimationFrame(() => {
         const element = document.getElementById(`rental-${highlightId}`);
 
         if (element) {
-          // Scroll into view
           element.scrollIntoView({ behavior: "smooth", block: "center" });
 
-          // Apply highlight
           element.classList.add("highlighted");
 
-          // Remove highlight after animation
           setTimeout(() => {
             element.classList.remove("highlighted");
             setHighlightedItem(null);
-          }, 2000); // Duration matches CSS transition
+          }, 2000);
         }
       });
     }
@@ -91,13 +78,22 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   const filterOptions = [
     { name: "Requests", statuses: ["Requested"] },
     {
-      name: selectedOption === "owner" ? "To Hand Over" : "To Receive",
+      name:
+        selectedOption === "owner"
+          ? "To Hand Over"
+          : selectedOption === "buyer "
+          ? "To Receive"
+          : "To Receive",
       statuses: ["Accepted"],
     },
-    {
-      name: selectedOption === "renter" ? "To Return" : "To Receive",
-      statuses: ["HandedOver"],
-    },
+    ...(selectedOption !== "buyer"
+      ? [
+          {
+            name: selectedOption === "renter" ? "To Return" : "To Receive",
+            statuses: ["HandedOver"],
+          },
+        ]
+      : []),
     { name: "Completed", statuses: ["Returned"] },
     { name: "To Review", statuses: ["Completed"] },
     { name: "Cancelled", statuses: ["Cancelled", "Declined"] },
@@ -112,7 +108,8 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   const filteredItems = rentalItems.filter((item) => {
     if (
       (selectedOption === "owner" && item.owner_id !== userId) ||
-      (selectedOption === "renter" && item.renter_id !== userId)
+      (selectedOption === "renter" && item.renter_id !== userId) ||
+      (selectedOption === "buyer" && item.buyer_id !== userId)
     )
       return false;
     if (activeFilter === "all") return true;
@@ -127,7 +124,8 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
       const filtered = rentalItems.filter((item) => {
         if (
           (selectedOption === "owner" && item.owner_id !== userId) ||
-          (selectedOption === "renter" && item.renter_id !== userId)
+          (selectedOption === "renter" && item.renter_id !== userId) ||
+          (selectedOption === "buyer" && item.buyer_id !== userId)
         )
           return false;
         if (option.statuses.length && !option.statuses.includes(item.status))

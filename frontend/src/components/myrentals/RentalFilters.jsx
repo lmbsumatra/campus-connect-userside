@@ -21,17 +21,22 @@ function RentalFilters({
 
   return (
     <div className="rental-filters">
-      <div className="filter-buttons no-scrollbars">
+      <div className="filter-buttons">
         {filterOptions.map((filter) => {
           const { count, color } = countTransactions[filter] || {
             count: 0,
             color: "gray",
           };
 
-          const isActive = activeFilter.toLowerCase() === filter.toLowerCase();
+          const isActive =
+            (activeFilter?.toLowerCase() || "") ===
+            (filter?.toLowerCase() || "");
+
           const buttonStyle = {
             color: getDynamicFilterTextColor(),
-            "--underline-color": isActive ? getDynamicFilterTextColor() : "#ccc",
+            "--underline-color": isActive
+              ? getDynamicFilterTextColor()
+              : "#ccc",
           };
 
           return (
