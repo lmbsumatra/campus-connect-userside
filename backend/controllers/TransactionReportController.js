@@ -116,7 +116,7 @@ module.exports = ({ emitNotification }) => {
         await report.update({ status: "under_review" });
       }
 
-      await models.StudentNotification.create({
+      const notification = await models.StudentNotification.create({
         sender_id: req.user.userId,
         recipient_id: report.reporter_id,
         type: "transaction_report_response",
@@ -125,10 +125,7 @@ module.exports = ({ emitNotification }) => {
       });
 
       if (emitNotification) {
-        emitNotification(report.reporter_id, {
-          message: "New response added",
-          reportId: report.id,
-        });
+        emitNotification(report.reporter_id, notification.toJSON());
       }
 
       return res.status(201).json({

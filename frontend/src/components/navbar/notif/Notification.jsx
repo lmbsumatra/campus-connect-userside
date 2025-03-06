@@ -353,9 +353,10 @@ const Notification = ({
               <NotificationMessage message={notif.message} type={notif.type} />
             </p>
             <span className="time">
-              {formatDistanceToNow(new Date(notif.createdAt), {
-                addSuffix: true,
-              })}
+              {notif.createdAt &&
+                formatDistanceToNow(new Date(notif.createdAt), {
+                  addSuffix: true,
+                })}
             </span>
           </div>
         </a>
