@@ -6,7 +6,6 @@ const BASE_URL = "http://localhost:3001/user/merchant-details";
 export const fetchMerchant = createAsyncThunk(
   "merchant/fetchMerchant",
   async (id, { rejectWithValue }) => {
-    
     try {
       const response = await fetch(`${BASE_URL}/${id}`);
       if (!response.ok) {
@@ -48,6 +47,8 @@ const merchantSlice = createSlice({
     merchantSettings: null,
     payoutSettings: null,
     payoutSchedule: null,
+    status: [],
+    message: "",
     loadingFetchMerchant: false,
     loadingUpdateMerchant: false,
     errorFetchMerchant: null,
@@ -58,6 +59,8 @@ const merchantSlice = createSlice({
       state.merchantSettings = null;
       state.payoutSettings = null;
       state.payoutSchedule = null;
+      state.status = [];
+      state.message = "";
       state.errorFetchMerchant = null;
       state.errorUpdateMerchant = null;
     },
@@ -70,12 +73,19 @@ const merchantSlice = createSlice({
         state.errorFetchMerchant = null;
       })
       .addCase(fetchMerchant.fulfilled, (state, action) => {
-        console.log('Fulfilled payload:', action.payload);
-        const { merchantSettings, payoutSettings, payoutSchedule } =
-          action.payload;
+        console.log("Fulfilled payload:", action.payload);
+        const {
+          merchantSettings,
+          payoutSettings,
+          payoutSchedule,
+          status,
+          message,
+        } = action.payload;
         state.loadingFetchMerchant = false;
         state.merchantSettings = merchantSettings;
         state.payoutSettings = payoutSettings;
+        state.status = status;
+        state.message = message;
         state.payoutSchedule = payoutSchedule;
         state.errorFetchMerchant = null;
       })

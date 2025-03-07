@@ -19,21 +19,15 @@ const MyTransactions = () => {
     payoutSettings,
     payoutSchedule,
     loadingFetchMerchant,
+    status,
+    message,
     errorFetchMerchant,
     loadingUpdateMerchant,
     errorUpdateMerchant,
   } = useSelector((state) => state.merchant);
   const studentUser = useSelector(selectStudentUser);
   const { user, loadingFetchUser } = useSelector((state) => state.user);
-  console.log({
-    merchantSettings,
-    payoutSettings,
-    payoutSchedule,
-    loadingFetchMerchant,
-    errorFetchMerchant,
-    loadingUpdateMerchant,
-    errorUpdateMerchant,
-  });
+
   useEffect(() => {
     if (studentUser?.userId) {
       dispatch(fetchMerchant(studentUser.userId));
@@ -88,16 +82,29 @@ const MyTransactions = () => {
     }
   };
 
+  const handleCompleteStripeSetup = () => {
+    if (status?.completionLink) {
+      window.location.href = status.completionLink;
+    } else {
+      ShowAlert(dispatch, "error", "No Completion Link", "Try again later.");
+    }
+  };
+
   if (loadingFetchMerchant) {
-    return <div className="loading-state">Loading merchant data...</div>;
+    return (
+      <div className="item-container">
+        <div className="loading-state">Loading merchant data...</div>
+      </div>
+    );
   }
 
   if (!payoutSettings?.stripeAccountId) {
     return (
-      <div className="dashboard-container">
+      <div className="item-container">
         <div className="connect-stripe-container">
           <h1>Connect Your Stripe Account</h1>
           <p>To start accepting payments, connect your Stripe account</p>
+          <p>{message ? message : ""}</p>
           <button
             className="connect-stripe-button"
             onClick={handleConnectStripe}
@@ -108,104 +115,130 @@ const MyTransactions = () => {
       </div>
     );
   }
+
+  if (status?.restricted && status?.completionLink) {
+    return (
+      <div className="item-container">
+        <div className="connect-stripe-container">
+          <h1>Continue Setting Up</h1>
+          <p>
+            Your Stripe account is restricted. Complete the setup to enable
+            payments.
+          </p>
+          <p>{message ? message : ""}</p>
+          <button
+            className="connect-stripe-button"
+            onClick={handleCompleteStripeSetup}
+          >
+            Click Here to Complete
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const goToStripeDashboard = () => {
     window.open("https://dashboard.stripe.com", "_blank");
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <div>
-          <h1>Merchant Dashboard</h1>
-          <span className="account-id">
-            ID: {payoutSettings.stripeAccountId}
-          </span>
-        </div>
-        <button
-          className="btn btn-primary"
-          onClick={() => goToStripeDashboard()}
-        >
-          View Stripe Dashboard
-        </button>
-      </div>
-
-      <div className="balance-cards">
-        <div className="balance-card available">
-          <div className="balance-header">
-            <h3>Available Balance</h3>
-            <p>Ready to withdraw</p>
+    <div className="item-container">
+      <div className="card-items-container">
+        <div className="dashboard-header">
+          <div>
+            <h1>Merchant Dashboard</h1>
+            <span className="account-id">
+              ID: {payoutSettings.stripeAccountId}
+            </span>
           </div>
-          <div className="balance-amount">
-            ${payoutSettings?.availableBalance?.amount?.toFixed(2) || "0.00"}
-          </div>
+          <button
+            className="btn btn-primary"
+            onClick={() => goToStripeDashboard()}
+          >
+            View Stripe Dashboard
+          </button>
         </div>
 
-        <div className="balance-card pending">
-          <div className="balance-header">
-            <h3>Pending Balance</h3>
-            <p>Processing payments</p>
+        <div className="balance-cards">
+          <div className="balance-card available">
+            <div className="balance-header">
+              <h3>Available Balance</h3>
+              <p>Ready to withdraw</p>
+            </div>
+            <div className="balance-amount">
+              ${payoutSettings?.availableBalance?.amount?.toFixed(2) || "0.00"}
+            </div>
           </div>
-          <div className="balance-amount">
-            ${payoutSettings?.pendingBalance?.amount?.toFixed(2) || "0.00"}
+
+          <div className="balance-card pending">
+            <div className="balance-header">
+              <h3>Pending Balance</h3>
+              <p>Processing payments</p>
+            </div>
+            <div className="balance-amount">
+              ${payoutSettings?.pendingBalance?.amount?.toFixed(2) || "0.00"}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="settings-grid">
-        <div className="settings-card">
-          <h2>Merchant Settings</h2>
-          <div className="form-group">
-            <label htmlFor="storeName">Store Name</label>
-            <input
-              type="text"
-              id="storeName"
-              name="storeName"
-              value={merchantSettings?.storeName || ""}
-              onChange={handleMerchantChange}
-              placeholder="Enter store name"
-              disabled={loadingUpdateMerchant}
-            />
+        <div className="settings-grid">
+          <div className="settings-card">
+            <h2>Merchant Settings</h2>
+            <div className="form-group">
+              <label htmlFor="storeName">Store Name</label>
+              <input
+                type="text"
+                id="storeName"
+                name="storeName"
+                value={merchantSettings?.storeName || ""}
+                onChange={handleMerchantChange}
+                placeholder="Enter store name"
+                disabled={loadingUpdateMerchant}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="countryCode">Country Code</label>
+              <input
+                type="text"
+                id="countryCode"
+                name="countryCode"
+                value={merchantSettings?.countryCode || ""}
+                onChange={handleMerchantChange}
+                placeholder="Enter country code"
+                disabled={loadingUpdateMerchant}
+              />
+            </div>
+            {errorUpdateMerchant && (
+              <p className="error-text">
+                Error updating: {errorUpdateMerchant}
+              </p>
+            )}
           </div>
-          <div className="form-group">
-            <label htmlFor="countryCode">Country Code</label>
-            <input
-              type="text"
-              id="countryCode"
-              name="countryCode"
-              value={merchantSettings?.countryCode || ""}
-              onChange={handleMerchantChange}
-              placeholder="Enter country code"
-              disabled={loadingUpdateMerchant}
-            />
+
+          <div className="settings-card">
+            <h2>Payout Schedule</h2>
+            <div className="form-group">
+              <label htmlFor="schedule">Current Schedule</label>
+              <select
+                id="schedule"
+                value={payoutSchedule || "Current"}
+                onChange={handleScheduleChange}
+                disabled={loadingUpdateMerchant}
+              >
+                <option value="Current">Current</option>
+                <option value="Daily">Daily</option>
+                <option value="Weekly">Weekly</option>
+                <option value="Monthly">Monthly</option>
+              </select>
+            </div>
           </div>
-          {errorUpdateMerchant && (
-            <p className="error-text">Error updating: {errorUpdateMerchant}</p>
-          )}
         </div>
 
-        <div className="settings-card">
-          <h2>Payout Schedule</h2>
-          <div className="form-group">
-            <label htmlFor="schedule">Current Schedule</label>
-            <select
-              id="schedule"
-              value={payoutSchedule || "Current"}
-              onChange={handleScheduleChange}
-              disabled={loadingUpdateMerchant}
-            >
-              <option value="Current">Current</option>
-              <option value="Daily">Daily</option>
-              <option value="Weekly">Weekly</option>
-              <option value="Monthly">Monthly</option>
-            </select>
+        <div className="transactions-card">
+          <h2>Recent Transactions</h2>
+          <div className="transactions-table">
+            <TransactionsTable />
           </div>
-        </div>
-      </div>
-
-      <div className="transactions-card">
-        <h2>Recent Transactions</h2>
-        <div className="transactions-table">
-          <TransactionsTable />
         </div>
       </div>
     </div>

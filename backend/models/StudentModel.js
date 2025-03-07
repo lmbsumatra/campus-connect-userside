@@ -10,12 +10,12 @@ Student.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    user_id: { 
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'users', 
-        key: 'user_id',
+        model: "users",
+        key: "user_id",
       },
     },
     tup_id: {
@@ -24,7 +24,7 @@ Student.init(
       allowNull: false,
     },
     college: {
-      type: DataTypes.ENUM("CAFA","CIE","CIT","CLA","COE","COS"),
+      type: DataTypes.ENUM("CAFA", "CIE", "CIT", "CLA", "COE", "COS"),
       allowNull: false,
     },
     scanned_id: {

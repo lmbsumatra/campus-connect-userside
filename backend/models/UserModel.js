@@ -51,6 +51,11 @@ const User = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: true, // Allow null initially, update when Stripe account is linked
     },
+    is_stripe_completed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
   },
   { sequelize, modelName: "User", tableName: "users" }
 );
