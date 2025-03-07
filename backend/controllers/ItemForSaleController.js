@@ -382,7 +382,7 @@ exports.updateItemForSale = async (req, res) => {
 // };
 
 exports.updateStatus = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { status } = req.body;
 
   try {

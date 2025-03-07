@@ -166,7 +166,7 @@ module.exports = ({ emitNotification }) => {
   const getRentalReportById = async (req, res) => {
     try {
       const { reportId } = req.params;
-      console.log(`Fetching report with ID: ${reportId}`);
+      // console.log(`Fetching report with ID: ${reportId}`);
 
       const report = await models.RentalReport.findByPk(reportId, {
         include: [
@@ -187,7 +187,7 @@ module.exports = ({ emitNotification }) => {
       });
 
       if (!report) {
-        console.log(`Report not found for ID: ${reportId}`); // Log if report is not found
+        // console.log(`Report not found for ID: ${reportId}`); // Log if report is not found
         return res.status(404).json({ error: "Report not found" });
       }
       return res.status(200).json(report);

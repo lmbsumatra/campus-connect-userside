@@ -11,7 +11,7 @@ cron.schedule("0 * * * *", async () => {
 
     // Get today's date in Asia/Manila timezone and format it to YYYY-MM-DD
     const formattedToday = moment.tz("Asia/Manila").format("YYYY-MM-DD");
-    console.log("Today (GMT+8):", formattedToday);
+    // console.log("Today (GMT+8):", formattedToday);
 
     // Fetch all records for debugging
     const allDates = await EndSemesterDate.findAll();
@@ -28,16 +28,16 @@ cron.schedule("0 * * * *", async () => {
     // console.log("Matching Record:", endSemesterDate);
 
     if (endSemesterDate) {
-      console.log("End semester date found. Resetting 'verified' students to 'pending'...");
+      // console.log("End semester date found. Resetting 'verified' students to 'pending'...");
     
       await Student.update(
         { status: "pending" },
         { where: { status: "verified" } } // ✅ Only verified students are affected
       );
     
-      console.log("Verified students have been reset to 'pending'.");
+      // console.log("Verified students have been reset to 'pending'.");
     } else {
-      console.log("No matching end semester date found.");
+      // console.log("No matching end semester date found.");
     }
   } catch (error) {
     console.error("Error in cron job: ", error);

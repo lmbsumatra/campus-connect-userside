@@ -38,7 +38,6 @@ const getAllItemForSaleByUser = async (req, res) => {
       ],
     });
 
-    console.log(items[0]);
     const formattedItems = items.map((item) => {
       return {
         id: item.id,

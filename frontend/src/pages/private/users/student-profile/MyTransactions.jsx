@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import TransactionsTable from "../../../../components/User/LendersPOV/Transactions";
 import {
-  clearMerchantData,
   fetchMerchant,
   updateMerchant,
 } from "../../../../redux/merchant/merchantSlice";

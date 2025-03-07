@@ -70,7 +70,7 @@ router.post("/createConversation", async (req, res) => {
 // Create a conversation between user and renter
 router.post("/createConversationPost", async (req, res) => {
   const { senderId, renterId } = req.body; // Extract senderId and ownerId from request body
-  console.log({ senderId, renterId });
+  // console.log({ senderId, renterId });
   try {
     // Check if senderId and ownerId are provided
     if (!senderId || !renterId) {
@@ -325,7 +325,7 @@ router.get("/:conversationId/messages", async (req, res) => {
 
 // Add this new route to get conversations with latest message and unread status
 router.get("/preview/:userId", async (req, res) => {
-  console.log("Fetching conversations for user:", req.params.userId);
+  // console.log("Fetching conversations for user:", req.params.userId);
   try {
     const userId = req.params.userId;
 

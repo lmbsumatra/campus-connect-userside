@@ -36,7 +36,7 @@ exports.getAllTransactions = async (req, res) => {
       ],
     });
 
-    console.log(rentalTransactions);
+    // console.log(rentalTransactions);
 
     // Combine and return transactions
     const transactions = [

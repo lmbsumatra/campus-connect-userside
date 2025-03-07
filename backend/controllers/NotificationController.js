@@ -19,7 +19,7 @@ const notificationController = {
 
   // Create a new student notification
   createStudentNotification: async (req, res) => {
-    console.log("createStudentNotification called with body:", req.body);
+    // console.log("createStudentNotification called with body:", req.body);
     try {
       // Validate required fields
       const requiredFields = ["sender_id", "recipient_id", "type", "message"];
@@ -42,12 +42,12 @@ const notificationController = {
         transaction_report_id: report.id,
       });
 
-      console.log("Creating notification with data:", notificationData);
+      // console.log("Creating notification with data:", notificationData);
 
-      console.log(
-        "StudentNotification created successfully:",
-        notification.toJSON()
-      );
+      // console.log(
+      //   "StudentNotification created successfully:",
+      //   notification.toJSON()
+      // );
       res.status(201).json(notification);
     } catch (error) {
       console.error("Error in createStudentNotification:", error);
@@ -131,7 +131,7 @@ const notificationController = {
 
   createMessageNotification: async (req, res) => {
     try {
-      console.log("Creating message notification with body:", req.body);
+      // console.log("Creating message notification with body:", req.body);
       const notification = await MessageNotification.create({
         recipient_id: req.body.recipient_id,
         sender_id: req.body.sender_id,
@@ -152,7 +152,7 @@ const notificationController = {
   getMessageNotifications: async (req, res) => {
     try {
       const { userId } = req.params;
-      console.log("Fetching notifications for userId:", userId);
+      // console.log("Fetching notifications for userId:", userId);
 
       const notifications = await MessageNotification.findAll({
         where: { recipient_id: userId },
@@ -183,7 +183,7 @@ const notificationController = {
   },
   markAllMessagesAsRead: async (userId) => {
     try {
-      console.log(`Marking all messages as read for user: ${userId}`);
+      // console.log(`Marking all messages as read for user: ${userId}`);
 
       const updatedRows = await MessageNotification.update(
         { is_read: true },

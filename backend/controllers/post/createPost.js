@@ -45,7 +45,7 @@ const validateRentalDates = (rentalDates) => {
 const rollbackUpload = async (files) => {
   try {
     for (const file of files) {
-      console.log(`Rolling back file: ${file}`);
+      // console.log(`Rolling back file: ${file}`);
     }
   } catch (err) {
     console.error("Error during image rollback:", err);
@@ -56,13 +56,13 @@ const createPost = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    console.log("Received POST data:", req.body.post);
-    console.log("Received Files:", req.files);
+    // console.log("Received POST data:", req.body.post);
+    // console.log("Received Files:", req.files);
 
     const postData =
       typeof req.body.post === "string" ? JSON.parse(req.body.post) : req.body.post;
 
-    console.log("Parsed Post Data:", postData);
+    // console.log("Parsed Post Data:", postData);
 
     if (!postData) {
       throw new Error("Post data is missing");
@@ -72,11 +72,11 @@ const createPost = async (req, res) => {
     validatePostData(postData);
 
     const imagePaths = validateImages(req.files.upload_images);
-    console.log("Uploaded Images Paths:", imagePaths);
+    // console.log("Uploaded Images Paths:", imagePaths);
 
     // Validate rental dates if present
     if (Array.isArray(postData.dates)) {
-      console.log("Rental Dates:", postData.dates);
+      // console.log("Rental Dates:", postData.dates);
       validateRentalDates(postData.dates);
     }
 
@@ -96,7 +96,7 @@ const createPost = async (req, res) => {
       { transaction }
     );
 
-    console.log("Post Created:", post);
+    // console.log("Post Created:", post);
 
     // Process rental dates (if any)
     if (Array.isArray(postData.dates)) {

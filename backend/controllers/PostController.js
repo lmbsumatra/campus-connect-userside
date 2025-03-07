@@ -93,7 +93,7 @@ exports.getAllApprovedPost = async (req, res) => {
 
 // Get all approved posts for a specific user (by userId)
 exports.getAvailablePostsByUser = async (req, res) => {
-  console.log("userId", req.query);
+  // console.log("userId", req.query);
   try {
     // Extract userId from query params or route parameters
     const { userId } = req.query; // or req.params if userId is in URL params

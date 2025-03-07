@@ -125,7 +125,7 @@ const seedListing = async () => {
     );
 
     await transaction.commit();
-    console.log(`Listing created successfully with ID: ${listing.id}`);
+    // console.log(`Listing created successfully with ID: ${listing.id}`);
     return listing;
   } catch (error) {
     if (transaction) await transaction.rollback();

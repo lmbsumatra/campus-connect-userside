@@ -63,7 +63,7 @@ module.exports = ({ emitNotification }) => {
       };
 
       const rental = await models.RentalTransaction.create(rentalData);
-      console.log("Rental transaction created:", rental);
+      // console.log("Rental transaction created:", rental);
 
       // Add Notification Logic Here >>>>
       const renterName = await getUserNames(renter_id);

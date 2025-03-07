@@ -2,9 +2,8 @@ const { models } = require("../../models/index");
 
 const addCartItem = async (req, res) => {
   const user_id = req.user.userId;
-  console.log("Authenticated User:", req.user);
-
-  console.log("Request received to add item to cart:", req.body);
+  // console.log("Authenticated User:", req.user);
+  // console.log("Request received to add item to cart:", req.body);
 
   try {
     const { ownerId, itemId, itemType, dateId, durationId, price } = req.body;

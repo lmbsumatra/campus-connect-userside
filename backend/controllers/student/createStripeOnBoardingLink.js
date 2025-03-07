@@ -1,11 +1,10 @@
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
-); // Replace with your Stripe secret key
+); 
 
 const { models } = require("../../models");
 
 const createStripeOnBoardingLink = async (req, res) => {
-  console.log(req.body);
   let account;
   try {
     const { email, userId } = req.body; // Assume userId is passed from the frontend

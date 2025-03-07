@@ -45,9 +45,9 @@ router.put(
   "/message/mark-all-read/:userId",
   asyncHandler(async (req, res) => {
     try {
-      console.log("Received params:", req.params); // Log the params to verify
+      // console.log("Received params:", req.params); // Log the params to verify
       const { userId } = req.params;
-      console.log(`Marking all messages as read for user: ${userId}`);
+      // console.log(`Marking all messages as read for user: ${userId}`);
       await notificationController.markAllMessagesAsRead(req.params.userId);
       res.json({ message: "All messages marked as read" });
     } catch (error) {

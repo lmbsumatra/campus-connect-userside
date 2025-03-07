@@ -3,7 +3,7 @@ const { models } = require("../../models/index");
 const { Op } = require("sequelize");
 
 const createReview = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   try {
     const {
       reviewer_id,
@@ -77,13 +77,13 @@ const createReview = async (req, res) => {
       await models.RentalTransaction.update(updateFields, {
         where: { id: transaction_id },
       });
-      console.log(
-        `Transaction ${transaction_id} updated successfully with review confirmation.`
-      );
+      // console.log(
+      //   `Transaction ${transaction_id} updated successfully with review confirmation.`
+      // );
     } else {
-      console.log(
-        `Transaction ${transaction_id} is not 'completed'. No update to status or confirmations.`
-      );
+      // console.log(
+      //   `Transaction ${transaction_id} is not 'completed'. No update to status or confirmations.`
+      // );
     }
 
     // Step 4: Send a success response
@@ -91,7 +91,7 @@ const createReview = async (req, res) => {
       message: "Review created successfully and transaction updated.",
       review: newReview,
     });
-    console.log("Review and transaction update successful.");
+    // console.log("Review and transaction update successful.");
   } catch (error) {
     console.error("Error creating review:", error);
     let errorMessage = "An error occurred while creating the review.";

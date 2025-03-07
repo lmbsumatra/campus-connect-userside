@@ -435,7 +435,7 @@ exports.getListingById = async (req, res) => {
 
 // Update the status of a listing
 exports.updateStatus = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { status } = req.body;
 
   try {
@@ -448,7 +448,7 @@ exports.updateStatus = async (req, res) => {
     await listing.save();
 
     res.status(200).json(listing);
-    console.log(listing);
+    // console.log(listing);
   } catch (error) {
     console.error("Error updating listing status:", error);
     res.status(500).json({ error: error.message });

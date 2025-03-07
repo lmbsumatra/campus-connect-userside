@@ -31,44 +31,44 @@ function initializeSocket(server) {
   const userSockets = new Map();
 
   io.on("connection", (socket) => {
-    console.log("Client connected:", socket.id);
+    // console.log("Client connected:", socket.id);
 
     // Track admin connections
     socket.on("admin-connect", () => {
       adminSockets.add(socket.id);
-      console.log(
-        "Admin connected. Current admin sockets:",
-        Array.from(adminSockets)
-      );
+      // console.log(
+      //   "Admin connected. Current admin sockets:",
+      //   Array.from(adminSockets)
+      // );
     });
 
     // Handle listing notifications
     socket.on("new-listing-notification", (notification) => {
-      console.log("Received new listing notification:", notification);
-      console.log(
-        "Current admin sockets when receiving listing:",
-        Array.from(adminSockets)
-      );
+      // console.log("Received new listing notification:", notification);
+      // console.log(
+      //   "Current admin sockets when receiving listing:",
+      //   Array.from(adminSockets)
+      // );
       notifyAdmins(notification);
     });
 
     // Handle item-for-sale notifications
     socket.on("new-item-for-sale-notification", (notification) => {
-      console.log("Received new item-for-sale notification:", notification);
-      console.log(
-        "Current admin sockets when receiving item-for-sale:",
-        Array.from(adminSockets)
-      );
+      // console.log("Received new item-for-sale notification:", notification);
+      // console.log(
+      //   "Current admin sockets when receiving item-for-sale:",
+      //   Array.from(adminSockets)
+      // );
       notifyAdmins(notification);
     });
 
     // Handle post notifications
     socket.on("new-post", (notification) => {
-      console.log("Received new post notification:", notification);
-      console.log(
-        "Current admin sockets when receiving post:",
-        Array.from(adminSockets)
-      );
+      // console.log("Received new post notification:", notification);
+      // console.log(
+      //   "Current admin sockets when receiving post:",
+      //   Array.from(adminSockets)
+      // );
       notifyAdmins(notification);
     });
 
@@ -83,12 +83,12 @@ function initializeSocket(server) {
         userSockets.get(userIdStr).add(socket.id);
 
         socket.join(userIdStr); // Join room
-        console.log(
-          `User ${userIdStr} registered with socket ID ${socket.id} and joined room ${userIdStr}`
-        );
+        // console.log(
+        //   `User ${userIdStr} registered with socket ID ${socket.id} and joined room ${userIdStr}`
+        // );
 
         const rooms = Array.from(socket.rooms);
-        console.log(`Current rooms for user ${userIdStr}:`, rooms);
+        // console.log(`Current rooms for user ${userIdStr}:`, rooms);
 
         // Send unread count
         const unreadCount = await calculateUnreadMessages(userId);
@@ -100,7 +100,7 @@ function initializeSocket(server) {
 
     //Handle student notification events
     socket.on("sendNotification", async (notificationData) => {
-      console.log("🔔 Received sendNotification event:", notificationData);
+      // console.log("Received sendNotification event:", notificationData);
       try {
         const notificationPayload = {
           sender_id: notificationData.sender,
@@ -112,38 +112,38 @@ function initializeSocket(server) {
           rental_report_id: notificationData.rental_report_id || null,
         };
 
-        console.log("Creating notification with payload:", notificationPayload);
+        // console.log("Creating notification with payload:", notificationPayload);
 
         const notification = await StudentNotification.create(
           notificationPayload
         );
-        console.log(
-          "✅ Notification saved to database:",
-          notification.toJSON()
-        );
+        // console.log(
+        //   "Notification saved to database:",
+        //   notification.toJSON()
+        // );
 
         // Emit to the recipient's room using their user ID
         io.to(notificationData.recipient.toString()).emit(
           "receiveNotification",
           notification.toJSON()
         );
-        console.log(
-          `✅ Notification emitted to room: ${notificationData.recipient}`
-        );
+        // console.log(
+        //   `Notification emitted to room: ${notificationData.recipient}`
+        // );
       } catch (error) {
-        console.error("❌ Error handling sendNotification event:", error);
+        console.error("Error handling sendNotification event:", error);
       }
     });
 
     // Listen for messages and send them to the recipient
     socket.on("sendMessageToUser", async (data) => {
       const { sender, recipient, text, images, conversationId, isProductCard, productDetails } = data;
-      console.log(`Message from user ${sender} to user ${recipient}: ${text}`);
+      // console.log(`Message from user ${sender} to user ${recipient}: ${text}`);
 
       try {
         // Prevent self-notification
         if (sender === recipient) {
-          console.log("Prevented self-notification");
+          // console.log("Prevented self-notification");
           return;
         }
 
@@ -176,7 +176,7 @@ function initializeSocket(server) {
 
           //e Send message to the recipient's room
           io.to(recipientStr).emit("receiveMessage", messageData);
-          console.log(`Message sent to user ${recipientStr}'s room`);
+          // console.log(`Message sent to user ${recipientStr}'s room`);
 
         if (recipientSocketId) {
           // Send message to recipient
@@ -187,16 +187,16 @@ function initializeSocket(server) {
             otherUser: { userId: sender },
             timestamp: new Date(),
           });
-          console.log(`Message sent to user ${recipient}`);
+          // console.log(`Message sent to user ${recipient}`);
 
           // Update badge count
           const unreadCount = await MessageNotification.count({
             where: { recipient_id: recipient, is_read: false },
           });
-          console.log(`Unread count for user ${recipient}:`, unreadCount);
+          // console.log(`Unread count for user ${recipient}:`, unreadCount);
           io.to(recipientSocketId).emit("updateBadgeCount", unreadCount);
         } else {
-          console.log(`User ${recipient} not connected`);
+          // console.log(`User ${recipient} not connected`);
           // Notification is already created above, even if user is offline
         }
 
@@ -242,23 +242,23 @@ function initializeSocket(server) {
     // handle trigger on transaction update status
     socket.on("update-transaction-status", (data) => {
       const { rentalId, sender, recipient, status } = data;
-      console.log(
-        `Rental update for rental ${rentalId}: Status changed to ${status} sender${sender} receiver${recipient}`
-      );
+      // console.log(
+      //   `Rental update for rental ${rentalId}: Status changed to ${status} sender${sender} receiver${recipient}`
+      // );
 
       try {
         if (sender === recipient) {
-          console.log("Self-notification prevented.");
+          // console.log("Self-notification prevented.");
           return;
         }
 
         const recipientSockets = userSockets.get(recipient.toString());
 
         if (recipientSockets && recipientSockets.size > 0) {
-          console.log(
-            `✅ Sending rental update to user ${recipient} on sockets:`,
-            recipientSockets
-          );
+          // console.log(
+          //   `✅ Sending rental update to user ${recipient} on sockets:`,
+          //   recipientSockets
+          // );
 
           recipientSockets.forEach((socketId) => {
             io.to(socketId).emit("receiveRentalUpdate", {
@@ -269,11 +269,11 @@ function initializeSocket(server) {
             });
           });
 
-          console.log(
-            `✅ Rental update successfully sent to user ${recipient}`
-          );
+          // console.log(
+          //   `✅ Rental update successfully sent to user ${recipient}`
+          // );
         } else {
-          console.log(`⚠️ User ${recipient} is offline. Notification stored.`);
+          // console.log(`User ${recipient} is offline. Notification stored.`);
         }
       } catch (error) {
         console.error("Error processing rental update:", error);
@@ -288,26 +288,26 @@ function initializeSocket(server) {
       for (const [userId, socketSet] of userSockets.entries()) {
         if (socketSet.has(socket.id)) {
           socketSet.delete(socket.id);
-          console.log(`Socket ${socket.id} removed for user ${userId}`);
+          // console.log(`Socket ${socket.id} removed for user ${userId}`);
 
           // If no more sockets for this user, remove the user entry
           if (socketSet.size === 0) {
             userSockets.delete(userId);
-            console.log(`User ${userId} completely disconnected`);
+            // console.log(`User ${userId} completely disconnected`);
           }
         }
       }
 
-      console.log(
-        "Client disconnected. Remaining admin sockets:",
-        Array.from(adminSockets)
-      );
+      // console.log(
+      //   "Client disconnected. Remaining admin sockets:",
+      //   Array.from(adminSockets)
+      // );
     });
   });
   // Function to notify all connected admins
   const notifyAdmins = (notification) => {
-    console.log("Sending notification to admins:", notification);
-    console.log("Number of admin sockets:", adminSockets.size);
+    // console.log("Sending notification to admins:", notification);
+    // console.log("Number of admin sockets:", adminSockets.size);
 
     const eventName =
       notification.type === "new-item-for-sale"
@@ -318,7 +318,7 @@ function initializeSocket(server) {
 
     // Emit notification to all connected admins
     adminSockets.forEach((socketId) => {
-      console.log(`Emitting ${eventName} to socket ${socketId}`);
+      // console.log(`Emitting ${eventName} to socket ${socketId}`);
       io.to(socketId).emit(eventName, notification);
     });
   };
@@ -328,9 +328,9 @@ function initializeSocket(server) {
     const recipientStr = recipientId.toString();
     try {
       io.to(recipientStr).emit("receiveNotification", notification);
-      console.log(`✅ Notification sent to user ${recipientStr}'s room`);
+      // console.log(`✅ Notification sent to user ${recipientStr}'s room`);
     } catch (error) {
-      console.error("❌ Error emitting user notification:", error);
+      console.error("Error emitting user notification:", error);
     }
   };
 
