@@ -8,6 +8,7 @@ import AdminChangePassword from "./AdminChangePassword";
 import AdminViewAccounts from "./AdminViewAccounts"; // Import the new component
 import AdminUnavailableDates from "./AdminUnavailableDates";
 import AdminResetStatus from "./AdminResetStatus";
+import AdminViewSystemConfig from "./AdminViewSystemConfig";
 
 const AdminSettings = ({ tab, onClose }) => {
   const navigate = useNavigate();
@@ -24,8 +25,10 @@ const AdminSettings = ({ tab, onClose }) => {
   const [showManageDates, setShowManageDates] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showManageEndSemesterDates, setShowManageEndSemesterDates] = useState(false);
+  const [showManageEndSemesterDates, setShowManageEndSemesterDates] =
+    useState(false);
 
+  const [showSystemConfig, setShowSystemConfig] = useState(false);
 
   // User data state
   const [userData, setUserData] = useState({
@@ -185,7 +188,7 @@ const AdminSettings = ({ tab, onClose }) => {
           {showAccounts ? "Hide Accounts" : "View Admin Accounts"}
         </button>
         {showAccounts && <AdminViewAccounts />}
-        
+
         {/* Changing password for Admin/SuperAdmin */}
         <div>
           <button
@@ -210,12 +213,19 @@ const AdminSettings = ({ tab, onClose }) => {
           </button>
         )}
 
-         {/* Manage to add unavailable dates*/}
+        {/* Manage to add unavailable dates*/}
         <div>
-          {adminUser?.role === "superadmin" && (<button className="btn btn-warning mt-2" onClick={() => setShowManageDates(true)}>
-                      Manage Unavailable Dates
-                    </button>)}
-                  {showManageDates && (<AdminUnavailableDates onClose={() => setShowManageDates(false)} />)}
+          {adminUser?.role === "superadmin" && (
+            <button
+              className="btn btn-warning mt-2"
+              onClick={() => setShowManageDates(true)}
+            >
+              Manage Unavailable Dates
+            </button>
+          )}
+          {showManageDates && (
+            <AdminUnavailableDates onClose={() => setShowManageDates(false)} />
+          )}
         </div>
 
         <div>
@@ -229,10 +239,11 @@ const AdminSettings = ({ tab, onClose }) => {
           )}
 
           {showManageEndSemesterDates && (
-            <AdminResetStatus onClose={() => setShowManageEndSemesterDates(false)} />
+            <AdminResetStatus
+              onClose={() => setShowManageEndSemesterDates(false)}
+            />
           )}
         </div>
- 
 
         {showCreateAcctWindow && (
           <div className="modal show bg-shadow" style={{ display: "block" }}>
@@ -359,13 +370,21 @@ const AdminSettings = ({ tab, onClose }) => {
                           className="form-control"
                           required
                         />
-                        <button type="button" className="btn btn-outline-secondary" onClick={() => togglePasswordVisibility("password")}>
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary"
+                          onClick={() => togglePasswordVisibility("password")}
+                        >
                           {showPassword ? "Hide" : "Show"}
                         </button>
                       </div>
-                      {userData.password && <PasswordMeter password={userData.password} />}
+                      {userData.password && (
+                        <PasswordMeter password={userData.password} />
+                      )}
                       <div className="input-group">
-                        <span className="input-group-text">Confirm Password</span>
+                        <span className="input-group-text">
+                          Confirm Password
+                        </span>
                         <input
                           type={showConfirmPassword ? "text" : "password"}
                           name="confirmPassword"
@@ -374,7 +393,13 @@ const AdminSettings = ({ tab, onClose }) => {
                           className="form-control"
                           required
                         />
-                        <button type="button" className="btn btn-outline-secondary" onClick={() => togglePasswordVisibility("confirmPassword")}>
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary"
+                          onClick={() =>
+                            togglePasswordVisibility("confirmPassword")
+                          }
+                        >
                           {showConfirmPassword ? "Hide" : "Show"}
                         </button>
                       </div>
@@ -394,6 +419,23 @@ const AdminSettings = ({ tab, onClose }) => {
             </div>
           </div>
         )}
+
+        {/* system config update: stripe(enable, disable) */}
+        <div>
+          <button
+            className="btn btn-secondary mb-2"
+            onClick={() => setShowSystemConfig(true)}
+          >
+            View System Configuration
+          </button>
+
+          {showSystemConfig && (
+            <AdminViewSystemConfig
+              show={showSystemConfig}
+              onClose={() => setShowSystemConfig(false)}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

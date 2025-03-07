@@ -1,0 +1,35 @@
+.status-enabled {
+  color: green;
+  font-weight: bold;
+}
+
+.status-disabled {
+  color: red;
+  font-weight: bold;
+}
+
+.btn {
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background 0.3s ease-in-out;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: black;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
+
+.table td,
+.table th {
+  vertical-align: middle !important;
+}

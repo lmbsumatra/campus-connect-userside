@@ -24,6 +24,7 @@ const followRoutes = require("./routes/FollowRoutes");
 const reportRoutes = require("./routes/ReportRoute");
 const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
 const uploadRoutes = require("./routes/UploadRoute.js");
+const systemConfigRoutes = require("./routes/SystemConfigRoutes.js");
 
 // Cron Jobs
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -114,6 +115,8 @@ app.use(
   "/rental-transaction",
   rentalTransactionRoutes(rentalTransactionController)
 );
+
+app.use("/api/system-config", systemConfigRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

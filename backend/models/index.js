@@ -27,6 +27,7 @@ const Follow = require("./FollowModel");
 const TransactionReport = require("./TransactionReportsModel");
 const TransactionEvidence = require("./TransactionEvidenceModel");
 const TransactionReportResponse = require("./TransactionResponseModel");
+const SystemConfig = require("./SystemConfigModel");
 
 const models = {
   Listing,
@@ -54,6 +55,7 @@ const models = {
   // RentalReport,
   // RentalEvidence,
   // RentalReportResponse,
+  SystemConfig,
 };
 
 Object.values(models).forEach((model) => {
