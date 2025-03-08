@@ -4,13 +4,16 @@ const { models } = require("../../models");
 const updateSystemConfig = async (req, res) => {
   try {
     let { config_value } = req.body;
-    let { config } = req.params; // Use 'let' instead of 'const' if modification is needed
+    let { config } = req.params;
 
-    console.log("Received from backend:", config, config_value);
+    // Convert frontend-friendly keys to DB keys
+    const configMapping = {
+      "Stripe": "is_stripe_allowed",
+      "Generate Sample Data": "generate_sample_data",
+    };
 
-    // Rename "stripe" to "is_stripe_allowed" before querying the DB
-    if (config === "Stripe") {
-      config = "is_stripe_allowed";
+    if (configMapping[config]) {
+      config = configMapping[config];
     }
 
     const existingConfig = await models.SystemConfig.findOne({
@@ -24,10 +27,14 @@ const updateSystemConfig = async (req, res) => {
     existingConfig.config_value = config_value;
     await existingConfig.save();
 
+    // Convert DB keys back to frontend-friendly keys
+    const reverseMapping = {
+      is_stripe_allowed: "Stripe",
+      generate_sample_data: "Generate Sample Data",
+    };
+
     res.status(200).json({
-      [existingConfig.config === "is_stripe_allowed"
-        ? "Stripe"
-        : existingConfig.config]: existingConfig.config_value,
+      [reverseMapping[existingConfig.config] || existingConfig.config]: existingConfig.config_value,
     });
   } catch (error) {
     console.error("Error updating system config:", error);

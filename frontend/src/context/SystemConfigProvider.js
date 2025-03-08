@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
-import { baseApi } from "../App";
+import React, { createContext, useContext, useEffect } from "react";
 import { fetchSystemConfig } from "../redux/system-config/systemConfigSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -23,7 +21,6 @@ export const SystemConfigProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use system config
 export const useSystemConfig = () => {
   return useContext(SystemConfigContext);
 };

@@ -59,11 +59,7 @@ import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import { addItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
-
-const UNAVAILABLE_DATES = [
-  new Date(2024, 11, 25), // Christmas
-  new Date(2025, 0, 1), // New Year's
-];
+import { useSystemConfig } from "../../../../context/SystemConfigProvider.js";
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
@@ -125,6 +121,8 @@ const AddNewItem = () => {
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
   const [localImages, setLocalImages] = useState([]);
+  const { config, loading } = useSystemConfig();
+  console.log(config?.Stripe);
 
   const handleGenerateData = () => {
     dispatch(generateSampleData());
@@ -372,8 +370,6 @@ const AddNewItem = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log(response.data);
-
       /* if (socket) {
         const notification = {
           title: `New ${itemType === FOR_RENT ? "Listing!" : "Item for Sale!"}`,
@@ -437,7 +433,9 @@ const AddNewItem = () => {
   return (
     <div className="container-content add-item-detail">
       <BreadCrumb breadcrumbs={addItemBreadcrumbs({ itemType })} />
-      <button onClick={handleGenerateData}>Generate Sample Data</button>
+      {config["Generate Sample Data"] && (
+        <button onClick={handleGenerateData}>Generate Sample Data</button>
+      )}
       <div className="add-item-container">
         <div className="imgs-container">
           <Tooltip title={`This item is ${itemType}`}>
@@ -538,7 +536,6 @@ const AddNewItem = () => {
               <div className="validation error d-block">
                 <img src={warningIcon} className="icon" alt="Error indicator" />
                 <span className="text">
-                  {" "}
                   {itemDataState.availableDates.error}
                 </span>
               </div>
@@ -584,53 +581,36 @@ const AddNewItem = () => {
           <div className="group-container delivery-method">
             <label className="label">Delivery Method</label>
             <div className="delivery-method">
-              <Tooltip
-                title="Owner did not set delivery method, you decide whether to meetup or pickup."
-                placement="bottom"
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, -10],
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                <div className="action-btns">
-                  <button
-                    className={`value ${
-                      itemDataState.deliveryMethod.value === MEET_UP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "deliveryMethod", value: MEET_UP })
-                      )
-                    }
-                  >
-                    Meet up
-                  </button>
-                  <button
-                    className={`value ${
-                      itemDataState.deliveryMethod.value === PICK_UP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "deliveryMethod", value: PICK_UP })
-                      )
-                    }
-                  >
-                    Pick up
-                  </button>
-                </div>
-              </Tooltip>
+              <div className="action-btns">
+                <button
+                  className={`value ${
+                    itemDataState.deliveryMethod.value === MEET_UP
+                      ? "selected"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    dispatch(
+                      updateField({ name: "deliveryMethod", value: MEET_UP })
+                    )
+                  }
+                >
+                  Meet up
+                </button>
+                <button
+                  className={`value ${
+                    itemDataState.deliveryMethod.value === PICK_UP
+                      ? "selected"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    dispatch(
+                      updateField({ name: "deliveryMethod", value: PICK_UP })
+                    )
+                  }
+                >
+                  Pick up
+                </button>
+              </div>
             </div>
           </div>
           {itemDataState.deliveryMethod.triggered &&
@@ -646,11 +626,8 @@ const AddNewItem = () => {
           <div className="group-container payment-method ">
             <label className="label">Payment Method</label>
             <div className="delivery-method">
-              <Tooltip
-                title="Owner did not set delivery method, you decide whether to meetup or pickup."
-                placement="bottom"
-              >
-                <div className="action-btns">
+              <div className="action-btns">
+                {config?.Stripe && (
                   <button
                     className={`value ${
                       itemDataState.paymentMethod.value === GCASH
@@ -665,25 +642,25 @@ const AddNewItem = () => {
                   >
                     Gcash
                   </button>
-                  <button
-                    className={`value ${
-                      itemDataState.paymentMethod.value === PAY_UPON_MEETUP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({
-                          name: "paymentMethod",
-                          value: PAY_UPON_MEETUP,
-                        })
-                      )
-                    }
-                  >
-                    Pay upon meetup
-                  </button>
-                </div>
-              </Tooltip>
+                )}
+                <button
+                  className={`value ${
+                    itemDataState.paymentMethod.value === PAY_UPON_MEETUP
+                      ? "selected"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    dispatch(
+                      updateField({
+                        name: "paymentMethod",
+                        value: PAY_UPON_MEETUP,
+                      })
+                    )
+                  }
+                >
+                  Pay upon meetup
+                </button>
+              </div>
             </div>
           </div>
 

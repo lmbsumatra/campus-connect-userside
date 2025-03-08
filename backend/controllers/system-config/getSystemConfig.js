@@ -4,13 +4,21 @@ const { models } = require("../../models");
 const getSystemConfig = async (req, res) => {
   try {
     const configs = await models.SystemConfig.findAll();
+    
     const configMap = {};
 
     configs.forEach((config) => {
-      // Rename "is_stripe_allowed" to "stripe"
-      const key = config.config === "is_stripe_allowed" ? "Stripe" : config.config;
+      let key = config.config;
+    
+      if (config.config === "is_stripe_allowed") {
+        key = "Stripe";
+      } else if (config.config === "generate_sample_data") {
+        key = "Generate Sample Data";
+      }
+    
       configMap[key] = config.config_value;
     });
+    
 
     res.status(200).json(configMap);
   } catch (error) {
