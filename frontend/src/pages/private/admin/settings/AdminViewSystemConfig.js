@@ -2,9 +2,12 @@ import React from "react";
 import { Modal, Button, Table } from "react-bootstrap";
 import { useSystemConfig } from "../../../../context/SystemConfigProvider";
 import "./adminViewConfigStyles.css";
+import { updateSystemConfig } from "../../../../redux/system-config/systemConfigSlice";
+import { useDispatch } from "react-redux";
 
 const AdminViewSystemConfig = ({ show, onClose }) => {
   const { config, loading } = useSystemConfig();
+  const dispatch = useDispatch();
 
   if (loading) {
     return (
@@ -14,7 +17,9 @@ const AdminViewSystemConfig = ({ show, onClose }) => {
     );
   }
 
-  console.log("Config Data:", config);
+  const handleSystemConfigAction = ({ key, value }) => {
+    dispatch(updateSystemConfig({ config: key, config_value: !value }));
+  };
 
   return (
     <Modal show={show} onHide={onClose} centered>
@@ -42,6 +47,7 @@ const AdminViewSystemConfig = ({ show, onClose }) => {
                 <td>
                   <button
                     className={`btn btn-${value ? "success" : "warning"}`}
+                    onClick={(e) => handleSystemConfigAction({ key, value })}
                   >
                     {value ? "Disable" : "Enable"}
                   </button>

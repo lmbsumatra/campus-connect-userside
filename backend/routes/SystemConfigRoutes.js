@@ -3,6 +3,6 @@ const router = express.Router();
 const SystemConfigController = require("../controllers/system-config/SystemConfigController"); 
 
 router.get("/", SystemConfigController.getSystemConfig); 
-router.put("/", SystemConfigController.updateSystemConfig);
+router.put("/:config", SystemConfigController.updateSystemConfig);
 
 module.exports = router;

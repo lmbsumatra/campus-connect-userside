@@ -34,6 +34,7 @@ import unavailableDatesReducer from "../redux/dates/unavaibleDatesSlice";
 import allPostsByUserReducer from "../redux/post/allPostsByUserSlice";
 import rentalReportsReducer from "../redux/reports/RentalReportsSlice";
 import postMatchedItemsReducer from "../redux/post/postMatchedItems.js";
+import systemConfigReducer from "../redux/system-config/systemConfigSlice.js";
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -70,6 +71,7 @@ const appReducer = combineReducers({
   allPostsByUser: allPostsByUserReducer,
   postMatchedItems: postMatchedItemsReducer,
   rentalReports: rentalReportsReducer,
+  systemConfig: systemConfigReducer,
 });
 
 // Root reducer with reset functionality
