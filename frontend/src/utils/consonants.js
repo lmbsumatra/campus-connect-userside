@@ -50,8 +50,8 @@ export const RENT = "rent";
 export const SHOP = "shop";
 export const LEND = "lend";
 
-export const MY_LISTINGS = "profile/my-listings/edit";
-export const MY_ITEMS = "profile/my-for-sale/edit";
+export const MY_LISTINGS = "profile/my-listings";
+export const MY_ITEMS = "profile/my-for-sale";
 
 // filters
 

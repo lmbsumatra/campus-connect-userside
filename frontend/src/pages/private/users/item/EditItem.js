@@ -9,7 +9,7 @@ import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs.jsx";
 import AddItemBadges from "../common/AddItemBadges.jsx";
 import AddTerms from "../common/AddTerms.jsx";
 import AddImage from "../common/AddImage.jsx";
-import DateDurationPicker from "../post/DateDurationPicker.jsx";
+import DateDurationPicker from "../common/DateDurationPicker.jsx";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import ShowAlert from "../../../../utils/ShowAlert.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";

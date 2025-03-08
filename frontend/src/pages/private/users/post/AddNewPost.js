@@ -12,7 +12,7 @@ import UserToolbar from "../common/UserToolbar";
 import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs";
 import AddItemBadges from "../common/AddItemBadges";
 import AddImage from "../common/AddImage";
-import DateDurationPicker from "../post/DateDurationPicker";
+import DateDurationPicker from "../common/DateDurationPicker.jsx";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton";
 import ShowAlert from "../../../../utils/ShowAlert.js";
 
@@ -108,7 +108,6 @@ const AddNewPost = () => {
 
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
-    console.log(itemType);
   };
 
   useEffect(() => {
@@ -187,7 +186,6 @@ const AddNewPost = () => {
   };
 
   const handleSaveDatesDurations = (datesDurations) => {
-    console.log(datesDurations);
     // Assuming datesDurations is an array
     const serializedDates = datesDurations.map((dateObj) => ({
       ...dateObj,
@@ -236,7 +234,6 @@ const AddNewPost = () => {
   const handleImagesChange = ({ currentImages, removedImagesList }) => {
     setLocalImages(currentImages);
     setRemovedImages(removedImagesList);
-    console.log({ localImages });
 
     // Extract filenames
     const filenames = currentImages.map((image) => {
@@ -250,7 +247,6 @@ const AddNewPost = () => {
       );
     });
 
-    console.log("Filenames:", filenames); // Debugging: log the filenames
 
     // Dispatch updates to Redux
     dispatch(updateField({ name: "images", value: filenames })); // Use filenames instead of full objects
@@ -264,7 +260,6 @@ const AddNewPost = () => {
     Object.keys(postDataState).forEach((key) => {
       if (key !== "isFormValid") {
         const field = postDataState[key];
-        console.log("Validating field:", key, "Value:", field.value);
 
         const { hasError, error } = validateInput(key, field.value);
 
@@ -276,7 +271,6 @@ const AddNewPost = () => {
       }
     });
 
-    console.log("Post Data State after Validation:", postDataState);
 
     if (hasErrors) {
       ShowAlert(
@@ -311,20 +305,18 @@ const AddNewPost = () => {
         specs: postDataState.specs.value,
       };
 
-      console.log("Item Data:", itemData);
-
       formData.append("post", JSON.stringify(itemData));
 
-      console.log("FormData before submission:");
-      formData.forEach((value, key) => {
-        console.log(key, value);
-      });
+      // console.log("FormData before submission:");
+      // formData.forEach((value, key) => {
+      //   console.log(key, value);
+      // });
 
       const endpoint = itemType === TO_RENT ? "/posts/create" : "/posts/create";
       const notificationType =
         itemType === TO_RENT ? "new-post-to-rent" : "new-post-to-buy";
 
-      ShowAlert(dispatch, "loading", "Creating listing", "Please wait...");
+      ShowAlert(dispatch, "loading", "Creating post", "Please wait...");
 
       const response = await axios.post(`${baseApi}${endpoint}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -337,9 +329,7 @@ const AddNewPost = () => {
           message: `posted an item to ${itemType === TO_RENT ? "rent" : "buy"}.`,
           type: notificationType,
         });
-      }
-
-      
+      }      
   */
 
       await ShowAlert(dispatch, "success", "Success", `Post added!`, {

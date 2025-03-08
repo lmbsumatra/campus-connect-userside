@@ -11,7 +11,7 @@ import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs.jsx";
 import AddItemBadges from "../common/AddItemBadges.jsx";
 import AddTerms from "../common/AddTerms.jsx";
 import AddImage from "../common/AddImage.jsx";
-import DateDurationPicker from "../post/DateDurationPicker.jsx";
+import DateDurationPicker from "../common/DateDurationPicker.jsx";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import ShowAlert from "../../../../utils/ShowAlert.js";
 
@@ -393,26 +393,17 @@ const AddNewItem = () => {
           notification);
       }
 */
-      ShowAlert(
+      await ShowAlert(
         dispatch,
         "success",
         "Success",
-        `Item for ${itemType === FOR_RENT ? "listing" : "sale"} added!`
+        `Item for ${itemType === FOR_RENT ? "listing" : "sale"} added!`,
+        { text: "Ok" }
       );
 
-      const itemWithType = {
-        ...(itemType === FOR_RENT ? response.data.listing : response.data.item),
-        itemType,
-      };
-
-      navigate(
-        `/${itemType === FOR_RENT ? MY_LISTINGS : MY_ITEMS}/${
-          itemType === FOR_RENT
-            ? response.data.listing.id
-            : response.data.item.id
-        }`,
-        { state: { item: itemWithType } }
-      );
+      navigate(`/${itemType === FOR_RENT ? MY_LISTINGS : MY_ITEMS}`, {
+        state: { redirecting: true },
+      });
     } catch (error) {
       ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
 
