@@ -7,10 +7,10 @@ import ListingEntityView from "./ReportItemDetails/ListingEntityView";
 import SaleEntityView from "./ReportItemDetails/SaleEntityView";
 import UserEntityView from "./ReportItemDetails/UserEntityView";
 import ReportActionModal from "../../../../components/report/ReportActionModal";
-
-
+import { useAuth } from "../../../../context/AuthContext";
 
 const ReportItemView = () => {
+  const { adminUser } = useAuth();
   const { entity_type, reported_entity_id } = useParams();
   const location = useLocation();
   const { reportDetails } = location.state || {};
@@ -25,9 +25,12 @@ const ReportItemView = () => {
   useEffect(() => {
     const fetchEntityDetails = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/api/reports/details", {
-          params: { entity_type, entity_id: reported_entity_id },
-        });
+        const response = await axios.get(
+          "http://localhost:3001/api/reports/details",
+          {
+            params: { entity_type, entity_id: reported_entity_id },
+          }
+        );
         setEntityDetails(response.data);
       } catch (err) {
         setError(err.response?.data?.error || "Error fetching entity details");
@@ -61,12 +64,20 @@ const ReportItemView = () => {
 
   const handleStatusChange = async (selectedAction, entityAction) => {
     try {
-      await axios.patch(`http://localhost:3001/api/reports/${reportDetails.id}`, {
-        reportId: reportDetails.id, // Include reportId in the payload
-        reportStatus: selectedAction,
-        entityAction: entityAction, // Include entityAction if applicable
-       
-      });
+      await axios.patch(
+        `http://localhost:3001/api/reports/${reportDetails.id}`,
+        {
+          reportId: reportDetails.id, // Include reportId in the payload
+          reportStatus: selectedAction,
+          entityAction: entityAction, // Include entityAction if applicable
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${adminUser.token}`, // Include the auth token
+          },
+        }
+      );
       reportDetails.status = selectedAction; // Update UI
     } catch (error) {
       console.error("Error updating status:", error);
@@ -75,8 +86,6 @@ const ReportItemView = () => {
     }
   };
 
-
- 
   return (
     <div className="report-item-view-container">
       <div className="header">
@@ -92,13 +101,24 @@ const ReportItemView = () => {
       {/* Report Details Section */}
       <div className="report-details">
         <h3>Report Details</h3>
-        <p><strong>Reporter:</strong> {reportDetails?.reporter}</p>
-        <p><strong>Reason:</strong> {reportDetails?.reason}</p>
-        <p><strong>Status:</strong> {reportDetails?.status}</p>
-        <p><strong>Date Added:</strong> {reportDetails?.createdAt}</p>
+        <p>
+          <strong>Reporter:</strong> {reportDetails?.reporter}
+        </p>
+        <p>
+          <strong>Reason:</strong> {reportDetails?.reason}
+        </p>
+        <p>
+          <strong>Status:</strong> {reportDetails?.status}
+        </p>
+        <p>
+          <strong>Date Added:</strong> {reportDetails?.createdAt}
+        </p>
       </div>
       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-        <button className="btn btn-primary btn-lg mt-2" onClick={handleOpenModal}>
+        <button
+          className="btn btn-primary btn-lg mt-2"
+          onClick={handleOpenModal}
+        >
           Action
         </button>
       </div>
@@ -107,7 +127,7 @@ const ReportItemView = () => {
         onHide={handleCloseModal}
         onConfirm={handleStatusChange}
         currentStatus={reportDetails.status}
-        entityType={entity_type} 
+        entityType={entity_type}
       />
     </div>
   );

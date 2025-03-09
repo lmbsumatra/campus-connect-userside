@@ -8,7 +8,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { Op } = require("sequelize");
 const UnavailableDate = require("../models/UnavailableDateModel");
 const EndSemesterDate = require("../models/EndSemesterDate");
-
+const AuditLog = require("../models/AuditLogModel");
 const bcrypt = require("bcrypt");
 const { rollbackUpload } = require("../config/multer");
 
@@ -108,10 +108,10 @@ exports.loginAdmin = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
-      { userId: user.user_id, role: user.role },
-      JWT_SECRET
+      { adminId: user.user_id, role: user.role }, // Change from userId to adminId
+      JWT_SECRET,
+      { expiresIn: "24h" }
     );
 
     res.status(200).json({
@@ -119,7 +119,7 @@ exports.loginAdmin = async (req, res) => {
       token,
       role: user.role,
       userId: user.user_id,
-      first_name: user.first_name, 
+      first_name: user.first_name,
       last_name: user.last_name,
     });
   } catch (error) {
@@ -196,7 +196,7 @@ exports.getAllAdminAccounts = async (req, res) => {
 // GET request to display an unavailable date
 exports.getUnavailableDates = async (req, res) => {
   try {
-    const dates = await UnavailableDate.findAll();  // This should work if the model is set up correctly
+    const dates = await UnavailableDate.findAll(); // This should work if the model is set up correctly
     res.status(200).json(dates);
   } catch (error) {
     console.error("Error fetching dates:", error);
@@ -209,12 +209,16 @@ exports.addUnavailableDate = async (req, res) => {
   const { date, description } = req.body;
 
   if (!date || !description) {
-    return res.status(400).json({ message: "Date and description are required" });
+    return res
+      .status(400)
+      .json({ message: "Date and description are required" });
   }
 
   try {
     // Check if the date already exists
-    const existingDate = await UnavailableDate.findOne({ where: { date: new Date(date) } });
+    const existingDate = await UnavailableDate.findOne({
+      where: { date: new Date(date) },
+    });
     if (existingDate) {
       return res.status(409).json({ message: "This date already exists." });
     }
@@ -228,32 +232,31 @@ exports.addUnavailableDate = async (req, res) => {
   }
 };
 
-
 // DELETE request to remove an unavailable date
 exports.deleteUnavailableDate = async (req, res) => {
-  const { date } = req.params;  // Get the date from URL parameter
+  const { date } = req.params; // Get the date from URL parameter
 
   try {
     // Convert the string date to a Date object (assuming your database uses a date type)
     const deletedDate = await UnavailableDate.destroy({
-      where: { date: new Date(date) },  // Make sure this matches your DB schema
+      where: { date: new Date(date) }, // Make sure this matches your DB schema
     });
 
     if (deletedDate) {
-      return res.status(200).json({ message: 'Date removed successfully' });
+      return res.status(200).json({ message: "Date removed successfully" });
     } else {
-      return res.status(404).json({ message: 'Date not found' });
+      return res.status(404).json({ message: "Date not found" });
     }
   } catch (error) {
-    console.error('Error removing date:', error);
-    return res.status(500).json({ message: 'Failed to remove date' });
+    console.error("Error removing date:", error);
+    return res.status(500).json({ message: "Failed to remove date" });
   }
 };
 
 // Get all end-semester dates
 exports.getEndSemesterDates = async (req, res) => {
   try {
-    const dates = await EndSemesterDate.findAll();  // Use the correct model here
+    const dates = await EndSemesterDate.findAll(); // Use the correct model here
     res.status(200).json(dates);
   } catch (error) {
     console.error("Error fetching end-semester dates:", error);
@@ -266,12 +269,16 @@ exports.addEndSemesterDate = async (req, res) => {
   const { date, description } = req.body;
 
   if (!date || !description) {
-    return res.status(400).json({ message: "Date and description are required" });
+    return res
+      .status(400)
+      .json({ message: "Date and description are required" });
   }
 
   try {
     // Check if the date already exists
-    const existingDate = await EndSemesterDate.findOne({ where: { date: new Date(date) } });
+    const existingDate = await EndSemesterDate.findOne({
+      where: { date: new Date(date) },
+    });
     if (existingDate) {
       return res.status(409).json({ message: "This date already exists." });
     }
@@ -285,7 +292,6 @@ exports.addEndSemesterDate = async (req, res) => {
   }
 };
 
-
 // Delete an end-semester date
 exports.deleteEndSemesterDate = async (req, res) => {
   const { date } = req.params;
@@ -296,12 +302,26 @@ exports.deleteEndSemesterDate = async (req, res) => {
     });
 
     if (deletedDate) {
-      return res.status(200).json({ message: 'Date removed successfully' });
+      return res.status(200).json({ message: "Date removed successfully" });
     } else {
-      return res.status(404).json({ message: 'Date not found' });
+      return res.status(404).json({ message: "Date not found" });
     }
   } catch (error) {
-    console.error('Error removing end-semester date:', error);
-    return res.status(500).json({ message: 'Failed to remove date' });
+    console.error("Error removing end-semester date:", error);
+    return res.status(500).json({ message: "Failed to remove date" });
+  }
+};
+
+exports.getAuditLogs = async (req, res) => {
+  try {
+    const logs = await AuditLog.findAll({
+      order: [["timestamp", "DESC"]], // Sort by newest logs first
+      limit: 50, // Limit results to prevent overload
+    });
+
+    res.json(logs);
+  } catch (error) {
+    console.error("Error fetching audit logs:", error);
+    res.status(500).json({ message: "Error fetching logs" });
   }
 };

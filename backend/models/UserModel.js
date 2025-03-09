@@ -85,6 +85,10 @@ User.associate = (models) => {
     foreignKey: "followee_id",
     as: "followee",
   });
+  User.hasMany(models.AuditLog, {
+    foreignKey: "admin_id",
+    as: "logs",
+  });
 };
 
 module.exports = User;

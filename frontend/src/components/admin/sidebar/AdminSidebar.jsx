@@ -24,7 +24,7 @@ const AdminSidebar = () => {
 
     if (path.includes("/admin/users")) {
       setActiveTab("users");
-      
+
       if (path.includes("/admin/users/user-overview")) {
         setActiveSubTab("usersOverview");
       } else if (path.includes("user-verification")) {
@@ -32,7 +32,7 @@ const AdminSidebar = () => {
       }
     } else if (path.includes("/admin/listings")) {
       setActiveTab("listings");
-      
+
       if (path.includes("listing-overview")) {
         setActiveSubTab("listingsOverview");
       } else if (path.includes("listing-approval")) {
@@ -40,7 +40,7 @@ const AdminSidebar = () => {
       }
     } else if (path.includes("/admin/posts")) {
       setActiveTab("posts");
-      
+
       if (path.includes("post-overview")) {
         setActiveSubTab("postsOverview");
       } else if (path.includes("post-approval")) {
@@ -51,7 +51,7 @@ const AdminSidebar = () => {
       setActiveSubTab("salesOverview");
     } else if (path.includes("/admin/reports")) {
       setActiveTab("reports");
-    
+
       if (path.includes("report-overview")) {
         setActiveSubTab("reportsOverview");
       }
@@ -60,6 +60,8 @@ const AdminSidebar = () => {
       if (path.includes("overview")) {
         setActiveSubTab("transactionsOverview");
       }
+    } else if (path.includes("/admin/logs")) {
+      setActiveTab("logs");
     } else if (path.includes("/admin/settings")) {
       setActiveTab("settings");
     }
@@ -216,13 +218,20 @@ const AdminSidebar = () => {
               alt="Expand tab button"
             />
           </div>
-          <div className={`sub-tabs ${openTabs.includes("listings") ? "show" : ""}`}>
+          <div
+            className={`sub-tabs ${
+              openTabs.includes("listings") ? "show" : ""
+            }`}
+          >
             <div
               className={`sub-tab ${
                 activeSubTab === "listingsOverview" ? "active" : ""
               }`}
               onClick={() =>
-                handleActiveTab(["listingsOverview", "/admin/listings/listing-overview"])
+                handleActiveTab([
+                  "listingsOverview",
+                  "/admin/listings/listing-overview",
+                ])
               }
             >
               <div
@@ -234,7 +243,6 @@ const AdminSidebar = () => {
             </div>
           </div>
         </div>
-
 
         {/* Posts Management Tab */}
         <div>
@@ -257,7 +265,9 @@ const AdminSidebar = () => {
               alt="Expand tab button"
             />
           </div>
-          <div className={`sub-tabs ${openTabs.includes("posts") ? "show" : ""}`}>
+          <div
+            className={`sub-tabs ${openTabs.includes("posts") ? "show" : ""}`}
+          >
             <div
               className={`sub-tab ${
                 activeSubTab === "postsOverview" ? "active" : ""
@@ -275,7 +285,6 @@ const AdminSidebar = () => {
             </div>
           </div>
         </div>
-
 
         {/* Sales tab */}
         <div>
@@ -306,7 +315,10 @@ const AdminSidebar = () => {
                 activeSubTab === "salesOverview" ? "active" : ""
               }`}
               onClick={() =>
-                handleActiveTab(["salesOverview", "/admin/sales/sales-overview"])
+                handleActiveTab([
+                  "salesOverview",
+                  "/admin/sales/sales-overview",
+                ])
               }
             >
               <div
@@ -340,13 +352,18 @@ const AdminSidebar = () => {
               alt="Expand tab button"
             />
           </div>
-          <div className={`sub-tabs ${openTabs.includes("reports") ? "show" : ""}`}>
+          <div
+            className={`sub-tabs ${openTabs.includes("reports") ? "show" : ""}`}
+          >
             <div
               className={`sub-tab ${
                 activeSubTab === "reportsOverview" ? "active" : ""
               }`}
               onClick={() =>
-                handleActiveTab(["reportsOverview", "/admin/reports/report-overview"])
+                handleActiveTab([
+                  "reportsOverview",
+                  "/admin/reports/report-overview",
+                ])
               }
             >
               <div
@@ -358,14 +375,16 @@ const AdminSidebar = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Transaction Management Tab */}
         <div>
           <div
             className={`tab ${activeTab === "transactions" ? "active" : ""} ${
               openTabs.includes("transactions") ? "expand" : ""
             }`}
-            onClick={() => handleActiveTab(["transactions", "/admin/transactions"])}
+            onClick={() =>
+              handleActiveTab(["transactions", "/admin/transactions"])
+            }
           >
             <img
               src={dashboardIcon}
@@ -381,14 +400,19 @@ const AdminSidebar = () => {
             />
           </div>
           <div
-            className={`sub-tabs ${openTabs.includes("transactions") ? "show" : ""}`}
+            className={`sub-tabs ${
+              openTabs.includes("transactions") ? "show" : ""
+            }`}
           >
             <div
               className={`sub-tab ${
                 activeSubTab === "transactionsOverview" ? "active" : ""
               }`}
               onClick={() =>
-                handleActiveTab(["transactionsOverview", "/admin/transactions/overview"])
+                handleActiveTab([
+                  "transactionsOverview",
+                  "/admin/transactions/overview",
+                ])
               }
             >
               <div
@@ -401,6 +425,20 @@ const AdminSidebar = () => {
           </div>
         </div>
 
+        {/* Logs Dashboard Tab */}
+        <div
+          className={`tab ${activeTab === "logs" ? "active" : ""} ${
+            openTabs.includes("logs") ? "expand" : ""
+          }`}
+          onClick={() => handleActiveTab(["logs", "/admin/logs"])}
+        >
+          <img
+            src={dashboardIcon} // Replace with a log icon if available
+            alt="Logs dashboard icon"
+            className="sidebar-icon"
+          />
+          {(expandSidebar || isHovered) && "Audit Logs"}
+        </div>
 
         {/* Settings tab */}
         <div

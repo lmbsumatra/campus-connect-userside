@@ -29,6 +29,8 @@ import ForSaleManagement from "../pages/private/admin/SaleManagement/ForSaleMana
 import PostOverview from "../pages/private/admin/PostManagement/PostOverview";
 import PostApproval from "../pages/private/admin/PostManagement/PostApproval";
 import PostDashboard from "../pages/private/admin/PostManagement/PostDashboard";
+import LogsDashboard from "../pages/private/admin/auditlogs/LogsDashboard";
+
 const AdminRoutes = [
   <Route path="/admin-login" element={<AdminLogin />} />,
   <Route
@@ -40,7 +42,7 @@ const AdminRoutes = [
     }
   >
     <Route index element={<Navigate to="/admin/dashboard" />} />
-    
+
     <Route path="dashboard" element={<AdminDashboard />} />
 
     {/* USER MANAGEMENT */}
@@ -85,9 +87,10 @@ const AdminRoutes = [
       path="transactions/overview"
       element={<AdminTransactionOverview />}
     />
-    <Route path="transactions/view/:id" element={<ViewTransaction/>} />
+    <Route path="transactions/view/:id" element={<ViewTransaction />} />
 
     {/* ADMIN MANAGEMENT */}
+    <Route path="logs" element={<LogsDashboard />} />
     <Route path="settings" element={<AdminSettings />} />
     <Route path="*" element={<Navigate to="/admin/dashboard" />} />
   </Route>,
