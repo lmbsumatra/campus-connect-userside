@@ -1,39 +1,72 @@
 const express = require("express");
 const router = express.Router();
-const adminAuthController = require("../controllers/AdminAuthController");
 const authenticateToken = require("../middlewares/AdminAuthMiddleware");
-const StudentController = require("../controllers/student/StudentController")
-
+const StudentController = require("../controllers/student/StudentController");
+const AdminController = require("../controllers/admin/AdminController");
+const logAdminActivity = require("../middlewares/auditMiddleware");
 const { upload_prof } = require("../config/multer"); // Configure storage options if necessary
 
-router.post("/register", upload_prof, adminAuthController.registerAdmin);
-router.post("/login", adminAuthController.loginAdmin);
+// Making admins account.
+router.post(
+  "/register",
+  upload_prof,
+  authenticateToken,
+  logAdminActivity,
+  AdminController.registerAdmin
+);
 
+// Login in the admin side.
+router.post("/login", AdminController.loginAdmin);
+
+// Changing password of the admin.
 router.post(
   "/change-password",
   authenticateToken,
-  adminAuthController.adminChangePassword
+  AdminController.adminChangePassword
 );
 
-router.get("/accounts", adminAuthController.getAllAdminAccounts);
+// Get all the superadmin and admin account to display.
+router.get("/accounts", AdminController.getAllAdminAccounts);
 
-// router.post("/google-login", adminAuthController.googleLogin);
-// router.get(
-//     "/info",
-//     authenticateToken,
-//     adminAuthController.getUserInformation
-//   );
+// Getting, adding, deleting unavailable dates.
+router.get("/unavailable-dates", AdminController.getAllUnavailableDate);
+router.post(
+  "/unavailable-dates",
+  authenticateToken,
+  logAdminActivity,
+  AdminController.addUnavailableDate
+);
+router.delete(
+  "/unavailable-dates/:date",
+  authenticateToken,
+  logAdminActivity,
+  AdminController.deleteUnavailableDate
+);
 
-router.get("/unavailable-dates", adminAuthController.getUnavailableDates);
-router.post("/unavailable-dates", adminAuthController.addUnavailableDate);
-router.delete("/unavailable-dates/:date", adminAuthController.deleteUnavailableDate);
+// Getting, adding, deleting end semester dates.
+router.get("/end-semester-dates", AdminController.getAllEndSemesterDate);
+router.post(
+  "/end-semester-dates",
+  authenticateToken,
+  logAdminActivity,
+  AdminController.addEndSemesterDate
+);
+router.delete(
+  "/end-semester-dates/:date",
+  authenticateToken,
+  logAdminActivity,
+  AdminController.deleteEndSemesterDate
+);
 
-router.get("/end-semester-dates", adminAuthController.getEndSemesterDates);
-router.post("/end-semester-dates", adminAuthController.addEndSemesterDate);
-router.delete("/end-semester-dates/:date", adminAuthController.deleteEndSemesterDate);
-
+// Getting the info and changing status of the student.
 router.get("/student/info/:id", StudentController.getStudentDataForAdmin);
-router.put("/change-status", StudentController.changeStudentStatus );
+router.put(
+  "/change-status",
+  authenticateToken,
+  logAdminActivity,
+  StudentController.changeStudentStatus
+);
 
+router.get("/logs", authenticateToken, AdminController.getAuditLogs);
 
 module.exports = router;

@@ -17,8 +17,10 @@ import {
   TopReportUsers,
 } from "../../../../components/Analytics/ReportAnalyticsComponent";
 import { ReportStatus } from "../../../../utils/Status";
+import { useAuth } from "../../../../context/AuthContext";
 
 const ReportDashboard = () => {
+  const { adminUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOptions, setSortOptions] = useState({});
   const [filterOptions, setFilterOptions] = useState({});
@@ -78,6 +80,10 @@ const ReportDashboard = () => {
                 `http://localhost:3001/api/reports/${reportId}`,
                 {
                   method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${adminUser.token}`,
+                  },
                 }
               );
 

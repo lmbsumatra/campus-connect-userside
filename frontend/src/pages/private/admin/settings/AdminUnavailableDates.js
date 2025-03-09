@@ -3,8 +3,10 @@ import { useDispatch } from "react-redux";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { formatDate } from "../../../../utils/dateFormat";
+import { useAuth } from "../../../../context/AuthContext";
 
 const AdminUnavailableDates = ({ onClose }) => {
+  const { adminUser } = useAuth();
   const dispatch = useDispatch();
   const [dates, setDates] = useState([]);
   const [newDate, setNewDate] = useState("");
@@ -48,7 +50,10 @@ const AdminUnavailableDates = ({ onClose }) => {
                 "http://localhost:3001/admin/unavailable-dates",
                 {
                   method: "POST",
-                  headers: { "Content-Type": "application/json" },
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${adminUser.token}`,
+                  },
                   body: JSON.stringify(newEntry),
                 }
               );
@@ -102,6 +107,10 @@ const AdminUnavailableDates = ({ onClose }) => {
                 `http://localhost:3001/admin/unavailable-dates/${date}`,
                 {
                   method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${adminUser.token}`,
+                  },
                 }
               );
 

@@ -12,7 +12,7 @@ import AdminViewSystemConfig from "./AdminViewSystemConfig";
 
 const AdminSettings = ({ tab, onClose }) => {
   const navigate = useNavigate();
-  const { adminUser } = useAuth(); // Get the adminUser from context
+  const { adminUser } = useAuth();
   const [showCreateAcctWindow, setShowCreateAcctWindow] = useState(false);
   const [showAccounts, setShowAccounts] = useState(false);
 
@@ -143,6 +143,9 @@ const AdminSettings = ({ tab, onClose }) => {
     try {
       const response = await fetch("http://localhost:3001/admin/register", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${adminUser.token}`,
+        },
         body: formData,
       });
 
