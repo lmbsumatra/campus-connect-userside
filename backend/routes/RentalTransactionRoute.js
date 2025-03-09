@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const rentalTransactionController = require("../controllers/RentalTransactionController");
+const rentalTransactionController = require("../controllers/rental-transactions/RentalTransactionController");
 
 module.exports = function (rentalTransactionController) {
   // Attach io to the controller methods that need it

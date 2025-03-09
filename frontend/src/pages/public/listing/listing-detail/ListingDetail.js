@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice.js";
-import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import store from "../../../../store/store.js";
 
@@ -43,6 +42,7 @@ import ViewToolbar from "../../common/ViewToolbar.js";
 import ReportModal from "../../../../components/report/ReportModal.js";
 import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
 import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
+import ConfirmationModal from "../ConfirmationModal.js";
 
 // async function getUserFullName(userId) {
 //   console.log("Fetching user details for userId:", userId);
@@ -87,6 +87,7 @@ function ListingDetail() {
     loadingApprovedListingById,
     errorApprovedListingById,
   } = useSelector((state) => state.approvedListingById);
+  console.log(approvedListingById);
   const studentUser = useSelector(selectStudentUser);
   const rentalDates = approvedListingById.availableDates || [];
   const [redirecting, setRedirecting] = useState(false);
@@ -172,8 +173,6 @@ function ListingDetail() {
       );
     }
 
-    console.log(approvedListingById);
-
     const selectedDateId = approvedListingById.availableDates.find(
       (rentalDate) => rentalDate.date === selectedDate
     )?.id;
@@ -218,11 +217,14 @@ function ListingDetail() {
     }
   };
 
-  const confirmRental = async () => {
+  const confirmRental = async (e) => {
+    console.log("clicked")
     try {
       const selectedDateId = approvedListingById.availableDates.find(
         (rentalDate) => rentalDate.date === selectedDate
       )?.id;
+
+
 
       const rentalDetails = {
         owner_id: approvedListingById.owner.id,
@@ -232,6 +234,8 @@ function ListingDetail() {
         rental_date_id: selectedDateId,
         rental_time_id: selectedDuration.id,
       };
+
+      console.log({rentalDetails})
 
       // Create rental transaction and get rentalId
       const response = await axios.post(
@@ -272,12 +276,14 @@ function ListingDetail() {
       // }
 
       setShowModal(false);
-      ShowAlert(
+     await ShowAlert(
         dispatch,
         "success",
         "Success",
         "Rental confirmed successfully!"
       );
+
+      navigate(`/profile/transactions/renter/requests`)
     } catch (error) {
       console.error("❌ Error in confirmRental:", error);
       ShowAlert(dispatch, "error", "Error", "Failed to confirm rental.");
@@ -363,7 +369,7 @@ function ListingDetail() {
               price: approvedListingById.rate,
               image: approvedListingById.images[0], // Use the first image for the product card
               title: approvedListingById.itemType,
-              type: "rent" // Add type identifier
+              type: "rent", // Add type identifier
             },
           },
         });
@@ -385,12 +391,10 @@ function ListingDetail() {
     };
 
     try {
-      console.log(reportData);
       const response = await axios.post(
         "http://localhost:3001/api/reports",
         reportData
       );
-      console.log("Report submitted:", response.data);
 
       // Update hasReported state
       setHasReported(true);
@@ -815,87 +819,17 @@ function ListingDetail() {
       />
 
       {/* Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm rent transaction</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="confirmation-modal">
-            <div className="item-card">
-              <div className="img-container">
-                <img
-                  src={
-                    approvedListingById.images &&
-                    approvedListingById.images.length
-                      ? approvedListingById.images[0]
-                      : [defaultImages]
-                  }
-                  style={{ height: "100px", width: "100px" }}
-                  alt="Item image"
-                />
-              </div>
-              <div className="item-desc">
-                <span className="value">{approvedListingById.name}</span>
-                <span className="value">{approvedListingById.rate}</span>
-                <span className="label">
-                  Item Condition:{" "}
-                  <span className="value">
-                    {approvedListingById.itemCondition}
-                  </span>
-                </span>
-              </div>
-            </div>
-            <div className="rental-desc">
-              <span className="label">
-                Delivery Method:{" "}
-                <span className="value">
-                  {approvedListingById.deliveryMethod}
-                </span>{" "}
-              </span>
-              <span className="label">
-                Payment Method:{" "}
-                <span className="value">
-                  {approvedListingById.paymentMethod}
-                </span>
-              </span>
 
-              <span className="label">Date: </span>
-              <span className="label">Duration:</span>
-            </div>
-            <div className="terms-condition">
-              <span className="label">
-                Late Charges:{" "}
-                <span className="value">{approvedListingById.lateCharges}</span>
-              </span>
-              <span className="label">
-                Security Deposit:{" "}
-                <span className="value">
-                  {approvedListingById.securityDeposit}
-                </span>
-              </span>
-              <span className="label">
-                Repair and Replacement:{" "}
-                <span className="value">
-                  {approvedListingById.repairReplacement}
-                </span>
-              </span>
-            </div>
-            <span>
-              By confirming your rental, you agree to the platform's Policies,
-              Terms and Conditions, and the terms with the other party ("Owner")
-              (as shown above).
-            </span>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={() => confirmRental()}>
-            Confirm
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {showModal && (
+        <ConfirmationModal
+          show={showModal}
+          onHide={() => setShowModal(false)}
+          listing={approvedListingById}
+          confirm={(e) => confirmRental(e)}
+          selectedDate={selectedDate}
+          selectedDuration={selectedDuration}
+        />
+      )}
     </div>
   );
 }

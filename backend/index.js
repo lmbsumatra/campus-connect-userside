@@ -76,7 +76,7 @@ app.use((req, res, next) => {
 
 // Inject emitNotification into Rental Transaction Controller
 const rentalTransactionController =
-  require("./controllers/RentalTransactionController.js")({
+  require("./controllers/rental-transactions/RentalTransactionController.js")({
     emitNotification,
   });
 
