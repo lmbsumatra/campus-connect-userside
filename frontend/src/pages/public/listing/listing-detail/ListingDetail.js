@@ -21,6 +21,7 @@ import {
   defaultImages,
   FOR_RENT,
   FOR_SALE,
+  GCASH,
   MEET_UP,
   PICK_UP,
   TO_BUY,
@@ -218,13 +219,10 @@ function ListingDetail() {
   };
 
   const confirmRental = async (e) => {
-    console.log("clicked")
     try {
       const selectedDateId = approvedListingById.availableDates.find(
         (rentalDate) => rentalDate.date === selectedDate
       )?.id;
-
-
 
       const rentalDetails = {
         owner_id: approvedListingById.owner.id,
@@ -233,9 +231,8 @@ function ListingDetail() {
         delivery_method: approvedListingById.deliveryMethod,
         rental_date_id: selectedDateId,
         rental_time_id: selectedDuration.id,
+        payment_mode: approvedListingById.paymentMethod,
       };
-
-      console.log({rentalDetails})
 
       // Create rental transaction and get rentalId
       const response = await axios.post(
@@ -243,12 +240,12 @@ function ListingDetail() {
         rentalDetails
       );
 
-      if (!response.data || !response.data.id) {
-        console.error("❌ Failed to get rental ID from response", response);
+      if ((approvedListingById.paymentMethod === GCASH) && (!response.data.url && !response.data.rental_id)) {
+        console.error("Failed to get rental ID from response", response);
         return;
       }
 
-      const rentalId = response.data.id; // Get rentalId from response
+      // const rentalId = response.data.id; // Get rentalId from response
 
       // const senderName = await getUserFullName(studentUser.userId);
 
@@ -275,15 +272,17 @@ function ListingDetail() {
       //   );
       // }
 
+      window.location.href = response.data.url;
+
       setShowModal(false);
-     await ShowAlert(
+      await ShowAlert(
         dispatch,
         "success",
         "Success",
         "Rental confirmed successfully!"
       );
 
-      navigate(`/profile/transactions/renter/requests`)
+      // navigate(`/profile/transactions/renter/requests`);
     } catch (error) {
       console.error("❌ Error in confirmRental:", error);
       ShowAlert(dispatch, "error", "Error", "Failed to confirm rental.");

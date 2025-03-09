@@ -69,6 +69,11 @@ module.exports = (sequelize) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      payment_mode: {
+        type: DataTypes.ENUM("payment upon meetup", "gcash"),
+        allowNull: false,
+        defaultValue: "payment upon meetup",
+      },
     },
     {
       sequelize,
@@ -91,12 +96,11 @@ module.exports = (sequelize) => {
     RentalTransaction.belongsTo(models.Post, { foreignKey: "post_id" });
     RentalTransaction.belongsTo(models.Date, {
       foreignKey: "rental_date_id",
-    }); 
-    
+    });
+
     RentalTransaction.belongsTo(models.Duration, {
       foreignKey: "rental_time_id",
-    }); 
-
+    });
   };
 
   return RentalTransaction;

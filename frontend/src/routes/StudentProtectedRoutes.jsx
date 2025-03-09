@@ -99,7 +99,7 @@ const StudentProtectedRoutes = [
     }
   />,
   <Route
-    path="/success-payment"
+    path="/payment-success"
     element={
       <StudentProtectedRoute allowedRoles="student">
         <SuccessPayment />
@@ -108,7 +108,7 @@ const StudentProtectedRoutes = [
   />,
 
   <Route
-    path="/cancel-payment"
+    path="/payment-cancel"
     element={
       <StudentProtectedRoute allowedRoles="student">
         <CancelPayment />

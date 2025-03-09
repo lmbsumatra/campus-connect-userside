@@ -1,5 +1,9 @@
 const { Op } = require("sequelize");
 const { models } = require("../../models");
+const { GCASH } = require("../../utils/constants");
+const stripe = require("stripe")(
+  "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
+);
 
 // Helper function to get user names
 const getUserNames = async (userId) => {
@@ -16,6 +20,15 @@ const getRentalItemName = async (itemId) => {
   return item ? item.listing_name : "Unknown Item";
 };
 
+const convertToCAD = async (amount) => {
+  try {
+    return amount * 0.025;
+  } catch (error) {
+    console.error("Error fetching exchange rate:", error);
+    return amount; // Fallback to original amount if API fails
+  }
+};
+
 const createRentalTransaction = async (req, res, emitNotification) => {
   try {
     const {
@@ -25,6 +38,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       rental_date_id,
       rental_time_id,
       delivery_method,
+      payment_mode,
     } = req.body;
 
     const missingFields = [];
@@ -33,6 +47,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     if (!item_id) missingFields.push("item_id");
     if (!rental_date_id) missingFields.push("rental_date_id");
     if (!rental_time_id) missingFields.push("rental_time_id");
+    if (!payment_mode) missingFields.push("payment_mode");
 
     if (missingFields.length > 0) {
       const errorMsg =
@@ -55,12 +70,72 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       item_id,
       rental_date_id,
       rental_time_id,
-      status: "Requested",
       delivery_method,
+      payment_mode,
     };
 
-    const rental = await models.RentalTransaction.create(rentalData);
-    // console.log("Rental transaction created:", rental);
+    let rental = await models.RentalTransaction.create(rentalData);
+
+    rental = await models.RentalTransaction.findOne({
+      where: { id: rental.id },
+      include: [
+        {
+          as: "renter",
+          model: models.User,
+          attributes: ["user_id", "email", "stripe_acct_id"],
+        },
+      ],
+    });
+
+    const item = await models.Listing.findOne({
+      where: { id: rental.item_id },
+      attributes: ["id", "listing_name", "rate", "security_deposit"],
+      include: [
+        {
+          as: "owner",
+          model: models.User,
+          attributes: ["user_id", "email", "stripe_acct_id"],
+        },
+      ],
+    });
+
+    const totalAmountPHP = Number(item.rate) + Number(item.security_deposit);
+    const totalAmountCAD = await convertToCAD(totalAmountPHP);
+    const applicationFeeAmount = totalAmountCAD * 0.1;
+
+    if (rental.payment_mode === GCASH) {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        customer_email: rental.renter.email,
+        line_items: [
+          {
+            price_data: {
+              currency: "cad",
+              product_data: { name: item.listing_name },
+              unit_amount: Math.round(totalAmountCAD * 100),
+            },
+            quantity: 1,
+          },
+        ],
+        metadata: {
+          itemId: item.id,
+          userId: rental.renter_id,
+          email: rental.renter.email,
+        },
+        payment_intent_data: {
+          application_fee_amount: Math.round(applicationFeeAmount * 100),
+          transfer_data: {
+            destination: item.owner.stripe_acct_id,
+          },
+        },
+        mode: "payment",
+        success_url: `http://localhost:3000/payment-success?rentalId=${rental.id}`,
+        cancel_url: `http://localhost:3000/payment-failed?rentalId=${rental.id}`,
+        metadata: { rental_id: rental.id },
+      });
+
+      return res.status(200).json({ url: session.url, rental_id: rental.id });
+    }
 
     // Add Notification Logic Here >>>>
     const renterName = await getUserNames(renter_id);
