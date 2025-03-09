@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const { models } = require("../../models");
-const { GCASH } = require("../../utils/constants"); // Make sure STRIPE is added to constants
+const { GCASH } = require("../../utils/constants");
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
@@ -103,116 +103,53 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     const totalAmountCAD = await convertToCAD(totalAmountPHP);
     const applicationFeeAmount = totalAmountCAD * 0.1;
 
-    let result = { id: rental.id };
-
-    // Handle payment based on payment mode
-    if (payment_mode === GCASH) {
+    let session;
+    if (rental.payment_mode === GCASH) {
       try {
-        // Create a PaymentIntent with capture_method: 'manual' for authorize-only
-        const paymentIntent = await stripe.paymentIntents.create({
-          amount: Math.round(totalAmountCAD * 100), // Convert to cents
-          currency: "cad",
-          automatic_payment_methods: {
-            enabled: true,
-          },
-          payment_method_options: {
-            card: {
-              capture_method: "manual",
+        session = await stripe.paymentIntents.create({
+          payment_method_types: ["card"],
+          customer_email: rental.renter.email,
+          capture_method: "manual",
+          line_items: [
+            {
+              price_data: {
+                currency: "cad",
+                product_data: { name: item.listing_name },
+                unit_amount: Math.round(totalAmountCAD * 100),
+              },
+              quantity: 1,
             },
-          },
-          capture_method: "manual", // Authorize only, capture later
-          automatic_payment_methods: {
-            enabled: true,
-            allow_redirects: "always",
-          },
+          ],
           metadata: {
-            rentalId: rental.id,
             itemId: item.id,
             userId: rental.renter_id,
             email: rental.renter.email,
           },
+          payment_intent_data: {
+            application_fee_amount: Math.round(applicationFeeAmount * 100),
+            transfer_data: {
+              destination: item.owner.stripe_acct_id,
+            },
+          },
+          // mode: "payment",
+          // success_url: `http://localhost:3000/payment-success?rentalId=${rental.id}`,
+          // cancel_url: `http://localhost:3000/payment-cancelled?rentalId=${rental.id}`,
         });
 
-        // Update rental with payment intent ID
-        await rental.update({ stripe_payment_intent_id: paymentIntent.id });
-
-        // Return the client secret to the frontend
-        result = {
-          id: rental.id,
-          clientSecret: paymentIntent.client_secret,
-          paymentIntentId: paymentIntent.id,
-        };
+        await rental.update({ stripe_payment_id: paymentIntent.id });
       } catch (stripeError) {
-        console.error("Error creating Stripe PaymentIntent:", stripeError);
+        console.error("Error creating Stripe session:", stripeError);
         return res.status(500).json({
-          error: "Stripe payment setup failed.",
+          error: "Stripe session creation failed.",
           details: stripeError.message,
         });
       }
+      session = { url: session.url, rental_id: rental.id };
+    } else {
+      session = { rental };
     }
-    //  else if (payment_mode === GCASH) {
-    //   try {
-    //     // Create a regular payment intent for GCash
-    //     const paymentIntent = await stripe.paymentIntents.create({
-    //       amount: Math.round(totalAmountCAD * 100),
-    //       currency: "cad",
-    //       automatic_payment_methods: {
-    //         enabled: true,
-    //         allow_redirects: "always",
-    //       },
-    //       metadata: {
-    //         rentalId: rental.id,
-    //         itemId: item.id,
-    //         userId: rental.renter_id,
-    //         email: rental.renter.email,
-    //       },
-    //     });
 
-    //     // Update rental with payment intent ID
-    //     await rental.update({ stripe_payment_intent_id: paymentIntent.id });
-
-    //     // For GCash payments, we'll use Stripe's checkout
-    //     const checkoutSession = await stripe.checkout.sessions.create({
-    //       payment_method_types: ['card'],
-    //       line_items: [
-    //         {
-    //           price_data: {
-    //             currency: 'cad',
-    //             product_data: {
-    //               name: item.listing_name,
-    //             },
-    //             unit_amount: Math.round(totalAmountCAD * 100),
-    //           },
-    //           quantity: 1,
-    //         },
-    //       ],
-    //       mode: 'payment',
-    //       success_url: 'http://localhost:30001/payment-success',
-    //       cancel_url: 'http://localhost:30001/payment-cancelled',
-    //       payment_intent_data: {
-    //         metadata: {
-    //           rentalId: rental.id,
-    //           itemId: item.id,
-    //           userId: rental.renter_id,
-    //           email: rental.renter.email,
-    //         },
-    //       },
-    //     });
-
-    //     result = {
-    //       id: rental.id,
-    //       url: checkoutSession.url
-    //     };
-    //   } catch (stripeError) {
-    //     console.error("Error creating GCash payment:", stripeError);
-    //     return res.status(500).json({
-    //       error: "GCash payment setup failed.",
-    //       details: stripeError.message,
-    //     });
-    //   }
-    // }
-
-    // Add Notification Logic Here
+    // Add Notification Logic Here >>>>
     const renterName = await getUserNames(renter_id);
     const itemName = await getRentalItemName(item_id);
 
@@ -235,7 +172,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     const duration = await models.Duration.findOne({
       where: {
         date_id: rental_date_id,
-        id: rental_time_id,
+        id: rental_time_id, // Assuming rental_time_id corresponds to Duration ID
       },
     });
 
@@ -296,8 +233,8 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: errorMsg });
     }
 
-    // Respond with the created rental transaction and payment information
-    return res.status(200).json(result);
+    // Respond with the created rental transaction
+    return res.status(200).json(session);
   } catch (error) {
     console.error("Error creating rental transaction:", error);
 
@@ -325,45 +262,4 @@ const createRentalTransaction = async (req, res, emitNotification) => {
   }
 };
 
-// Add a new controller to capture payments
-const capturePayment = async (req, res) => {
-  try {
-    const { paymentIntentId } = req.body;
-
-    if (!paymentIntentId) {
-      return res.status(400).json({ error: "Payment intent ID is required" });
-    }
-
-    // Capture the previously authorized payment
-    const paymentIntent = await stripe.paymentIntents.capture(paymentIntentId);
-
-    // Find and update the rental transaction
-    const rental = await models.RentalTransaction.findOne({
-      where: { stripe_payment_intent_id: paymentIntentId },
-    });
-
-    if (rental) {
-      await rental.update({ payment_status: "completed" });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Payment captured successfully",
-      paymentIntent: {
-        id: paymentIntent.id,
-        status: paymentIntent.status,
-      },
-    });
-  } catch (error) {
-    console.error("Error capturing payment:", error);
-    res.status(500).json({
-      error: "Failed to capture payment",
-      details: error.message,
-    });
-  }
-};
-
-module.exports = {
-  createRentalTransaction,
-  capturePayment,
-};
+module.exports = { createRentalTransaction };

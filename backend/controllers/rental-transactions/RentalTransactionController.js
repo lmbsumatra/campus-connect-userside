@@ -1,6 +1,7 @@
 const { models } = require("../../models/index");
 const { Op } = require("sequelize");
 const { createRentalTransaction } = require("./createRentalTransactions");
+const { handOverRentalTransaction } = require("./handOverRentalTransactions");
 
 module.exports = ({ emitNotification }) => {
   // Helper function to get user names
@@ -417,105 +418,6 @@ module.exports = ({ emitNotification }) => {
         error: "An error occurred while accepting the rental transaction.",
         details: error.message,
       });
-    }
-  };
-
-  const handOverRentalTransaction = async (req, res) => {
-    const { id } = req.params;
-    const { userId } = req.body; // userId to identify who is confirming the handover
-
-    try {
-      const rental = await models.RentalTransaction.findByPk(id, {
-        include: [
-          {
-            model: models.User,
-            as: "owner",
-            attributes: ["user_id", "first_name", "last_name", "email"],
-          },
-          {
-            model: models.User,
-            as: "renter",
-            attributes: ["user_id", "first_name", "last_name", "email"],
-          },
-          {
-            model: models.Listing,
-            attributes: ["id", "listing_name", "description", "rate"],
-          },
-          { model: models.Post, attributes: ["id", "post_item_name"] },
-          { model: models.Date, attributes: ["id", "date"] },
-          {
-            model: models.Duration,
-            attributes: ["id", "rental_time_from", "rental_time_to"],
-          },
-        ],
-      });
-
-      if (!rental)
-        return res.status(404).json({ error: "Rental transaction not found." });
-
-      // Check if the user is the owner or renter
-      const isOwner = rental.owner_id === userId;
-      const isRenter = rental.renter_id === userId;
-
-      if (!isOwner && !isRenter) {
-        return res.status(403).json({ error: "Unauthorized action." });
-      }
-
-      // Check if rental status is 'Accepted'
-      if (rental.status !== "Accepted") {
-        return res
-          .status(400)
-          .json({ error: "Only Accepted rentals can be handed over." });
-      }
-
-      const ownerName = await getUserNames(rental.owner_id);
-      const renterName = await getUserNames(rental.renter_id);
-      const itemName = await getRentalItemName(rental.item_id);
-
-      // Update the confirmation status
-      if (isOwner) {
-        rental.owner_confirmed = true;
-      } else if (isRenter) {
-        rental.renter_confirmed = true;
-      }
-
-      // Check if both parties have confirmed
-      if (rental.owner_confirmed && rental.renter_confirmed) {
-        rental.status = "HandedOver";
-        rental.owner_confirmed = false;
-        rental.renter_confirmed = false;
-      }
-
-      await rental.save();
-
-      let recipientId;
-      let message;
-
-      if (isOwner) {
-        recipientId = rental.renter_id;
-        message = `${ownerName} has confirmed handover of ${itemName}.`;
-      } else if (isRenter) {
-        recipientId = rental.owner_id;
-        message = `${renterName} has confirmed receipt of ${itemName}.`;
-      }
-
-      const notification = await models.StudentNotification.create({
-        sender_id: userId,
-        recipient_id: recipientId,
-        type: "handover_confirmed",
-        message: message,
-        is_read: false,
-        rental_id: rental.id,
-      });
-
-      // Emit notification using centralized emitter
-      if (emitNotification) {
-        emitNotification(recipientId, notification.toJSON());
-      }
-      // Return the updated rental transaction
-      res.json(rental);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
     }
   };
 
@@ -975,14 +877,16 @@ module.exports = ({ emitNotification }) => {
     }
   };
   return {
-    createRentalTransaction: (req, res) => createRentalTransaction(req, res, emitNotification),
+    createRentalTransaction: (req, res) =>
+      createRentalTransaction(req, res, emitNotification),
     getAllRentalTransactions,
     getRentalTransactionById,
     getTransactionsByUserId,
     updateRentalTransaction,
     deleteRentalTransaction,
     acceptRentalTransaction,
-    handOverRentalTransaction,
+    handOverRentalTransaction: (req, res) =>
+      handOverRentalTransaction(req, res, emitNotification),
     returnRentalTransaction,
     completeRentalTransaction,
     declineRentalTransaction,

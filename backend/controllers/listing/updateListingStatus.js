@@ -8,7 +8,7 @@ const updateListingStatus = async (req, res) => {
     const adminId = req.user.userId; // Provided by your admin auth middleware
 
     // Fetch the listing by ID
-    const listing = await models.Listing.findByPk(id);
+    const listing = await models.Listing.findByPk(id);s
     if (!listing) return res.status(404).json({ error: "Listing not found" });
 
     // Update the listing’s status

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import store from "../../../../store/store.js";
+import { loadStripe } from '@stripe/stripe-js';
 
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import Tooltip from "@mui/material/Tooltip";
@@ -76,6 +77,7 @@ import ConfirmationModal from "../ConfirmationModal.js";
 // }
 
 function ListingDetail() {
+  const [isPreparing, setPreparing] = useState(true);
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -88,7 +90,6 @@ function ListingDetail() {
     loadingApprovedListingById,
     errorApprovedListingById,
   } = useSelector((state) => state.approvedListingById);
-  console.log(approvedListingById);
   const studentUser = useSelector(selectStudentUser);
   const rentalDates = approvedListingById.availableDates || [];
   const [redirecting, setRedirecting] = useState(false);
@@ -102,6 +103,44 @@ function ListingDetail() {
 
   const location = useLocation();
   const { item, warnSelectDateAndTime } = location.state || {};
+
+  const checkIfReported = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/reports/check`,
+        {
+          params: {
+            reporter_id: loggedInUserId,
+            reported_entity_id: approvedListingById.id,
+          },
+        }
+      );
+      setHasReported(response.data.hasReported);
+    } catch (error) {
+      console.error("Error checking report:", error);
+    }
+  };
+
+  useEffect(() => {
+    checkIfReported().then((reported) => {
+      if (reported) {
+        navigate("/reported-warning", { replace: true });
+      }
+    });
+  }, [navigate]);
+
+  useLayoutEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromStripe = urlParams.get("from_stripe");
+    const rentalId = urlParams.get("rental_id");
+
+    if (fromStripe === "cancelled" && rentalId) {
+      console.log("Redirecting to cancel page...");
+      navigate(`/payment-cancelled?rentalId=${rentalId}`, { replace: true });
+    } else {
+      setPreparing(false); // Only allow rendering if no redirect happens
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (warnSelectDateAndTime) {
@@ -218,6 +257,8 @@ function ListingDetail() {
     }
   };
 
+  const stripePromise = loadStripe('pk_test_51Qd6OGJyLaBvZZCyI1v3VC4nkJ4FnP3JqVkEeRlpth6sUUKxeaGVwsgpOKEUIiDI61ITMyzWvTYJUYshL6H4jfks00mNbCIiZP'); // Replace with your actual key
+
   const confirmRental = async (e) => {
     try {
       const selectedDateId = approvedListingById.availableDates.find(
@@ -240,54 +281,55 @@ function ListingDetail() {
         rentalDetails
       );
 
-      if ((approvedListingById.paymentMethod === GCASH) && (!response.data.url && !response.data.rental_id)) {
-        console.error("Failed to get rental ID from response", response);
-        return;
+      // Check payment method and handle accordingly
+      if (approvedListingById.paymentMethod === GCASH) {
+        if (!response.data.clientSecret || !response.data.paymentIntentId) {
+          console.error("Failed to get Stripe payment information", response);
+          ShowAlert(dispatch, "error", "Error", "Failed to setup payment.");
+          return;
+        }
+
+        // Store payment information for the payment page
+        localStorage.setItem("stripePaymentIntentId", response.data.paymentIntentId);
+        localStorage.setItem("stripeClientSecret", response.data.clientSecret);
+        localStorage.setItem("rentalId", response.data.id);
+        
+        // Close the modal
+        setShowModal(false);
+        
+        // Navigate to payment page
+        navigate('/payment');
+      } else if (approvedListingById.paymentMethod === GCASH) {
+        if (!response.data.url) {
+          console.error("Failed to get GCash payment URL", response);
+          ShowAlert(dispatch, "error", "Error", "Failed to setup GCash payment.");
+          return;
+        }
+        
+        // Set flag for redirect back handling
+        localStorage.setItem("fromGCashPayment", "true");
+        
+        // Redirect to GCash payment page
+        window.location.href = response.data.url;
+      } else {
+        // Non-payment method (e.g., cash on delivery)
+        setShowModal(false);
+        await ShowAlert(
+          dispatch,
+          "success",
+          "Success",
+          "Rental confirmed successfully!"
+        );
+        
+        // Navigate to transactions page
+        navigate(`/profile/transactions/renter/requests`);
       }
-
-      // const rentalId = response.data.id; // Get rentalId from response
-
-      // const senderName = await getUserFullName(studentUser.userId);
-
-      // const notificationData = {
-      //   sender: studentUser.userId,
-      //   recipient: approvedListingById.owner.id,
-      //   type: "rental_request",
-      //   message: `${senderName} wants to rent ${approvedListingById.name}.`,
-      //   rental_id: rentalId, // Pass rentalId here
-      // };
-
-      // // Send notification
-      // if (socket && socket.connected) {
-      //   socket.emit("sendNotification", notificationData);
-      //   console.log(
-      //     "✅ Notification sent via socket with rental_id:",
-      //     rentalId
-      //   );
-      // } else {
-      //   console.warn("⚠️ Socket not connected. Using API fallback.");
-      //   await axios.post(
-      //     "http://localhost:3001/api/notifications/student",
-      //     notificationData
-      //   );
-      // }
-
-      window.location.href = response.data.url;
-
-      setShowModal(false);
-      await ShowAlert(
-        dispatch,
-        "success",
-        "Success",
-        "Rental confirmed successfully!"
-      );
-
-      // navigate(`/profile/transactions/renter/requests`);
     } catch (error) {
       console.error("❌ Error in confirmRental:", error);
       ShowAlert(dispatch, "error", "Error", "Failed to confirm rental.");
     }
   };
+
 
   useEffect(() => {
     if (id) {
@@ -295,11 +337,11 @@ function ListingDetail() {
     }
   }, [id, dispatch]);
 
-  useEffect(() => {
-    if (loggedInUserId) {
-      checkIfReported();
-    }
-  }, [loggedInUserId, approvedListingById.id]);
+  // useEffect(() => {
+  //   if (loggedInUserId) {
+  //     checkIfReported();
+  //   }
+  // }, [loggedInUserId, approvedListingById.id]);
 
   // item not found alert
   useEffect(() => {
@@ -337,7 +379,7 @@ function ListingDetail() {
     }
   }, [redirecting, navigate]);
 
-  if (loadingApprovedListingById || redirecting) {
+  if (loadingApprovedListingById || redirecting || isPreparing) {
     return <LoadingItemDetailSkeleton />;
   }
 
@@ -449,23 +491,6 @@ function ListingDetail() {
             }
           )
       );
-    }
-  };
-
-  const checkIfReported = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:3001/api/reports/check`,
-        {
-          params: {
-            reporter_id: loggedInUserId,
-            reported_entity_id: approvedListingById.id,
-          },
-        }
-      );
-      setHasReported(response.data.hasReported);
-    } catch (error) {
-      console.error("Error checking report:", error);
     }
   };
 

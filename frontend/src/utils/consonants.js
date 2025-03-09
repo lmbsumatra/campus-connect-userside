@@ -14,6 +14,8 @@ export const PAY_UPON_MEETUP = "payment upon meetup";
 
 export const GCASH = "gcash";
 
+export const STRIPE = "stripe"
+
 export const categories = [
   "Electronics",
   "Home",

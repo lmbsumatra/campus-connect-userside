@@ -12,6 +12,7 @@ import EditItem from "../pages/private/users/item/EditItem.js";
 import SuccessPayment from "../pages/private/users/success-payment/SuccessPayment.js";
 import CancelPayment from "../pages/private/users/cancel-payment/CancelPayment.js";
 import RentalReportDetails from "../components/report/RentalReportDetails.js";
+import PaymentPage from "../pages/public/PaymentPage.js";
 
 const StudentProtectedRoutes = [
   <Route
@@ -99,6 +100,14 @@ const StudentProtectedRoutes = [
     }
   />,
   <Route
+    path="/payment"
+    element={
+      <StudentProtectedRoute allowedRoles="student">
+        <PaymentPage />
+      </StudentProtectedRoute>
+    }
+  />,
+  <Route
     path="/payment-success"
     element={
       <StudentProtectedRoute allowedRoles="student">
@@ -108,7 +117,7 @@ const StudentProtectedRoutes = [
   />,
 
   <Route
-    path="/payment-cancel"
+    path="/payment-cancelled"
     element={
       <StudentProtectedRoute allowedRoles="student">
         <CancelPayment />

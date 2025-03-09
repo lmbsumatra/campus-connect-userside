@@ -74,6 +74,15 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: "payment upon meetup",
       },
+      stripe_payment_intent_id: {
+        type: DataTypes.STRING,
+        allowNull: true, 
+      },
+      stripe_charge_id: {
+        type: DataTypes.STRING,
+        allowNull: true, 
+      },
+      
     },
     {
       sequelize,

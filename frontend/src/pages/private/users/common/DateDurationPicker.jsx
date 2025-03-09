@@ -145,13 +145,20 @@ const DateDurationPicker = ({
     const newDates = [];
     let currentDate = new Date(startDate);
 
+    // Ensure unavailableDates are properly formatted as Date objects
+    const normalizedUnavailableDates = unavailableDates.map(
+      (d) => (d instanceof Date ? d : new Date(d.date)) // Convert if it's an object with a date property
+    );
+
     while (currentDate <= endDate) {
-      if (
-        !unavailableDates.some((d) => d.getTime() === currentDate.getTime()) &&
-        !isSelected(currentDate)
-      ) {
+      const isUnavailable = normalizedUnavailableDates.some(
+        (d) => d.getTime() === currentDate.getTime()
+      );
+
+      if (!isUnavailable && !isSelected(currentDate)) {
         newDates.push({ date: new Date(currentDate), durations: [] });
       }
+
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
@@ -330,7 +337,6 @@ const DateDurationPicker = ({
                       const unavailableNormalizedDate = new Date(d.date);
                       unavailableNormalizedDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00
 
-
                       // Compare the normalized dates (ignore time)
                       return (
                         normalizedDate.getTime() ===
@@ -340,16 +346,11 @@ const DateDurationPicker = ({
 
                     return (
                       <Tooltip
-                        title={
-                          unavailableDate ? unavailableDate.reason : ""
-                        }
+                        title={unavailableDate ? unavailableDate.reason : ""}
                         arrow
                         disableHoverListener={!unavailableDate}
                       >
-                        <span
-                        >
-                          {day}
-                        </span>
+                        <span>{day}</span>
                       </Tooltip>
                     );
                   }}
@@ -374,33 +375,71 @@ const DateDurationPicker = ({
                   highlightDates={selectedDatesDurations.map(
                     (item) => new Date(item.date)
                   )}
+                  // dayClassName={(date) => {
+                  //   const dateWithoutTime = new Date(
+                  //     date.getFullYear(),
+                  //     date.getMonth(),
+                  //     date.getDate()
+                  //   ); // Normalize to date without time
+                  //   const unavailableDateWithoutTime = unavailableDates.map(
+                  //     (d) =>
+                  //       new Date(d.getFullYear(), d.getMonth(), d.getDate()) // Normalize to date without time
+                  //   );
+
+                  //   if (
+                  //     unavailableDateWithoutTime.some(
+                  //       (d) => d.getTime() === dateWithoutTime.getTime()
+                  //     )
+                  //   ) {
+                  //     return "bg-danger"; // Mark the unavailable dates with bg-danger
+                  //   } else if (isSelected(date)) {
+                  //     return "bg-warning"; // Mark the selected dates with bg-warning
+                  //   } else if (
+                  //     selectedDatesDurations.some(
+                  //       (d) => new Date(d.date).getTime() === date.getTime()
+                  //     )
+                  //   ) {
+                  //     return "bg-blue"; // Mark the highlighted dates with bg-blue
+                  //   } else {
+                  //     return "bg-green"; // Mark other available dates with bg-green
+                  //   }
+                  // }}
                   dayClassName={(date) => {
+                    // Ensure `date` is a valid Date object
                     const dateWithoutTime = new Date(
                       date.getFullYear(),
                       date.getMonth(),
                       date.getDate()
-                    ); // Normalize to date without time
+                    );
+
                     const unavailableDateWithoutTime = unavailableDates.map(
-                      (d) =>
-                        new Date(d.getFullYear(), d.getMonth(), d.getDate()) // Normalize to date without time
+                      (d) => {
+                        const unavailableDate =
+                          d instanceof Date ? d : new Date(d.date);
+                        return new Date(
+                          unavailableDate.getFullYear(),
+                          unavailableDate.getMonth(),
+                          unavailableDate.getDate()
+                        ).getTime();
+                      }
                     );
 
                     if (
-                      unavailableDateWithoutTime.some(
-                        (d) => d.getTime() === dateWithoutTime.getTime()
+                      unavailableDateWithoutTime.includes(
+                        dateWithoutTime.getTime()
                       )
                     ) {
-                      return "bg-danger"; // Mark the unavailable dates with bg-danger
+                      return "bg-danger"; // Highlight unavailable dates
                     } else if (isSelected(date)) {
-                      return "bg-warning"; // Mark the selected dates with bg-warning
+                      return "bg-warning"; // Highlight selected dates
                     } else if (
                       selectedDatesDurations.some(
                         (d) => new Date(d.date).getTime() === date.getTime()
                       )
                     ) {
-                      return "bg-blue"; // Mark the highlighted dates with bg-blue
+                      return "bg-blue"; // Highlight dates with durations
                     } else {
-                      return "bg-green"; // Mark other available dates with bg-green
+                      return "bg-green"; // Default available date
                     }
                   }}
                 />
