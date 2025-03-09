@@ -131,6 +131,10 @@ const createRentalTransaction = async (req, res, emitNotification) => {
             userId: rental.renter_id,
             email: rental.renter.email,
           },
+          transfer_data: {
+            destination: item.owner.stripe_acct_id,
+          },
+          application_fee_amount: Math.floor(applicationFeeAmount * 100),
         });
 
         // Update rental with payment intent ID
