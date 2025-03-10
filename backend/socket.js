@@ -137,7 +137,15 @@ function initializeSocket(server) {
 
     // Listen for messages and send them to the recipient
     socket.on("sendMessageToUser", async (data) => {
-      const { sender, recipient, text, images, conversationId, isProductCard, productDetails } = data;
+      const {
+        sender,
+        recipient,
+        text,
+        images,
+        conversationId,
+        isProductCard,
+        productDetails,
+      } = data;
       // console.log(`Message from user ${sender} to user ${recipient}: ${text}`);
 
       try {
@@ -158,11 +166,11 @@ function initializeSocket(server) {
 
         // Look up the recipient's socket.id
         const recipientSocketId = userSockets.get(recipient);
-        
-         //s Convert recipient to string to match how it's stored in the Map
-         const recipientStr = recipient.toString();
 
-         // Prepare the message data to send
+        //s Convert recipient to string to match how it's stored in the Map
+        const recipientStr = recipient.toString();
+
+        // Prepare the message data to send
         const messageData = {
           sender,
           text,
@@ -174,9 +182,9 @@ function initializeSocket(server) {
           productDetails: data.productDetails || null,
         };
 
-          //e Send message to the recipient's room
-          io.to(recipientStr).emit("receiveMessage", messageData);
-          // console.log(`Message sent to user ${recipientStr}'s room`);
+        //e Send message to the recipient's room
+        io.to(recipientStr).emit("receiveMessage", messageData);
+        // console.log(`Message sent to user ${recipientStr}'s room`);
 
         if (recipientSocketId) {
           // Send message to recipient
@@ -199,7 +207,6 @@ function initializeSocket(server) {
           // console.log(`User ${recipient} not connected`);
           // Notification is already created above, even if user is offline
         }
-
       } catch (error) {
         console.error("Error handling message:", error);
       }
@@ -275,6 +282,42 @@ function initializeSocket(server) {
         } else {
           // console.log(`User ${recipient} is offline. Notification stored.`);
         }
+      } catch (error) {
+        console.error("Error processing rental update:", error);
+      }
+    });
+
+    // Handle transaction update status for both owner and renter
+    socket.on("update-status", (data) => {
+      const { rentalId, owner, renter, status } = data;
+
+      try {
+        const users = [owner, renter]; // Notify both owner & renter
+
+        users.forEach((user) => {
+          if (!user) return;
+
+          const sockets = userSockets.get(user.toString()); // Get user's active sockets
+
+          if (sockets && sockets.size > 0) {
+            console.log(
+              `✅ Sending rental update to user ${user} on sockets:`,
+              sockets
+            );
+
+            sockets.forEach((socketId) => {
+              io.to(socketId).emit("receiveUpdate", {
+                rentalId,
+                status,
+                timestamp: new Date(),
+              });
+            });
+
+            console.log(`✅ Rental update successfully sent to user ${user}`);
+          } else {
+            console.log(`❌ User ${user} is offline. Notification stored.`);
+          }
+        });
       } catch (error) {
         console.error("Error processing rental update:", error);
       }

@@ -30,6 +30,9 @@ const systemConfigRoutes = require("./routes/SystemConfigRoutes.js");
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
 const cron = require("node-cron");
 const endSemesterCron = require("./cron-job/endSemester.js"); //for resetting status of verified student
+const {
+  AllowToProceed,
+} = require("./cron-job/rental-transaction/AllowToProceed.js");
 
 // cron.schedule("1 * * * * * *", async () => {
 //   console.log("Running cron job to auto-decline expired rentals...");
@@ -136,3 +139,6 @@ sequelize
   .catch((error) => {
     console.error("Unable to connect to the database:", error);
   });
+
+AllowToProceed();
+module.exports = { app, server, io };

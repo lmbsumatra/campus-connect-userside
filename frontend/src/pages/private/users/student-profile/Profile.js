@@ -53,6 +53,7 @@ const Profile = () => {
     if (!socket) return;
 
     socket.on("receiveRentalUpdate", (data) => {
+      console.log("Received rental update:", data);
       dispatch(fetchRentalTransactions(userId));
 
       toast.info(`🔔 Rental Update: ${data.status}`, {
@@ -68,6 +69,29 @@ const Profile = () => {
 
     return () => {
       socket.off("receiveRentalUpdate");
+    };
+  }, [dispatch, userId]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("receiveUpdate", (data) => {
+      console.log("Received rental update:", data);
+      dispatch(fetchRentalTransactions(userId));
+
+      toast.info(`🔔 Rental Update: ${data.status}`, {
+        position: "top-right",
+        autoClose: 3000, // Closes after 3s
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    });
+
+    return () => {
+      socket.off("receiveUpdate");
     };
   }, [dispatch, userId]);
 
@@ -134,7 +158,7 @@ const Profile = () => {
 
   return (
     <div className="container-content profile-detail">
-      <ToastContainer position="top-right" autoClose={3000} />
+      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
       <BreadCrumb breadcrumbs={getBreadcrumbs()} />
       <div className="profile-container">
         {userId && <ProfileSidebar />}

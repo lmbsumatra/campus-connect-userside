@@ -12,6 +12,7 @@ import {
 } from "../../redux/transactions/rentalTransactionsSlice";
 import axios from "axios";
 import socket from "../../hooks/socket";
+import { Tooltip } from "@mui/material";
 
 function RentalItem({
   item,
@@ -187,9 +188,17 @@ function RentalItem({
           onClick: () => handleStatusUpdate("hand-over"),
           primary: true,
           disabled:
+            item.is_allowed_to_proceed === false ||
+            (item.owner_id === userId
+              ? item.owner_confirmed
+              : item.renter_confirmed),
+          disabledReason: (
             item.owner_id === userId
               ? item.owner_confirmed
-              : item.renter_confirmed,
+              : item.renter_confirmed
+          )
+            ? "Wait for the other party"
+            : "Not yet allowed to proceed",
         },
         {
           label: "Message",
@@ -212,9 +221,14 @@ function RentalItem({
           onClick: () => handleStatusUpdate("return"),
           primary: true,
           disabled:
-            item.owner_id === userId
+            item.is_allowed_to_proceed === false ||
+            (item.owner_id === userId
               ? item.owner_confirmed
-              : item.renter_confirmed,
+              : item.renter_confirmed),
+          disabledReason:
+            item.is_allowed_to_proceed === false
+              ? "Not yet allowed to proceed"
+              : "Wait for the other party",
         },
         {
           label: "Message",
@@ -232,9 +246,14 @@ function RentalItem({
           onClick: () => handleStatusUpdate("completed"),
           primary: true,
           disabled:
-            item.owner_id === userId
+            item.is_allowed_to_proceed === false ||
+            (item.owner_id === userId
               ? item.owner_confirmed
-              : item.renter_confirmed,
+              : item.renter_confirmed),
+          disabledReason:
+            item.is_allowed_to_proceed === false
+              ? "Not yet allowed to proceed"
+              : "Wait for the other party",
         },
         {
           label: "Message",
@@ -252,9 +271,14 @@ function RentalItem({
           onClick: handleOpenModal,
           primary: true,
           disabled:
-            item.owner_id === userId
+            item.is_allowed_to_proceed === false ||
+            (item.owner_id === userId
               ? item.owner_confirmed
-              : item.renter_confirmed,
+              : item.renter_confirmed),
+          disabledReason:
+            item.is_allowed_to_proceed === false
+              ? "Not yet allowed to proceed"
+              : "Wait for the other party",
         },
       ],
       Reviewed: [],
@@ -294,20 +318,42 @@ function RentalItem({
         <p>Status: {item.status}</p>
 
         <div className="action-buttons d-flex gap-2">
-          {buttonConfig[item.status]?.map((button, index) => (
-            <button
-              key={index}
-              className={`btn btn-rectangle ${getButtonColor(button.primary)}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onButtonClick(e);
-                button.onClick();
-              }}
-              disabled={button.disabled}
-            >
-              {button.label}
-            </button>
-          ))}
+          {buttonConfig[item.status]?.map((button, index) =>
+            button.primary && button.disabled ? ( // Show tooltip only for disabled primary buttons
+              <Tooltip key={index} title={button.disabledReason} arrow>
+                <span>
+                  <button
+                    className={`btn btn-rectangle ${getButtonColor(
+                      button.primary
+                    )}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onButtonClick(e);
+                      button.onClick();
+                    }}
+                    disabled
+                  >
+                    {button.label}
+                  </button>
+                </span>
+              </Tooltip>
+            ) : (
+              <button
+                key={index}
+                className={`btn btn-rectangle ${getButtonColor(
+                  button.primary
+                )}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onButtonClick(e);
+                  button.onClick();
+                }}
+                disabled={button.disabled}
+              >
+                {button.label}
+              </button>
+            )
+          )}
         </div>
       </div>
       <ReviewModal

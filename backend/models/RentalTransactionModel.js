@@ -82,6 +82,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true, 
       },
+      is_allowed_to_proceed: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      }
       
     },
     {
@@ -105,10 +110,12 @@ module.exports = (sequelize) => {
     RentalTransaction.belongsTo(models.Post, { foreignKey: "post_id" });
     RentalTransaction.belongsTo(models.Date, {
       foreignKey: "rental_date_id",
+      // as: "rentalDate",
     });
 
     RentalTransaction.belongsTo(models.Duration, {
       foreignKey: "rental_time_id",
+      // as: "rentalTime",
     });
   };
 

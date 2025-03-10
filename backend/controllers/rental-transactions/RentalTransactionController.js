@@ -730,6 +730,7 @@ module.exports = ({ emitNotification }) => {
       const itemName = await getRentalItemName(rental.item_id);
 
       rental.status = "Declined"; // Update status to Declined
+
       await rental.save();
 
       // Inside declineRentalTransaction
