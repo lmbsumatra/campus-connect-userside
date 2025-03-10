@@ -114,6 +114,7 @@ const MyTransactions = () => {
       </div>
     );
   }
+  console.log(payoutSettings);
 
   if (status?.restricted && status?.completionLink) {
     return (
@@ -165,7 +166,7 @@ const MyTransactions = () => {
               <p>Ready to withdraw</p>
             </div>
             <div className="balance-amount">
-              ${payoutSettings?.availableBalance?.amount?.toFixed(2) || "0.00"}
+              ${payoutSettings?.availableBalance}
             </div>
           </div>
 
@@ -175,7 +176,7 @@ const MyTransactions = () => {
               <p>Processing payments</p>
             </div>
             <div className="balance-amount">
-              ${payoutSettings?.pendingBalance?.amount?.toFixed(2) || "0.00"}
+              ${payoutSettings?.pendingBalance}
             </div>
           </div>
         </div>

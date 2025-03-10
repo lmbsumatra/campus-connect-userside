@@ -41,14 +41,8 @@ const getStripeConnectAccount = async (req, res) => {
     );
 
     // Define available and pending balances
-    const availableBalance = balance.available.reduce(
-      (sum, curr) => sum + curr.amount,
-      0
-    );
-    const pendingBalance = balance.pending.reduce(
-      (sum, curr) => sum + curr.amount,
-      0
-    );
+    const availableBalance = balance.available.reduce((sum, curr) => sum + curr.amount, 0);
+    const pendingBalance = balance.pending.reduce((sum, curr) => sum + curr.amount, 0);
 
     // Create account completion link if necessary
     let accountLink = null;
@@ -74,19 +68,11 @@ const getStripeConnectAccount = async (req, res) => {
       account.requirements?.currently_due.includes("tos_acceptance.date") ||
       account.requirements?.currently_due.includes("tos_acceptance.ip")
     ) {
-      missingRequirements.push(
-        "Terms of Service acceptance is required. Please continue on setting up."
-      );
+      missingRequirements.push("Terms of Service acceptance is required. Please continue on setting up.");
     }
 
-    if (
-      account.requirements?.currently_due.includes(
-        "individual.verification.proof_of_liveness"
-      )
-    ) {
-      missingRequirements.push(
-        "Identity verification is required. Please continue and upload a correct identity document."
-      );
+    if (account.requirements?.currently_due.includes("individual.verification.proof_of_liveness")) {
+      missingRequirements.push("Identity verification is required. Please continue and upload a correct identity document.");
     }
 
     // Prepare response
@@ -178,8 +164,7 @@ const getStripeConnectAccount = async (req, res) => {
           restricted: response.status.restricted,
           completionLink: response.status.completionLink,
         },
-        message:
-          missingRequirements.length > 0 ? missingRequirements.join(" ") : null,
+        message: missingRequirements.length > 0 ? missingRequirements.join(" ") : null,
       });
     }
 
@@ -193,26 +178,6 @@ const getStripeConnectAccount = async (req, res) => {
       await user.save();
     }
 
-    console.log({
-      status: {
-        restricted: response.status.restricted,
-        completionLink: response.status.completionLink,
-      },
-      merchantSettings: {
-        storeName: account.business_profile.name || "Not provided",
-        countryCode: account.country || "Not provided",
-      },
-      payoutSettings: {
-        stripeAccountId: account.id,
-        pendingBalance: pendingBalance,
-        availableBalance: availableBalance,
-      },
-      payoutSchedule: {
-        current: account.settings.payouts.schedule.interval || "Not provided",
-      },
-      message:
-        missingRequirements.length > 0 ? missingRequirements.join(" ") : null,
-    });
     res.status(200).json({
       status: {
         restricted: response.status.restricted,
@@ -230,8 +195,7 @@ const getStripeConnectAccount = async (req, res) => {
       payoutSchedule: {
         current: account.settings.payouts.schedule.interval || "Not provided",
       },
-      message:
-        missingRequirements.length > 0 ? missingRequirements.join(" ") : null,
+      message: missingRequirements.length > 0 ? missingRequirements.join(" ") : null,
     });
   } catch (error) {
     console.error("Error fetching Stripe Connect account details:", error);

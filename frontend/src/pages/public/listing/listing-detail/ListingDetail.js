@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import store from "../../../../store/store.js";
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe } from "@stripe/stripe-js";
 
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import Tooltip from "@mui/material/Tooltip";
@@ -257,9 +257,13 @@ function ListingDetail() {
     }
   };
 
-  const stripePromise = loadStripe('pk_test_51Qd6OGJyLaBvZZCyI1v3VC4nkJ4FnP3JqVkEeRlpth6sUUKxeaGVwsgpOKEUIiDI61ITMyzWvTYJUYshL6H4jfks00mNbCIiZP'); // Replace with your actual key
+  const stripePromise = loadStripe(
+    "pk_test_51Qd6OGJyLaBvZZCyI1v3VC4nkJ4FnP3JqVkEeRlpth6sUUKxeaGVwsgpOKEUIiDI61ITMyzWvTYJUYshL6H4jfks00mNbCIiZP"
+  ); // Replace with your actual key
 
-  const confirmRental = async (e) => {
+  const [stripePaymentDetails, setStripePaymentDetails] = useState(null);
+
+  const confirmRental = async () => {
     try {
       const selectedDateId = approvedListingById.availableDates.find(
         (rentalDate) => rentalDate.date === selectedDate
@@ -275,61 +279,50 @@ function ListingDetail() {
         payment_mode: approvedListingById.paymentMethod,
       };
 
-      // Create rental transaction and get rentalId
       const response = await axios.post(
         "http://localhost:3001/rental-transaction/add",
         rentalDetails
       );
 
-      // Check payment method and handle accordingly
       if (approvedListingById.paymentMethod === GCASH) {
         if (!response.data.clientSecret || !response.data.paymentIntentId) {
-          console.error("Failed to get Stripe payment information", response);
           ShowAlert(dispatch, "error", "Error", "Failed to setup payment.");
           return;
         }
 
-        // Store payment information for the payment page
-        localStorage.setItem("stripePaymentIntentId", response.data.paymentIntentId);
-        localStorage.setItem("stripeClientSecret", response.data.clientSecret);
-        localStorage.setItem("rentalId", response.data.id);
-        
-        // Close the modal
+        // Store payment details in state instead of localStorage
+        setStripePaymentDetails({
+          paymentIntentId: response.data.paymentIntentId,
+          clientSecretFromState: response.data.clientSecret,
+          rentalId: response.data.id,
+          userId: loggedInUserId,
+        });
+        console.log(response.data);
+
         setShowModal(false);
-        
-        // Navigate to payment page
-        navigate('/payment');
-      } else if (approvedListingById.paymentMethod === GCASH) {
-        if (!response.data.url) {
-          console.error("Failed to get GCash payment URL", response);
-          ShowAlert(dispatch, "error", "Error", "Failed to setup GCash payment.");
-          return;
-        }
-        
-        // Set flag for redirect back handling
-        localStorage.setItem("fromGCashPayment", "true");
-        
-        // Redirect to GCash payment page
-        window.location.href = response.data.url;
+        navigate("/payment", {
+          state: {
+            paymentIntentId: response.data.paymentIntentId,
+            clientSecretFromState: response.data.clientSecret,
+            rentalId: response.data.id,
+            userId: loggedInUserId,
+          },
+        });
       } else {
-        // Non-payment method (e.g., cash on delivery)
         setShowModal(false);
-        await ShowAlert(
+        ShowAlert(
           dispatch,
           "success",
           "Success",
           "Rental confirmed successfully!"
         );
-        
-        // Navigate to transactions page
-        navigate(`/profile/transactions/renter/requests`);
+        navigate("/profile/transactions/renter/requests");
       }
     } catch (error) {
-      console.error("❌ Error in confirmRental:", error);
+      console.error("Error in confirmRental:", error);
       ShowAlert(dispatch, "error", "Error", "Failed to confirm rental.");
     }
   };
-
 
   useEffect(() => {
     if (id) {

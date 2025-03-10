@@ -2,6 +2,7 @@ const { models } = require("../../models/index");
 const { Op } = require("sequelize");
 const { createRentalTransaction } = require("./createRentalTransactions");
 const { handOverRentalTransaction } = require("./handOverRentalTransactions");
+const { cancelRentalTransaction } = require("./cancelRentalTransaction");
 
 module.exports = ({ emitNotification }) => {
   // Helper function to get user names
@@ -751,131 +752,6 @@ module.exports = ({ emitNotification }) => {
     }
   };
 
-  const cancelRentalTransaction = async (req, res) => {
-    const { id } = req.params;
-    const { userId } = req.body;
-
-    try {
-      const rental = await models.RentalTransaction.findByPk(id, {
-        include: [
-          {
-            model: models.User,
-            as: "owner",
-            attributes: ["user_id", "first_name", "last_name", "email"],
-          },
-          {
-            model: models.User,
-            as: "renter",
-            attributes: ["user_id", "first_name", "last_name", "email"],
-          },
-          {
-            model: models.Listing,
-            attributes: ["id", "listing_name", "description", "rate"],
-          },
-          { model: models.Post, attributes: ["id", "post_item_name"] },
-          { model: models.Date, attributes: ["id", "date"] },
-          {
-            model: models.Duration,
-            attributes: ["id", "rental_time_from", "rental_time_to"],
-          },
-        ],
-      });
-
-      if (!rental) {
-        return res.status(404).json({ error: "Rental transaction not found." });
-      }
-
-      if (rental.renter_id !== userId) {
-        return res
-          .status(403)
-          .json({ error: "Only the renter can cancel this transaction." });
-      }
-
-      if (rental.status !== "Requested") {
-        return res
-          .status(400)
-          .json({ error: "Only Requested rentals can be cancelled." });
-      }
-
-      // Retrieve rental date and time info
-      const { rental_date_id, rental_time_id, item_id } = rental;
-
-      const renterName = await getUserNames(rental.renter_id);
-      const itemName = await getRentalItemName(rental.item_id);
-
-      // Set rental status to 'Cancelled'
-      rental.status = "Cancelled";
-
-      // Get the rental duration and revert its status to 'available'
-      const duration = await models.Duration.findOne({
-        where: {
-          date_id: rental_date_id,
-          id: rental_time_id,
-        },
-      });
-
-      if (duration) {
-        await duration.update({ status: "available" });
-
-        // Check if at least one duration for this date is now available
-        const anyDurationsAvailable = await models.Duration.count({
-          where: {
-            date_id: rental_date_id,
-            status: "available",
-          },
-        });
-
-        if (anyDurationsAvailable > 0) {
-          // Update the date status to 'available' if at least one duration is free
-          const rentalDate = await models.Date.findByPk(rental_date_id);
-          if (rentalDate) {
-            await rentalDate.update({ status: "available" });
-          }
-        }
-
-        // Check if at least one date for the item is available
-        const anyDatesAvailable = await models.Date.count({
-          where: {
-            item_id: item_id,
-            status: "available",
-          },
-        });
-
-        if (anyDatesAvailable > 0) {
-          // Update the item status to 'available' if at least one date is available
-          const item = await models.Listing.findByPk(item_id);
-          if (item) {
-            await item.update({ status: "approved" });
-          }
-        }
-      } else {
-        return res.status(404).json({ error: "Rental duration not found." });
-      }
-
-      // Save the rental transaction with the updated status
-      await rental.save();
-
-      // Inside cancelRentalTransaction
-      const notification = await models.StudentNotification.create({
-        sender_id: userId,
-        recipient_id: rental.owner_id,
-        type: "rental_cancelled",
-        message: `${renterName} has cancelled the rental request for ${itemName}.`,
-        is_read: false,
-        rental_id: rental.id,
-      });
-      // Emit notification using centralized emitter
-      if (emitNotification) {
-        emitNotification(rental.renter_id, notification.toJSON());
-      }
-
-      // Return the updated rental data
-      res.json(rental);
-    } catch (error) {
-      console.error("Error canceling rental transaction:", error);
-      res.status(500).json({ error: error.message });
-    }
-  };
   return {
     createRentalTransaction: (req, res) =>
       createRentalTransaction(req, res, emitNotification),
@@ -890,6 +766,7 @@ module.exports = ({ emitNotification }) => {
     returnRentalTransaction,
     completeRentalTransaction,
     declineRentalTransaction,
-    cancelRentalTransaction,
+    cancelRentalTransaction: (req, res) =>
+      cancelRentalTransaction(req, res, emitNotification),
   };
 };

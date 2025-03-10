@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -10,13 +10,12 @@ import {
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import ShowAlert from "../../utils/ShowAlert";
+import "./paymentPageStyles.css";
 
-// Initialize Stripe
 const stripePromise = loadStripe(
   "pk_test_51Qd6OGJyLaBvZZCyI1v3VC4nkJ4FnP3JqVkEeRlpth6sUUKxeaGVwsgpOKEUIiDI61ITMyzWvTYJUYshL6H4jfks00mNbCIiZP"
-); // Replace with your actual key
+);
 
-// Payment Form Component
 const CheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
@@ -28,15 +27,12 @@ const CheckoutForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!stripe || !elements) {
-      return;
-    }
+    if (!stripe || !elements) return;
 
     setIsLoading(true);
     setErrorMessage("");
 
     try {
-      // Confirm the payment without capturing funds
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -48,13 +44,13 @@ const CheckoutForm = () => {
       if (error) {
         setErrorMessage(error.message);
       } else {
-        // Payment was successful - show success message
         ShowAlert(
           dispatch,
           "success",
           "Payment Authorized",
           "Your payment has been authorized. The funds will be captured when your rental is complete."
         );
+        localStorage.removeItem("paymentData");
         navigate("/profile/transactions/renter/requests");
       }
     } catch (error) {
@@ -90,24 +86,79 @@ const CheckoutForm = () => {
   );
 };
 
-// Main Payment Page Component
 const PaymentPage = () => {
   const [clientSecret, setClientSecret] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
+  const [isCancelLoading, setCancelLoading] = useState(false);
+
+  const stateData =
+    location.state || JSON.parse(localStorage.getItem("paymentData"));
+
+  const { paymentIntentId, clientSecretFromState, rentalId, userId } =
+    stateData || {};
 
   useEffect(() => {
-    // Get the client secret from localStorage
-    const storedClientSecret = localStorage.getItem("stripeClientSecret");
-
-    if (!storedClientSecret) {
-      ShowAlert(dispatch, "error", "Error", "Payment information not found.");
+    if (clientSecretFromState) {
+      setClientSecret(clientSecretFromState);
+      localStorage.setItem(
+        "paymentData",
+        JSON.stringify({
+          paymentIntentId,
+          clientSecretFromState,
+          rentalId,
+          userId,
+        })
+      );
+    } else if (!clientSecretFromState) {
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "You do not have access to this page"
+      );
       navigate("/");
-      return;
     }
+  }, [clientSecretFromState, navigate, dispatch]);
 
-    setClientSecret(storedClientSecret);
-  }, [navigate, dispatch]);
+  // Handle browser back button
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+
+    const handleBack = async () => {
+      if (window.confirm("Do you want to cancel the payment?")) {
+        setCancelLoading(true);
+        ShowAlert(dispatch, "loading", "Canceling Payment");
+
+        try {
+          await axios.post(
+            `http://localhost:3001/rental-transaction/user/${rentalId}/cancel`,
+            { userId }
+          );
+          localStorage.removeItem("paymentData");
+          ShowAlert(
+            dispatch,
+            "success",
+            "Payment Cancelled",
+            "Your payment has been cancelled successfully."
+          );
+          navigate("/payment-cancelled");
+        } catch (error) {
+          ShowAlert(dispatch, "error", "Error", "Failed to cancel payment.");
+        } finally {
+          setCancelLoading(false);
+        }
+      } else {
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+
+    window.addEventListener("popstate", handleBack);
+    return () => {
+      window.removeEventListener("popstate", handleBack);
+    };
+  }, [navigate, rentalId, userId]);
 
   if (!clientSecret) {
     return <div>Loading payment information...</div>;
