@@ -125,9 +125,9 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
 
     // Capture the payment when the handover is confirmed
     try {
-      if (rental.stripe_payment_id) {
+      if (rental.stripe_payment_intent_id) {
         const paymentIntent = await stripe.paymentIntents.capture(
-          rental.stripe_payment_id
+          rental.stripe_payment_intent_id
         );
 
         console.log("Payment captured successfully for rental:", rental.id);

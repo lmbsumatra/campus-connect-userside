@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import socket from "../../hooks/socket";
 import { Tooltip } from "@mui/material";
+import PaymentConfirmationModal from "./PaymentConfirmationModal";
 
 function RentalItem({
   item,
@@ -26,6 +27,8 @@ function RentalItem({
   const navigate = useNavigate(); // React Router navigation
   const { studentUser } = useAuth();
   const { userId } = studentUser;
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [modalRole, setModalRole] = useState(""); // "renter" or "owner"
 
   const dispatch = useDispatch(); // Redux dispatch
 
@@ -35,6 +38,11 @@ function RentalItem({
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleConfirmPayment = () => {
+    setIsPaymentModalOpen(false);
+    handleStatusUpdate("hand-over"); // Proceed to the next status after confirming payment
   };
 
   // Function to handle rental status update using Redux
@@ -186,6 +194,10 @@ function RentalItem({
               ? "Confirm Item Receive" // If Renter has not confirmed, show "Confirm Hand Over"
               : "Confirm Hand Over", // Default fallback for any other situation
           onClick: () => handleStatusUpdate("hand-over"),
+          onClick: () => {
+            setIsPaymentModalOpen(true);
+            setModalRole(item.owner_id === userId ? "owner" : "renter");
+          },
           primary: true,
           disabled:
             item.is_allowed_to_proceed === false ||
@@ -362,6 +374,13 @@ function RentalItem({
         item={item}
         selectedOption={selectedOption}
         userId={userId}
+      />
+
+      <PaymentConfirmationModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onConfirm={handleConfirmPayment}
+        role={modalRole}
       />
     </div>
   );
