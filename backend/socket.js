@@ -263,7 +263,7 @@ function initializeSocket(server) {
 
         if (recipientSockets && recipientSockets.size > 0) {
           // console.log(
-          //   `✅ Sending rental update to user ${recipient} on sockets:`,
+          //   `Sending rental update to user ${recipient} on sockets:`,
           //   recipientSockets
           // );
 
@@ -277,7 +277,7 @@ function initializeSocket(server) {
           });
 
           // console.log(
-          //   `✅ Rental update successfully sent to user ${recipient}`
+          //   `Rental update successfully sent to user ${recipient}`
           // );
         } else {
           // console.log(`User ${recipient} is offline. Notification stored.`);
@@ -301,7 +301,7 @@ function initializeSocket(server) {
 
           if (sockets && sockets.size > 0) {
             console.log(
-              `✅ Sending rental update to user ${user} on sockets:`,
+              `Sending rental update to user ${user} on sockets:`,
               sockets
             );
 
@@ -313,9 +313,9 @@ function initializeSocket(server) {
               });
             });
 
-            console.log(`✅ Rental update successfully sent to user ${user}`);
+            console.log(`Rental update successfully sent to user ${user}`);
           } else {
-            console.log(`❌ User ${user} is offline. Notification stored.`);
+            console.log(`User ${user} is offline. Notification stored.`);
           }
         });
       } catch (error) {

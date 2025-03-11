@@ -10,6 +10,7 @@ import ShowAlert from "../../utils/ShowAlert";
 import { Follow, FollowBack, Following } from "../../utils/consonants";
 
 import "./userCardStyles.css";
+import { updateUserActionById } from "../../redux/user/otherUserSlice";
 const UserCard = ({ users }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -40,14 +41,14 @@ const UserCard = ({ users }) => {
     setLastUser(user); // Save user for later alert
 
     dispatch(
-      updateUserAction({
+      updateUserActionById({
         loggedInUserId: loggedInUserId,
         otherUserId: user.id,
       })
     );
   };
 
-  // 🔥 Move ShowAlert to useEffect to trigger AFTER Redux state updates
+  // 🔥 Move ShowAlert to useEffect to trn v igger AFTER Redux state updates
   useEffect(() => {
     if (successFollow && lastUser) {
       ShowAlert(dispatch, "success", `${lastAction} ${lastUser.fname}`);

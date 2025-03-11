@@ -44,7 +44,6 @@ const ItemCard = ({
 
   // Use the custom sorting hook
   const { sortedItems, sortConfig, handleSort } = useSortItems(items);
-  console.log(items)
   useEffect(() => {
     const handleClickOutside = (event) => {
       const activeRef = dropdownRefs.current[activeDropdown];
@@ -116,6 +115,8 @@ const ItemCard = ({
     );
   };
 
+  const displayItems = isYou ? sortedItems : items; // Use sorted items only if isYou
+
   // Render items as cards
   const renderCardView = () => (
     <div className="card-container vertical">
@@ -130,7 +131,7 @@ const ItemCard = ({
           </div>
         </div>
       )}
-      {sortedItems.map((item, index) => (
+      {displayItems.map((item, index) => (
         <div
           key={item.id || index}
           className={`card variant-1 ${
@@ -182,7 +183,7 @@ const ItemCard = ({
               {Array.isArray(item.tags) && item.tags.length > 0 && (
                 <>
                   <span className="tag">{item.tags[0]}</span>
-                  
+
                   {item.tags.length > 1 && (
                     <Tooltip
                       title={item.tags.slice(1).map((tag, i) => (

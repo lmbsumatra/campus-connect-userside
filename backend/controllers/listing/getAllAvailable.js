@@ -1,12 +1,45 @@
-const { models } = require("../../models/index.js");
+const { models, sequelize } = require("../../models/index.js");
 const { notifyAdmins } = require("../../socket.js");
 const Fuse = require("fuse.js");
 
 const getAllAvailable = async (req, res) => {
+  const userId = req.query.userId || "";
+  let user;
+  if (userId) {
+    try {
+      user = await models.User.findOne({
+        where: { user_id: userId },
+        attributes: ["user_id"],
+        include: [
+          { model: models.Student, as: "student", attributes: ["college"] },
+          {
+            model: models.Follow,
+            as: "follower",
+            attributes: ["followee_id"],
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  }
+
   try {
     const items = await models.Listing.findAll({
       where: {
-        status: "approved", 
+        status: "approved",
+      },
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*) 
+              FROM rental_transactions 
+              WHERE rental_transactions.item_id = Listing.id
+            )`),
+            "no_of_rentals",
+          ],
+        ],
       },
       include: [
         {
@@ -23,7 +56,7 @@ const getAllAvailable = async (req, res) => {
               as: "durations",
               required: true,
               where: {
-                status: "available", 
+                status: "available",
               },
             },
           ],
@@ -37,8 +70,8 @@ const getAllAvailable = async (req, res) => {
           ],
         },
       ],
+      order: [[sequelize.literal("no_of_rentals"), "DESC"]],
     });
-
     const formattedItems = items.map((item) => {
       return {
         id: item.id,
@@ -79,12 +112,26 @@ const getAllAvailable = async (req, res) => {
       };
     });
 
+    if (user) {
+      const userCollege = user.student ? user.student.college : null;
+      const followedUserIds = user.follower.map((f) => f.followee_id);
+      formattedItems.sort((a, b) => {
+        const aFollowed = followedUserIds.includes(a.owner.id) ? 1 : 0;
+        const bFollowed = followedUserIds.includes(b.owner.id) ? 1 : 0;
+
+        const aSameCollege = a.college === userCollege ? 1 : 0;
+        const bSameCollege = b.college === userCollege ? 1 : 0;
+
+        return bFollowed - aFollowed || bSameCollege - aSameCollege;
+      });
+    }
+
     const { q } = req.query;
 
     if (q) {
       const fuse = new Fuse(formattedItems, {
-        keys: ["name", "desc", "category", "tags"], 
-        threshold: 0.3, 
+        keys: ["name", "desc", "category", "tags"],
+        threshold: 0.3,
       });
 
       const results = fuse.search(q).map((result) => result.item);

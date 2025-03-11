@@ -12,10 +12,23 @@ const initialState = {
 
 export const fetchAllApprovedListings = createAsyncThunk(
   "listing/allApprovedListings",
-  async (keyword = "") => {
-    const url = keyword
-      ? `${BASE_URL}?q=${encodeURIComponent(keyword)}`
-      : BASE_URL;
+  async (keyword = "", { getState }) => {
+    const state = getState();
+
+    const { studentUser } = state.studentAuth || {};
+
+    let url = BASE_URL;
+    const params = new URLSearchParams();
+
+    if (keyword) params.append("q", keyword);
+    if (studentUser && studentUser.userId)
+      params.append("userId", studentUser.userId); // Customization
+
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    console.log(url);
     const response = await fetch(url);
     return response.json();
   }

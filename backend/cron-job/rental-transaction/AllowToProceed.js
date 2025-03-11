@@ -18,15 +18,15 @@ const socket = io("http://localhost:3001", {
 
 // Handle socket connection events
 socket.on("connect", () => {
-  console.log("Cron job socket connected to server", socket.id);
+  // console.log("Cron job socket connected to server", socket.id);
 });
 
 socket.on("connect_error", (error) => {
-  console.error("Socket connection error:", error);
+  // console.error("Socket connection error:", error);
 });
 
 socket.on("disconnect", (reason) => {
-  console.log("Socket disconnected:", reason);
+  // console.log("Socket disconnected:", reason);
 });
 
 const AllowToProceed = () => {
