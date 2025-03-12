@@ -7,7 +7,7 @@ import UserDashboard from "../pages/private/admin/user-management/UserDashboard"
 import UserOverview from "../pages/private/admin/user-management/UserOverview";
 import UserVerification from "../pages/private/admin/user-management/student-profile/UserVerification";
 import EditProfile from "../pages/private/users/student-profile/EditProfile";
-import MyRentals from "../components/myrentals/MyRentals";
+import MyRentals from "../pages/private/users/student-profile/MyRentals";
 import MyTransactions from "../pages/private/users/student-profile/MyTransactions";
 import MyListings from "../pages/private/users/student-profile/MyListings";
 import MyPosts from "../pages/private/users/student-profile/MyPosts";

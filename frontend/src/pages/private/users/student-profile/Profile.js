@@ -12,7 +12,7 @@ import { useAuth } from "../../../../context/AuthContext.js";
 import ProfileSidebar from "../../../../components/User/sidebar/ProfileSidebar.jsx";
 import EditProfile from "./EditProfile.jsx";
 import ProfileHeader from "../../../../components/User/header/ProfileHeader.jsx";
-import MyRentals from "../../../../components/myrentals/MyRentals.jsx";
+import MyRentals from "./MyRentals.jsx";
 import MyForSale from "./MyForSale.jsx";
 import MyPosts from "./MyPosts.jsx";
 import MyListings from "./MyListings.jsx";
@@ -25,6 +25,7 @@ import socket from "../../../../hooks/socket.js";
 import { fetchRentalTransactions } from "../../../../redux/transactions/rentalTransactionsSlice.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import styles
+import MyFollowings from "./MyFollowings.js";
 
 const Profile = () => {
   const { studentUser } = useAuth();
@@ -185,6 +186,7 @@ const Profile = () => {
             <Route path="my-listings" element={<MyListings />} />
             <Route path="my-posts" element={<MyPosts />} />
             <Route path="my-for-sale" element={<MyForSale />} />
+            <Route path="followings" element={<MyFollowings />} />
             <Route path="/" element={<Navigate to="my-listings" />} />
           </Routes>
         </div>

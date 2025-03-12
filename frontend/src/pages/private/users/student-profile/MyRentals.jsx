@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import RentalFilters from "./RentalFilters";
-import RentalItem from "./RentalItem";
-import { useAuth } from "../../context/AuthContext";
+import RentalFilters from "../../../../components/myrentals/RentalFilters";
+import RentalItem from "../../../../components/myrentals/RentalItem";
+import { useAuth } from "../../../../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchRentalTransactions } from "../../redux/transactions/rentalTransactionsSlice";
+import { fetchRentalTransactions } from "../../../../redux/transactions/rentalTransactionsSlice";
 
 const formatForRoute = (name) => (name ? name.toLowerCase() : "");
 

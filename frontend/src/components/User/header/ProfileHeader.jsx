@@ -46,7 +46,7 @@ const ProfileHeader = ({
 
   // Local state to store the last action performed (Followed/Unfollowed)
   const [lastAction, setLastAction] = useState(null);
-  const [lastUser, setLastUser] = useState(null); 
+  const [lastUser, setLastUser] = useState(null);
 
   const handleFollowAction = (e, user) => {
     e.stopPropagation();
@@ -170,6 +170,9 @@ const ProfileHeader = ({
   const handleEditButton = () => {
     navigate("/profile/edit-profile");
   };
+  const handleFollowingsButton = () => {
+    navigate("/profile/followings");
+  };
 
   const [isTransactionPage, setTransactionPage] = useState(false);
   const location = useLocation();
@@ -245,7 +248,7 @@ const ProfileHeader = ({
           </div>
         </div>
         <div>
-          {user.user ? (
+          {user?.user ? (
             <>
               <h4 className="text-white">
                 {user.user.fname} {user.user.lname || "User Name"}
@@ -295,7 +298,7 @@ const ProfileHeader = ({
               </button>
             </div>
           ) : (
-            <div>
+            <div className="action-btns">
               <button
                 className="btn btn-rectangle secondary white my-2"
                 onClick={handleEditButton}
@@ -303,6 +306,14 @@ const ProfileHeader = ({
               >
                 <img src={editIcon} alt="Edit" />
                 Edit
+              </button>
+              <button
+                className="btn btn-rectangle secondary white my-2"
+                onClick={handleFollowingsButton}
+                disabled={location.pathname === "/profile/followings"}
+              >
+                <img src={editIcon} alt="Edit" />
+                Followings
               </button>
             </div>
           )}
@@ -322,7 +333,7 @@ const ProfileHeader = ({
                     className={`dropdown-item ${
                       option === selectedOption ? "selected" : ""
                     }`}
-                    onClick={() => onOptionChange(option.toLowerCase())} 
+                    onClick={() => onOptionChange(option.toLowerCase())}
                   >
                     {capitalizeFirstLetter(option)}
                     <span
