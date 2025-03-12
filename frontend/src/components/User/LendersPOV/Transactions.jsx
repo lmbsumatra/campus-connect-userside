@@ -1,27 +1,75 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./transactionStyles.css";
+import { formatDate } from "../../../utils/dateFormat";
 
-const TransactionsTable = () => {
-  const transactions = [
-    {
-      date: "July 11, 2024",
-      transaction: "Payment",
-      paymentMethod: "Gcash",
-      amount: "100.00",
-    },
-    {
-      date: "July 12, 2024",
-      transaction: "Payment",
-      paymentMethod: "Gcash",
-      amount: "50.00",
-    },
-    {
-      date: "July 13, 2024",
-      transaction: "Payment",
-      paymentMethod: "Gcash",
-      amount: "150.00",
-    },
-  ];
+const TransactionsTable = ({ transactions }) => {
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filter, setFilter] = useState({
+    paymentMethod: "",
+    transactionType: "",
+    status: "",
+  });
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
+  const rowsPerPage = 5;
+
+  const filteredTransactions = transactions.filter((transaction) => {
+    const matchesPaymentMethod = filter.paymentMethod
+      ? transaction.payment_mode === filter.paymentMethod
+      : true;
+    const matchesTransactionType = filter.transactionType
+      ? transaction.transactionType === filter.transactionType
+      : true;
+    const matchesStatus = filter.status
+      ? transaction.status === filter.status
+      : true;
+
+    return matchesPaymentMethod && matchesTransactionType && matchesStatus;
+  });
+
+  const getValue = (transaction, key) => {
+    if (key === "rate" || key === "listing_name") {
+      return transaction.Listing ? transaction.Listing[key] : "";
+    }
+    return transaction[key];
+  };
+
+  const sortedTransactions = [...filteredTransactions].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const order = sortConfig.direction === "asc" ? 1 : -1;
+    const aValue = getValue(a, sortConfig.key);
+    const bValue = getValue(b, sortConfig.key);
+
+    if (aValue < bValue) return -1 * order;
+    if (aValue > bValue) return 1 * order;
+    return 0;
+  });
+
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentTransactions = sortedTransactions.slice(
+    indexOfFirstRow,
+    indexOfLastRow
+  );
+
+  const totalPages = Math.ceil(filteredTransactions.length / rowsPerPage);
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+
+  const getSortArrow = (column) => {
+    if (sortConfig.key !== column) return null;
+    return sortConfig.direction === "asc" ? (
+      <i className="fas fa-arrow-up"></i>
+    ) : (
+      <i className="fas fa-arrow-down"></i>
+    );
+  };
 
   return (
     <div className="mt-2">
@@ -30,27 +78,121 @@ const TransactionsTable = () => {
         <table className="transactions-table">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Transaction</th>
-              <th>Payment Method</th>
-              <th>Amount</th>
+              <th onClick={() => handleSort("id")}>ID {getSortArrow("id")}</th>
+              <th onClick={() => handleSort("createdAt")}>
+                Date {getSortArrow("createdAt")}
+              </th>
+              <th>
+                Transaction
+                <select
+                  className="filter-dropdown"
+                  value={filter.transactionType}
+                  onChange={(e) =>
+                    setFilter({ ...filter, transactionType: e.target.value })
+                  }
+                >
+                  <option value="">All</option>
+                  <option value="Rental">Rented</option>
+                  <option value="Rental">To</option>
+                  <option value="Buy and Sell">Sold</option>
+                  <option value="Buy and Sell">Bought</option>
+                </select>
+              </th>
+              <th>
+                Payment Method
+                <select
+                  className="filter-dropdown"
+                  value={filter.paymentMethod}
+                  onChange={(e) =>
+                    setFilter({ ...filter, paymentMethod: e.target.value })
+                  }
+                >
+                  <option value="">All</option>
+                  <option value="gcash">GCash</option>
+                  <option value="payment upon meetup">
+                    Payment Upon Meetup
+                  </option>
+                </select>
+              </th>
+              <th onClick={() => handleSort("rate")}>
+                Amount{getSortArrow("rate")}
+              </th>
+              <th onClick={() => handleSort("listing_name")}>
+                Listing Name {getSortArrow("listing_name")}
+              </th>
+              <th>
+                Status
+                <select
+                  className="filter-dropdown"
+                  value={filter.status}
+                  onChange={(e) =>
+                    setFilter({ ...filter, status: e.target.value })
+                  }
+                >
+                  <option value="">All</option>
+                  <option value="Requested">Requested</option>
+                  <option value="Accepted">Accepted</option>
+                  <option value="Declined">Declined</option>
+                  <option value="HandedOver">Handed Over</option>
+                  <option value="Returned">Returned</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {transactions.map((transaction, index) => (
-              <tr key={index}>
-                <td>{transaction.date}</td>
-                <td>{transaction.transaction}</td>
-                <td>{transaction.paymentMethod}</td>
-                <td>{transaction.amount}</td>
-                <td>
-                  <button className="table-edit-btn">View</button>
+            {currentTransactions.length > 0 ? (
+              currentTransactions.map((transaction, index) => (
+                <tr key={index}>
+                  <td>{transaction.id}</td>
+                  <td>{formatDate(transaction.createdAt)}</td>
+                  <td>{transaction.transactionType}</td>
+                  <td>{transaction.payment_mode}</td>
+                  <td>P{transaction.Listing.rate}</td>
+                  <td>{transaction.Listing.listing_name}</td>
+                  <td>{transaction.status}</td>
+                  <td>
+                    <button
+                      className="table-edit-btn"
+                      onClick={() =>
+                        navigate(`/rent-progress/${transaction.id}`)
+                      }
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8" className="no-transactions">
+                  No transactions found.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
+        <div className="pagination">
+          <button
+            className="btn btn-secondary"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="btn btn-primary"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

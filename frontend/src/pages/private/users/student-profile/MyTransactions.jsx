@@ -9,6 +9,8 @@ import axios from "axios"; // Add axios for API requests
 import "./myTransactionsStyles.css";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
 import ShowAlert from "../../../../utils/ShowAlert";
+import { useSystemConfig } from "../../../../context/SystemConfigProvider";
+import { fetchRentalTransactions } from "../../../../redux/transactions/rentalTransactionsSlice";
 
 const MyTransactions = () => {
   const dispatch = useDispatch();
@@ -26,10 +28,20 @@ const MyTransactions = () => {
   } = useSelector((state) => state.merchant);
   const studentUser = useSelector(selectStudentUser);
   const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const { config } = useSystemConfig();
+  const {
+    transactions,
+    loading,
+    error,
+    totalTransactions,
+    revenue,
+    successfulTransactions,
+  } = useSelector((state) => state.rentalTransactions);
 
   useEffect(() => {
     if (studentUser?.userId) {
       dispatch(fetchMerchant(studentUser.userId));
+      dispatch(fetchRentalTransactions(studentUser.userId));
     }
   }, [dispatch, studentUser?.userId]);
 
@@ -143,101 +155,113 @@ const MyTransactions = () => {
 
   return (
     <div className="item-container">
+      <h2 className="text-center">Dashboard</h2>
       <div className="card-items-container">
-        <div className="dashboard-header">
-          <div>
-            <h1>Merchant Dashboard</h1>
-            <span className="account-id">
-              ID: {payoutSettings.stripeAccountId}
-            </span>
+        <div className="stats-container">
+          <div className="stat-card">
+            <h3>Total Transactions</h3>
+            <p>{totalTransactions || 0}</p>
           </div>
-          <button
-            className="btn btn-primary"
-            onClick={() => goToStripeDashboard()}
-          >
-            View Stripe Dashboard
-          </button>
-        </div>
-
-        <div className="balance-cards">
-          <div className="balance-card available">
-            <div className="balance-header">
-              <h3>Available Balance</h3>
-              <p>Ready to withdraw</p>
-            </div>
-            <div className="balance-amount">
-              ${payoutSettings?.availableBalance}
-            </div>
+          <div className="stat-card">
+            <h3>Total Revenue</h3>
+            <p>P{parseFloat(revenue).toFixed(2)}</p>
           </div>
 
-          <div className="balance-card pending">
-            <div className="balance-header">
-              <h3>Pending Balance</h3>
-              <p>Processing payments</p>
-            </div>
-            <div className="balance-amount">
-              ${payoutSettings?.pendingBalance}
-            </div>
+          <div className="stat-card">
+            <h3>Successful Transactions</h3>
+            <p>{successfulTransactions}</p>
           </div>
         </div>
 
-        <div className="settings-grid">
-          <div className="settings-card">
-            <h2>Merchant Settings</h2>
-            <div className="form-group">
-              <label htmlFor="storeName">Store Name</label>
-              <input
-                type="text"
-                id="storeName"
-                name="storeName"
-                value={merchantSettings?.storeName || ""}
-                onChange={handleMerchantChange}
-                placeholder="Enter store name"
-                disabled={loadingUpdateMerchant}
-              />
+        {config?.Stripe && (
+          <>
+            <div className="dashboard-header">
+              <div>
+                <h3>Merchant Stripe Dashboard</h3>
+                <span className="account-id">
+                  ID: {payoutSettings.stripeAccountId}
+                </span>
+              </div>
             </div>
-            <div className="form-group">
-              <label htmlFor="countryCode">Country Code</label>
-              <input
-                type="text"
-                id="countryCode"
-                name="countryCode"
-                value={merchantSettings?.countryCode || ""}
-                onChange={handleMerchantChange}
-                placeholder="Enter country code"
-                disabled={loadingUpdateMerchant}
-              />
-            </div>
-            {errorUpdateMerchant && (
-              <p className="error-text">
-                Error updating: {errorUpdateMerchant}
-              </p>
-            )}
-          </div>
 
-          <div className="settings-card">
-            <h2>Payout Schedule</h2>
-            <div className="form-group">
-              <label htmlFor="schedule">Current Schedule</label>
-              <select
-                id="schedule"
-                value={payoutSchedule || "Current"}
-                onChange={handleScheduleChange}
-                disabled={loadingUpdateMerchant}
-              >
-                <option value="Current">Current</option>
-                <option value="Daily">Daily</option>
-                <option value="Weekly">Weekly</option>
-                <option value="Monthly">Monthly</option>
-              </select>
+            <div className="balance-cards">
+              <div className="balance-card available">
+                <div className="balance-header">
+                  <h3>Available Balance</h3>
+                  <p>Ready to withdraw</p>
+                </div>
+                <div className="balance-amount">
+                  ₱{payoutSettings?.availableBalance}
+                </div>
+              </div>
+
+              <div className="balance-card pending">
+                <div className="balance-header">
+                  <h3>Pending Balance</h3>
+                  <p>Processing payments</p>
+                </div>
+                <div className="balance-amount">
+                  ₱{payoutSettings?.pendingBalance}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+
+            <div className="settings-grid">
+              <div className="settings-card">
+                <h2>Merchant Details</h2>
+                <div className="form-group">
+                  <label htmlFor="storeName">Store Name</label>
+                  <input
+                    type="text"
+                    id="storeName"
+                    name="storeName"
+                    value={merchantSettings?.storeName || ""}
+                    onChange={handleMerchantChange}
+                    placeholder="Enter store name"
+                    disabled
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="countryCode">Country Code</label>
+                  <input
+                    type="text"
+                    id="countryCode"
+                    name="countryCode"
+                    value={merchantSettings?.countryCode || ""}
+                    onChange={handleMerchantChange}
+                    placeholder="Enter country code"
+                    disabled
+                  />
+                </div>
+                {errorUpdateMerchant && (
+                  <p className="error-text">
+                    Error updating: {errorUpdateMerchant}
+                  </p>
+                )}
+              </div>
+
+              <div className="settings-card">
+                <h2>Payout Schedule</h2>
+                <div className="form-group">
+                  <label htmlFor="schedule">Current Schedule</label>
+                  <input
+                    type="text"
+                    id="countryCode"
+                    name="countryCode"
+                    value={"Current"}
+                    onChange={handleScheduleChange}
+                    placeholder="Enter country code"
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="transactions-card">
-          <h2>Recent Transactions</h2>
           <div className="transactions-table">
-            <TransactionsTable />
+            <TransactionsTable transactions={transactions} />
           </div>
         </div>
       </div>

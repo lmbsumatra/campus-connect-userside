@@ -1,215 +1,211 @@
 /* Dashboard Container */
 .dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    background-color: white !important;
-    min-height: 100vh;
-    margin-top: 16px;
-    border-radius: 8px;
-  }
-  
-  /* Dashboard Header */
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-  
-  .dashboard-header h1 {
-    font-size: 2rem;
-    color: #2d3748;
-    margin: 0;
-  }
-  
-  .account-id {
-    color: #718096;
-    font-size: 0.875rem;
-  }
-  
-  /* Balance Cards */
-  .balance-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-  
-  .balance-card {
-    background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
-  }
-  
-  .balance-card:hover {
-    transform: translateY(-2px);
-  }
-  
-  .balance-card.available {
-    border-left: 4px solid #48bb78;
-  }
-  
-  .balance-card.pending {
-    border-left: 4px solid #4299e1;
-  }
-  
-  .balance-header h3 {
-    margin: 0;
-    color: #2d3748;
-    font-size: 1.25rem;
-  }
-  
-  .balance-header p {
-    margin: 0.5rem 0 0;
-    color: #718096;
-    font-size: 0.875rem;
-  }
-  
-  .balance-amount {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-top: 1rem;
-  }
-  
-  .available .balance-amount {
-    color: #48bb78;
-  }
-  
-  .pending .balance-amount {
-    color: #4299e1;
-  }
-  
-  /* Settings Grid */
-  .settings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-  
-  /* Settings Cards */
-  .settings-card {
-    background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .settings-card h2 {
-    color: #2d3748;
-    margin: 0 0 1.5rem 0;
-    font-size: 1.25rem;
-  }
-  
-  /* Form Elements */
-  .form-group {
-    margin-bottom: 1rem;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #4a5568;
-    font-size: 0.875rem;
-  }
-  
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 1rem;
-    color: #2d3748;
-    transition: border-color 0.2s ease;
-  }
-  
-  .form-group input:focus,
-  .form-group select:focus {
-    outline: none;
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-  }
-  
-  .form-group input::placeholder {
-    color: #a0aec0;
-  }
-  
-  /* Transactions Card */
-  .transactions-card {
-    background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .transactions-card h2 {
-    color: #2d3748;
-    margin: 0 0 1.5rem 0;
-    font-size: 1.25rem;
-  }
-  
-  .transactions-table {
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .dashboard-container {
-      padding: 1rem;
-    }
-  
-    .dashboard-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-  
-    .balance-cards {
-      grid-template-columns: 1fr;
-    }
-  
-    .settings-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .balance-amount {
-      font-size: 1.75rem;
-    }
-  }
-  
-  /* Hover Effects */
-  .settings-card:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  input:hover,
-  select:hover {
-    border-color: #cbd5e0;
-  }
-  
-  /* Animation */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: white !important;
+  min-height: 100vh;
+  margin-top: 16px;
+  border-radius: 8px;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  color: #2d3748;
+  margin: 0;
+}
+
+.account-id {
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+/* Balance Cards */
+.balance-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.balance-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.balance-card:hover {
+  transform: translateY(-2px);
+}
+
+.balance-card.available {
+  border-left: 4px solid #48bb78;
+}
+
+.balance-card.pending {
+  border-left: 4px solid #4299e1;
+}
+
+.balance-header h3 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.25rem;
+}
+
+.balance-header p {
+  margin: 0.5rem 0 0;
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+.balance-amount {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.available .balance-amount {
+  color: #48bb78;
+}
+
+.pending .balance-amount {
+  color: #4299e1;
+}
+
+/* Settings Grid */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Settings Cards */
+.settings-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.settings-card h2 {
+  color: #2d3748;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #4a5568;
+  font-size: 0.875rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #2d3748;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.form-group input::placeholder {
+  color: #a0aec0;
+}
+
+/* Transactions Card */
+.transactions-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.transactions-card h2 {
+  color: #2d3748;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .dashboard-container {
-    animation: fadeIn 0.3s ease-out;
+    padding: 1rem;
   }
 
-  /* Loading and Error States */
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .balance-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .balance-amount {
+    font-size: 1.75rem;
+  }
+}
+
+/* Hover Effects */
+.settings-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+input:hover,
+select:hover {
+  border-color: #cbd5e0;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard-container {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Loading and Error States */
 .loading-state,
 .error-state {
   display: flex;
@@ -295,3 +291,65 @@ select:disabled {
   background-color: #f7fafc;
   cursor: not-allowed;
 }
+
+/* Stats Container */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Individual Stat Card */
+.stat-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Stat Title */
+.stat-card h3 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.25rem;
+}
+
+/* Stat Value */
+.stat-card p {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  color: #48bb78;
+}
+
+/* Different Colors for Stats */
+.stat-card.total-transactions p {
+  color: #4299e1;
+}
+
+.stat-card.total-revenue p {
+  color: #48bb78;
+}
+
+.stat-card.successful-transactions p {
+  color: #ed8936;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .stats-container {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card p {
+    font-size: 1.75rem;
+  }
+}
+

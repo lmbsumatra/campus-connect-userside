@@ -1,4 +1,3 @@
-// rentalTransactionsSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -8,13 +7,14 @@ export const fetchRentalTransactions = createAsyncThunk(
     console.log('Fetching rental transactions for user:', userId);
 
     if (!userId) {
-      return [];
+      return { transactions: [], totalTransactions: 0, revenue: 0, successfulTransactions: 0 };
     }
     try {
       const response = await axios.get(`http://localhost:3001/rental-transaction/user/${userId}`);
       console.log('Fetch response:', response.data);
 
-      return Array.isArray(response.data) ? response.data : [];
+      const { rentals, totalTransactions, revenue, successfulTransactions } = response.data;
+      return { transactions: rentals, totalTransactions, revenue, successfulTransactions };
     } catch (err) {
       console.error('Error fetching rental transactions:', err.message);
       return rejectWithValue(err.message);
@@ -31,7 +31,6 @@ export const updateRentalStatus = createAsyncThunk(
     console.log('Updating rental status:', { rentalId, newStatus, userId });
 
     try {
-      // API call to update status
       const response = await axios.post(
         `http://localhost:3001/rental-transaction/user/${rentalId}/${newStatus}`,
         { userId }
@@ -40,15 +39,11 @@ export const updateRentalStatus = createAsyncThunk(
       console.log('Update response:', response.data);
 
       if (response.data) {
-        // Extract updated transaction from response
         const updatedTransaction = response.data;
-
-        // Get current state and update only the modified transaction
         const updatedTransactions = getState().rentalTransactions.transactions.map((transaction) =>
           transaction.id === rentalId ? updatedTransaction : transaction
         );
 
-        // Dispatch action to update Redux state
         dispatch(setRentalTransactions(updatedTransactions));
 
         return updatedTransaction;
@@ -62,30 +57,38 @@ export const updateRentalStatus = createAsyncThunk(
   }
 );
 
-// Redux slice for rental transactions
 const rentalTransactionsSlice = createSlice({
   name: 'rentalTransactions',
   initialState: {
     transactions: [],
+    totalTransactions: 0,
+    revenue: 0,
+    successfulTransactions: 0,
     loading: false,
-    error: null
+    error: null,
   },
   reducers: {
     setRentalTransactions: (state, action) => {
-      state.transactions = action.payload; // Update the transaction list
+      state.transactions = action.payload.transactions;
+      state.totalTransactions = action.payload.totalTransactions;
+      state.revenue = action.payload.revenue;
+      state.successfulTransactions = action.payload.successfulTransactions;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchRentalTransactions.pending, (state) => {
-        console.log('Fetching rental transactions...'); // Pending state log
+        console.log('Fetching rental transactions...');
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchRentalTransactions.fulfilled, (state, action) => {
         console.log('Rental transactions fetched successfully:', action.payload);
         state.loading = false;
-        state.transactions = action.payload;
+        state.transactions = action.payload.transactions;
+        state.totalTransactions = action.payload.totalTransactions;
+        state.revenue = action.payload.revenue;
+        state.successfulTransactions = action.payload.successfulTransactions;
       })
       .addCase(fetchRentalTransactions.rejected, (state, action) => {
         console.error('Failed to fetch rental transactions:', action.payload);

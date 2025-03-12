@@ -283,8 +283,32 @@ module.exports = ({ emitNotification }) => {
         });
       }
 
-      // Return the found rentals
-      res.json(rentals);
+      // Calculate total transactions, revenue, and successful transactions
+      const completedRentals = rentals.filter((rental) => {
+        return (
+          rental.status === "Completed" && rental.owner_id === Number(userId)
+        );
+      });
+      const totalTransactions = rentals.length;
+      const revenue = completedRentals.reduce((sum, rental) => {
+        return rental.status === "Completed" &&
+          rental.owner_id === Number(userId)
+          ? sum + parseFloat(rental.Listing.rate)
+          : sum;
+      }, 0);
+
+      const successfulTransactions = rentals.filter(
+        (rental) =>
+          rental.status === "Completed" && rental.owner_id === Number(userId)
+      ).length;
+
+      // Return the found rentals with additional statistics
+      res.json({
+        totalTransactions,
+        revenue,
+        successfulTransactions,
+        rentals,
+      });
     } catch (error) {
       console.error("Error fetching transactions:", error); // Log the error for server-side debugging
 

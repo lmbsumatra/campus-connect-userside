@@ -22,12 +22,10 @@ const UserDropdown = ({
 
   const navigate = useNavigate();
 
-  // Fetch user information
-  // const { user, errorMessage: fetchErrorMessage } = FetchUserInfo({ userId });
-
   const { user, loadingFetchUser, errorFetchUser } = useSelector(
     (state) => state.user
   );
+
   return (
     <div className="user-dropdown-container" id="user-dropdown-popup">
       {/* Dropdown Trigger */}
@@ -40,108 +38,112 @@ const UserDropdown = ({
       </a>
 
       {/* Dropdown Menu */}
+
       {showDropdown && (
         <div className="user-menu">
           <div className="triangle"></div>
+          {loadingFetchUser ? (
+            "Loading"
+          ) : (
+            <>
+              <div className="dropdown-header">
+                <img src={UserIcon} alt="User" className="profile-img" />
+                <div className="profile-info d-flex flex-column gap-1 align-items-start">
+                  {errorFetchUser ? (
+                    <p className="error-message">{errorFetchUser}</p>
+                  ) : (
+                    <>
+                      <h5>
+                        {user?.user.fname || "First Name"}{" "}
+                        {user?.user.lname || "Last Name"}
+                      </h5>
+                      <h6>
+                        <a href="/profile/dashboard">View Profile</a>
+                      </h6>
+                    </>
+                  )}
+                </div>
+                <button className="close-btn" onClick={toggleDropdown}>
+                  &times; {/* Close icon */}
+                </button>
+              </div>
 
-          {/* User Info Section */}
-          <div className="dropdown-header">
-            <img src={UserIcon} alt="User" className="profile-img" />
-            <div className="profile-info d-flex flex-column gap-1 align-items-start">
-              {errorFetchUser ? (
-                <p className="error-message">{errorFetchUser}</p>
-              ) : (
-                <>
-                  <h5>
-                    {user?.user.fname || "First Name"}{" "}
-                    {user?.user.lname || "Last Name"}
-                  </h5>
-                  <h6>
-                    <a href="/profile">View Profile</a>
-                  </h6>
-                </>
-              )}
-            </div>
-            <button className="close-btn" onClick={toggleDropdown}>
-              &times; {/* Close icon */}
-            </button>
-          </div>
-
-          {/* Dropdown Options */}
-          <div className="dropdown-content">
-            <button
-              className="dropdown-btn"
-              onClick={() => {
-                navigate("/profile/dashboard");
-                toggleDropdown();
-              }}
-            >
-              <div className="icon">
-                <img src={MyRentalsIcon} alt="My Rentals" />
+              <div className="dropdown-content">
+                <button
+                  className="dropdown-btn"
+                  onClick={() => {
+                    navigate("/profile/dashboard");
+                    toggleDropdown();
+                  }}
+                >
+                  <div className="icon">
+                    <img src={MyRentalsIcon} alt="My Rentals" />
+                  </div>
+                  <h6>Dashboard</h6>
+                </button>
+                <button
+                  className="dropdown-btn"
+                  onClick={() => {
+                    navigate("/profile/my-listings");
+                    toggleDropdown();
+                  }}
+                >
+                  <div className="icon">
+                    <img src={MyRentalsIcon} alt="My Rentals" />
+                  </div>
+                  <h6>My Listings</h6>
+                </button>
+                <button
+                  className="dropdown-btn"
+                  onClick={() => {
+                    navigate("/profile/my-for-sale");
+                    toggleDropdown();
+                  }}
+                >
+                  <div className="icon">
+                    <img src={MyItemsIcon} alt="My Items" />
+                  </div>
+                  <h6>My Items For Sale</h6>
+                </button>
+                <button
+                  className="dropdown-btn"
+                  onClick={() => {
+                    navigate("/profile/my-posts");
+                    toggleDropdown();
+                  }}
+                >
+                  <div className="icon">
+                    <img src={MyPostsIcon} alt="My Posts" />
+                  </div>
+                  <h6>My Posts</h6>
+                </button>
+                <button
+                  className="dropdown-btn"
+                  onClick={() => {
+                    navigate("/profile/transactions/renter/requests");
+                    toggleDropdown();
+                  }}
+                >
+                  <div className="icon">
+                    <img src={MyPostsIcon} alt="My Posts" />
+                  </div>
+                  <h6>Transactions</h6>
+                </button>
+                <button
+                  className="dropdown-btn"
+                  onClick={() => {
+                    toggleDropdown();
+                    handleLogout();
+                  }}
+                >
+                  <div className="icon">
+                    <img src={LogoutIcon} alt="Logout" />
+                  </div>
+                  <h6>Logout</h6>
+                </button>
               </div>
-              <h6>Dashboard</h6>
-            </button>
-            <button
-              className="dropdown-btn"
-              onClick={() => {
-                navigate("/profile/my-listings");
-                toggleDropdown();
-              }}
-            >
-              <div className="icon">
-                <img src={MyRentalsIcon} alt="My Rentals" />
-              </div>
-              <h6>My Listings</h6>
-            </button>
-            <button
-              className="dropdown-btn"
-              onClick={() => {
-                navigate("/profile/my-for-sale");
-                toggleDropdown();
-              }}
-            >
-              <div className="icon">
-                <img src={MyItemsIcon} alt="My Items" />
-              </div>
-              <h6>My Items For Sale</h6>
-            </button>
-            <button
-              className="dropdown-btn"
-              onClick={() => {
-                navigate("/profile/my-posts");
-                toggleDropdown();
-              }}
-            >
-              <div className="icon">
-                <img src={MyPostsIcon} alt="My Posts" />
-              </div>
-              <h6>My Posts</h6>
-            </button>
-            <button
-              className="dropdown-btn"
-              onClick={() => {
-                navigate("/profile/transactions/renter/requests");
-                toggleDropdown();
-              }}
-            >
-              <div className="icon">
-                <img src={MyPostsIcon} alt="My Posts" />
-              </div>
-              <h6>Transactions</h6>
-            </button>
-            <button
-              className="dropdown-btn"
-              onClick={() => {
-                toggleDropdown();
-                handleLogout();
-              }}
-            >
-              <div className="icon">
-                <img src={LogoutIcon} alt="Logout" />
-              </div>
-              <h6>Logout</h6>
-            </button>
-          </div>
+            </>
+          )}
         </div>
       )}
     </div>

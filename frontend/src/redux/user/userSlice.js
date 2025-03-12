@@ -24,7 +24,6 @@ export const fetchUser = createAsyncThunk(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log({ user: data });
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -130,7 +129,6 @@ const userSlice = createSlice({
       .addCase(updateProfileImage.fulfilled, (state, action) => {
         state.loadingUpdateImage = false;
         if (state.user?.user) {
-          console.log("img", action.payload.imageUrl);
           state.user.student.profilePic = action.payload.imageUrl;
         }
         state.errorUpdateImage = null;
@@ -141,7 +139,7 @@ const userSlice = createSlice({
       })
       // Handle follow/unfollow update in Redux
       .addCase(updateUserAction.fulfilled, (state, action) => {
-        const { userId, action: newAction } = action.payload;
+        const { action: newAction } = action.payload;
         state.user.action = newAction;
       })
 
