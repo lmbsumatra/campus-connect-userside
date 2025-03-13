@@ -127,41 +127,43 @@ function PostDetail() {
   };
 
   const handleMessageClick = async () => {
-  try {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversationPost`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          senderId: studentUser.userId,
-          renterId: approvedPostById.renter.id,
-        }),
-      }
-    );
+    try {
+      const response = await fetch(
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:3001"
+        }/api/conversations/createConversationPost`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            senderId: studentUser.userId,
+            renterId: approvedPostById.renter.id,
+          }),
+        }
+      );
 
-    if (response.ok) {
-      // Navigate to the message page with product details
-      navigate("/messages", {
-        state: {
-          renterId: approvedPostById.renter.id,
-          product: {
-            name: approvedPostById.name,
-            image: approvedPostById.images[0], // Use the first image for the product card
-            title: approvedPostById.itemType,
-            productId: approvedPostById.id,
-            type: "post" // Add type identifier
+      if (response.ok) {
+        // Navigate to the message page with product details
+        navigate("/messages", {
+          state: {
+            renterId: approvedPostById.renter.id,
+            product: {
+              name: approvedPostById.name,
+              image: approvedPostById.images[0], // Use the first image for the product card
+              title: approvedPostById.itemType,
+              productId: approvedPostById.id,
+              type: "post", // Add type identifier
+            },
           },
-        },
-      });
-    }  else {
-      const error = await response.json();
-      console.error("Error creating conversation:", error.error);
+        });
+      } else {
+        const error = await response.json();
+        console.error("Error creating conversation:", error.error);
+      }
+    } catch (err) {
+      console.error("Error handling message click:", err);
     }
-  } catch (err) {
-    console.error("Error handling message click:", err);
-  }
-};
+  };
 
   const handleConfirmOffer = async () => {
     try {
@@ -218,7 +220,7 @@ function PostDetail() {
           selectedDuration.timeTo
         }`,
         productId: approvedPostById.id,
-        type: "post"
+        type: "post",
       };
 
       navigate("/messages", {
@@ -478,7 +480,14 @@ function PostDetail() {
           </div>
           <div className="item-title">
             <>
-              <i>Looking for </i>
+              <i>
+                <span className="title">
+                  {approvedPostById?.renter
+                    ? approvedPostById.renter.fname
+                    : "User"}{" "}
+                </span>
+                is Looking for{" "}
+              </i>
               {approvedPostById.name ? (
                 <span className="title">{approvedPostById.name}</span>
               ) : (
@@ -488,7 +497,12 @@ function PostDetail() {
           </div>
 
           <div className="action-btns">
-            <button className="btn btn-rectangle secondary" onClick={handleMessageClick}>Message</button>
+            <button
+              className="btn btn-rectangle secondary"
+              onClick={handleMessageClick}
+            >
+              Message
+            </button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
@@ -563,7 +577,7 @@ function PostDetail() {
 
             <div className="offer-details-section">
               <div className="form-group">
-                <label>Offered Price</label>
+                <label>Rental Fee</label>
                 <input
                   type="number"
                   className="form-control"
@@ -606,11 +620,14 @@ function PostDetail() {
         </div>
       </div>
 
-      <UserToolbar user={approvedPostById.renter}   isYou={
-         approvedPostById.renter
+      <UserToolbar
+        user={approvedPostById.renter}
+        isYou={
+          approvedPostById.renter
             ? approvedPostById.renter.id === loggedInUserId
             : false
-        }/>
+        }
+      />
 
       <ItemDescAndSpecs
         specs={approvedPostById.specs}
@@ -668,5 +685,3 @@ function PostDetail() {
 }
 
 export default PostDetail;
-
-

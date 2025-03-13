@@ -1,13 +1,14 @@
 import { useState } from "react";
 import "./searchResultsStyle.css";
 import userProfileIcon from "./item_2.png";
+import { Link } from "react-router-dom";
 
 const TrialOnSearchResults = ({ keyword }) => {
   const [usersInResult, setUsersInResult] = useState();
   const [itemsInResult, setItemsInResult] = useState();
 
   return (
-    <div className="search-results-container">
+    <div id="search-results-popup" className="search-results-container">
       {keyword ? (
         <>
           <span>You are searching for "{keyword}"</span>
@@ -22,24 +23,20 @@ const TrialOnSearchResults = ({ keyword }) => {
             </a>
           </div>
           <span>Items</span>
-          <a href={`/results?q=${keyword}&type=items`}>View All</a>
+          <Link to={`/results?q=${keyword}&type=items`}>View All</Link>
           <div className="result-wrapper">
-            <a className="item-result">
+            <div className="item-result">
               <span>{keyword}</span>
-              <a href={`/rent?q=${keyword}`}>
-                View All Rental Items
-              </a>
-            </a>
-            <a className="item-result">
+              <a href={`/rent?q=${keyword}`}>View All Rental Items</a>
+            </div>
+            <div className="item-result">
               <span>{keyword}</span>
-              <a href={`/shop?q=${keyword}`}>
-                View All for Sale Item
-              </a>
-            </a>
-            <a className="item-result">
+              <a href={`/shop?q=${keyword}`}>View All for Sale Item</a>
+            </div>
+            <div className="item-result">
               <span>{keyword}</span>
-              <a href={`/lend?q=${keyword}`}>View All Posts</a>
-            </a>
+              <Link to={`/lookingfor?q=${keyword}`}>View All Posts</Link>
+            </div>
           </div>
         </>
       ) : (

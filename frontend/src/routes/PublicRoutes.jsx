@@ -27,7 +27,7 @@ const PublicRoutes = [
   <Route key="home-alt-1" path="/discover" element={<Home />} />,
   <Route key="home-alt-2" path="/home" element={<Home />} />,
   <Route key="rent" path="/rent" element={<Rent />} />,
-  <Route key="lend" path="/lend" element={<Lend />} />,
+  <Route key="lookingfor" path="/lookingfor" element={<Lend />} />,
   <Route key="shop" path="/shop" element={<Shop />} />,
   <Route path="/cart" element={<Cart />} />,
   <Route path="/post/:id" element={<PostDetail />} />,

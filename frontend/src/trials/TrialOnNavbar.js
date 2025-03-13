@@ -53,7 +53,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
     const tabMapping = {
       "/shop": "Shop",
       "/rent": "Rent",
-      "/lend": "Lend",
+      "/lookingfor": "Looking for...",
       "/discover": "Discover",
     };
     setActiveTab(tabMapping[path] || "Discover");
@@ -88,7 +88,8 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
     if (
       event.target.closest("#notif-popup") ||
       event.target.closest("#message-popup") ||
-      event.target.closest("#user-dropdown-popup")
+      event.target.closest("#user-dropdown-popup") ||
+      event.target.closest("#search-results-popup")
     ) {
       return; // Clicked inside a popup, do nothing
     }
@@ -111,7 +112,11 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
 
   const setTab = (tab) => {
     setActiveTab(tab);
-    navigate(`/${tab.toLowerCase().replace(/\s+/g, "")}`);
+    const formattedTab = tab
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/\.{3}/g, "");
+    navigate(`/${formattedTab}`);
   };
 
   const togglePopup = (popup) => {
@@ -121,6 +126,10 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
   const handleAuth = (tab) => {
     setAuthTab(tab);
     setShowLoginSignUp(true);
+  };
+
+  const handleSearchFocus = () => {
+    setShowPopUpSearchBarResults(true);
   };
 
   const closeLoginSignUp = () => {
@@ -172,7 +181,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
             onKeyDown={handleSearchKeyDown}
             name="search-value"
             value={keyword}
-            onFocus={() => setIsSearchFocused(true)}
+            onFocus={handleSearchFocus}
             onBlur={() => setIsSearchFocused(false)}
           />
         </div>
@@ -238,7 +247,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
       {/* Bottom Section */}
       <div className="navbar-bottom">
         <ul className={isDarkTheme ? "dark" : "light"}>
-          {["Discover", "Shop", "Rent", "Lend"].map((text, index) => (
+          {["Discover", "Shop", "Rent", "Looking for..."].map((text, index) => (
             <li key={index}>
               <button
                 className={`nav-link ${isDarkTheme ? "dark" : "light"} ${

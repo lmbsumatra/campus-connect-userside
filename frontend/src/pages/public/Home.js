@@ -61,8 +61,8 @@ function Home() {
     <div className="over-flow-hidden">
       <TrialOnHeroSection />
       <Subheader />
-      <Categories />
-      <BrowseByCollection />
+      {/* <Categories />
+      <BrowseByCollection /> */}
 
       <ContentSection
         error={errorAllApprovedListings}
@@ -101,7 +101,7 @@ function Home() {
           </div>
         }
       >
-        <PostCard borrowingPosts={allApprovedPosts} title="Lend" />
+        <PostCard borrowingPosts={allApprovedPosts} title="Looking for..." />
       </ContentSection>
     </div>
   );
