@@ -54,6 +54,15 @@ const UserProfileVisit = () => {
   // Get the tab parameter from the URL (or default to "listings")
   const [activeTab, setActiveTab] = useState("listings");
 
+  const getDynamicFilterTextColor = () => {
+    return "var(--clr-renter-txt)";
+  };
+
+  const buttonStyle = {
+    color: getDynamicFilterTextColor(),
+    "--underline-color": "var(--clr-renter-txt)",
+  };
+
   useEffect(() => {
     dispatch(fetchAvailableListingsByUser(id));
     dispatch(fetchAvailablePostsByUser(id));
@@ -199,16 +208,22 @@ const UserProfileVisit = () => {
         <ProfileHeader userId={id} isProfileVisit={true} className="m-0 p-0" />
         <div className="prof-content-wrapper bg-white rounded p-3">
           <div className="profile-content">
-            <div className="filter-bttns">
-              {availableTabs.map((tab) => (
-                <button
-                  key={tab}
-                  className={`filter-bttn ${activeTab === tab ? "active" : ""}`}
-                  onClick={() => handleTabChange(tab)}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
-                </button>
-              ))}
+            <div className="rental-filters">
+              <div className="filter-buttons">
+                {availableTabs.map((tab) => (
+                  <button
+                    key={tab}
+                    className={`filter-button ${
+                      activeTab === tab ? "active" : ""
+                    }`}
+                    style={buttonStyle}
+                    onClick={() => handleTabChange(tab)}
+                  >
+                    {tab.charAt(0).toUpperCase() +
+                      tab.slice(1).replace("-", " ")}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {activeTab === "listings" && (
