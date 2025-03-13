@@ -7,9 +7,7 @@ import hidePassword from "../../../../assets/images/icons/eye-closed.svg";
 import PasswordMeter from "../../../../components/common/PasswordMeter";
 import { baseApi } from "../../../../App";
 
-
 function EditProfile() {
-
   const [formData, setFormData] = useState({
     surname: "",
     firstname: "",
@@ -37,15 +35,20 @@ function EditProfile() {
   const userId = studentUser.userId;
   const token = studentUser.token;
 
-  const { user, student, errorMessage: fetchErrorMessage } = FetchUserInfo({userId});
+  const {
+    user,
+    student,
+    errorMessage: fetchErrorMessage,
+  } = FetchUserInfo({ userId });
   const [errorMessage, setErrorMessage] = useState("");
 
+  console.log(user, student);
   useEffect(() => {
     if (user && student) {
       setFormData({
-        surname: user.last_name || "",
-        firstname: user.first_name || "",
-        middlename: user.middle_name || "",
+        surname: user.lname || "",
+        firstname: user.fname || "",
+        middlename: user.mname || "",
         year: student.year || "",
         college: student.college || "",
         course: student.course || "",
@@ -53,9 +56,9 @@ function EditProfile() {
         birthday: user.birthday || "",
         username: user.username || "",
         email: user.email || "",
-        tup_id: student.tup_id || "",
-        scanned_id: student.scanned_id || "",
-        photo_with_id: student.photo_with_id || "",
+        tup_id: `TUP ${student.id}` || "",
+        scannedId: student.scannedId || "",
+        photoWithId: student.photoWithId || "",
       });
     }
     if (fetchErrorMessage) {
@@ -110,7 +113,9 @@ function EditProfile() {
         setModalOpen(false);
       } else {
         const errorData = await response.json();
-        setErrorMessage(errorData.message || "Password update failed. Please try again.");
+        setErrorMessage(
+          errorData.message || "Password update failed. Please try again."
+        );
       }
     } catch (error) {
       setErrorMessage("An error occurred while changing the password.");
@@ -127,7 +132,14 @@ function EditProfile() {
         <div className="form-section personal-details">
           <h3 className="section-label">Edit Personal Details</h3>
           <div className="details-grid">
-            {["surname", "firstname", "middlename", "college", "course", "tup_id"].map((field) => (
+            {[
+              "surname",
+              "firstname",
+              "middlename",
+              "college",
+              "course",
+              "tup_id",
+            ].map((field) => (
               <div className="form-group" key={field}>
                 <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
                 <input
@@ -181,9 +193,9 @@ function EditProfile() {
               <div>
                 <label>Photo with ID</label>
                 <div>
-                  {formData.photo_with_id && (
+                  {formData.photoWithId && (
                     <img
-                      src={formData.photo_with_id}
+                      src={formData.photoWithId}
                       alt="Photo with ID"
                       style={{ height: "100px", width: "auto" }}
                     />
@@ -193,9 +205,9 @@ function EditProfile() {
               <div>
                 <label>Scanned ID</label>
                 <div>
-                  {formData.scanned_id && (
+                  {formData.scannedId && (
                     <img
-                      src={formData.scanned_id}
+                      src={formData.scannedId}
                       alt="Scanned ID"
                       style={{ height: "100px", width: "auto" }}
                     />
@@ -217,23 +229,34 @@ function EditProfile() {
             <h3>Change Password</h3>
             {errorMessage && <p className="error-message">{errorMessage}</p>}
             <form onSubmit={handleSubmit}>
-              {["currentPassword", "newPassword", "confirmNewPassword"].map((field) => (
-                <div className="form-group" key={field}>
-                  <label>{field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</label>
-                  <input
-                    type={isShowPassword ? "text" : "password"}
-                    name={field}
-                    value={passwordData[field]}
-                    onChange={handlePasswordChange}
-                    placeholder={`Enter ${field.replace(/([A-Z])/g, ' $1')}`}
-                    required
-                  />
-                  <div className="pass-icon" onClick={handleShowPassword}>
-                    <img src={isShowPassword ? showPassword : hidePassword} alt="Toggle password visibility" />
+              {["currentPassword", "newPassword", "confirmNewPassword"].map(
+                (field) => (
+                  <div className="form-group" key={field}>
+                    <label>
+                      {field
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, (str) => str.toUpperCase())}
+                    </label>
+                    <input
+                      type={isShowPassword ? "text" : "password"}
+                      name={field}
+                      value={passwordData[field]}
+                      onChange={handlePasswordChange}
+                      placeholder={`Enter ${field.replace(/([A-Z])/g, " $1")}`}
+                      required
+                    />
+                    <div className="pass-icon" onClick={handleShowPassword}>
+                      <img
+                        src={isShowPassword ? showPassword : hidePassword}
+                        alt="Toggle password visibility"
+                      />
+                    </div>
+                    {field === "newPassword" && (
+                      <PasswordMeter password={passwordData.newPassword} />
+                    )}
                   </div>
-                  {field === "newPassword" && <PasswordMeter password={passwordData.newPassword} />}
-                </div>
-              ))}
+                )
+              )}
               <button className="btn btn-rectangle primary" type="submit">
                 Submit
               </button>

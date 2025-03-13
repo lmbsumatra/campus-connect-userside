@@ -151,26 +151,7 @@
   margin-top: 5px;
 }
 
-@media (max-width: 600px) {
-  .message-menu {
-    top: 0;
-    right: 0;
-    width: 100vw;
-    height: 100vh;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-  }
 
-  .message-menu .triangle {
-    display: none;
-  }
-
-  .menu-content {
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-}
 
 .message-item.unread {
   background-color: #e3f2fd;

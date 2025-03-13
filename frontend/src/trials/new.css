@@ -194,3 +194,23 @@ body {
   height: 100%;
   border-radius: 8px;
 }
+/* new.css */
+
+/* Hide the rotating gear and static images for screens less than 768px */
+@media (max-width: 768px) {
+  .gear,
+  .items {
+    display: none;
+  }
+}
+
+/* Optional: You can add additional styles for larger screens */
+@media (min-width: 769px) {
+  .gear {
+    /* Add any additional styles for the gear if needed */
+  }
+
+  .items {
+    /* Add any additional styles for the items if needed */
+  }
+}

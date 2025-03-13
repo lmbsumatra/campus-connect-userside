@@ -53,8 +53,8 @@ const Rent = () => {
 
   return (
     <>
-      <div className="container-content">
-        <div className="row">
+      <div className="container-content page-container">
+        <div className="filters-section">
           <FilterToolbar
             filters={filters}
             setFilters={setFilters}
@@ -82,32 +82,32 @@ const Rent = () => {
               isListingsPage={true}
             />
           )}
-          
-          <div className="col-md-10">
-            <TimeoutComponent
-              timeoutDuration={5000}
-              fallback={
-                <div className="card-container vertical">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <LoadingItemCardSkeleton key={index} />
-                  ))}
-                </div>
-              }
-            >
-              {!loadingAllApprovedListings && (
-                <ItemCard items={filteredItems} title="Listings" />
-              )}
-            </TimeoutComponent>
-            {loadingAllApprovedListings && <p>Loading listings...</p>}
+        </div>
+
+        <div className="items-section">
+          <TimeoutComponent
+            timeoutDuration={5000}
+            fallback={
+              <div className="card-container vertical">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <LoadingItemCardSkeleton key={index} />
+                ))}
+              </div>
+            }
+          >
+            {!loadingAllApprovedListings && (
+              <ItemCard items={filteredItems} title="Listings" />
+            )}
+          </TimeoutComponent>
+          {loadingAllApprovedListings && <p>Loading listings...</p>}
+          {errorAllApprovedListings && (
+            <p>Error loading listings: {errorAllApprovedListings}</p>
+          )}
+
+          <div className="container-content">
             {errorAllApprovedListings && (
               <p>Error loading listings: {errorAllApprovedListings}</p>
             )}
-
-            <div className="container-content">
-              {errorAllApprovedListings && (
-                <p>Error loading listings: {errorAllApprovedListings}</p>
-              )}
-            </div>
           </div>
         </div>
       </div>

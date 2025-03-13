@@ -23,50 +23,7 @@
 }
 
 /* Mobile responsive styling */
-@media (max-width: 600px) {
-    .notifications-user {
-        position: fixed;
-        top: 0;
-        right: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        border-radius: 0;
-        padding: 0;
-        box-shadow: none;
-    }
 
-    .notifications-header {
-        padding: 15px;
-        border-bottom: 1px solid #ddd;
-        background-color: var(--clr-white);
-        position: sticky;
-        top: 0;
-        z-index: 1001;
-    }
-
-    .notification-list {
-        max-height: calc(100vh - 50px);
-        overflow-y: auto;
-    }
-
-    .notification-item {
-        padding: 10px 15px;
-    }
-
-    .notification-avatar {
-        width: 40px;
-        height: 40px;
-    }
-
-    .notification-content p {
-        font-size: 13px;
-    }
-
-    .notification-content span {
-        font-size: 11px;
-    }
-}
 
 /* Triangle for desktop view */
 .notifications-user .triangle {

@@ -59,3 +59,33 @@
 .card-items-container {
   padding: 8px;
 }
+
+.page-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Filters Section */
+.page-container .filters-section {
+  flex: 1;
+  max-width: 300px;
+}
+
+/* Items Section */
+.page-container .items-section {
+  flex: 3;
+  width: 100%;
+}
+
+/* Mobile View */
+@media (max-width: 768px) {
+  .page-container {
+    flex-direction: column;
+  }
+
+  .page-container .filters-section,
+  .page-container .items-section {
+    max-width: 100%;
+  }
+}

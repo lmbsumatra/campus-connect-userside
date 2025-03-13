@@ -50,11 +50,11 @@ const Shop = () => {
 
   // Component JSX
   return (
-    <div className="container-content">
-      <div className="row">
+    <div className="container-content page-container">
+      <div className="filters-section">
         <FilterToolbar
-          filters={filters} 
-          setFilters={setFilters} 
+          filters={filters}
+          setFilters={setFilters}
           showPriceRange={true}
           onFilterChange={handleFilterChange}
         />
@@ -68,7 +68,7 @@ const Shop = () => {
 
         <ResetFilters
           setFilteredItems={setFilteredItems}
-          setFilters={setFilters} 
+          setFilters={setFilters}
           allApprovedPosts={allApprovedItemForSale}
         />
 
@@ -81,24 +81,24 @@ const Shop = () => {
             setFilters={setFilters}
           />
         )}
+      </div>
 
-        {/* Item Display Section */}
-        <div className="col-md-10">
-          <TimeoutComponent
-            timeoutDuration={5000}
-            fallback={
-              <div className="card-container vertical">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <LoadingItemCardSkeleton key={index} />
-                ))}
-              </div>
-            }
-          >
-            {!loadingAllApprovedItemForSale && (
-              <ItemCard items={filteredItems} title="For Sale" />
-            )}
-          </TimeoutComponent>
-        </div>
+      {/* Item Display Section */}
+      <div className="items-section">
+        <TimeoutComponent
+          timeoutDuration={5000}
+          fallback={
+            <div className="card-container vertical">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <LoadingItemCardSkeleton key={index} />
+              ))}
+            </div>
+          }
+        >
+          {!loadingAllApprovedItemForSale && (
+            <ItemCard items={filteredItems} title="For Sale" />
+          )}
+        </TimeoutComponent>
       </div>
     </div>
   );

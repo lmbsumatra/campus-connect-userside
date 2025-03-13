@@ -15,17 +15,11 @@ const FAB = ({ cartItems }) => {
 
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const createPost = () => handleActionWithAuthCheck("/profile/my-posts/new");
   const addItem = () => handleActionWithAuthCheck("/profile/my-listings/add");
-  const toggleCart = () =>
-    isMobile ? handleActionWithAuthCheck("/cart") : setIsCartOpen(!isCartOpen);
+  const toggleCart = () => setIsCartOpen(!isCartOpen);
 
   return (
     <>

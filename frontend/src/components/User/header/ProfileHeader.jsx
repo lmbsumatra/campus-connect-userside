@@ -312,7 +312,6 @@ const ProfileHeader = ({
                 onClick={handleFollowingsButton}
                 disabled={location.pathname === "/profile/followings"}
               >
-                <img src={editIcon} alt="Edit" />
                 Followings
               </button>
             </div>

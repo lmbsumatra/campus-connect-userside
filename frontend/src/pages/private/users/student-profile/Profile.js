@@ -135,6 +135,7 @@ const Profile = () => {
       dashboard: "Dashboard",
       transactions: "Transactions",
       "edit-profile": "Edit Profile",
+      "followings": "Followings"
     };
 
     const currentPath = location.pathname;

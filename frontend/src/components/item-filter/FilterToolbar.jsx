@@ -40,7 +40,7 @@ const FilterToolbar = ({
   };
 
   return (
-    <div className="col-md-2">
+    <div className="">
       <h5>Filters</h5>
 
       {/* Category Filter */}
@@ -79,7 +79,7 @@ const FilterToolbar = ({
       )}
 
       {/* Condition Filter */}
-      <div>
+      <div className="d-flex flex-column">
         <label>Condition</label>
         {CONDITIONS.map((condition) => (
           <label key={condition}>
