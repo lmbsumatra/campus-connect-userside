@@ -327,7 +327,7 @@ function RentalItem({
         {item.RentalDate && (
           <p>Request Date: {formatDate(item.RentalDate.date)}</p>
         )}
-        <p>Status: {item.status}</p>
+        <p className="indx">Type: {item.transaction_type}</p>
 
         <div className="action-buttons d-flex gap-2">
           {buttonConfig[item.status]?.map((button, index) =>

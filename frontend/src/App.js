@@ -24,6 +24,7 @@ import "./styles/containers.css";
 import "./styles/status.css";
 import "./trials/Trial.css";
 import "./styles/loadingOverlayStyles.css";
+import "./styles/indication.css";
 
 import {
   REACT_APP_API_URL,
@@ -38,7 +39,9 @@ function App() {
       <Provider store={store}>
         <AuthProvider>
           <ChatProvider>
-            <SystemConfigProvider> {/* Wrap the app with SystemConfigProvider */}
+            <SystemConfigProvider>
+              {" "}
+              {/* Wrap the app with SystemConfigProvider */}
               <BrowserRouter>
                 <GoogleOAuthProvider clientId={REACT_APP_GOOGLE_CLIENT_ID}>
                   <Routes>
@@ -50,7 +53,7 @@ function App() {
                     {/* Admin Routes */}
                     <Route element={<AdminLayout />}>{AdminRoutes}</Route>
                     {/* Page not found */}
-                    <Route path="/*" element={<PageNotFound />} /> 
+                    <Route path="/*" element={<PageNotFound />} />
                   </Routes>
                 </GoogleOAuthProvider>
               </BrowserRouter>

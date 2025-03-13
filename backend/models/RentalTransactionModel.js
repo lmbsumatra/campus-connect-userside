@@ -76,18 +76,22 @@ module.exports = (sequelize) => {
       },
       stripe_payment_intent_id: {
         type: DataTypes.STRING,
-        allowNull: true, 
+        allowNull: true,
       },
       stripe_charge_id: {
         type: DataTypes.STRING,
-        allowNull: true, 
+        allowNull: true,
       },
       is_allowed_to_proceed: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-      }
-      
+      },
+      transaction_type: {
+        type: DataTypes.ENUM("rental", "sell"),
+        allowNull: false,
+        defaultValue: "rental",
+      },
     },
     {
       sequelize,

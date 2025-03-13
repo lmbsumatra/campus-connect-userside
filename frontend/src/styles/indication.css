@@ -1,0 +1,11 @@
+.indx {
+    color: var(--clr-primary);
+  border-radius: 100px;
+  border: 1px solid var(--clr-primary);
+  background-color: white;
+  padding: 4px 8px;
+  font-size: 14px;
+  width: fit-content !important;
+  display: inline-block !important;
+  }
+  
