@@ -26,8 +26,8 @@ const updatePostStatus = async (req, res) => {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    // Debug: Log the fetched post
-    console.log("Fetched Post:", post.toJSON());
+    // // Debug: Log the fetched post
+    // console.log("Fetched Post:", post.toJSON());
 
     // Update the post’s status
     await post.update({ status }, { transaction });
@@ -41,9 +41,9 @@ const updatePostStatus = async (req, res) => {
       flagged: `Post flagged: ${post.post_item_name}. Reason: ${reason}`,
     };
 
-    // Debug: Log the status and message
-    console.log("Status:", status);
-    console.log("Message:", messages[status]);
+    // // Debug: Log the status and message
+    // console.log("Status:", status);
+    // console.log("Message:", messages[status]);
 
     // Create a notification record for the student (post owner)
     const notification = await StudentNotification.create(
@@ -58,8 +58,8 @@ const updatePostStatus = async (req, res) => {
       { transaction }
     );
 
-    // Debug: Log the created notification
-    console.log("Notification created:", notification.toJSON());
+    // // Debug: Log the created notification
+    // console.log("Notification created:", notification.toJSON());
 
     // Send notifications to all students when approved
     if (status === "approved") {
@@ -105,9 +105,9 @@ const updatePostStatus = async (req, res) => {
     }
 
     // Commit the transaction
-    console.log("Committing transaction...");
+    // console.log("Committing transaction...");
     await transaction.commit();
-    console.log("Transaction committed successfully.");
+    // console.log("Transaction committed successfully.");
 
     res.json({
       message: "Post status updated successfully",
