@@ -174,7 +174,7 @@ const addListing = async (req, res) => {
       : "Unknown";
 
     // Create notification in database
-    const notificationData = {
+    const adminNotificationData = {
       type: "new-listing",
       title: "New Listing awaiting approval",
       message: ` created a new listing: "${listing.listing_name}"`,
@@ -186,9 +186,12 @@ const addListing = async (req, res) => {
       isRead: false,
     };
 
-    const notification = await models.Notification.create(notificationData, {
-      transaction,
-    });
+    const adminNotification = await models.Notification.create(
+      adminNotificationData,
+      {
+        transaction,
+      }
+    );
 
     // Commit the transaction
     await transaction.commit();
@@ -196,7 +199,7 @@ const addListing = async (req, res) => {
     // Emit socket event after commit
     if (req.notifyAdmins) {
       req.notifyAdmins({
-        ...notification.toJSON(),
+        ...adminNotification.toJSON(),
         owner: {
           id: owner.user_id,
           name: ownerName,
@@ -207,7 +210,7 @@ const addListing = async (req, res) => {
     res.status(201).json({
       message: "Listing created successfully.",
       listing,
-      notification: notification.toJSON(),
+      notification: adminNotification.toJSON(),
     });
   } catch (error) {
     if (transaction.finished !== "commit") {

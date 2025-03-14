@@ -4,6 +4,8 @@ const PostContoller = require("../controllers/PostController");
 const PostController2 = require("../controllers/post/PostController");
 const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 const { upload_item } = require("../config/multer");
+const updatePostStatus = require("../controllers/post/updatePostStatus");
+const authenticateToken = require("../middlewares/AdminAuthMiddleware");
 
 router.get("/:id/matched-items", PostController2.matchedItems);
 
@@ -32,5 +34,7 @@ router.get("/:id", PostContoller.getPostById);
 router.put("/:id", PostContoller.updatePost);
 router.delete("/:id", PostContoller.deletePost);
 router.patch("/:id", PostContoller.updateStatus);
+// New route for updating post status and emitting notifications
+router.patch("/:id/status", authenticateToken, updatePostStatus);
 
 module.exports = router;

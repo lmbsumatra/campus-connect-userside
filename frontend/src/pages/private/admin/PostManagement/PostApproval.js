@@ -6,11 +6,13 @@ import FetchPostData from "../../../../utils/FetchPostData";
 import { useParams } from "react-router-dom";
 import { ItemStatus } from "../../../../utils/Status";
 import PostPreview from "./PostPreview";
+import { useAuth } from "../../../../context/AuthContext";
 
 const PostApproval = () => {
   const [showModal, setShowModal] = useState(false);
   const { id } = useParams();
   const [status, setStatus] = useState(null);
+  const { adminUser } = useAuth();
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -23,9 +25,9 @@ const PostApproval = () => {
     actionLabel: "Action",
     additionalReasonLabel: "Reason",
   };
-  
+
   const { selectedPost, loading, error, tags } = FetchPostData({ id });
-  
+
   if (loading) return <p>Loading...</p>; // Show loading state
   if (error) return <p>{error}</p>; // Show error message
 
@@ -35,15 +37,18 @@ const PostApproval = () => {
 
   const handleStatusChange = async (selectedAction, reason) => {
     try {
-      await fetch(`http://localhost:3001/posts/${id}`, {
+      await fetch(`http://localhost:3001/posts/${id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${adminUser?.token}`,
         },
-        body: JSON.stringify({ status: selectedAction }),
+        body: JSON.stringify({ status: selectedAction, reason }),
       });
       setStatus(selectedAction);
-      console.log(`Status updated to: ${selectedAction} with reason: ${reason}`);
+      console.log(
+        `Status updated to: ${selectedAction} with reason: ${reason}`
+      );
     } catch (error) {
       console.error("Error updating status:", error);
     } finally {
@@ -58,10 +63,7 @@ const PostApproval = () => {
       <span>
         Status: <span className={`badge ${className} ms-2`}>{label}</span>
       </span>
-      <PostPreview
-        selectedPost={selectedPost}
-        tags={tags}
-      />
+      <PostPreview selectedPost={selectedPost} tags={tags} />
       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
         <button
           className="btn btn-rectangle primary no-fill my-3 me-4 btn-lg"

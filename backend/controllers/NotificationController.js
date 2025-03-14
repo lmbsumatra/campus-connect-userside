@@ -75,6 +75,8 @@ const notificationController = {
           "rental_id", // Include rental_id in the response
           "transaction_report_id",
           "createdAt",
+          "listing_id",
+          "post_id",
         ],
         order: [["createdAt", "DESC"]],
       });

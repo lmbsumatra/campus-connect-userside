@@ -19,8 +19,8 @@ const authenticateToken = (req, res, next) => {
     if (err)
       return res.status(403).json({ message: "Invalid or expired token." });
 
-    req.adminUser = decoded; // ✅ Fix: Assign the decoded user to req.adminUser
-    console.log("Authenticated Admin:", req.adminUser); // Debugging
+    req.adminUser = decoded;
+    console.log("Authenticated Admin:", req.adminUser);
     next();
   });
 };

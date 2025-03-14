@@ -135,6 +135,12 @@ function initializeSocket(server) {
       }
     });
 
+    socket.on("new-listing-notification", (notification) => {
+      // Emit to all students except the listing owner
+      const recipientStr = notification.recipient_id.toString();
+      io.to(recipientStr).emit("receiveNotification", notification);
+    });
+
     // Listen for messages and send them to the recipient
     socket.on("sendMessageToUser", async (data) => {
       const {
@@ -347,6 +353,7 @@ function initializeSocket(server) {
       // );
     });
   });
+
   // Function to notify all connected admins
   const notifyAdmins = (notification) => {
     // console.log("Sending notification to admins:", notification);

@@ -139,6 +139,11 @@
     color: #000;
 }
 
+.font-medium {
+    font-size: 14px;
+    font-weight: bold;
+}
+
 .default-text {
     font-size: 14px;
     /* Normal text size */
