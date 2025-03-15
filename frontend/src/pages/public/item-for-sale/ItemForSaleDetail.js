@@ -39,6 +39,7 @@ import ReportModal from "../../../components/report/ReportModal";
 import useHandleActionWithAuthCheck from "../../../utils/useHandleActionWithAuthCheck";
 import ShowAlert from "../../../utils/ShowAlert";
 import handleUnavailableDateError from "../../../utils/handleUnavailableDateError";
+import ViewToolbar from "../common/ViewToolbar";
 
 function ItemForSaleDetail() {
   const navigate = useNavigate();
@@ -53,7 +54,9 @@ function ItemForSaleDetail() {
     loadingApprovedItemForSaleById,
     errorApprovedItemForSaleById,
   } = useSelector((state) => state.approvedItemForSaleById);
+
   const studentUser = useSelector(selectStudentUser);
+  const isYou = approvedItemForSaleById?.seller?.id === studentUser?.userId;
   const rentalDates = approvedItemForSaleById.rentalDates || [];
   const [redirecting, setRedirecting] = useState(false);
   const [expandTerm, setExpandTerm] = useState(false);
@@ -272,7 +275,7 @@ function ItemForSaleDetail() {
               price: approvedItemForSaleById.price,
               image: approvedItemForSaleById.images[0],
               title: approvedItemForSaleById.itemType,
-              type: "shop" // Add type identifier
+              type: "shop", // Add type identifier
             },
           }, // Pass sellerId to MessagePage
         });
@@ -376,6 +379,7 @@ function ItemForSaleDetail() {
 
   return (
     <div className="container-content itemforsale-detail">
+      {isYou && <ViewToolbar />}
       <div className="itemforsale-container">
         <div className="imgs-container">
           <Tooltip
@@ -475,18 +479,21 @@ function ItemForSaleDetail() {
             <button
               className="btn btn-icon primary"
               onClick={(e) => handleAddToCart(e, approvedItemForSaleById)}
+              disabled={isYou}
             >
               <img src={cartIcon} alt="Add to cart" />
             </button>
             <button
               className="btn btn-rectangle secondary"
               onClick={handleMessageSellerClick}
+              disabled={isYou}
             >
               Message
             </button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
+              disabled={isYou}
             >
               {approvedItemForSaleById.itemType === FOR_RENT ? "Rent" : "Buy"}
             </button>

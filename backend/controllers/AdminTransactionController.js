@@ -5,20 +5,20 @@ const RentalTransaction = models.RentalTransaction;
 exports.getAllTransactions = async (req, res) => {
   try {
     // Fetch Buy & Sell transactions
-    const buyAndSellTransactions = await BuyAndSellTransaction.findAll({
-      include: [
-        {
-          model: models.User,
-          as: "buyer",
-          attributes: ["user_id", "first_name", "last_name"],
-        },
-        {
-          model: models.User,
-          as: "seller",
-          attributes: ["user_id", "first_name", "last_name"],
-        },
-      ],
-    });
+    // const buyAndSellTransactions = await BuyAndSellTransaction.findAll({
+    //   include: [
+    //     {
+    //       model: models.User,
+    //       as: "buyer",
+    //       attributes: ["user_id", "first_name", "last_name"],
+    //     },
+    //     {
+    //       model: models.User,
+    //       as: "seller",
+    //       attributes: ["user_id", "first_name", "last_name"],
+    //     },
+    //   ],
+    // });
 
     // Fetch Rental transactions
     const rentalTransactions = await RentalTransaction.findAll({

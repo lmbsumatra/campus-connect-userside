@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import PropTypes from "prop-types";
 import StarRatings from "react-star-ratings";
-import axios from "axios"; // We'll use axios to make the API request
+import axios from "axios";
 import { baseApi } from "../../../App";
 
 const ReviewModal = ({
@@ -13,15 +13,25 @@ const ReviewModal = ({
   handleCloseModal,
   userId,
 }) => {
-  const [productRating, setProductRating] = useState(0); // Rating for the item (Product)
-  const [ownerRating, setOwnerRating] = useState(0); // Rating for the owner
-  const [itemReview, setItemReview] = useState(""); // Review for the item by the renter
-  const [ownerReview, setOwnerReview] = useState(""); // Review for the owner by the renter
-  const [remarks, setRemarks] = useState(""); // Additional remarks from the owner
-  const [renterRating, setRenterRating] = useState(0); // Rating for the renter (Owner's perspective)
-  const [renterReview, setRenterReview] = useState(""); // Review for the renter by the owner
-  const [loading, setLoading] = useState(false); // State to handle loading during API request
-  const [errorMessage, setErrorMessage] = useState(""); // To display any error messages
+  const [productRating, setProductRating] = useState(0);
+  const [ownerRating, setOwnerRating] = useState(0);
+  const [itemReview, setItemReview] = useState("");
+  const [ownerReview, setOwnerReview] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [renterRating, setRenterRating] = useState(0);
+  const [buyerRating, setBuyerRating] = useState(0);
+  const [renterReview, setRenterReview] = useState("");
+  const [buyerReview, setBuyerReview] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  
+  // Determine if it's a rental or purchase transaction
+  const isRental = item.transaction_type === "rental";
+  const isPurchase = item.transaction_type === "sell";
+  
+  // Get the appropriate counterparty based on transaction type
+  const counterparty = isRental ? item.renter : item.buyer;
+  const counterpartyRole = isRental ? "renter" : "buyer";
 
   // Handlers for rating changes
   const handleProductRatingChange = (newRating) => {
@@ -35,69 +45,70 @@ const ReviewModal = ({
   const handleRenterRatingChange = (newRating) => {
     setRenterRating(newRating);
   };
+  
+  const handleBuyerRatingChange = (newRating) => {
+    setBuyerRating(newRating);
+  };
 
   // Handle form submission
   const handleSubmit = async () => {
     // Prepare the review data
     const reviewData = [];
 
-    // For Renter: submit two reviews (item and owner)
-    if (selectedOption === "renter") {
+    if (selectedOption === "renter" || selectedOption === "buyer") {
       // Review for the item
       reviewData.push({
-        reviewer_id: item.renter.user_id,
+        reviewer_id: counterparty.user_id,
         reviewee_id: item.owner.user_id,
         item_id: item.Listing.id,
-        review_type: "item", // Rating for the item
+        review_type: "item",
         transaction_id: item.id,
         rate: productRating,
-        review: itemReview, // Item review
+        review: itemReview,
       });
 
       // Review for the owner
       reviewData.push({
-        reviewer_id: item.renter.user_id,
+        reviewer_id: counterparty.user_id,
         reviewee_id: item.owner.user_id,
         item_id: item.Listing.id,
-        review_type: "owner", // Rating for the owner
+        review_type: "owner",
         transaction_id: item.id,
         rate: ownerRating,
-        review: ownerReview, // Owner review
+        review: ownerReview,
       });
     } else if (selectedOption === "owner") {
-      // For Owner: Only one review (renter)
+      // For Owner: Only one review for the counterparty (renter/buyer)
       reviewData.push({
         reviewer_id: item.owner.user_id,
-        reviewee_id: item.renter.user_id,
+        reviewee_id: counterparty.user_id,
         item_id: item.Listing.id,
-        review_type: "renter", // Rating for the renter
+        review_type: counterpartyRole,
         transaction_id: item.id,
-        rate: renterRating,
-        review: renterReview || remarks, // Renter review or remarks
+        rate: isRental ? renterRating : buyerRating,
+        review: isRental ? renterReview || remarks : buyerReview || remarks,
       });
     }
 
-    setLoading(true); // Set loading state to true while waiting for the API response
-    setErrorMessage(""); // Clear previous error message
+    setLoading(true);
+    setErrorMessage("");
 
     try {
-      // Assuming you're submitting the reviews to your API endpoint
       for (const data of reviewData) {
-        // Use a loop to handle multiple reviews for the renter (item and owner)
         const response = await axios.post(
           `${baseApi}/review-and-rate/submit`,
           data
         );
-        console.log(response.data); // Log the response (for debugging)
+        console.log(response.data);
       }
-      onClose(); // Close modal on success
+      onClose();
     } catch (error) {
       console.error("Error submitting review:", error);
       setErrorMessage(
         "An error occurred while submitting your review. Please try again."
       );
     } finally {
-      setLoading(false); // Set loading state to false after API response
+      setLoading(false);
     }
   };
 
@@ -105,7 +116,7 @@ const ReviewModal = ({
     <Modal
       show={isOpen}
       onHide={handleCloseModal}
-      onClick={(e) => e.stopPropagation()} // Prevent click event propagation here
+      onClick={(e) => e.stopPropagation()}
     >
       <Modal.Header
         closeButton
@@ -120,14 +131,15 @@ const ReviewModal = ({
         {errorMessage && (
           <div className="alert alert-danger">{errorMessage}</div>
         )}
-        {/* For Renter (Rating and reviewing item and owner) */}
-        {selectedOption === "renter" && (
+        
+        {/* For Renter/Buyer (Rating and reviewing item and owner) */}
+        {(selectedOption === "renter" || selectedOption === "buyer") && (
           <>
             <div className="mb-4">
               <h5>Rate Item</h5>
               <div className="d-flex mb-3">
                 <img
-                  src={item.image || "/default-image.jpg"} // Default image if item image is missing
+                  src={item.image || "/default-image.jpg"}
                   alt="Item"
                   className="me-3"
                   style={{
@@ -139,8 +151,15 @@ const ReviewModal = ({
                 />
                 <div>
                   <p>Item: {item.Listing?.listing_name || "No listing name"}</p>
-                  <p>Rental Duration: {item.Duration?.rental_time_from || "N/A"}</p>
-                  <p>Rental Rate: {item.Listing?.rate || "N/A"} PHP</p>
+                  {isRental && (
+                    <>
+                      <p>Rental Duration: {item.Duration?.rental_time_from || "N/A"}</p>
+                      <p>Rental Rate: {item.Listing?.rate || "N/A"} PHP</p>
+                    </>
+                  )}
+                  {isPurchase && (
+                    <p>Purchase Price: {item.Listing?.rate || "N/A"} PHP</p>
+                  )}
                   <div className="d-flex align-items-center">
                     <p className="mb-0 me-2">Rate Item:</p>
                     <StarRatings
@@ -196,21 +215,24 @@ const ReviewModal = ({
             </div>
           </>
         )}
-        {/* For Owner (Rating the Renter and optional remarks) */}
+        
+        {/* For Owner (Rating the Renter/Buyer and optional remarks) */}
         {selectedOption === "owner" && (
           <>
             <div className="mb-4">
-              <h5>Rate Renter</h5>
-              <p>Name: {item.renter?.first_name || "Renter"}</p>
-              <p>Rental Duration: {item.Duration?.rental_time_from || "N/A"}</p>
+              <h5>Rate {isRental ? "Renter" : "Buyer"}</h5>
+              <p>Name: {counterparty?.first_name || (isRental ? "Renter" : "Buyer")}</p>
+              {isRental && (
+                <p>Rental Duration: {item.Duration?.rental_time_from || "N/A"}</p>
+              )}
               <div className="d-flex align-items-center">
-                <p className="mb-0 me-2">Rate Renter:</p>
+                <p className="mb-0 me-2">Rate {isRental ? "Renter" : "Buyer"}:</p>
                 <StarRatings
-                  rating={renterRating}
+                  rating={isRental ? renterRating : buyerRating}
                   starRatedColor="gold"
-                  changeRating={handleRenterRatingChange}
+                  changeRating={isRental ? handleRenterRatingChange : handleBuyerRatingChange}
                   numberOfStars={5}
-                  name="renterRating"
+                  name={isRental ? "renterRating" : "buyerRating"}
                   starDimension="20px"
                   starSpacing="2px"
                 />
@@ -221,7 +243,7 @@ const ReviewModal = ({
               <h5>Overall Remarks (Optional)</h5>
               <Form.Control
                 as="textarea"
-                placeholder="Type something about the renter..."
+                placeholder={`Type something about the ${isRental ? "renter" : "buyer"}...`}
                 rows={3}
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
@@ -237,7 +259,7 @@ const ReviewModal = ({
         <Button
           className="btn btn-primary filled"
           onClick={handleSubmit}
-          disabled={loading} // Disable submit button while loading
+          disabled={loading}
         >
           {loading ? "Submitting..." : "Submit"}
         </Button>
@@ -253,23 +275,31 @@ ReviewModal.propTypes = {
   item: PropTypes.shape({
     id: PropTypes.number.isRequired,
     image: PropTypes.string,
+    transaction_type: PropTypes.oneOf(["rental", "sell"]).isRequired,
     Listing: PropTypes.shape({
+      id: PropTypes.number.isRequired,
       listing_name: PropTypes.string.isRequired,
+      rate: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     }).isRequired,
     Duration: PropTypes.shape({
-      rental_time_from: PropTypes.string.isRequired,
-    }).isRequired,
+      rental_time_from: PropTypes.string,
+    }),
     owner: PropTypes.shape({
       first_name: PropTypes.string.isRequired,
       user_id: PropTypes.number.isRequired,
     }),
     renter: PropTypes.shape({
-      first_name: PropTypes.string.isRequired,
-      user_id: PropTypes.number.isRequired,
+      first_name: PropTypes.string,
+      user_id: PropTypes.number,
+    }),
+    buyer: PropTypes.shape({
+      first_name: PropTypes.string,
+      user_id: PropTypes.number,
     }),
   }).isRequired,
-  selectedOption: PropTypes.oneOf(["owner", "renter"]).isRequired,
+  selectedOption: PropTypes.oneOf(["owner", "renter", "buyer"]).isRequired,
   handleCloseModal: PropTypes.func.isRequired,
+  userId: PropTypes.number,
 };
 
 export default ReviewModal;

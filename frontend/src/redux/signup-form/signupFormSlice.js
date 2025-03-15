@@ -41,7 +41,7 @@ const validateInput = (name, value, password) => {
       if (value.trim() === "") {
         hasError = true;
         error = "First name cannot be empty.";
-      } else if (/[^a-zA-Z0-9]/.test(value)) {
+      } else if (/[^a-zA-Z0-9\s]/.test(value)) {
         hasError = true;
         error = "First name cannot have special character.";
       } else if (/\d/.test(value)) {
@@ -157,6 +157,12 @@ const validateInput = (name, value, password) => {
       if (value.trim() === "") {
         hasError = true;
         error = "College cannot be empty.";
+      }
+      break;
+    case "course":
+      if (value.trim() === "") {
+        hasError = true;
+        error = "Course cannot be empty.";
       }
       break;
     case "tupId":
@@ -296,5 +302,6 @@ const signupFormSlice = createSlice({
   },
 });
 
-export const { updateField, blurField,resetSignupForm } = signupFormSlice.actions;
+export const { updateField, blurField, resetSignupForm } =
+  signupFormSlice.actions;
 export default signupFormSlice.reducer;

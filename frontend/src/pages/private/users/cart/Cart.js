@@ -16,20 +16,21 @@ import {
 } from "../../../../redux/cart/cartSlice";
 import { Modal, Button } from "react-bootstrap";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
+import { defaultImages } from "../../../../utils/consonants";
+import CheckoutModal from "./CheckoutModal";
 
 const Cart = ({ isOpen, onClose }) => {
-  const cartItems = useSelector(selectCartItems);
-  const loading = useSelector(selectCartLoading);
-  const error = useSelector(selectCartError);
-  const successMessage = useSelector(selectCartSuccessMessage);
-
+  const { cartItems, loading, error, successMessage } = useSelector(
+    (state) => state.cart
+  );
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const [itemToRemove, setItemToRemove] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [selectAll, setSelectAll] = useState(false); // New state for Select All
+  const [selectAll, setSelectAll] = useState(false);
   const cartRef = useRef(null);
 
   // Fetch cart items on component mount
@@ -146,6 +147,33 @@ const Cart = ({ isOpen, onClose }) => {
       });
   };
 
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Your cart is empty. Add items before checking out.",
+        })
+      );
+      return;
+    }
+
+    if (selectedItems.length !== 1) {
+      dispatch(
+        showNotification({
+          type: "error",
+          title: "Error",
+          text: "Please select exactly one item to proceed with checkout.",
+        })
+      );
+      return;
+    }
+    setShowCheckout(true);
+    // Optionally, you might want to close the cart when opening checkout
+    // onClose();
+  };
+
   const renderItems = () => {
     if (!cartItems || cartItems.length === 0) {
       return <p>Your cart is empty.</p>;
@@ -183,7 +211,24 @@ const Cart = ({ isOpen, onClose }) => {
                 onChange={() => toggleSelectItem(item.id)}
               />
               <img
-                src={item.image || "/placeholder.png"}
+                src={
+                  Array.isArray(item.image) && item.image.length > 0
+                    ? item.image[0]
+                    : item.image && item.image.trim() !== ""
+                    ? (function () {
+                        try {
+                          const parsedImage = JSON.parse(item.image);
+                          return Array.isArray(parsedImage) &&
+                            parsedImage.length > 0 &&
+                            parsedImage[0].trim() !== ""
+                            ? parsedImage[0]
+                            : defaultImages;
+                        } catch (e) {
+                          return defaultImages;
+                        }
+                      })()
+                    : defaultImages
+                }
                 alt={`Image of ${item.name}`}
                 className="item-image"
               />
@@ -197,7 +242,7 @@ const Cart = ({ isOpen, onClose }) => {
                 </div>
                 <p className="price">₱{item.price}</p>
                 <button
-                  className="remove-btn"
+                  className="btn btn-danger"
                   onClick={() => handleRemoveClick(item)}
                 >
                   Remove
@@ -220,20 +265,29 @@ const Cart = ({ isOpen, onClose }) => {
           </button>
         </div>
         <div className="bulk-actions">
-          <input
-            type="checkbox"
-            checked={selectAll}
-            onChange={handleSelectAll}
-          />
-          <label>Select All</label>
-          <button className="bulk-remove-btn" onClick={handleBulkRemove}>
-            Remove Selected
-          </button>
+          <div className="d-flex align-items-center px-3 gap-2">
+            <input
+              type="checkbox"
+              checked={selectAll}
+              onChange={handleSelectAll}
+            />
+            <label>Select All</label>
+            <button className="btn btn-danger" onClick={handleBulkRemove}>
+              Remove Selected
+            </button>
+          </div>
         </div>
         <div className="cart-items">{renderItems()}</div>
-        <button className="checkout-btn">Checkout</button>
+        <button
+          className="btn btn-primary checkout-btn"
+          onClick={handleCheckout}
+          disabled={cartItems.length === 0}
+        >
+          Checkout
+        </button>
       </div>
 
+      {/* Confirmation Modal for Item Removal */}
       <Modal show={showConfirm} onHide={handleCancelRemove} centered>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Removal</Modal.Title>
@@ -250,7 +304,15 @@ const Cart = ({ isOpen, onClose }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Checkout Modal */}
+      <CheckoutModal
+        show={showCheckout}
+        onHide={() => setShowCheckout(false)}
+        items={cartItems.filter((item) => selectedItems.includes(item.id))}
+      />
     </div>
   );
 };
+
 export default Cart;

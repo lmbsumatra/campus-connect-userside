@@ -85,7 +85,7 @@ const getAllAvailable = async (req, res) => {
         images: JSON.parse(item.images),
         deliveryMethod: item.delivery_mode,
         paymentMethod: item.payment_mode,
-        condition: item.item_condition,
+        condition: item.listing_condition,
         lateCharges: item.late_charges,
         securityDeposit: item.security_deposit,
         repairReplacement: item.repair_replacement,
@@ -138,6 +138,8 @@ const getAllAvailable = async (req, res) => {
 
       return res.status(200).json(results.length ? results : []);
     }
+
+    console.log(formattedItems);
 
     res.status(200).json(formattedItems);
   } catch (error) {

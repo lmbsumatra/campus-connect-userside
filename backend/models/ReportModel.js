@@ -68,11 +68,11 @@ Report.associate = (models) => {
     constraints: false, // Allows flexibility since not all reports are transactions
   });
 
-  Report.belongsTo(models.BuyAndSellTransaction, {
-    foreignKey: "reported_entity_id",
-    as: "buySellTransaction",
-    constraints: false,
-  });
+  // Report.belongsTo(models.BuyAndSellTransaction, {
+  //   foreignKey: "reported_entity_id",
+  //   as: "buySellTransaction",
+  //   constraints: false,
+  // });
 
   Report.belongsTo(models.User, {
     foreignKey: "reported_entity_id",

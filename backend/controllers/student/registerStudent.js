@@ -21,7 +21,10 @@ const registerStudent = async (req, res) => {
       password,
       tup_id,
       college,
+      course,
     } = req.body;
+
+    console.log(req.body);
 
     const { scanned_id, photo_with_id } = req.files;
 
@@ -79,6 +82,7 @@ const registerStudent = async (req, res) => {
         college,
         scanned_id: scanned_id[0].path,
         photo_with_id: photo_with_id[0].path,
+        course,
       },
       { transaction: t }
     );

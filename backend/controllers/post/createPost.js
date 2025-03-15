@@ -92,6 +92,7 @@ const createPost = async (req, res) => {
         status: "pending",
         specifications: postData.specs,
         images: JSON.stringify(imagePaths),
+        post_type: postData.post_type,
       },
       { transaction }
     );

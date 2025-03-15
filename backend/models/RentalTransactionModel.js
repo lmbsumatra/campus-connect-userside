@@ -15,7 +15,11 @@ module.exports = (sequelize) => {
       },
       renter_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
+      },
+      buyer_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
       item_id: {
         type: DataTypes.INTEGER,
@@ -25,13 +29,13 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
-      rental_date_id: {
+      date_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
-      rental_time_id: {
+      time_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       status: {
         type: DataTypes.ENUM(
@@ -110,15 +114,19 @@ module.exports = (sequelize) => {
       as: "owner",
       foreignKey: "owner_id",
     });
+    RentalTransaction.belongsTo(models.User, {
+      as: "buyer",
+      foreignKey: "buyer_id",
+    });
     RentalTransaction.belongsTo(models.Listing, { foreignKey: "item_id" });
     RentalTransaction.belongsTo(models.Post, { foreignKey: "post_id" });
     RentalTransaction.belongsTo(models.Date, {
-      foreignKey: "rental_date_id",
+      foreignKey: "date_id",
       // as: "rentalDate",
     });
 
     RentalTransaction.belongsTo(models.Duration, {
-      foreignKey: "rental_time_id",
+      foreignKey: "time_id",
       // as: "rentalTime",
     });
   };

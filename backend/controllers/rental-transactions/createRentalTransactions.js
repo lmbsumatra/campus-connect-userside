@@ -34,20 +34,23 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     const {
       owner_id,
       renter_id,
+      buyer_id,
       item_id,
-      rental_date_id,
-      rental_time_id,
+      date_id,
+      time_id,
+      transaction_type,
       delivery_method,
       payment_mode,
+      isFromCart,
     } = req.body;
 
     const missingFields = [];
     if (!owner_id) missingFields.push("owner_id");
-    if (!renter_id) missingFields.push("renter_id");
+    if (!renter_id && !buyer_id) missingFields.push("user_id");
     if (!item_id) missingFields.push("item_id");
-    if (!rental_date_id) missingFields.push("rental_date_id");
-    if (!rental_time_id) missingFields.push("rental_time_id");
     if (!payment_mode) missingFields.push("payment_mode");
+    if (!date_id) missingFields.push("date_id");
+    if (!time_id) missingFields.push("time_id");
 
     if (missingFields.length > 0) {
       const errorMsg =
@@ -67,12 +70,35 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     const rentalData = {
       owner_id,
       renter_id,
+      buyer_id,
       item_id,
-      rental_date_id,
-      rental_time_id,
       delivery_method,
       payment_mode,
+      date_id,
+      time_id,
+      transaction_type: transaction_type === "sell" ? "sell" : "rental", // Added this line to properly handle the transaction_type
     };
+
+    if (isFromCart) {
+      // Add any cart-specific data or flags needed
+      rentalData.from_cart = true;
+
+      // You might also want to remove the item from the cart after successful rental creation
+      // This would depend on your specific cart implementation
+      try {
+        await models.Cart.destroy({
+          where: {
+            user_id: transaction_type === "sell" ? buyer_id : renter_id,
+            item_id: item_id,
+            date: date_id,
+            duration: time_id,
+          },
+        });
+      } catch (cartError) {
+        console.error("Error removing item from cart:", cartError);
+        // Decide if you want to continue with rental creation even if cart removal fails
+      }
+    }
 
     let rental = await models.RentalTransaction.create(rentalData);
 
@@ -84,22 +110,46 @@ const createRentalTransaction = async (req, res, emitNotification) => {
           model: models.User,
           attributes: ["user_id", "email", "stripe_acct_id"],
         },
-      ],
-    });
-
-    const item = await models.Listing.findOne({
-      where: { id: rental.item_id },
-      attributes: ["id", "listing_name", "rate", "security_deposit"],
-      include: [
         {
-          as: "owner",
+          as: "buyer",
           model: models.User,
           attributes: ["user_id", "email", "stripe_acct_id"],
         },
       ],
     });
 
-    const totalAmountPHP = Number(item.rate) + Number(item.security_deposit);
+    let item;
+    // Add condition to handle both rental and sell transactions
+    if (transaction_type === "rental") {
+      item = await models.Listing.findOne({
+        where: { id: rental.item_id },
+        attributes: ["id", "listing_name", "rate", "security_deposit"],
+        include: [
+          {
+            as: "owner",
+            model: models.User,
+            attributes: ["user_id", "email", "stripe_acct_id"],
+          },
+        ],
+      });
+    } else if (transaction_type === "sell") {
+      item = await models.ItemForSale.findOne({
+        where: { id: rental.item_id },
+        attributes: ["id", "item_for_sale_name", "price"],
+        include: [
+          {
+            as: "seller",
+            model: models.User,
+            attributes: ["user_id", "email", "stripe_acct_id"],
+          },
+        ],
+      });
+    }
+
+    const totalAmountPHP =
+      transaction_type === "sell"
+        ? Number(item?.price)
+        : Number(item?.rate) + Number(item?.security_deposit);
     const totalAmountCAD = await convertToCAD(totalAmountPHP);
     const applicationFeeAmount = totalAmountCAD * 0.1;
 
@@ -126,13 +176,20 @@ const createRentalTransaction = async (req, res, emitNotification) => {
             allow_redirects: "always",
           },
           metadata: {
-            rentalId: rental.id,
-            itemId: item.id,
-            userId: rental.renter_id,
-            email: rental.renter.email,
+            transactionId: rental.id,
+            itemId: item_id,
+            userId:
+              transaction_type === "rental" ? rental.renter_id : rental.buyer_id,
+            email:
+              transaction_type === "rental"
+                ? rental.renter.email
+                : rental.buyer.email,
           },
           transfer_data: {
-            destination: item.owner.stripe_acct_id,
+            destination:
+              transaction_type === "rental"
+                ? item.owner.stripe_acct_id
+                : item.seller.stripe_acct_id,
           },
           application_fee_amount: Math.floor(applicationFeeAmount * 100),
         });
@@ -154,75 +211,16 @@ const createRentalTransaction = async (req, res, emitNotification) => {
         });
       }
     }
-    //  else if (payment_mode === GCASH) {
-    //   try {
-    //     // Create a regular payment intent for GCash
-    //     const paymentIntent = await stripe.paymentIntents.create({
-    //       amount: Math.round(totalAmountCAD * 100),
-    //       currency: "cad",
-    //       automatic_payment_methods: {
-    //         enabled: true,
-    //         allow_redirects: "always",
-    //       },
-    //       metadata: {
-    //         rentalId: rental.id,
-    //         itemId: item.id,
-    //         userId: rental.renter_id,
-    //         email: rental.renter.email,
-    //       },
-    //     });
-
-    //     // Update rental with payment intent ID
-    //     await rental.update({ stripe_payment_intent_id: paymentIntent.id });
-
-    //     // For GCash payments, we'll use Stripe's checkout
-    //     const checkoutSession = await stripe.checkout.sessions.create({
-    //       payment_method_types: ['card'],
-    //       line_items: [
-    //         {
-    //           price_data: {
-    //             currency: 'cad',
-    //             product_data: {
-    //               name: item.listing_name,
-    //             },
-    //             unit_amount: Math.round(totalAmountCAD * 100),
-    //           },
-    //           quantity: 1,
-    //         },
-    //       ],
-    //       mode: 'payment',
-    //       success_url: 'http://localhost:30001/payment-success',
-    //       cancel_url: 'http://localhost:30001/payment-cancelled',
-    //       payment_intent_data: {
-    //         metadata: {
-    //           rentalId: rental.id,
-    //           itemId: item.id,
-    //           userId: rental.renter_id,
-    //           email: rental.renter.email,
-    //         },
-    //       },
-    //     });
-
-    //     result = {
-    //       id: rental.id,
-    //       url: checkoutSession.url
-    //     };
-    //   } catch (stripeError) {
-    //     console.error("Error creating GCash payment:", stripeError);
-    //     return res.status(500).json({
-    //       error: "GCash payment setup failed.",
-    //       details: stripeError.message,
-    //     });
-    //   }
-    // }
 
     // Add Notification Logic Here
-    const renterName = await getUserNames(renter_id);
+    const renterName = await getUserNames(
+      transaction_type === "sell" ? buyer_id : renter_id
+    );
     const itemName = await getRentalItemName(item_id);
 
     // Create notification
     const notification = await models.StudentNotification.create({
-      sender_id: renter_id,
+      sender_id: transaction_type === "sell" ? buyer_id : renter_id,
       recipient_id: owner_id,
       type: "rental_request",
       message: `${renterName} wants to rent ${itemName}.`,
@@ -238,8 +236,8 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     // After creating the rental transaction, update the duration's status to 'requested'
     const duration = await models.Duration.findOne({
       where: {
-        date_id: rental_date_id,
-        id: rental_time_id,
+        date_id: date_id,
+        id: time_id,
       },
     });
 
@@ -250,24 +248,24 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       // Check if all durations for this date are rented
       const allDurationsRented = await models.Duration.count({
         where: {
-          date_id: rental_date_id,
+          date_id: date_id,
           status: { [Op.ne]: "available" }, // Check for rented or requested
         },
       });
 
       const totalDurationsForDate = await models.Duration.count({
         where: {
-          date_id: rental_date_id,
+          date_id: date_id,
         },
       });
 
       if (allDurationsRented === totalDurationsForDate) {
         // Update the date status to 'rented'
-        const rentalDate = await models.Date.findByPk(rental_date_id);
+        const rentalDate = await models.Date.findByPk(date_id);
         if (rentalDate) {
           await rentalDate.update({ status: "rented" });
         } else {
-          console.error("Rental date not found for id:", rental_date_id);
+          console.error("Rental date not found for id:", date_id);
         }
       }
 
@@ -329,45 +327,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
   }
 };
 
-// Add a new controller to capture payments
-const capturePayment = async (req, res) => {
-  try {
-    const { paymentIntentId } = req.body;
-
-    if (!paymentIntentId) {
-      return res.status(400).json({ error: "Payment intent ID is required" });
-    }
-
-    // Capture the previously authorized payment
-    const paymentIntent = await stripe.paymentIntents.capture(paymentIntentId);
-
-    // Find and update the rental transaction
-    const rental = await models.RentalTransaction.findOne({
-      where: { stripe_payment_intent_id: paymentIntentId },
-    });
-
-    if (rental) {
-      await rental.update({ payment_status: "completed" });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Payment captured successfully",
-      paymentIntent: {
-        id: paymentIntent.id,
-        status: paymentIntent.status,
-      },
-    });
-  } catch (error) {
-    console.error("Error capturing payment:", error);
-    res.status(500).json({
-      error: "Failed to capture payment",
-      details: error.message,
-    });
-  }
-};
-
 module.exports = {
   createRentalTransaction,
-  capturePayment,
 };

@@ -19,7 +19,7 @@ function ContentSection({ error, loading, fallback, children }) {
   return (
     <div className="container-content">
       {error && <p>Error: {error}</p>}
-      <TimeoutComponent timeoutDuration={5000} fallback={fallback}>
+      <TimeoutComponent timeoutDuration={1000} fallback={fallback}>
         {!loading && children}
       </TimeoutComponent>
     </div>

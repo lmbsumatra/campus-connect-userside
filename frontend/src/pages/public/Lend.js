@@ -82,7 +82,7 @@ const Lend = () => {
       {/* Items Section */}
       <div className="items-section">
         <TimeoutComponent
-          timeoutDuration={5000}
+          timeoutDuration={1000}
           fallback={
             <div className="card-container">
               {Array.from({ length: 4 }).map((_, index) => (

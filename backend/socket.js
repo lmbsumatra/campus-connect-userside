@@ -255,23 +255,24 @@ function initializeSocket(server) {
     // handle trigger on transaction update status
     socket.on("update-transaction-status", (data) => {
       const { rentalId, sender, recipient, status } = data;
-      // console.log(
-      //   `Rental update for rental ${rentalId}: Status changed to ${status} sender${sender} receiver${recipient}`
-      // );
+      console.log(
+        `Rental update for rental ${rentalId}: Status changed to ${status} sender${sender} receiver${recipient}`
+      );
 
       try {
         if (sender === recipient) {
-          // console.log("Self-notification prevented.");
+          console.log("Self-notification prevented.");
           return;
         }
 
+        console.log(data)
         const recipientSockets = userSockets.get(recipient.toString());
 
         if (recipientSockets && recipientSockets.size > 0) {
-          // console.log(
-          //   `Sending rental update to user ${recipient} on sockets:`,
-          //   recipientSockets
-          // );
+          console.log(
+            `Sending rental update to user ${recipient} on sockets:`,
+            recipientSockets
+          );
 
           recipientSockets.forEach((socketId) => {
             io.to(socketId).emit("receiveRentalUpdate", {
@@ -282,11 +283,11 @@ function initializeSocket(server) {
             });
           });
 
-          // console.log(
-          //   `Rental update successfully sent to user ${recipient}`
-          // );
+          console.log(
+            `Rental update successfully sent to user ${recipient}`
+          );
         } else {
-          // console.log(`User ${recipient} is offline. Notification stored.`);
+          console.log(`User ${recipient} is offline. Notification stored.`);
         }
       } catch (error) {
         console.error("Error processing rental update:", error);

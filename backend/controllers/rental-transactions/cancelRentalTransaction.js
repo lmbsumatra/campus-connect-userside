@@ -76,7 +76,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     }
 
     // Retrieve rental date and time info
-    const { rental_date_id, rental_time_id, item_id } = rental;
+    const { date_id, time_id, item_id } = rental;
 
     const renterName = await getUserNames(rental.renter_id);
     const itemName = await getRentalItemName(rental.item_id);
@@ -106,7 +106,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
             { model: models.Date, attributes: ["id", "date"] },
             {
               model: models.Duration,
-              attributes: ["id", "rental_time_from", "rental_time_to"],
+              attributes: ["id", "time_from", "time_to"],
             },
           ],
         });
@@ -130,7 +130,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
         }
 
         // Retrieve rental date and time info
-        const { rental_date_id, rental_time_id, item_id } = rental;
+        const { date_id, time_id, item_id } = rental;
 
         const renterName = await getUserNames(rental.renter_id);
         const itemName = await getRentalItemName(rental.item_id);
@@ -141,8 +141,8 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
         // Get the rental duration and revert its status to 'available'
         const duration = await models.Duration.findOne({
           where: {
-            date_id: rental_date_id,
-            id: rental_time_id,
+            date_id: date_id,
+            id: time_id,
           },
         });
 
@@ -152,14 +152,14 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
           // Check if at least one duration for this date is now available
           const anyDurationsAvailable = await models.Duration.count({
             where: {
-              date_id: rental_date_id,
+              date_id: date_id,
               status: "available",
             },
           });
 
           if (anyDurationsAvailable > 0) {
             // Update the date status to 'available' if at least one duration is free
-            const rentalDate = await models.Date.findByPk(rental_date_id);
+            const rentalDate = await models.Date.findByPk(date_id);
             if (rentalDate) {
               await rentalDate.update({ status: "available" });
             }
@@ -232,8 +232,8 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     // Get the rental duration and revert its status to 'available'
     const duration = await models.Duration.findOne({
       where: {
-        date_id: rental_date_id,
-        id: rental_time_id,
+        date_id: date_id,
+        id: time_id,
       },
     });
 
@@ -243,14 +243,14 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
       // Check if at least one duration for this date is now available
       const anyDurationsAvailable = await models.Duration.count({
         where: {
-          date_id: rental_date_id,
+          date_id: date_id,
           status: "available",
         },
       });
 
       if (anyDurationsAvailable > 0) {
         // Update the date status to 'available' if at least one duration is free
-        const rentalDate = await models.Date.findByPk(rental_date_id);
+        const rentalDate = await models.Date.findByPk(date_id);
         if (rentalDate) {
           await rentalDate.update({ status: "available" });
         }

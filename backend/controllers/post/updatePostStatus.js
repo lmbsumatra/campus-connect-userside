@@ -5,13 +5,12 @@ const sequelize = require("../../config/database");
 
 const updatePostStatus = async (req, res) => {
   const transaction = await sequelize.transaction();
-
   try {
     const { id } = req.params;
     const { status, reason } = req.body;
 
     // Check if req.user exists and extract adminId
-    const adminId = req.adminUser?.userId;
+    const adminId = req.adminUser?.adminId;
     if (!adminId) {
       await transaction.rollback();
       return res
@@ -105,9 +104,9 @@ const updatePostStatus = async (req, res) => {
     }
 
     // Commit the transaction
-    // console.log("Committing transaction...");
+    console.log("Committing transaction...");
     await transaction.commit();
-    // console.log("Transaction committed successfully.");
+    console.log("Transaction committed successfully.");
 
     res.json({
       message: "Post status updated successfully",

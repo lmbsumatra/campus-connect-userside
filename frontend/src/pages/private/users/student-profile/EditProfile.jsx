@@ -50,6 +50,7 @@ function EditProfile() {
         firstname: user.fname || "",
         middlename: user.mname || "",
         year: student.year || "",
+        course: student.course,
         college: student.college || "",
         course: student.course || "",
         gender: user.gender || "",

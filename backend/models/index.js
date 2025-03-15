@@ -15,9 +15,9 @@ const Message = require("./MessageModel");
 const ReviewAndRate = require("./ReviewAndRateModel")(sequelize);
 const UnavailableDate = require("./UnavailableDateModel");
 const Report = require("./ReportModel");
-const BuyAndSellTransaction = require("./BuyAndSellTransactionModel")(
-  sequelize
-);
+// const BuyAndSellTransaction = require("./BuyAndSellTransactionModel")(
+//   sequelize
+// );
 const Notification = require("./NotificationModel");
 const MessageNotification = require("./MessageNotificationModel");
 const StudentNotification = require("./StudentNotificationModel");
@@ -44,7 +44,7 @@ const models = {
   Message,
   UnavailableDate,
   Report,
-  BuyAndSellTransaction,
+  // BuyAndSellTransaction,
   ReviewAndRate,
   Notification,
   MessageNotification,

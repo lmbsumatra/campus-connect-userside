@@ -103,7 +103,7 @@ const removeDatesAndDurations = async (listingId, removedDates) => {
 
       // Check if this date is linked to any rental transactions
       const rentalTransactionForDate = await models.RentalTransaction.findOne({
-        where: { rental_date_id: dateRecord.id },
+        where: { date_id: dateRecord.id },
       });
 
       if (rentalTransactionForDate) {
@@ -122,7 +122,7 @@ const removeDatesAndDurations = async (listingId, removedDates) => {
         // Check if this duration is linked to any rental transactions
         const rentalTransactionForDuration =
           await models.RentalTransaction.findOne({
-            where: { rental_time_id: duration.id },
+            where: { time_id: duration.id },
           });
 
         if (rentalTransactionForDuration) {

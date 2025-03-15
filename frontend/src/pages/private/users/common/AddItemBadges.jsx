@@ -3,8 +3,20 @@ import Tooltip from "@mui/material/Tooltip";
 import "./addItemBadgesStyles.css";
 import { categories, FOR_RENT, FOR_SALE } from "../../../../utils/consonants";
 
-const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
-  const itemType = values?.itemType || FOR_RENT;
+const FOR_TYPES = ["For Rent", "For Sale"];
+const TO_TYPES = ["To Rent", "To Buy"];
+
+const AddItemBadges = ({
+  values,
+  onCategoryChange,
+  onItemTypeChange,
+  isPost,
+  isEditPage,
+}) => {
+  const itemTypes = isPost ? TO_TYPES : FOR_TYPES;
+  const itemType = values?.itemType || itemTypes[0];
+
+  console.log({ isEditPage });
 
   const getCollegeBadgeUrl = (college) => {
     if (college !== undefined && college !== null) {
@@ -19,13 +31,13 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
   };
 
   const handleToggleChange = () => {
-    const newItemType = itemType === "For Rent" ? "For Sale" : "For Rent";
+    if (isEditPage) return;
+    const currentIndex = itemTypes.indexOf(itemType);
+    const newItemType = itemTypes[(currentIndex + 1) % itemTypes.length]; // Toggle between two values
     if (onItemTypeChange) {
-      onItemTypeChange(newItemType); // Pass the change to the parent component
+      onItemTypeChange(newItemType);
     }
   };
-
-  
 
   return (
     <div className="badge-container">
@@ -96,30 +108,22 @@ const AddItemBadges = ({ values, onCategoryChange, onItemTypeChange }) => {
       </div>
 
       {/* Toggle Section */}
-
       <div className="toggle-container">
         <Tooltip
-          title="Toggle to whether you want item to be renter or sold."
+          title={
+            isEditPage
+              ? "Disabled "
+              : `Toggle between ${itemTypes[0]} and ${itemTypes[1]}`
+          }
           placement="bottom"
-          componentsProps={{
-            popper: {
-              modifiers: [
-                {
-                  name: "offset",
-                  options: {
-                    offset: [0, 0],
-                  },
-                },
-              ],
-            },
-          }}
         >
           <label className="toggle">
             <input
               type="checkbox"
               id="toggle-switch"
-              checked={itemType === FOR_SALE}
+              checked={itemType === itemTypes[1]} // Toggle between two states
               onChange={handleToggleChange}
+              disabled={isEditPage}
             />
             <span className="slider">
               <p className="text">{itemType}</p>

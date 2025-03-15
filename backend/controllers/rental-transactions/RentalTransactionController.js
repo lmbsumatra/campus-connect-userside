@@ -3,6 +3,8 @@ const { Op } = require("sequelize");
 const { createRentalTransaction } = require("./createRentalTransactions");
 const { handOverRentalTransaction } = require("./handOverRentalTransactions");
 const { cancelRentalTransaction } = require("./cancelRentalTransaction");
+const { getTransactionsByUserId } = require("./getTransactionsByUserId");
+const { completeRentalTransaction } = require("./completeRentalTransation");
 
 module.exports = ({ emitNotification }) => {
   // Helper function to get user names
@@ -241,98 +243,98 @@ module.exports = ({ emitNotification }) => {
   };
 
   // Get rental transactions for a specific user by userId
-  const getTransactionsByUserId = async (req, res) => {
-    const { userId } = req.params;
+  // const getTransactionsByUserId = async (req, res) => {
+  //   const { userId } = req.params;
 
-    try {
-      const rentals = await models.RentalTransaction.findAll({
-        where: {
-          [Op.or]: [{ owner_id: userId }, { renter_id: userId }],
-        },
-        include: [
-          {
-            model: models.User,
-            as: "owner",
-            attributes: ["user_id", "first_name", "last_name", "email"],
-          },
-          {
-            model: models.User,
-            as: "renter",
-            attributes: ["user_id", "first_name", "last_name", "email"],
-          },
-          {
-            model: models.Listing,
-            attributes: ["id", "listing_name", "description", "rate"],
-          },
-          { model: models.Post, attributes: ["id", "post_item_name"] },
-          { model: models.Date, attributes: ["id", "date"] },
-          {
-            model: models.Duration,
-            attributes: ["id", "rental_time_from", "rental_time_to"],
-          },
-        ],
-        order: [["createdAt", "DESC"]], // Order by createdAt in descending order
-      });
+  //   try {
+  //     const rentals = await models.RentalTransaction.findAll({
+  //       where: {
+  //         [Op.or]: [{ owner_id: userId }, { renter_id: userId }],
+  //       },
+  //       include: [
+  //         {
+  //           model: models.User,
+  //           as: "owner",
+  //           attributes: ["user_id", "first_name", "last_name", "email"],
+  //         },
+  //         {
+  //           model: models.User,
+  //           as: "renter",
+  //           attributes: ["user_id", "first_name", "last_name", "email"],
+  //         },
+  //         {
+  //           model: models.Listing,
+  //           attributes: ["id", "listing_name", "description", "rate"],
+  //         },
+  //         { model: models.Post, attributes: ["id", "post_item_name"] },
+  //         { model: models.Date, attributes: ["id", "date"] },
+  //         {
+  //           model: models.Duration,
+  //           attributes: ["id", "rental_time_from", "rental_time_to"],
+  //         },
+  //       ],
+  //       order: [["createdAt", "DESC"]], // Order by createdAt in descending order
+  //     });
 
-      // If no rentals are found, provide a detailed message
-      if (rentals.length === 0) {
-        return res.status(404).json({
-          error: "No rental transactions found for this user.",
-          userId,
-          timestamp: new Date().toISOString(),
-        });
-      }
+  //     // If no rentals are found, provide a detailed message
+  //     if (rentals.length === 0) {
+  //       return res.status(404).json({
+  //         error: "No rental transactions found for this user.",
+  //         userId,
+  //         timestamp: new Date().toISOString(),
+  //       });
+  //     }
 
-      // Calculate total transactions, revenue, and successful transactions
-      const completedRentals = rentals.filter((rental) => {
-        return (
-          rental.status === "Completed" && rental.owner_id === Number(userId)
-        );
-      });
-      const totalTransactions = rentals.length;
-      const revenue = completedRentals.reduce((sum, rental) => {
-        return rental.status === "Completed" &&
-          rental.owner_id === Number(userId)
-          ? sum + parseFloat(rental.Listing.rate)
-          : sum;
-      }, 0);
+  //     // Calculate total transactions, revenue, and successful transactions
+  //     const completedRentals = rentals.filter((rental) => {
+  //       return (
+  //         rental.status === "Completed" && rental.owner_id === Number(userId)
+  //       );
+  //     });
+  //     const totalTransactions = rentals.length;
+  //     const revenue = completedRentals.reduce((sum, rental) => {
+  //       return rental.status === "Completed" &&
+  //         rental.owner_id === Number(userId)
+  //         ? sum + parseFloat(rental.Listing.rate)
+  //         : sum;
+  //     }, 0);
 
-      const successfulTransactions = rentals.filter(
-        (rental) =>
-          rental.status === "Completed" && rental.owner_id === Number(userId)
-      ).length;
+  //     const successfulTransactions = rentals.filter(
+  //       (rental) =>
+  //         rental.status === "Completed" && rental.owner_id === Number(userId)
+  //     ).length;
 
-      // Return the found rentals with additional statistics
-      res.json({
-        totalTransactions,
-        revenue,
-        successfulTransactions,
-        rentals,
-      });
-    } catch (error) {
-      console.error("Error fetching transactions:", error); // Log the error for server-side debugging
+  //     // Return the found rentals with additional statistics
+  //     res.json({
+  //       totalTransactions,
+  //       revenue,
+  //       successfulTransactions,
+  //       rentals,
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching transactions:", error); // Log the error for server-side debugging
 
-      // Provide detailed error messages
-      let errorMessage =
-        "An unexpected error occurred while fetching rental transactions.";
-      if (error.name === "SequelizeDatabaseError") {
-        errorMessage = "Database error: " + error.message;
-      } else if (error.name === "SequelizeValidationError") {
-        errorMessage =
-          "Validation error: " +
-          error.errors.map((err) => err.message).join(", ");
-      } else if (error.original) {
-        errorMessage = error.original.sqlMessage || error.message;
-      }
+  //     // Provide detailed error messages
+  //     let errorMessage =
+  //       "An unexpected error occurred while fetching rental transactions.";
+  //     if (error.name === "SequelizeDatabaseError") {
+  //       errorMessage = "Database error: " + error.message;
+  //     } else if (error.name === "SequelizeValidationError") {
+  //       errorMessage =
+  //         "Validation error: " +
+  //         error.errors.map((err) => err.message).join(", ");
+  //     } else if (error.original) {
+  //       errorMessage = error.original.sqlMessage || error.message;
+  //     }
 
-      res.status(500).json({
-        error: errorMessage,
-        userId,
-        timestamp: new Date().toISOString(),
-        details: error.message, // Optionally include the raw error message
-      });
-    }
-  };
+  //     res.status(500).json({
+  //       error: errorMessage,
+  //       userId,
+  //       timestamp: new Date().toISOString(),
+  //       details: error.message, // Optionally include the raw error message
+  //     });
+  //   }
+  // };
 
   // Update a rental transaction
   const updateRentalTransaction = async (req, res) => {
@@ -546,168 +548,168 @@ module.exports = ({ emitNotification }) => {
     }
   };
 
-  const completeRentalTransaction = async (req, res) => {
-    const { id } = req.params;
-    const { userId } = req.body;
+  // const completeRentalTransaction = async (req, res) => {
+  //   const { id } = req.params;
+  //   const { userId } = req.body;
 
-    try {
-      const rental = await models.RentalTransaction.findByPk(id, {
-        include: [
-          {
-            model: models.User,
-            as: "owner",
-            attributes: ["user_id", "first_name", "last_name", "email"],
-          },
-          {
-            model: models.User,
-            as: "renter",
-            attributes: ["user_id", "first_name", "last_name", "email"],
-          },
-          {
-            model: models.Listing,
-            attributes: ["id", "listing_name", "description", "rate", "status"],
-          },
-          {
-            model: models.Post,
-            attributes: ["id", "post_item_name", "status"],
-          },
-          {
-            model: models.Date,
-            attributes: ["id", "date", "status", "status"],
-          },
-          {
-            model: models.Duration,
-            attributes: ["id", "rental_time_from", "rental_time_to", "status"],
-          },
-        ],
-      });
+  //   try {
+  //     const rental = await models.RentalTransaction.findByPk(id, {
+  //       include: [
+  //         {
+  //           model: models.User,
+  //           as: "owner",
+  //           attributes: ["user_id", "first_name", "last_name", "email"],
+  //         },
+  //         {
+  //           model: models.User,
+  //           as: "renter",
+  //           attributes: ["user_id", "first_name", "last_name", "email"],
+  //         },
+  //         {
+  //           model: models.Listing,
+  //           attributes: ["id", "listing_name", "description", "rate", "status"],
+  //         },
+  //         {
+  //           model: models.Post,
+  //           attributes: ["id", "post_item_name", "status"],
+  //         },
+  //         {
+  //           model: models.Date,
+  //           attributes: ["id", "date", "status", "status"],
+  //         },
+  //         {
+  //           model: models.Duration,
+  //           attributes: ["id", "rental_time_from", "rental_time_to", "status"],
+  //         },
+  //       ],
+  //     });
 
-      if (!rental) {
-        return res.status(404).json({ error: "Rental transaction not found." });
-      }
+  //     if (!rental) {
+  //       return res.status(404).json({ error: "Rental transaction not found." });
+  //     }
 
-      // Check if the user is the owner or renter
-      const isOwner = rental.owner_id === userId;
-      const isRenter = rental.renter_id === userId;
+  //     // Check if the user is the owner or renter
+  //     const isOwner = rental.owner_id === userId;
+  //     const isRenter = rental.renter_id === userId;
 
-      if (!isOwner && !isRenter) {
-        return res.status(403).json({ error: "Unauthorized action." });
-      }
+  //     if (!isOwner && !isRenter) {
+  //       return res.status(403).json({ error: "Unauthorized action." });
+  //     }
 
-      // Check if rental status is 'Returned'
-      if (rental.status !== "Returned") {
-        return res.status(400).json({
-          error: "Only returned rentals can be completed.",
-          currentStatus: rental.status,
-        });
-      }
+  //     // Check if rental status is 'Returned'
+  //     if (rental.status !== "Returned") {
+  //       return res.status(400).json({
+  //         error: "Only returned rentals can be completed.",
+  //         currentStatus: rental.status,
+  //       });
+  //     }
 
-      // Get user names
-      const ownerName = await getUserNames(rental.owner_id);
-      const renterName = await getUserNames(rental.renter_id);
+  //     // Get user names
+  //     const ownerName = await getUserNames(rental.owner_id);
+  //     const renterName = await getUserNames(rental.renter_id);
 
-      // Update the confirmation status
-      if (isOwner) {
-        rental.owner_confirmed = true;
-      } else if (isRenter) {
-        rental.renter_confirmed = true;
-      }
+  //     // Update the confirmation status
+  //     if (isOwner) {
+  //       rental.owner_confirmed = true;
+  //     } else if (isRenter) {
+  //       rental.renter_confirmed = true;
+  //     }
 
-      // Check if both parties have confirmed
-      if (rental.owner_confirmed && rental.renter_confirmed) {
-        // Update the rental status to completed
-        rental.status = "Completed";
+  //     // Check if both parties have confirmed
+  //     if (rental.owner_confirmed && rental.renter_confirmed) {
+  //       // Update the rental status to completed
+  //       rental.status = "Completed";
 
-        // Reset confirmations
-        rental.owner_confirmed = false;
-        rental.renter_confirmed = false;
+  //       // Reset confirmations
+  //       rental.owner_confirmed = false;
+  //       rental.renter_confirmed = false;
 
-        // Update the availability of the duration
-        if (rental.Duration) {
-          await models.Duration.update(
-            { status: "available" },
-            { where: { id: rental.Duration.id } }
-          );
-        }
+  //       // Update the availability of the duration
+  //       if (rental.Duration) {
+  //         await models.Duration.update(
+  //           { status: "available" },
+  //           { where: { id: rental.Duration.id } }
+  //         );
+  //       }
 
-        // Update the date status if all durations are available
-        if (rental.Date) {
-          const allDurationsAvailable = await models.Duration.findAll({
-            where: {
-              date_id: rental.Date.id,
-              status: { [Op.ne]: "available" },
-            },
-          });
+  //       // Update the date status if all durations are available
+  //       if (rental.Date) {
+  //         const allDurationsAvailable = await models.Duration.findAll({
+  //           where: {
+  //             date_id: rental.Date.id,
+  //             status: { [Op.ne]: "available" },
+  //           },
+  //         });
 
-          if (allDurationsAvailable.length === 0) {
-            await models.Date.update(
-              { status: "available" },
-              { where: { id: rental.Date.id } }
-            );
-          }
-        }
+  //         if (allDurationsAvailable.length === 0) {
+  //           await models.Date.update(
+  //             { status: "available" },
+  //             { where: { id: rental.Date.id } }
+  //           );
+  //         }
+  //       }
 
-        // Update the listing status if all dates are available
-        if (rental.Listing) {
-          const allDatesUnavailable = await models.Date.findAll({
-            where: {
-              item_id: rental.Listing.id,
-              status: { [Op.ne]: "available" },
-            },
-          });
+  //       // Update the listing status if all dates are available
+  //       if (rental.Listing) {
+  //         const allDatesUnavailable = await models.Date.findAll({
+  //           where: {
+  //             item_id: rental.Listing.id,
+  //             status: { [Op.ne]: "available" },
+  //           },
+  //         });
 
-          if (allDatesUnavailable.length === 0) {
-            await models.Listing.update(
-              { status: "approved" },
-              { where: { id: rental.Listing.id } }
-            );
-          }
-        }
+  //         if (allDatesUnavailable.length === 0) {
+  //           await models.Listing.update(
+  //             { status: "approved" },
+  //             { where: { id: rental.Listing.id } }
+  //           );
+  //         }
+  //       }
 
-        // Create notifications for both parties
-        const notificationPromises = [
-          {
-            recipientId: rental.owner_id,
-            message: `Rental transaction with ${renterName} has been completed successfully.`,
-          },
-          {
-            recipientId: rental.renter_id,
-            message: `Rental transaction with ${ownerName} has been completed successfully.`,
-          },
-        ].map(async ({ recipientId, message }) => {
-          const notification = await models.StudentNotification.create({
-            sender_id: userId,
-            recipient_id: recipientId,
-            type: "transaction_completed",
-            message: message,
-            is_read: false,
-            rental_id: rental.id,
-          });
+  //       // Create notifications for both parties
+  //       const notificationPromises = [
+  //         {
+  //           recipientId: rental.owner_id,
+  //           message: `Rental transaction with ${renterName} has been completed successfully.`,
+  //         },
+  //         {
+  //           recipientId: rental.renter_id,
+  //           message: `Rental transaction with ${ownerName} has been completed successfully.`,
+  //         },
+  //       ].map(async ({ recipientId, message }) => {
+  //         const notification = await models.StudentNotification.create({
+  //           sender_id: userId,
+  //           recipient_id: recipientId,
+  //           type: "transaction_completed",
+  //           message: message,
+  //           is_read: false,
+  //           rental_id: rental.id,
+  //         });
 
-          // Emit notification using centralized emitter
-          if (emitNotification) {
-            emitNotification(recipientId, notification.toJSON());
-          }
+  //         // Emit notification using centralized emitter
+  //         if (emitNotification) {
+  //           emitNotification(recipientId, notification.toJSON());
+  //         }
 
-          return notification;
-        });
-        await Promise.all(notificationPromises);
-      }
+  //         return notification;
+  //       });
+  //       await Promise.all(notificationPromises);
+  //     }
 
-      // Save all changes to the rental
-      await rental.save();
+  //     // Save all changes to the rental
+  //     await rental.save();
 
-      // Return the updated rental data
-      res.json(rental);
-    } catch (error) {
-      console.error("Error completing rental transaction:", error);
-      return res.status(500).json({
-        error: "An error occurred while completing the rental transaction.",
-        details: error.message,
-        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-      });
-    }
-  };
+  //     // Return the updated rental data
+  //     res.json(rental);
+  //   } catch (error) {
+  //     console.error("Error completing rental transaction:", error);
+  //     return res.status(500).json({
+  //       error: "An error occurred while completing the rental transaction.",
+  //       details: error.message,
+  //       stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+  //     });
+  //   }
+  // };
 
   const declineRentalTransaction = async (req, res) => {
     const { id } = req.params;
@@ -782,14 +784,16 @@ module.exports = ({ emitNotification }) => {
       createRentalTransaction(req, res, emitNotification),
     getAllRentalTransactions,
     getRentalTransactionById,
-    getTransactionsByUserId,
+    getTransactionsByUserId: (req, res) =>
+      getTransactionsByUserId(req, res, emitNotification),
     updateRentalTransaction,
     deleteRentalTransaction,
     acceptRentalTransaction,
     handOverRentalTransaction: (req, res) =>
       handOverRentalTransaction(req, res, emitNotification),
     returnRentalTransaction,
-    completeRentalTransaction,
+    completeRentalTransaction: (req, res) =>
+      completeRentalTransaction(req, res, emitNotification),
     declineRentalTransaction,
     cancelRentalTransaction: (req, res) =>
       cancelRentalTransaction(req, res, emitNotification),

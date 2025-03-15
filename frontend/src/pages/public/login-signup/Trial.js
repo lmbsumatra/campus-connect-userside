@@ -19,6 +19,7 @@ import { baseApi } from "../../../App";
 import ShowAlert from "../../../utils/ShowAlert";
 import { useNavigate } from "react-router-dom";
 import { saveUserData } from "../../../redux/auth/studentAuthSlice";
+import { collegesAndCourses } from "../../../utils/consonants";
 
 const Trial = ({ onTabClick }) => {
   const dispatch = useDispatch();
@@ -103,8 +104,9 @@ const Trial = ({ onTabClick }) => {
     formData.append("last_name", signupDataState.lastName?.value || "");
     formData.append("email", signupDataState.email?.value || "");
     formData.append("password", signupDataState.password?.value || "");
-    formData.append("tup_id", tupId.join(""));
+    formData.append("tup_id", `TUP-${tupId.join("")}` || "");
     formData.append("college", signupDataState.college?.value || "");
+    formData.append("course", signupDataState.course?.value || "");
     formData.append("scanned_id", scannedId.file);
     formData.append("photo_with_id", imgWithId.file);
     formData.append("role", "student");
@@ -499,6 +501,51 @@ const Trial = ({ onTabClick }) => {
                 </div>
               )}
           </div>
+
+          {signupDataState.college?.value && (
+            <div className="field-container">
+              <label htmlFor="course" className="label">
+                Course
+              </label>
+              <Dropdown
+                onSelect={(eventKey, event) => {
+                  // Save the course text instead of the code
+                  const courseText =
+                    collegesAndCourses[signupDataState.college.value][eventKey];
+                  handleInput("course", courseText);
+                }}
+              >
+                <Dropdown.Toggle
+                  id="course-dropdown"
+                  variant="success"
+                  className="w-100"
+                >
+                  {signupDataState.course?.value || "Select your course"}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  {signupDataState.college?.value &&
+                    Object.entries(
+                      collegesAndCourses[signupDataState.college.value]
+                    ).map(([code, name]) => (
+                      <Dropdown.Item key={code} eventKey={code}>
+                        {name}
+                      </Dropdown.Item>
+                    ))}
+                </Dropdown.Menu>
+              </Dropdown>
+              {signupDataState.course?.triggered &&
+                signupDataState.course?.hasError && (
+                  <div className="validation error">
+                    <img
+                      src={warningIcon}
+                      className="icon"
+                      alt="Error on course"
+                    />
+                    <span className="text">{signupDataState.course.error}</span>
+                  </div>
+                )}
+            </div>
+          )}
 
           {renderImageUpload(
             "imgWithId",

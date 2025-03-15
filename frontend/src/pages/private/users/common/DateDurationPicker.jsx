@@ -56,49 +56,67 @@ const TimeDurationModal = ({
   onSave,
   onTimeChange,
   onApplyAllChange,
-}) => (
-  <Modal show={true} onHide={onClose}>
-    <Modal.Header closeButton>
-      <Modal.Title>Add Time Duration</Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-      <Form>
-        <Form.Group controlId="start-time">
-          <Form.Label>Start Time</Form.Label>
-          <Form.Control
-            type="time"
-            value={timeFrom}
-            onChange={(e) => onTimeChange("timeFrom", e.target.value)}
-          />
-        </Form.Group>
-        <Form.Group controlId="end-time">
-          <Form.Label>End Time</Form.Label>
-          <Form.Control
-            type="time"
-            value={timeTo}
-            onChange={(e) => onTimeChange("timeTo", e.target.value)}
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Check
-            type="checkbox"
-            label="Apply this time to all selected dates"
-            checked={applyToAll}
-            onChange={onApplyAllChange}
-          />
-        </Form.Group>
-      </Form>
-    </Modal.Body>
-    <Modal.Footer>
-      <Button variant="secondary" onClick={onClose}>
-        Close
-      </Button>
-      <Button variant="primary" onClick={onSave}>
-        Add Duration
-      </Button>
-    </Modal.Footer>
-  </Modal>
-);
+}) => {
+  const [error, setError] = useState("");
+  return (
+    <Modal show={true} onHide={onClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>Add Time Duration</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form>
+          <Form.Group controlId="start-time">
+            <Form.Label>Start Time</Form.Label>
+            <Form.Control
+              type="time"
+              value={timeFrom}
+              onChange={(e) => onTimeChange("timeFrom", e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group controlId="end-time">
+            <Form.Label>End Time</Form.Label>
+            <Form.Control
+              type="time"
+              value={timeTo}
+              onChange={(e) => onTimeChange("timeTo", e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Check
+              type="checkbox"
+              label="Apply this time to all selected dates"
+              checked={applyToAll}
+              onChange={onApplyAllChange}
+            />
+          </Form.Group>
+          {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>
+          Close
+        </Button>
+        <Button
+          variant="primary"
+          onClick={() => {
+            const start = new Date(`1970-01-01T${timeFrom}:00`);
+            const end = new Date(`1970-01-01T${timeTo}:00`);
+            const diff = (end - start) / (1000 * 60); // Convert milliseconds to minutes
+
+            if (diff < 60) {
+              setError("Duration must be at least 1 hour");
+            } else {
+              setError(""); // Clear error
+              onSave();
+            }
+          }}
+        >
+          Add Duration
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
 
 const DateDurationPicker = ({
   show,
@@ -106,6 +124,8 @@ const DateDurationPicker = ({
   onSaveDatesDurations,
   unavailableDates,
   selectedDatesDurations = [], // Default to an empty array if not provided
+  minDate = null,
+  maxDate = null,
 }) => {
   const [dates, setDates] = useState(selectedDatesDurations);
   const [mode, setMode] = useState("custom");
@@ -129,10 +149,30 @@ const DateDurationPicker = ({
 
   // Date handling functions
   const handleAddCustomDate = (date) => {
-    if (isSelected(date)) {
+    // Create a normalized date (without time) for comparison
+    const normalizedDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    ).getTime();
+
+    // Check if this normalized date already exists in the dates array
+    const isDateAlreadyAdded = dates.some((item) => {
+      const existingDate = new Date(
+        item.date.getFullYear(),
+        item.date.getMonth(),
+        item.date.getDate()
+      ).getTime();
+
+      return existingDate === normalizedDate;
+    });
+
+    if (isDateAlreadyAdded) {
       alert("This date is already added.");
       return;
     }
+
+    // If not already selected, add it to the dates array
     setDates([...dates, { date, durations: [] }]);
   };
 
@@ -144,6 +184,7 @@ const DateDurationPicker = ({
 
     const newDates = [];
     let currentDate = new Date(startDate);
+    const overlappingDates = [];
 
     // Ensure unavailableDates are properly formatted as Date objects
     const normalizedUnavailableDates = unavailableDates.map(
@@ -151,25 +192,65 @@ const DateDurationPicker = ({
     );
 
     while (currentDate <= endDate) {
-      const isUnavailable = normalizedUnavailableDates.some(
-        (d) => d.getTime() === currentDate.getTime()
+      // Normalize current date for comparison (remove time component)
+      const normalizedDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate()
       );
 
-      if (!isUnavailable && !isSelected(currentDate)) {
-        newDates.push({ date: new Date(currentDate), durations: [] });
+      // Check if this date is unavailable
+      const isUnavailable = normalizedUnavailableDates.some((d) => {
+        const unavailableDate = new Date(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate()
+        );
+        return unavailableDate.getTime() === normalizedDate.getTime();
+      });
+
+      // Instead of using isSelected, directly check if the date already exists in the dates array
+      const isAlreadySelected = dates.some((item) => {
+        const existingDate = new Date(
+          item.date.getFullYear(),
+          item.date.getMonth(),
+          item.date.getDate()
+        );
+        return existingDate.getTime() === normalizedDate.getTime();
+      });
+
+      if (isAlreadySelected) {
+        // Track overlapping dates to alert the user later
+        overlappingDates.push(normalizedDate.toDateString());
+      } else if (!isUnavailable) {
+        newDates.push({ date: new Date(normalizedDate), durations: [] });
       }
 
+      // Move to next day
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
+    if (overlappingDates.length > 0) {
+      const message =
+        overlappingDates.length > 3
+          ? `${
+              overlappingDates.length
+            } dates are already added including: ${overlappingDates
+              .slice(0, 3)
+              .join(", ")}...`
+          : `These dates are already added: ${overlappingDates.join(", ")}`;
+      alert(message);
+    }
+
     if (newDates.length === 0) {
-      alert("No valid dates available in the range.");
+      if (overlappingDates.length === 0) {
+        alert("No valid dates available in the range.");
+      }
       return;
     }
 
     setDates([...dates, ...newDates]);
   };
-
   const handleAddWeekly = () => {
     if (!startDate || !endDate || weekdays.length === 0) {
       alert("Please select dates and at least one weekday.");
@@ -178,26 +259,72 @@ const DateDurationPicker = ({
 
     const newDates = [];
     let currentDate = new Date(startDate);
+    const overlappingDates = [];
 
     while (currentDate <= endDate) {
-      if (
-        weekdays.includes(currentDate.getDay()) &&
-        !unavailableDates.some((d) => d.getTime() === currentDate.getTime()) &&
-        !isSelected(currentDate)
-      ) {
-        newDates.push({ date: new Date(currentDate), durations: [] });
+      // Only consider days of the week that match the selected weekdays
+      if (weekdays.includes(currentDate.getDay())) {
+        // Normalize current date for comparison (remove time component)
+        const normalizedDate = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate()
+        );
+
+        // Check if this date is unavailable
+        const isUnavailable = unavailableDates.some((d) => {
+          const unavailableDate = d instanceof Date ? d : new Date(d.date);
+          const normalizedUnavailable = new Date(
+            unavailableDate.getFullYear(),
+            unavailableDate.getMonth(),
+            unavailableDate.getDate()
+          );
+          return normalizedUnavailable.getTime() === normalizedDate.getTime();
+        });
+
+        // Check if this date is already in the dates array
+        const isAlreadySelected = dates.some((item) => {
+          const existingDate = new Date(
+            item.date.getFullYear(),
+            item.date.getMonth(),
+            item.date.getDate()
+          );
+          return existingDate.getTime() === normalizedDate.getTime();
+        });
+
+        if (isAlreadySelected) {
+          // Track overlapping dates to alert the user later
+          overlappingDates.push(normalizedDate.toDateString());
+        } else if (!isUnavailable) {
+          newDates.push({ date: new Date(normalizedDate), durations: [] });
+        }
       }
+
+      // Move to next day
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
+    if (overlappingDates.length > 0) {
+      const message =
+        overlappingDates.length > 3
+          ? `${
+              overlappingDates.length
+            } dates are already added including: ${overlappingDates
+              .slice(0, 3)
+              .join(", ")}...`
+          : `These dates are already added: ${overlappingDates.join(", ")}`;
+      alert(message);
+    }
+
     if (newDates.length === 0) {
-      alert("No valid weekly dates available.");
+      if (overlappingDates.length === 0) {
+        alert("No valid weekly dates available.");
+      }
       return;
     }
 
     setDates([...dates, ...newDates]);
   };
-
   // Time period handling
   const handleAddTimePeriod = () => {
     if (!timeFrom || !timeTo) {
@@ -285,6 +412,8 @@ const DateDurationPicker = ({
               <div className="field-container picker">
                 <label>Select Custom Dates</label>
                 <DatePicker
+                  minDate={minDate} // Pass the minDate prop
+                  maxDate={maxDate} // Pass the maxDate prop
                   selected={null}
                   onChange={handleAddCustomDate}
                   inline
@@ -293,67 +422,111 @@ const DateDurationPicker = ({
                     (item) => new Date(item.date)
                   )}
                   dayClassName={(date) => {
-                    // Normalize the date (remove time part)
+                    // Ensure `date` is a valid Date object
                     const dateWithoutTime = new Date(
                       date.getFullYear(),
                       date.getMonth(),
                       date.getDate()
                     );
+
                     const unavailableDateWithoutTime = unavailableDates.map(
-                      (d) => new Date(d.date).setHours(0, 0, 0, 0) // Normalize to date without time
+                      (d) => {
+                        const unavailableDate =
+                          d instanceof Date ? d : new Date(d.date);
+                        return new Date(
+                          unavailableDate.getFullYear(),
+                          unavailableDate.getMonth(),
+                          unavailableDate.getDate()
+                        ).getTime();
+                      }
                     );
 
-                    // Check if the date is unavailable
-                    const isUnavailable = unavailableDateWithoutTime.some(
-                      (d) => d === dateWithoutTime.getTime()
-                    );
-
-                    // Return the appropriate class for unavailable or selected dates
-                    if (isUnavailable) {
-                      return "bg-danger"; // Highlight unavailable dates (red)
+                    if (
+                      unavailableDateWithoutTime.includes(
+                        dateWithoutTime.getTime()
+                      )
+                    ) {
+                      return "bg-danger"; // Highlight unavailable dates
                     } else if (isSelected(date)) {
-                      return "bg-warning"; // Highlight selected dates (yellow)
+                      return "bg-warning"; // Highlight selected dates
                     } else if (
                       selectedDatesDurations.some(
                         (d) => new Date(d.date).getTime() === date.getTime()
                       )
                     ) {
-                      return "bg-blue"; // Highlight dates with durations (blue)
+                      return "bg-blue"; // Highlight dates with durations
                     } else {
-                      return "bg-green"; // Default available date (green)
+                      return "bg-green"; // Default available date
                     }
                   }}
-                  renderDayContents={(day, date) => {
-                    // Normalize the `date` to a date without the time (set the time to 00:00:00)
-                    const normalizedDate = new Date(
-                      date.getFullYear(),
-                      date.getMonth(),
-                      date.getDate()
-                    );
+                  // highlightDates={selectedDatesDurations.map(
+                  //   (item) => new Date(item.date)
+                  // )}
+                  // dayClassName={(date) => {
+                  //   // Normalize the date (remove time part)
+                  //   const dateWithoutTime = new Date(
+                  //     date.getFullYear(),
+                  //     date.getMonth(),
+                  //     date.getDate()
+                  //   );
+                  //   const unavailableDateWithoutTime = unavailableDates.map(
+                  //     (d) => {
+                  //       new Date(d.date).setHours(0, 0, 0, 0);
+                  //       return "bg-danger low-opacity";
+                  //     } // Normalize to date without time
+                  //   );
 
-                    // Find if the current date is unavailable by checking against the unavailableDates
-                    const unavailableDate = unavailableDates.find((d) => {
-                      // Normalize the unavailable date to a date without time as well
-                      const unavailableNormalizedDate = new Date(d.date);
-                      unavailableNormalizedDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00
+                  //   // Check if the date is unavailable
+                  //   const isUnavailable = unavailableDateWithoutTime.some(
+                  //     (d) => d === dateWithoutTime.getTime()
+                  //   );
 
-                      // Compare the normalized dates (ignore time)
-                      return (
-                        normalizedDate.getTime() ===
-                        unavailableNormalizedDate.getTime()
-                      );
-                    });
+                  //   // Return the appropriate class for unavailable or selected dates
+                  //   if (isUnavailable) {
+                  //     return "bg-danger"; // Highlight unavailable dates (red)
+                  //   } else if (isSelected(date)) {
+                  //     return "bg-warning"; // Highlight selected dates (yellow)
+                  //   } else if (
+                  //     selectedDatesDurations.some(
+                  //       (d) => new Date(d.date).getTime() === date.getTime()
+                  //     )
+                  //   ) {
+                  //     return "bg-blue"; // Highlight dates with durations (blue)
+                  //   } else {
+                  //     return "bg-green"; // Default available date (green)
+                  //   }
+                  // }}
+                  // renderDayContents={(day, date) => {
+                  //   // Normalize the `date` to a date without the time (set the time to 00:00:00)
+                  //   const normalizedDate = new Date(
+                  //     date.getFullYear(),
+                  //     date.getMonth(),
+                  //     date.getDate()
+                  //   );
 
-                    return (
-                      <Tooltip
-                        title={unavailableDate ? unavailableDate.reason : ""}
-                        arrow
-                        disableHoverListener={!unavailableDate}
-                      >
-                        <span>{day}</span>
-                      </Tooltip>
-                    );
-                  }}
+                  //   // Find if the current date is unavailable by checking against the unavailableDates
+                  //   const unavailableDate = unavailableDates.find((d) => {
+                  //     // Normalize the unavailable date to a date without time as well
+                  //     const unavailableNormalizedDate = new Date(d.date);
+                  //     unavailableNormalizedDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00
+
+                  //     // Compare the normalized dates (ignore time)
+                  //     return (
+                  //       normalizedDate.getTime() ===
+                  //       unavailableNormalizedDate.getTime()
+                  //     );
+                  //   });
+
+                  //   return (
+                  //     <Tooltip
+                  //       title={unavailableDate ? unavailableDate.reason : ""}
+                  //       arrow
+                  //       disableHoverListener={!unavailableDate}
+                  //     >
+                  //       <span>{day}</span>
+                  //     </Tooltip>
+                  //   );
+                  // }}
                 />
               </div>
             )}
@@ -362,7 +535,9 @@ const DateDurationPicker = ({
               <div className="field-container picker">
                 <label>Select Date Range</label>
                 <DatePicker
-                  selected={startDate}
+                  minDate={minDate} // Pass the minDate prop
+                  maxDate={maxDate} // Pass the maxDate prop
+                  selected={null}
                   onChange={(dates) => {
                     setStartDate(dates[0]);
                     setEndDate(dates[1]);
@@ -453,7 +628,9 @@ const DateDurationPicker = ({
               <div className="field-container picker">
                 <label>Select Weekly Dates</label>
                 <DatePicker
-                  selected={startDate}
+                  minDate={minDate} // Pass the minDate prop
+                  maxDate={maxDate} // Pass the maxDate prop
+                  selected={null}
                   onChange={(dates) => {
                     setStartDate(dates[0]);
                     setEndDate(dates[1]);

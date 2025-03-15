@@ -4,7 +4,7 @@ import "./MyRental.css";
 import itemImage from "../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../utils/dateFormat";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom"; // Import navigation
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   fetchRentalTransactions,
@@ -24,13 +24,12 @@ function RentalItem({
   onTabChange,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate(); // React Router navigation
+  const navigate = useNavigate();
   const { studentUser } = useAuth();
   const { userId } = studentUser;
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [modalRole, setModalRole] = useState(""); // "renter" or "owner"
-
-  const dispatch = useDispatch(); // Redux dispatch
+  const [modalRole, setModalRole] = useState("");
+  const dispatch = useDispatch();
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -42,41 +41,61 @@ function RentalItem({
 
   const handleConfirmPayment = () => {
     setIsPaymentModalOpen(false);
-    handleStatusUpdate("hand-over"); // Proceed to the next status after confirming payment
+    handleStatusUpdate("hand-over");
   };
 
-  // Function to handle rental status update using Redux
   const handleStatusUpdate = async (action) => {
     try {
       let updatePayload = {
         rentalId: item.id,
         newStatus: action,
         userId: userId,
+        transactionType: item.transactionType,
       };
 
       if (item.owner_id === userId) {
         updatePayload.ownerConfirmed = true;
-      } else if (item.renter_id === userId) {
+      } else if (item.renter_id === userId || item.buyer_id === userId) {
         updatePayload.renterConfirmed = true;
       }
 
       await dispatch(updateRentalStatus(updatePayload));
-
-      // Now fetch the latest transactions
       await dispatch(fetchRentalTransactions(userId));
 
-      // Emit update to socket
+      const recipientId = (() => {
+        const transaction = item.tx;
+        const isRental = item.transactionType === "Rental";
+        const isSell = item.transactionType === "Purchase";
+        const isCurrentUserOwner = transaction.owner_id === userId;
+
+        if (isRental) {
+          // For rental transactions
+          return isCurrentUserOwner
+            ? transaction.renter_id
+            : transaction.owner_id;
+        } else if (isSell) {
+          // For purchase/sale transactions
+          return isCurrentUserOwner
+            ? transaction.buyer_id
+            : transaction.owner_id;
+        } else {
+          return transaction.owner_id;
+        }
+      })();
+
       const transactionData = {
         sender: userId,
-        recipient: item.owner_id === userId ? item.renter_id : item.owner_id,
+        recipient: recipientId,
         rentalId: item.id,
         status: action,
       };
 
-      // Only proceed if both users have confirmed
+      socket.emit("update-transaction-status", transactionData);
+
       const bothConfirmed =
-        (item.owner_id === userId && item.renter_confirmed) ||
-        (item.renter_id === userId && item.owner_confirmed);
+        (item.tx.owner_id === userId && item.tx.renter_confirmed) ||
+        ((item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
+          item.tx.owner_confirmed);
 
       if (bothConfirmed) {
         let nextTab = "";
@@ -98,11 +117,24 @@ function RentalItem({
         }
 
         onTabChange(nextTab);
+      } else if (item.tx.transaction_type === "sell") {
+        let nextTab = "";
+        switch (action) {
+          case "hand-over":
+            nextTab = "Completed";
+            break;
+        }
       } else {
         let nextTab = "";
         switch (action) {
           case "accept":
             nextTab = "To Hand Over";
+            break;
+          case "cancel":
+            nextTab = "Cancelled";
+            break;
+          case "decline":
+            nextTab = "Cancelled";
             break;
           default:
             nextTab = selectedTab;
@@ -110,20 +142,20 @@ function RentalItem({
 
         onTabChange(nextTab);
       }
-
-      socket.emit("update-transaction-status", transactionData);
     } catch (error) {
-      console.error("Error updating rental status:", error);
+      console.error("Error updating transaction status:", error);
     }
   };
 
-  // Function to handle clicking "Message" button
   const handleMessageClick = async () => {
     try {
       const recipientId =
-        item.owner_id === userId ? item.renter_id : item.owner_id;
+        item.owner_id === userId
+          ? item.tx.transaction_type === "rental"
+            ? item.renter_id
+            : item.buyer_id
+          : item.owner_id;
 
-      // Create or get existing conversation
       const response = await axios.post(
         "http://localhost:3001/api/conversations/createConversation",
         {
@@ -132,12 +164,30 @@ function RentalItem({
         }
       );
 
-      // Navigate to messages with conversation data
+      // Determine item name based on what fields are available
+      let itemName = "";
+      if (item.item) {
+        if (item.tx.transaction_type === "rental" && item.item.listing_name) {
+          itemName = item.item.listing_name;
+        } else if (
+          item.tx.transaction_type === "sell" &&
+          item.item.item_for_sale_name
+        ) {
+          itemName = item.item.item_for_sale_name;
+        }
+      }
+      // Try to get item name from different fields in case the structure is different
+      else if (item.Listing && item.Listing.listing_name) {
+        itemName = item.Listing.listing_name;
+      } else if (item.itemName) {
+        itemName = item.itemName;
+      }
+
       navigate("/messages", {
         state: {
           ownerId: recipientId,
           product: {
-            name: item.Listing.listing_name,
+            name: itemName || "Unknown Item",
             status: item.status,
             image: itemImage,
           },
@@ -148,11 +198,11 @@ function RentalItem({
     }
   };
 
-  // Define button configurations based on status
+  // Define button configurations based on status and transaction type
   const buttonConfig = useMemo(
     () => ({
       Requested: [
-        ...(item.owner_id === userId
+        ...(item.tx.owner_id === userId
           ? [
               {
                 label: "Accept",
@@ -166,7 +216,7 @@ function RentalItem({
               },
             ]
           : []),
-        ...(item.renter_id === userId
+        ...(item.tx.renter_id === userId || item.tx.buyer_id === userId
           ? [
               {
                 label: "Cancel",
@@ -177,66 +227,83 @@ function RentalItem({
           : []),
         {
           label: "Message",
-          onClick: handleMessageClick, // Use handleMessageClick function
+          onClick: handleMessageClick,
           primary: false,
         },
       ],
       Accepted: [
         {
           label:
-            item.owner_id === userId && item.owner_confirmed
-              ? "Handed Over" // If Owner confirmed, show "Handed Over"
-              : item.renter_id === userId && item.renter_confirmed
-              ? "Received" // If Renter confirmed, show "Received"
-              : item.owner_id === userId
-              ? "Confirm Hand Over" // If Owner has not confirmed, show "Confirm Hand Over"
-              : item.renter_id === userId
-              ? "Confirm Item Receive" // If Renter has not confirmed, show "Confirm Hand Over"
-              : "Confirm Hand Over", // Default fallback for any other situation
-          onClick: () => handleStatusUpdate("hand-over"),
+            item.tx.owner_id === userId && item.tx.owner_confirmed
+              ? "Handed Over"
+              : (item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
+                item.tx.renter_confirmed
+              ? "Received"
+              : item.tx.owner_id === userId
+              ? "Confirm Hand Over"
+              : item.tx.renter_id === userId || item.tx.buyer_id === userId
+              ? "Confirm Item Receive"
+              : "Confirm Hand Over",
+
           onClick: () => {
-            setIsPaymentModalOpen(true);
-            setModalRole(item.owner_id === userId ? "owner" : "renter");
+            handleStatusUpdate("hand-over");
+            setModalRole(
+              item.tx.owner_id === userId
+                ? "owner"
+                : item.tx.transaction_type === "rental"
+                ? "renter"
+                : "buyer"
+            );
           },
           primary: true,
           disabled:
             item.is_allowed_to_proceed === false ||
-            (item.owner_id === userId
-              ? item.owner_confirmed
-              : item.renter_confirmed),
+            (item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed),
           disabledReason: (
-            item.owner_id === userId
-              ? item.owner_confirmed
-              : item.renter_confirmed
+            item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed
           )
             ? "Wait for the other party"
             : "Not yet allowed to proceed",
         },
         {
           label: "Message",
-          onClick: handleMessageClick, // Use handleMessageClick function
+          onClick: handleMessageClick,
           primary: false,
         },
       ],
       HandedOver: [
         {
           label:
-            item.owner_id === userId && item.owner_confirmed
+            item.tx.owner_id === userId && item.tx.owner_confirmed
               ? "Received"
-              : item.renter_id === userId && item.renter_confirmed
-              ? "Returned"
-              : item.owner_id === userId
+              : (item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
+                item.tx.renter_confirmed
+              ? item.tx.transaction_type === "rental" // <== Enforce return only for rentals
+                ? "Returned"
+                : "Confirm Return"
+              : item.tx.owner_id === userId
               ? "Confirm Receive"
-              : item.renter_id === userId
-              ? "Confirm Return"
+              : item.tx.renter_id === userId || item.tx.buyer_id === userId
+              ? item.tx.transaction_type === "rental"
+                ? "Confirm Return"
+                : "Confirm Completion"
               : "Confirm Return",
-          onClick: () => handleStatusUpdate("return"),
+          onClick: () => {
+            setIsPaymentModalOpen(true);
+            handleStatusUpdate(
+              item.tx.transaction_type === "rental" ? "return" : ""
+            );
+          },
           primary: true,
           disabled:
             item.is_allowed_to_proceed === false ||
-            (item.owner_id === userId
-              ? item.owner_confirmed
-              : item.renter_confirmed),
+            (item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed),
           disabledReason:
             item.is_allowed_to_proceed === false
               ? "Not yet allowed to proceed"
@@ -244,24 +311,25 @@ function RentalItem({
         },
         {
           label: "Message",
-          onClick: handleMessageClick, // Use handleMessageClick function
+          onClick: handleMessageClick,
           primary: false,
         },
       ],
       Returned: [
         {
           label:
-            (item.owner_id === userId && item.owner_confirmed) ||
-            (item.renter_id === userId && item.renter_confirmed)
+            (item.tx.owner_id === userId && item.tx.owner_confirmed) ||
+            ((item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
+              item.tx.renter_confirmed)
               ? "Completed"
-              : "Complete",
+              : "Confirm Completion",
           onClick: () => handleStatusUpdate("completed"),
           primary: true,
           disabled:
             item.is_allowed_to_proceed === false ||
-            (item.owner_id === userId
-              ? item.owner_confirmed
-              : item.renter_confirmed),
+            (item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed),
           disabledReason:
             item.is_allowed_to_proceed === false
               ? "Not yet allowed to proceed"
@@ -269,24 +337,25 @@ function RentalItem({
         },
         {
           label: "Message",
-          onClick: handleMessageClick, // Use handleMessageClick function
+          onClick: handleMessageClick,
           primary: false,
         },
       ],
       Completed: [
         {
           label:
-            (item.owner_id === userId && item.owner_confirmed) ||
-            (item.renter_id === userId && item.renter_confirmed)
+            (item.tx.owner_id === userId && item.tx.owner_confirmed) ||
+            ((item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
+              item.tx.renter_confirmed)
               ? "Reviewed"
               : "Review",
           onClick: handleOpenModal,
           primary: true,
           disabled:
             item.is_allowed_to_proceed === false ||
-            (item.owner_id === userId
-              ? item.owner_confirmed
-              : item.renter_confirmed),
+            (item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed),
           disabledReason:
             item.is_allowed_to_proceed === false
               ? "Not yet allowed to proceed"
@@ -295,31 +364,62 @@ function RentalItem({
       ],
       Reviewed: [],
       Cancelled: [],
+      Declined: [],
     }),
-    [userId, item.status, item.owner_confirmed, item.renter_confirmed]
+    [userId, item]
   );
+
+  // Safeguard against invalid item - moved after hooks
+  if (!item) {
+    return <div className="rental-item">Invalid item data</div>;
+  }
 
   // Define button color based on selected option (Owner or Renter)
   const getButtonColor = (primary) => {
-    if (selectedOption === "Owner") {
+    if (selectedOption === "owner") {
       return primary ? "btn-owner-primary" : "btn-owner-secondary";
-    } else if (selectedOption === "Renter") {
+    } else if (selectedOption === "renter") {
       return primary ? "btn-renter-primary" : "btn-renter-secondary";
+    } else if (selectedOption === "buyer") {
+      return primary ? "btn-buyer-primary" : "btn-buyer-secondary";
     }
     return primary ? "btn-primary" : "btn-secondary";
   };
 
+  const getItemName = () => {
+    if (item.Listing && item.Listing.listing_name) {
+      return item.Listing.listing_name;
+    } else if (item.item) {
+      if (item.tx.transaction_type === "rental" && item.item.listing_name) {
+        return item.item.listing_name;
+      } else if (
+        item.tx.transaction_type === "sell" &&
+        item.item.item_for_sale_name
+      ) {
+        return item.item.item_for_sale_name;
+      }
+    } else if (item.itemName) {
+      return item.itemName;
+    }
+    return "Unknown Item";
+  };
+
   return (
     <div className={`rental-item ${highlighted ? "highlighted" : ""}`}>
-      <img src={itemImage} alt={item.title} className="rental-item-image" />
+      <img src={itemImage} alt={getItemName()} className="rental-item-image" />
       <div className="rental-item-content">
-        <h4>Item: {item.Listing.listing_name}</h4>
-        {item.renter_id && (
+        <h4>Item: {getItemName()}</h4>
+        {item.renter_id && item.renter && (
           <p>
             Renter: {item.renter.first_name} {item.renter.last_name}
           </p>
         )}
-        {item.owner_id && (
+        {item.buyer_id && item.buyer && (
+          <p>
+            Buyer: {item.buyer.first_name} {item.buyer.last_name}
+          </p>
+        )}
+        {item.owner_id && item.owner && (
           <p>
             Owner: {item.owner.first_name} {item.owner.last_name}
           </p>
@@ -327,12 +427,13 @@ function RentalItem({
         {item.RentalDate && (
           <p>Request Date: {formatDate(item.RentalDate.date)}</p>
         )}
-        <p className="indx">Type: {item.transaction_type}</p>
+        <p className="indx">Type: {item.transactionType || "rental"}</p>
+        <p>Status: {item.status}</p>
 
         <div className="action-buttons d-flex gap-2">
           {buttonConfig[item.status]?.map((button, index) =>
-            button.primary && button.disabled ? ( // Show tooltip only for disabled primary buttons
-              <Tooltip key={index} title={button.disabledReason} arrow>
+            button.primary && button.disabled ? (
+              <Tooltip key={index} title={button.disabledReason || ""} arrow>
                 <span>
                   <button
                     className={`btn btn-rectangle ${getButtonColor(

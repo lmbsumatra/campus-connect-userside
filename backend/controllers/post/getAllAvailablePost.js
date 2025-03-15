@@ -51,10 +51,10 @@ const getAllAvailablePost = async (req, res) => {
       createdAt: post.created_at,
       status: post.status,
       category: post.category,
-      itemType: "To Rent",
+      itemType: post.post_type,
       desc: post.description,
       specs: post.specifications,
-      images: post.images ? JSON.parse(post.images) : [], // Safely parse or use default
+      images: JSON.parse(post.images) , // Safely parse or use default
       rentalDates: post.rental_dates.map((date) => ({
         id: date.id,
         postId: date.post_id,

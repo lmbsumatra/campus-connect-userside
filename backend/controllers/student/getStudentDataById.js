@@ -66,6 +66,7 @@ const getUserById = async (req, res) => {
         scannedId: user.student.scanned_id,
         photoWithId: user.student.photo_with_id,
         profilePic: user.student.profile_pic,
+        course: user.student.course,
       },
       action: action,
     };

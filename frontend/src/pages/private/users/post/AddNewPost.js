@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
-import {
-  formatDateFromSelectDate,
-} from "../../../../utils/dateFormat.js";
+import { formatDateFromSelectDate } from "../../../../utils/dateFormat.js";
 
 // Components
 import UserToolbar from "../common/UserToolbar";
@@ -247,7 +245,6 @@ const AddNewPost = () => {
       );
     });
 
-
     // Dispatch updates to Redux
     dispatch(updateField({ name: "images", value: filenames })); // Use filenames instead of full objects
     dispatch(blurField({ name: "images", value: filenames }));
@@ -255,7 +252,6 @@ const AddNewPost = () => {
 
   const handleSubmit = async () => {
     let hasErrors = false;
-    console.log("Initial Post Data State:", postDataState);
 
     Object.keys(postDataState).forEach((key) => {
       if (key !== "isFormValid") {
@@ -270,7 +266,6 @@ const AddNewPost = () => {
         }
       }
     });
-
 
     if (hasErrors) {
       ShowAlert(
@@ -287,11 +282,9 @@ const AddNewPost = () => {
     try {
       const formData = new FormData();
 
-      console.log("Adding Local Images to FormData:");
       localImages
         .filter((image) => image.file instanceof File)
         .forEach((image) => {
-          console.log("Adding image:", image.file.name);
           formData.append("upload_images", image.file);
         });
 
@@ -303,14 +296,15 @@ const AddNewPost = () => {
         tags: postDataState.tags.value,
         dates: postDataState.requestDates.value,
         specs: postDataState.specs.value,
+        post_type: itemType,
       };
 
       formData.append("post", JSON.stringify(itemData));
 
-      // console.log("FormData before submission:");
-      // formData.forEach((value, key) => {
-      //   console.log(key, value);
-      // });
+      console.log("FormData before submission:");
+      formData.forEach((value, key) => {
+        console.log(key, value);
+      });
 
       const endpoint = itemType === TO_RENT ? "/posts/create" : "/posts/create";
       const notificationType =
@@ -337,7 +331,7 @@ const AddNewPost = () => {
       });
 
       ShowAlert(dispatch, "loading", "Redirecting");
-      navigate(`/profile/my-posts`, { state: { redirecting: true } });
+      // navigate(`/profile/my-posts`, { state: { redirecting: true } });
     } catch (error) {
       console.error("Error Response:", error.response?.data);
       console.error("Error Object:", error);
@@ -359,7 +353,7 @@ const AddNewPost = () => {
         <div className="imgs-container">
           <Tooltip title={`This item is ${itemType}`}>
             <img
-              src={itemType === FOR_RENT ? forRentIcon : forSaleIcon}
+              src={itemType === "To Rent" ? forRentIcon : forSaleIcon}
               alt={itemType}
               className="item-type"
             />
@@ -386,6 +380,7 @@ const AddNewPost = () => {
             }}
             onItemTypeChange={handleItemTypeChange}
             onCategoryChange={handleCategoryChange}
+            isPost={true}
           />
 
           {postDataState.category.triggered &&
@@ -438,6 +433,12 @@ const AddNewPost = () => {
               onClose={() => setShowDateDurationPicker(false)}
               onSaveDatesDurations={handleSaveDatesDurations}
               unavailableDates={formattedUnavailableDates}
+              minDate={new Date()} // Prevents selecting past dates
+              maxDate={
+                unavailableDates?.endSemesterDates?.length > 0
+                  ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                  : null
+              }
             />
 
             <div className="date-picker">
@@ -449,7 +450,7 @@ const AddNewPost = () => {
               </button>
               <DatePicker
                 inline
-                selected={selectedDisplayDate}
+                selected={null}
                 onChange={setSelectedDisplayDate}
                 highlightDates={selectedDatesDurations.map(
                   (item) => new Date(item.date)
@@ -457,6 +458,12 @@ const AddNewPost = () => {
                 excludeDates={formattedUnavailableDates.map(
                   (item) => new Date(item.date)
                 )}
+                minDate={new Date()} // Prevents selecting past dates
+                maxDate={
+                  unavailableDates?.endSemesterDates?.length > 0
+                    ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                    : null
+                }
               />
             </div>
 

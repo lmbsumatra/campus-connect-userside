@@ -77,26 +77,49 @@ const FormField = ({
   error,
   triggered,
   placeholder,
+  type = "text",
+  options = [],
 }) => (
   <div className="field-container">
     <div className="input-wrapper">
       {label && <label className="label">{label}</label>}
-      <input
-        id={id}
-        name={id}
-        className="input"
-        placeholder={placeholder}
-        required
-        type="text"
-        value={value}
-        onChange={(e) => onChange(id, e.target.value)}
-        onBlur={(e) => onBlur(id, e.target.value)}
-      />
+
+      {type === "select" ? (
+        <select
+          id={id}
+          name={id}
+          className="input"
+          value={value}
+          required
+          onChange={(e) => onChange(id, e.target.value)}
+          onBlur={(e) => onBlur(id, e.target.value)}
+        >
+          <option value="" disabled>
+            {placeholder}
+          </option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          id={id}
+          name={id}
+          className="input"
+          placeholder={placeholder}
+          required
+          type={type}
+          value={value}
+          onChange={(e) => onChange(id, e.target.value)}
+          onBlur={(e) => onBlur(id, e.target.value)}
+        />
+      )}
     </div>
     {triggered && error && <ValidationError message={error} />}
   </div>
 );
-
 const AddNewItem = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -539,6 +562,12 @@ const AddNewItem = () => {
               onClose={() => setShowDateDurationPicker(false)}
               onSaveDatesDurations={handleSaveDatesDurations}
               unavailableDates={formattedUnavailableDates}
+              minDate={new Date()} // Prevents selecting past dates
+              maxDate={
+                unavailableDates?.endSemesterDates?.length > 0
+                  ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                  : null
+              }
             />
 
             <div className="date-picker">
@@ -559,6 +588,12 @@ const AddNewItem = () => {
                 excludeDates={formattedUnavailableDates.map(
                   (item) => new Date(item.date)
                 )}
+                minDate={new Date()} // Prevents selecting past dates
+                maxDate={
+                  unavailableDates?.endSemesterDates?.length > 0
+                    ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                    : null
+                }
               />
             </div>
 
@@ -665,18 +700,24 @@ const AddNewItem = () => {
               </div>
             )}
 
-          <div className="group-container item-condition">
-            <FormField
-              label="Item Condition"
-              id="itemCondition"
-              value={itemDataState.itemCondition.value}
-              onChange={handleFieldChange}
-              onBlur={handleFieldBlur}
-              error={itemDataState.itemCondition.error}
-              triggered={itemDataState.itemCondition.triggered}
-              placeholder="Add item condition"
-            />
-          </div>
+<FormField
+  label="Item Condition"
+  id="itemCondition"
+  value={itemDataState.itemCondition.value}
+  onChange={handleFieldChange}
+  onBlur={handleFieldBlur}
+  error={itemDataState.itemCondition.error}
+  triggered={itemDataState.itemCondition.triggered}
+  placeholder="Select item condition"
+  type="select"
+  options={[
+    "New", 
+    "Used (like new)", 
+    "Used (fair)", 
+    "Used (good)", 
+    "Poor"
+  ]}
+/>
 
           {itemType === FOR_RENT ? (
             <div className="group-container terms">

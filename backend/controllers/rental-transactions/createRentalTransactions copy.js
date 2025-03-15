@@ -39,7 +39,9 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       rental_time_id,
       delivery_method,
       payment_mode,
+      isFromCart,
     } = req.body;
+    console.log(req.body);
 
     const missingFields = [];
     if (!owner_id) missingFields.push("owner_id");
@@ -73,6 +75,29 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       delivery_method,
       payment_mode,
     };
+
+    // If it's from cart, handle additional logic or flags here
+    if (isFromCart) {
+      console.log("yp!");
+      // Add any cart-specific data or flags needed
+      rentalData.from_cart = true;
+
+      // You might also want to remove the item from the cart after successful rental creation
+      // This would depend on your specific cart implementation
+      try {
+        await models.Cart.destroy({
+          where: {
+            user_id: renter_id,
+            item_id: item_id,
+            date_id: rental_date_id,
+            duration_id: rental_time_id,
+          },
+        });
+      } catch (cartError) {
+        console.error("Error removing item from cart:", cartError);
+        // Decide if you want to continue with rental creation even if cart removal fails
+      }
+    }
 
     let rental = await models.RentalTransaction.create(rentalData);
 

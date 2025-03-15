@@ -92,7 +92,7 @@ const AddItemDescAndSpecs = ({
               <td>{value}</td>
               <td>
                 <button
-                  className="btn btn-icon secondary"
+                  className="btn btn-rectangle secondary"
                   onClick={() => handleRemoveSpec(key)}
                 >
                   Remove

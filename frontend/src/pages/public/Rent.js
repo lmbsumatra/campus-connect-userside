@@ -51,6 +51,7 @@ const Rent = () => {
     setFilteredItems(updatedItems);
   };
 
+  console.log(allApprovedListings, filters);
   return (
     <>
       <div className="container-content page-container">
@@ -86,7 +87,7 @@ const Rent = () => {
 
         <div className="items-section">
           <TimeoutComponent
-            timeoutDuration={5000}
+            timeoutDuration={1000}
             fallback={
               <div className="card-container vertical">
                 {Array.from({ length: 6 }).map((_, index) => (

@@ -274,9 +274,10 @@ function ListingDetail() {
         renter_id: studentUser.userId,
         item_id: approvedListingById.id,
         delivery_method: approvedListingById.deliveryMethod,
-        rental_date_id: selectedDateId,
-        rental_time_id: selectedDuration.id,
+        date_id: selectedDateId,
+        time_id: selectedDuration.id,
         payment_mode: approvedListingById.paymentMethod,
+        transaction_type: "rental",
       };
 
       const response = await axios.post(
@@ -337,6 +338,7 @@ function ListingDetail() {
   // }, [loggedInUserId, approvedListingById.id]);
 
   // item not found alert
+  
   useEffect(() => {
     if (errorApprovedListingById) {
       ShowAlert(dispatch, "error", "Error", "Item not found!");

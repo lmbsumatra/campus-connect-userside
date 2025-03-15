@@ -49,6 +49,7 @@ import handleUnavailableDateError from "../../../utils/handleUnavailableDateErro
 import SingleImageUpload from "../../private/users/common/SingleImageUpload";
 import ItemCard from "../../../components/item-card/ItemCard";
 import { fetchPostMatchedItems } from "../../../redux/post/postMatchedItems";
+import ViewToolbar from "../common/ViewToolbar";
 
 function PostDetail() {
   const navigate = useNavigate();
@@ -78,7 +79,8 @@ function PostDetail() {
   const [imagePreview, setImagePreview] = useState(null);
 
   const [imageError, setImageError] = useState(false);
-  
+  const isYou = approvedPostById?.renter?.id === studentUser?.userId;
+
   // State variables for offer details
   const [deliveryMethod, setDeliveryMethod] = useState(MEET_UP);
   const [paymentMethod, setPaymentMethod] = useState(PAY_UPON_MEETUP);
@@ -86,7 +88,7 @@ function PostDetail() {
   const [termsValues, setTermsValues] = useState({
     lateCharges: "",
     securityDeposit: "",
-    repairReplacement: ""
+    repairReplacement: "",
   });
 
   const images = [
@@ -246,7 +248,7 @@ function PostDetail() {
         deliveryMethod: deliveryMethod,
         paymentMethod: paymentMethod,
         itemCondition: itemCondition,
-        terms: termsValues
+        terms: termsValues,
       };
 
       navigate("/messages", {
@@ -415,29 +417,30 @@ function PostDetail() {
   };
 
   const checkIfReported = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:3001/api/reports/check`,
-        {
-          params: {
-            reporter_id: loggedInUserId,
-            reported_entity_id: approvedPostById.id,
-          },
-        }
-      );
-      setHasReported(response.data.hasReported);
-    } catch (error) {
-      console.error("Error checking report:", error);
-    }
+    // try {
+    //   const response = await axios.get(
+    //     `http://localhost:3001/api/reports/check`,
+    //     {
+    //       params: {
+    //         reporter_id: loggedInUserId,
+    //         reported_entity_id: approvedPostById.id,
+    //       },
+    //     }
+    //   );
+    //   setHasReported(response.data.hasReported);
+    // } catch (error) {
+    //   console.error("Error checking report:", error);
+    // }
   };
 
   return (
     <div className="container-content post-detail">
+      {isYou && <ViewToolbar />}
       <div className="post-container">
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
-              approvedPostById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+              approvedPostById.itemType === TO_RENT ? TO_RENT : TO_BUY
             }`}
             componentsProps={{
               popper: {
@@ -454,19 +457,19 @@ function PostDetail() {
           >
             <img
               src={
-                approvedPostById.itemType === FOR_RENT
+                approvedPostById.itemType === TO_RENT
                   ? forRentIcon
                   : forSaleIcon
               }
-              alt={approvedPostById.itemType === FOR_RENT ? FOR_RENT : FOR_SALE}
+              alt={approvedPostById.itemType === TO_RENT ? TO_RENT : TO_BUY}
               className="item-type"
             />
           </Tooltip>
           <ImageSlider
             images={
               approvedPostById.images && approvedPostById.images.length
-                ? approvedPostById.images
-                : ""
+                ? JSON.parse(approvedPostById.images)
+                : [defaultImages]
             }
           />
         </div>
@@ -526,12 +529,14 @@ function PostDetail() {
             <button
               className="btn btn-rectangle secondary"
               onClick={handleMessageClick}
+              disabled={isYou}
             >
               Message
             </button>
             <button
               className="btn btn-rectangle primary"
               onClick={handleOfferClick}
+              disabled={isYou}
             >
               {approvedPostById.itemType === TO_RENT ? "Offer" : "Buy"}
             </button>
@@ -650,13 +655,17 @@ function PostDetail() {
               <div className="delivery-method">
                 <div className="action-btns">
                   <button
-                    className={`value ${deliveryMethod === MEET_UP ? "selected" : ""}`}
+                    className={`value ${
+                      deliveryMethod === MEET_UP ? "selected" : ""
+                    }`}
                     onClick={() => setDeliveryMethod(MEET_UP)}
                   >
                     Meet up
                   </button>
                   <button
-                    className={`value ${deliveryMethod === PICK_UP ? "selected" : ""}`}
+                    className={`value ${
+                      deliveryMethod === PICK_UP ? "selected" : ""
+                    }`}
                     onClick={() => setDeliveryMethod(PICK_UP)}
                   >
                     Pick up
@@ -671,13 +680,17 @@ function PostDetail() {
               <div className="delivery-method">
                 <div className="action-btns">
                   <button
-                    className={`value ${paymentMethod === GCASH ? "selected" : ""}`}
+                    className={`value ${
+                      paymentMethod === GCASH ? "selected" : ""
+                    }`}
                     onClick={() => setPaymentMethod(GCASH)}
                   >
                     Gcash
                   </button>
                   <button
-                    className={`value ${paymentMethod === PAY_UPON_MEETUP ? "selected" : ""}`}
+                    className={`value ${
+                      paymentMethod === PAY_UPON_MEETUP ? "selected" : ""
+                    }`}
                     onClick={() => setPaymentMethod(PAY_UPON_MEETUP)}
                   >
                     Pay upon meetup
@@ -723,7 +736,12 @@ function PostDetail() {
                           placeholder="Add late charges"
                           type="text"
                           value={termsValues.lateCharges}
-                          onChange={(e) => setTermsValues({...termsValues, lateCharges: e.target.value})}
+                          onChange={(e) =>
+                            setTermsValues({
+                              ...termsValues,
+                              lateCharges: e.target.value,
+                            })
+                          }
                         />
                         <button className="btn btn-icon secondary">
                           <img src={infoIcon} alt="Information" />
@@ -738,7 +756,12 @@ function PostDetail() {
                           placeholder="Add security deposit"
                           type="text"
                           value={termsValues.securityDeposit}
-                          onChange={(e) => setTermsValues({...termsValues, securityDeposit: e.target.value})}
+                          onChange={(e) =>
+                            setTermsValues({
+                              ...termsValues,
+                              securityDeposit: e.target.value,
+                            })
+                          }
                         />
                         <button className="btn btn-icon secondary">
                           <img src={infoIcon} alt="Information" />
@@ -753,7 +776,12 @@ function PostDetail() {
                           placeholder="Add repair and replacement"
                           type="text"
                           value={termsValues.repairReplacement}
-                          onChange={(e) => setTermsValues({...termsValues, repairReplacement: e.target.value})}
+                          onChange={(e) =>
+                            setTermsValues({
+                              ...termsValues,
+                              repairReplacement: e.target.value,
+                            })
+                          }
                         />
                         <button className="btn btn-icon secondary">
                           <img src={infoIcon} alt="Information" />
@@ -804,33 +832,45 @@ function PostDetail() {
             <strong>Offered Price:</strong> ₱{offerPrice}
           </p>
           <p>
-            <strong>Delivery Method:</strong> {deliveryMethod === MEET_UP ? "Meet up" : "Pick up"}
+            <strong>Delivery Method:</strong>{" "}
+            {deliveryMethod === MEET_UP ? "Meet up" : "Pick up"}
           </p>
           <p>
-            <strong>Payment Method:</strong> {paymentMethod === GCASH ? "Gcash" : "Pay upon meetup"}
+            <strong>Payment Method:</strong>{" "}
+            {paymentMethod === GCASH ? "Gcash" : "Pay upon meetup"}
           </p>
           <p>
             <strong>Item Condition:</strong> {itemCondition || "Not specified"}
           </p>
-          
+
           {/* Terms and Conditions in Modal */}
-          {(termsValues.lateCharges || termsValues.securityDeposit || termsValues.repairReplacement) && (
+          {(termsValues.lateCharges ||
+            termsValues.securityDeposit ||
+            termsValues.repairReplacement) && (
             <div className="terms-summary">
               <strong>Terms and Conditions:</strong>
               <ul>
                 {termsValues.lateCharges && (
-                  <li><strong>Late Charges:</strong> {termsValues.lateCharges}</li>
+                  <li>
+                    <strong>Late Charges:</strong> {termsValues.lateCharges}
+                  </li>
                 )}
                 {termsValues.securityDeposit && (
-                  <li><strong>Security Deposit:</strong> {termsValues.securityDeposit}</li>
+                  <li>
+                    <strong>Security Deposit:</strong>{" "}
+                    {termsValues.securityDeposit}
+                  </li>
                 )}
                 {termsValues.repairReplacement && (
-                  <li><strong>Repair and Replacement:</strong> {termsValues.repairReplacement}</li>
+                  <li>
+                    <strong>Repair and Replacement:</strong>{" "}
+                    {termsValues.repairReplacement}
+                  </li>
                 )}
               </ul>
             </div>
           )}
-          
+
           {imagePreview && (
             <div className="mt-3">
               <strong>Item Image:</strong>
@@ -854,7 +894,10 @@ function PostDetail() {
       </Modal>
 
       <div>
-        <ItemCard items={postMatchedItems} title="Matched Items!" />
+        <ItemCard
+          items={postMatchedItems ? postMatchedItems : []}
+          title="Matched Items!"
+        />
       </div>
     </div>
   );

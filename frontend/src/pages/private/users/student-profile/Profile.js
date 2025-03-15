@@ -47,6 +47,7 @@ const Profile = () => {
   // trigger update rental status
   useEffect(() => {
     if (!socket || !userId) return;
+    console.log("Registering user with socket:", userId); // Debugging
     socket.emit("registerUser", userId);
   }, [socket, userId]);
 
@@ -135,7 +136,7 @@ const Profile = () => {
       dashboard: "Dashboard",
       transactions: "Transactions",
       "edit-profile": "Edit Profile",
-      "followings": "Followings"
+      followings: "Followings",
     };
 
     const currentPath = location.pathname;

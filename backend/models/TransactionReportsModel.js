@@ -86,10 +86,10 @@ TransactionReport.associate = (models) => {
     as: "rentalTransaction",
   });
 
-  TransactionReport.belongsTo(models.BuyAndSellTransaction, {
-    foreignKey: "buy_and_sell_transaction_id",
-    as: "buySellTransaction",
-  });
+  // TransactionReport.belongsTo(models.BuyAndSellTransaction, {
+  //   foreignKey: "buy_and_sell_transaction_id",
+  //   as: "buySellTransaction",
+  // });
 
   // Keep user associations the same
   TransactionReport.belongsTo(models.User, {

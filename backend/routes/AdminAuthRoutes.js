@@ -32,6 +32,7 @@ router.post(
 router.get("/accounts", AdminController.getAllAdminAccounts);
 
 // Getting, adding, deleting unavailable dates.
+router.get("/all-unavailable-dates", AdminController.allUnavailableDates);
 router.get("/unavailable-dates", AdminController.getAllUnavailableDate);
 router.post(
   "/unavailable-dates",

@@ -210,15 +210,39 @@ const ProfileHeader = ({
             style={{
               position: "relative",
               cursor: !isProfileVisit ? "pointer" : "default",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "148px", // Adjust size as needed
+              height: "148px",
+              borderRadius: "50%",
+              backgroundColor: user?.student?.profilePic
+                ? "transparent"
+                : "#ccc", // Default background if no image
             }}
             onClick={handleImageClick}
           >
-            <img
-              src={user ? user?.student?.profilePic : [defaultImages]}
-              alt="Profile"
-              className="profile-photo"
-              style={{ opacity: isUploading ? 0.5 : 1 }}
-            />
+            {user?.student?.profilePic ? (
+              <img
+                src={user.student.profilePic}
+                alt="Profile"
+                className="profile-photo"
+                style={{ opacity: isUploading ? 0.5 : 1, borderRadius: "50%" }}
+              />
+            ) : (
+              <span
+                style={{
+                  fontSize: "36px",
+                  fontWeight: "bold",
+                  color: "#fff",
+                  textTransform: "uppercase",
+                }}
+              >
+                {user?.user?.fname ? user.user.fname.charAt(0) : "?"}
+              </span>
+            )}
+
+            {/* Hover effect */}
             {isHovered && !isProfileVisit && (
               <div
                 style={{
@@ -233,11 +257,14 @@ const ProfileHeader = ({
                   justifyContent: "center",
                   color: "white",
                   borderRadius: "50%",
+                  fontSize: "14px",
+                  fontWeight: "bold",
                 }}
               >
                 {isUploading ? "Uploading..." : "Change Photo"}
               </div>
             )}
+
             <input
               type="file"
               ref={fileInputRef}
@@ -247,6 +274,7 @@ const ProfileHeader = ({
             />
           </div>
         </div>
+
         <div>
           {user?.user ? (
             <>

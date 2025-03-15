@@ -2,6 +2,7 @@ const { models } = require("../../models/index");
 
 // Get a single approved post by ID with associated available rental dates, available durations, and renter info
 const getAvailablePostById = async (req, res) => {
+  console.log(req.params.id);
   try {
     const post = await models.Post.findOne({
       where: {
@@ -40,7 +41,7 @@ const getAvailablePostById = async (req, res) => {
     });
 
     if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+      return res.status(404).json({ error: "P???????????????/ost not found" });
     }
 
     // Format the response to flatten fields like item_name, price, etc.
@@ -52,7 +53,7 @@ const getAvailablePostById = async (req, res) => {
       createdAt: post.created_at,
       status: post.status,
       category: post.category,
-      itemType: "To Rent",
+      itemType: post.post_type,
       desc: post.description,
       specs: post.specifications,
       images: JSON.parse(post.images),

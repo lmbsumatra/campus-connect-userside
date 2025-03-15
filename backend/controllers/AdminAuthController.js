@@ -193,6 +193,21 @@ exports.getAllAdminAccounts = async (req, res) => {
   }
 };
 
+
+exports.getAllUnavailableDates = async (req, res) => {
+  try {
+    const endSemesterDates = await EndSemesterDate.findAll();
+    const unavailableDates = await UnavailableDate.findAll();
+
+    res.status(200).json({
+      endSemesterDates,
+      unavailableDates,
+    });
+  } catch (error) {
+    console.error("Error fetching dates:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
 // GET request to display an unavailable date
 exports.getUnavailableDates = async (req, res) => {
   try {

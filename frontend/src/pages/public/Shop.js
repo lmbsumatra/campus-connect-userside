@@ -86,7 +86,7 @@ const Shop = () => {
       {/* Item Display Section */}
       <div className="items-section">
         <TimeoutComponent
-          timeoutDuration={5000}
+          timeoutDuration={1000}
           fallback={
             <div className="card-container vertical">
               {Array.from({ length: 6 }).map((_, index) => (

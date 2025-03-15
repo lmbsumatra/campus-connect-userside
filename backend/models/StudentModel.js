@@ -27,6 +27,10 @@ Student.init(
       type: DataTypes.ENUM("CAFA", "CIE", "CIT", "CLA", "COE", "COS"),
       allowNull: false,
     },
+    course: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     scanned_id: {
       type: DataTypes.STRING(255),
       allowNull: false,
