@@ -1,31 +1,50 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { baseApi } from "../App";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // const [user, setUser] = useState(null);
   const [studentUser, setStudentUser] = useState(null);
   const [adminUser, setAdminUser] = useState(() => {
-    // Retrieve the adminUser from local storage
     const savedUser = localStorage.getItem("adminUser");
-    return savedUser ? JSON.parse(savedUser) : null; // Parse the stored JSON string
+    return savedUser ? JSON.parse(savedUser) : null;
   });
 
   useEffect(() => {
     const storedAdminUser = localStorage.getItem("adminUser");
-
     if (storedAdminUser) {
       setAdminUser(JSON.parse(storedAdminUser));
-      // console.log("Restored admin from localStorage:", JSON.parse(storedAdminUser));
     }
   }, []);
+
   useEffect(() => {
     const storedStudentUser = localStorage.getItem("studentUser");
     if (storedStudentUser) {
       setStudentUser(JSON.parse(storedStudentUser));
-      // console.log("Restored student from localStorage:", JSON.parse(storedStudentUser));
     }
   }, []);
+
+  useEffect(() => {
+    if (adminUser?.token) {
+      const decodedToken = jwtDecode(adminUser.token);
+      const expirationTime = decodedToken.exp * 1000; // Convert to milliseconds
+      const currentTime = Date.now();
+
+      if (expirationTime < currentTime) {
+        // Token is already expired, log out the user
+        logoutAdmin();
+      } else {
+        // Refresh the token 5 minutes before it expires
+        const timeUntilExpiration = expirationTime - currentTime;
+        const refreshTimeout = setTimeout(() => {
+          refreshAdminToken();
+        }, timeUntilExpiration - 5 * 60 * 1000); // 5 minutes before expiration
+
+        return () => clearTimeout(refreshTimeout);
+      }
+    }
+  }, [adminUser]);
 
   const loginStudent = (token, role, userId) => {
     const newUser = { role, token, userId };
@@ -39,16 +58,63 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("studentUser");
   };
 
-  const loginAdmin = (token, role, userId, firstName, lastName) => {
-    const newUser = { role, token, userId, firstName, lastName }; // Add firstName and lastName
+  const loginAdmin = (
+    token,
+    refreshToken,
+    role,
+    userId,
+    firstName,
+    lastName
+  ) => {
+    const newUser = { role, token, refreshToken, userId, firstName, lastName };
     setAdminUser(newUser);
     localStorage.setItem("adminUser", JSON.stringify(newUser));
     console.log("Admin logged in:", newUser);
   };
 
   const logoutAdmin = () => {
+    console.log("Logging out admin..."); // Debugging
     setAdminUser(null);
     localStorage.removeItem("adminUser");
+  };
+
+  const refreshAdminToken = async () => {
+    const storedAdminUser = JSON.parse(localStorage.getItem("adminUser"));
+    if (!storedAdminUser || !storedAdminUser.refreshToken) return null;
+
+    try {
+      const response = await fetch(`${baseApi}/admin/refresh-token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken: storedAdminUser.refreshToken }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to refresh token");
+      }
+
+      const data = await response.json();
+      console.log("New tokens received at:", new Date().toLocaleString());
+      // console.log("New Access Token:", data.token);
+      // console.log("New Refresh Token:", data.refreshToken);
+      // console.log("New tokens received:", data);
+
+      const newUser = {
+        ...storedAdminUser,
+        token: data.token,
+        refreshToken: data.refreshToken,
+      };
+      setAdminUser(newUser);
+      localStorage.setItem("adminUser", JSON.stringify(newUser));
+      return data.token;
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      logoutAdmin();
+      return null;
+    }
   };
 
   return (
@@ -60,6 +126,7 @@ export const AuthProvider = ({ children }) => {
         logoutStudent,
         loginAdmin,
         logoutAdmin,
+        refreshAdminToken,
       }}
     >
       {children}

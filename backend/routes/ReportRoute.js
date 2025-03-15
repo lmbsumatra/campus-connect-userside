@@ -3,7 +3,7 @@ const router = express.Router();
 const reportController = require("../controllers/ReportController");
 const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 const logAdminActivity = require("../middlewares/auditMiddleware");
-const authenticateToken = require("../middlewares/AdminAuthMiddleware");
+const { authenticateToken } = require("../middlewares/AdminAuthMiddleware");
 
 // Routes for reports
 

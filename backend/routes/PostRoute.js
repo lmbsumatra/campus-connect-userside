@@ -5,7 +5,7 @@ const PostController2 = require("../controllers/post/PostController");
 const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 const { upload_item } = require("../config/multer");
 const updatePostStatus = require("../controllers/post/updatePostStatus");
-const authenticateToken = require("../middlewares/AdminAuthMiddleware");
+const { authenticateToken } = require("../middlewares/AdminAuthMiddleware");
 
 router.get("/:id/matched-items", PostController2.matchedItems);
 

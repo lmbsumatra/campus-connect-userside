@@ -56,6 +56,10 @@ const User = sequelize.define(
       defaultValue: false,
       allowNull: false,
     },
+    lastlogin: {
+      type: DataTypes.DATE,
+      allowNull: true, // Allow null initially
+    },
   },
   { sequelize, modelName: "User", tableName: "users" }
 );

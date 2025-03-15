@@ -11,7 +11,9 @@ import {
   UserAnalytics,
   ActiveUsersByCollege,
   VerificationRate,
+  RetentionRate,
 } from "../../../../components/Analytics/UserAnalyticsComponents";
+import FetchUserInfoForAdmin from "../../../../utils/FetchUserInfoAdmin";
 
 const UserDashboard = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
@@ -52,12 +54,7 @@ const UserDashboard = () => {
   //   console.log(`Deleting user with ID: ${userId}`);
   // };
 
-  const filterableStatusOptions = [
-    "pending",
-    "verified",
-    "banned",
-    "flagged",
-  ];
+  const filterableStatusOptions = ["pending", "verified", "banned", "flagged"];
 
   const handleSortChange = (column, order) => {
     if (order === "default") {
@@ -66,13 +63,11 @@ const UserDashboard = () => {
       setSortOptions({ [column]: order });
     }
   };
-  
 
- const getStatusInfo = (status) => {
+  const getStatusInfo = (status) => {
     const { label, className } = StudentStatus(status);
     return { label, className };
   };
-  
 
   const handleFilterChange = (column, value) => {
     setFilterOptions({ ...filterOptions, [column]: value });
@@ -110,25 +105,25 @@ const UserDashboard = () => {
       );
     }
 
-    
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(
         (user) => user.student?.status === filterOptions["Status"]
       );
     }
-    
 
     return filteredData;
   };
 
   const sortedData = () => {
     let sorted = [...getFilteredData()];
-  
+
     // Default sorting by Date Added (newest first) if no sorting option is selected
     if (!sortOptions["Date Added"] && !sortOptions["Date Updated"]) {
-      sorted = sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      sorted = sorted.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
     }
-  
+
     if (Object.keys(sortOptions).length > 0) {
       if (sortOptions["User"]) {
         sorted = sorted.sort((a, b) =>
@@ -137,7 +132,7 @@ const UserDashboard = () => {
             : b.first_name.localeCompare(a.first_name)
         );
       }
-  
+
       if (sortOptions["Date Added"]) {
         sorted = sorted.sort((a, b) =>
           sortOptions["Date Added"] === "newest"
@@ -145,19 +140,20 @@ const UserDashboard = () => {
             : new Date(a.createdAt) - new Date(b.createdAt)
         );
       }
-  
+
       if (sortOptions["Date Updated"]) {
         sorted = sorted.sort((a, b) =>
           sortOptions["Date Updated"] === "newest"
-            ? new Date(b.student?.updatedAt || b.createdAt) - new Date(a.student?.updatedAt || a.createdAt)
-            : new Date(a.student?.updatedAt || a.createdAt) - new Date(b.student?.updatedAt || b.createdAt)
+            ? new Date(b.student?.updatedAt || b.createdAt) -
+              new Date(a.student?.updatedAt || a.createdAt)
+            : new Date(a.student?.updatedAt || a.createdAt) -
+              new Date(b.student?.updatedAt || b.createdAt)
         );
       }
     }
-  
+
     return sorted;
   };
-  
 
   const sortedFilteredData = sortedData();
 
@@ -170,7 +166,9 @@ const UserDashboard = () => {
   );
 
   const data = displayedData.map((user) => {
-    const { label, className } = getStatusInfo(user.student?.status || "pending");
+    const { label, className } = getStatusInfo(
+      user.student?.status || "pending"
+    );
     return [
       <div className="thumbnail-placeholder"></div>,
       <>{user.student?.college || ""}</>,
@@ -178,10 +176,13 @@ const UserDashboard = () => {
         {user.first_name} {user.last_name}
       </>,
       formatDate(user.createdAt),
-      formatDate(user.student?.updatedAt || user.createdAt), 
+      formatDate(user.student?.updatedAt || user.createdAt),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
-        <button className="btn btn-action view" onClick={() => handleView(user.user_id)}>
+        <button
+          className="btn btn-action view"
+          onClick={() => handleView(user.user_id)}
+        >
           View
         </button>
         {/* <button className="btn btn-action edit" onClick={() => handleEdit(user.user_id)}>
@@ -194,7 +195,6 @@ const UserDashboard = () => {
     ];
   });
 
-
   return (
     <div className="admin-content-container">
       <div className="row">
@@ -203,7 +203,7 @@ const UserDashboard = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
-          
+
           <TableComponent
             headers={headers}
             data={data}
@@ -213,7 +213,7 @@ const UserDashboard = () => {
           />
           {loading && <p>Loading ...</p>}
           {error && <p>Error: {error}</p>}
-          
+
           <PaginationComponent
             currentPage={currentPage}
             totalPages={totalPages}
@@ -224,6 +224,7 @@ const UserDashboard = () => {
           <UserAnalytics users={users} />
           <ActiveUsersByCollege users={users} />
           <VerificationRate users={users} />
+          <RetentionRate users={users} />
         </div>
       </div>
     </div>

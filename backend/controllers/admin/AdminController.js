@@ -9,6 +9,7 @@ const getAuditLogs = require("./getAuditLogs");
 const getAllUnavailableDate = require("./getUnavailableDates");
 const loginAdmin = require("./loginAdmin");
 const registerAdmin = require("./registerAdmin");
+const refreshAdminToken = require("./refreshAdminToken");
 
 const AdminController = {
   addEndSemesterDate,
@@ -22,6 +23,7 @@ const AdminController = {
   getAllUnavailableDate,
   loginAdmin,
   registerAdmin,
+  refreshAdminToken,
 };
 
 module.exports = AdminController;

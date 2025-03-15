@@ -8,8 +8,8 @@ const AdminLogin = () => {
   const { loginAdmin } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
 
-   // User data state
-   const [userData, setUserData] = useState({
+  // User data state
+  const [userData, setUserData] = useState({
     email: "",
     password: "",
     firstName: "",
@@ -19,16 +19,16 @@ const AdminLogin = () => {
     confirmPassword: "",
   });
 
-    // State to manage triggers for inputs
-    const [inputTriggers, setInputTriggers] = useState({
-      email: false,
-      password: false,
-      firstName: false,
-      lastName: false,
-      middleName: false,
-      tupId: false,
-      confirmPassword: false,
-    });
+  // State to manage triggers for inputs
+  const [inputTriggers, setInputTriggers] = useState({
+    email: false,
+    password: false,
+    firstName: false,
+    lastName: false,
+    middleName: false,
+    tupId: false,
+    confirmPassword: false,
+  });
 
   const handlePasswordChange = (e) => {
     const { value } = e.target;
@@ -48,7 +48,7 @@ const AdminLogin = () => {
   const handleAdminLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-  
+
     try {
       const response = await fetch("http://localhost:3001/admin/login", {
         method: "POST",
@@ -60,13 +60,14 @@ const AdminLogin = () => {
           password: userData.password,
         }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log("Login Response Data:", data); // Log the full response
-  
-        const { token, role, userId, first_name, last_name } = data; // Destructure the fields
-        loginAdmin(token, role, userId, first_name, last_name); // Pass them to loginAdmin
+
+        const { token, refreshToken, role, userId, first_name, last_name } =
+          data; // Destructure the fields
+        loginAdmin(token, refreshToken, role, userId, first_name, last_name); // Pass refreshToken to loginAdmin
         navigate("/admin/dashboard"); // Redirect after successful login
       } else {
         const errorData = await response.json();
@@ -78,8 +79,6 @@ const AdminLogin = () => {
       setErrorMessage("An unexpected error occurred. Please try again later.");
     }
   };
-  
-
 
   return (
     <div className="container mt-5">
@@ -117,7 +116,11 @@ const AdminLogin = () => {
           />
         </div>
         {errorMessage && <p className="text-danger">{errorMessage}</p>}
-        <button type="submit" className="btn btn-primary" onClick={handleAdminLogin}>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          onClick={handleAdminLogin}
+        >
           Login
         </button>
       </form>

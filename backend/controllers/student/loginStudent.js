@@ -43,6 +43,10 @@ const loginStudent = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // Update last login time
+    user.lastlogin = new Date();
+    await user.save();
+
     // Generate JWT using TokenMaker
     let token;
     try {

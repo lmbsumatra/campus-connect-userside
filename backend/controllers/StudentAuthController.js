@@ -23,7 +23,13 @@ async function verify(token) {
 exports.getAllStudents = async (req, res) => {
   try {
     const users = await models.User.findAll({
-      attributes: ["user_id", "first_name", "last_name", "createdAt"],
+      attributes: [
+        "user_id",
+        "first_name",
+        "last_name",
+        "createdAt",
+        "lastlogin",
+      ],
       include: [
         {
           model: models.Student,
@@ -280,5 +286,3 @@ exports.userChangePassword = async (req, res) => {
     });
   }
 };
-
-

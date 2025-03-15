@@ -5,7 +5,7 @@ const ListingController2 = require("../controllers/listing/ListingController");
 const { upload_item } = require("../config/multer");
 const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 const updateListingStatus = require("../controllers/listing/updateListingStatus");
-const authenticateToken = require("../middlewares/AdminAuthMiddleware");
+const { authenticateToken } = require("../middlewares/AdminAuthMiddleware");
 
 /* * * * * * * * * displayed for all users :: available * * * * * * * * * * * * * */
 // lahat ng available na listing (approved, with available date and corresponding time)

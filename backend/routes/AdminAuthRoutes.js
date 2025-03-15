@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const authenticateToken = require("../middlewares/AdminAuthMiddleware");
+const {
+  authenticateToken,
+  authenticateRefreshToken,
+} = require("../middlewares/AdminAuthMiddleware");
 const StudentController = require("../controllers/student/StudentController");
 const AdminController = require("../controllers/admin/AdminController");
 const logAdminActivity = require("../middlewares/auditMiddleware");
@@ -68,5 +71,12 @@ router.put(
 );
 
 router.get("/logs", authenticateToken, AdminController.getAuditLogs);
+
+// Refresh token route
+router.post(
+  "/refresh-token",
+  authenticateRefreshToken,
+  AdminController.refreshAdminToken
+);
 
 module.exports = router;
