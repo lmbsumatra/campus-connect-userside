@@ -11,7 +11,7 @@ import useSound from "use-sound";
 import sendSound from "../../../../assets/audio/sent.mp3";
 import { Modal } from "react-bootstrap"
 
-import { FiPaperclip, FiX } from "react-icons/fi"; 
+import { FiPaperclip, FiX, FiSearch, FiMoreVertical } from "react-icons/fi"; 
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
@@ -27,6 +27,24 @@ const MessagePage = () => {
   const [acceptedOffers, setAcceptedOffers] = useState(new Set());
   // Add state for expanded product cards
   const [expandedCards, setExpandedCards] = useState(new Set());
+  // Add state for message filter
+  const [messageFilter, setMessageFilter] = useState("All");
+  // Add state for dropdown visibility
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  // Add state for active menu
+  const [activeMenu, setActiveMenu] = useState(null);
+  // Add search state
+  const [searchQuery, setSearchQuery] = useState("");
+  // Add state for search results
+  const [searchResults, setSearchResults] = useState([]);
+  // Add state to track if we're in search mode
+  const [isSearching, setIsSearching] = useState(false);
+  // Add state to highlight matched messages
+  const [highlightedMessageId, setHighlightedMessageId] = useState(null);
+
+  // Add refs for click outside handling
+  const filterDropdownRef = useRef(null);
+  const menuRefs = useRef({});
 
   const product = state?.product;
   const navigate = useNavigate();
@@ -509,62 +527,493 @@ const MessagePage = () => {
     });
   };
 
+  // Add function to toggle filter dropdown
+  const toggleFilterDropdown = () => {
+    setShowFilterDropdown(!showFilterDropdown);
+  };
+
+  // Add function to select filter
+  const selectFilter = (filter) => {
+    setMessageFilter(filter);
+    setShowFilterDropdown(false);
+  };
+
+  // Enhanced search function
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    if (query.trim() === "") {
+      setIsSearching(false);
+      setSearchResults([]);
+      return;
+    }
+    
+    setIsSearching(true);
+    
+    // Search in conversations
+    const results = [];
+    
+    if (conversations) {
+      conversations.forEach(chat => {
+        // Check user name
+        const nameMatch = 
+          chat.otherUser.first_name.toLowerCase().includes(query.toLowerCase()) || 
+          (chat.otherUser.last_name && chat.otherUser.last_name.toLowerCase().includes(query.toLowerCase()));
+        
+        // Check messages content
+        const messageMatches = [];
+        if (chat.messages && chat.messages.length > 0) {
+          chat.messages.forEach(msg => {
+            // Check text content
+            if (msg.text && msg.text.toLowerCase().includes(query.toLowerCase())) {
+              messageMatches.push({
+                messageId: msg.id || `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                messageText: msg.text,
+                timestamp: msg.createdAt,
+                index: chat.messages.indexOf(msg) // Store the index for scrolling
+              });
+            }
+            
+            // Check product details
+            if (msg.isProductCard && msg.productDetails) {
+              const productDetails = msg.productDetails;
+              if (
+                (productDetails.name && productDetails.name.toLowerCase().includes(query.toLowerCase())) ||
+                (productDetails.status && productDetails.status.toLowerCase().includes(query.toLowerCase()))
+              ) {
+                messageMatches.push({
+                  messageId: msg.id || `product-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                  messageText: `Product: ${productDetails.name}`,
+                  timestamp: msg.createdAt,
+                  isProduct: true,
+                  index: chat.messages.indexOf(msg) // Store the index for scrolling
+                });
+              }
+            }
+          });
+        }
+        
+        if (nameMatch || messageMatches.length > 0) {
+          results.push({
+            conversation: chat,
+            nameMatch,
+            messageMatches
+          });
+        }
+      });
+    }
+    
+    setSearchResults(results);
+  };
+
+  // Function to clear search
+  const clearSearch = () => {
+    setSearchQuery("");
+    setIsSearching(false);
+    setSearchResults([]);
+    setHighlightedMessageId(null);
+  };
+
+  // Function to handle clicking on a search result
+  const handleSearchResultClick = (conversation, messageId = null, messageIndex = null) => {
+    setActiveChat(conversation);
+    
+    // Clear unread status
+    setUnreadMessages((prev) => ({
+      ...prev,
+      [conversation.id]: false,
+    }));
+    
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === conversation.id ? { ...conv, hasUnread: false } : conv
+      )
+    );
+    
+    // If a specific message was clicked, highlight it
+    if (messageId) {
+      setHighlightedMessageId(messageId);
+      
+      // Scroll to the message after the chat content is rendered
+      setTimeout(() => {
+        // Try to find by ID first
+        let messageElement = document.getElementById(`message-${messageId}`);
+        
+        // If not found by ID, try to find by index
+        if (!messageElement && messageIndex !== null) {
+          const messageElements = document.querySelectorAll('.chat-message, .product-card');
+          if (messageElements && messageElements.length > messageIndex) {
+            messageElement = messageElements[messageIndex];
+          }
+        }
+        
+        if (messageElement) {
+          messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Add a temporary highlight class
+          messageElement.classList.add('highlighted-message');
+          
+          // Remove highlight after a few seconds
+          setTimeout(() => {
+            setHighlightedMessageId(null);
+            messageElement.classList.remove('highlighted-message');
+          }, 3000);
+        }
+      }, 300); // Increased timeout to ensure chat is fully rendered
+    }
+    
+    // Clear search if on mobile
+    if (isMobile) {
+      clearSearch();
+    }
+  };
+
+  // Modified getFilteredConversations to work with search
+  const getFilteredConversations = () => {
+    if (!conversations) return [];
+    
+    // If in search mode and we have results, return conversations from search results
+    if (isSearching && searchResults.length > 0) {
+      return searchResults.map(result => result.conversation);
+    }
+    
+    // Otherwise filter by read/unread status
+    switch(messageFilter) {
+      case "Read":
+        return conversations.filter(chat => !chat.hasUnread);
+      case "Unread":
+        return conversations.filter(chat => chat.hasUnread);
+      case "All":
+      default:
+        return conversations;
+    }
+  };
+
+  // Add function to handle conversation menu actions
+  const handleConversationAction = (action, chat, e) => {
+    e.stopPropagation(); // Prevent conversation click
+    
+    switch(action) {
+      case 'viewProfile':
+        // Navigate to user profile
+        navigate(`/profile/${chat.otherUser.user_id}`);
+        break;
+      case 'block':
+        // Show confirmation dialog for blocking
+        if (window.confirm(`Are you sure you want to block ${chat.otherUser.first_name}?`)) {
+          // Implement block functionality here
+          alert(`${chat.otherUser.first_name} has been blocked.`);
+        }
+        break;
+      case 'report':
+        // Show confirmation dialog for reporting
+        if (window.confirm(`Are you sure you want to report ${chat.otherUser.first_name}?`)) {
+          // Implement report functionality here
+          alert(`${chat.otherUser.first_name} has been reported.`);
+        }
+        break;
+      case 'delete':
+        // Show confirmation dialog for deleting
+        if (window.confirm(`Are you sure you want to delete this conversation with ${chat.otherUser.first_name}?`)) {
+          // Implement delete functionality here
+          alert(`Conversation with ${chat.otherUser.first_name} has been deleted.`);
+        }
+        break;
+      default:
+        break;
+    }
+    
+    // Close the menu
+    setActiveMenu(null);
+  };
+
+  // Add function to toggle menu visibility
+  const toggleMenu = (chatId, e) => {
+    e.stopPropagation(); // Prevent conversation click
+    setActiveMenu(activeMenu === chatId ? null : chatId);
+  };
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close filter dropdown when clicking outside
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+        setShowFilterDropdown(false);
+      }
+      
+      // Close active menu when clicking outside
+      if (activeMenu && menuRefs.current[activeMenu] && !menuRefs.current[activeMenu].contains(event.target)) {
+        setActiveMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [activeMenu]);
+
   return (
     <div className="container-content message-page">
       <div className="message-content">
         <div
           className={`inbox ${isMobile && activeChat !== null ? "d-none" : ""}`}
         >
-          <h3>Messages</h3>
-          {isLoading ? (
-            <p>Loading conversations...</p>
-          ) : conversations.length > 0 ? (
-            conversations.map((chat) => {
-              // Get the latest message
-              const latestMessage =
-                chat.messages && chat.messages.length > 0
-                  ? chat.messages[chat.messages.length - 1]
-                  : null;
-
-              // Check if there are unread messages (we'll implement this state later)
-              const hasUnreadMessages = chat.hasUnread;
-
-              return (
-                <div
-                  key={chat.id}
-                  className={`inbox-item ${hasUnreadMessages ? "unread" : ""}`}
-                  onClick={() => handleConversationClick(chat)}
-                >
-                  <img src={UserIcon} alt="User Icon" className="user-icon" />
-                  <div className="message-info">
-                    <h5>{chat.otherUser.first_name}</h5>
-                    <p className="preview-message">
-                    {latestMessage
-                        ? latestMessage.images && latestMessage.images.length > 0
-                          ? "Sent a Photo"
-                          : latestMessage.isProductCard
-                          ? "Shared a product"
-                          : latestMessage.text && latestMessage.text.length > 30
-                          ? `${latestMessage.text.substring(0, 30)}...`
-                          : latestMessage.text
-                        : "No messages yet"}
-                    </p>
+          <div className="inbox-header">
+            <h3>Messages</h3>
+            <div className="filter-dropdown" ref={filterDropdownRef}>
+              <div 
+                className={`selected-filter ${showFilterDropdown ? "open" : ""}`} 
+                onClick={toggleFilterDropdown}
+              >
+                {messageFilter} <span className="dropdown-arrow">▼</span>
+              </div>
+              {showFilterDropdown && (
+                <div className="filter-options">
+                  <div 
+                    className={`filter-option ${messageFilter === "All" ? "active" : ""}`}
+                    onClick={() => selectFilter("All")}
+                  >
+                    All
                   </div>
-                  <div className="message-meta">
-                    <span className="timestamp">
-                      {latestMessage
-                        ? new Date(latestMessage.createdAt).toLocaleString()
-                        : ""}
-                    </span>
-                    {hasUnreadMessages && (
-                      <div className="unread-indicator"></div>
-                    )}
+                  <div 
+                    className={`filter-option ${messageFilter === "Read" ? "active" : ""}`}
+                    onClick={() => selectFilter("Read")}
+                  >
+                    Read
+                  </div>
+                  <div 
+                    className={`filter-option ${messageFilter === "Unread" ? "active" : ""}`}
+                    onClick={() => selectFilter("Unread")}
+                  >
+                    Unread
                   </div>
                 </div>
-              );
-            })
+              )}
+            </div>
+          </div>
+          
+          {/* Search bar */}
+          <div className="search-container">
+            <div className="search-input-wrapper">
+              <FiSearch className="search-icon" size={16} />
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search in messages"
+                value={searchQuery}
+                onChange={handleSearch}
+              />
+              {searchQuery && (
+                <button 
+                  className="clear-search" 
+                  onClick={clearSearch}
+                >
+                  <FiX size={12} />
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {isLoading ? (
+            <p>Loading conversations...</p>
+          ) : isSearching && searchResults.length === 0 ? (
+            <p className="no-conversations">No results found for "{searchQuery}"</p>
+          ) : getFilteredConversations().length > 0 ? (
+            <div className="inbox-list">
+              {isSearching ? (
+                // Display search results with message previews
+                searchResults.map(result => {
+                  const chat = result.conversation;
+                  const hasUnreadMessages = chat.hasUnread;
+                  
+                  return (
+                    <div key={chat.id} className="search-result-group">
+                      <div
+                        className={`inbox-item ${hasUnreadMessages ? "unread" : ""} ${result.nameMatch ? "name-match" : ""}`}
+                        onClick={() => handleSearchResultClick(chat)}
+                      >
+                        <img src={UserIcon} alt="User Icon" className="user-icon" />
+                        <div className="message-info">
+                          <h5>{chat.otherUser.first_name}</h5>
+                          <p className="preview-message">
+                            {result.nameMatch ? 
+                              <span className="match-highlight">Name matches your search</span> : 
+                              `${result.messageMatches.length} message${result.messageMatches.length > 1 ? 's' : ''} found`
+                            }
+                          </p>
+                        </div>
+                        <div className="message-meta">
+                          <span className="timestamp">
+                            {chat.messages && chat.messages.length > 0
+                              ? new Date(chat.messages[chat.messages.length - 1].createdAt).toLocaleString()
+                              : ""}
+                          </span>
+                          {hasUnreadMessages && (
+                            <div className="unread-indicator"></div>
+                          )}
+                        </div>
+                        <div 
+                          className="conversation-menu" 
+                          ref={el => menuRefs.current[chat.id] = el}
+                        >
+                          <button 
+                            className="ellipsis-menu" 
+                            onClick={(e) => toggleMenu(chat.id, e)}
+                          >
+                            <FiMoreVertical />
+                          </button>
+                          {activeMenu === chat.id && (
+                            <div className="menu-options">
+                              <div 
+                                className="menu-option"
+                                onClick={(e) => handleConversationAction('viewProfile', chat, e)}
+                              >
+                                View Profile
+                              </div>
+                              <div 
+                                className="menu-option"
+                                onClick={(e) => handleConversationAction('block', chat, e)}
+                              >
+                                Block
+                              </div>
+                              <div 
+                                className="menu-option"
+                                onClick={(e) => handleConversationAction('report', chat, e)}
+                              >
+                                Report
+                              </div>
+                              <div 
+                                className="menu-option delete"
+                                onClick={(e) => handleConversationAction('delete', chat, e)}
+                              >
+                                Delete
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Show message matches */}
+                      {result.messageMatches.length > 0 && (
+                        <div className="message-matches">
+                          {result.messageMatches.map((match, idx) => (
+                            <div 
+                              key={idx} 
+                              className="message-match-item"
+                              onClick={() => handleSearchResultClick(chat, match.messageId, match.index)}
+                            >
+                              <div className="message-match-content">
+                                <p className="message-match-text">
+                                  {match.isProduct ? (
+                                    <span className="product-match">{match.messageText}</span>
+                                  ) : (
+                                    match.messageText.length > 50 ? 
+                                      `${match.messageText.substring(0, 50)}...` : 
+                                      match.messageText
+                                  )}
+                                </p>
+                                <span className="message-match-time">
+                                  {new Date(match.timestamp).toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                // Regular conversation list
+                getFilteredConversations().map((chat) => {
+                  // Get the latest message
+                  const latestMessage =
+                    chat.messages && chat.messages.length > 0
+                      ? chat.messages[chat.messages.length - 1]
+                      : null;
+
+                  // Check if there are unread messages (we'll implement this state later)
+                  const hasUnreadMessages = chat.hasUnread;
+
+                  return (
+                    <div
+                      key={chat.id}
+                      className={`inbox-item ${hasUnreadMessages ? "unread" : ""}`}
+                      onClick={() => handleConversationClick(chat)}
+                    >
+                      <img src={UserIcon} alt="User Icon" className="user-icon" />
+                      <div className="message-info">
+                        <h5>{chat.otherUser.first_name}</h5>
+                        <p className="preview-message">
+                        {latestMessage
+                            ? latestMessage.images && latestMessage.images.length > 0
+                              ? "Sent a Photo"
+                              : latestMessage.isProductCard
+                              ? "Shared a product"
+                              : latestMessage.text && latestMessage.text.length > 30
+                              ? `${latestMessage.text.substring(0, 30)}...`
+                              : latestMessage.text
+                            : "No messages yet"}
+                        </p>
+                      </div>
+                      <div className="message-meta">
+                        <span className="timestamp">
+                          {latestMessage
+                            ? new Date(latestMessage.createdAt).toLocaleString()
+                            : ""}
+                        </span>
+                        {hasUnreadMessages && (
+                          <div className="unread-indicator"></div>
+                        )}
+                      </div>
+                      <div 
+                        className="conversation-menu" 
+                        ref={el => menuRefs.current[chat.id] = el}
+                      >
+                        <button 
+                          className="ellipsis-menu" 
+                          onClick={(e) => toggleMenu(chat.id, e)}
+                        >
+                          <FiMoreVertical />
+                        </button>
+                        {activeMenu === chat.id && (
+                          <div className="menu-options">
+                            <div 
+                              className="menu-option"
+                              onClick={(e) => handleConversationAction('viewProfile', chat, e)}
+                            >
+                              View Profile
+                            </div>
+                            <div 
+                              className="menu-option"
+                              onClick={(e) => handleConversationAction('block', chat, e)}
+                            >
+                              Block
+                            </div>
+                            <div 
+                              className="menu-option"
+                              onClick={(e) => handleConversationAction('report', chat, e)}
+                            >
+                              Report
+                            </div>
+                            <div 
+                              className="menu-option delete"
+                              onClick={(e) => handleConversationAction('delete', chat, e)}
+                            >
+                              Delete
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           ) : (
-            <p>No conversations available.</p>
+            <p className="no-conversations">No conversations available.</p>
           )}
         </div>
 
@@ -584,14 +1033,16 @@ const MessagePage = () => {
               {activeChat.messages && activeChat.messages.length > 0 ? (
                 activeChat.messages.map((message, index) =>
                   message.isProductCard ? (
-                    <div key={index} 
-                        className="product-card" 
-                        onClick={() => handleProductCardClick(
-                          message.productDetails?.productId,
-                          message.productDetails?.type
-                        )}
-                        style={{ cursor: message.productDetails?.productId ? 'pointer' : 'default' }}
-                      >
+                    <div 
+                      key={index}
+                      id={`message-${message.id}`}
+                      className={`product-card ${highlightedMessageId === message.id ? 'highlighted-message' : ''}`}
+                      onClick={() => handleProductCardClick(
+                        message.productDetails?.productId,
+                        message.productDetails?.type
+                      )}
+                      style={{ cursor: message.productDetails?.productId ? 'pointer' : 'default' }}
+                    >
                       <div className="product-card-header">
                         <h6>
                           {message.productDetails?.title === "Offer"
@@ -738,6 +1189,7 @@ const MessagePage = () => {
                   ) : (
                     <div
                       key={index}
+                      id={`message-${message.id}`}
                       className={`chat-message ${
                         String(message.sender) === String(userId)
                           ? "sent"
@@ -747,6 +1199,8 @@ const MessagePage = () => {
                         index === activeChat.messages.length - 1
                           ? "new-message"
                           : ""
+                      } ${
+                        highlightedMessageId === message.id ? 'highlighted-message' : ''
                       }`}
                     >
                       {message.images && Array.isArray(message.images) && message.images.length > 0 && (
