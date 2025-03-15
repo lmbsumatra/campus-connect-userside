@@ -25,6 +25,8 @@ const MessagePage = () => {
   const chatContentRef = useRef(null);
   const socket = useRef(null);
   const [acceptedOffers, setAcceptedOffers] = useState(new Set());
+  // Add state for expanded product cards
+  const [expandedCards, setExpandedCards] = useState(new Set());
 
   const product = state?.product;
   const navigate = useNavigate();
@@ -236,7 +238,12 @@ const MessagePage = () => {
             title: product.title,
             status: product.status, // Include item status
             productId: product.productId || product.id, // Store the product ID for navigation
-            type: product.type
+            type: product.type,
+            // Include additional offer details if they exist
+            deliveryMethod: product.deliveryMethod || null,
+            paymentMethod: product.paymentMethod || null,
+            itemCondition: product.itemCondition || null,
+            terms: product.terms || null
           },
         };
         console.log("Sending product message payload:", productMessage);
@@ -488,7 +495,19 @@ const MessagePage = () => {
     }
   };
   
-  
+  // Add function to toggle card expansion
+  const toggleCardExpansion = (messageId, e) => {
+    e.stopPropagation(); // Prevent card click from navigating
+    setExpandedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(messageId)) {
+        newSet.delete(messageId);
+      } else {
+        newSet.add(messageId);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <div className="container-content message-page">
@@ -573,52 +592,63 @@ const MessagePage = () => {
                         )}
                         style={{ cursor: message.productDetails?.productId ? 'pointer' : 'default' }}
                       >
-                      <h6>
-                        {message.productDetails?.title === "Offer"
-                          ? "Offer for this item"
-                          : "Inquiring about this item"}
-                      </h6>
+                      <div className="product-card-header">
+                        <h6>
+                          {message.productDetails?.title === "Offer"
+                            ? "Offer for this item"
+                            : "Inquiring about this item"}
+                        </h6>
+                        <button 
+                          className={`expand-toggle-btn ${expandedCards.has(message.id) ? 'expanded' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent card click from navigating
+                            toggleCardExpansion(message.id, e);
+                          }}
+                        >
+                          {expandedCards.has(message.id) ? '−' : '+'}
+                        </button>
+                      </div>
                       <div className="d-flex align-items-start">
-                      <img
-                            src={message.productDetails?.image}
-                            alt={message.productDetails?.name}
-                            className="me-3"
-                            style={{ width: "60px", height: "60px", objectFit: "cover", cursor: "pointer" }}
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent parent card click
-                              handleImageClick(message.productDetails?.image);
-                            }}
-                          />
+                        <img
+                          src={message.productDetails?.image}
+                          alt={message.productDetails?.name}
+                          className="me-3"
+                          style={{ width: "60px", height: "60px", objectFit: "cover", cursor: "pointer" }}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent parent card click
+                            handleImageClick(message.productDetails?.image);
+                          }}
+                        />
                         <div>
                           <p className="mb-1">
                             <strong>{message.productDetails?.name}</strong>
                           </p>
 
-                           {/* Display price based on whether it's an offer or inquiry */}
-                           {message.productDetails?.title === "Offer" ? (
-                          <p className="mb-1">
-                            Offered Price: ₱{message.productDetails?.offerPrice}
-                          </p>
-                        ) : (
-                          message.productDetails?.inquiryPrice && (
+                          {/* Display price based on whether it's an offer or inquiry */}
+                          {message.productDetails?.title === "Offer" ? (
                             <p className="mb-1">
-                              Price: ₱{message.productDetails?.inquiryPrice}
+                              Offered Price: ₱{message.productDetails?.offerPrice}
                             </p>
-                          )
-                        )}
-
-                        {/* Show Status (including offer details) */}
-                        {message.productDetails?.status ? (
-                          <>
-                            <div className="d-flex justify-content-between">
-                              <p
-                                className="mb-0 offer-details"
-                                style={{ whiteSpace: "pre-line" }}
-                              >
-                                {message.productDetails?.status}
+                          ) : (
+                            message.productDetails?.inquiryPrice && (
+                              <p className="mb-1">
+                                Price: ₱{message.productDetails?.inquiryPrice}
                               </p>
-                              {/* Show either Accept Offer button or Accepted status */}
-                              {isRecipient(message) ? (
+                            )
+                          )}
+
+                          {/* Show Status (including offer details) */}
+                          {message.productDetails?.status ? (
+                            <>
+                              <div className="d-flex justify-content-between">
+                                <p
+                                  className="mb-0 offer-details"
+                                  style={{ whiteSpace: "pre-line" }}
+                                >
+                                  {message.productDetails?.status}
+                                </p>
+                                {/* Show either Accept Offer button or Accepted status */}
+                                {isRecipient(message) ? (
                                   acceptedOffers.has(message.id) ? (
                                     <span 
                                       style={{
@@ -637,7 +667,10 @@ const MessagePage = () => {
                                         marginLeft: "100px",
                                       }}
                                       className="btn btn-primary mt-2"
-                                      onClick={() => handleAcceptOffer(message)}
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Prevent card click
+                                        handleAcceptOffer(message);
+                                      }}
                                     >
                                       Accept Offer
                                     </button>
@@ -658,6 +691,47 @@ const MessagePage = () => {
                               </div>
                             </>
                           ) : null}
+                          
+                          {/* Display additional offer details only when expanded */}
+                          {expandedCards.has(message.id) && (
+                            <div className="additional-details mt-3">
+                              {message.productDetails?.deliveryMethod && (
+                                <p className="mb-1">
+                                  <strong>Delivery:</strong> {message.productDetails.deliveryMethod === "meetup" ? "Meet up" : "Pick up"}
+                                </p>
+                              )}
+                              
+                              {message.productDetails?.paymentMethod && (
+                                <p className="mb-1">
+                                  <strong>Payment:</strong> {message.productDetails.paymentMethod === "gcash" ? "Gcash" : "Pay upon meetup"}
+                                </p>
+                              )}
+                              
+                              {message.productDetails?.itemCondition && (
+                                <p className="mb-1">
+                                  <strong>Condition:</strong> {message.productDetails.itemCondition}
+                                </p>
+                              )}
+                              
+                              {/* Display terms if available */}
+                              {message.productDetails?.terms && (
+                                <div className="terms-details mt-2">
+                                  <p className="mb-1"><strong>Terms & Conditions:</strong></p>
+                                  <div style={{ fontSize: '0.85rem' }}>
+                                    {message.productDetails.terms.lateCharges && (
+                                      <p className="mb-0">• Late Charges: {message.productDetails.terms.lateCharges}</p>
+                                    )}
+                                    {message.productDetails.terms.securityDeposit && (
+                                      <p className="mb-0">• Security Deposit: {message.productDetails.terms.securityDeposit}</p>
+                                    )}
+                                    {message.productDetails.terms.repairReplacement && (
+                                      <p className="mb-0">• Repair/Replacement: {message.productDetails.terms.repairReplacement}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -799,179 +873,3 @@ const MessagePage = () => {
     };
 
 export default MessagePage;
-
-// const { activeChat, setActiveChat } = useChat();
-
-// const navigate = useNavigate();
-// const { userId } = studentUser || {};
-// const { conversationId } = useParams();
-
-// useEffect(() => {
-//   if (!userId) return;
-//   socket.current = io(process.env.REACT_APP_SOCKET_URL || "http://localhost:3001");
-//   socket.current.on("connect", () => {
-//     console.log("Connected to WebSocket", socket.current.id);
-//     socket.current.emit("registerUser", userId);
-//   });
-//   socket.current.on("receiveMessage", (message) => {
-//     console.log("Received message:", message);
-//     setConversations((prevConversations) => {
-//       const updatedConversations = prevConversations.map((conversation) => {
-//         if (conversation.id === message.conversationId) {
-//           return {
-//             ...conversation,
-//             messages: [...conversation.messages, message],
-//             updatedAt: new Date().toISOString(), // Update the timestamp
-//           };
-//         }
-//         return conversation;
-//       });
-//   // Sort updated conversations by most recent
-//   return updatedConversations.sort(
-//     (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-//   );
-// });
-// }, [userId, activeChat]);
-
-// useEffect(() => {
-//   loadConversationFromId();
-// }, [conversationId, userId, activeChat?.id]);
-// useEffect(() => {
-//   const fetchConversations = async () => {
-//     if (!userId) return;
-
-//     try {
-//       const res = await fetch(
-//         `${
-//           process.env.REACT_APP_API_URL || "http://localhost:3001"
-//         }/api/conversations/${userId}`
-//         `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/${userId}`
-//       );
-//       const data = await res.json();
-//       setConversations(data.conversations);
-
-//        // Sort conversations by the most recent activity
-//       const sortedConversations = data.conversations.sort(
-//         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-//       );
-//       setConversations(sortedConversations);
-
-//         // Automatically set the conversation with the owner as active
-//         if (state?.ownerId || state?.sellerId) {
-//           const targetConversation = data.conversations.find((conversation) =>
-//             conversation.members.includes(String(state.ownerId || state.sellerId))
-//           );
-//           setActiveChat(targetConversation || null);
-//       // If we have a conversationId but no activeChat, set it from the sorted conversations
-//       if (conversationId && !activeChat) {
-//         const targetConversation = sortedConversations.find(
-//           conv => conv.id === conversationId
-//         );
-//         if (targetConversation) {
-//           setActiveChat(targetConversation);
-//         }
-//       }
-
-//       setIsLoading(false);
-
-//     } catch (err) {
-//       console.error("Error fetching conversations:", err);
-//     }
-//   };
-
-//   fetchConversations();
-// }, [studentUser.userId, state?.ownerId, state?.sellerId]);
-
-// const handleSendMessage = async (message, recipientId) => {
-//   useEffect(() => {
-//     if (chatContentRef.current) {
-//       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-//     }
-//   }, [activeChat?.messages]);
-
-//   const handleSendMessage = async (message, recipientId) => {
-//     if (!newMessage.trim() || !activeChat) return;
-
-//     const messageData = {
-//       sender: userId,
-//       recipient: recipientId,
-//       recipient: recipientId,
-//       text: message,
-//       conversationId: activeChat.id,
-//       otherUser: { userId: recipientId }
-//     };
-
-//     try {
-//       // Send message
-//       const res = await fetch(`${baseApi}/api/conversations/${activeChat.id}/message`, {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-
-//   @@ -138,14 +151,13 @@ const MessagePage = () => {
-//       });
-//       const savedMessage = await res.json();
-
-//       // Create notification
-//       await fetch(`${baseApi}/api/notifications/message`, {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({
-//           type: "message",
-//           title: "New Message",
-//           message: message,
-//           message: newMessage,
-//           timestamp: new Date(),
-//           isRead: false,
-//           user_id: recipientId,
-
-//   @@ -162,11 +174,13 @@ const MessagePage = () => {
-//       socket.current.emit("sendMessageToUser", messageData);
-//       setNewMessage("");
-//     } catch (err) {
-//       console.error("Error:", err);
-//       console.error("Error sending message:", err);
-//     }
-//   };
-
-//     const handleConversationClick = (conversation) => {
-//       setActiveChat(conversation);
-//       setActiveChat(conversation);
-//       navigate(`/messages/${conversation.id}`);
-//     };
-
-//-------------------------------------------------------------------------------
-
-//ignore mo to
-// const handleSendMessage = async (message, recipientId) => {
-//   if (!newMessage.trim() || !activeChat) return;
-
-//   const messageData = {
-//     sender: userId,
-//     recipient: recipientId,
-//     text: message,
-//     conversationId: activeChat.id,
-//     otherUser: { userId: recipientId },
-//   };
-
-//   try {
-//     const res = await fetch(
-//       `${"http://localhost:3001"}/api/conversations/${activeChat.id}/message`,
-//       {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(messageData),
-//       }
-//     );
-//     const savedMessage = await res.json();
-
-//     setActiveChat((prev) => ({
-//       ...prev,
-//       messages: [...prev.messages, savedMessage],
-//     }));
-
-//     socket.current.emit("sendMessageToUser", messageData);
-//     setNewMessage("");
-//   } catch (err) {
-//     console.error("Error sending message:", err);
-//   }
-// };

@@ -391,18 +391,3 @@ router.get("/preview/:userId", async (req, res) => {
 });
 
 module.exports = router;
-
-// Get all conversations
-// router.get("/", async (req, res) => {
-//     try {
-//         // Fetch all conversations from the database (no extra fields)
-//         const conversations = await Conversation.findAll({
-//             attributes: ['id', 'members', 'createdAt', 'updatedAt']  // Specify only the columns you need
-//         });
-
-//         res.status(200).json(conversations);  // Send conversations as JSON response
-//     } catch (err) {
-//         console.error("Error fetching all conversations:", err);
-//         res.status(500).json({ error: err.message });
-//     }
-// });

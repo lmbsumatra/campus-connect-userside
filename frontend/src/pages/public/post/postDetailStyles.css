@@ -71,7 +71,9 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
+  position: relative;
+  z-index: 1;
 }
 
 .error-msg {
@@ -178,6 +180,7 @@
   flex-direction: row;
   justify-content: flex-start;
   gap: 8px !important;
+  margin-bottom: 10px;
 }
 
 .post-container .rental-dates-durations .duration-item {
@@ -205,6 +208,7 @@
   width: 100%;
   border-radius: 8px;
   padding: 8px;
+  margin-bottom: 12px;
 }
 
 .group-container.terms-group .term {
@@ -301,4 +305,174 @@
 
 .item-header .btn:hover {
   background-color: #b02a37; /* Darker red for hover effect */
+}
+
+/* Delivery and Payment Method Styles */
+.delivery-method .action-btns,
+.payment-method .action-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.delivery-method .action-btns .value,
+.payment-method .action-btns .value {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delivery-method .action-btns .value.selected,
+.payment-method .action-btns .value.selected {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+/* Terms and Conditions Styles */
+.terms-group {
+  margin-top: 15px;
+  position: relative;
+}
+
+.terms-container {
+  position: relative;
+  z-index: 100;
+}
+
+.terms-popup {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 10px;
+  position: relative;
+  z-index: 10;
+}
+
+.sub-section-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.expand-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.expand-btn.expand {
+  transform: rotate(45deg);
+}
+
+.term {
+  margin-bottom: 15px;
+}
+
+.term .label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.term .input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.term .input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.term .btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+/* Modal Styles */
+.terms-summary {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.terms-summary ul {
+  padding-left: 20px;
+  margin-top: 5px;
+}
+
+.terms-summary li {
+  margin-bottom: 5px;
+}
+
+/* Group Container Styles */
+.group-container {
+  margin-bottom: 12px;
+}
+
+.group-container .label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+/* Item Condition Select Styles */
+.item-condition select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+/* Offer Details Section */
+.offer-details-section {
+  margin-top: 2px !important;
+  margin-bottom: 5px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.offer-details-section .form-group {
+  margin-bottom: 15px;
+}
+
+.offer-details-section label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+/* Item Condition Input Styles */
+.item-condition .input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.item-condition .input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
 }

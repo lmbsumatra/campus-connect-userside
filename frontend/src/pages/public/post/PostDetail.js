@@ -15,6 +15,8 @@ import itemImage4 from "../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../assets/images/card/rent.svg";
 import "./postDetailStyles.css";
+import expandIcon from "../../../assets/images/pdp/plus.svg";
+import infoIcon from "../../../assets/images/input-icons/info.svg";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -27,7 +29,12 @@ import {
   PICK_UP,
   TO_BUY,
   TO_RENT,
+  PAY_UPON_MEETUP,
+  GCASH,
+  CONDITIONS,
 } from "../../../utils/consonants";
+import AddTerms from "../../private/users/common/AddTerms";
+
 import { showNotification } from "../../../redux/alert-popup/alertPopupSlice";
 import LoadingItemDetailSkeleton from "../../../components/loading-skeleton/LoadingItemDetailSkeleton";
 import UserToolbar from "../common/UserToolbar";
@@ -71,6 +78,16 @@ function PostDetail() {
   const [imagePreview, setImagePreview] = useState(null);
 
   const [imageError, setImageError] = useState(false);
+  
+  // State variables for offer details
+  const [deliveryMethod, setDeliveryMethod] = useState(MEET_UP);
+  const [paymentMethod, setPaymentMethod] = useState(PAY_UPON_MEETUP);
+  const [itemCondition, setItemCondition] = useState("");
+  const [termsValues, setTermsValues] = useState({
+    lateCharges: "",
+    securityDeposit: "",
+    repairReplacement: ""
+  });
 
   const images = [
     itemImage1,
@@ -165,6 +182,10 @@ function PostDetail() {
     }
   };
 
+  const handleExpandTerms = () => {
+    setExpandTerm(!expandTerm);
+  };
+
   const handleConfirmOffer = async () => {
     try {
       let imageUrl = approvedPostById.images?.[0] || defaultImages[0];
@@ -208,7 +229,7 @@ function PostDetail() {
 
       const conversation = await createConversationResponse.json();
 
-      // Prepare offer details with Cloudinary URL
+      // Prepare offer details with Cloudinary URL and additional fields
       const offerDetails = {
         name: approvedPostById.name,
         image: imageUrl,
@@ -221,6 +242,11 @@ function PostDetail() {
         }`,
         productId: approvedPostById.id,
         type: "post",
+        // Add new fields
+        deliveryMethod: deliveryMethod,
+        paymentMethod: paymentMethod,
+        itemCondition: itemCondition,
+        terms: termsValues
       };
 
       navigate("/messages", {
@@ -575,7 +601,8 @@ function PostDetail() {
               </div>
             </div>
 
-            <div className="offer-details-section">
+            {/* Offer Details Section - Moved closer to duration picker */}
+            <div className="offer-details-section mt-3">
               <div className="form-group">
                 <label>Rental Fee</label>
                 <input
@@ -613,6 +640,127 @@ function PostDetail() {
                 />
                 {imageError && (
                   <small className="text-danger">Please upload an image</small>
+                )}
+              </div>
+            </div>
+
+            {/* Delivery Method */}
+            <div className="group-container delivery-method">
+              <label className="label">Delivery Method</label>
+              <div className="delivery-method">
+                <div className="action-btns">
+                  <button
+                    className={`value ${deliveryMethod === MEET_UP ? "selected" : ""}`}
+                    onClick={() => setDeliveryMethod(MEET_UP)}
+                  >
+                    Meet up
+                  </button>
+                  <button
+                    className={`value ${deliveryMethod === PICK_UP ? "selected" : ""}`}
+                    onClick={() => setDeliveryMethod(PICK_UP)}
+                  >
+                    Pick up
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Method */}
+            <div className="group-container payment-method">
+              <label className="label">Payment Method</label>
+              <div className="delivery-method">
+                <div className="action-btns">
+                  <button
+                    className={`value ${paymentMethod === GCASH ? "selected" : ""}`}
+                    onClick={() => setPaymentMethod(GCASH)}
+                  >
+                    Gcash
+                  </button>
+                  <button
+                    className={`value ${paymentMethod === PAY_UPON_MEETUP ? "selected" : ""}`}
+                    onClick={() => setPaymentMethod(PAY_UPON_MEETUP)}
+                  >
+                    Pay upon meetup
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Item Condition - Changed from dropdown to text input */}
+            <div className="group-container item-condition">
+              <label className="label">Item Condition</label>
+              <div className="input-wrapper">
+                <input
+                  className="input"
+                  placeholder="Add item condition"
+                  type="text"
+                  value={itemCondition}
+                  onChange={(e) => setItemCondition(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Terms and Conditions - Fixed positioning */}
+            <div className="group-container terms-group">
+              <label className="sub-section-label">
+                Terms and Condition
+                <button
+                  className={`expand-btn ${expandTerm ? "expand" : ""}`}
+                  onClick={handleExpandTerms}
+                >
+                  <img src={expandIcon} alt="Expand terms and condition" />
+                </button>
+              </label>
+
+              <div className="terms-container">
+                {expandTerm && (
+                  <div className="terms-popup">
+                    <div className="term late-charges">
+                      <label className="label">Late Charges</label>
+                      <div className="input-wrapper">
+                        <input
+                          className="input"
+                          placeholder="Add late charges"
+                          type="text"
+                          value={termsValues.lateCharges}
+                          onChange={(e) => setTermsValues({...termsValues, lateCharges: e.target.value})}
+                        />
+                        <button className="btn btn-icon secondary">
+                          <img src={infoIcon} alt="Information" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="term deposit">
+                      <label className="label">Security Deposit</label>
+                      <div className="input-wrapper">
+                        <input
+                          className="input"
+                          placeholder="Add security deposit"
+                          type="text"
+                          value={termsValues.securityDeposit}
+                          onChange={(e) => setTermsValues({...termsValues, securityDeposit: e.target.value})}
+                        />
+                        <button className="btn btn-icon secondary">
+                          <img src={infoIcon} alt="Information" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="term repair-replacement">
+                      <label className="label">Repair and Replacement</label>
+                      <div className="input-wrapper">
+                        <input
+                          className="input"
+                          placeholder="Add repair and replacement"
+                          type="text"
+                          value={termsValues.repairReplacement}
+                          onChange={(e) => setTermsValues({...termsValues, repairReplacement: e.target.value})}
+                        />
+                        <button className="btn btn-icon secondary">
+                          <img src={infoIcon} alt="Information" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -655,6 +803,34 @@ function PostDetail() {
           <p>
             <strong>Offered Price:</strong> ₱{offerPrice}
           </p>
+          <p>
+            <strong>Delivery Method:</strong> {deliveryMethod === MEET_UP ? "Meet up" : "Pick up"}
+          </p>
+          <p>
+            <strong>Payment Method:</strong> {paymentMethod === GCASH ? "Gcash" : "Pay upon meetup"}
+          </p>
+          <p>
+            <strong>Item Condition:</strong> {itemCondition || "Not specified"}
+          </p>
+          
+          {/* Terms and Conditions in Modal */}
+          {(termsValues.lateCharges || termsValues.securityDeposit || termsValues.repairReplacement) && (
+            <div className="terms-summary">
+              <strong>Terms and Conditions:</strong>
+              <ul>
+                {termsValues.lateCharges && (
+                  <li><strong>Late Charges:</strong> {termsValues.lateCharges}</li>
+                )}
+                {termsValues.securityDeposit && (
+                  <li><strong>Security Deposit:</strong> {termsValues.securityDeposit}</li>
+                )}
+                {termsValues.repairReplacement && (
+                  <li><strong>Repair and Replacement:</strong> {termsValues.repairReplacement}</li>
+                )}
+              </ul>
+            </div>
+          )}
+          
           {imagePreview && (
             <div className="mt-3">
               <strong>Item Image:</strong>
