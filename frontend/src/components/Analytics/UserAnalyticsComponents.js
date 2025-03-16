@@ -113,9 +113,13 @@ export const VerificationRate = ({ users }) => {
       toZonedTime(user.createdAt, "Asia/Singapore"),
       "yyyy-MM-dd"
     ); // Convert to local time
-    acc[date] = acc[date] || { verified: 0, total: 0 };
+
+    acc[date] = acc[date] || { verified: 0, emailVerified: 0, total: 0 };
     acc[date].total += 1;
+
     if (user.student?.status === "verified") acc[date].verified += 1;
+    if (user.email_verified) acc[date].emailVerified += 1;
+
     return acc;
   }, {});
 
@@ -125,23 +129,84 @@ export const VerificationRate = ({ users }) => {
       (verificationData[date].verified / verificationData[date].total) * 100
   );
 
+  const emailVerifiedCounts = labels.map(
+    (date) =>
+      (verificationData[date].emailVerified / verificationData[date].total) *
+      100
+  );
+
   const chartData = {
     labels,
     datasets: [
       {
-        label: "Verification Rate (%)",
+        label: "User Verified (%)",
         data: verifiedCounts,
         borderColor: "#28a745",
         backgroundColor: "rgba(40, 167, 69, 0.2)",
         fill: true,
+        tension: 0.4, // Smooth lines
+      },
+      {
+        label: "Email Verified (%)",
+        data: emailVerifiedCounts,
+        borderColor: "#007bff",
+        backgroundColor: "rgba(0, 123, 255, 0.2)",
+        fill: true,
+        tension: 0.4, // Smooth lines
       },
     ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        title: {
+          display: true,
+          text: "Verification Rate (%)",
+          font: {
+            size: 14,
+          },
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Date",
+          font: {
+            size: 14,
+          },
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: "top",
+        labels: {
+          boxWidth: 12,
+          padding: 15,
+          font: {
+            size: 12,
+          },
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) =>
+            `${context.dataset.label}: ${context.raw.toFixed(2)}%`,
+        },
+      },
+    },
   };
 
   return (
     <div className="p-3 bg-white rounded shadow-sm mb-2">
       <h5>Verification Rate Over Time</h5>
-      <div style={{ height: "150px" }}>
+      <div style={{ height: "200px" }}>
         <Line data={chartData} options={chartOptions} />
       </div>
     </div>

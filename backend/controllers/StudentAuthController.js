@@ -27,6 +27,7 @@ exports.getAllStudents = async (req, res) => {
         "user_id",
         "first_name",
         "last_name",
+        "email_verified",
         "createdAt",
         "lastlogin",
       ],
@@ -34,7 +35,7 @@ exports.getAllStudents = async (req, res) => {
         {
           model: models.Student,
           as: "student",
-          attributes: ["college", "status", "updatedAt"],
+          attributes: ["college", "status", "course", "updatedAt"],
           required: true,
         },
       ],

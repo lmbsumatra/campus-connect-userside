@@ -306,6 +306,10 @@ const registerStudent = async (req, res) => {
       attributes: ["user_id", "role"], // Fetch specific fields only
     });
 
+    // Update last login time
+    registeredUser.lastlogin = new Date();
+    await registeredUser.save();
+
     // Generate JWT token
     const token = TokenGenerator.generateToken({
       userId: registeredUser.user_id,
