@@ -13,6 +13,7 @@ import SuccessPayment from "../pages/private/users/success-payment/SuccessPaymen
 import CancelPayment from "../pages/private/users/cancel-payment/CancelPayment.js";
 import RentalReportDetails from "../components/report/RentalReportDetails.js";
 import PaymentPage from "../pages/public/PaymentPage.js";
+import EditPost from "../pages/private/users/post/EditPost.js";
 
 const StudentProtectedRoutes = [
   <Route
@@ -24,10 +25,10 @@ const StudentProtectedRoutes = [
     }
   />,
   <Route
-    path="/post/edit/:id"
+    path="/profile/my-posts/edit/:id"
     element={
       <StudentProtectedRoute allowedRoles="student">
-        <EditItem />
+        <EditPost />
       </StudentProtectedRoute>
     }
   />,

@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      renter_id: {
+      user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
@@ -43,7 +43,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       images: {
-        type: DataTypes.JSON,
+        type: DataTypes.TEXT,
       },
       created_at: {
         type: DataTypes.DATE,
@@ -73,7 +73,7 @@ module.exports = (sequelize) => {
       as: "rental_dates",
     });
     Post.belongsTo(models.User, {
-      foreignKey: "renter_id",
+      foreignKey: "user_id",
       as: "renter",
     });
   };

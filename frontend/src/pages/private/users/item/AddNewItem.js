@@ -224,7 +224,11 @@ const AddNewItem = () => {
     const durations = getDurationsForDate(selectedDisplayDate);
 
     if (!selectedDisplayDate) {
-      return <p className="select-date-message">Please select a date first.</p>;
+      return (
+        <>
+          <p className="select-date-message">Please select a date first.</p>
+        </>
+      );
     }
 
     if (durations.length === 0) {
@@ -491,7 +495,11 @@ const AddNewItem = () => {
             )}
 
           <FormField
-            label="For rent"
+            label={
+              itemDataState.itemType.value === FOR_RENT
+                ? "For Rent"
+                : "For Sale"
+            }
             id="itemName"
             value={itemDataState.itemName.value}
             onChange={handleFieldChange}
@@ -700,24 +708,24 @@ const AddNewItem = () => {
               </div>
             )}
 
-<FormField
-  label="Item Condition"
-  id="itemCondition"
-  value={itemDataState.itemCondition.value}
-  onChange={handleFieldChange}
-  onBlur={handleFieldBlur}
-  error={itemDataState.itemCondition.error}
-  triggered={itemDataState.itemCondition.triggered}
-  placeholder="Select item condition"
-  type="select"
-  options={[
-    "New", 
-    "Used (like new)", 
-    "Used (fair)", 
-    "Used (good)", 
-    "Poor"
-  ]}
-/>
+          <FormField
+            label="Item Condition"
+            id="itemCondition"
+            value={itemDataState.itemCondition.value}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
+            error={itemDataState.itemCondition.error}
+            triggered={itemDataState.itemCondition.triggered}
+            placeholder="Select item condition"
+            type="select"
+            options={[
+              "New",
+              "Used (like new)",
+              "Used (fair)",
+              "Used (good)",
+              "Poor",
+            ]}
+          />
 
           {itemType === FOR_RENT ? (
             <div className="group-container terms">

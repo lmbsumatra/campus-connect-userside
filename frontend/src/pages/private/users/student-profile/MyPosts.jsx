@@ -19,24 +19,26 @@ function MyPosts() {
   }, [dispatch]);
 
   return (
-    <div className="container rounded bg-white">
+    <div className="item-container">
       <Toolbar />
-      <TimeoutComponent
-        timeoutDuration={5000}
-        fallback={
-          <div className="card-container">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <LoadingPostCardSkeleton key={index} />
-            ))}
-          </div>
-        }
-      >
-        <BorrowingPost
-          borrowingPosts={allPostsByUser}
-          title="Looking for...???"
-          isProfileVisit={false}
-        />
-      </TimeoutComponent>
+      <div className="card-items-container">
+        <TimeoutComponent
+          timeoutDuration={5000}
+          fallback={
+            <div className="card-container">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <LoadingPostCardSkeleton key={index} />
+              ))}
+            </div>
+          }
+        >
+          <BorrowingPost
+            borrowingPosts={allPostsByUser}
+            title="Looking for..."
+            isProfileVisit={false}
+          />
+        </TimeoutComponent>
+      </div>
     </div>
   );
 }

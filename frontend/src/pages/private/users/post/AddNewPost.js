@@ -289,7 +289,7 @@ const AddNewPost = () => {
         });
 
       const itemData = {
-        [itemType === TO_RENT ? "renterId" : "buyerId"]: userId,
+        userId: userId,
         category: postDataState.category.value,
         itemName: postDataState.itemName.value,
         desc: postDataState.desc.value,

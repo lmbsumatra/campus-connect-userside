@@ -4,7 +4,9 @@ const createPost = require("./createPost.js");
 const getAvailablePostsByUser = require("./getAvailablePostsByUser.js");
 const getAllAvailablePostUsingQuery = require("./getAllAvailablePostUsingQuery.js");
 const getAllPostsByUser = require("./getAllPostsByUser");
-const matchedItems = require("./matchedItems.js")
+const matchedItems = require("./matchedItems.js");
+const getPostById = require("./getPostById.js");
+const updatePostById = require("./updatePostById.js");
 
 const PostController = {
   getAllAvailablePost,
@@ -13,7 +15,9 @@ const PostController = {
   getAvailablePostsByUser,
   getAllAvailablePostUsingQuery,
   getAllPostsByUser,
-  matchedItems
+  matchedItems,
+  getPostById,
+  updatePostById
 };
 
 module.exports = PostController;

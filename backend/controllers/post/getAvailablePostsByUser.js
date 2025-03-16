@@ -13,7 +13,7 @@ const getAvailableListingsByUser = async (req, res) => {
     const items = await models.Post.findAll({
       where: {
         status: "approved",
-        renter_id: userId, // Filter by userId
+        user_id: userId, // Filter by userId
       },
       include: [
         {
@@ -73,7 +73,7 @@ const getAvailableListingsByUser = async (req, res) => {
           })),
         })),
         renter: {
-          id: item.renter_id,
+          id: item.user_id,
           fname: item.renter.first_name,
           lname: item.renter.last_name,
         },

@@ -48,7 +48,7 @@ const updatePostStatus = async (req, res) => {
     const notification = await StudentNotification.create(
       {
         sender_id: adminId,
-        recipient_id: post.renter_id,
+        recipient_id: post.user_id,
         type: "post_status",
         message: messages[status] || "Your post status was updated",
         is_read: false,
@@ -66,14 +66,14 @@ const updatePostStatus = async (req, res) => {
       const students = await models.User.findAll({
         where: {
           role: "student",
-          user_id: { [Op.ne]: post.renter_id },
+          user_id: { [Op.ne]: post.user_id },
         },
         attributes: ["user_id"],
         transaction,
       });
 
       // Get the post owner's name
-      const postOwner = await models.User.findByPk(post.renter_id, {
+      const postOwner = await models.User.findByPk(post.user_id, {
         attributes: ["first_name", "last_name"],
         transaction,
       });
@@ -85,7 +85,7 @@ const updatePostStatus = async (req, res) => {
       // Bulk create notifications
       const studentNotifications = await StudentNotification.bulkCreate(
         students.map((student) => ({
-          sender_id: post.renter_id,
+          sender_id: post.user_id,
           recipient_id: student.user_id,
           type: "new-post",
           message: `${senderName} is looking for ${post.post_item_name}`,

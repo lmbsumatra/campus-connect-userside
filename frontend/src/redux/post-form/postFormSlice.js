@@ -255,16 +255,16 @@ export const validateInput = (name, value, itemType) => {
       }
       break;
     case "images": {
-      const allowedTypes = [
-        "image/jpg",
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-      ];
-      // const maxSize = 5 * 1024 * 1024; // 5MB limit
+      // First, ensure value is an array we can work with
+      if (!Array.isArray(value)) {
+        hasError = true;
+        error = "Invalid image data format";
+        break;
+      }
 
-      if (!value || value.length === 0) {
+      const allowedExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+
+      if (value.length === 0) {
         hasError = true;
         error = "At least one image is required.";
       } else if (value.length > 5) {
@@ -272,19 +272,32 @@ export const validateInput = (name, value, itemType) => {
         error = "Maximum of 5 images only.";
       } else {
         for (const fileName of value) {
-          const fileExtension = fileName.split(".").pop().toLowerCase();
+          try {
+            // Skip validation for non-string values
+            if (typeof fileName !== "string") {
+              continue;
+            }
 
-          if (!allowedTypes.includes(`image/${fileExtension}`)) {
-            hasError = true;
-            error =
-              "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.";
-            break;
+            // Make sure the filename has an extension
+            if (!fileName.includes(".")) {
+              continue;
+            }
+
+            const fileExtension = fileName.split(".").pop().toLowerCase();
+
+            if (!allowedExtensions.includes(fileExtension)) {
+              hasError = true;
+              error =
+                "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.";
+              break;
+            }
+          } catch (err) {
+            console.error("Error validating file:", fileName, err);
+            // Continue instead of breaking to allow other valid files
+            continue;
           }
-          // Assuming you're not validating file sizes since you don't have the full file object
-          // If needed, you could add a validation step for sizes in metadata as well
         }
       }
-
       break;
     }
     default:
@@ -364,6 +377,35 @@ const postFormSlice = createSlice({
         triggered: true,
       };
     },
+    populatePostData: (state, action) => {
+      Object.keys(state).forEach((key) => {
+        if (key !== "isFormValid") {
+          // Don't touch isFormValid here
+          state[key].value = "";
+          state[key].hasError = false;
+          state[key].error = "";
+          state[key].triggered = false;
+        }
+      });
+      let itemData = action.payload;
+
+      // Now itemData is guaranteed to be an object
+      Object.keys(itemData).forEach((key) => {
+        if (state[key] !== undefined) {
+          state[key] = {
+            value: itemData[key],
+            hasError: false,
+            error: "",
+            triggered: false,
+          };
+        }
+      });
+
+      // Recalculate form validity
+      state.isFormValid = Object.keys(state).every(
+        (key) => key === "isFormValid" || !state[key].hasError
+      );
+    },
     // Clear the form fields but retain structure
     clearPostForm: (state) => {
       Object.keys(state).forEach((key) => {
@@ -380,8 +422,14 @@ const postFormSlice = createSlice({
 });
 
 // Export actions
-export const { updateField, blurField, updateRequestDates, clearPostForm } =
-  postFormSlice.actions;
+export const {
+  updateField,
+  blurField,
+  updateRequestDates,
+  populatePostData,
+  clearPostForm,
+  updateAvailableDates,
+} = postFormSlice.actions;
 
 // Export the reducer
 export default postFormSlice.reducer;

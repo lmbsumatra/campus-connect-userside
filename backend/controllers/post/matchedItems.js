@@ -63,7 +63,7 @@ const matchedItems = async (req, res) => {
         })),
       })),
       renter: {
-        id: post.renter_id,
+        id: post.user_id,
         fname: post.renter.first_name,
         lname: post.renter.last_name,
         college: post.renter.student.college,

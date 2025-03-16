@@ -468,7 +468,7 @@ function PostDetail() {
           <ImageSlider
             images={
               approvedPostById.images && approvedPostById.images.length
-                ? JSON.parse(approvedPostById.images)
+                ? [approvedPostById.images]
                 : [defaultImages]
             }
           />

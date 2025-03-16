@@ -16,8 +16,6 @@ const AddItemBadges = ({
   const itemTypes = isPost ? TO_TYPES : FOR_TYPES;
   const itemType = values?.itemType || itemTypes[0];
 
-  console.log({ isEditPage });
-
   const getCollegeBadgeUrl = (college) => {
     if (college !== undefined && college !== null) {
       try {

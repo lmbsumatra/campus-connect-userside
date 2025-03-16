@@ -2,7 +2,7 @@ const { models } = require("../../models");
 const sequelize = require("../../config/database");
 
 const validatePostData = (postData) => {
-  const requiredFields = ["renterId", "itemName", "category", "desc"];
+  const requiredFields = ["userId", "itemName", "category", "desc"];
   const missingFields = requiredFields.filter((field) => !postData[field]);
 
   if (missingFields.length) {
@@ -84,7 +84,7 @@ const createPost = async (req, res) => {
     const post = await models.Post.create(
       {
         post_item_name: postData.itemName,
-        renter_id: postData.renterId,
+        user_id: postData.userId,
         category: postData.category,
         title: postData.itemName,
         description: postData.desc,
@@ -128,7 +128,7 @@ const createPost = async (req, res) => {
 
     // Fetch renter details (owner of the post)
     const renter = await models.User.findOne({
-      where: { user_id: post.renter_id },
+      where: { user_id: post.user_id },
       attributes: ["user_id", "first_name", "last_name"],
     });
 

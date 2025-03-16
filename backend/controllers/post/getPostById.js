@@ -1,29 +1,19 @@
 const { models } = require("../../models/index");
 
-// Get a single approved post by ID with associated available rental dates, available durations, and renter info
-const getAvailablePostById = async (req, res) => {
-  console.log(req.params.id);
+const getPostById = async (req, res) => {
   try {
-    const post = await models.Post.findOne({
-      where: {
-        id: req.params.id,
-        status: "approved", // Ensures only "approved" items are fetched
-      },
+    const post = await models.Post.findByPk(req.params.postId, {
       include: [
         {
           model: models.Date,
           as: "rental_dates",
           where: {
-            status: "available", // Ensures only "available" rental dates are included
             item_type: "post",
           },
           include: [
             {
               model: models.Duration,
               as: "durations",
-              where: {
-                status: "available", // Ensures only "available" rental durations are included
-              },
             },
           ],
         },
@@ -38,28 +28,30 @@ const getAvailablePostById = async (req, res) => {
           ],
         },
       ],
+      //   where: {
+      //     // Assuming you have a column 'item_type' in your Item model
+      //     post_type: "item_for_sale", // Filter for item for sale only
+      //   },
     });
 
     if (!post) {
-      return res.status(404).json({ error: "P???????????????/ost not found" });
+      return res.status(404).json({ error: "Post not found" });
     }
 
     // Format the response to flatten fields like item_name, price, etc.
     const formattedPost = {
       id: post.id,
-      name: post.post_item_name,
+      itemName: post.post_item_name,
+      images: JSON.parse(post.images),
       tags: JSON.parse(post.tags),
-      price: post.price,
       createdAt: post.created_at,
-      status: post.status,
       category: post.category,
       itemType: post.post_type,
       desc: post.description,
-      specs: post.specifications,
-      images: JSON.parse(post.images),
-      rentalDates: post.rental_dates.map((date) => ({
+      specs: JSON.parse(post.specifications),
+      requestDates: post.rental_dates.map((date) => ({
         id: date.id,
-        postId: date.post_id,
+        itemId: date.item_id,
         date: date.date,
         status: date.status,
         durations: date.durations.map((duration) => ({
@@ -71,7 +63,7 @@ const getAvailablePostById = async (req, res) => {
         })),
       })),
       renter: {
-        id: post.user_id,
+        id: post.renter.user_id,
         fname: post.renter.first_name,
         lname: post.renter.last_name,
         college: post.renter.student.college,
@@ -85,4 +77,4 @@ const getAvailablePostById = async (req, res) => {
   }
 };
 
-module.exports = getAvailablePostById;
+module.exports = getPostById;

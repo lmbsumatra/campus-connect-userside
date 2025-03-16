@@ -7,50 +7,48 @@ import { formatDateFromSelectDate } from "../../../../utils/dateFormat.js";
 import UserToolbar from "../common/UserToolbar.jsx";
 import AddItemDescAndSpecs from "../common/AddItemDescAndSpecs.jsx";
 import AddItemBadges from "../common/AddItemBadges.jsx";
-import AddTerms from "../common/AddTerms.jsx";
 import AddImage from "../common/AddImage.jsx";
 import DateDurationPicker from "../common/DateDurationPicker.jsx";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import ShowAlert from "../../../../utils/ShowAlert.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
-import {
-  FOR_RENT,
-  PAY_UPON_MEETUP,
-  GCASH,
-  PICK_UP,
-  MEET_UP,
-  FOR_SALE,
-} from "../../../../utils/consonants.js";
+import { FOR_SALE, TO_RENT } from "../../../../utils/consonants.js";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
 import { fetchUser } from "../../../../redux/user/userSlice.js";
-import {
-  blurField,
-  clearItemForm,
-  generateSampleData,
-  populateItemData,
-  updateAvailableDates,
-  updateField,
-  validateInput,
-} from "../../../../redux/item-form/itemFormSlice.js";
+
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../assets/images/card/buy.svg";
 import warningIcon from "../../../../assets/images/input-icons/warning.svg";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-datepicker/dist/react-datepicker.css";
-import "./addNewItemStyles.css";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import { fetchListingById } from "../../../../redux/listing/listingByIdSlice.js";
-import ComparisonView from "./ComparisonView.jsx";
+import ComparisonView from "../item/ComparisonView.jsx";
 import { Modal } from "react-bootstrap";
-import { editItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
+import {
+  editItemBreadcrumbs,
+  editPostBreadcrumbs,
+} from "../../../../utils/Breadcrumbs.js";
 import { fetchItemForSaleById } from "../../../../redux/item-for-sale/itemForSaleByIdSlice.js";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
+import "./addNewPostStyles.css";
+import { fetchApprovedPostById } from "../../../../redux/post/approvedPostByIdSlice.js";
+import { fetchPostById } from "../../../../redux/post/postByIdSlice.js";
+import {
+  populatePostData,
+  blurField,
+  clearItemForm,
+  // generateSampleData,
+  updateAvailableDates,
+  updateField,
+  validateInput,
+} from "../../../../redux/post-form/postFormSlice.js";
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
@@ -111,32 +109,21 @@ const FormField = ({
     {triggered && error && <ValidationError message={error} />}
   </div>
 );
-const EditItem = () => {
+
+const EditPost = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const itemDataState = useSelector((state) => state.itemForm);
-  console.log(itemDataState);
+  const postDataState = useSelector((state) => state.postForm);
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const { userId, role } = useSelector(selectStudentUser);
   const location = useLocation();
   const { id } = useParams();
-  console.log(id);
+  const [itemType, setItemType] = useState("");
 
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
   });
   const [category, setCategory] = useState("");
-
-  // getting item type
-  const urlPath = location.pathname;
-  const isForSaleUrl = urlPath.includes("/profile/my-for-sale");
-  const isForRentUrl = urlPath.includes("/profile/my-listings");
-  const [itemType, setItemType] = useState(
-    isForSaleUrl ? FOR_SALE : isForRentUrl ? FOR_RENT : null
-  );
-
-  // const itemData = location?.state?.item || {};
-
   const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
@@ -150,15 +137,13 @@ const EditItem = () => {
   const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState(null);
 
-  const [itemData, setItemData] = useState();
+  const [postData, setPostData] = useState(null);
 
-  const { itemForSaleById, loadingItemForSaleById, errorItemForSaleById } =
-    useSelector((state) => state.itemForSaleById);
-
-  const { listingById, loadingListingById, errorListingById } = useSelector(
-    (state) => state.listingById
+  const { postById, loadingPostById, errorPostById } = useSelector(
+    (state) => state.postById
   );
 
+  // Fetch unavailable dates
   useEffect(() => {
     dispatch(fetchUnavailableDates());
   }, [dispatch]);
@@ -180,121 +165,139 @@ const EditItem = () => {
     }
   }, [unavailableDates]);
 
+  // Fetch post data by ID
   useEffect(() => {
     if (id) {
-      if (isForSaleUrl) {
-        dispatch(fetchItemForSaleById({ userId, itemForSaleId: id }));
-      } else if (isForRentUrl) {
-        dispatch(fetchListingById({ userId, listingId: id }));
-      }
+      dispatch(fetchPostById({ userId, postId: id }));
     }
-  }, [dispatch, isForSaleUrl, isForRentUrl, userId, id]);
+  }, [dispatch, userId, id]);
 
+  // Handle post data loading state and errors
   useEffect(() => {
-    setLoading(true);
-    setError(null);
+    setLoading(loadingPostById);
+    setError(errorPostById);
 
-    if (isForSaleUrl) {
-      if (errorItemForSaleById) {
-        setError(errorItemForSaleById);
-        setLoading(false);
-      } else if (!loadingItemForSaleById && itemForSaleById) {
-        setItemData(itemForSaleById);
-        setError(null);
-        setLoading(false);
-      }
-    } else if (isForRentUrl) {
-      if (errorListingById) {
-        setError(errorListingById);
-        setLoading(false);
-      } else if (!loadingListingById && listingById) {
-        setItemData(listingById);
-        setError(null);
-        setLoading(false);
-      }
+    // When post data is loaded and not in loading state
+    if (!loadingPostById && postById && !errorPostById) {
+      setPostData(postById);
     }
-  }, [
-    isForSaleUrl,
-    isForRentUrl,
-    itemForSaleById,
-    listingById,
-    loadingItemForSaleById,
-    loadingListingById,
-    errorItemForSaleById,
-    errorListingById,
-  ]);
+  }, [postById, loadingPostById, errorPostById]);
 
-  console.log("Item Data:", itemData);
-
+  // Populate form with post data once it's available
   useEffect(() => {
-    if (!loading && itemData) {
+    if (!loading && postData) {
       const initialData = {
-        ...itemData,
-        images: itemData.images,
-        availableDates: itemData.availableDates,
+        ...postData,
+        images: postData.images,
+        requestDates: postData.requestDates,
       };
       setOriginalData(initialData);
-      dispatch(populateItemData(itemData));
+      dispatch(populatePostData(postData));
+
+      // Set itemType from the post data
+      setItemType(postData.itemType);
+
+      // Set category from the post data
+      if (postData.category) {
+        setCategory(postData.category);
+      }
 
       const newSelectedDatesDurations = [];
-      const unavailableDates = [];
+      const unavailableDatesArray = [];
 
-      itemDataState.availableDates.value.forEach((dateItem) => {
-        if (dateItem.date) {
-          // Filter dates where the status is not "available"
-          const isAvailable = dateItem.status === "available";
+      if (postData.requestDates && Array.isArray(postData.requestDates)) {
+        postData.requestDates.forEach((dateItem) => {
+          if (dateItem.date) {
+            // Filter dates where the status is not "available"
+            const isAvailable = dateItem.status === "available";
 
-          // If not available, add it to the unavailableDates array
-          if (!isAvailable) {
-            unavailableDates.push(new Date(dateItem.date));
+            // If not available, add it to the unavailableDatesArray array
+            if (!isAvailable) {
+              unavailableDatesArray.push(new Date(dateItem.date));
+            }
+
+            // Add selected dates and durations to the newSelectedDatesDurations
+            if (isAvailable) {
+              newSelectedDatesDurations.push({
+                date: new Date(dateItem.date),
+                durations: dateItem.durations.map((duration) => ({
+                  timeFrom: duration.timeFrom,
+                  timeTo: duration.timeTo,
+                })),
+              });
+            }
           }
+        });
 
-          // Add selected dates and durations to the newSelectedDatesDurations
-          if (isAvailable) {
-            newSelectedDatesDurations.push({
-              date: new Date(dateItem.date),
-              durations: dateItem.durations.map((duration) => ({
-                timeFrom: duration.timeFrom,
-                timeTo: duration.timeTo,
-              })),
-            });
+        // Set the state for both selectedDatesDurations and unavailableDates
+        setSelectedDatesDurations(newSelectedDatesDurations);
+        setUnavailableDates(unavailableDatesArray);
+      }
+
+      // Set local images from post data
+      // Handle images properly
+      let processedImages = [];
+
+      if (postData.images) {
+        // Check if images is a string that needs parsing
+        if (typeof postData.images === "string") {
+          try {
+            // First try direct parsing
+            processedImages = JSON.parse(postData.images);
+          } catch (e) {
+            // If that fails, it might be a double-stringified JSON
+            try {
+              // Remove the outer quotes and unescape the inner quotes
+              const cleanString = postData.images
+                .replace(/^"(.*)"$/, "$1")
+                .replace(/\\/g, "");
+              processedImages = JSON.parse(cleanString);
+            } catch (innerError) {
+              // If both parsing attempts fail, log the error and use as is
+              console.error("Error parsing images:", innerError);
+              processedImages = postData.images;
+            }
           }
+        } else if (Array.isArray(postData.images)) {
+          // If it's already an array, use it directly
+          processedImages = postData.images;
         }
-      });
+      }
 
-      // Set the state for both selectedDatesDurations and unavailableDates
-      setSelectedDatesDurations(newSelectedDatesDurations);
-      setUnavailableDates(unavailableDates);
+      // Set local images with the processed data
+      setLocalImages(processedImages);
     }
-  }, [loading, itemData, dispatch]);
+  }, [loading, postData, dispatch]);
 
+  // Update category if changed in the form state
   useEffect(() => {
-    if (itemDataState.category && itemDataState.category.value !== category) {
-      setCategory(itemDataState.category.value);
+    if (postDataState.category && postDataState.category.value !== category) {
+      setCategory(postDataState.category.value);
     }
-  }, [itemDataState.category.value, category]);
+  }, [postDataState.category?.value, category]);
 
+  // Update itemType if changed in the form state
   useEffect(() => {
-    if (itemDataState.itemType && itemDataState.itemType.value !== itemType) {
-      setItemType(itemDataState.itemType.value);
+    if (postDataState.itemType && postDataState.itemType.value !== itemType) {
+      setItemType(postDataState.itemType.value);
     }
-  }, [itemDataState.itemType.value, itemType]);
+  }, [postDataState.itemType?.value, itemType]);
 
+  // Set local images from postDataState when available
   useEffect(() => {
-    // Check if itemData is available and itemDataState.images has value
-    if (itemData && itemDataState.images?.value && localImages.length === 0) {
-      // Only set localImages once when initially loading the data
-      setLocalImages(itemDataState.images.value);
+    if (postDataState.images?.value && localImages.length === 0) {
+      setLocalImages(postDataState.images.value);
     }
-  }, [itemData, itemDataState.images?.value, localImages.length]); // Depend on itemData and itemDataState.images
+  }, [postDataState.images?.value, localImages.length]);
 
+  // Fetch user data
   useEffect(() => {
     if (userId) {
       dispatch(fetchUser(userId));
     }
   }, [userId, dispatch]);
 
-  // item not found alert add here
+  // Handle errors and redirect if needed
   useEffect(() => {
     const handleError = async () => {
       if (!loading && error) {
@@ -316,7 +319,7 @@ const EditItem = () => {
 
   if (
     loading ||
-    !itemData ||
+    !postData ||
     error ||
     loadingFetchUser ||
     (!loading && error)
@@ -328,26 +331,41 @@ const EditItem = () => {
     setLocalImages(currentImages);
     setRemovedImages(removedImagesList);
 
-    // Extract filenames
+    // If you're only supposed to have 5 images max, check here
+    if (currentImages.length > 5) {
+      ShowAlert(dispatch, "error", "Error", "Maximum of 5 images only.");
+      return; // Exit early if too many images
+    }
+
+    // Extract filenames safely
     const filenames = currentImages.map((image) => {
+      // Handle File objects
       if (image.file && image.file.name) {
-        return image.file.name; // For files
+        return image.file.name;
       }
-      // For blob URLs, extract a default or placeholder filename
-      const blobFilename = image.preview || image;
-      return (
-        blobFilename.substring(blobFilename.lastIndexOf("/") + 1) || "blob-file"
-      );
+      // Handle string URLs
+      if (typeof image === "string") {
+        return image.substring(image.lastIndexOf("/") + 1) || "image.jpg";
+      }
+      // Handle objects with preview property
+      if (image.preview && typeof image.preview === "string") {
+        return (
+          image.preview.substring(image.preview.lastIndexOf("/") + 1) ||
+          "preview.jpg"
+        );
+      }
+      // Fallback
+      return "image.jpg";
     });
 
-    // Dispatch updates to Redux
-    dispatch(updateField({ name: "images", value: filenames })); // Use filenames instead of full objects
+    // Now dispatch the properly formatted filenames
+    dispatch(updateField({ name: "images", value: filenames }));
     dispatch(blurField({ name: "images", value: filenames }));
   };
 
-  const handleGenerateData = () => {
-    dispatch(generateSampleData());
-  };
+  // const handleGenerateData = () => {
+  //   dispatch(generateSampleData());
+  // };
 
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
@@ -405,6 +423,7 @@ const EditItem = () => {
     const serializedDates = datesDurations.map((dateObj) => ({
       date: formatDateFromSelectDate(dateObj.date),
       durations: dateObj.durations,
+      status: "available",
     }));
 
     // Format the removed dates to 'yy-mm-dd'
@@ -415,12 +434,11 @@ const EditItem = () => {
     // Set the formatted removed dates
     setRemovedDates(formattedRemovedDates);
 
-    // Dispatch the action for the selected dates
+    // Set the selected dates and durations
     setSelectedDatesDurations(datesDurations);
-    dispatch(updateAvailableDates(serializedDates));
 
-    // Log the formatted removed dates for debugging
-    console.log(formattedRemovedDates);
+    // Update the available dates in the form state
+    dispatch(updateAvailableDates(serializedDates));
   };
 
   const handleCategoryChange = (selectedCategory) => {
@@ -431,32 +449,64 @@ const EditItem = () => {
 
   const handleSubmit = async () => {
     try {
+      // Check if postDataState is defined
+      if (!postDataState) {
+        console.error("postDataState is not defined");
+        ShowAlert(
+          dispatch,
+          "error",
+          "Error",
+          "Form data is not ready. Please try again."
+        );
+        return;
+      }
+
+      // Log the state for debugging
+      console.log("Current postDataState:", postDataState);
+      console.log("Current postData:", postData);
+
       let hasErrors = false;
       const errors = {};
 
-      Object.keys(itemDataState).forEach((key) => {
+      // Validate all fields
+      Object.keys(postDataState).forEach((key) => {
         if (key !== "isFormValid") {
+          // Skip rental-specific fields for sale items
           if (
-            itemType === FOR_SALE &&
+            postData.itemType === FOR_SALE &&
             ["lateCharges", "repairReplacement", "securityDeposit"].includes(
               key
             )
           ) {
             return;
           }
-          const field = itemDataState[key];
-          const { hasError, error } = validateInput(key, field.value);
 
-          if (hasError) {
-            hasErrors = true;
-            errors[key] = error;
-            dispatch(
-              blurField({ name: key, value: field.value, itemType: FOR_SALE })
-            );
+          const field = postDataState[key];
+          // Add a check to ensure field exists before accessing its value
+          if (field && field.value !== undefined) {
+            const { hasError, error } = validateInput(key, field.value);
 
-            if (key === "availableDates") {
-              dispatch(updateAvailableDates(field.value));
+            if (hasError) {
+              hasErrors = true;
+              errors[key] = error;
+              dispatch(
+                blurField({
+                  name: key,
+                  value: field.value,
+                  itemType: postData.itemType,
+                })
+              );
+
+              if (key === "requestDates") {
+                dispatch(updateAvailableDates(field.value));
+              }
             }
+          } else {
+            // Handle the case where field is undefined or doesn't have a value property
+            console.warn(`Field ${key} is undefined or missing value property`);
+            // Optionally set a default error for this field
+            hasErrors = true;
+            errors[key] = `Field ${key} is required`;
           }
         }
       });
@@ -473,7 +523,8 @@ const EditItem = () => {
         return;
       }
 
-      if (!localImages.length) {
+      // Validate images
+      if (!localImages || !localImages.length) {
         ShowAlert(
           dispatch,
           "error",
@@ -482,101 +533,144 @@ const EditItem = () => {
         );
         return;
       }
+
+      // Prepare form data for submission
       const formData = new FormData();
-      localImages
-        .filter((image) => image.file instanceof File) // Filter only File objects
-        .forEach((image) => formData.append("upload_images", image.file));
 
-      removedImages.forEach((image) => {
-        formData.append("remove_images", image);
-      });
+      // Add new images to upload
+      if (localImages && Array.isArray(localImages)) {
+        localImages
+          .filter((image) => image.file instanceof File)
+          .forEach((image) => formData.append("upload_images", image.file));
+      }
 
-      const itemData = {
-        [itemType === FOR_RENT ? "ownerId" : "sellerId"]: userId,
-        category: itemDataState.category.value,
-        itemName: itemDataState.itemName.value,
-        itemCondition: itemDataState.itemCondition.value,
-        deliveryMethod: itemDataState.deliveryMethod.value,
-        paymentMethod: itemDataState.paymentMethod.value,
-        price: itemDataState.price.value,
-        desc: itemDataState.desc.value,
-        tags: itemDataState.tags.value,
-        dates: itemDataState.availableDates.value,
-        toRemoveDates: removedDates,
-        specs: itemDataState.specs.value,
-        ...(itemType === FOR_RENT && {
-          lateCharges: itemDataState.lateCharges.value,
-          securityDeposit: itemDataState.securityDeposit.value,
-          repairReplacement: itemDataState.repairReplacement.value,
-        }),
+      // Add removed images to the form data
+      if (removedImages && Array.isArray(removedImages)) {
+        removedImages.forEach((image) => {
+          formData.append("remove_images", image);
+        });
+      }
+
+      // Prepare the post data object with optional chaining to prevent errors
+      const postDataToSubmit = {
+        itemId: id,
+        userId: userId,
+        category: postDataState.category?.value || "",
+        itemName: postDataState.itemName?.value || "",
+        desc: postDataState.desc?.value || "",
+        tags: postDataState.tags?.value || [],
+        dates: postDataState.requestDates?.value || [],
+        toRemoveDates: removedDates || [],
+        specs: postDataState.specs?.value || {},
+        itemType: postData?.itemType || "FOR_SALE", // Include itemType in the submission with default
       };
 
-      formData.append(
-        itemType === FOR_RENT ? "listing" : "item",
-        JSON.stringify(itemData)
-      );
+      // Add rental-specific fields if applicable
+      if (postData?.itemType === TO_RENT) {
+        postDataToSubmit.lateCharges = postDataState.lateCharges?.value || 0;
+        postDataToSubmit.securityDeposit =
+          postDataState.securityDeposit?.value || 0;
+        postDataToSubmit.repairReplacement =
+          postDataState.repairReplacement?.value || "";
+      }
 
-      const endpoint =
-        itemType === FOR_RENT
-          ? `/listings/users/${userId}/update/${id}`
-          : `/item-for-sale/users/${userId}/update/${id}`;
+      formData.append("item", JSON.stringify(postDataToSubmit));
 
+      // Determine the correct endpoint based on item type
+      const endpoint = `http://localhost:3001/posts/users/19/update/46`;
+
+      console.log("Submitting to endpoint:", endpoint);
+
+      // Debug the form data being sent
+      console.log("Form data being sent:", {
+        url: endpoint,
+        formDataEntries: [...formData.entries()].map((entry) => ({
+          key: entry[0],
+          value:
+            entry[0] === "To Rent" || entry[0] === "To Buy"
+              ? JSON.parse(entry[1])
+              : entry[1] instanceof File
+              ? `File: ${entry[1].name}`
+              : entry[1],
+        })),
+      });
+
+      // Show loading notification
       ShowAlert(dispatch, "loading", "Submitting changes", "Please wait...");
-      const response = await axios.patch(`${baseApi}${endpoint}`, formData, {
+
+      // Make the API request with a timeout
+      const response = await axios.patch(endpoint, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        timeout: 30000, // 30 seconds timeout
       });
 
+      console.log("API response:", response);
+
+      // Send notification if successful
       if (socket) {
         const notification = {
-          title: `New ${itemType === FOR_RENT ? "Listing!" : "Item for Sale!"}`,
+          title: `Updated post!`,
           owner: {
-            name: user.user.fname + " " + user.user.lname,
+            name: user?.user?.fname + " " + user?.user?.lname || "User",
           },
-          message:
-            itemType === FOR_RENT
-              ? "has added a new rental listing."
-              : "has listed an item for sale.",
-          type:
-            itemType === FOR_RENT
-              ? "new-listing-notification"
-              : "new-item-for-sale-notification",
+          message: "has updated their post.",
+          type: "update-post-notification",
         };
         socket.emit(notification.type, notification);
       }
 
+      // Show success notification
       ShowAlert(
         dispatch,
         "success",
         "Success",
-        `Item for ${itemType === FOR_RENT ? "listing" : "sale"} changed!`
+        `Looking for post updated successfully!`
       );
+
+      // Navigate to the item detail page
+      // setTimeout(() => {
+      //   navigate(`/posts/46`);
+      // }, 2000);
     } catch (error) {
-      ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
+      // Log detailed error information
       console.error("Submission error:", error);
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response?.data,
+      });
+
+      ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
+
       const errorMessage =
         error.response?.data?.message || "Failed to update. Please try again.";
       ShowAlert(dispatch, "error", "Error", errorMessage);
+    } finally {
+      // Reset any loading state if needed
+      dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
   return (
     <div className="container-content add-item-detail">
-      <BreadCrumb breadcrumbs={editItemBreadcrumbs({ itemType })} />
-      <button onClick={handleGenerateData}>Generate Sample Data</button>
+      <BreadCrumb breadcrumbs={editPostBreadcrumbs({ itemType })} />
+      {/* <button onClick={handleGenerateData}>Generate Sample Data</button> */}
       <div className="add-item-container">
         <div className="imgs-container">
-          <Tooltip title={`This item is ${itemType}`}>
+          <Tooltip title={`This item is ${postData.itemType}`}>
             <img
-              src={itemType === FOR_RENT ? forRentIcon : forSaleIcon}
-              alt={itemType}
+              src={postData.itemType === TO_RENT ? forRentIcon : forSaleIcon}
+              alt={postData.itemType}
               className="item-type"
             />
           </Tooltip>
-          {itemDataState.images.triggered && itemDataState.images.hasError && (
-            <ValidationError message={itemDataState.images.error} />
-          )}
+          {postDataState.images?.triggered &&
+            postDataState.images?.hasError && (
+              <ValidationError message={postDataState.images.error} />
+            )}
+
           <AddImage
             images={localImages}
             onChange={handleImagesChange}
@@ -589,41 +683,29 @@ const EditItem = () => {
             values={{
               college: user?.student?.college,
               category,
-              itemType,
+              itemType: postData.itemType,
             }}
             isEditPage={true}
             onItemTypeChange={handleItemTypeChange}
             onCategoryChange={handleCategoryChange}
           />
-          {itemDataState.category.triggered &&
-            itemDataState.category.hasError && (
+          {postDataState.category?.triggered &&
+            postDataState.category?.hasError && (
               <div className="validation error">
                 <img src={warningIcon} className="icon" alt="Error indicator" />
-                <span className="text">{itemDataState.category.error}</span>
+                <span className="text">{postDataState.category.error}</span>
               </div>
             )}
 
           <FormField
-            label= {itemDataState.itemType.value === FOR_RENT ? "For Rent" : "For Sale"}
+            label={postData.itemType === TO_RENT ? "To Rent" : "To Buy"}
             id="itemName"
-            value={itemDataState.itemName.value}
+            value={postDataState.itemName?.value || ""}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
-            error={itemDataState.itemName.error}
-            triggered={itemDataState.itemName.triggered}
-            placeholder="Add item name"
-          />
-
-          <FormField
-            label={<span className="price">₱</span>}
-            id="price"
-            value={itemDataState.price.value}
-            onChange={handleFieldChange}
-            onBlur={handleFieldBlur}
-            error={itemDataState.price.error}
-            triggered={itemDataState.price.triggered}
-            placeholder="Add price"
-            className="field-container item-price"
+            error={postDataState.itemName?.error}
+            triggered={postDataState.itemName?.triggered}
+            placeholder="Add post item name"
           />
 
           {/* Action Buttons */}
@@ -651,21 +733,18 @@ const EditItem = () => {
                 Message
               </button>
               <button className="btn btn-rectangle primary" disabled>
-                {itemDataState.itemType.value === FOR_RENT ? "Rent" : "Buy"}
+                Offer
               </button>
             </div>
           </Tooltip>
 
           <hr />
 
-          {itemDataState.availableDates.triggered &&
-            itemDataState.availableDates.hasError && (
+          {postDataState.requestDates?.triggered &&
+            postDataState.requestDates?.hasError && (
               <div className="validation error d-block">
                 <img src={warningIcon} className="icon" alt="Error indicator" />
-                <span className="text">
-                  {" "}
-                  {itemDataState.availableDates.error}
-                </span>
+                <span className="text">{postDataState.requestDates.error}</span>
               </div>
             )}
 
@@ -718,7 +797,7 @@ const EditItem = () => {
                     return "bg-danger"; // Mark the unavailable dates with bg-danger
                   } else if (
                     selectedDatesDurations.some(
-                      (d) => new Date(d.date).getTime() === date.getTime()
+                      (d) => date.getTime() === new Date(d.date).getTime()
                     )
                   ) {
                     return "bg-blue"; // Mark the highlighted dates with bg-blue
@@ -734,163 +813,14 @@ const EditItem = () => {
               {renderDurations()}
             </div>
           </div>
-
-          {/* Delivery and Payment Methods */}
-          <div className="group-container delivery-method">
-            <label className="label">Delivery Method</label>
-            <div className="delivery-method">
-              <Tooltip
-                title="Owner did not set delivery method, you decide whether to meetup or pickup."
-                placement="bottom"
-                componentsProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, -10],
-                        },
-                      },
-                    ],
-                  },
-                }}
-              >
-                <div className="action-btns">
-                  <button
-                    className={`value ${
-                      itemDataState.deliveryMethod.value === MEET_UP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "deliveryMethod", value: MEET_UP })
-                      )
-                    }
-                  >
-                    Meet up
-                  </button>
-                  <button
-                    className={`value ${
-                      itemDataState.deliveryMethod.value === PICK_UP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "deliveryMethod", value: PICK_UP })
-                      )
-                    }
-                  >
-                    Pick up
-                  </button>
-                </div>
-              </Tooltip>
-            </div>
-          </div>
-          {itemDataState.deliveryMethod.triggered &&
-            itemDataState.deliveryMethod.hasError && (
-              <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
-                <span className="text">
-                  {itemDataState.deliveryMethod.error}
-                </span>
-              </div>
-            )}
-
-          <div className="group-container payment-method ">
-            <label className="label">Payment Method</label>
-            <div className="delivery-method">
-              <Tooltip
-                title="Owner did not set delivery method, you decide whether to meetup or pickup."
-                placement="bottom"
-              >
-                <div className="action-btns">
-                  <button
-                    className={`value ${
-                      itemDataState.paymentMethod.value === GCASH
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "paymentMethod", value: GCASH })
-                      )
-                    }
-                  >
-                    Gcash
-                  </button>
-                  <button
-                    className={`value ${
-                      itemDataState.paymentMethod.value === PAY_UPON_MEETUP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({
-                          name: "paymentMethod",
-                          value: PAY_UPON_MEETUP,
-                        })
-                      )
-                    }
-                  >
-                    Pay upon meetup
-                  </button>
-                </div>
-              </Tooltip>
-            </div>
-          </div>
-
-          {itemDataState.paymentMethod.triggered &&
-            itemDataState.paymentMethod.hasError && (
-              <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
-                <span className="text">
-                  {itemDataState.paymentMethod.error}
-                </span>
-              </div>
-            )}
-
-          <FormField
-            label="Item Condition"
-            id="itemCondition"
-            value={itemDataState.itemCondition.value}
-            onChange={handleFieldChange}
-            onBlur={handleFieldBlur}
-            error={itemDataState.itemCondition.error}
-            triggered={itemDataState.itemCondition.triggered}
-            placeholder="Select item condition"
-            type="select"
-            options={[
-              "New",
-              "Used (like new)",
-              "Used (fair)",
-              "Used (good)",
-              "Poor",
-            ]}
-          />
-
-          {itemType === FOR_RENT ? (
-            <div className="group-container terms">
-              <AddTerms
-                values={{
-                  lateCharges: itemDataState?.lateCharges?.value,
-                  securityDeposit: itemDataState?.securityDeposit?.value,
-                  repairReplacement: itemDataState?.repairReplacement?.value,
-                }}
-              />
-            </div>
-          ) : (
-            ""
-          )}
         </div>
       </div>
-      <UserToolbar user={user.user} isYou={true} />
+      <UserToolbar user={user?.user} isYou={true} />
+
       <AddItemDescAndSpecs
-        specs={itemDataState.specs.value}
-        desc={itemDataState.desc.value}
-        tags={itemDataState.tags.value}
+        specs={postDataState.specs?.value || []}
+        desc={postDataState.desc?.value || ""}
+        tags={postDataState.tags?.value || []}
         onSpecsChange={(newSpecs) =>
           dispatch(updateField({ name: "specs", value: newSpecs }))
         }
@@ -903,14 +833,14 @@ const EditItem = () => {
           dispatch(blurField({ name: "tags", value: newTags }));
         }}
         errors={{
-          specs: itemDataState.specs.error,
-          desc: itemDataState.desc.error,
-          tags: itemDataState.tags.error,
+          specs: postDataState.specs?.error,
+          desc: postDataState.desc?.error,
+          tags: postDataState.tags?.error,
         }}
         triggered={{
-          specs: itemDataState.specs.triggered,
-          desc: itemDataState.desc.triggered,
-          tags: itemDataState.tags.triggered,
+          specs: postDataState.specs?.triggered,
+          desc: postDataState.desc?.triggered,
+          tags: postDataState.tags?.triggered,
         }}
       />
 
@@ -923,27 +853,32 @@ const EditItem = () => {
 
       <Modal
         show={showComparison}
-        onClose={() => setShowComparison(false)}
+        onHide={() => setShowComparison(false)}
         contentLabel="Changes Comparison"
       >
-        <div className="flex justify-end mb-4">
+        <Modal.Header closeButton>
+          <Modal.Title>Review Changes</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <ComparisonView
+            originalData={originalData}
+            currentData={postDataState}
+          />
+        </Modal.Body>
+        <Modal.Footer>
           <button
-            className="text-gray-500 hover:text-gray-700"
+            className="btn btn-secondary"
             onClick={() => setShowComparison(false)}
           >
-            Close
+            Cancel
           </button>
-        </div>
-        <ComparisonView
-          originalData={originalData}
-          currentData={itemDataState}
-        />
-        <button className="btn btn-primary" onClick={() => handleSubmit()}>
-          Submit
-        </button>
+          <button className="btn btn-primary" onClick={handleSubmit}>
+            Confirm and Submit
+          </button>
+        </Modal.Footer>
       </Modal>
     </div>
   );
 };
 
-export default EditItem;
+export default EditPost;

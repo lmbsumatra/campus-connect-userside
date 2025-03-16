@@ -31,6 +31,16 @@ router.post(
   PostController2.createPost
 );
 router.get("/:id", PostContoller.getPostById);
+router.get(
+  "/users/:userId/get/:postId",
+  upload_item,
+  PostController2.getPostById
+);
+router.patch(
+  "/users/:userId/update/:postId",
+  upload_item,
+  PostController2.updatePostById
+);
 router.put("/:id", PostContoller.updatePost);
 router.delete("/:id", PostContoller.deletePost);
 router.patch("/:id", PostContoller.updateStatus);

@@ -36,6 +36,7 @@ import rentalReportsReducer from "../redux/reports/RentalReportsSlice";
 import postMatchedItemsReducer from "../redux/post/postMatchedItems.js";
 import systemConfigReducer from "../redux/system-config/systemConfigSlice.js";
 import followingsReducer from "../redux/user/followingsSlice.js";
+import postByIdReducer from "../redux/post/postByIdSlice.js";
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -74,6 +75,7 @@ const appReducer = combineReducers({
   rentalReports: rentalReportsReducer,
   systemConfig: systemConfigReducer,
   followings: followingsReducer,
+  postById: postByIdReducer,
 });
 
 // Root reducer with reset functionality

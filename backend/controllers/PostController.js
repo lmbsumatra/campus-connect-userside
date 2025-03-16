@@ -106,7 +106,7 @@ exports.getAvailablePostsByUser = async (req, res) => {
     const posts = await models.Post.findAll({
       where: {
         status: "approved",
-        renter_id: userId, // Filter by userId
+        user_id: userId, // Filter by userId
       },
       include: [
         {
@@ -148,7 +148,7 @@ exports.getAllPosts = async (req, res) => {
         "id",
         "post_item_name",
         "tags",
-        "renter_id",
+        "user_id",
         "category",
         "created_at",
         "status",
@@ -246,7 +246,7 @@ exports.getAllPosts = async (req, res) => {
 
 //     // Fetch the post owner information
 //     const owner = await models.User.findOne({
-//       where: { user_id: req.body.post.renter_id },
+//       where: { user_id: req.body.post.user_id },
 //       attributes: ["user_id", "first_name", "last_name"],
 //     });
 

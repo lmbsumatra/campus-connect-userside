@@ -1,7 +1,6 @@
-import { FOR_RENT, FOR_SALE } from "./consonants";
+import { FOR_RENT, FOR_SALE, TO_BUY, TO_RENT } from "./consonants";
 
 export const addItemBreadcrumbs = ({ itemType }) => [
-  
   { label: "Home", href: "/" },
   { label: "Profile", href: "/profile" },
   {
@@ -63,5 +62,18 @@ export const editItemBreadcrumbs = ({ itemType }) => [
         : itemType === FOR_SALE
         ? "/profile/my-for-sale/edit"
         : "/unknown",
+  },
+];
+
+export const editPostBreadcrumbs = ({ itemType }) => [
+  { label: "Home", href: "/" },
+  { label: "Profile", href: "/profile" },
+  {
+    label: "My Posts",
+    href: "/profile/my-posts",
+  },
+  {
+    label: "Edit Post",
+    href: "/profile/my-posts/edit",
   },
 ];
