@@ -51,8 +51,9 @@ const Lend = () => {
         <FilterToolbar
           filters={filters}
           setFilters={setFilters}
-          showPriceRange={true}
+          showPriceRange={false}
           onFilterChange={handleFilterChange}
+          
         />
 
         <button
@@ -75,6 +76,7 @@ const Lend = () => {
             applyFilters={handleFilterChange}
             filters={filters}
             setFilters={setFilters}
+            isPost={true}
           />
         )}
       </div>

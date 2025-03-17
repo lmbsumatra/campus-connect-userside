@@ -4,7 +4,7 @@ const { faker } = require("@faker-js/faker");
 
 // Function to generate random listing data
 const generateRandomListing = () => {
-  const predefinedOwnerIds = [51, 179];
+  const predefinedOwnerIds = [19];
 
   const generateTags = () => {
     return [faker.word.noun().toLowerCase()];
@@ -20,7 +20,7 @@ const generateRandomListing = () => {
     itemName: faker.commerce.productName().trim(),
     category: faker.commerce.department(),
     itemCondition: faker.helpers.arrayElement(["New", "Used", "Refurbished"]),
-    paymentMethod: faker.helpers.arrayElement(["payment upon meetup", "Cash"]),
+    paymentMethod: faker.helpers.arrayElement(["payment upon meetup", "gcash"]),
     price: parseFloat(faker.commerce.price()),
     desc: faker.lorem.sentence(),
     tags: generateTags(),

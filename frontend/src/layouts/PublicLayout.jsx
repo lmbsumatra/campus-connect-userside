@@ -1,15 +1,14 @@
-import React, { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-import TopBar from '../components/topbar/TopBar';
-import Footer from '../components/users/footer/Footer';
-import FAB from '../components/common/fab/FAB';
-import TrialOnNavbar from '../trials/TrialOnNavbar';
-import { fetchUser } from '../redux/user/userSlice';
-import { selectStudentUser } from '../redux/auth/studentAuthSlice';
-
-
+import TopBar from "../components/topbar/TopBar";
+import Footer from "../components/users/footer/Footer";
+import FAB from "../components/common/fab/FAB";
+import TrialOnNavbar from "../trials/TrialOnNavbar";
+import { fetchUser } from "../redux/user/userSlice";
+import { selectStudentUser } from "../redux/auth/studentAuthSlice";
+import PendingUserApproval from "../components/topbar/PendingUserApproval";
 
 function PublicLayout() {
   const dispatch = useDispatch();
@@ -34,10 +33,13 @@ function PublicLayout() {
   return (
     <>
       {studentUser?.userId && !loadingFetchUser && (
-        <TopBar isVerified={isVerified} user={user?.user} />
+        <>
+          <TopBar isVerified={isVerified} user={user?.user} />
+          <PendingUserApproval isVerified={isVerified} user={user?.user} />
+        </>
       )}
       {isDarkTheme && <TrialOnNavbar theme="dark" />}
-      
+
       <FAB icon="+" />
       <Outlet />
       <Footer />

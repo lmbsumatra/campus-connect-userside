@@ -28,6 +28,7 @@ const FilterModal = ({
   close,
   applyFilters,
   isListingsPage = false,
+  isPost = false,
 }) => {
   const handleFilterChange = (key, value) => {
     setFilters((prevFilters) => ({
@@ -58,7 +59,7 @@ const FilterModal = ({
 
   const handleApplyFilters = () => {
     applyFilters(filters);
-    close(); 
+    close();
   };
 
   return (
@@ -84,71 +85,79 @@ const FilterModal = ({
         </Form.Group>
 
         {/* Delivery Method Dropdown */}
-        <Form.Group className="mb-3">
-          <Form.Label>Category</Form.Label>
-          <Form.Select
-            value={filters.deliveryMethod}
-            onChange={(e) =>
-              handleFilterChange("deliveryMethod", e.target.value)
-            }
-          >
-            <option value="">Pick delivery method</option>
-            {DELIVERYMODE.map((mode) => (
-              <option key={mode} value={mode}>
-                {mode}
-              </option>
-            ))}
-          </Form.Select>
-        </Form.Group>
+        {isPost !== true && (
+          <Form.Group className="mb-3">
+            <Form.Label>Category</Form.Label>
+            <Form.Select
+              value={filters.deliveryMethod}
+              onChange={(e) =>
+                handleFilterChange("deliveryMethod", e.target.value)
+              }
+            >
+              <option value="">Pick delivery method</option>
+              {DELIVERYMODE.map((mode) => (
+                <option key={mode} value={mode}>
+                  {mode}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        )}
 
         {/* Payment Method Dropdown */}
-        <Form.Group className="mb-3">
-          <Form.Label>Payment Method</Form.Label>
-          <Form.Select
-            value={filters.paymentMethod}
-            onChange={(e) =>
-              handleFilterChange("paymentMethod", e.target.value)
-            }
-          >
-            <option value="">Pick payment method</option>
-            {PAYMENTMODE.map((mode) => (
-              <option key={mode} value={mode}>
-                {mode}
-              </option>
-            ))}
-          </Form.Select>
-        </Form.Group>
+        {isPost !== true && (
+          <Form.Group className="mb-3">
+            <Form.Label>Payment Method</Form.Label>
+            <Form.Select
+              value={filters.paymentMethod}
+              onChange={(e) =>
+                handleFilterChange("paymentMethod", e.target.value)
+              }
+            >
+              <option value="">Pick payment method</option>
+              {PAYMENTMODE.map((mode) => (
+                <option key={mode} value={mode}>
+                  {mode}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        )}
 
         {/* Price Range */}
-        <Form.Group className="mb-3">
-          <Form.Label>Price Range</Form.Label>
-          <RangeSlider
-            min={0}
-            max={1000}
-            step={10}
-            value={filters.priceRange}
-            onInput={(value) => handleFilterChange("priceRange", value)}
-          />
-          <div>
-            <span>₱{filters.priceRange[0]}</span> -{" "}
-            <span>₱{filters.priceRange[1]}</span>
-          </div>
-        </Form.Group>
+        {isPost !== true && (
+          <Form.Group className="mb-3">
+            <Form.Label>Price Range</Form.Label>
+            <RangeSlider
+              min={0}
+              max={1000}
+              step={10}
+              value={filters.priceRange}
+              onInput={(value) => handleFilterChange("priceRange", value)}
+            />
+            <div>
+              <span>₱{filters.priceRange[0]}</span> -{" "}
+              <span>₱{filters.priceRange[1]}</span>
+            </div>
+          </Form.Group>
+        )}
 
         {/* Condition Checkboxes */}
-        <Form.Group className="mb-3">
-          <Form.Label>Condition</Form.Label>
-          {CONDITIONS.map((condition) => (
-            <Form.Check
-              key={condition}
-              type="checkbox"
-              label={condition}
-              value={condition}
-              checked={filters.condition.includes(condition)}
-              onChange={() => handleConditionChange(condition)}
-            />
-          ))}
-        </Form.Group>
+        {isPost !== true && (
+          <Form.Group className="mb-3">
+            <Form.Label>Condition</Form.Label>
+            {CONDITIONS.map((condition) => (
+              <Form.Check
+                key={condition}
+                type="checkbox"
+                label={condition}
+                value={condition}
+                checked={filters.condition.includes(condition)}
+                onChange={() => handleConditionChange(condition)}
+              />
+            ))}
+          </Form.Group>
+        )}
 
         {isListingsPage && (
           <>
@@ -204,17 +213,19 @@ const FilterModal = ({
         </Form.Group>
 
         {/* Sorting Options */}
-        <Form.Group className="mb-3">
-          <Form.Label>Sort By</Form.Label>
-          <Form.Select
-            value={filters.sortBy}
-            onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-          >
-            <option value="">None</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-          </Form.Select>
-        </Form.Group>
+        {isPost !== true && (
+          <Form.Group className="mb-3">
+            <Form.Label>Sort By</Form.Label>
+            <Form.Select
+              value={filters.sortBy}
+              onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+            >
+              <option value="">None</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+            </Form.Select>
+          </Form.Group>
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={close}>

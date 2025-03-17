@@ -1,21 +1,30 @@
 .top-bar-notification {
-    background-color:blueviolet;
-    color: white !important;
-    padding: 10px 10px 1px 10px;
-    text-align: center;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    
-  }
-  
-  .top-bar-notification a {
-    color: #c5e1ff;
-    text-decoration: underline;
-    font-weight: bold;
-    
-  }
-  .top-bar-notification p {
-    color: white;
-  }
-  
+  background-color: blueviolet;
+  color: white !important;
+  padding: 10px 10px 1px 10px;
+  text-align: center;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.pending-topbar-notification {
+  background-color: rgb(226, 168, 43);
+  color: white !important;
+  padding: 10px 10px 1px 10px;
+  text-align: center;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.pending-topbar-notification a,
+.top-bar-notification a {
+  color: #c5e1ff;
+  text-decoration: underline;
+  font-weight: bold;
+}
+.pending-topbar-notification p,
+.top-bar-notification p {
+  color: white;
+}

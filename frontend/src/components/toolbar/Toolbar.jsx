@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import deleteIcon from "../../assets/images/toolbar/delete.svg";
 import listIcon from "../../assets/images/toolbar/list.svg";
 import cardIcon from "../../assets/images/toolbar/card.svg";
 import filterIcon from "../../assets/images/toolbar/filter.svg";
 import "./toolbarStyles.css";
-import FilterModal from "../../pages/private/users/student-profile/FilterModal";
 import { Tooltip } from "@mui/material";
+import { defaultFilters } from "../../utils/consonants";
+import FilterFunction from "../item-filter/FilterFunction";
+import FilterModal from "../../pages/private/users/student-profile/FilterModal";
 
 function Toolbar({
   selectedItems = [],
@@ -15,31 +17,40 @@ function Toolbar({
   onAction,
   items = [],
   onSearch,
-  onFilter,
   filterOptions,
+  isYou,
+  isPostPage = false,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
-
   const isAllSelected = selectedItems.length === items.length;
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const handleShowFilterModal = () => {
-    setShowFilterModal(!showFilterModal);
-  };
+  const [filters, setFilters] = useState(defaultFilters);
+  const [showAdvancefilter, setShowAdvanceFilter] = useState(false);
+  const [filteredItems, setFilteredItems] = useState(items);
 
-  // Handle search term change
+  useEffect(() => {
+    setFilteredItems(items);
+  }, [items]);
+
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    onSearch(e.target.value); // Pass search term to parent component
+    const term = e.target.value;
+    setSearchTerm(term);
+    onSearch(term);
+    const updatedItems = items.filter((item) =>
+      item.name.toLowerCase().includes(term.toLowerCase())
+    );
+    filterOptions(updatedItems);
   };
 
-  // Handle filter change
-  const handleFilterChange = (e) => {
-    onFilter(e.target.value); // Pass filter value to parent component
+  const handleFilterChange = async (filters) => {
+    console.log({ items, filters });
+    const updatedItems = await FilterFunction(items, filters, true);
+    console.log(FilterFunction(items, filters, false));
+    setFilteredItems(updatedItems);
+    filterOptions(updatedItems);
   };
 
   return (
     <div className="toolbar">
-      {/* Select/Deselect All Checkbox */}
       <div className="select-container">
         <label className="select">
           <input
@@ -51,7 +62,6 @@ function Toolbar({
         </label>
       </div>
 
-      {/* Search Input */}
       <div className="search-container light">
         <input
           type="text"
@@ -62,25 +72,30 @@ function Toolbar({
         />
       </div>
 
-      <div className="">
+      <div>
         <Tooltip title="Click to use advance filter">
           <button
             className="btn btn-icon tertiary"
-            onClick={() => handleShowFilterModal()}
+            onClick={() => setShowAdvanceFilter(true)}
           >
             <img src={filterIcon} alt="Filter icon" />
           </button>
         </Tooltip>
       </div>
 
-      {/* Filter Modal */}
-      <FilterModal
-        show={showFilterModal}
-        handleClose={() => setShowFilterModal(false)} // Close modal
-        items={items}
-      />
+      {showAdvancefilter && (
+        <FilterModal
+          showFilterModal={showAdvancefilter}
+          close={() => setShowAdvanceFilter(false)}
+          applyFilters={handleFilterChange}
+          filters={filters}
+          setFilters={setFilters}
+          isYou={isYou}
+          isListingsPage={true}
+          isPostPage={isPostPage}
+        />
+      )}
 
-      {/* Toggle View Button */}
       <div className="view-type">
         <Tooltip
           title={`Click to view in ${viewType === "card" ? "list" : "card"}`}
@@ -95,14 +110,13 @@ function Toolbar({
         </Tooltip>
       </div>
 
-      {/* Action Button (Delete) */}
-      <div className="">
+      <div>
         <Tooltip
-          title={`${
+          title={
             selectedItems.length === 0
-              ? "Select an item to delete "
+              ? "Select an item to delete"
               : "Click to delete selected item"
-          }`}
+          }
         >
           <button
             className="btn btn-icon tertiary"

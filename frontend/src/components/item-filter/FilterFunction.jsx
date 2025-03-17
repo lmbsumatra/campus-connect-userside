@@ -54,9 +54,9 @@ const FilterFunction = (items, filters, usePriceRange = true) => {
   }
 
   if (filters.sortBy === "price_asc") {
-    filteredItems.sort((a, b) => a.price - b.price);
-  } else if (filters.sortBy === "desc") {
-    filteredItems.sort((a, b) => b.price - a.price);
+    filteredItems = [...filteredItems].sort((a, b) => a.price - b.price);
+  } else if (filters.sortBy === "price_desc") {
+    filteredItems = [...filteredItems].sort((a, b) => b.price - a.price);
   }
 
   if (filters.lateCharges) {
@@ -71,6 +71,20 @@ const FilterFunction = (items, filters, usePriceRange = true) => {
     filteredItems = filteredItems.filter(
       (item) => item.repairReplacement !== (null || undefined || "")
     );
+  }
+
+  if (filters.dateAvailable && filters.dateAvailable !== "") {
+    filteredItems = filteredItems.filter((item) =>
+      item.availableDates.some(
+        (dateObj) => dateObj.date === filters.dateAvailable
+      )
+    );
+  }
+
+  if (filters.status && filters.status !== "") {
+    filteredItems = filteredItems.filter((item) => {
+      return item.status === filters.status;
+    });
   }
   return filteredItems;
 };

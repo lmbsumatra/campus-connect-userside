@@ -46,5 +46,6 @@ router.delete("/:id", PostContoller.deletePost);
 router.patch("/:id", PostContoller.updateStatus);
 // New route for updating post status and emitting notifications
 router.patch("/:id/status", authenticateToken, updatePostStatus);
+router.delete("/:users/:userId/delete/:postId", PostController2.deletePostById);
 
 module.exports = router;

@@ -7,6 +7,7 @@ const getAllPostsByUser = require("./getAllPostsByUser");
 const matchedItems = require("./matchedItems.js");
 const getPostById = require("./getPostById.js");
 const updatePostById = require("./updatePostById.js");
+const deletePostById = require("./deletePostById.js");
 
 const PostController = {
   getAllAvailablePost,
@@ -17,7 +18,8 @@ const PostController = {
   getAllPostsByUser,
   matchedItems,
   getPostById,
-  updatePostById
+  updatePostById,
+  deletePostById
 };
 
 module.exports = PostController;

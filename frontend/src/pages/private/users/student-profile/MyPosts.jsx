@@ -1,13 +1,23 @@
-import { useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../../../../context/AuthContext";
 import BorrowingPost from "../../../../components/post-card/PostCard";
-import { useDispatch, useSelector } from "react-redux";
 import TimeoutComponent from "../../../../utils/TimeoutComponent";
 import LoadingPostCardSkeleton from "../../../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
 import Toolbar from "../../../../components/toolbar/Toolbar";
-import { fetchAllPostsByUser } from "../../../../redux/post/allPostsByUserSlice";
+import {
+  fetchAllPostsByUser,
+  deletePostById,
+} from "../../../../redux/post/allPostsByUserSlice";
+import ShowAlert from "../../../../utils/ShowAlert";
 
 function MyPosts() {
+  const [error, setError] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [viewType, setViewType] = useState("card");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredItems, setFilteredItems] = useState([]);
+
   const dispatch = useDispatch();
   const { studentUser } = useAuth();
   const { userId } = studentUser;
@@ -15,31 +25,132 @@ function MyPosts() {
     useSelector((state) => state.allPostsByUser);
 
   useEffect(() => {
-    dispatch(fetchAllPostsByUser(userId));
-  }, [dispatch]);
+    if (userId) {
+      dispatch(fetchAllPostsByUser(userId));
+    }
+  }, [userId, dispatch]);
+
+  useEffect(() => {
+    if (allPostsByUser) {
+      setFilteredItems(allPostsByUser);
+    }
+  }, [allPostsByUser]);
+
+  useEffect(() => {
+    if (errorAllPostsUser) {
+      setError(errorAllPostsUser);
+    }
+  }, [errorAllPostsUser]);
+
+  const handleDelete = useCallback(
+    async (postId) => {
+      try {
+        ShowAlert(dispatch, "loading", "Deleting...");
+        await dispatch(deletePostById({ userId, postId })).unwrap();
+        ShowAlert(dispatch, "success", "Post deleted successfully!");
+        dispatch(fetchAllPostsByUser(userId));
+      } catch (error) {
+        console.error("Error deleting post:", error);
+        ShowAlert(
+          dispatch,
+          "error",
+          "Error",
+          error?.message || "Failed to delete post!"
+        );
+      }
+    },
+    [dispatch, userId]
+  );
+
+  const handleBulkDelete = useCallback(async () => {
+    if (!selectedItems.length) {
+      ShowAlert(dispatch, "warning", "No posts selected for deletion");
+      return;
+    }
+
+    try {
+      ShowAlert(dispatch, "loading", "Deleting selected posts...");
+      await Promise.all(
+        selectedItems.map((postId) =>
+          dispatch(deletePostById({ userId, postId })).unwrap()
+        )
+      );
+
+      ShowAlert(dispatch, "success", "Selected posts deleted successfully!");
+      setSelectedItems([]);
+      dispatch(fetchAllPostsByUser(userId));
+    } catch (error) {
+      console.error("Error deleting posts:", error);
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        error?.message || "Failed to delete posts!"
+      );
+    }
+  }, [selectedItems, dispatch, userId]);
 
   return (
     <div className="item-container">
-      <Toolbar />
-      <div className="card-items-container">
-        <TimeoutComponent
-          timeoutDuration={5000}
-          fallback={
-            <div className="card-container">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <LoadingPostCardSkeleton key={index} />
-              ))}
-            </div>
-          }
-        >
-          <BorrowingPost
-            borrowingPosts={allPostsByUser}
-            title="Looking for..."
-            isProfileVisit={false}
+      {error ? (
+        <div>Error: {error}</div>
+      ) : (
+        <>
+          <Toolbar
+            selectedItems={selectedItems}
+            onSelectAll={() => {
+              setSelectedItems(
+                selectedItems.length === allPostsByUser.length
+                  ? []
+                  : allPostsByUser.map((post) => post.id)
+              );
+            }}
+            onViewToggle={() =>
+              setViewType((prev) => (prev === "card" ? "table" : "card"))
+            }
+            viewType={viewType}
+            onAction={handleBulkDelete}
+            items={allPostsByUser}
+            onSearch={setSearchTerm}
+            filterOptions={setFilteredItems}
+            isPostPage={true}
+            
           />
-        </TimeoutComponent>
-      </div>
+
+          <div className="card-items-container">
+            <TimeoutComponent
+              timeoutDuration={1000}
+              fallback={
+                <div className="card-container">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <LoadingPostCardSkeleton key={index} />
+                  ))}
+                </div>
+              }
+            >
+              <BorrowingPost
+                borrowingPosts={filteredItems}
+                title="Looking for..."
+                isProfileVisit={false}
+                onDelete={handleDelete}
+                selectedItems={selectedItems}
+                onSelectItem={(postId) => {
+                  setSelectedItems((prev) =>
+                    prev.includes(postId)
+                      ? prev.filter((id) => id !== postId)
+                      : [...prev, postId]
+                  );
+                }}
+                viewType={viewType}
+                isYou={true}
+                
+              />
+            </TimeoutComponent>
+          </div>
+        </>
+      )}
     </div>
   );
 }
+
 export default MyPosts;

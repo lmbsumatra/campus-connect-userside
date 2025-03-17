@@ -32,18 +32,24 @@ function MyListings() {
     errorAllListingsByUser,
   } = useSelector((state) => state.allListingsByUser);
 
+  const [filteredItems, setFilteredItems] = useState(allListingsByUser);
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchAllListingsByUser(userId));
     }
   }, [userId, dispatch]);
-
+  useEffect(() => {
+    if (allListingsByUser) {
+      setFilteredItems(allListingsByUser); // Initialize with all listings
+    }
+  }, [allListingsByUser]);
   useEffect(() => {
     if (errorAllListingsByUser) {
       setError(errorAllListingsByUser);
     }
   }, [errorAllListingsByUser]);
-  // Highlight logic for listing cards
+
   useEffect(() => {
     if (highlightId && allListingsByUser.length > 0) {
       const element = document.getElementById(`listing-${highlightId}`);
@@ -54,6 +60,7 @@ function MyListings() {
       }
     }
   }, [highlightId, allListingsByUser]);
+
   const handleOptionClick = useCallback(
     async (e, option, item) => {
       e.stopPropagation();
@@ -120,7 +127,7 @@ function MyListings() {
     }
   }, [selectedItems, dispatch, userId]);
 
-  if (loadingAllListingsByUser) {
+  if (loadingAllListingsByUser || !allListingsByUser) {
     return <div>Loading...</div>;
   }
 
@@ -146,10 +153,13 @@ function MyListings() {
             onAction={handleBulkDelete}
             items={allListingsByUser}
             onSearch={setSearchTerm}
+            filterOptions={setFilteredItems}
+            isYou={true}
           />
+
           <div className="card-items-container">
             <TimeoutComponent
-              timeoutDuration={5000}
+              timeoutDuration={1000}
               fallback={
                 <div className="card-container">
                   {Array.from({ length: 4 }).map((_, index) => (
@@ -160,7 +170,7 @@ function MyListings() {
             >
               <ItemList
                 itemType={FOR_RENT}
-                items={allListingsByUser.filter((item) =>
+                items={filteredItems.filter((item) =>
                   item.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )}
                 title="For Rent"

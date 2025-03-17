@@ -7,7 +7,7 @@ const FilterToolbar = ({
   filters,
   setFilters,
   onFilterChange,
-  showPriceRange,
+  showPriceRange = false,
 }) => {
   useEffect(() => {
     setSelectedCondition(filters.condition || []);

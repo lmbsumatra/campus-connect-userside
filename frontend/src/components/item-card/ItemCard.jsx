@@ -43,7 +43,10 @@ const ItemCard = ({
   const navigate = useNavigate();
 
   // Use the custom sorting hook
-  const { sortedItems, sortConfig, handleSort } = useSortItems(items);
+  const { sortedItems, sortConfig, handleSort } = useSortItems(
+    isYou ? items : [] // If sorted in MyListings, pass an empty array
+  );
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       const activeRef = dropdownRefs.current[activeDropdown];
@@ -115,7 +118,8 @@ const ItemCard = ({
     );
   };
 
-  const displayItems = isYou ? sortedItems : items; // Use sorted items only if isYou
+  const displayItems = isYou ? (items.length > 0 ? items : sortedItems) : items;
+  // Use sorted items only if isYou
 
   // Render items as cards
   const renderCardView = () => (
@@ -222,30 +226,32 @@ const ItemCard = ({
                 <img src={cartIcon} alt="Add to cart" />
               </button>
 
-              <div
-                className="option"
-                ref={(el) => (dropdownRefs.current[index] = el)}
-              >
-                <button
-                  className="btn btn-icon secondary option"
-                  onClick={(e) => handleDropdownToggle(e, index)}
+              {isYou && (
+                <div
+                  className="option"
+                  ref={(el) => (dropdownRefs.current[index] = el)}
                 >
-                  <img src={moreIcon} alt="More options" />
-                </button>
-                {activeDropdown === index && (
-                  <div className="menu">
-                    {["view", "edit", "delete"].map((option) => (
-                      <button
-                        key={option}
-                        className="item"
-                        onClick={(e) => onOptionClick(e, option, item)}
-                      >
-                        {option.charAt(0).toUpperCase() + option.slice(1)}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                  <button
+                    className="btn btn-icon secondary option"
+                    onClick={(e) => handleDropdownToggle(e, index)}
+                  >
+                    <img src={moreIcon} alt="More options" />
+                  </button>
+                  {activeDropdown === index && (
+                    <div className="menu">
+                      {["edit", "delete"].map((option) => (
+                        <button
+                          key={option}
+                          className="item"
+                          onClick={(e) => onOptionClick(e, option, item)}
+                        >
+                          {option.charAt(0).toUpperCase() + option.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {isYou && (
@@ -297,7 +303,11 @@ const ItemCard = ({
               )}
             </td>
             <td>
-              <img src={item1} alt={item.name} className="img-thumbnail" />
+              <img
+                src={item.images[0] || [defaultImages]}
+                alt={item.name}
+                className="img-thumbnail"
+              />
             </td>
             <td>{item.name}</td>
             <td>
