@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/swiper-bundle.css";
 import "../adminDashboardStyles.css";
 import { useNavigate } from "react-router-dom";
+import {
+  User,
+  Users,
+  FilePlus,
+  ShoppingCart,
+  FileText,
+  Handshake,
+  Flag,
+} from "lucide-react";
 
 import useFetchAllUsersData from "../../../../../utils/FetchAllUsersData";
 import useFetchAllListingsData from "../../../../../utils/FetchAllListingsData";
@@ -20,9 +20,9 @@ import useFetchAllPostsData from "../../../../../utils/FetchAllPostsData";
 import useFetchAllReportsData from "../../../../../utils/FetchAllReportsData";
 import useFetchAllTransactionsData from "../../../../../utils/FetchAllTransactionsData";
 import useFetchAllItemsForSaleData from "../../../../../utils/FetchAllItemsForSaleData";
-
 import useFetchRecentActivities from "../../../../../utils/FetchRecentActivities";
-import useAdminDashboardAnalytics from "../../../../../components/Analytics/AdminDashboardAnalytics";
+
+import { GrowthData } from "../../../../../components/Analytics/AdminDashboardAnalytics";
 
 const AdminDashboard = () => {
   const { activities } = useFetchRecentActivities();
@@ -34,24 +34,6 @@ const AdminDashboard = () => {
   const { transactions } = useFetchAllTransactionsData();
   const sale = useFetchAllItemsForSaleData();
   const navigate = useNavigate();
-
-  const [timeInterval, setTimeInterval] = useState("monthly"); // Default to monthly
-  const { getGrowthData } = useAdminDashboardAnalytics({
-    users,
-    listings,
-    posts,
-    sales: sale.items,
-  });
-
-  const growthData = getGrowthData(timeInterval);
-
-  const chartData = growthData.users.map((userData, index) => ({
-    date: userData.date,
-    users: userData.count,
-    listings: growthData.listings[index]?.count || 0,
-    posts: growthData.posts[index]?.count || 0,
-    sales: growthData.sales[index]?.count || 0,
-  }));
 
   // State to store fetched values for status cards
   const [statusData, setStatusData] = useState({
@@ -87,38 +69,38 @@ const AdminDashboard = () => {
     {
       title: "Active Users",
       value: `${statusData.activeUsers}`,
-      icon: require("../../../../../assets/images/icons/user2.png"),
-      color: "#C31F3B",
+      icon: <Users size={30} color="#3498db" />,
+      color: "#3498db",
     },
     {
       title: "Active Listings",
       value: `${statusData.activeListings}`,
-      icon: require("../../../../../assets/images/icons/listing.png"),
-      color: "#ED4700",
+      icon: <FilePlus size={30} color="#f39c12" />,
+      color: "#f39c12",
     },
     {
       title: "Up Posts",
       value: `${statusData.upPosts}`,
-      icon: require("../../../../../assets/images/icons/posts.png"),
-      color: "#D06400",
+      icon: <FileText size={30} color="#e74c3c" />,
+      color: "#e74c3c",
     },
     {
-      title: "Average Transactions",
+      title: "Transactions",
       value: `${statusData.averageTransactions}`,
-      icon: require("../../../../../assets/images/icons/transact.png"),
-      color: "#026800",
+      icon: <Handshake size={30} color="#27ae60" />,
+      color: "#27ae60",
     },
     {
       title: "Reports",
       value: `${statusData.reports}`,
-      icon: require("../../../../../assets/images/icons/report.png"),
-      color: "#2E3192",
+      icon: <Flag size={30} color="#c0392b" />,
+      color: "#c0392b",
     },
     {
       title: "Sales",
       value: `${statusData.sales}`,
-      icon: require("../../../../../assets/images/icons/report.png"),
-      color: "#2E3192",
+      icon: <ShoppingCart size={30} color="#8e44ad" />,
+      color: "#8e44ad",
     },
   ];
 
@@ -160,20 +142,17 @@ const AdminDashboard = () => {
           slidesPerView={1}
           pagination={{ clickable: true }}
           breakpoints={{
-            480: { slidesPerView: 1 }, // For mobile screens
-            768: { slidesPerView: 3 }, // For tablets
-            1024: { slidesPerView: 5 }, // For desktop
+            0: { slidesPerView: 2 },
+            480: { slidesPerView: 2 }, // Mobile: Show 1 per row
+            768: { slidesPerView: 3 }, // Tablets: Show 3 per row
+            1024: { slidesPerView: 6 }, // Desktop: Show 6 per row
           }}
         >
           {statusCards.map((card, index) => (
             <SwiperSlide key={index}>
               <div className="status-card">
                 <div className="status-content">
-                  <img
-                    src={card.icon}
-                    alt={card.title}
-                    className="status-icon"
-                  />
+                  {card.icon} {/* Directly render the React component */}
                   <div>
                     <h6>{card.title}</h6>
                     <span
@@ -206,21 +185,24 @@ const AdminDashboard = () => {
               {activities.map((activity, index) => (
                 <tr key={index}>
                   <td>
-                    <img
-                      src={
-                        activity.type === "New User"
-                          ? require("../../../../../assets/images/icons/user-icon.png")
-                          : activity.type === "New Listing"
-                          ? require("../../../../../assets/images/icons/new-listing.png")
-                          : activity.type === "New Transaction"
-                          ? require("../../../../../assets/images/icons/new-transact.png")
-                          : activity.type === "New Post"
-                          ? require("../../../../../assets/images/icons/new-post.png")
-                          : null
-                      }
-                      alt=""
-                      className="activity-icon"
-                    />
+                    {activity.type === "New User" && (
+                      <User size={20} color="#3498db" />
+                    )}
+                    {activity.type === "New Listing" && (
+                      <FilePlus size={20} color="#f39c12" />
+                    )}
+                    {activity.type === "New Rental Transaction" && (
+                      <Handshake size={20} color="#27ae60" />
+                    )}
+                    {activity.type === "New Post" && (
+                      <FileText size={20} color="#e74c3c" />
+                    )}
+                    {activity.type === "New Sale" && (
+                      <ShoppingCart size={20} color="#8e44ad" />
+                    )}
+                    {activity.type === "New Report" && (
+                      <Flag size={20} color="#c0392b" />
+                    )}
                     {activity.type}
                   </td>
                   <td>{activity.description}</td>
@@ -242,27 +224,12 @@ const AdminDashboard = () => {
 
       <div className="charts-section">
         <div className="chart-card">
-          <h3>Growth Overview</h3>
-          <select
-            value={timeInterval}
-            onChange={(e) => setTimeInterval(e.target.value)}
-          >
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={chartData}>
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="users" stroke="#8884d8" />
-              <Line type="monotone" dataKey="listings" stroke="#82ca9d" />
-              <Line type="monotone" dataKey="posts" stroke="#ffc658" />
-              <Line type="monotone" dataKey="sales" stroke="#ff7300" />
-            </LineChart>
-          </ResponsiveContainer>
+          <GrowthData
+            users={users}
+            listings={listings}
+            posts={posts}
+            sales={sale.items}
+          />
         </div>
       </div>
     </div>

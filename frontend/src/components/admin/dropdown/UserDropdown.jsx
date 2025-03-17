@@ -11,6 +11,7 @@ const UserDropdown = ({
   toggleDropdown,
   handleClick,
   handleLogout,
+  adminUser,
 }) => {
   return (
     <div className="nav-item">
@@ -24,10 +25,11 @@ const UserDropdown = ({
           <div className="dropdown-header">
             <img src={UserIcon} alt="User" className="profile-img" />
             <div className="profile-info">
-              <h5>Justin Bieber</h5>
-              <h6>
-                <a href="/profile">View Profile</a>
-              </h6>
+              <h5>
+                {adminUser
+                  ? `${adminUser.firstName} ${adminUser.lastName}`
+                  : "Loading..."}
+              </h5>
             </div>
             <button className="close-btn" onClick={toggleDropdown}>
               &times; {/* Close icon */}

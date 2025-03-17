@@ -10,23 +10,27 @@ Admin.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    user_id: { 
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'users', 
-        key: 'user_id',
+        model: "users",
+        key: "user_id",
       },
     },
     profile_pic: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    refreshToken: {
+      type: DataTypes.STRING, // Store the refresh token here
+      allowNull: true,
+    },
   },
   {
     sequelize,
     modelName: "Admin",
-    tableName: "admins"
+    tableName: "admins",
   }
 );
 

@@ -35,11 +35,11 @@ export const AuthProvider = ({ children }) => {
         // Token is already expired, log out the user
         logoutAdmin();
       } else {
-        // Refresh the token 5 minutes before it expires
+        // Refresh the token 10 minutes before it expires
         const timeUntilExpiration = expirationTime - currentTime;
         const refreshTimeout = setTimeout(() => {
           refreshAdminToken();
-        }, timeUntilExpiration - 5 * 60 * 1000); // 5 minutes before expiration
+        }, timeUntilExpiration - 10 * 60 * 1000); // 10 minutes before expiration
 
         return () => clearTimeout(refreshTimeout);
       }
@@ -72,8 +72,37 @@ export const AuthProvider = ({ children }) => {
     console.log("Admin logged in:", newUser);
   };
 
-  const logoutAdmin = () => {
-    console.log("Logging out admin..."); // Debugging
+  const logoutAdmin = async () => {
+    if (!adminUser) return;
+
+    const logoutData = {
+      admin_id: adminUser.userId, // Ensure this matches your DB field
+      role: adminUser.role,
+      action: "Logout",
+      endpoint: "/admin/logout",
+      details: `${adminUser.firstName} ${adminUser.lastName} logged out`,
+    };
+
+    try {
+      const response = await fetch(`${baseApi}/admin/audit-logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(logoutData),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to log logout event:", await response.text());
+      } else {
+        console.log("Logout event logged successfully");
+      }
+    } catch (error) {
+      console.error("Error logging logout event:", error);
+    }
+
+    // Proceed with logout even if logging fails
+    console.log("Logging out admin...");
     setAdminUser(null);
     localStorage.removeItem("adminUser");
   };

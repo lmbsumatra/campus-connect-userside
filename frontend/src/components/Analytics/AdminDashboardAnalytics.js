@@ -1,6 +1,17 @@
-import { useMemo } from "react";
+import React, { useState } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
-const useAdminDashboardAnalytics = ({ users, listings, posts, sales }) => {
+export const GrowthData = ({ users, listings, posts, sales }) => {
+  const [timeInterval, setTimeInterval] = useState("monthly"); // Default to monthly
+
   const calculateGrowthData = (data, interval) => {
     if (!data || data.length === 0) return [];
 
@@ -40,7 +51,39 @@ const useAdminDashboardAnalytics = ({ users, listings, posts, sales }) => {
     };
   };
 
-  return { getGrowthData };
-};
+  const growthData = getGrowthData(timeInterval);
 
-export default useAdminDashboardAnalytics;
+  const chartData = growthData.users.map((userData, index) => ({
+    date: userData.date,
+    users: userData.count,
+    listings: growthData.listings[index]?.count || 0,
+    posts: growthData.posts[index]?.count || 0,
+    sales: growthData.sales[index]?.count || 0,
+  }));
+
+  return (
+    <div className="chart-card">
+      <h3>Growth Overview</h3>
+      <select
+        value={timeInterval}
+        onChange={(e) => setTimeInterval(e.target.value)}
+      >
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <ResponsiveContainer width="100%" height={400}>
+        <LineChart data={chartData}>
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="users" stroke="#8884d8" />
+          <Line type="monotone" dataKey="listings" stroke="#82ca9d" />
+          <Line type="monotone" dataKey="posts" stroke="#ffc658" />
+          <Line type="monotone" dataKey="sales" stroke="#ff7300" />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};

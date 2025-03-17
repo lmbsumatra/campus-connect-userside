@@ -11,6 +11,7 @@ const loginAdmin = require("./loginAdmin");
 const registerAdmin = require("./registerAdmin");
 const refreshAdminToken = require("./refreshAdminToken");
 const allUnavailableDates = require("./allUnavailableDates");
+const logAdminLogout = require("./logAdminLogout");
 
 const AdminController = {
   addEndSemesterDate,
@@ -25,7 +26,8 @@ const AdminController = {
   loginAdmin,
   registerAdmin,
   refreshAdminToken,
-  allUnavailableDates
+  allUnavailableDates,
+  logAdminLogout,
 };
 
 module.exports = AdminController;

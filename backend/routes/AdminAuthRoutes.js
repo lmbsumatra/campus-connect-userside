@@ -80,4 +80,6 @@ router.post(
   AdminController.refreshAdminToken
 );
 
+router.post("/audit-logout", AdminController.logAdminLogout);
+
 module.exports = router;

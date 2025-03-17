@@ -1,4 +1,6 @@
 const User = require("../../models/UserModel");
+const AuditLog = require("../../models/AuditLogModel");
+const Admin = require("../../models/AdminModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -16,18 +18,44 @@ const loginAdmin = async (req, res) => {
     const user = await User.findOne({
       where: {
         email,
-        role: {
-          [Op.or]: ["admin", "superadmin"],
-        },
+        role: { [Op.or]: ["admin", "superadmin"] },
       },
     });
+
     if (!user) {
+      // Log failed login attempt (Invalid email)
+      await AuditLog.create({
+        admin_id: null,
+        role: "unknown",
+        action: "FAILED_LOGIN",
+        endpoint: "/admin/login",
+        details: JSON.stringify({ email, reason: "Invalid credentials" }),
+      });
+
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      // Log failed login attempt (Invalid password)
+      await AuditLog.create({
+        admin_id: user.user_id,
+        role: user.role,
+        action: "FAILED_LOGIN",
+        endpoint: "/admin/login",
+        details: JSON.stringify({ email, reason: "Incorrect password" }),
+      });
+
       return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Ensure the user is an admin by checking the Admin model
+    const admin = await Admin.findOne({
+      where: { user_id: user.user_id },
+    });
+
+    if (!admin) {
+      return res.status(403).json({ message: "Unauthorized access" });
     }
 
     // Update last login time
@@ -37,21 +65,27 @@ const loginAdmin = async (req, res) => {
     const token = jwt.sign(
       { adminId: user.user_id, role: user.role },
       JWT_SECRET,
-      { expiresIn: "15m" } // Short-lived access token
+      { expiresIn: "1h" }
     );
 
     const refreshToken = jwt.sign(
       { adminId: user.user_id, role: user.role },
       JWT_REFRESH_SECRET,
-      { expiresIn: "5d" } // Long-lived refresh token
+      { expiresIn: "5d" }
     );
 
-    // Debugging: Display tokens
-    // Debugging: Log token generation time
-    const currentTime = new Date().toLocaleString();
-    console.log("Tokens generated at:", currentTime);
-    console.log("Generated Access Token:", token);
-    console.log("Generated Refresh Token:", refreshToken);
+    // Store the refresh token in the database
+    admin.refreshToken = refreshToken;
+    await admin.save();
+
+    // Log successful login attempt
+    await AuditLog.create({
+      admin_id: user.user_id,
+      role: user.role,
+      action: "SUCCESSFUL_LOGIN",
+      endpoint: "/admin/login",
+      details: JSON.stringify({ email }),
+    });
 
     res.status(200).json({
       message: "Login successful",

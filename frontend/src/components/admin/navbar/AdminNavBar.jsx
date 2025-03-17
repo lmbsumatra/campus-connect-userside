@@ -133,6 +133,7 @@ const AdminNavBar = () => {
             showDropdown={openPopup === "dropdown"}
             toggleDropdown={() => togglePopup("dropdown")}
             handleLogout={handleLogout}
+            adminUser={adminUser}
           />
         </div>
       </div>
