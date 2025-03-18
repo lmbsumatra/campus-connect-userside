@@ -27,12 +27,15 @@ const getAllAvailable = async (req, res) => {
           model: models.Date,
           as: "available_dates",
           required: true,
-          where: { item_type: "item_for_sale" },
+          where: { item_type: "item_for_sale", status: "available" },
           include: [
             {
               model: models.Duration,
               as: "durations",
               required: true,
+              where: {
+                status: "available",
+              },
             },
           ],
         },
