@@ -28,7 +28,7 @@ const formatTransactionsForFrontend = (transactions, userId) => {
       .reduce((sum, tx) => sum + (tx.revenue || 0), 0),
 
     successfulTransactions: transactions.filter(
-      (tx) => tx.status === "Completed" && tx.owner_id === Number(userId)
+      (tx) => tx.status === "Completed"
     ).length,
 
     // Additional helpful statistics

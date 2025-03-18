@@ -16,7 +16,7 @@ const TransactionsTable = ({ transactions }) => {
 
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesPaymentMethod = filter.paymentMethod
-      ? transaction.payment_mode === filter.paymentMethod
+      ? transaction.paymentMethod === filter.paymentMethod
       : true;
     const matchesTransactionType = filter.transactionType
       ? transaction.transactionType === filter.transactionType
@@ -28,18 +28,29 @@ const TransactionsTable = ({ transactions }) => {
     return matchesPaymentMethod && matchesTransactionType && matchesStatus;
   });
 
-  const getValue = (transaction, key) => {
-    if (key === "rate" || key === "listing_name") {
-      return transaction.Listing ? transaction.Listing[key] : "";
-    }
-    return transaction[key];
-  };
-
   const sortedTransactions = [...filteredTransactions].sort((a, b) => {
     if (!sortConfig.key) return 0;
     const order = sortConfig.direction === "asc" ? 1 : -1;
-    const aValue = getValue(a, sortConfig.key);
-    const bValue = getValue(b, sortConfig.key);
+    
+    let aValue, bValue;
+    
+    switch (sortConfig.key) {
+      case "amount":
+        aValue = parseFloat(a.totalAmount);
+        bValue = parseFloat(b.totalAmount);
+        break;
+      case "date":
+        aValue = new Date(a.createdAt);
+        bValue = new Date(b.createdAt);
+        break;
+      case "itemName":
+        aValue = a.itemName || "";
+        bValue = b.itemName || "";
+        break;
+      default:
+        aValue = a[sortConfig.key];
+        bValue = b[sortConfig.key];
+    }
 
     if (aValue < bValue) return -1 * order;
     if (aValue > bValue) return 1 * order;
@@ -79,11 +90,11 @@ const TransactionsTable = ({ transactions }) => {
           <thead>
             <tr>
               <th onClick={() => handleSort("id")}>ID {getSortArrow("id")}</th>
-              <th onClick={() => handleSort("createdAt")}>
-                Date {getSortArrow("createdAt")}
+              <th onClick={() => handleSort("date")}>
+                Date {getSortArrow("date")}
               </th>
               <th>
-                Transaction
+                Transaction Type
                 <select
                   className="filter-dropdown"
                   value={filter.transactionType}
@@ -92,10 +103,8 @@ const TransactionsTable = ({ transactions }) => {
                   }
                 >
                   <option value="">All</option>
-                  <option value="Rental">Rented</option>
-                  <option value="Rental">To</option>
-                  <option value="Buy and Sell">Sold</option>
-                  <option value="Buy and Sell">Bought</option>
+                  <option value="Rental">Rental</option>
+                  <option value="Purchase">Purchase</option>
                 </select>
               </th>
               <th>
@@ -108,17 +117,17 @@ const TransactionsTable = ({ transactions }) => {
                   }
                 >
                   <option value="">All</option>
-                  <option value="gcash">GCash</option>
-                  <option value="payment upon meetup">
+                  <option value="GCASH">GCash</option>
+                  <option value="PAYMENT UPON MEETUP">
                     Payment Upon Meetup
                   </option>
                 </select>
               </th>
-              <th onClick={() => handleSort("rate")}>
-                Amount{getSortArrow("rate")}
+              <th onClick={() => handleSort("amount")}>
+                Amount {getSortArrow("amount")}
               </th>
-              <th onClick={() => handleSort("listing_name")}>
-                Listing Name {getSortArrow("listing_name")}
+              <th onClick={() => handleSort("itemName")}>
+                Item Name {getSortArrow("itemName")}
               </th>
               <th>
                 Status
@@ -132,9 +141,6 @@ const TransactionsTable = ({ transactions }) => {
                   <option value="">All</option>
                   <option value="Requested">Requested</option>
                   <option value="Accepted">Accepted</option>
-                  <option value="Declined">Declined</option>
-                  <option value="HandedOver">Handed Over</option>
-                  <option value="Returned">Returned</option>
                   <option value="Completed">Completed</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
@@ -149,16 +155,18 @@ const TransactionsTable = ({ transactions }) => {
                   <td>{transaction.id}</td>
                   <td>{formatDate(transaction.createdAt)}</td>
                   <td>{transaction.transactionType}</td>
-                  <td>{transaction.payment_mode}</td>
-                  <td>P{transaction.Listing.rate}</td>
-                  <td>{transaction.Listing.listing_name}</td>
+                  <td>{transaction.paymentMethod}</td>
+                  <td>₱{transaction.totalAmount}</td>
+                  <td>{transaction.itemName}</td>
                   <td>{transaction.status}</td>
                   <td>
                     <button
                       className="table-edit-btn"
-                      onClick={() =>
-                        navigate(`/rent-progress/${transaction.id}`)
-                      }
+                      onClick={() => {
+                        const routePrefix = transaction.transactionType === "Rental" ? 
+                          "/rent-progress/" : "/purchase-progress/";
+                        navigate(`${routePrefix}${transaction.id}`);
+                      }}
                     >
                       View
                     </button>
@@ -187,7 +195,7 @@ const TransactionsTable = ({ transactions }) => {
           </span>
           <button
             className="btn btn-primary"
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={() => setCurrentPage(currentPage + 1)}
           >
             Next
