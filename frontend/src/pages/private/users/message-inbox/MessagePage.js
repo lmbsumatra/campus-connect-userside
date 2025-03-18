@@ -17,6 +17,12 @@ import ShowAlert from "../../../../utils/ShowAlert.js";
 import ReportModal from "../../../../components/report/ReportModal";
 import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
 import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
+import Swal from "sweetalert2";
+import { BsPersonCircle, BsThreeDotsVertical } from "react-icons/bs";
+import { AiOutlineSearch, AiOutlineFilter } from "react-icons/ai";
+import { RiCloseCircleLine } from "react-icons/ri";
+import { Link } from "react-router-dom";
+import { MdProductionQuantityLimits } from "react-icons/md";
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
@@ -51,6 +57,12 @@ const MessagePage = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportUser, setReportUser] = useState(null);
   const [hasReported, setHasReported] = useState({});
+  
+  // Block and delete functionality states
+  const [isBlocked, setIsBlocked] = useState({});
+  const [blockedBy, setBlockedBy] = useState({});
+  const [showUnblockButton, setShowUnblockButton] = useState(false);
+  
   const dispatch = useDispatch();
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
@@ -76,6 +88,7 @@ const MessagePage = () => {
   
   
   const { userId } = studentUser || {};
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
@@ -92,6 +105,14 @@ const MessagePage = () => {
     socket.current.on("connect", () => {
       console.log("Connected to WebSocket", socket.current.id);
       socket.current.emit("registerUser", userId);
+    });
+
+    socket.current.on("disconnect", () => {
+      console.log("Disconnected from WebSocket");
+    });
+
+    socket.current.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
     });
 
     socket.current.on("receiveMessage", (message) => {
@@ -140,11 +161,14 @@ const MessagePage = () => {
           return updatedConversations.sort(
             (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
           );
+        } else {
+          // Conversation doesn't exist in our state, possibly because it was deleted
+          // Fetch this conversation from the API
+          fetchDeletedConversation(message.conversationId);
+          
+          // Return current state for now, the fetch will update it
+          return prevConversations;
         }
-
-        // If somehow the conversation doesn't exist, just return the current state
-        // (This shouldn't happen in normal operation but prevents errors)
-        return prevConversations;
       });
 
       // If this message belongs to the active chat, update the active chat state
@@ -179,8 +203,72 @@ const MessagePage = () => {
       setAcceptedOffers((prev) => new Set([...prev, data.messageId]));
     });
 
+    // Listen for block status updates
+    socket.current.on("userBlocked", (data) => {
+      if (data.blockedId === userId) {
+        // Current user has been blocked
+        setBlockedBy(prev => ({
+          ...prev,
+          [data.blockerId]: true
+        }));
+        
+        // Update conversation in list if it exists
+        setConversations(prevConversations =>
+          prevConversations.map(conv =>
+            conv.otherUser.user_id === data.blockerId
+              ? { ...conv, blockedBy: true }
+              : conv
+          )
+        );
+        
+        // Update active chat if needed
+        if (activeChat && activeChat.otherUser.user_id === data.blockerId) {
+          setActiveChat(prev => ({
+            ...prev,
+            blockedBy: true
+          }));
+          
+          ShowAlert(dispatch, "info", "Blocked", "You have been blocked by this user.");
+        }
+      }
+    });
+    
+    socket.current.on("userUnblocked", (data) => {
+      if (data.unblockedId === userId) {
+        // Current user has been unblocked
+        setBlockedBy(prev => {
+          const updated = { ...prev };
+          delete updated[data.unblockerId];
+          return updated;
+        });
+        
+        // Update conversation in list if it exists
+        setConversations(prevConversations =>
+          prevConversations.map(conv =>
+            conv.otherUser.user_id === data.unblockerId
+              ? { ...conv, blockedBy: false }
+              : conv
+          )
+        );
+        
+        // Update active chat if needed
+        if (activeChat && activeChat.otherUser.user_id === data.unblockerId) {
+          setActiveChat(prev => ({
+            ...prev,
+            blockedBy: false
+          }));
+          
+          ShowAlert(dispatch, "info", "Unblocked", "You have been unblocked by this user.");
+        }
+      }
+    });
+
     return () => {
       if (socket.current) {
+        socket.current.off("receiveMessage");
+        socket.current.off("offerAccepted");
+        socket.current.off("userBlocked");
+        socket.current.off("userUnblocked");
         socket.current.disconnect();
       }
     };
@@ -214,6 +302,23 @@ const MessagePage = () => {
           return bLastMessage - aLastMessage;
         });
 
+        // Initialize block status from the API response
+        const newBlockedStatus = {};
+        const newBlockedByStatus = {};
+        
+        // Set blocked status for each conversation
+        sortedConversations.forEach(conversation => {
+          if (conversation.isBlocked) {
+            newBlockedStatus[conversation.otherUser.user_id] = true;
+          }
+          
+          if (conversation.blockedBy) {
+            newBlockedByStatus[conversation.otherUser.user_id] = true;
+          }
+        });
+        
+        setIsBlocked(newBlockedStatus);
+        setBlockedBy(newBlockedByStatus);
         setConversations(sortedConversations);
 
         // Once conversations are loaded, check if any users have been reported
@@ -257,6 +362,17 @@ const MessagePage = () => {
     if (!activeChat) return;
 
     try {
+      // Check if this user is blocked
+      if (isBlocked[recipientId]) {
+        ShowAlert(dispatch, "error", "Blocked", "You cannot send messages to users you have blocked. Unblock this user to continue the conversation.");
+        return;
+      }
+
+      if (blockedBy[recipientId]) {
+        ShowAlert(dispatch, "error", "Blocked", "This user has blocked you. You cannot send messages to them.");
+        return;
+      }
+
       // Send product card as a message if it exists
       if (product) {
         const productMessage = {
@@ -293,7 +409,7 @@ const MessagePage = () => {
             }],
           }));
 
-        await fetch(
+        const response = await fetch(
           `${
             process.env.REACT_APP_API_URL || "http://localhost:3001"
           }/api/conversations/${activeChat.id}/message`,
@@ -303,6 +419,30 @@ const MessagePage = () => {
             body: JSON.stringify(productMessage),
           }
         );
+
+        // Check if the request was unsuccessful due to blocking
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (response.status === 403) {
+            if (errorData.isBlocked) {
+              setIsBlocked(prev => ({
+                ...prev,
+                [recipientId]: true
+              }));
+              setShowUnblockButton(true);
+              ShowAlert(dispatch, "error", "Blocked", "You have blocked this user. Unblock them to send messages.");
+            } else if (errorData.blockedBy) {
+              setBlockedBy(prev => ({
+                ...prev,
+                [recipientId]: true
+              }));
+              ShowAlert(dispatch, "error", "Blocked", "You cannot send messages to this user as they have blocked you.");
+            } else {
+              ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to send message.");
+            }
+            return;
+          }
+        }
 
        // Emit the message via socket
         socket.current.emit("sendMessageToUser", {
@@ -344,6 +484,31 @@ const MessagePage = () => {
             body: JSON.stringify(messageData),
           }
         );
+        
+        // Check if the request was unsuccessful due to blocking
+        if (!res.ok) {
+          const errorData = await res.json();
+          if (res.status === 403) {
+            if (errorData.isBlocked) {
+              setIsBlocked(prev => ({
+                ...prev,
+                [recipientId]: true
+              }));
+              setShowUnblockButton(true);
+              ShowAlert(dispatch, "error", "Blocked", "You have blocked this user. Unblock them to send messages.");
+            } else if (errorData.blockedBy) {
+              setBlockedBy(prev => ({
+                ...prev,
+                [recipientId]: true
+              }));
+              ShowAlert(dispatch, "error", "Blocked", "You cannot send messages to this user as they have blocked you.");
+            } else {
+              ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to send message.");
+            }
+            return;
+          }
+        }
+        
         const savedMessage = await res.json();
 
         setActiveChat((prev) => ({
@@ -382,6 +547,7 @@ const MessagePage = () => {
       }
     } catch (err) {
       console.error("Error sending message:", err);
+      ShowAlert(dispatch, "error", "Error", "Failed to send message. Please try again.");
     }
   };
 
@@ -719,8 +885,55 @@ const MessagePage = () => {
       case 'block':
         // Show confirmation dialog for blocking
         if (window.confirm(`Are you sure you want to block ${chat.otherUser.first_name}?`)) {
-          // Implement block functionality here
-          alert(`${chat.otherUser.first_name} has been blocked.`);
+          try {
+            const response = await fetch(
+              `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/block`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  blockerId: studentUser.userId,
+                  blockedId: chat.otherUser.user_id
+                }),
+              }
+            );
+
+            if (response.ok) {
+              // Update UI to show user is blocked
+              setIsBlocked(prev => ({
+                ...prev,
+                [chat.otherUser.user_id]: true
+              }));
+              
+              // Update conversation in the list
+              setConversations(prevConversations =>
+                prevConversations.map(conv =>
+                  conv.otherUser.user_id === chat.otherUser.user_id
+                    ? { ...conv, isBlocked: true }
+                    : conv
+                )
+              );
+              
+              ShowAlert(dispatch, "success", "User Blocked", `${chat.otherUser.first_name} has been blocked.`);
+              
+              // If this is the active chat, show the unblock button
+              if (activeChat && activeChat.id === chat.id) {
+                setShowUnblockButton(true);
+              }
+              
+              // Emit socket event to notify the other user
+              socket.current.emit("blockUser", {
+                blockerId: studentUser.userId,
+                blockedId: chat.otherUser.user_id
+              });
+            } else {
+              const errorData = await response.json();
+              ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to block user.");
+            }
+          } catch (error) {
+            console.error("Error blocking user:", error);
+            ShowAlert(dispatch, "error", "Error", "An unexpected error occurred.");
+          }
         }
         break;
       case 'report':
@@ -742,8 +955,91 @@ const MessagePage = () => {
       case 'delete':
         // Show confirmation dialog for deleting
         if (window.confirm(`Are you sure you want to delete this conversation with ${chat.otherUser.first_name}?`)) {
-          // Implement delete functionality here
-          alert(`Conversation with ${chat.otherUser.first_name} has been deleted.`);
+          try {
+            const response = await fetch(
+              `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/delete`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  conversationId: chat.id,
+                  userId: studentUser.userId
+                }),
+              }
+            );
+
+            if (response.ok) {
+              // Remove conversation from local state
+              setConversations(prevConversations => 
+                prevConversations.filter(conv => conv.id !== chat.id)
+              );
+              
+              // If this was the active chat, clear it
+              if (activeChat && activeChat.id === chat.id) {
+                setActiveChat(null);
+              }
+              
+              ShowAlert(dispatch, "success", "Conversation Deleted", 
+                `Conversation with ${chat.otherUser.first_name} has been deleted.`);
+            } else {
+              const errorData = await response.json();
+              ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to delete conversation.");
+            }
+          } catch (error) {
+            console.error("Error deleting conversation:", error);
+            ShowAlert(dispatch, "error", "Error", "An unexpected error occurred.");
+          }
+        }
+        break;
+      case 'unblock':
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/unblock`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                blockerId: studentUser.userId,
+                blockedId: chat.otherUser.user_id
+              }),
+            }
+          );
+
+          if (response.ok) {
+            // Update local state to reflect unblock
+            setIsBlocked(prev => {
+              const updated = { ...prev };
+              delete updated[chat.otherUser.user_id];
+              return updated;
+            });
+            ShowAlert(dispatch, "success", "User Unblocked", "This user has been unblocked successfully.");
+            setShowUnblockButton(false);
+            
+            // Update any conversations with this user
+            setConversations(prevConversations =>
+              prevConversations.map(conv =>
+                conv.otherUser.user_id === chat.otherUser.user_id
+                  ? { ...conv, isBlocked: false }
+                  : conv
+              )
+            );
+            
+            // Emit socket event to notify the other user
+            socket.current.emit("unblockUser", {
+              unblockerId: studentUser.userId,
+              unblockedId: chat.otherUser.user_id
+            });
+            
+            return true;
+          } else {
+            const errorData = await response.json();
+            ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to unblock user.");
+            return false;
+          }
+        } catch (err) {
+          console.error("Error unblocking user:", err);
+          ShowAlert(dispatch, "error", "Error", "An unexpected error occurred while unblocking the user.");
+          return false;
         }
         break;
       default:
@@ -885,6 +1181,201 @@ const MessagePage = () => {
     checkReportedUsers();
   }, [conversations]);
 
+  // Handle blocking a user
+  const handleBlockUser = async (userId) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/block`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            blockerId: studentUser.userId,
+            blockedId: userId
+          }),
+        }
+      );
+
+      if (response.ok) {
+        // Update local state to reflect block
+        setIsBlocked(prev => ({
+          ...prev,
+          [userId]: true
+        }));
+        
+        // Update any conversations with this user
+        setConversations(prevConversations =>
+          prevConversations.map(conv =>
+            conv.otherUser.user_id === userId
+              ? { ...conv, isBlocked: true }
+              : conv
+          )
+        );
+        
+        ShowAlert(dispatch, "success", "User Blocked", "This user has been blocked successfully.");
+        
+        // Emit socket event to notify the other user
+        socket.current.emit("blockUser", {
+          blockerId: studentUser.userId,
+          blockedId: userId
+        });
+        
+        return true;
+      } else {
+        const errorData = await response.json();
+        ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to block user.");
+        return false;
+      }
+    } catch (err) {
+      console.error("Error blocking user:", err);
+      ShowAlert(dispatch, "error", "Error", "An unexpected error occurred while blocking the user.");
+      return false;
+    }
+  };
+
+  // Handle unblocking a user
+  const handleUnblockUser = async (userId) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/unblock`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            blockerId: studentUser.userId,
+            blockedId: userId
+          }),
+        }
+      );
+
+      if (response.ok) {
+        // Update local state to reflect unblock
+        setIsBlocked(prev => {
+          const updated = { ...prev };
+          delete updated[userId];
+          return updated;
+        });
+        ShowAlert(dispatch, "success", "User Unblocked", "This user has been unblocked successfully.");
+        setShowUnblockButton(false);
+        
+        // Update any conversations with this user
+        setConversations(prevConversations =>
+          prevConversations.map(conv =>
+            conv.otherUser.user_id === userId
+              ? { ...conv, isBlocked: false }
+              : conv
+          )
+        );
+        
+        // Emit socket event to notify the other user
+        socket.current.emit("unblockUser", {
+          unblockerId: studentUser.userId,
+          unblockedId: userId
+        });
+        
+        return true;
+      } else {
+        const errorData = await response.json();
+        ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to unblock user.");
+        return false;
+      }
+    } catch (err) {
+      console.error("Error unblocking user:", err);
+      ShowAlert(dispatch, "error", "Error", "An unexpected error occurred while unblocking the user.");
+      return false;
+    }
+  };
+
+  // Handle deleting a conversation
+  const handleDeleteConversation = async (conversationId) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/delete`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            conversationId: conversationId,
+            userId: studentUser.userId
+          }),
+        }
+      );
+
+      if (response.ok) {
+        // Remove conversation from local state
+        setConversations(prevConversations => 
+          prevConversations.filter(conv => conv.id !== conversationId)
+        );
+        
+        // If this was the active chat, clear it
+        if (activeChat && activeChat.id === conversationId) {
+          setActiveChat(null);
+        }
+        
+        ShowAlert(dispatch, "success", "Conversation Deleted", "The conversation has been deleted successfully.");
+        return true;
+      } else {
+        const errorData = await response.json();
+        ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to delete conversation.");
+        return false;
+      }
+    } catch (err) {
+      console.error("Error deleting conversation:", err);
+      ShowAlert(dispatch, "error", "Error", "An unexpected error occurred while deleting the conversation.");
+      return false;
+    }
+  };
+
+  // Helper function to fetch a conversation that was previously deleted
+  const fetchDeletedConversation = async (conversationId) => {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/single/${conversationId}/${userId}`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.conversation) {
+          // Add the conversation to our state
+          setConversations(prev => {
+            // Make sure we don't add duplicate conversations
+            if (!prev.some(conv => conv.id === data.conversation.id)) {
+              const updatedConvs = [...prev, data.conversation];
+              // Sort conversations by most recent activity
+              return updatedConvs.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            }
+            return prev;
+          });
+          
+          // Set conversation as unread
+          setUnreadMessages(prev => ({
+            ...prev,
+            [conversationId]: true
+          }));
+          
+          // Set block status if needed
+          if (data.conversation.isBlocked) {
+            setIsBlocked(prev => ({
+              ...prev,
+              [data.conversation.otherUser.user_id]: true
+            }));
+          }
+          
+          if (data.conversation.blockedBy) {
+            setBlockedBy(prev => ({
+              ...prev,
+              [data.conversation.otherUser.user_id]: true
+            }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching deleted conversation:", error);
+    }
+  };
+
   return (
     <div className="container-content message-page">
       <div className="message-content">
@@ -1005,9 +1496,9 @@ const MessagePage = () => {
                               </div>
                               <div 
                                 className="menu-option"
-                                onClick={(e) => handleConversationAction('block', chat, e)}
+                                onClick={(e) => handleConversationAction(isBlocked[chat.otherUser.user_id] ? 'unblock' : 'block', chat, e)}
                               >
-                                Block
+                                {isBlocked[chat.otherUser.user_id] ? 'Unblock' : 'Block'}
                               </div>
                               <div 
                                 className="menu-option"
@@ -1126,9 +1617,9 @@ const MessagePage = () => {
                             </div>
                             <div 
                               className="menu-option"
-                              onClick={(e) => handleConversationAction('block', chat, e)}
+                              onClick={(e) => handleConversationAction(isBlocked[chat.otherUser.user_id] ? 'unblock' : 'block', chat, e)}
                             >
-                              Block
+                              {isBlocked[chat.otherUser.user_id] ? 'Unblock' : 'Block'}
                             </div>
                             <div 
                               className="menu-option"
@@ -1366,82 +1857,106 @@ const MessagePage = () => {
                   )
                 )
               ) : (
-                <p>No messages yet.</p>
+                <p className="no-messages">No messages yet. Start a conversation!</p>
               )}
             </div>
-    
-            <div className="chat-input">
-            {selectedImages.length > 0 && (
-              <div className="preview-container">
-                {selectedImages.map((img, index) => (
-                  <div key={index} className="position-relative" 
-                       style={{width: '60px', height: '60px'}}>
-                    <img
-                      src={img}
-                      alt={`Preview ${index}`}
-                      className="img-thumbnail"
-                      onClick={() => handleImageClick(img)}
-                      style={{ cursor: 'pointer' }}
-                    />
-                    <button
-                      className="position-absolute top-0 start-100 translate-middle p-0 border-0 bg-transparent"
-                      onClick={() => removeImage(index)}
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        minWidth: '20px',
-                        transform: 'translate(-50%, -50%)'
-                      }}
-                    >
-                     <div className="d-flex align-items-center justify-content-center rounded-circle bg-danger"
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                          }}>
-                          <FiX size={12} color="white" />
-                        </div>
-                    </button>
-                  </div>
-                ))}
+
+            {/* Block status messages displayed where new messages would appear */}
+            {isBlocked[activeChat.otherUser.user_id] && (
+              <div className="block-status-message">
+                <p>You've blocked this user. You can't send or receive messages.</p>
+                <button 
+                  className="unblock-button"
+                  onClick={() => handleConversationAction('unblock', activeChat, { stopPropagation: () => {} })}
+                >
+                  Unblock
+                </button>
               </div>
             )}
-            
-            <div className="input-group">
-              <button
-                type="button"
-                className="attach-btn"
-                onClick={() => fileInputRef.current.click()}
-              >
-                <FiPaperclip size={20} />
-              </button>
+
+            {blockedBy[activeChat.otherUser.user_id] && (
+              <div className="block-status-message">
+                <p>You can't message this user because they've blocked you.</p>
+              </div>
+            )}
+
+            <div className="chat-input">
+              <div className="input-group">
+                <button
+                  type="button"
+                  className="attach-btn"
+                  onClick={() => fileInputRef.current.click()}
+                  disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
+                >
+                  <FiPaperclip size={20} />
+                </button>
+                
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="d-none"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
+                />
               
-              <input
-                type="file"
-                ref={fileInputRef}
-                className="d-none"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-              />
+                {selectedImages.length > 0 && (
+                  <div className="preview-container">
+                    {selectedImages.map((img, index) => (
+                      <div key={index} className="position-relative" style={{width: '60px', height: '60px'}}>
+                        <img
+                          src={img}
+                          alt={`Preview ${index}`}
+                          className="img-thumbnail"
+                          onClick={() => handleImageClick(img)}
+                          style={{ cursor: 'pointer' }}
+                        />
+                        <button 
+                          className="position-absolute top-0 start-100 translate-middle p-0 border-0 bg-transparent"
+                          onClick={() => removeImage(index)}
+                          style={{
+                            width: '20px',
+                            height: '20px',
+                            minWidth: '20px',
+                            transform: 'translate(-50%, -50%)'
+                          }}
+                        >
+                          <div className="d-flex align-items-center justify-content-center rounded-circle bg-danger"
+                               style={{
+                                 width: '100%',
+                                 height: '100%',
+                               }}>
+                               <FiX size={12} color="white" />
+                          </div>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              <input
-                type="text"
-                className="form-control flex-grow-1"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(newMessage, activeChat.otherUser.user_id)}
-                placeholder="Type a message..."
-              />
+                <input
+                  type="text"
+                  className="form-control flex-grow-1"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(newMessage, activeChat.otherUser.user_id)}
+                  placeholder={isBlocked[activeChat.otherUser.user_id] ? "You've blocked this user" : 
+                              blockedBy[activeChat.otherUser.user_id] ? "You've been blocked by this user" : 
+                              "Type a message..."}
+                  disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
+                />
 
-              <button
-                className="btn btn-primary"
-                onClick={() => handleSendMessage(newMessage, activeChat.otherUser.user_id)}
-              >
-                Send
-              </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => handleSendMessage(newMessage, activeChat.otherUser.user_id)}
+                  disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
+                >
+                  Send
+                </button>
+              </div>
             </div>
           </div>
-        </div>
         )}
       </div>
 

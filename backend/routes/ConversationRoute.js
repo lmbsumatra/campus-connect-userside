@@ -219,6 +219,34 @@ router.get("/:id", async (req, res) => {
             order: [["createdAt", "ASC"]], // Sort messages by creation date
           });
 
+          // Check if the user has blocked or been blocked by the other user
+          const userBlockedOther = await models.BlockedUser.findOne({
+            where: { 
+              blocker_id: userId,
+              blocked_id: otherUserId
+            }
+          });
+          
+          const userIsBlocked = await models.BlockedUser.findOne({
+            where: {
+              blocker_id: otherUserId,
+              blocked_id: userId
+            }
+          });
+
+          // Check if the conversation is marked as deleted by this user
+          const isDeleted = await models.DeletedConversation.findOne({
+            where: {
+              conversation_id: conversation.id,
+              user_id: userId
+            }
+          });
+
+          // If the conversation is deleted by this user, skip it
+          if (isDeleted) {
+            return null;
+          }
+
           return {
             ...conversation,
             otherUser: {
@@ -227,6 +255,8 @@ router.get("/:id", async (req, res) => {
               middle_name: otherUser.middle_name,
               last_name: otherUser.last_name,
             },
+            isBlocked: userBlockedOther !== null, // User has blocked the other person
+            blockedBy: userIsBlocked !== null,    // User is blocked by the other person
             messages: messages.map((message) => ({
               id: message.id,
               sender: message.sender,
@@ -242,7 +272,8 @@ router.get("/:id", async (req, res) => {
       ),
     };
 
-    // Return the combined user and conversation data
+    // Filter out null values (deleted conversations) and return the data
+    responseData.conversations = responseData.conversations.filter(conversation => conversation !== null);
     res.status(200).json(responseData);
   } catch (err) {
     // Log and return error in case of failure
@@ -386,6 +417,193 @@ router.get("/preview/:userId", async (req, res) => {
     res.status(200).json(processed);
   } catch (err) {
     console.error("Error fetching conversation previews:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Block a user
+router.post("/block", async (req, res) => {
+  try {
+    const { blockerId, blockedId } = req.body;
+    
+    if (!blockerId || !blockedId) {
+      return res.status(400).json({ error: "Blocker ID and Blocked ID are required" });
+    }
+    
+    // Check if the block already exists
+    const existingBlock = await models.BlockedUser.findOne({
+      where: {
+        blocker_id: blockerId,
+        blocked_id: blockedId
+      }
+    });
+    
+    if (existingBlock) {
+      return res.status(400).json({ error: "User is already blocked" });
+    }
+    
+    // Create a new block record
+    await models.BlockedUser.create({
+      blocker_id: blockerId,
+      blocked_id: blockedId,
+      created_at: new Date()
+    });
+    
+    res.status(200).json({ success: true, message: "User has been blocked" });
+  } catch (err) {
+    console.error("Error blocking user:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Unblock a user
+router.post("/unblock", async (req, res) => {
+  try {
+    const { blockerId, blockedId } = req.body;
+    
+    if (!blockerId || !blockedId) {
+      return res.status(400).json({ error: "Blocker ID and Blocked ID are required" });
+    }
+    
+    // Find and delete the block record
+    const blockRecord = await models.BlockedUser.findOne({
+      where: {
+        blocker_id: blockerId,
+        blocked_id: blockedId
+      }
+    });
+    
+    if (!blockRecord) {
+      return res.status(404).json({ error: "Block record not found" });
+    }
+    
+    await blockRecord.destroy();
+    
+    res.status(200).json({ success: true, message: "User has been unblocked" });
+  } catch (err) {
+    console.error("Error unblocking user:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a conversation (for one user only)
+router.post("/delete", async (req, res) => {
+  try {
+    const { conversationId, userId } = req.body;
+    
+    if (!conversationId || !userId) {
+      return res.status(400).json({ error: "Conversation ID and User ID are required" });
+    }
+    
+    // Check if conversation exists
+    const conversation = await Conversation.findByPk(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+    
+    // Create a record to mark this conversation as deleted for this user
+    await models.DeletedConversation.create({
+      conversation_id: conversationId,
+      user_id: userId,
+      deleted_at: new Date()
+    });
+    
+    res.status(200).json({ success: true, message: "Conversation deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting conversation:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get a single conversation by ID, even if deleted
+router.get("/single/:conversationId/:userId", async (req, res) => {
+  try {
+    const { conversationId, userId } = req.params;
+    
+    if (!conversationId || !userId) {
+      return res.status(400).json({ error: "Conversation ID and User ID are required" });
+    }
+    
+    // Find the conversation
+    const conversation = await Conversation.findByPk(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+    
+    // Parse members to identify the other participant
+    const members = JSON.parse(conversation.members);
+    if (!members.includes(userId)) {
+      return res.status(403).json({ error: "User is not a member of this conversation" });
+    }
+    
+    const otherUserId = members.find(memberId => memberId !== userId);
+    
+    // Fetch other user's details
+    const otherUser = await models.User.findByPk(otherUserId);
+    if (!otherUser) {
+      return res.status(404).json({ error: "Other user not found" });
+    }
+    
+    // Fetch all messages for the current conversation
+    const messages = await models.Message.findAll({
+      where: { conversationId: conversation.id },
+      order: [["createdAt", "ASC"]]
+    });
+    
+    // Check if the user has blocked or been blocked by the other user
+    const userBlockedOther = await models.BlockedUser.findOne({
+      where: { 
+        blocker_id: userId,
+        blocked_id: otherUserId
+      }
+    });
+    
+    const userIsBlocked = await models.BlockedUser.findOne({
+      where: {
+        blocker_id: otherUserId,
+        blocked_id: userId
+      }
+    });
+    
+    // Remove any record of this conversation being deleted by this user
+    const deletedRecord = await models.DeletedConversation.findOne({
+      where: {
+        conversation_id: conversationId,
+        user_id: userId
+      }
+    });
+    
+    if (deletedRecord) {
+      await deletedRecord.destroy();
+      console.log("Removed deleted conversation record");
+    }
+    
+    // Format and return the conversation
+    const formattedConversation = {
+      ...conversation.dataValues,
+      otherUser: {
+        user_id: otherUser.user_id,
+        first_name: otherUser.first_name,
+        middle_name: otherUser.middle_name,
+        last_name: otherUser.last_name,
+      },
+      isBlocked: userBlockedOther !== null,
+      blockedBy: userIsBlocked !== null,
+      messages: messages.map(message => ({
+        id: message.id,
+        sender: message.sender,
+        text: message.text,
+        images: message.images,
+        isProductCard: message.isProductCard,
+        productDetails: JSON.parse(message.productDetails || "{}"),
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+      })),
+    };
+    
+    res.status(200).json({ success: true, conversation: formattedConversation });
+  } catch (err) {
+    console.error("Error fetching single conversation:", err);
     res.status(500).json({ error: err.message });
   }
 });

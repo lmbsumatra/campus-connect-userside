@@ -772,3 +772,45 @@
   font-size: 14px;
 }
 
+/* Add styles for block status message */
+.block-status-message {
+  background-color: #f9eaea;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin: 10px auto;
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.block-status-message p {
+  color: #d32f2f;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.unblock-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.unblock-button:hover {
+  background-color: #d32f2f;
+}
+
+.no-messages {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+  font-style: italic;
+}
+

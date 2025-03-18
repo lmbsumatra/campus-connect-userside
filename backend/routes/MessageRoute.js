@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Message = require("../models/MessageModel");
 const { upload_message_images, rollbackUpload  } = require("../config/multer");
+const { models } = require("../models/index");
 
 // Add a new message
 router.post("/", async (req, res) => {
@@ -17,6 +18,47 @@ router.post("/", async (req, res) => {
     // Handle product card validation
     if (isProductCard && !productDetails) {
       return res.status(400).json({ error: "Product details are required for product cards." });
+    }
+
+    // Get the conversation to find the recipient
+    const conversation = await models.Conversation.findByPk(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found." });
+    }
+
+    // Extract members from the conversation
+    const members = JSON.parse(conversation.members);
+    const recipient = members.find(memberId => memberId !== sender.toString());
+
+    // Check if the sender has blocked the recipient or vice versa
+    const senderBlockedRecipient = await models.BlockedUser.findOne({
+      where: {
+        blocker_id: sender,
+        blocked_id: recipient
+      }
+    });
+
+    const recipientBlockedSender = await models.BlockedUser.findOne({
+      where: {
+        blocker_id: recipient,
+        blocked_id: sender
+      }
+    });
+
+    if (senderBlockedRecipient) {
+      return res.status(403).json({ 
+        error: "You have blocked this user. Unblock them to send messages.", 
+        isBlocked: true,
+        blockedBy: false 
+      });
+    }
+
+    if (recipientBlockedSender) {
+      return res.status(403).json({ 
+        error: "You cannot send messages to this user as they have blocked you.", 
+        isBlocked: false,
+        blockedBy: true 
+      });
     }
 
     // Create the new message
