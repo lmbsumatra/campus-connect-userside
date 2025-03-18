@@ -1,9 +1,7 @@
-
 const { models } = require("../../models/index");
 const { Op } = require("sequelize");
 
 const createReview = async (req, res) => {
-  // console.log(req.body);
   try {
     const {
       reviewer_id,
@@ -14,6 +12,8 @@ const createReview = async (req, res) => {
       rate,
       review,
     } = req.body;
+
+    console.log("Received request body:", req.body);
 
     // Check for required fields
     const missingFields = [];
@@ -27,12 +27,12 @@ const createReview = async (req, res) => {
 
     if (missingFields.length > 0) {
       return res.status(400).json({
-        error: "The following fields are required: " + missingFields.join(", "),
+        error: `The following fields are required: ${missingFields.join(", ")}`,
       });
     }
 
-    // Validate review_type (should be one of 'item', 'owner', 'renter')
-    if (!["item", "owner", "renter"].includes(review_type)) {
+    // Validate review_type
+    if (!["item", "owner", "renter", "buyer"].includes(review_type)) {
       return res.status(400).json({ error: "Invalid review type specified." });
     }
 
@@ -40,14 +40,14 @@ const createReview = async (req, res) => {
     const newReview = await models.ReviewAndRate.create({
       reviewer_id,
       reviewee_id,
-      item_id, // Only set item_id if review_type is 'item'
+      item_id,
       review_type,
       transaction_id,
       rate,
       review,
     });
 
-    // Step 2: Update the rental transaction table
+    // Step 2: Find the transaction
     const transaction = await models.RentalTransaction.findOne({
       where: { id: transaction_id },
     });
@@ -56,57 +56,40 @@ const createReview = async (req, res) => {
       return res.status(404).json({ error: "Transaction not found." });
     }
 
-    // Step 3: Handle updating the rental transaction fields
-    // Set owner_confirmed or renter_confirmed to true based on the review_type
-    let updateFields = {
-      has_review_rating: true, // Indicate that a review has been submitted
-    };
+    // Step 3: Update rental transaction
+    let updateFields = { has_review_rating: true };
 
-    // If the review type is 'owner', set 'owner_confirmed' to true
-    if (review_type === "owner") {
-      updateFields.renter_confirmed = true;
-    }
+    if (review_type === "owner") updateFields.renter_confirmed = true;
+    if (review_type === "renter") updateFields.owner_confirmed = true;
 
-    // If the review type is 'renter', set 'renter_confirmed' to true
-    if (review_type === "renter") {
-      updateFields.owner_confirmed = true;
-    }
-
-    // Only update the transaction if the status is 'completed'
     if (transaction.status === "Completed") {
       await models.RentalTransaction.update(updateFields, {
         where: { id: transaction_id },
       });
-      // console.log(
-      //   `Transaction ${transaction_id} updated successfully with review confirmation.`
-      // );
-    } else {
-      // console.log(
-      //   `Transaction ${transaction_id} is not 'completed'. No update to status or confirmations.`
-      // );
     }
 
-    // Step 4: Send a success response
-    res.status(201).json({
+    // Step 4: Send success response
+    return res.status(201).json({
       message: "Review created successfully and transaction updated.",
       review: newReview,
     });
-    // console.log("Review and transaction update successful.");
+
   } catch (error) {
-    console.error("Error creating review:", error);
-    let errorMessage = "An error occurred while creating the review.";
+    console.error("Error creating review:", error.stack); // Logs full error trace
+
+    let errorMessage = "An unexpected error occurred.";
 
     if (error.name === "SequelizeValidationError") {
-      errorMessage =
-        "Validation error: " +
-        error.errors.map((err) => err.message).join(", ");
+      errorMessage = "Validation error: " + error.errors.map((err) => err.message).join(", ");
     } else if (error.name === "SequelizeUniqueConstraintError") {
-      errorMessage =
-        "Unique constraint error: " +
-        error.errors.map((err) => err.message).join(", ");
+      errorMessage = "Unique constraint error: " + error.errors.map((err) => err.message).join(", ");
+    } else if (error.name === "SequelizeForeignKeyConstraintError") {
+      errorMessage = "Foreign key constraint error: Ensure all referenced IDs exist.";
+    } else if (error instanceof TypeError) {
+      errorMessage = "Type error: " + error.message;
     }
-    console.log({ error: errorMessage });
-    res.status(500).json({ error: errorMessage });
+
+    return res.status(500).json({ error: errorMessage });
   }
 };
 

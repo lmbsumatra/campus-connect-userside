@@ -3,7 +3,7 @@ import "./profileSidebarStyles.css";
 
 const ProfileSidebar = () => {
   const location = useLocation();
-  
+
   const isActiveLink = (path) => location.pathname.startsWith(path);
 
   return (
@@ -12,7 +12,9 @@ const ProfileSidebar = () => {
         <li>
           <NavLink
             to="dashboard"
-            className={({ isActive }) => (isActive || isActiveLink('/profile/dashboard')) ? "active" : ""}
+            className={({ isActive }) =>
+              isActive || isActiveLink("/profile/dashboard") ? "active" : ""
+            }
           >
             Dashboard
           </NavLink>
@@ -20,7 +22,9 @@ const ProfileSidebar = () => {
         <li>
           <NavLink
             to="my-posts"
-            className={({ isActive }) => (isActive || isActiveLink('/profile/my-posts')) ? "active" : ""}
+            className={({ isActive }) =>
+              isActive || isActiveLink("/profile/my-posts") ? "active" : ""
+            }
           >
             My Posts
           </NavLink>
@@ -28,7 +32,9 @@ const ProfileSidebar = () => {
         <li>
           <NavLink
             to="my-listings"
-            className={({ isActive }) => (isActive || isActiveLink('/profile/my-listings')) ? "active" : ""}
+            className={({ isActive }) =>
+              isActive || isActiveLink("/profile/my-listings") ? "active" : ""
+            }
           >
             My Listings
           </NavLink>
@@ -36,7 +42,9 @@ const ProfileSidebar = () => {
         <li>
           <NavLink
             to="my-for-sale"
-            className={({ isActive }) => (isActive || isActiveLink('/profile/my-for-sale')) ? "active" : ""}
+            className={({ isActive }) =>
+              isActive || isActiveLink("/profile/my-for-sale") ? "active" : ""
+            }
           >
             My For Sale
           </NavLink>
@@ -44,9 +52,21 @@ const ProfileSidebar = () => {
         <li>
           <NavLink
             to="transactions/renter/requests"
-            className={({ isActive }) => (isActive || isActiveLink('/profile/transactions')) ? "active" : ""}
+            className={({ isActive }) =>
+              isActive || isActiveLink("/profile/transactions") ? "active" : ""
+            }
           >
             Transactions
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="reviews"
+            className={({ isActive }) =>
+              isActive || isActiveLink("/profile/reviews") ? "active" : ""
+            }
+          >
+            Reviews
           </NavLink>
         </li>
       </ul>

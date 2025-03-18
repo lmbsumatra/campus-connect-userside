@@ -190,8 +190,15 @@ const getTransactionsByUserId = async (req, res) => {
               "description",
               "rate",
               "security_deposit",
+              "images",
             ],
           });
+
+          // Get only the first image if images exist
+          if (listing && listing.images && listing.images.length > 0) {
+            listing.images = [JSON.parse(listing.images)[0]];
+          }
+
           transactionData.item = listing;
 
           // Calculate revenue for rental transactions
@@ -202,9 +209,21 @@ const getTransactionsByUserId = async (req, res) => {
           const saleItem = await models.ItemForSale.findByPk(
             transaction.item_id,
             {
-              attributes: ["id", "item_for_sale_name", "description", "price"],
+              attributes: [
+                "id",
+                "item_for_sale_name",
+                "description",
+                "price",
+                "images",
+              ],
             }
           );
+
+          // Get only the first image if images exist
+          if (saleItem && saleItem.images && saleItem.images.length > 0) {
+            saleItem.images = [JSON.parse(saleItem.images)[0]];
+          }
+
           transactionData.item = saleItem;
 
           // Calculate revenue for sale transactions

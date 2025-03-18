@@ -37,16 +37,25 @@ const MyFollowings = () => {
     setSortDirection(newDirection);
   };
 
-  const handleUnfollow = async (e, otherUserId) => {
+  const handleFollowAction = async (e, otherUserId, isFollowing, userName) => {
     e.stopPropagation();
     if (!studentUser) {
-      ShowAlert(dispatch, "error", "Error", "You must be logged in.");
+      ShowAlert(dispatch, "error", "Not Logged In", "You must be logged in to perform this action.");
       return;
     }
+    
     await dispatch(
       updateFollowStatus({ loggedInUserId: studentUser.userId, otherUserId })
     );
-    ShowAlert(dispatch, "success", "Unfollowed", "");
+    
+    if (isFollowing) {
+      // User was following, now unfollowing
+      ShowAlert(dispatch, "success", "Unfollowed", `You are no longer following ${userName || 'this user'}.`);
+    } else {
+      // User was not following, now following
+      ShowAlert(dispatch, "success", "Following", `You are now following ${userName || 'this user'}.`);
+    }
+    
     dispatch(fetchFollowings(studentUser.token));
   };
 
@@ -93,7 +102,7 @@ const MyFollowings = () => {
                   </a>
                   <button
                     className="btn btn-rectangle primary"
-                    onClick={(e) => handleUnfollow(e, user.id)}
+                    onClick={(e) => handleFollowAction(e, user.id, true, user.name)}
                   >
                     Unfollow
                   </button>
@@ -128,7 +137,7 @@ const MyFollowings = () => {
                     className={`btn btn-rectangle ${
                       user.isFollowing ? "primary" : "secondary"
                     }`}
-                    onClick={(e) => handleUnfollow(e, user.id)}
+                    onClick={(e) => handleFollowAction(e, user.id, user.isFollowing, user.name)}
                   >
                     {user.isFollowing ? "Following" : "Follow Back"}
                   </button>

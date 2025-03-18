@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import StarRatings from "react-star-ratings";
 import axios from "axios";
 import { baseApi } from "../../../App";
+import { defaultImages } from "../../../utils/consonants";
 
 const ReviewModal = ({
   isOpen,
@@ -17,23 +18,18 @@ const ReviewModal = ({
   const [ownerRating, setOwnerRating] = useState(0);
   const [itemReview, setItemReview] = useState("");
   const [ownerReview, setOwnerReview] = useState("");
-  const [remarks, setRemarks] = useState("");
   const [renterRating, setRenterRating] = useState(0);
   const [buyerRating, setBuyerRating] = useState(0);
   const [renterReview, setRenterReview] = useState("");
   const [buyerReview, setBuyerReview] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  
-  // Determine if it's a rental or purchase transaction
-  const isRental = item.transaction_type === "rental";
-  const isPurchase = item.transaction_type === "sell";
-  
-  // Get the appropriate counterparty based on transaction type
-  const counterparty = isRental ? item.renter : item.buyer;
-  const counterpartyRole = isRental ? "renter" : "buyer";
 
-  // Handlers for rating changes
+  // Determine if it's a rental or purchase transaction
+  const isRental = item.transactionType === "Rental";
+  const isPurchase = item.transactionType === "Sell";
+
+  // Handle rating changes
   const handleProductRatingChange = (newRating) => {
     setProductRating(newRating);
   };
@@ -45,7 +41,7 @@ const ReviewModal = ({
   const handleRenterRatingChange = (newRating) => {
     setRenterRating(newRating);
   };
-  
+
   const handleBuyerRatingChange = (newRating) => {
     setBuyerRating(newRating);
   };
@@ -56,11 +52,13 @@ const ReviewModal = ({
     const reviewData = [];
 
     if (selectedOption === "renter" || selectedOption === "buyer") {
+      // When renter/buyer is rating the owner and item
+
       // Review for the item
       reviewData.push({
-        reviewer_id: counterparty.user_id,
-        reviewee_id: item.owner.user_id,
-        item_id: item.Listing.id,
+        reviewer_id: userId,
+        reviewee_id: item.tx.owner_id, // Item doesn't have a user ID
+        item_id: item.tx.item_id,
         review_type: "item",
         transaction_id: item.id,
         rate: productRating,
@@ -69,24 +67,31 @@ const ReviewModal = ({
 
       // Review for the owner
       reviewData.push({
-        reviewer_id: counterparty.user_id,
-        reviewee_id: item.owner.user_id,
-        item_id: item.Listing.id,
+        reviewer_id: userId,
+        reviewee_id: item.tx.owner_id,
+        item_id: item.tx.item_id,
         review_type: "owner",
         transaction_id: item.id,
         rate: ownerRating,
         review: ownerReview,
       });
     } else if (selectedOption === "owner") {
-      // For Owner: Only one review for the counterparty (renter/buyer)
+      // When owner is rating the renter/buyer
+
+      // Determine the correct ID and review type based on transaction type
+      const revieweeId = isRental ? item.tx.renter_id : item.tx.buyer_id;
+      const reviewType = isRental ? "renter" : "buyer";
+      const rating = isRental ? renterRating : buyerRating;
+      const review = isRental ? renterReview : buyerReview;
+
       reviewData.push({
-        reviewer_id: item.owner.user_id,
-        reviewee_id: counterparty.user_id,
-        item_id: item.Listing.id,
-        review_type: counterpartyRole,
+        reviewer_id: userId,
+        reviewee_id: revieweeId,
+        item_id: item.tx.item_id,
+        review_type: reviewType,
         transaction_id: item.id,
-        rate: isRental ? renterRating : buyerRating,
-        review: isRental ? renterReview || remarks : buyerReview || remarks,
+        rate: rating,
+        review: review,
       });
     }
 
@@ -131,7 +136,7 @@ const ReviewModal = ({
         {errorMessage && (
           <div className="alert alert-danger">{errorMessage}</div>
         )}
-        
+
         {/* For Renter/Buyer (Rating and reviewing item and owner) */}
         {(selectedOption === "renter" || selectedOption === "buyer") && (
           <>
@@ -139,7 +144,7 @@ const ReviewModal = ({
               <h5>Rate Item</h5>
               <div className="d-flex mb-3">
                 <img
-                  src={item.image || "/default-image.jpg"}
+                  src={item.tx.item.images[0] || [defaultImages]}
                   alt="Item"
                   className="me-3"
                   style={{
@@ -150,10 +155,18 @@ const ReviewModal = ({
                   }}
                 />
                 <div>
-                  <p>Item: {item.Listing?.listing_name || "No listing name"}</p>
+                  <p>
+                    Item:{" "}
+                    {isRental
+                      ? item.tx.item.listing_name
+                      : item.tx.item.item_for_sale_name || "No item name"}
+                  </p>
                   {isRental && (
                     <>
-                      <p>Rental Duration: {item.Duration?.rental_time_from || "N/A"}</p>
+                      <p>
+                        Rental Duration:{" "}
+                        {item.Duration?.rental_time_from || "N/A"}
+                      </p>
                       <p>Rental Rate: {item.Listing?.rate || "N/A"} PHP</p>
                     </>
                   )}
@@ -188,7 +201,10 @@ const ReviewModal = ({
 
             <div className="mb-4">
               <h5>Rate Owner</h5>
-              <p>Name: {item.owner?.first_name || "Owner"}</p>
+              <p>
+                Name: {item.tx.owner?.first_name || ""}{" "}
+                {item.tx.owner?.last_name || "Owner"}
+              </p>
               <div className="d-flex align-items-center">
                 <p className="mb-0 me-2">Rate Owner:</p>
                 <StarRatings
@@ -215,22 +231,37 @@ const ReviewModal = ({
             </div>
           </>
         )}
-        
-        {/* For Owner (Rating the Renter/Buyer and optional remarks) */}
+
+        {/* For Owner (Rating the Renter/Buyer) */}
         {selectedOption === "owner" && (
           <>
             <div className="mb-4">
               <h5>Rate {isRental ? "Renter" : "Buyer"}</h5>
-              <p>Name: {counterparty?.first_name || (isRental ? "Renter" : "Buyer")}</p>
+              <p>
+                Name:{" "}
+                {isRental
+                  ? item.tx?.renter?.first_name || "Renter"
+                  : item.tx?.buyer?.first_name || "Buyer"}
+              </p>
               {isRental && (
-                <p>Rental Duration: {item.Duration?.rental_time_from || "N/A"}</p>
+                <p>
+                  Rental Duration:{" "}
+                  {item.tx?.Duration?.rental_time_from || "N/A"} -{" "}
+                  {item.tx?.Duration?.rental_time_to || "N/A"}
+                </p>
               )}
               <div className="d-flex align-items-center">
-                <p className="mb-0 me-2">Rate {isRental ? "Renter" : "Buyer"}:</p>
+                <p className="mb-0 me-2">
+                  Rate {isRental ? "Renter" : "Buyer"}:
+                </p>
                 <StarRatings
                   rating={isRental ? renterRating : buyerRating}
                   starRatedColor="gold"
-                  changeRating={isRental ? handleRenterRatingChange : handleBuyerRatingChange}
+                  changeRating={
+                    isRental
+                      ? handleRenterRatingChange
+                      : handleBuyerRatingChange
+                  }
                   numberOfStars={5}
                   name={isRental ? "renterRating" : "buyerRating"}
                   starDimension="20px"
@@ -240,13 +271,19 @@ const ReviewModal = ({
             </div>
 
             <div className="mb-4">
-              <h5>Overall Remarks (Optional)</h5>
+              <h5>{isRental ? "Renter" : "Buyer"} Review (Optional)</h5>
               <Form.Control
                 as="textarea"
-                placeholder={`Type something about the ${isRental ? "renter" : "buyer"}...`}
+                placeholder={`Write your review about the ${
+                  isRental ? "renter" : "buyer"
+                }...`}
                 rows={3}
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
+                value={isRental ? renterReview : buyerReview}
+                onChange={(e) =>
+                  isRental
+                    ? setRenterReview(e.target.value)
+                    : setBuyerReview(e.target.value)
+                }
               />
             </div>
           </>
@@ -275,7 +312,7 @@ ReviewModal.propTypes = {
   item: PropTypes.shape({
     id: PropTypes.number.isRequired,
     image: PropTypes.string,
-    transaction_type: PropTypes.oneOf(["rental", "sell"]).isRequired,
+    transactionType: PropTypes.oneOf(["Rental", "Sell"]).isRequired,
     Listing: PropTypes.shape({
       id: PropTypes.number.isRequired,
       listing_name: PropTypes.string.isRequired,
@@ -284,17 +321,27 @@ ReviewModal.propTypes = {
     Duration: PropTypes.shape({
       rental_time_from: PropTypes.string,
     }),
+    tx: PropTypes.shape({
+      item_id: PropTypes.number.isRequired,
+      owner_id: PropTypes.number.isRequired,
+      renter_id: PropTypes.number,
+      buyer_id: PropTypes.number,
+      renter: PropTypes.shape({
+        first_name: PropTypes.string,
+      }),
+      buyer: PropTypes.shape({
+        first_name: PropTypes.string,
+      }),
+      Duration: PropTypes.shape({
+        rental_time_from: PropTypes.string,
+        rental_time_to: PropTypes.string,
+      }),
+    }).isRequired,
     owner: PropTypes.shape({
-      first_name: PropTypes.string.isRequired,
-      user_id: PropTypes.number.isRequired,
-    }),
-    renter: PropTypes.shape({
       first_name: PropTypes.string,
-      user_id: PropTypes.number,
-    }),
-    buyer: PropTypes.shape({
-      first_name: PropTypes.string,
-      user_id: PropTypes.number,
+      tx: PropTypes.shape({
+        owner_id: PropTypes.number,
+      }),
     }),
   }).isRequired,
   selectedOption: PropTypes.oneOf(["owner", "renter", "buyer"]).isRequired,

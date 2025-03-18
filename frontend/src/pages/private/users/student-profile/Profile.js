@@ -26,6 +26,7 @@ import { fetchRentalTransactions } from "../../../../redux/transactions/rentalTr
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import styles
 import MyFollowings from "./MyFollowings.js";
+import Reviews from "./Reviews.jsx";
 
 const Profile = () => {
   const { studentUser } = useAuth();
@@ -189,6 +190,7 @@ const Profile = () => {
             <Route path="my-posts" element={<MyPosts />} />
             <Route path="my-for-sale" element={<MyForSale />} />
             <Route path="followings" element={<MyFollowings />} />
+            <Route path="reviews" element={<Reviews />} />
             <Route path="/" element={<Navigate to="my-listings" />} />
           </Routes>
         </div>

@@ -132,6 +132,18 @@ const UserDropdown = ({
                 <button
                   className="dropdown-btn"
                   onClick={() => {
+                    navigate("/profile/reviews");
+                    toggleDropdown();
+                  }}
+                >
+                  <div className="icon">
+                    <img src={MyPostsIcon} alt="My Reviews" />
+                  </div>
+                  <h6>Reviews</h6>
+                </button>
+                <button
+                  className="dropdown-btn"
+                  onClick={() => {
                     toggleDropdown();
                     handleLogout();
                   }}

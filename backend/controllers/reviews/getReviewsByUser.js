@@ -36,11 +36,6 @@ const getReviewsByUser = async (req, res) => {
             },
           ],
         },
-        {
-          model: models.Listing,
-          as: "listing",
-          attributes: ["listing_name", "images", "rate"],
-        },
       ],
       order: [
         ["transaction_id", "ASC"],
@@ -48,36 +43,73 @@ const getReviewsByUser = async (req, res) => {
       ], // Sort by transaction and time
     });
 
-    const formattedReviews = reviews.map((review) => {
-      return {
-        id: review.id,
-        reviewType: review.review_type,
-        transactionId: review.transaction_id,
-        rate: review.rate,
-        itemId: review.item_id,
-        review: review.review,
-        createdAt: review.created_at,
-        reviewer: {
-          userId: review.reviewer?.user_id,
-          fname: review.reviewer?.first_name,
-          lname: review.reviewer?.last_name,
-          email: review.reviewer?.email,
-          student: review.reviewer?.student
-            ? {
-                id: review.reviewer.student.id,
-                tupId: review.reviewer.student.tup_id,
-                college: review.reviewer.student.college,
-                profilePic: review.reviewer.student.profile_pic,
-              }
-            : null,
-        },
-        listing: {
-          name: review.listing.listing_name,
-          img: JSON.parse(review.listing.images) || null,
-          rate: review.listing.rate,
-        },
-      };
-    });
+    // Process reviews with item details based on transaction type
+    const formattedReviews = await Promise.all(
+      reviews.map(async (review) => {
+        // First, get the transaction to determine its type
+        const transaction = await models.RentalTransaction.findByPk(review.transaction_id, {
+          attributes: ["transaction_type", "item_id"]
+        });
+        
+        let itemDetails = null;
+        
+        // Based on transaction type, get appropriate item details
+        if (transaction) {
+          if (transaction.transaction_type === "rental") {
+            const listing = await models.Listing.findByPk(review.item_id, {
+              attributes: ["listing_name", "images", "rate"]
+            });
+            if (listing) {
+              itemDetails = {
+                name: listing.listing_name,
+                img: listing.images ? JSON.parse(listing.images) : null,
+                rate: listing.rate,
+                type: "rental"
+              };
+            }
+          } else if (transaction.transaction_type === "sell") {
+            const itemForSale = await models.ItemForSale.findByPk(review.item_id, {
+              attributes: ["item_for_sale_name", "images", "price"]
+            });
+            if (itemForSale) {
+              itemDetails = {
+                name: itemForSale.item_for_sale_name,
+                img: itemForSale.images ? JSON.parse(itemForSale.images) : null,
+                rate: itemForSale.price, // Using 'rate' for consistency
+                type: "sell"
+              };
+            }
+          }
+        }
+
+        return {
+          id: review.id,
+          reviewType: review.review_type,
+          transactionId: review.transaction_id,
+          transactionType: transaction ? transaction.transaction_type : null,
+          rate: review.rate,
+          itemId: review.item_id,
+          review: review.review,
+          createdAt: review.created_at,
+          reviewer: {
+            userId: review.reviewer?.user_id,
+            fname: review.reviewer?.first_name,
+            lname: review.reviewer?.last_name,
+            email: review.reviewer?.email,
+            student: review.reviewer?.student
+              ? {
+                  id: review.reviewer.student.id,
+                  tupId: review.reviewer.student.tup_id,
+                  college: review.reviewer.student.college,
+                  profilePic: review.reviewer.student.profile_pic,
+                }
+              : null,
+          },
+          item: itemDetails
+        };
+      })
+    );
+
     res.status(200).json(formattedReviews);
   } catch (error) {
     console.error("Error fetching user reviews:", error);
