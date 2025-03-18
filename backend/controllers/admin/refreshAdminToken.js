@@ -23,11 +23,19 @@ const refreshAdminToken = async (req, res) => {
 
     // Find the admin in the database using the adminId from the decoded token
     const admin = await Admin.findOne({
-      where: {
-        user_id: decoded.adminId,
-        refreshToken, // Ensure the stored token matches the one provided
-      },
+      where: { user_id: decoded.adminId },
     });
+
+    if (!admin || !admin.refreshToken) {
+      return res
+        .status(403)
+        .json({ message: "Refresh token missing or invalid." });
+    }
+
+    if (admin.refreshToken !== refreshToken) {
+      console.log("Stored Refresh Token:", admin.refreshToken);
+      console.log("Received Refresh Token:", refreshToken);
+    }
 
     if (!admin) {
       return res

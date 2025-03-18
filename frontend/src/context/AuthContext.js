@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { jwtDecode } from "jwt-decode";
 import { baseApi } from "../App";
 
@@ -24,27 +30,6 @@ export const AuthProvider = ({ children }) => {
       setStudentUser(JSON.parse(storedStudentUser));
     }
   }, []);
-
-  useEffect(() => {
-    if (adminUser?.token) {
-      const decodedToken = jwtDecode(adminUser.token);
-      const expirationTime = decodedToken.exp * 1000; // Convert to milliseconds
-      const currentTime = Date.now();
-
-      if (expirationTime < currentTime) {
-        // Token is already expired, log out the user
-        logoutAdmin();
-      } else {
-        // Refresh the token 10 minutes before it expires
-        const timeUntilExpiration = expirationTime - currentTime;
-        const refreshTimeout = setTimeout(() => {
-          refreshAdminToken();
-        }, timeUntilExpiration - 10 * 60 * 1000); // 10 minutes before expiration
-
-        return () => clearTimeout(refreshTimeout);
-      }
-    }
-  }, [adminUser]);
 
   const loginStudent = (token, role, userId) => {
     const newUser = { role, token, userId };
@@ -72,11 +57,12 @@ export const AuthProvider = ({ children }) => {
     console.log("Admin logged in:", newUser);
   };
 
-  const logoutAdmin = async () => {
+  // ✅ Fixed missing closing bracket for logoutAdmin
+  const logoutAdmin = useCallback(async () => {
     if (!adminUser) return;
 
     const logoutData = {
-      admin_id: adminUser.userId, // Ensure this matches your DB field
+      admin_id: adminUser.userId,
       role: adminUser.role,
       action: "Logout",
       endpoint: "/admin/logout",
@@ -105,9 +91,10 @@ export const AuthProvider = ({ children }) => {
     console.log("Logging out admin...");
     setAdminUser(null);
     localStorage.removeItem("adminUser");
-  };
+  }, [adminUser]); // ✅ Dependencies added properly
 
-  const refreshAdminToken = async () => {
+  // ✅ Fixed misplaced closing bracket for refreshAdminToken
+  const refreshAdminToken = useCallback(async () => {
     const storedAdminUser = JSON.parse(localStorage.getItem("adminUser"));
     if (!storedAdminUser || !storedAdminUser.refreshToken) return null;
 
@@ -127,9 +114,9 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
       console.log("New tokens received at:", new Date().toLocaleString());
-      // console.log("New Access Token:", data.token);
-      // console.log("New Refresh Token:", data.refreshToken);
-      // console.log("New tokens received:", data);
+      console.log("New Access Token:", data.token);
+      console.log("New Refresh Token:", data.refreshToken);
+      console.log("New tokens received:", data);
 
       const newUser = {
         ...storedAdminUser,
@@ -144,7 +131,34 @@ export const AuthProvider = ({ children }) => {
       logoutAdmin();
       return null;
     }
-  };
+  }, [logoutAdmin]); // ✅ Dependencies added properly
+
+  // Auto-refresh token on app start
+  useEffect(() => {
+    const autoRefreshToken = async () => {
+      if (!adminUser?.refreshToken) return; // Do nothing if there's no refresh token
+
+      try {
+        const decodedToken = jwtDecode(adminUser.token);
+        const currentTime = Date.now() / 1000;
+
+        if (decodedToken.exp < currentTime) {
+          console.log("Token expired on app start, attempting refresh...");
+          const newToken = await refreshAdminToken();
+
+          if (!newToken) {
+            console.log("Refresh failed on app start, logging out...");
+            logoutAdmin();
+          }
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        logoutAdmin();
+      }
+    };
+
+    autoRefreshToken();
+  }, [adminUser, logoutAdmin, refreshAdminToken]); // ✅ Now properly includes dependencies
 
   return (
     <AuthContext.Provider

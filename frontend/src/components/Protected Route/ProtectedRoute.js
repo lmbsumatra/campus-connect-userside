@@ -1,35 +1,61 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { jwtDecode } from "jwt-decode"; // Correct import
+import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
-  const { adminUser } = useAuth();
+  const { adminUser, refreshAdminToken } = useAuth(); // Get user and refresh function from AuthContext
+  const [loading, setLoading] = useState(true); // Loading state to prevent redirection before checking everything
+  const [hasAccess, setHasAccess] = useState(false); // State to track if user has access
 
-  // Check if the token is expired
-  const isTokenExpired = () => {
-    if (!adminUser?.token) return true; // No token, consider it expired
-    try {
-      const decodedToken = jwtDecode(adminUser.token); // Use jwtDecode
-      const currentTime = Date.now() / 1000; // Convert to seconds
-      return decodedToken.exp < currentTime; // Token is expired if exp < current time
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return true; // Consider the token expired if there's an error
-    }
-  };
+  useEffect(() => {
+    const checkAccess = async () => {
+      if (!adminUser?.token) {
+        // If no token, user is not logged in → Redirect to login
+        setHasAccess(false);
+        setLoading(false);
+        return;
+      }
 
-  // Check if the user is logged in, has an allowed role, and the token is not expired
-  const hasAccess =
-    adminUser && allowedRoles.includes(adminUser.role) && !isTokenExpired();
+      try {
+        const decodedToken = jwtDecode(adminUser.token); // Decode the JWT to check expiration
+        const currentTime = Date.now() / 1000; // Get current time in seconds
 
-  // If not logged in, no access, or token expired, redirect to admin login
-  if (!hasAccess) {
-    return <Navigate to="/admin-login" />;
+        if (decodedToken.exp < currentTime) {
+          // If token is expired, try refreshing it
+          console.log("Token expired, trying to refresh...");
+          const newToken = await refreshAdminToken();
+
+          if (newToken) {
+            // If refresh was successful, allow access
+            console.log("Token refreshed successfully.");
+            setHasAccess(allowedRoles.includes(adminUser.role));
+          } else {
+            // If refresh failed, redirect to login
+            console.log("Refresh failed, logging out...");
+            setHasAccess(false);
+          }
+        } else {
+          // If token is still valid, allow access
+          setHasAccess(allowedRoles.includes(adminUser.role));
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        setHasAccess(false);
+      }
+
+      setLoading(false); // Done checking, remove loading state
+    };
+
+    checkAccess();
+  }, [adminUser, allowedRoles, refreshAdminToken]);
+
+  // Show a loading message while checking the token
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-  // Render the outlet (the child routes)
-  return children;
+  return hasAccess ? children : <Navigate to="/admin-login" />;
 };
 
 export default ProtectedRoute;
