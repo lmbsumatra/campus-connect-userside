@@ -1,5 +1,6 @@
 const { models } = require("../../models");
 const Fuse = require("fuse.js");
+const { sequelize } = require("../../models/index");
 
 const getUsers = async (req, res) => {
   const loggedInUserId = req.user.userId;
@@ -34,8 +35,8 @@ const getUsers = async (req, res) => {
             follower_id: user.user_id,
           },
         });
+        
         let action = "Follow";
-
         if (loggedInUserId === user.user_id) {
           action = "You";
         } else if (isFollowedBy && isFollowing) {
@@ -45,6 +46,24 @@ const getUsers = async (req, res) => {
         } else if (isFollowing) {
           action = "Following";
         }
+
+        // Get the average rating for this user from all reviews where they were the reviewee
+        const userRating = await models.ReviewAndRate.findOne({
+          attributes: [
+            [sequelize.fn('AVG', sequelize.col('rate')), 'averageRating'],
+            [sequelize.fn('COUNT', sequelize.col('id')), 'totalReviews']
+          ],
+          where: { reviewee_id: user.user_id },
+          raw: true
+        });
+
+        // Format the rating to one decimal place if it exists
+        const averageRating = userRating?.averageRating 
+          ? parseFloat(userRating.averageRating).toFixed(1) 
+          : "0.0";
+        
+        const totalReviews = userRating?.totalReviews || 0;
+        
         return {
           id: user.user_id,
           fname: user.first_name,
@@ -52,7 +71,8 @@ const getUsers = async (req, res) => {
           lname: user.last_name,
           college: user.student.college,
           profilePic: user.student.profile_pic,
-          rating: "to be added",
+          rating: averageRating,
+          ratingCount: totalReviews,
           mutuals: "to be added",
           action: action,
         };

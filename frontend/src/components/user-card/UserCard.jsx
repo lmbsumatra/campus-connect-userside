@@ -21,6 +21,8 @@ const UserCard = ({ users }) => {
     (state) => state.allUsers
   );
 
+  console.log(users);
+
   // Local state to store the last action performed (Followed/Unfollowed)
   const [lastAction, setLastAction] = useState(null);
   const [lastUser, setLastUser] = useState(null); // Store the last user for the alert

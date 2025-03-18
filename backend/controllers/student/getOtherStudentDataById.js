@@ -1,5 +1,6 @@
 const { models } = require("../../models");
 const Fuse = require("fuse.js");
+const { sequelize } = require("../../models/index");
 
 const getUserById = async (req, res) => {
   const loggedInUserId = req.user.userId;
@@ -49,6 +50,23 @@ const getUserById = async (req, res) => {
       action = "Following";
     }
 
+    // Get the average rating for this user from all reviews where they were the reviewee
+    const userRating = await models.ReviewAndRate.findOne({
+      attributes: [
+        [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
+      ],
+      where: { reviewee_id: user.user_id },
+      raw: true,
+    });
+
+    // Format the rating to one decimal place if it exists
+    const averageRating = userRating?.averageRating
+      ? parseFloat(userRating.averageRating).toFixed(1)
+      : "0.0";
+
+    const totalReviews = userRating?.totalReviews || 0;
+
     const formattedUser = {
       user: {
         id: user.user_id,
@@ -60,6 +78,8 @@ const getUserById = async (req, res) => {
         stripeAcctId: user.stripe_acct_id,
         email: user.email,
         joinDate: user.createdAt,
+        rating: averageRating,
+        ratingCount: totalReviews,
       },
       student: {
         id: user.student.tup_id,

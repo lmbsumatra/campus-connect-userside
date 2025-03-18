@@ -194,6 +194,8 @@ const ProfileHeader = ({
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   };
 
+  console.log({ user });
+
   return (
     <div className="header-container profile-header">
       <div
@@ -289,7 +291,7 @@ const ProfileHeader = ({
                 </div>
                 <div className="d-block">
                   <span className="value">{user.student.college || "N/A"}</span>
-                  <span className="value">{user.student.rating || "N/A"}</span>
+                  <span className="value">{user.user.rating || "N/A"}</span>
                   <span className="value">
                     {formatDate(user.user.joinDate) || "N/A"}
                   </span>

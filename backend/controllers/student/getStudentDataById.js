@@ -1,15 +1,15 @@
 const { models } = require("../../models");
-const Fuse = require("fuse.js");
+const { sequelize } = require("../../models/index");
 
-const getUserById = async (req, res) => {
+const getStudentById = async (req, res) => {
   const loggedInUserId = req.user.userId;
-  const userId = req.params.id; // Get the userId from the request params
+  const studentId = req.params.id; // Get the studentId from the request params
 
   try {
-    // Find the specific user based on userId
+    // Find the specific student based on studentId
     const user = await models.User.findOne({
       where: {
-        user_id: userId,
+        user_id: studentId,
         role: "student", // Ensure the user is a student
       },
       include: [
@@ -22,7 +22,7 @@ const getUserById = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found!" });
+      return res.status(404).json({ error: "Student not found!" });
     }
 
     // Check the follow status with the logged-in user
@@ -36,6 +36,23 @@ const getUserById = async (req, res) => {
         follower_id: user.user_id,
       },
     });
+
+    // Get the average rating for this user from all reviews where they were the reviewee
+    const userRating = await models.ReviewAndRate.findOne({
+      attributes: [
+        [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
+      ],
+      where: { reviewee_id: user.user_id },
+      raw: true,
+    });
+
+    // Format the rating to one decimal place if it exists
+    const averageRating = userRating?.averageRating
+      ? parseFloat(userRating.averageRating).toFixed(1)
+      : "0.0";
+
+    const totalReviews = userRating?.totalReviews || 0;
 
     let action = "Follow";
 
@@ -59,6 +76,7 @@ const getUserById = async (req, res) => {
         stripeAcctId: user.stripe_acct_id,
         email: user.email,
         joinDate: user.createdAt,
+        rating: averageRating,
       },
       student: {
         id: user.student.tup_id,
@@ -73,9 +91,9 @@ const getUserById = async (req, res) => {
 
     return res.status(200).json(formattedUser);
   } catch (error) {
-    console.log("Error fetching user by ID: ", error);
+    console.log("Error fetching student by ID: ", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = getUserById;
+module.exports = getStudentById;
