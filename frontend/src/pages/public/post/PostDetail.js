@@ -13,7 +13,7 @@ import itemImage2 from "../../../assets/images/item/item_2.jpg";
 import itemImage3 from "../../../assets/images/item/item_3.jpg";
 import itemImage4 from "../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../assets/images/card/rent.svg";
-import forSaleIcon from "../../../assets/images/card/rent.svg";
+import forSaleIcon from "../../../assets/images/card/buy.svg";
 import "./postDetailStyles.css";
 import expandIcon from "../../../assets/images/pdp/plus.svg";
 import infoIcon from "../../../assets/images/input-icons/info.svg";
