@@ -47,7 +47,16 @@ const PostCard = ({
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const navigate = useNavigate();
 
-  const handleCardClick = (id) => navigate(`/profile/my-posts/edit/${id}`);
+  const handleCardClick = (e, item) => {
+    console.log(item);
+    e.stopPropagation();
+    if (item.itemType === "To Buy" || item.itemType === "To Rent")
+      if (item.renter && isYou) {
+        navigate(`/profile/my-posts/edit/${item.id}`, { state: { item } });
+      } else {
+        navigate(`/post/${item.id}`);
+      }
+  };
   const handleMouseEnter = (index) => setSelectedIndex(index);
   const handleMouseLeave = () => setSelectedIndex(null);
   const handleMoreClick = (index, e) => {
@@ -128,7 +137,7 @@ const PostCard = ({
           <div
             key={index}
             className={`card variant-2 ${isYou && "expand"}`}
-            onClick={() => handleCardClick(item.id)}
+            onClick={(e) => handleCardClick(e, item)}
           >
             {isYou && (
               <div className="select-container">
@@ -306,7 +315,7 @@ const PostCard = ({
               <tr
                 key={item.id || index}
                 className={selectedItems.includes(item.id) ? "selected" : ""}
-                onClick={() => handleCardClick(item.id)}
+                onClick={(e) => handleCardClick(e, item)}
               >
                 {isYou && (
                   <td onClick={(e) => e.stopPropagation()}>

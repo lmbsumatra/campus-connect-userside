@@ -53,7 +53,6 @@ const Lend = () => {
           setFilters={setFilters}
           showPriceRange={false}
           onFilterChange={handleFilterChange}
-          
         />
 
         <button
@@ -94,7 +93,11 @@ const Lend = () => {
           }
         >
           {!loadingAllApprovedPosts && (
-            <PostCard borrowingPosts={filteredItems} title="Looking for..." />
+            <PostCard
+              borrowingPosts={filteredItems}
+              isYou={false}
+              title="Looking for..."
+            />
           )}
         </TimeoutComponent>
       </div>
