@@ -256,7 +256,7 @@ function RentalItem({
             );
           },
           primary: true,
-          disabled:
+          disabled: //  item.tx.is_allowed_to_proceed === false
             item.is_allowed_to_proceed === false ||
             (item.tx.owner_id === userId
               ? item.tx.owner_confirmed
@@ -299,12 +299,12 @@ function RentalItem({
             );
           },
           primary: true,
-          disabled:
+          disabled: //  item.tx.is_allowed_to_proceed === false
             item.is_allowed_to_proceed === false ||
             (item.tx.owner_id === userId
               ? item.tx.owner_confirmed
               : item.tx.renter_confirmed),
-          disabledReason:
+          disabledReason: //  item.tx.is_allowed_to_proceed === false
             item.is_allowed_to_proceed === false
               ? "Not yet allowed to proceed"
               : "Wait for the other party",
@@ -325,12 +325,12 @@ function RentalItem({
               : "Confirm Completion",
           onClick: () => handleStatusUpdate("completed"),
           primary: true,
-          disabled:
+          disabled: //  item.tx.is_allowed_to_proceed === false
             item.is_allowed_to_proceed === false ||
             (item.tx.owner_id === userId
               ? item.tx.owner_confirmed
               : item.tx.renter_confirmed),
-          disabledReason:
+          disabledReason: //  item.tx.is_allowed_to_proceed === false
             item.is_allowed_to_proceed === false
               ? "Not yet allowed to proceed"
               : "Wait for the other party",
