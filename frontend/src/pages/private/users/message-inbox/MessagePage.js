@@ -10,8 +10,13 @@ import { useChat } from "../../../../context/ChatContext";
 import useSound from "use-sound";
 import sendSound from "../../../../assets/audio/sent.mp3";
 import { Modal } from "react-bootstrap"
-
 import { FiPaperclip, FiX, FiSearch, FiMoreVertical } from "react-icons/fi"; 
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import ShowAlert from "../../../../utils/ShowAlert.js";
+import ReportModal from "../../../../components/report/ReportModal";
+import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
+import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
@@ -41,6 +46,13 @@ const MessagePage = () => {
   const [isSearching, setIsSearching] = useState(false);
   // Add state to highlight matched messages
   const [highlightedMessageId, setHighlightedMessageId] = useState(null);
+  
+  // Report functionality state
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportUser, setReportUser] = useState(null);
+  const [hasReported, setHasReported] = useState({});
+  const dispatch = useDispatch();
+  const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
   // Add refs for click outside handling
   const filterDropdownRef = useRef(null);
@@ -203,6 +215,11 @@ const MessagePage = () => {
         });
 
         setConversations(sortedConversations);
+
+        // Once conversations are loaded, check if any users have been reported
+        if (sortedConversations.length > 0) {
+          console.log("Conversations loaded, checking reported users");
+        }
 
         // Automatically set the conversation with the owner as active
         if (state?.ownerId || state?.sellerId || state?.renterId) {
@@ -691,13 +708,13 @@ const MessagePage = () => {
   };
 
   // Add function to handle conversation menu actions
-  const handleConversationAction = (action, chat, e) => {
+  const handleConversationAction = async (action, chat, e) => {
     e.stopPropagation(); // Prevent conversation click
     
     switch(action) {
       case 'viewProfile':
-        // Navigate to user profile
-        navigate(`/profile/${chat.otherUser.user_id}`);
+        // Navigate directly to user profile using the same path as in ListingDetail.js
+        navigate(`/user/${chat.otherUser.user_id}`);
         break;
       case 'block':
         // Show confirmation dialog for blocking
@@ -707,11 +724,20 @@ const MessagePage = () => {
         }
         break;
       case 'report':
-        // Show confirmation dialog for reporting
-        if (window.confirm(`Are you sure you want to report ${chat.otherUser.first_name}?`)) {
-          // Implement report functionality here
-          alert(`${chat.otherUser.first_name} has been reported.`);
+        // Check if user has already been reported
+        if (hasReported[chat.otherUser.user_id]) {
+          ShowAlert(dispatch, "info", "Already Reported", "You have already reported this user.");
+          break;
         }
+        
+        console.log("Showing report modal for user:", chat.otherUser);
+        
+        // Set the user to be reported and show the report modal
+        setReportUser({
+          id: chat.otherUser.user_id,
+          name: `${chat.otherUser.first_name} ${chat.otherUser.last_name || ''}`
+        });
+        setShowReportModal(true);
         break;
       case 'delete':
         // Show confirmation dialog for deleting
@@ -753,6 +779,111 @@ const MessagePage = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [activeMenu]);
+
+  // Check if a user has been reported
+  const checkIfReported = async (userId) => {
+    if (!studentUser.userId || !userId) return false;
+    
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/reports/check`,
+        {
+          params: {
+            reporter_id: studentUser.userId,
+            reported_entity_id: userId,
+          },
+        }
+      );
+      return response.data.hasReported;
+    } catch (error) {
+      console.error("Error checking report:", error);
+      return false;
+    }
+  };
+
+  // Handle report submission
+  const handleReportSubmit = async (reason) => {
+    if (!reportUser) {
+      console.error("No user to report");
+      return;
+    }
+    
+    console.log("Submitting report for user:", reportUser, "with reason:", reason);
+    
+    const reportData = {
+      reporter_id: studentUser.userId,
+      reported_entity_id: reportUser.id,
+      entity_type: "user",
+      reason: reason,
+    };
+
+    try {
+      console.log("Sending report data:", reportData);
+      const response = await axios.post(
+        "http://localhost:3001/api/reports",
+        reportData
+      );
+      console.log("Report submission response:", response.data);
+
+      // Update hasReported state
+      setHasReported(prev => ({
+        ...prev,
+        [reportUser.id]: true
+      }));
+
+      // Show success notification
+      ShowAlert(
+        dispatch,
+        "success",
+        "Report Submitted",
+        "Your report has been submitted successfully."
+      );
+    } catch (error) {
+      console.error("Error submitting report:", error);
+
+      // Handle 403 error separately
+      await handleUnavailableDateError(dispatch, error);
+
+      // If it's not a 403 error, handle other errors
+      if (error.response?.status !== 403) {
+        ShowAlert(
+          dispatch,
+          "error",
+          "Submission Failed",
+          "Failed to submit the report. Please try again."
+        );
+      }
+    }
+
+    setShowReportModal(false); // Close the modal
+    setReportUser(null); // Reset the user being reported
+  };
+
+  // Add useEffect to check if users have been reported when conversations load
+  useEffect(() => {
+    const checkReportedUsers = async () => {
+      if (!studentUser || !studentUser.userId || conversations.length === 0) {
+        console.log("Skipping report check - no user or conversations");
+        return;
+      }
+      
+      console.log("Checking reported users for", conversations.length, "conversations");
+      
+      const reported = {};
+      for (const chat of conversations) {
+        if (chat.otherUser && chat.otherUser.user_id) {
+          const hasReported = await checkIfReported(chat.otherUser.user_id);
+          if (hasReported) {
+            reported[chat.otherUser.user_id] = true;
+            console.log(`User ${chat.otherUser.user_id} has been reported`);
+          }
+        }
+      }
+      setHasReported(reported);
+    };
+    
+    checkReportedUsers();
+  }, [conversations]);
 
   return (
     <div className="container-content message-page">
@@ -880,7 +1011,10 @@ const MessagePage = () => {
                               </div>
                               <div 
                                 className="menu-option"
-                                onClick={(e) => handleConversationAction('report', chat, e)}
+                                onClick={(e) => {
+                                  console.log("Report button clicked", chat.otherUser);
+                                  handleConversationAction('report', chat, e);
+                                }}
                               >
                                 Report
                               </div>
@@ -943,7 +1077,11 @@ const MessagePage = () => {
                       className={`inbox-item ${hasUnreadMessages ? "unread" : ""}`}
                       onClick={() => handleConversationClick(chat)}
                     >
-                      <img src={UserIcon} alt="User Icon" className="user-icon" />
+                      <img 
+                        src={UserIcon} 
+                        alt={`${chat.otherUser.first_name}'s profile`} 
+                        className="user-icon" 
+                      />
                       <div className="message-info">
                         <h5>{chat.otherUser.first_name}</h5>
                         <p className="preview-message">
@@ -994,7 +1132,10 @@ const MessagePage = () => {
                             </div>
                             <div 
                               className="menu-option"
-                              onClick={(e) => handleConversationAction('report', chat, e)}
+                              onClick={(e) => {
+                                console.log("Report button clicked", chat.otherUser);
+                                handleConversationAction('report', chat, e);
+                              }}
                             >
                               Report
                             </div>
@@ -1304,26 +1445,37 @@ const MessagePage = () => {
         )}
       </div>
 
-          {/* Image Modal */}
-          <Modal 
-            show={showImageModal} 
-            onHide={() => setShowImageModal(false)}
-            centered
-            size="lg"
-          >
-            <Modal.Header closeButton>
-              <Modal.Title>Image Preview</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="text-center">
-              <img 
-                src={modalImage} 
-                alt="Full Preview" 
-                style={{ maxWidth: '100%', maxHeight: '70vh' }} 
-              />
-            </Modal.Body>
-          </Modal>
-        </div>
-      );
-    };
+      {/* Image Modal */}
+      <Modal 
+        show={showImageModal} 
+        onHide={() => setShowImageModal(false)}
+        centered
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Image Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          <img 
+            src={modalImage} 
+            alt="Full Preview" 
+            style={{ maxWidth: '100%', maxHeight: '70vh' }} 
+          />
+        </Modal.Body>
+      </Modal>
+      
+      {/* Report Modal */}
+      <ReportModal
+        show={showReportModal}
+        handleClose={() => {
+          console.log("Closing report modal");
+          setShowReportModal(false);
+          setReportUser(null);
+        }}
+        handleSubmit={handleReportSubmit}
+      />
+    </div>
+  );
+};
 
 export default MessagePage;

@@ -31,21 +31,3 @@ Conversation.belongsTo(User, { foreignKey: "user_id", as: "conversations" });
 
 
 module.exports = Conversation;
-
-
-
-// const mongoose = require("mongoose");
-
-// class ConversationSchema =new mongoose.Schema(
-//     {
-//         members: {
-//          type: Array,
-//         },
-//       },
-//       { timestamps: true }
-    
-// )
-
-  
-
-// module.exports = mongoose.model("Conversation", ConversationSchema);
