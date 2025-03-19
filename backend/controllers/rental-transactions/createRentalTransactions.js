@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const { models } = require("../../models");
-const { GCASH } = require("../../utils/constants"); // Make sure STRIPE is added to constants
+const { GCASH } = require("../../utils/constants");
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
@@ -13,11 +13,19 @@ const getUserNames = async (userId) => {
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
 
-const getRentalItemName = async (itemId) => {
-  const item = await models.Listing.findByPk(itemId, {
-    attributes: ["listing_name"],
-  });
-  return item ? item.listing_name : "Unknown Item";
+//Helper function to get item name based on transaction type
+const getItemName = async (itemId, transactionType) => {
+  if (transactionType === "sell") {
+    const item = await models.ItemForSale.findByPk(itemId, {
+      attributes: ["item_for_sale_name"],
+    });
+    return item ? item.item_for_sale_name : "Unknown Item";
+  } else {
+    const item = await models.Listing.findByPk(itemId, {
+      attributes: ["listing_name"],
+    });
+    return item ? item.listing_name : "Unknown Item";
+  }
 };
 
 const convertToCAD = async (amount) => {
@@ -27,6 +35,14 @@ const convertToCAD = async (amount) => {
     console.error("Error fetching exchange rate:", error);
     return amount; // Fallback to original amount if API fails
   }
+};
+
+// Helper function to determine notification details
+const getNotificationDetails = (transactionType) => {
+  return {
+    type: transactionType === "sell" ? "purchase_request" : "rental_request",
+    action: transactionType === "sell" ? "buy" : "rent",
+  };
 };
 
 const createRentalTransaction = async (req, res, emitNotification) => {
@@ -76,15 +92,12 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       payment_mode,
       date_id,
       time_id,
-      transaction_type: transaction_type === "sell" ? "sell" : "rental", // Added this line to properly handle the transaction_type
+      transaction_type: transaction_type === "sell" ? "sell" : "rental",
     };
 
     if (isFromCart) {
-      // Add any cart-specific data or flags needed
       rentalData.from_cart = true;
 
-      // You might also want to remove the item from the cart after successful rental creation
-      // This would depend on your specific cart implementation
       try {
         await models.Cart.destroy({
           where: {
@@ -96,7 +109,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
         });
       } catch (cartError) {
         console.error("Error removing item from cart:", cartError);
-        // Decide if you want to continue with rental creation even if cart removal fails
       }
     }
 
@@ -119,7 +131,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     });
 
     let item;
-    // Add condition to handle both rental and sell transactions
     if (transaction_type === "rental") {
       item = await models.Listing.findOne({
         where: { id: rental.item_id },
@@ -155,12 +166,10 @@ const createRentalTransaction = async (req, res, emitNotification) => {
 
     let result = { id: rental.id };
 
-    // Handle payment based on payment mode
     if (payment_mode === GCASH) {
       try {
-        // Create a PaymentIntent with capture_method: 'manual' for authorize-only
         const paymentIntent = await stripe.paymentIntents.create({
-          amount: Math.round(totalAmountCAD * 100), // Convert to cents
+          amount: Math.round(totalAmountCAD * 100),
           currency: "cad",
           automatic_payment_methods: {
             enabled: true,
@@ -170,7 +179,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
               capture_method: "manual",
             },
           },
-          capture_method: "manual", // Authorize only, capture later
+          capture_method: "manual",
           automatic_payment_methods: {
             enabled: true,
             allow_redirects: "always",
@@ -179,7 +188,9 @@ const createRentalTransaction = async (req, res, emitNotification) => {
             transactionId: rental.id,
             itemId: item_id,
             userId:
-              transaction_type === "rental" ? rental.renter_id : rental.buyer_id,
+              transaction_type === "rental"
+                ? rental.renter_id
+                : rental.buyer_id,
             email:
               transaction_type === "rental"
                 ? rental.renter.email
@@ -194,10 +205,8 @@ const createRentalTransaction = async (req, res, emitNotification) => {
           application_fee_amount: Math.floor(applicationFeeAmount * 100),
         });
 
-        // Update rental with payment intent ID
         await rental.update({ stripe_payment_intent_id: paymentIntent.id });
 
-        // Return the client secret to the frontend
         result = {
           id: rental.id,
           clientSecret: paymentIntent.client_secret,
@@ -212,23 +221,25 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       }
     }
 
-    // Add Notification Logic Here
+    // Notification creation
     const renterName = await getUserNames(
       transaction_type === "sell" ? buyer_id : renter_id
     );
-    const itemName = await getRentalItemName(item_id);
+    const itemName = await getItemName(item_id, transaction_type);
 
-    // Create notification
+    const { type: notificationType, action } =
+      getNotificationDetails(transaction_type);
+    const message = `${renterName} wants to ${action} ${itemName}.`;
+
     const notification = await models.StudentNotification.create({
       sender_id: transaction_type === "sell" ? buyer_id : renter_id,
       recipient_id: owner_id,
-      type: "rental_request",
-      message: `${renterName} wants to rent ${itemName}.`,
+      type: notificationType,
+      message: message,
       is_read: false,
       rental_id: rental.id,
     });
 
-    // Emit notification using centralized emitter
     if (emitNotification) {
       emitNotification(owner_id, notification.toJSON());
     }
@@ -242,14 +253,12 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     });
 
     if (duration) {
-      // Set the status to 'requested'
       await duration.update({ status: "requested" });
 
-      // Check if all durations for this date are rented
       const allDurationsRented = await models.Duration.count({
         where: {
           date_id: date_id,
-          status: { [Op.ne]: "available" }, // Check for rented or requested
+          status: { [Op.ne]: "available" },
         },
       });
 
@@ -260,7 +269,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       });
 
       if (allDurationsRented === totalDurationsForDate) {
-        // Update the date status to 'rented'
         const rentalDate = await models.Date.findByPk(date_id);
         if (rentalDate) {
           await rentalDate.update({ status: "rented" });
@@ -269,7 +277,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
         }
       }
 
-      // Check if all dates for the item are rented
       const allDatesRented = await models.Date.count({
         where: {
           item_id: item_id,
@@ -284,7 +291,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       });
 
       if (allDatesRented === totalDatesForItem) {
-        // Update the item status to 'unavailable'
         const item = await models.Listing.findByPk(item_id);
         if (item) {
           await item.update({ status: "unavailable" });
@@ -298,12 +304,10 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: errorMsg });
     }
 
-    // Respond with the created rental transaction and payment information
     return res.status(200).json(result);
   } catch (error) {
     console.error("Error creating rental transaction:", error);
 
-    // Detailed error handling
     let errorMessage =
       "An error occurred while creating the rental transaction. Please try again.";
     if (error.name === "SequelizeValidationError") {

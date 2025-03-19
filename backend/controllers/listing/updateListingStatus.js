@@ -69,7 +69,7 @@ const updateListingStatus = async (req, res) => {
           sender_id: listing.owner_id,
           recipient_id: student.user_id,
           type: "new-listing",
-          message: `New listing "${listing.listing_name}" is now available!`,
+          message: `"${listing.listing_name}" is now available!`,
           listing_id: listing.id,
           is_read: false,
         })),

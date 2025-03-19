@@ -306,9 +306,9 @@ function initializeSocket(server) {
     // handle trigger on transaction update status
     socket.on("update-transaction-status", (data) => {
       const { rentalId, sender, recipient, status } = data;
-      console.log(
-        `Rental update for rental ${rentalId}: Status changed to ${status} sender${sender} receiver${recipient}`
-      );
+      // console.log(
+      //   `Rental update for rental ${rentalId}: Status changed to ${status} sender${sender} receiver${recipient}`
+      // );
 
       try {
         if (sender === recipient) {
@@ -316,7 +316,7 @@ function initializeSocket(server) {
           return;
         }
 
-        console.log(data);
+        // console.log(data);
         const recipientSockets = userSockets.get(recipient.toString());
 
         if (recipientSockets && recipientSockets.size > 0) {
@@ -334,7 +334,7 @@ function initializeSocket(server) {
             });
           });
 
-          console.log(`Rental update successfully sent to user ${recipient}`);
+          // console.log(`Rental update successfully sent to user ${recipient}`);
         } else {
           console.log(`User ${recipient} is offline. Notification stored.`);
         }

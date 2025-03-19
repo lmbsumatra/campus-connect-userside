@@ -17,7 +17,7 @@ import {
   markNotificationAsRead,
 } from "../../../redux/notif/notificationSlice";
 
-// Updated notification routes configuration
+// Updated notification routes configuration including purchase-related routes
 const notificationRoutes = {
   listing_status: "/profile/my-listings",
   post_status: "/profile/my-posts",
@@ -38,11 +38,23 @@ const notificationRoutes = {
   return_confirmed: (isOwner) =>
     isOwner
       ? "/profile/transactions/owner/to receive"
-      : "/profile/transactions/renter/completed",
-  transaction_completed: (isOwner) =>
+      : "/profile/transactions/renter/to receive",
+  rental_completed: (isOwner) =>
     isOwner
       ? "/profile/transactions/owner/to review"
       : "/profile/transactions/renter/to review",
+  purchase_completed: (isOwner) =>
+    isOwner
+      ? "/profile/transactions/owner/to review"
+      : "/profile/transactions/buyer/to review",
+  purchase_receipt_confirmed: (isOwner) =>
+    isOwner
+      ? "/profile/transactions/owner/completed"
+      : "/profile/transactions/buyer/to receive",
+  purchase_request: "/profile/transactions/owner/requests",
+  purchase_accepted: "/profile/transactions/buyer/to receive",
+  purchase_declined: "/profile/transactions/buyer/cancelled",
+  purchase_cancelled: "/profile/transactions/owner/cancelled",
   default: "/profile/transactions/owner/requests",
 };
 
@@ -70,7 +82,8 @@ const determineRoute = (rental, type, isOwner, isRenter, notification) => {
       return route(isRenter);
     } else if (
       type === "return_confirmed" ||
-      type === "transaction_completed"
+      type === "rental_completed" ||
+      type === "purchase_completed"
     ) {
       return route(isOwner);
     }
@@ -208,7 +221,7 @@ const NotificationMessage = ({ message, type }) => {
           </>
         );
       }
-      case "transaction_completed": {
+      case "rental_completed": {
         const match = message.match(
           /Rental transaction with\s(.*?)\shas been completed/
         );
@@ -242,6 +255,139 @@ const NotificationMessage = ({ message, type }) => {
           );
         }
         return message;
+      }
+      case "purchase_request": {
+        const match = message.match(/(.*?)\swants to buy\s(.*)/);
+        if (match) {
+          const [, sender, item] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">wants to buy</span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return message;
+      }
+      case "purchase_accepted": {
+        const match = message.match(
+          /(.*?)\shas accepted your purchase request for\s(.*)\./
+        );
+        if (match) {
+          const [, sender, item] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">
+                has <span className="success-text">accepted</span> your purchase
+                request for
+              </span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return <span className="success-text">{message}</span>;
+      }
+      case "purchase_receipt_confirmed": {
+        const match = message.match(
+          /(.*?)\shas confirmed receipt of purchased item:\s(.*)/
+        );
+        if (match) {
+          const [, sender, item] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">
+                has <span className="success-text">confirmed</span> receipt of
+                purchased item:
+              </span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return (
+          <>
+            <span className="highlight-text">{message}</span>
+            <br />
+            <span className="action-text">Tap to confirm.</span>
+          </>
+        );
+      }
+      case "purchase_declined": {
+        const match = message.match(
+          /(.*?)\shas declined your purchase request for\s(.*)\./
+        );
+        if (match) {
+          const [, sender, item] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">
+                has <span className="error-text">declined</span> your purchase
+                request for
+              </span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return <span className="error-text">{message}</span>;
+      }
+      case "purchase_cancelled": {
+        const match = message.match(
+          /(.*?)\shas cancelled the purchase request for\s(.*)\./
+        );
+        if (match) {
+          const [, sender, item] = match;
+          return (
+            <>
+              <span className="font-large">{sender}</span>
+              <br />
+              <span className="default-text">
+                has <span className="error-text">cancelled</span> the purchase
+                request for
+              </span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return <span className="error-text">{message}</span>;
+      }
+      case "purchase_completed": {
+        // Check for buyer's message format
+        let match = message.match(
+          /Purchase of\s(.*?)\sfrom\s(.*?)\shas been completed/
+        );
+
+        if (!match) {
+          // Check for seller's message format
+          match = message.match(
+            /Sale of\s(.*?)\sto\s(.*?)\shas been completed/
+          );
+        }
+
+        if (match) {
+          const [, item, sender] = match;
+          return (
+            <>
+              <span className="font-large success-text">
+                Purchase Transaction Complete
+              </span>
+              <br />
+              <span className="default-text">with {sender}</span>
+            </>
+          );
+        }
+        return message; // Fallback to showing the raw message
       }
       case "listing_status": {
         return (
@@ -442,11 +588,6 @@ const Notification = ({
         // Handle new_listing notifications
         if (notif.type === "new-listing") {
           toggleNotifications();
-          // Check if listing_id exists and log it for debugging
-          // console.log("Notification object:", notif);
-          // console.log("Navigating to listing ID:", notif.listing_id);
-
-          // Direct navigation with explicit listing_id
           navigate(`/rent/${notif.listing_id}`);
           return;
         }
@@ -454,10 +595,6 @@ const Notification = ({
         // Handle new_post notifications
         if (notif.type === "new-post") {
           toggleNotifications();
-          // console.log("Notification object:", notif);
-          // console.log("Navigating to post ID:", notif.post_id);
-
-          // Direct navigation with explicit post_id
           navigate(`/post/${notif.post_id}`);
           return;
         }
@@ -489,14 +626,38 @@ const Notification = ({
           notif.type === "report_escalated"
         ) {
           toggleNotifications();
-          // console.log("Notification object:", notif);
           navigate(`/reports/${notif.transaction_report_id}`, {
             state: { notificationType: notif.type },
           });
           return;
         }
 
-        // Handle rental-related notifications
+        // Handle direct purchase notification types (without rental_id)
+        if (notif.type === "purchase_accepted" && !notif.rental_id) {
+          toggleNotifications();
+          navigate(notificationRoutes.purchase_accepted);
+          return;
+        }
+
+        if (notif.type === "purchase_declined" && !notif.rental_id) {
+          toggleNotifications();
+          navigate(notificationRoutes.purchase_declined);
+          return;
+        }
+
+        if (notif.type === "purchase_cancelled" && !notif.rental_id) {
+          toggleNotifications();
+          navigate(notificationRoutes.purchase_cancelled);
+          return;
+        }
+
+        if (notif.type === "purchase_request" && !notif.rental_id) {
+          toggleNotifications();
+          navigate(notificationRoutes.purchase_request);
+          return;
+        }
+
+        // Handle rental- and purchase-related notifications with rental_id
         if (notif.rental_id) {
           const rentalRes = await axios.get(
             `http://localhost:3001/rental-transaction/${notif.rental_id}`
@@ -509,6 +670,41 @@ const Notification = ({
 
           const isOwner = studentUser.userId === rental.owner_id;
           const isRenter = studentUser.userId === rental.renter_id;
+
+          // Handle purchase-related notifications
+          if (notif.type === "purchase_accepted") {
+            toggleNotifications();
+            navigate(notificationRoutes.purchase_accepted, {
+              state: { notificationType: notif.type, highlight: rental.id },
+            });
+            return;
+          }
+
+          if (notif.type === "purchase_declined") {
+            toggleNotifications();
+            navigate(notificationRoutes.purchase_declined, {
+              state: { notificationType: notif.type, highlight: rental.id },
+            });
+            return;
+          }
+
+          if (notif.type === "purchase_cancelled") {
+            toggleNotifications();
+            navigate(notificationRoutes.purchase_cancelled, {
+              state: { notificationType: notif.type, highlight: rental.id },
+            });
+            return;
+          }
+
+          if (notif.type === "purchase_request") {
+            toggleNotifications();
+            navigate(notificationRoutes.purchase_request, {
+              state: { notificationType: notif.type, highlight: rental.id },
+            });
+            return;
+          }
+
+          // Handle rental-related notifications
           const route = determineRoute(
             rental,
             notif.type,

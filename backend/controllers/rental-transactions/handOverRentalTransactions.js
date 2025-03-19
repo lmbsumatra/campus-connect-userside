@@ -13,11 +13,18 @@ const getUserNames = async (userId) => {
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
 
-const getRentalItemName = async (itemId) => {
-  const item = await models.Listing.findByPk(itemId, {
-    attributes: ["listing_name"],
-  });
-  return item ? item.listing_name : "Unknown Item";
+const getItemName = async (itemId, transactionType) => {
+  if (transactionType === "sell") {
+    const item = await models.ItemForSale.findByPk(itemId, {
+      attributes: ["item_for_sale_name"],
+    });
+    return item ? item.item_for_sale_name : "Unknown Item";
+  } else {
+    const item = await models.Listing.findByPk(itemId, {
+      attributes: ["listing_name"],
+    });
+    return item ? item.listing_name : "Unknown Item";
+  }
 };
 
 const convertToCAD = async (amount) => {
@@ -88,7 +95,10 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
     }
 
     const ownerName = await getUserNames(transaction.owner_id);
-    const itemName = await getRentalItemName(transaction.item_id);
+    const itemName = await getItemName(
+      transaction.item_id,
+      transaction.transaction_type
+    );
 
     // Variables for different user roles
     let counterpartyId, counterpartyName, counterpartyRole;
@@ -169,14 +179,14 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
         : `${currentUserName} has confirmed receipt of ${itemName}.`;
     } else if (isPurchase) {
       message = isOwner
-        ? `${ownerName} has confirmed handover of ${itemName} for purchase.`
+        ? `${ownerName} has confirmed receipt of ${itemName} for purchase.`
         : `${currentUserName} has confirmed receipt of purchased item: ${itemName}.`;
     }
 
     const notification = await models.StudentNotification.create({
       sender_id: userId,
       recipient_id: counterpartyId,
-      type: isRental ? "handover_confirmed" : "purchase_completed",
+      type: isRental ? "handover_confirmed" : "purchase_receipt_confirmed",
       message: message,
       is_read: false,
       rental_id: transaction.id,

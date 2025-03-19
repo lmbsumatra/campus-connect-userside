@@ -64,7 +64,7 @@ const updateItemForSaleStatus = async (req, res) => {
           sender_id: item.seller_id,
           recipient_id: student.user_id,
           type: "new-item-for-sale",
-          message: `New item "${item.item_for_sale_name}" is now available for purchase!`,
+          message: `"${item.item_for_sale_name}" is now available for purchase!`,
           item_for_sale_id: item.id,
           is_read: false,
         })),

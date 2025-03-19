@@ -192,13 +192,24 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
         ? transaction.Post.post_item_name
         : "item";
 
+      // Get user names
+      const ownerName = await getUserNames(transaction.owner_id);
+      let buyerName = "";
+      if (isPurchase) {
+        buyerName = await getUserNames(transaction.buyer_id);
+      }
+      let renterName = "";
+      if (isRental) {
+        renterName = await getUserNames(transaction.renter_id);
+      }
+
       // Create notifications for both parties
       const notificationPromises = [
         {
           recipientId: transaction.owner_id,
           message: isRental
-            ? `Rental transaction with ${counterpartyName} has been completed successfully.`
-            : `Sale of ${itemName} to ${counterpartyName} has been completed successfully.`,
+            ? `Rental transaction with ${renterName} has been completed successfully.`
+            : `Sale of ${itemName} to ${buyerName} has been completed successfully.`,
         },
         {
           recipientId: isRental ? transaction.renter_id : transaction.buyer_id,

@@ -18,14 +18,20 @@ module.exports = ({ emitNotification }) => {
     return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
   };
 
-  // Helper function to get rental item name
-  const getRentalItemName = async (itemId) => {
-    const item = await models.Listing.findByPk(itemId, {
-      attributes: ["listing_name"],
-    });
-    return item ? item.listing_name : "Unknown Item";
+  // Helper function to get item name
+  const getItemName = async (itemId, transactionType) => {
+    if (transactionType === "sell") {
+      const item = await models.ItemForSale.findByPk(itemId, {
+        attributes: ["item_for_sale_name"],
+      });
+      return item ? item.item_for_sale_name : "Unknown Item";
+    } else {
+      const item = await models.Listing.findByPk(itemId, {
+        attributes: ["listing_name"],
+      });
+      return item ? item.listing_name : "Unknown Item";
+    }
   };
-
   // const createRentalTransaction = async (req, res) => {
   //   try {
   //     const {
@@ -417,30 +423,39 @@ module.exports = ({ emitNotification }) => {
           .json({ error: "Only Requested rentals can be accepted." });
       }
 
-      // Get user names
+      // Get user names and item name
       const ownerName = await getUserNames(rental.owner_id);
-      const itemName = await getRentalItemName(rental.item_id);
+      const itemName = await getItemName(
+        rental.item_id,
+        rental.transaction_type
+      );
 
       // Update the rental status to "Accepted"
       rental.status = "Accepted";
       await rental.save();
 
-      // Create a notification for the renter
+      // Determine notification type and message based on transaction_type
+      const notifType =
+        rental.transaction_type === "sell"
+          ? "purchase_accepted"
+          : "rental_accepted";
+      const action = rental.transaction_type === "sell" ? "purchase" : "rental";
       const notification = await models.StudentNotification.create({
         sender_id: userId,
-        recipient_id: rental.renter_id,
-        type: "rental_accepted",
-        message: `${ownerName} has accepted your rental request for ${itemName}.`,
+        recipient_id:
+          rental.transaction_type === "sell"
+            ? rental.buyer_id
+            : rental.renter_id,
+        type: notifType,
+        message: `${ownerName} has accepted your ${action} request for ${itemName}.`,
         is_read: false,
         rental_id: rental.id,
       });
 
-      // Emit notification using centralized emitter
       if (emitNotification) {
         emitNotification(rental.renter_id, notification.toJSON());
       }
 
-      // Return the updated rental transaction
       res.json(rental);
     } catch (error) {
       console.error("Error accepting rental transaction:", error);
@@ -451,13 +466,11 @@ module.exports = ({ emitNotification }) => {
     }
   };
 
-  const returnRentalTransaction = async (req, res, emitNotification) => {
+  const returnRentalTransaction = async (req, res) => {
     const { id } = req.params;
-    const { userId } = req.body;
+    const { userId } = req.body; // userId to identify who is confirming the handover
 
     try {
-      // console.log("Return Rental Transaction Request:", { id, userId });
-
       const rental = await models.RentalTransaction.findByPk(id, {
         include: [
           {
@@ -474,75 +487,63 @@ module.exports = ({ emitNotification }) => {
             model: models.Listing,
             attributes: ["id", "listing_name", "description", "rate"],
           },
+          { model: models.Post, attributes: ["id", "post_item_name"] },
+          { model: models.Date, attributes: ["id", "date"] },
+          {
+            model: models.Duration,
+            attributes: ["id", "rental_time_from", "rental_time_to"],
+          },
         ],
       });
 
-      if (!rental) {
-        // console.error("Rental transaction not found for ID:", id);
+      if (!rental)
         return res.status(404).json({ error: "Rental transaction not found." });
-      }
 
-      // console.log("Fetched Rental Transaction:", rental);
-
+      // Check if the user is the owner or renter
       const isOwner = rental.owner_id === userId;
       const isRenter = rental.renter_id === userId;
 
       if (!isOwner && !isRenter) {
-        // console.error("Unauthorized action by user:", userId);
         return res.status(403).json({ error: "Unauthorized action." });
       }
 
+      // Check if rental status is 'HandedOver'
       if (rental.status !== "HandedOver") {
-        // console.error("Rental not in HandedOver state:", rental.status);
         return res
           .status(400)
-          .json({ error: "Only handed-over rentals can be returned." });
+          .json({ error: "Only handed over rentals can be returned." });
       }
 
       const ownerName = await getUserNames(rental.owner_id);
       const renterName = await getUserNames(rental.renter_id);
       const itemName = await getRentalItemName(rental.item_id);
 
+      // Update the confirmation status
       if (isOwner) {
         rental.owner_confirmed = true;
       } else if (isRenter) {
         rental.renter_confirmed = true;
       }
 
+      // Check if both parties have confirmed
       if (rental.owner_confirmed && rental.renter_confirmed) {
         rental.status = "Returned";
         rental.owner_confirmed = false;
         rental.renter_confirmed = false;
       }
 
-      if (
-        rental.status === "HandedOver" &&
-        rental.stripe_payment_intent_id &&
-        rental.transaction_type === "rental" &&
-        rental.payment_status !== "Completed"
-      ) {
-        try {
-          const paymentIntent = await stripe.paymentIntents.capture(
-            rental.stripe_payment_intent_id
-          );
-
-          await rental.update({ payment_status: "Completed" });
-          // console.log("Payment captured successfully.");
-        } catch (stripeError) {
-          // console.error("Error capturing payment on return:", stripeError);
-          return res.status(500).json({
-            error: "Payment capture failed upon return.",
-            details: stripeError.message,
-          });
-        }
-      }
-
       await rental.save();
 
-      let recipientId = isOwner ? rental.renter_id : rental.owner_id;
-      let message = isOwner
-        ? `${ownerName} has confirmed receiving ${itemName}. Please confirm complete transaction.`
-        : `${renterName} has confirmed return of ${itemName}. Please confirm receipt and complete transaction.`;
+      let recipientId;
+      let message;
+
+      if (isOwner) {
+        recipientId = rental.renter_id;
+        message = `${ownerName} has confirmed receiving ${itemName}. Please confirm complete transaction.`;
+      } else if (isRenter) {
+        recipientId = rental.owner_id;
+        message = `${renterName} has confirmed return of ${itemName}. Please confirm receipt and complete transaction.`;
+      }
 
       const notification = await models.StudentNotification.create({
         sender_id: userId,
@@ -556,16 +557,11 @@ module.exports = ({ emitNotification }) => {
       if (emitNotification) {
         emitNotification(recipientId, notification.toJSON());
       }
-
-      return res.json({ success: true, rental });
+      res.json(rental);
     } catch (error) {
-      // console.error("Error in returnRentalTransaction:", error);
-      if (!res.headersSent) {
-        return res.status(500).json({ error: error.message });
-      }
+      res.status(500).json({ error: error.message });
     }
   };
-
   module.exports = { returnRentalTransaction };
 
   // const completeRentalTransaction = async (req, res) => {
@@ -775,20 +771,22 @@ module.exports = ({ emitNotification }) => {
       const ownerName = await getUserNames(rental.owner_id);
       const itemName = await getRentalItemName(rental.item_id);
 
-      rental.status = "Declined"; // Update status to Declined
-
+      rental.status = "Declined";
       await rental.save();
 
-      // Inside declineRentalTransaction
+      const notifType =
+        rental.transaction_type === "sell"
+          ? "purchase_declined"
+          : "rental_declined";
+      const action = rental.transaction_type === "sell" ? "purchase" : "rental";
       const notification = await models.StudentNotification.create({
         sender_id: userId,
         recipient_id: rental.renter_id,
-        type: "rental_declined",
-        message: `${ownerName} has declined your rental request for ${itemName}.`,
+        type: notifType,
+        message: `${ownerName} has declined your ${action} request for ${itemName}.`,
         is_read: false,
         rental_id: rental.id,
       });
-      // Emit notification using centralized emitter
       if (emitNotification) {
         emitNotification(rental.renter_id, notification.toJSON());
       }
