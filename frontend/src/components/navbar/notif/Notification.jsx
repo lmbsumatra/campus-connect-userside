@@ -404,7 +404,13 @@ const Notification = ({
         // Handle post_status notifications
         if (notif.type === "post_status") {
           toggleNotifications();
-          navigate(notificationRoutes.post_status);
+          // Check if post_id exists before navigating
+          if (notif.post_id) {
+            navigate(`/post/${notif.post_id}`);
+          } else {
+            // Fall back to the default route if post_id isn't available
+            navigate(notificationRoutes.post_status);
+          }
           return;
         }
 
@@ -427,7 +433,7 @@ const Notification = ({
           console.log("Navigating to post ID:", notif.post_id);
 
           // Direct navigation with explicit post_id
-          navigate(`/posts/${notif.post_id}`);
+          navigate(`/post/${notif.post_id}`);
           return;
         }
 

@@ -45,13 +45,13 @@ const refreshAdminToken = async (req, res) => {
 
     // Generate new tokens
     const token = jwt.sign(
-      { adminId: decoded.adminId, role: decoded.role },
+      { userId: decoded.adminId, role: decoded.role },
       JWT_SECRET,
       { expiresIn: "1h" } // Access token expires in 1 hour
     );
 
     const newRefreshToken = jwt.sign(
-      { adminId: decoded.adminId, role: decoded.role },
+      { userId: decoded.adminId, role: decoded.role },
       JWT_REFRESH_SECRET,
       { expiresIn: "5d" } // Refresh token expires in 5 days
     );

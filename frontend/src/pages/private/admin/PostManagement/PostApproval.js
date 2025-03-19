@@ -36,8 +36,9 @@ const PostApproval = () => {
   }
 
   const handleStatusChange = async (selectedAction, reason) => {
+    console.log("Admin user token being sent:", adminUser?.token);
     try {
-      await fetch(`http://localhost:3001/posts/${id}/status`, {
+      const response = await fetch(`http://localhost:3001/posts/${id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -45,10 +46,17 @@ const PostApproval = () => {
         },
         body: JSON.stringify({ status: selectedAction, reason }),
       });
+
+      // Add this to see the complete response
+      const responseData = await response.json();
+      console.log("Response status:", response.status);
+      console.log("Response data:", responseData);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
       setStatus(selectedAction);
-      console.log(
-        `Status updated to: ${selectedAction} with reason: ${reason}`
-      );
     } catch (error) {
       console.error("Error updating status:", error);
     } finally {

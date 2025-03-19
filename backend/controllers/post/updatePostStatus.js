@@ -10,7 +10,7 @@ const updatePostStatus = async (req, res) => {
     const { status, reason } = req.body;
 
     // Check if req.user exists and extract adminId
-    const adminId = req.adminUser?.adminId;
+    const adminId = req.adminUser?.userId;
     if (!adminId) {
       await transaction.rollback();
       return res

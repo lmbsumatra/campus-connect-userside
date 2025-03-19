@@ -31,6 +31,10 @@ const authenticateToken = (req, res, next) => {
       return res.status(403).json({ message: "Invalid or expired token." });
     }
 
+    if (decoded.role !== "admin" && decoded.role !== "superadmin") {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+
     req.adminUser = decoded;
     console.log("Token decoded successfully:", decoded);
     next();
