@@ -476,3 +476,85 @@
   border-radius: 4px;
   background-color: white;
 }
+
+/* Additional styles for rent/sale posts */
+.rental-dates-durations {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Style for the terms button */
+.expand-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}
+
+.expand-btn.expand {
+  transform: rotate(45deg);
+}
+
+/* Terms popup styling */
+.terms-popup {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.terms-popup .term {
+  margin-bottom: 10px;
+}
+
+.terms-popup .term:last-child {
+  margin-bottom: 0;
+}
+
+/* Modal styles */
+.terms-summary {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.terms-summary ul {
+  margin-top: 5px;
+  padding-left: 20px;
+}
+
+.terms-summary li {
+  margin-bottom: 5px;
+}
+
+/* Different styling based on item type */
+.post-container[data-item-type="To Rent"] .offer-details-section {
+  border-left: 4px solid var(--clr-primary);
+}
+
+.post-container[data-item-type="To Buy"] .offer-details-section {
+  border-left: 4px solid var(--clr-secondary);
+}
+
+/* Additional styling for action buttons */
+.action-btns button.selected {
+  background-color: var(--clr-primary);
+  color: white;
+  font-weight: 500;
+}
+
+.duration-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 5px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: white;
+}

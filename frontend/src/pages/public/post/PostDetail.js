@@ -248,7 +248,7 @@ function PostDetail() {
         deliveryMethod: deliveryMethod,
         paymentMethod: paymentMethod,
         itemCondition: itemCondition,
-        terms: termsValues,
+        terms: approvedPostById.itemType === TO_RENT ? termsValues : null,
       };
 
       navigate("/messages", {
@@ -433,7 +433,7 @@ function PostDetail() {
   return (
     <div className="container-content post-detail">
       {isYou && <ViewToolbar />}
-      <div className="post-container">
+      <div className="post-container" data-item-type={approvedPostById.itemType}>
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
@@ -535,7 +535,7 @@ function PostDetail() {
               onClick={handleOfferClick}
               disabled={isYou}
             >
-              {approvedPostById.itemType === TO_RENT ? "Offer" : "Buy"}
+              {approvedPostById.itemType === TO_RENT ? "Offer" : "SELL"}
             </button>
           </div>
           <hr />
@@ -606,7 +606,7 @@ function PostDetail() {
             {/* Offer Details Section - Moved closer to duration picker */}
             <div className="offer-details-section mt-3">
               <div className="form-group">
-                <label>Rental Fee</label>
+                <label>{approvedPostById.itemType === TO_RENT ? "Rental Fee" : "Price"}</label>
                 <input
                   type="number"
                   className="form-control"
@@ -620,7 +620,7 @@ function PostDetail() {
                   }}
                   min="0.01"
                   step="0.01"
-                  placeholder="Enter offer amount"
+                  placeholder={`Enter ${approvedPostById.itemType === TO_RENT ? "rental fee" : "price"}`}
                 />
                 {offerPrice && parseFloat(offerPrice) <= 0 && (
                   <small className="text-danger">
@@ -696,7 +696,7 @@ function PostDetail() {
               </div>
             </div>
 
-            {/* Item Condition - Changed from dropdown to text input */}
+            {/* Item Condition */}
             <div className="group-container item-condition">
               <label className="label">Item Condition</label>
               <div className="input-wrapper">
@@ -710,85 +710,87 @@ function PostDetail() {
               </div>
             </div>
 
-            {/* Terms and Conditions - Fixed positioning */}
-            <div className="group-container terms-group">
-              <label className="sub-section-label">
-                Terms and Condition
-                <button
-                  className={`expand-btn ${expandTerm ? "expand" : ""}`}
-                  onClick={handleExpandTerms}
-                >
-                  <img src={expandIcon} alt="Expand terms and condition" />
-                </button>
-              </label>
+            {/* Terms and Conditions - Only show for rental posts */}
+            {approvedPostById.itemType === TO_RENT && (
+              <div className="group-container terms-group">
+                <label className="sub-section-label">
+                  Terms and Condition
+                  <button
+                    className={`expand-btn ${expandTerm ? "expand" : ""}`}
+                    onClick={handleExpandTerms}
+                  >
+                    <img src={expandIcon} alt="Expand terms and condition" />
+                  </button>
+                </label>
 
-              <div className="terms-container">
-                {expandTerm && (
-                  <div className="terms-popup">
-                    <div className="term late-charges">
-                      <label className="label">Late Charges</label>
-                      <div className="input-wrapper">
-                        <input
-                          className="input"
-                          placeholder="Add late charges"
-                          type="text"
-                          value={termsValues.lateCharges}
-                          onChange={(e) =>
-                            setTermsValues({
-                              ...termsValues,
-                              lateCharges: e.target.value,
-                            })
-                          }
-                        />
-                        <button className="btn btn-icon secondary">
-                          <img src={infoIcon} alt="Information" />
-                        </button>
+                <div className="terms-container">
+                  {expandTerm && (
+                    <div className="terms-popup">
+                      <div className="term late-charges">
+                        <label className="label">Late Charges</label>
+                        <div className="input-wrapper">
+                          <input
+                            className="input"
+                            placeholder="Add late charges"
+                            type="text"
+                            value={termsValues.lateCharges}
+                            onChange={(e) =>
+                              setTermsValues({
+                                ...termsValues,
+                                lateCharges: e.target.value,
+                              })
+                            }
+                          />
+                          <button className="btn btn-icon secondary">
+                            <img src={infoIcon} alt="Information" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="term deposit">
+                        <label className="label">Security Deposit</label>
+                        <div className="input-wrapper">
+                          <input
+                            className="input"
+                            placeholder="Add security deposit"
+                            type="text"
+                            value={termsValues.securityDeposit}
+                            onChange={(e) =>
+                              setTermsValues({
+                                ...termsValues,
+                                securityDeposit: e.target.value,
+                              })
+                            }
+                          />
+                          <button className="btn btn-icon secondary">
+                            <img src={infoIcon} alt="Information" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="term repair-replacement">
+                        <label className="label">Repair and Replacement</label>
+                        <div className="input-wrapper">
+                          <input
+                            className="input"
+                            placeholder="Add repair and replacement"
+                            type="text"
+                            value={termsValues.repairReplacement}
+                            onChange={(e) =>
+                              setTermsValues({
+                                ...termsValues,
+                                repairReplacement: e.target.value,
+                              })
+                            }
+                          />
+                          <button className="btn btn-icon secondary">
+                            <img src={infoIcon} alt="Information" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    <div className="term deposit">
-                      <label className="label">Security Deposit</label>
-                      <div className="input-wrapper">
-                        <input
-                          className="input"
-                          placeholder="Add security deposit"
-                          type="text"
-                          value={termsValues.securityDeposit}
-                          onChange={(e) =>
-                            setTermsValues({
-                              ...termsValues,
-                              securityDeposit: e.target.value,
-                            })
-                          }
-                        />
-                        <button className="btn btn-icon secondary">
-                          <img src={infoIcon} alt="Information" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="term repair-replacement">
-                      <label className="label">Repair and Replacement</label>
-                      <div className="input-wrapper">
-                        <input
-                          className="input"
-                          placeholder="Add repair and replacement"
-                          type="text"
-                          value={termsValues.repairReplacement}
-                          onChange={(e) =>
-                            setTermsValues({
-                              ...termsValues,
-                              repairReplacement: e.target.value,
-                            })
-                          }
-                        />
-                        <button className="btn btn-icon secondary">
-                          <img src={infoIcon} alt="Information" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -823,10 +825,10 @@ function PostDetail() {
               ? selectedDuration.timeFrom && selectedDuration.timeTo
                 ? `${selectedDuration.timeFrom} - ${selectedDuration.timeTo}`
                 : "Invalid duration"
-              : "Nooooooooooo"}
+              : "No duration selected"}
           </p>
           <p>
-            <strong>Offered Price:</strong> ₱{offerPrice}
+            <strong>{approvedPostById.itemType === TO_RENT ? "Rental Fee" : "Price"}:</strong> ₱{offerPrice}
           </p>
           <p>
             <strong>Delivery Method:</strong>{" "}
@@ -840,8 +842,8 @@ function PostDetail() {
             <strong>Item Condition:</strong> {itemCondition || "Not specified"}
           </p>
 
-          {/* Terms and Conditions in Modal */}
-          {(termsValues.lateCharges ||
+          {/* Terms and Conditions in Modal - only for rental posts */}
+          {approvedPostById.itemType === TO_RENT && (termsValues.lateCharges ||
             termsValues.securityDeposit ||
             termsValues.repairReplacement) && (
             <div className="terms-summary">

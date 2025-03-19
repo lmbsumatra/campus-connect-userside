@@ -593,12 +593,21 @@ const MessagePage = () => {
       // Add the message ID to accepted offers
       setAcceptedOffers((prev) => new Set([...prev, message.id]));
 
+      // Check if it's a rental or sale offer based on terms existence
+      const isRentalOffer = message.productDetails?.terms && 
+        Object.values(message.productDetails.terms).some(term => term);
+
       // Emit socket event to notify other user
       socket.current.emit("offerAccepted", {
         messageId: message.id,
         conversationId: activeChat.id,
         recipient: message.sender,
+        offerType: isRentalOffer ? "rental" : "sale" // Include type of offer
       });
+
+      // Create or update a transaction record in the database if needed
+      // This would involve an API call to your backend
+
     } catch (error) {
       console.error("Error accepting offer:", error);
       // Optionally revert the UI state if the API call fails
@@ -1839,8 +1848,8 @@ const MessagePage = () => {
                                 </p>
                               )}
                               
-                              {/* Display terms if available */}
-                              {message.productDetails?.terms && (
+                              {/* Display terms if available and if product is for rent */}
+                              {message.productDetails?.terms && Object.values(message.productDetails.terms).some(term => term) && (
                                 <div className="terms-details mt-2">
                                   <p className="mb-1"><strong>Terms & Conditions:</strong></p>
                                   <div style={{ fontSize: '0.85rem' }}>
