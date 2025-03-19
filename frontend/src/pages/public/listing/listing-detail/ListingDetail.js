@@ -135,7 +135,6 @@ function ListingDetail() {
     const rentalId = urlParams.get("rental_id");
 
     if (fromStripe === "cancelled" && rentalId) {
-      console.log("Redirecting to cancel page...");
       navigate(`/payment-cancelled?rentalId=${rentalId}`, { replace: true });
     } else {
       setPreparing(false); // Only allow rendering if no redirect happens
@@ -298,7 +297,6 @@ function ListingDetail() {
           rentalId: response.data.id,
           userId: loggedInUserId,
         });
-        console.log(response.data);
 
         setShowModal(false);
         navigate("/payment", {

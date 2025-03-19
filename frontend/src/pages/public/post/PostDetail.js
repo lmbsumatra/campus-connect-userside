@@ -278,7 +278,6 @@ function PostDetail() {
       dispatch(fetchPostMatchedItems(id));
     }
 
-    console.log({ approvedPostById });
   }, [id, dispatch]);
 
   useEffect(() => {
@@ -353,12 +352,10 @@ function PostDetail() {
     };
 
     try {
-      console.log(reportData);
       const response = await axios.post(
         "http://localhost:3001/api/reports",
         reportData
       ); // API endpoint
-      console.log("Report submitted:", response.data);
 
       // Update hasReported state
       setHasReported(true);

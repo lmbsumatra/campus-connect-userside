@@ -41,9 +41,8 @@ const getAvailablePostById = async (req, res) => {
     });
 
     if (!post) {
-      return res.status(404).json({ error: "P???????????????/ost not found" });
+      return res.status(404).json({ error: "Post not found" });
     }
-
     // Format the response to flatten fields like item_name, price, etc.
     const formattedPost = {
       id: post.id,

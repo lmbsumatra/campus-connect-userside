@@ -10,9 +10,20 @@ const initialState = {
 
 export const fetchApprovedItemForSaleById = createAsyncThunk(
   "item-for-sale/fetchApprovedItemForSaleById",
-  async (id) => {
-    const response = await fetch(`${BASE_URL}/${id}`);
-    return response.json();
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${BASE_URL}/${id}`);
+
+      if (!response.ok) {
+        // If response is not OK (404, 500, etc.), throw error
+        const errorMessage = `Error ${response.status}: ${response.statusText}`;
+        throw new Error(errorMessage);
+      }
+
+      return await response.json(); // Return valid data
+    } catch (error) {
+      return rejectWithValue(error.message); // Pass error to Redux state
+    }
   }
 );
 

@@ -109,7 +109,6 @@ function ItemForSaleDetail() {
   };
 
   const handleAddToCart = async (e, item) => {
-    console.log(item);
     e.stopPropagation();
 
     dispatch(
@@ -297,12 +296,10 @@ function ItemForSaleDetail() {
     };
 
     try {
-      console.log(reportData);
       const response = await axios.post(
         "http://localhost:3001/api/reports",
         reportData
       ); // API endpoint
-      console.log("Report submitted:", response.data);
       // Update hasReported state
       setHasReported(true);
 

@@ -10,10 +10,20 @@ const initialState = {
 
 export const fetchApprovedPostById = createAsyncThunk(
   "post/fetchApprovedPostById",
-  async (id) => {
-    const response = await fetch(`${BASE_URL}/${id}`);
-    console.log(response.data)
-    return response.json();
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${BASE_URL}/${id}`);
+
+      if (!response.ok) {
+        // If response is not OK (e.g., 404), throw an error
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch post");
+      }
+
+      return response.json();
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
@@ -25,6 +35,7 @@ const approvedPostByIdSlice = createSlice({
     builder
       .addCase(fetchApprovedPostById.pending, (state) => {
         state.loadingApprovedPostById = true;
+        state.errorApprovedPostById = null; // Clear previous errors on new request
       })
       .addCase(fetchApprovedPostById.fulfilled, (state, action) => {
         state.loadingApprovedPostById = false;
@@ -32,7 +43,7 @@ const approvedPostByIdSlice = createSlice({
       })
       .addCase(fetchApprovedPostById.rejected, (state, action) => {
         state.loadingApprovedPostById = false;
-        state.errorApprovedPostById = action.error.message;
+        state.errorApprovedPostById = action.payload; // Now stores the correct error
       });
   },
 });
