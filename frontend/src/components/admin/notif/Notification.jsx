@@ -42,6 +42,38 @@ const Notification = ({
     }
   };
 
+  // Helper function to determine notification text
+  const getNotificationContent = (notification) => {
+    // Handle different notification types
+    switch (notification.type) {
+      case "new-item-for-sale":
+        return (
+          <>
+            <strong>{notification.ownerName}</strong>
+            <em>{notification.message}</em>
+          </>
+        );
+      case "new-post":
+        return (
+          <>
+            <strong>
+              {notification.renter?.name || notification.ownerName}
+            </strong>
+            <em>{notification.message}</em>
+          </>
+        );
+      default:
+        return (
+          <>
+            <strong>
+              {notification.ownerName || notification.owner?.name}
+            </strong>
+            <em>{notification.message}</em>
+          </>
+        );
+    }
+  };
+
   const unreadCount = notifications.filter((notif) => !notif.isRead).length;
 
   return (
@@ -88,10 +120,7 @@ const Notification = ({
                     alt="User Avatar"
                   />
                   <div className="notification-content-admin">
-                    <p>
-                      <strong>{notification.ownerName}</strong>
-                      <em>{notification.message}</em>
-                    </p>
+                    <p>{getNotificationContent(notification)}</p>
                     <span>
                       {new Date(notification.timestamp).toLocaleString()}
                     </span>

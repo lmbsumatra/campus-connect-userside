@@ -1,4 +1,3 @@
-// backend/controllers/listing/updateListingStatus.js
 const { models } = require("../../models/index");
 const StudentNotification = require("../../models/StudentNotificationModel");
 const { Op } = require("sequelize");

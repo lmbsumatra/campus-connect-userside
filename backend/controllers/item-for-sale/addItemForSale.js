@@ -145,8 +145,50 @@ const addItemForSale = async (req, res) => {
       }
     }
 
+    // Fetch seller details
+    const seller = await models.User.findOne({
+      where: { user_id: item.seller_id },
+      attributes: ["user_id", "first_name", "last_name"],
+    });
+
+    const sellerName = seller
+      ? `${seller.first_name} ${seller.last_name}`
+      : "Unknown";
+
+    // Create notification in database
+    const adminNotificationData = {
+      type: "new-item-for-sale",
+      title: "New Item for Sale awaiting approval",
+      message: ` created a new item for sale: "${item.item_for_sale_name}"`,
+      ownerName: sellerName,
+      ownerId: seller.user_id,
+      itemId: item.id,
+      itemType: "item_for_sale",
+      timestamp: new Date(),
+      isRead: false,
+    };
+
+    const adminNotification = await models.Notification.create(
+      adminNotificationData,
+      {
+        transaction,
+      }
+    );
+
     // Commit transaction
     await transaction.commit();
+
+    // Emit socket event after commit
+    if (req.notifyAdmins) {
+      req.notifyAdmins({
+        ...adminNotification.toJSON(),
+        owner: {
+          id: seller.user_id,
+          name: sellerName,
+        },
+      });
+    }
+
     res
       .status(201)
       .json({ message: "Item for sale created successfully.", item });
