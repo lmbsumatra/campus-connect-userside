@@ -23,7 +23,7 @@ const notificationRoutes = {
   post_status: "/profile/my-posts",
   "new-listing": (notification) => `/rent/${notification.listing_id}`,
   "new-post": (notification) => `/posts/${notification.post_id}`,
-  item_status: "/profile/my-items-for-sale",
+  item_status: "/profile/my-for-sale",
   "new-item-for-sale": (notification) =>
     `/buy/${notification.item_for_sale_id}`,
   listing_reviewed: "/profile/reviews",

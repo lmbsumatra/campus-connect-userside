@@ -60,13 +60,20 @@ exports.getAllRecentActivities = async (req, res) => {
         description: `${user.first_name} ${user.last_name} (${user.email}) signed up.`,
         date: user.createdAt,
       })),
-      ...recentPosts.map((post) => ({
-        type: "New Post",
-        description: `${post.post_item_name || "Unnamed Post"} created by ${
-          post.renter.first_name
-        } ${post.renter.last_name}.`,
-        date: post.created_at,
-      })),
+      ...recentPosts.map((post) => {
+        // Check if post.renter exists before accessing its properties
+        const renterName = post.renter
+          ? `${post.renter.first_name} ${post.renter.last_name}`
+          : "Unknown User";
+
+        return {
+          type: "New Post",
+          description: `${
+            post.post_item_name || "Unnamed Post"
+          } created by ${renterName}.`,
+          date: post.created_at,
+        };
+      }),
       ...recentListings.map((listing) => ({
         type: "New Listing",
         description: `${
@@ -74,21 +81,46 @@ exports.getAllRecentActivities = async (req, res) => {
         } listed under ${listing.category}.`,
         date: listing.created_at,
       })),
-      ...recentTransactions.map((transaction) => ({
-        type: "New Rental Transaction",
-        description: `Transaction between ${transaction.owner.first_name} ${transaction.owner.last_name} and ${transaction.renter.first_name} ${transaction.renter.last_name} with TransactionID:${transaction.id}.`,
-        date: transaction.createdAt,
-      })),
-      ...recentReports.map((report) => ({
-        type: "New Report",
-        description: `Report filed by ${report.reporter.first_name} ${report.reporter.last_name} regarding ${report.entity_type} (${report.reported_entity_id}).`,
-        date: report.createdAt,
-      })),
-      ...recentSales.map((sale) => ({
-        type: "New Sale",
-        description: `${sale.item_for_sale_name} listed by ${sale.seller.first_name} ${sale.seller.last_name}.`,
-        date: sale.created_at,
-      })),
+      ...recentTransactions.map((transaction) => {
+        // Check if owner and renter exist before accessing their properties
+        const ownerName = transaction.owner
+          ? `${transaction.owner.first_name} ${transaction.owner.last_name}`
+          : "Unknown Owner";
+
+        const renterName = transaction.renter
+          ? `${transaction.renter.first_name} ${transaction.renter.last_name}`
+          : "Unknown Renter";
+
+        return {
+          type: "New Rental Transaction",
+          description: `Transaction between ${ownerName} and ${renterName} with TransactionID:${transaction.id}.`,
+          date: transaction.createdAt,
+        };
+      }),
+      ...recentReports.map((report) => {
+        // Check if reporter exists before accessing its properties
+        const reporterName = report.reporter
+          ? `${report.reporter.first_name} ${report.reporter.last_name}`
+          : "Unknown Reporter";
+
+        return {
+          type: "New Report",
+          description: `Report filed by ${reporterName} regarding ${report.entity_type} (${report.reported_entity_id}).`,
+          date: report.createdAt,
+        };
+      }),
+      ...recentSales.map((sale) => {
+        // Check if seller exists before accessing its properties
+        const sellerName = sale.seller
+          ? `${sale.seller.first_name} ${sale.seller.last_name}`
+          : "Unknown Seller";
+
+        return {
+          type: "New Sale",
+          description: `${sale.item_for_sale_name} listed by ${sellerName}.`,
+          date: sale.created_at,
+        };
+      }),
       // ...recentBuyAndSellTransactions.map(transaction => ({
       //     type: 'New Buy and Sell Transaction',
       //     description: `Transaction between ${transaction.buyer.first_name} ${transaction.buyer.last_name} and ${transaction.seller.first_name} ${transaction.seller.last_name} with TransactionID:${transaction.id}.`,
