@@ -23,6 +23,9 @@ const notificationRoutes = {
   post_status: "/profile/my-posts",
   "new-listing": (notification) => `/rent/${notification.listing_id}`,
   "new-post": (notification) => `/posts/${notification.post_id}`,
+  item_status: "/profile/my-items-for-sale",
+  "new-item-for-sale": (notification) =>
+    `/buy/${notification.item_for_sale_id}`,
   listing_reviewed: "/profile/reviews",
   rental_request: "/profile/transactions/owner/requests",
   rental_accepted: "/profile/transactions/renter/to receive",
@@ -251,6 +254,28 @@ const NotificationMessage = ({ message, type }) => {
           </>
         );
       }
+      case "item_status": {
+        if (message.includes("approved")) {
+          return (
+            <>
+              <span className="font-medium success-text">{message}</span>
+              <br />
+              <span className="default-text">
+                It's now live and visible to all.
+              </span>
+            </>
+          );
+        }
+      }
+      case "new-item-for-sale": {
+        return (
+          <>
+            <span className="font-large">New Item Available</span>
+            <br />
+            <span className="item-name">{message}</span>
+          </>
+        );
+      }
       case "post_status": {
         if (message.includes("approved")) {
           return (
@@ -434,6 +459,18 @@ const Notification = ({
 
           // Direct navigation with explicit post_id
           navigate(`/post/${notif.post_id}`);
+          return;
+        }
+
+        if (notif.type === "item_status") {
+          toggleNotifications();
+          navigate(notificationRoutes.item_status);
+          return;
+        }
+
+        if (notif.type === "new-item-for-sale") {
+          toggleNotifications();
+          navigate(`/buy/${notif.item_for_sale_id}`);
           return;
         }
 

@@ -35,7 +35,10 @@ const authenticateToken = (req, res, next) => {
       return res.status(403).json({ message: "Admin access required" });
     }
 
-    req.adminUser = decoded;
+    req.adminUser = {
+      ...decoded,
+      adminId: decoded.userId,
+    };
     // console.log("Token decoded successfully:", decoded);
     next();
   });

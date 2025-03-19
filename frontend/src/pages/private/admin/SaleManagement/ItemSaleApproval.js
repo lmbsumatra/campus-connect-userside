@@ -8,11 +8,13 @@ import { ItemStatus } from "../../../../utils/Status";
 import ItemForSalePreview from "./ItemForSalePreview";
 import useFetchAllItemsForSaleData from "../../../../utils/FetchAllItemsForSaleData";
 import FetchItemForSaleData from "../../../../utils/FetchItemForSaleData";
+import { useAuth } from "../../../../context/AuthContext";
 
 const ItemSaleApproval = () => {
   const [showModal, setShowModal] = useState(false);
   const { id } = useParams();
   const [status, setStatus] = useState(null); // Store current status
+  const { adminUser, refreshAdminToken } = useAuth();
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -29,12 +31,13 @@ const ItemSaleApproval = () => {
   const { selectedItem, loading, error, tags } = FetchItemForSaleData({ id });
   const handleStatusChange = async (selectedAction, reason) => {
     try {
-      await fetch(`http://localhost:3001/item-for-sale/${id}`, {
+      await fetch(`http://localhost:3001/item-for-sale/${id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${adminUser?.token}`,
         },
-        body: JSON.stringify({ status: selectedAction }), // Update to new status
+        body: JSON.stringify({ status: selectedAction, reason }), // Update to new status
       });
       setStatus(selectedAction); // Update local status
       // console.log(

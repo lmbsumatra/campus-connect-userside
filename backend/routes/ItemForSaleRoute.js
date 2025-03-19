@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const ItemForSaleController = require("../controllers/ItemForSaleController");
 const ItemForSaleController2 = require("../controllers/item-for-sale/ItemForSaleController.js");
+const updateItemForSaleStatus = require("../controllers/item-for-sale/updateItemForSaleStatus.js");
 const { upload_item } = require("../config/multer");
+const { authenticateToken } = require("../middlewares/AdminAuthMiddleware");
 
 router.get("/available", ItemForSaleController2.getAllAvailable);
 // isang item for sale na available (approved, with available date and corresponding time)
@@ -20,7 +22,10 @@ router.get(
 /* * * * * * * * * displayed for all admins :: all regardless of status * * * * * * * * * * * * * */
 router.get("/info", ItemForSaleController.getAllItemForSale);
 
-router.get("/user/:userId/available", ItemForSaleController2.getAvailableItemsForSaleByUser);
+router.get(
+  "/user/:userId/available",
+  ItemForSaleController2.getAvailableItemsForSaleByUser
+);
 router.get("/users/:id", ItemForSaleController2.getAllItemForSaleByUser);
 
 // patch by admins
@@ -39,6 +44,7 @@ router.patch(
   ItemForSaleController2.updateItemForSaleById
 );
 router.put("/:id", ItemForSaleController.updateItemForSale);
+router.patch("/:id/status", authenticateToken, updateItemForSaleStatus);
 router.delete(
   "/:users/:userId/delete/:itemForSaleId",
   ItemForSaleController2.deleteItemForSaleById

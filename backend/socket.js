@@ -221,47 +221,47 @@ function initializeSocket(server) {
     // Handle block user events
     socket.on("blockUser", (data) => {
       const { blockerId, blockedId } = data;
-      
+
       if (blockerId === blockedId) {
         console.log("Prevented self-blocking notification");
         return;
       }
-      
+
       try {
         // Convert blockedId to string to match how it's stored in the Map
         const blockedIdStr = blockedId.toString();
-        
+
         // Notify the blocked user about being blocked
         io.to(blockedIdStr).emit("userBlocked", {
-          blockerId, 
-          blockedId
+          blockerId,
+          blockedId,
         });
-        
+
         console.log(`Block notification sent to user ${blockedIdStr}`);
       } catch (error) {
         console.error("Error handling block user event:", error);
       }
     });
-    
+
     // Handle unblock user events
     socket.on("unblockUser", (data) => {
       const { unblockerId, unblockedId } = data;
-      
+
       if (unblockerId === unblockedId) {
         console.log("Prevented self-unblocking notification");
         return;
       }
-      
+
       try {
         // Convert unblockedId to string to match how it's stored in the Map
         const unblockedIdStr = unblockedId.toString();
-        
+
         // Notify the unblocked user about being unblocked
         io.to(unblockedIdStr).emit("userUnblocked", {
-          unblockerId, 
-          unblockedId
+          unblockerId,
+          unblockedId,
         });
-        
+
         console.log(`Unblock notification sent to user ${unblockedIdStr}`);
       } catch (error) {
         console.error("Error handling unblock user event:", error);
@@ -316,7 +316,7 @@ function initializeSocket(server) {
           return;
         }
 
-        console.log(data)
+        console.log(data);
         const recipientSockets = userSockets.get(recipient.toString());
 
         if (recipientSockets && recipientSockets.size > 0) {
@@ -334,9 +334,7 @@ function initializeSocket(server) {
             });
           });
 
-          console.log(
-            `Rental update successfully sent to user ${recipient}`
-          );
+          console.log(`Rental update successfully sent to user ${recipient}`);
         } else {
           console.log(`User ${recipient} is offline. Notification stored.`);
         }
