@@ -38,10 +38,25 @@ function RentalItem({
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-
+  console.log(item);
   const handleConfirmPayment = () => {
-    setIsPaymentModalOpen(false);
-    handleStatusUpdate("hand-over");
+    if (
+      item.transactionType === "Rental" &&
+      item.tx.status === "HandedOver" &&
+      (item.tx.owner.user_id === userId || item.tx.renter.user_id === userId)
+    ) {
+      console.log("rent");
+      // setIsPaymentModalOpen(false);
+      handleStatusUpdate("return");
+    } else if (
+      item.transactionType === "Purchase" &&
+      item.tx.status === "Accepted" &&
+      (item.tx.owner.user_id === userId || item.tx.buyer.user_id === userId)
+    ) {
+      console.log("buy");
+      // setIsPaymentModalOpen(false);
+      handleStatusUpdate("hand-over");
+    }
   };
 
   const handleStatusUpdate = async (action) => {
@@ -246,7 +261,12 @@ function RentalItem({
               : "Confirm Hand Over",
 
           onClick: () => {
-            handleStatusUpdate("hand-over");
+            if (item.transactionType === "Purchase") {
+              setIsPaymentModalOpen(true);
+            } else {
+              handleStatusUpdate("hand-over");
+            }
+
             setModalRole(
               item.tx.owner_id === userId
                 ? "owner"
@@ -256,7 +276,8 @@ function RentalItem({
             );
           },
           primary: true,
-          disabled: //  item.tx.is_allowed_to_proceed === false
+          //  item.tx.is_allowed_to_proceed === false
+          disabled:
             item.is_allowed_to_proceed === false ||
             (item.tx.owner_id === userId
               ? item.tx.owner_confirmed
@@ -293,18 +314,27 @@ function RentalItem({
                 : "Confirm Completion"
               : "Confirm Return",
           onClick: () => {
-            setIsPaymentModalOpen(true);
-            handleStatusUpdate(
-              item.tx.transaction_type === "rental" ? "return" : ""
+            setModalRole(
+              item.tx.owner_id === userId
+                ? "owner"
+                : item.tx.transaction_type === "rental"
+                ? "renter"
+                : "buyer"
             );
+            if (item.transactionType === "Sell") {
+            } else if (item.transactionType === "Rental") {
+              setIsPaymentModalOpen(true);
+            }
           },
           primary: true,
-          disabled: //  item.tx.is_allowed_to_proceed === false
+          //  item.tx.is_allowed_to_proceed === false
+          disabled:
             item.is_allowed_to_proceed === false ||
             (item.tx.owner_id === userId
               ? item.tx.owner_confirmed
               : item.tx.renter_confirmed),
-          disabledReason: //  item.tx.is_allowed_to_proceed === false
+          //  item.tx.is_allowed_to_proceed === false
+          disabledReason:
             item.is_allowed_to_proceed === false
               ? "Not yet allowed to proceed"
               : "Wait for the other party",
@@ -323,14 +353,18 @@ function RentalItem({
               item.tx.renter_confirmed)
               ? "Completed"
               : "Confirm Completion",
-          onClick: () => handleStatusUpdate("completed"),
+          onClick: () => {
+            handleStatusUpdate("completed");
+          },
           primary: true,
-          disabled: //  item.tx.is_allowed_to_proceed === false
+          //  item.tx.is_allowed_to_proceed === false
+          disabled:
             item.is_allowed_to_proceed === false ||
             (item.tx.owner_id === userId
               ? item.tx.owner_confirmed
               : item.tx.renter_confirmed),
-          disabledReason: //  item.tx.is_allowed_to_proceed === false
+          //  item.tx.is_allowed_to_proceed === false
+          disabledReason:
             item.is_allowed_to_proceed === false
               ? "Not yet allowed to proceed"
               : "Wait for the other party",
@@ -482,6 +516,8 @@ function RentalItem({
         onClose={() => setIsPaymentModalOpen(false)}
         onConfirm={handleConfirmPayment}
         role={modalRole}
+        paymentMode={item.paymentMethod}
+        transactionType={item.transactionType}
       />
     </div>
   );

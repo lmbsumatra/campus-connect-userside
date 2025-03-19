@@ -5,6 +5,9 @@ const { handOverRentalTransaction } = require("./handOverRentalTransactions");
 const { cancelRentalTransaction } = require("./cancelRentalTransaction");
 const { getTransactionsByUserId } = require("./getTransactionsByUserId");
 const { completeRentalTransaction } = require("./completeRentalTransation");
+const stripe = require("stripe")(
+  "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
+);
 
 module.exports = ({ emitNotification }) => {
   // Helper function to get user names
@@ -448,11 +451,13 @@ module.exports = ({ emitNotification }) => {
     }
   };
 
-  const returnRentalTransaction = async (req, res) => {
+  const returnRentalTransaction = async (req, res, emitNotification) => {
     const { id } = req.params;
-    const { userId } = req.body; // userId to identify who is confirming the handover
+    const { userId } = req.body;
 
     try {
+      // console.log("Return Rental Transaction Request:", { id, userId });
+
       const rental = await models.RentalTransaction.findByPk(id, {
         include: [
           {
@@ -469,66 +474,76 @@ module.exports = ({ emitNotification }) => {
             model: models.Listing,
             attributes: ["id", "listing_name", "description", "rate"],
           },
-          { model: models.Post, attributes: ["id", "post_item_name"] },
-          { model: models.Date, attributes: ["id", "date"] },
-          {
-            model: models.Duration,
-            attributes: ["id", "rental_time_from", "rental_time_to"],
-          },
         ],
       });
 
-      if (!rental)
+      if (!rental) {
+        // console.error("Rental transaction not found for ID:", id);
         return res.status(404).json({ error: "Rental transaction not found." });
+      }
 
-      // Check if the user is the owner or renter
+      // console.log("Fetched Rental Transaction:", rental);
+
       const isOwner = rental.owner_id === userId;
       const isRenter = rental.renter_id === userId;
 
       if (!isOwner && !isRenter) {
+        // console.error("Unauthorized action by user:", userId);
         return res.status(403).json({ error: "Unauthorized action." });
       }
 
-      // Check if rental status is 'HandOver'
       if (rental.status !== "HandedOver") {
+        // console.error("Rental not in HandedOver state:", rental.status);
         return res
           .status(400)
-          .json({ error: "Only handed over rentals can be returned." });
+          .json({ error: "Only handed-over rentals can be returned." });
       }
 
       const ownerName = await getUserNames(rental.owner_id);
       const renterName = await getUserNames(rental.renter_id);
       const itemName = await getRentalItemName(rental.item_id);
 
-      // Update the confirmation status
       if (isOwner) {
         rental.owner_confirmed = true;
       } else if (isRenter) {
         rental.renter_confirmed = true;
       }
 
-      // Check if both parties have confirmed
       if (rental.owner_confirmed && rental.renter_confirmed) {
         rental.status = "Returned";
-        // Reset confirmations to false after both have confirmed
         rental.owner_confirmed = false;
         rental.renter_confirmed = false;
       }
 
-      await rental.save();
+      if (
+        rental.status === "HandedOver" &&
+        rental.stripe_payment_intent_id &&
+        rental.transaction_type === "rental" &&
+        rental.payment_status !== "Completed"
+      ) {
+        try {
+          const paymentIntent = await stripe.paymentIntents.capture(
+            rental.stripe_payment_intent_id
+          );
 
-      let recipientId;
-      let message;
-
-      if (isOwner) {
-        recipientId = rental.renter_id;
-        message = `${ownerName} has confirmed receiving ${itemName}. Please confirm complete transaction.`;
-      } else if (isRenter) {
-        recipientId = rental.owner_id;
-        message = `${renterName} has confirmed return of ${itemName}. Please confirm receipt and complete transaction.`;
+          await rental.update({ payment_status: "Completed" });
+          // console.log("Payment captured successfully.");
+        } catch (stripeError) {
+          // console.error("Error capturing payment on return:", stripeError);
+          return res.status(500).json({
+            error: "Payment capture failed upon return.",
+            details: stripeError.message,
+          });
+        }
       }
 
-      // Create Return Notification
+      await rental.save();
+
+      let recipientId = isOwner ? rental.renter_id : rental.owner_id;
+      let message = isOwner
+        ? `${ownerName} has confirmed receiving ${itemName}. Please confirm complete transaction.`
+        : `${renterName} has confirmed return of ${itemName}. Please confirm receipt and complete transaction.`;
+
       const notification = await models.StudentNotification.create({
         sender_id: userId,
         recipient_id: recipientId,
@@ -538,15 +553,20 @@ module.exports = ({ emitNotification }) => {
         rental_id: rental.id,
       });
 
-      // Emit notification using centralized emitter
       if (emitNotification) {
         emitNotification(recipientId, notification.toJSON());
       }
-      res.json(rental);
+
+      return res.json({ success: true, rental });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      // console.error("Error in returnRentalTransaction:", error);
+      if (!res.headersSent) {
+        return res.status(500).json({ error: error.message });
+      }
     }
   };
+
+  module.exports = { returnRentalTransaction };
 
   // const completeRentalTransaction = async (req, res) => {
   //   const { id } = req.params;

@@ -125,7 +125,11 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
 
     // Capture payment upon handover
     try {
-      if (transaction.stripe_payment_intent_id && transaction.owner_confirmed) {
+      if (
+        transaction.stripe_payment_intent_id &&
+        (transaction.owner_confirmed || transaction.renter_confirmed) &&
+        transaction.transaction_type === "sell"
+      ) {
         // console.log(transaction.stripe_payment_intent_id);
         const paymentIntent = await stripe.paymentIntents.capture(
           transaction.stripe_payment_intent_id
