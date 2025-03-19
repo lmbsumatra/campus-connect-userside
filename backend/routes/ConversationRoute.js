@@ -173,6 +173,7 @@ router.get("/:id", async (req, res) => {
           SELECT * 
           FROM Conversations 
           WHERE JSON_CONTAINS(members, '["${userId}"]')
+          ORDER BY updatedAt DESC
       `;
 
     // Execute the raw SQL query

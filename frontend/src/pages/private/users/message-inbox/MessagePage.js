@@ -158,9 +158,7 @@ const MessagePage = () => {
           });
 
           // Sort conversations by most recent message
-          return updatedConversations.sort(
-            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-          );
+          return sortConversationsByLatestActivity(updatedConversations);
         } else {
           // Conversation doesn't exist in our state, possibly because it was deleted
           // Fetch this conversation from the API
@@ -300,9 +298,7 @@ const MessagePage = () => {
         // console.log("Fetched conversations:", data);
 
         // Update conversations state with sort (most recent first)
-        const sortedConversations = data.conversations.sort(
-          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
+        const sortedConversations = sortConversationsByLatestActivity(data.conversations);
         setConversations(sortedConversations);
 
         // Set unread status for all conversations
@@ -543,14 +539,13 @@ const MessagePage = () => {
                   ...conv,
                   messages: [...conv.messages, savedMessage],
                   updatedAt: new Date().toISOString(),
+                  hasUnread: false, // Mark as read since we're in this conversation
                 }
               : conv
           );
 
-          // Sort by most recent message
-          return updated.sort(
-            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-          );
+          // Sort using our enhanced sorting function
+          return sortConversationsByLatestActivity(updated);
         });
 
         socket.current.emit("sendMessageToUser", {
@@ -1398,6 +1393,27 @@ const MessagePage = () => {
     } catch (error) {
       console.error("Error fetching deleted conversation:", error);
     }
+  };
+
+  // Sort conversations helper - used to sort by recent activity
+  const sortConversationsByLatestActivity = (conversations) => {
+    return [...conversations].sort((a, b) => {
+      // First, prioritize conversations with unread messages
+      if (a.hasUnread && !b.hasUnread) return -1;
+      if (!a.hasUnread && b.hasUnread) return 1;
+      
+      // Then check for latest messages in each conversation
+      const aLatestMessageTime = a.messages && a.messages.length > 0
+        ? new Date(a.messages[a.messages.length - 1].createdAt)
+        : new Date(a.updatedAt);
+      
+      const bLatestMessageTime = b.messages && b.messages.length > 0
+        ? new Date(b.messages[b.messages.length - 1].createdAt)
+        : new Date(b.updatedAt);
+      
+      // Sort by most recent activity (message or conversation update)
+      return bLatestMessageTime - aLatestMessageTime;
+    });
   };
 
   return (
