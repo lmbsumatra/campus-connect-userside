@@ -276,62 +276,57 @@ const MessagePage = () => {
 
   useEffect(() => {
     const fetchConversations = async () => {
-      if (!userId) return;
-
       try {
-        const res = await fetch(
-          `${
-            process.env.REACT_APP_API_URL || "http://localhost:3001"
-          }/api/conversations/${userId}`
+        setIsLoading(true);
+        const token = studentUser.token;
+        const userId = studentUser.userId;
+
+        // Fetch conversations
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL || "http://localhost:3001"
+          }/api/conversations/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
-        const data = await res.json();
 
-        // Sort conversations by the most recent activity
-        const sortedConversations = data.conversations.sort((a, b) => {
-          // Get the latest message timestamp for each conversation
-          const aLastMessage =
-            a.messages && a.messages.length > 0
-              ? new Date(a.messages[a.messages.length - 1].createdAt)
-              : new Date(a.updatedAt);
-
-          const bLastMessage =
-            b.messages && b.messages.length > 0
-              ? new Date(b.messages[b.messages.length - 1].createdAt)
-              : new Date(b.updatedAt);
-
-          return bLastMessage - aLastMessage;
-        });
-
-        // Initialize block status from the API response
-        const newBlockedStatus = {};
-        const newBlockedByStatus = {};
-        
-        // Set blocked status for each conversation
-        sortedConversations.forEach(conversation => {
-          if (conversation.isBlocked) {
-            newBlockedStatus[conversation.otherUser.user_id] = true;
-          }
-          
-          if (conversation.blockedBy) {
-            newBlockedByStatus[conversation.otherUser.user_id] = true;
-          }
-        });
-        
-        setIsBlocked(newBlockedStatus);
-        setBlockedBy(newBlockedByStatus);
-        setConversations(sortedConversations);
-
-        // Once conversations are loaded, check if any users have been reported
-        if (sortedConversations.length > 0) {
-          // console.log("Conversations loaded, checking reported users");
+        if (!response.ok) {
+          throw new Error("Failed to fetch conversations");
         }
 
-        // Automatically set the conversation with the owner as active
-        if (state?.ownerId || state?.sellerId || state?.renterId) {
-          const targetConversation = data.conversations.find((conversation) =>
-            conversation.members.includes(
-              String(state.ownerId || state.sellerId || state.renterId)
-            )
+        const data = await response.json();
+        // console.log("Fetched conversations:", data);
+
+        // Update conversations state with sort (most recent first)
+        const sortedConversations = data.conversations.sort(
+          (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+        );
+        setConversations(sortedConversations);
+
+        // Set unread status for all conversations
+        const unreadStatus = {};
+        sortedConversations.forEach((conversation) => {
+          unreadStatus[conversation.id] = conversation.hasUnread;
+        });
+        setUnreadMessages(unreadStatus);
+
+        // Handle active conversation selection
+        if (state?.activeConversationId) {
+          // If activeConversationId is provided in state, use that
+          const selectedConversation = sortedConversations.find(
+            (conversation) => conversation.id === state.activeConversationId
+          );
+          
+          if (selectedConversation) {
+            setActiveChat(selectedConversation);
+          }
+        } 
+        else if (state?.ownerId || state?.sellerId || state?.renterId) {
+          // Otherwise try to find by member ID
+          const targetConversation = sortedConversations.find((conversation) =>
+            conversation.otherUser.user_id === (state.ownerId || state.sellerId || state.renterId)
           );
 
           if (targetConversation) {
@@ -343,6 +338,29 @@ const MessagePage = () => {
           }
         }
 
+        // Initialize block status from the API response
+        const newBlockedStatus = {};
+        const newBlockedByStatus = {};
+
+        // Set blocked status for each conversation
+        sortedConversations.forEach(conversation => {
+          if (conversation.isBlocked) {
+            newBlockedStatus[conversation.otherUser.user_id] = true;
+          }
+          
+          if (conversation.blockedBy) {
+            newBlockedByStatus[conversation.otherUser.user_id] = true;
+          }
+        });
+
+        setIsBlocked(newBlockedStatus);
+        setBlockedBy(newBlockedByStatus);
+
+        // Once conversations are loaded, check if any users have been reported
+        if (sortedConversations.length > 0) {
+          // checkReportedUsers();
+        }
+
         setIsLoading(false);
       } catch (err) {
         console.error("Error fetching conversations:", err);
@@ -350,7 +368,7 @@ const MessagePage = () => {
     };
 
     fetchConversations();
-  }, [studentUser.userId, state?.ownerId, state?.sellerId, state?.renterId, state?.product]);
+  }, [studentUser.userId, state?.ownerId, state?.sellerId, state?.renterId, state?.product, state?.activeConversationId]);
 
   useEffect(() => {
     if (chatContentRef.current) {
@@ -619,7 +637,13 @@ const MessagePage = () => {
     const handleProductCardClick = (productId, type) => {
       // console.log("Navigating with:", { productId, type });
       if (productId && type) {
-        navigate(`/${type}/${productId}`);
+        if (type === "rental-transaction") {
+          // Navigate to rental transaction page
+          navigate(`/rent-progress/${productId}`);
+        } else {
+          // Default navigation for product listings
+          navigate(`/${type}/${productId}`);
+        }
       } else {
         // console.log("Cannot navigate: Missing required data", { productId, type });
       }
@@ -1730,45 +1754,48 @@ const MessagePage = () => {
                                 >
                                   {message.productDetails?.status}
                                 </p>
-                                {/* Show either Accept Offer button or Accepted status */}
-                                {isRecipient(message) ? (
-                                  acceptedOffers.has(message.id) ? (
-                                    <span 
-                                      style={{
-                                        color: '#4CAF50',
-                                        fontWeight: 'bold',
-                                        marginLeft: '100px'
-                                      }}
-                                    >
-                                      Offer Accepted
-                                    </span>
+                                {/* Show either Accept Offer button or Accepted status,
+                                    BUT ONLY if this is an offer, not an inquiry */}
+                                {message.productDetails?.title === "Offer" && (
+                                  isRecipient(message) ? (
+                                    acceptedOffers.has(message.id) ? (
+                                      <span 
+                                        style={{
+                                          color: '#4CAF50',
+                                          fontWeight: 'bold',
+                                          marginLeft: '100px'
+                                        }}
+                                      >
+                                        Offer Accepted
+                                      </span>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        style={{
+                                          float: "right",
+                                          marginLeft: "100px",
+                                        }}
+                                        className="btn btn-primary mt-2"
+                                        onClick={(e) => {
+                                          e.stopPropagation(); // Prevent card click
+                                          handleAcceptOffer(message);
+                                        }}
+                                      >
+                                        Accept Offer
+                                      </button>
+                                    )
                                   ) : (
-                                    <button
-                                      type="button"
-                                      style={{
-                                        float: "right",
-                                        marginLeft: "100px",
-                                      }}
-                                      className="btn btn-primary mt-2"
-                                      onClick={(e) => {
-                                        e.stopPropagation(); // Prevent card click
-                                        handleAcceptOffer(message);
-                                      }}
-                                    >
-                                      Accept Offer
-                                    </button>
-                                  )
-                                ) : (
-                                  acceptedOffers.has(message.id) && (
-                                    <span 
-                                      style={{
-                                        color: '#4CAF50',
-                                        fontWeight: 'bold',
-                                        marginLeft: '100px'
-                                      }}
-                                    >
-                                      Offer Accepted
-                                    </span>
+                                    acceptedOffers.has(message.id) && (
+                                      <span 
+                                        style={{
+                                          color: '#4CAF50',
+                                          fontWeight: 'bold',
+                                          marginLeft: '100px'
+                                        }}
+                                      >
+                                        Offer Accepted
+                                      </span>
+                                    )
                                   )
                                 )}
                               </div>

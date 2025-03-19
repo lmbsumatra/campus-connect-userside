@@ -3,7 +3,7 @@ import axios from "axios";
 import "./RentProgress.css";
 import item1 from "../../assets/images/item/item_1.jpg";
 import { useAuth } from "../../context/AuthContext";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ReportModal from "../../components/report/ReportModalRental";
 
 function RentProgress() {
@@ -13,6 +13,7 @@ function RentProgress() {
   const { id } = useParams();
   const [showReportModal, setShowReportModal] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const navigate = useNavigate();
 
   // Fetch transaction data every 5 seconds.
   useEffect(() => {
@@ -48,8 +49,40 @@ function RentProgress() {
   };
 
   const handleSendMessage = () => {
-    // Navigate to messaging interface or open a chat modal
-    alert("Messaging functionality will be implemented here");
+    // Determine whether the user is the owner or the renter
+    const isOwner = transaction.rental?.owner?.id === userId;
+    const recipientId = isOwner 
+      ? transaction.rental?.renter?.user_id 
+      : transaction.rental?.owner?.id;
+    
+    if (!recipientId) {
+      alert("Recipient information not available");
+      return;
+    }
+    
+    // Format date to a readable string
+    const formattedDate = transaction.rental?.Date?.date 
+      ? new Date(transaction.rental.Date.date).toLocaleDateString()
+      : "Not specified";
+    
+    // Navigate to messages with rental details
+    navigate("/messages", {
+      state: {
+        ownerId: recipientId, // The recipient ID (either owner or renter)
+        product: {
+          productId: transaction.rental.id,
+          name: transaction.rental?.Listing?.listing_name || "Rental Transaction",
+          price: transaction.rental?.Listing?.rate || "0",
+          image: transaction.rental?.Listing?.image_url || item1,
+          title: "Inquiry", // This ensures it shows as "Inquiring about this item"
+          type: "rental-transaction", // Custom type for navigation
+          status: `Status: ${transaction.rental?.status?.replace("_", " ").toUpperCase() || "N/A"}
+Period: ${formattedDate}
+Delivery: ${transaction.rental?.delivery_method || "Not specified"}
+Total Cost: ${calculateTotalCost()} php`
+        }
+      }
+    });
   };
 
   const calculateTotalCost = () => {
