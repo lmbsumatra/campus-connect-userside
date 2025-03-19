@@ -9,7 +9,6 @@ const PaymentConfirmationModal = ({
   paymentMode,
   transactionType,
 }) => {
-  console.log({ role, paymentMode, transactionType });
 
   const getModalTitle = () => {
     if (transactionType === "Purchase") {

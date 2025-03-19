@@ -38,14 +38,14 @@ function RentalItem({
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-  console.log(item);
+  // console.log(item);
   const handleConfirmPayment = () => {
     if (
       item.transactionType === "Rental" &&
       item.tx.status === "HandedOver" &&
       (item.tx.owner.user_id === userId || item.tx.renter.user_id === userId)
     ) {
-      console.log("rent");
+      // console.log("rent");
       // setIsPaymentModalOpen(false);
       handleStatusUpdate("return");
     } else if (
@@ -53,7 +53,7 @@ function RentalItem({
       item.tx.status === "Accepted" &&
       (item.tx.owner.user_id === userId || item.tx.buyer.user_id === userId)
     ) {
-      console.log("buy");
+      // console.log("buy");
       // setIsPaymentModalOpen(false);
       handleStatusUpdate("hand-over");
     }
@@ -158,7 +158,7 @@ function RentalItem({
         onTabChange(nextTab);
       }
     } catch (error) {
-      console.error("Error updating transaction status:", error);
+      // console.error("Error updating transaction status:", error);
     }
   };
 
@@ -209,7 +209,7 @@ function RentalItem({
         },
       });
     } catch (error) {
-      console.error("Error creating/getting conversation:", error);
+      // console.error("Error creating/getting conversation:", error);
     }
   };
 

@@ -24,7 +24,7 @@ const convertToCAD = async (amount) => {
   try {
     return amount * 0.025;
   } catch (error) {
-    console.error("Error fetching exchange rate:", error);
+    // console.error("Error fetching exchange rate:", error);
     return amount; // Fallback to original amount if API fails
   }
 };
@@ -146,7 +146,7 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
         });
       }
     } catch (stripeError) {
-      console.error("Error capturing payment:", stripeError);
+      // console.error("Error capturing payment:", stripeError);
       return res.status(500).json({
         error: "Payment capture failed.",
         details: stripeError.message,
