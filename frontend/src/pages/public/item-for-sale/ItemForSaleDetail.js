@@ -105,7 +105,7 @@ function ItemForSaleDetail() {
   };
 
   const handleSelectDeliveryMethod = (method) => {
-    console.log(method);
+    // console.log(method);
   };
 
   const handleAddToCart = async (e, item) => {

@@ -74,7 +74,7 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: "Transaction not found." });
     }
 
-    console.log(transaction);
+    // console.log(transaction);
     const isRental = transaction.transaction_type === "rental";
     const isPurchase = transaction.transaction_type === "sell";
 

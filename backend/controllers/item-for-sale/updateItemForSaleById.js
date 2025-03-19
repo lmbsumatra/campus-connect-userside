@@ -295,7 +295,7 @@ const updateItemForSaleById = async (req, res) => {
   } catch (error) {
     // Rollback the transaction in case of any errors
     await transaction.rollback();
-    console.log("Transaction rolled back due to error: ", error);
+    // console.log("Transaction rolled back due to error: ", error);
 
     // Rollback uploaded images if any
     const imageUrls = req.files?.upload_images

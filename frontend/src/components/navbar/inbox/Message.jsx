@@ -35,7 +35,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
 
     // Listen for badge count updates
     socket.current.on("updateBadgeCount", (count) => {
-      console.log("Received badge count update:", count);
+      // console.log("Received badge count update:", count);
       setUnreadCount(count); // Update badge count dynamically
     });
 
@@ -291,7 +291,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
           <div className="menu-content">
             {conversations.length > 0 ? (
               conversations.map((conv) => {
-                console.log("Rendering conversation:", conv); // Debugging log
+                // console.log("Rendering conversation:", conv); // Debugging log
                 return (
                   <div
                     key={conv.id}

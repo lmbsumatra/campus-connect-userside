@@ -32,7 +32,7 @@ const convertToCAD = async (amount) => {
 const handOverRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
-  console.log(id, req.body);
+  // console.log(id, req.body);
 
   try {
     const transaction = await models.RentalTransaction.findByPk(id, {
@@ -126,7 +126,7 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
     // Capture payment upon handover
     try {
       if (transaction.stripe_payment_intent_id && transaction.owner_confirmed) {
-        console.log(transaction.stripe_payment_intent_id);
+        // console.log(transaction.stripe_payment_intent_id);
         const paymentIntent = await stripe.paymentIntents.capture(
           transaction.stripe_payment_intent_id
         );
@@ -135,7 +135,7 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
           transaction.stripe_payment_intent_id
         );
 
-        console.log({ charge: chargeId.latest_charge });
+        // console.log({ charge: chargeId.latest_charge });
         await transaction.update({
           stripe_charge_id: chargeId.latest_charge || null,
           payment_status: "completed",

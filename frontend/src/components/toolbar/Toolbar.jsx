@@ -42,9 +42,9 @@ function Toolbar({
   };
 
   const handleFilterChange = async (filters) => {
-    console.log({ items, filters });
+    // console.log({ items, filters });
     const updatedItems = await FilterFunction(items, filters, true);
-    console.log(FilterFunction(items, filters, false));
+    // console.log(FilterFunction(items, filters, false));
     setFilteredItems(updatedItems);
     filterOptions(updatedItems);
   };

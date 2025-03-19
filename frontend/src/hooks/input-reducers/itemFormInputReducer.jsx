@@ -158,11 +158,11 @@ export const validateInput = (name, value) => {
     case "tags":
       const isTagsEmpty = value.length === 0;
       const isTagsLessThan3 = value.length < 3;
-      console.log(isTagsEmpty, isTagsLessThan3, value.length);
+      // console.log(isTagsEmpty, isTagsLessThan3, value.length);
       if (isTagsEmpty) {
         hasError = true;
         error = "Tag is required.";
-        console.log(isTagsEmpty, error, hasError);
+        // console.log(isTagsEmpty, error, hasError);
       } else if (value.length < 3) {
         hasError = true;
         error = "Add at least 3 tags.";
@@ -173,12 +173,12 @@ export const validateInput = (name, value) => {
       break;
     case "specs":
       const entries = Object.entries(value);
-      console.log(entries)
+      // console.log(entries)
 
       const [key, specValue] = entries[entries.length - 1];
 
-      console.log(key); // Output: 'brand'
-      console.log(specValue); // Output: 'new'
+      // console.log(key); // Output: 'brand'
+      // console.log(specValue); // Output: 'new'
 
       // Check if key or specValue are undefined or empty
       if (!key || !specValue || !key.trim() || !specValue.trim()) {
@@ -291,7 +291,7 @@ export const onBlur = (name, value, dispatch, itemDataState) => {
   const { hasError, error } = validateInput(name, value);
   let isFormValid = true;
 
-  console.log(name, value);
+  // console.log(name, value);
 
   for (const key in itemDataState) {
     const item = itemDataState[key];

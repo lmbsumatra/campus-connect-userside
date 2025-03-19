@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     const newUser = { role, token, userId };
     setStudentUser(newUser);
     localStorage.setItem("studentUser", JSON.stringify(newUser));
-    console.log("User logged in:", newUser);
+    // console.log("User logged in:", newUser);
   };
 
   const logoutStudent = () => {
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     const newUser = { role, token, refreshToken, userId, firstName, lastName };
     setAdminUser(newUser);
     localStorage.setItem("adminUser", JSON.stringify(newUser));
-    console.log("Admin logged in:", newUser);
+    // console.log("Admin logged in:", newUser);
   };
 
   // ✅ Fixed missing closing bracket for logoutAdmin
@@ -81,14 +81,14 @@ export const AuthProvider = ({ children }) => {
       if (!response.ok) {
         console.error("Failed to log logout event:", await response.text());
       } else {
-        console.log("Logout event logged successfully");
+        // console.log("Logout event logged successfully");
       }
     } catch (error) {
       console.error("Error logging logout event:", error);
     }
 
     // Proceed with logout even if logging fails
-    console.log("Logging out admin...");
+    // console.log("Logging out admin...");
     setAdminUser(null);
     localStorage.removeItem("adminUser");
   }, [adminUser]); // ✅ Dependencies added properly
@@ -113,10 +113,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      console.log("New tokens received at:", new Date().toLocaleString());
-      console.log("New Access Token:", data.token);
-      console.log("New Refresh Token:", data.refreshToken);
-      console.log("New tokens received:", data);
+      // console.log("New tokens received at:", new Date().toLocaleString());
+      // console.log("New Access Token:", data.token);
+      // console.log("New Refresh Token:", data.refreshToken);
+      // console.log("New tokens received:", data);
 
       const newUser = {
         ...storedAdminUser,
@@ -143,11 +143,11 @@ export const AuthProvider = ({ children }) => {
         const currentTime = Date.now() / 1000;
 
         if (decodedToken.exp < currentTime) {
-          console.log("Token expired on app start, attempting refresh...");
+          // console.log("Token expired on app start, attempting refresh...");
           const newToken = await refreshAdminToken();
 
           if (!newToken) {
-            console.log("Refresh failed on app start, logging out...");
+            // console.log("Refresh failed on app start, logging out...");
             logoutAdmin();
           }
         }

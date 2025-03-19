@@ -17,7 +17,7 @@ export const fetchAllPostsByUser = createAsyncThunk(
   "Post/fetchAllPostsByUser",
   async (userId) => {
     const response = await axios.get(`${BASE_URL}/${userId}`);
-    console.log(userId, response);
+    // console.log(userId, response);
     return response.data;
   }
 );
@@ -26,7 +26,7 @@ export const fetchAllPostsByUser = createAsyncThunk(
 export const deletePostById = createAsyncThunk(
   "Post/deletePostById",
   async ({ userId, postId }, { rejectWithValue }) => {
-    console.log(userId, postId);
+    // console.log(userId, postId);
     try {
       await axios.delete(`${BASE_URL}/${userId}/delete/${postId}`);
       return postId; // Return the ID of the deleted itemForSaleId

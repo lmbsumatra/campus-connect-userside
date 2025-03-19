@@ -8,7 +8,7 @@ export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    console.log("Initializing socket...");
+    // console.log("Initializing socket...");
 
     const newSocket = io(baseApi, {
       transports: ["websocket", "polling"], // Enable both WebSocket and polling
@@ -18,11 +18,11 @@ export function SocketProvider({ children }) {
     });
 
     newSocket.on("connect", () => {
-      console.log("Socket connected:", newSocket.id);
+      // console.log("Socket connected:", newSocket.id);
     });
 
     newSocket.on("disconnect", () => {
-      console.log("Socket disconnected");
+      // console.log("Socket disconnected");
     });
 
     newSocket.on("connect_error", (err) => {
@@ -32,7 +32,7 @@ export function SocketProvider({ children }) {
     setSocket(newSocket);
 
     return () => {
-      console.log("Cleaning up socket...");
+      // console.log("Cleaning up socket...");
       newSocket.disconnect();
       setSocket(null);
     };

@@ -17,7 +17,7 @@ export const fetchAllListingsByUser = createAsyncThunk(
   "listings/fetchAllListingsByUser",
   async (userId) => {
     const response = await axios.get(`${BASE_URL}/${userId}`);
-    console.log(userId, response);
+    // console.log(userId, response);
     return response.data;
   }
 );
@@ -26,7 +26,7 @@ export const fetchAllListingsByUser = createAsyncThunk(
 export const deleteListingById = createAsyncThunk(
   "listings/deleteListingById",
   async ({ userId, listingId }, { rejectWithValue }) => {
-    console.log(userId, listingId);
+    // console.log(userId, listingId);
     try {
       await axios.delete(`${BASE_URL}/${userId}/delete/${listingId}`);
       return listingId; // Return the ID of the deleted listing

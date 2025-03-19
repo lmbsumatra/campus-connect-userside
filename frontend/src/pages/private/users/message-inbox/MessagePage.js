@@ -103,20 +103,20 @@ const MessagePage = () => {
     );
 
     socket.current.on("connect", () => {
-      console.log("Connected to WebSocket", socket.current.id);
+      // console.log("Connected to WebSocket", socket.current.id);
       socket.current.emit("registerUser", userId);
     });
 
     socket.current.on("disconnect", () => {
-      console.log("Disconnected from WebSocket");
+      // console.log("Disconnected from WebSocket");
     });
 
     socket.current.on("connect_error", (error) => {
-      console.error("Socket connection error:", error);
+      // console.error("Socket connection error:", error);
     });
 
     socket.current.on("receiveMessage", (message) => {
-      console.log("Received message:", message);
+      // console.log("Received message:", message);
 
       // Mark conversation as having unread messages if it's not the active chat
       if (!activeChat || activeChat.id !== message.conversationId) {
@@ -323,7 +323,7 @@ const MessagePage = () => {
 
         // Once conversations are loaded, check if any users have been reported
         if (sortedConversations.length > 0) {
-          console.log("Conversations loaded, checking reported users");
+          // console.log("Conversations loaded, checking reported users");
         }
 
         // Automatically set the conversation with the owner as active
@@ -397,7 +397,7 @@ const MessagePage = () => {
             terms: product.terms || null
           },
         };
-        console.log("Sending product message payload:", productMessage);
+        // console.log("Sending product message payload:", productMessage);
 
          // Add the message to the active chat first
           setActiveChat((prev) => ({
@@ -617,11 +617,11 @@ const MessagePage = () => {
     };
 
     const handleProductCardClick = (productId, type) => {
-      console.log("Navigating with:", { productId, type });
+      // console.log("Navigating with:", { productId, type });
       if (productId && type) {
         navigate(`/${type}/${productId}`);
       } else {
-        console.log("Cannot navigate: Missing required data", { productId, type });
+        // console.log("Cannot navigate: Missing required data", { productId, type });
       }
     };
 
@@ -943,7 +943,7 @@ const MessagePage = () => {
           break;
         }
         
-        console.log("Showing report modal for user:", chat.otherUser);
+        // console.log("Showing report modal for user:", chat.otherUser);
         
         // Set the user to be reported and show the report modal
         setReportUser({
@@ -1104,7 +1104,7 @@ const MessagePage = () => {
       return;
     }
     
-    console.log("Submitting report for user:", reportUser, "with reason:", reason);
+    // console.log("Submitting report for user:", reportUser, "with reason:", reason);
     
     const reportData = {
       reporter_id: studentUser.userId,
@@ -1114,12 +1114,12 @@ const MessagePage = () => {
     };
 
     try {
-      console.log("Sending report data:", reportData);
+      // console.log("Sending report data:", reportData);
       const response = await axios.post(
         "http://localhost:3001/api/reports",
         reportData
       );
-      console.log("Report submission response:", response.data);
+      // console.log("Report submission response:", response.data);
 
       // Update hasReported state
       setHasReported(prev => ({
@@ -1159,11 +1159,11 @@ const MessagePage = () => {
   useEffect(() => {
     const checkReportedUsers = async () => {
       if (!studentUser || !studentUser.userId || conversations.length === 0) {
-        console.log("Skipping report check - no user or conversations");
+        // console.log("Skipping report check - no user or conversations");
         return;
       }
       
-      console.log("Checking reported users for", conversations.length, "conversations");
+      // console.log("Checking reported users for", conversations.length, "conversations");
       
       const reported = {};
       for (const chat of conversations) {
@@ -1171,7 +1171,7 @@ const MessagePage = () => {
           const hasReported = await checkIfReported(chat.otherUser.user_id);
           if (hasReported) {
             reported[chat.otherUser.user_id] = true;
-            console.log(`User ${chat.otherUser.user_id} has been reported`);
+            // console.log(`User ${chat.otherUser.user_id} has been reported`);
           }
         }
       }
@@ -1503,7 +1503,7 @@ const MessagePage = () => {
                               <div 
                                 className="menu-option"
                                 onClick={(e) => {
-                                  console.log("Report button clicked", chat.otherUser);
+                                  // console.log("Report button clicked", chat.otherUser);
                                   handleConversationAction('report', chat, e);
                                 }}
                               >
@@ -1624,7 +1624,7 @@ const MessagePage = () => {
                             <div 
                               className="menu-option"
                               onClick={(e) => {
-                                console.log("Report button clicked", chat.otherUser);
+                                // console.log("Report button clicked", chat.otherUser);
                                 handleConversationAction('report', chat, e);
                               }}
                             >
@@ -1983,7 +1983,7 @@ const MessagePage = () => {
       <ReportModal
         show={showReportModal}
         handleClose={() => {
-          console.log("Closing report modal");
+          // console.log("Closing report modal");
           setShowReportModal(false);
           setReportUser(null);
         }}

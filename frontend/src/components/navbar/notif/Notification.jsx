@@ -418,8 +418,8 @@ const Notification = ({
         if (notif.type === "new-listing") {
           toggleNotifications();
           // Check if listing_id exists and log it for debugging
-          console.log("Notification object:", notif);
-          console.log("Navigating to listing ID:", notif.listing_id);
+          // console.log("Notification object:", notif);
+          // console.log("Navigating to listing ID:", notif.listing_id);
 
           // Direct navigation with explicit listing_id
           navigate(`/rent/${notif.listing_id}`);
@@ -429,8 +429,8 @@ const Notification = ({
         // Handle new_post notifications
         if (notif.type === "new-post") {
           toggleNotifications();
-          console.log("Notification object:", notif);
-          console.log("Navigating to post ID:", notif.post_id);
+          // console.log("Notification object:", notif);
+          // console.log("Navigating to post ID:", notif.post_id);
 
           // Direct navigation with explicit post_id
           navigate(`/post/${notif.post_id}`);
@@ -452,7 +452,7 @@ const Notification = ({
           notif.type === "report_escalated"
         ) {
           toggleNotifications();
-          console.log("Notification object:", notif);
+          // console.log("Notification object:", notif);
           navigate(`/reports/${notif.transaction_report_id}`, {
             state: { notificationType: notif.type },
           });

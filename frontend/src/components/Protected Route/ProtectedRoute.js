@@ -23,16 +23,16 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
 
         if (decodedToken.exp < currentTime) {
           // If token is expired, try refreshing it
-          console.log("Token expired, trying to refresh...");
+          // console.log("Token expired, trying to refresh...");
           const newToken = await refreshAdminToken();
 
           if (newToken) {
             // If refresh was successful, allow access
-            console.log("Token refreshed successfully.");
+            // console.log("Token refreshed successfully.");
             setHasAccess(allowedRoles.includes(adminUser.role));
           } else {
             // If refresh failed, redirect to login
-            console.log("Refresh failed, logging out...");
+            // console.log("Refresh failed, logging out...");
             setHasAccess(false);
           }
         } else {

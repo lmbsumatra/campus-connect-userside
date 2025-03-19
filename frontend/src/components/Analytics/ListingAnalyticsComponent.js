@@ -193,7 +193,7 @@ export const TopUsersForListings = ({ listings }) => {
 
         userCounts[userId].count++;
       } else {
-        console.log("Missing owner_id or owner data for listing:", listing);
+        // console.log("Missing owner_id or owner data for listing:", listing);
       }
     });
 

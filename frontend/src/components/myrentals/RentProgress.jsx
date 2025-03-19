@@ -39,7 +39,7 @@ function RentProgress() {
   // Log the fetched status only when transaction is available.
   useEffect(() => {
     if (transaction && transaction.rental) {
-      console.log("Fetched status:", transaction.rental.status);
+      // console.log("Fetched status:", transaction.rental.status);
     }
   }, [transaction]);
 

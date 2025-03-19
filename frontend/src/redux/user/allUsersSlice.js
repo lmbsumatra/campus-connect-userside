@@ -38,7 +38,7 @@ export const updateUserAction = createAsyncThunk(
   "users/updateUserActions",
   async ({ loggedInUserId, otherUserId }, { getState }) => {
     const dispatch = useDispatch();
-    console.log({ loggedInUserId, otherUserId });
+    // console.log({ loggedInUserId, otherUserId });
     if (!loggedInUserId) {
       console.error("User must be logged in to follow");
       return;
@@ -64,7 +64,7 @@ export const updateUserAction = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log({ otherUserId: otherUserId, action: data.action, data });
+      // console.log({ otherUserId: otherUserId, action: data.action, data });
       dispatch(
         updateUserActionById({
           otherUserId: otherUserId,
@@ -113,7 +113,7 @@ const allUsersSlice = createSlice({
         state.successFollow = true;
 
         const { userId, action: newAction } = action.payload;
-        console.log(Number(userId), { action: newAction });
+        // console.log(Number(userId), { action: newAction });
         state.allUsers = state.allUsers.map((user) =>
           user.id === Number(userId) ? { ...user, action: newAction } : user
         );

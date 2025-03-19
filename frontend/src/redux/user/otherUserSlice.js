@@ -24,7 +24,7 @@ export const fetchOtherUser = createAsyncThunk(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log({ otherUser: data });
+      // console.log({ otherUser: data });
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -36,7 +36,7 @@ export const fetchOtherUser = createAsyncThunk(
 export const updateUserActionById = createAsyncThunk(
   "users/updateUserActions",
   async ({ loggedInUserId, otherUserId }, { getState }) => {
-    console.log({ loggedInUserId, otherUserId });
+    // console.log({ loggedInUserId, otherUserId });
     if (!loggedInUserId) {
       console.error("User must be logged in to follow");
       return;
@@ -61,7 +61,7 @@ export const updateUserActionById = createAsyncThunk(
         return;
       }
       const data = await response.json();
-      console.log({ otherUserId: otherUserId, action: data.action, data });
+      // console.log({ otherUserId: otherUserId, action: data.action, data });
       return { userId: otherUserId, action: data.action };
     } catch (error) {
       console.error("Error during follow request:", error);
@@ -123,7 +123,7 @@ const otherUserSlice = createSlice({
         // ✅ Update `otherUser` if the ID matches, ayaw gumana ng condition?????????????????????????
         if (state.user?.id === userId) {
           state.user.action = newAction;
-          console.log(state.user?.id, userId, "?????");
+          // console.log(state.user?.id, userId, "?????");
         }
 
         state.user.action = newAction;

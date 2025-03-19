@@ -34,7 +34,7 @@ const registerAdmin = async (req, res) => {
       },
       { transaction: t }
     );
-    console.log("New User Created:", newUser);
+    // console.log("New User Created:", newUser);
 
     const newAdmin = await Admin.create(
       {

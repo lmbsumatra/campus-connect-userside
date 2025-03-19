@@ -46,11 +46,11 @@ const SaleOverview = () => {
   };
 
   const handleEdit = (itemId) => {
-    console.log(`Editing item with ID: ${itemId}`);
+    // console.log(`Editing item with ID: ${itemId}`);
   };
 
   const handleDelete = (itemId) => {
-    console.log(`Deleting item with ID: ${itemId}`);
+    // console.log(`Deleting item with ID: ${itemId}`);
   };
 
   const getStatusInfo = (status) => {

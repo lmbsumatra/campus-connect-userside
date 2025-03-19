@@ -12,7 +12,7 @@ export const fetchMerchant = createAsyncThunk(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log({ data });
+      // console.log({ data });
       return data; // Expecting { merchantSettings, payoutSettings, payoutSchedule }
     } catch (error) {
       return rejectWithValue(error.message);
@@ -73,7 +73,7 @@ const merchantSlice = createSlice({
         state.errorFetchMerchant = null;
       })
       .addCase(fetchMerchant.fulfilled, (state, action) => {
-        console.log("Fulfilled payload:", action.payload);
+        // console.log("Fulfilled payload:", action.payload);
         const {
           merchantSettings,
           payoutSettings,

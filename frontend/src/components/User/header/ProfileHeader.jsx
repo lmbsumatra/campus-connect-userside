@@ -194,7 +194,7 @@ const ProfileHeader = ({
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   };
 
-  console.log({ user });
+  // console.log({ user });
 
   return (
     <div className="header-container profile-header">

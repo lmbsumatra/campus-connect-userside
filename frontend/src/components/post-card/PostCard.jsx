@@ -48,7 +48,7 @@ const PostCard = ({
   const navigate = useNavigate();
 
   const handleCardClick = (e, item) => {
-    console.log(item);
+    // console.log(item);
     e.stopPropagation();
     if (item.itemType === "To Buy" || item.itemType === "To Rent")
       if (item.renter && isYou) {

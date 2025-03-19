@@ -4,7 +4,7 @@ import axios from "axios";
 export const fetchRentalTransactions = createAsyncThunk(
   "rentalTransactions/fetch",
   async (userId, { rejectWithValue }) => {
-    console.log("Fetching rental transactions for user:", userId);
+    // console.log("Fetching rental transactions for user:", userId);
 
     if (!userId) {
       return {
@@ -25,7 +25,7 @@ export const fetchRentalTransactions = createAsyncThunk(
       const response = await axios.get(
         `http://localhost:3001/rental-transaction/user/${userId}`
       );
-      console.log("Fetch response:", response.data);
+      // console.log("Fetch response:", response.data);
 
       return response.data;
     } catch (err) {
@@ -50,7 +50,7 @@ export const updateRentalStatus = createAsyncThunk(
         { userId, transactionType }
       );
 
-      console.log("Update response:", response.data);
+      // console.log("Update response:", response.data);
 
       if (response.data) {
         return response.data;
@@ -70,11 +70,11 @@ export const updateRentalStatus = createAsyncThunk(
 export const addReview = createAsyncThunk(
   "rentalTransactions/addReview",
   async ({ rentalId, reviewData, userId }, { rejectWithValue }) => {
-    console.log("Adding review for transaction:", {
-      rentalId,
-      reviewData,
-      userId,
-    });
+    // console.log("Adding review for transaction:", {
+    //   rentalId,
+    //   reviewData,
+    //   userId,
+    // });
 
     try {
       const response = await axios.post(
@@ -82,7 +82,7 @@ export const addReview = createAsyncThunk(
         { userId, ...reviewData }
       );
 
-      console.log("Review added:", response.data);
+      // console.log("Review added:", response.data);
       return response.data;
     } catch (err) {
       console.error("Error adding review:", err.message);
@@ -97,11 +97,11 @@ export const addReview = createAsyncThunk(
 export const processPayment = createAsyncThunk(
   "rentalTransactions/processPayment",
   async ({ rentalId, paymentMethod, userId }, { rejectWithValue }) => {
-    console.log("Processing payment for transaction:", {
-      rentalId,
-      paymentMethod,
-      userId,
-    });
+    // console.log("Processing payment for transaction:", {
+    //   rentalId,
+    //   paymentMethod,
+    //   userId,
+    // });
 
     try {
       const response = await axios.post(
@@ -109,7 +109,7 @@ export const processPayment = createAsyncThunk(
         { userId, paymentMethod }
       );
 
-      console.log("Payment processed:", response.data);
+      // console.log("Payment processed:", response.data);
       return response.data;
     } catch (err) {
       console.error("Error processing payment:", err.message);
@@ -186,15 +186,15 @@ const rentalTransactionsSlice = createSlice({
     builder
       // Fetch transactions cases
       .addCase(fetchRentalTransactions.pending, (state) => {
-        console.log("Fetching rental transactions...");
+        // console.log("Fetching rental transactions...");
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchRentalTransactions.fulfilled, (state, action) => {
-        console.log(
-          "Rental transactions fetched successfully:",
-          action.payload
-        );
+        // console.log(
+        //   "Rental transactions fetched successfully:",
+        //   action.payload
+        // );
         state.loading = false;
 
         // Handle new data format with stats
@@ -223,7 +223,7 @@ const rentalTransactionsSlice = createSlice({
         state.error = null;
       })
       .addCase(updateRentalStatus.fulfilled, (state, action) => {
-        console.log("Rental status updated:", action.payload);
+        // console.log("Rental status updated:", action.payload);
         state.loading = false;
 
         // Update the transaction in the list
@@ -261,7 +261,7 @@ const rentalTransactionsSlice = createSlice({
         state.error = null;
       })
       .addCase(addReview.fulfilled, (state, action) => {
-        console.log("Review added successfully:", action.payload);
+        // console.log("Review added successfully:", action.payload);
         state.loading = false;
 
         // Update the transaction with the new review
@@ -308,7 +308,7 @@ const rentalTransactionsSlice = createSlice({
         state.paymentError = null;
       })
       .addCase(processPayment.fulfilled, (state, action) => {
-        console.log("Payment processed successfully:", action.payload);
+        // console.log("Payment processed successfully:", action.payload);
         state.paymentProcessing = false;
 
         // Update the transaction with the new payment status

@@ -37,9 +37,9 @@ const ItemSaleApproval = () => {
         body: JSON.stringify({ status: selectedAction }), // Update to new status
       });
       setStatus(selectedAction); // Update local status
-      console.log(
-        `Status updated to: ${selectedAction} with reason: ${reason}`
-      );
+      // console.log(
+      //   `Status updated to: ${selectedAction} with reason: ${reason}`
+      // );
     } catch (error) {
       console.error("Error updating status:", error);
     } finally {

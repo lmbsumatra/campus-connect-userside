@@ -51,7 +51,7 @@ const Rent = () => {
     setFilteredItems(updatedItems);
   };
 
-  console.log(allApprovedListings, filters);
+  // console.log(allApprovedListings, filters);
   return (
     <>
       <div className="container-content page-container">

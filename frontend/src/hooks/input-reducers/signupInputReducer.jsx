@@ -226,7 +226,7 @@ export const onBlur = (name, value, dispatch, loginDataState) => {
     loginDataState.password.value
   );
   let isFormValid = true;
-  console.log(name, value);
+  // console.log(name, value);
 
   for (const key in loginDataState) {
     const item = loginDataState[key];

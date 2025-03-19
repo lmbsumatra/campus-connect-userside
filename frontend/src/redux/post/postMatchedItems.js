@@ -13,7 +13,7 @@ export const fetchPostMatchedItems = createAsyncThunk(
   async (id) => {
     const response = await fetch(`${BASE_URL}${id}/matched-items`);
     const data = await response.json(); // Parse JSON
-    console.log("matched", data.matchedItems); // Log parsed data
+    // console.log("matched", data.matchedItems); // Log parsed data
     return data.matchedItems; // Return parsed data
   }
 );

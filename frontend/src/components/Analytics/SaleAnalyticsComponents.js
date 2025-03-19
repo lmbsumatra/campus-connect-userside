@@ -187,7 +187,7 @@ export const TopSellers = ({ items }) => {
 
         sellerCounts[sellerId].count++;
       } else {
-        console.log("Missing seller_id or seller data for item:", item);
+        // console.log("Missing seller_id or seller data for item:", item);
       }
     });
 

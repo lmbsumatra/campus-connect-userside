@@ -51,7 +51,7 @@ export const addCartItem = createAsyncThunk(
         cartItem.itemId === item.itemId && cartItem.userId === item.userId
     );
 
-    console.log(studentUser.token)
+    // console.log(studentUser.token)
 
     if (existingItem !== undefined) {
       // If item already exists in cart, return 'existing' status

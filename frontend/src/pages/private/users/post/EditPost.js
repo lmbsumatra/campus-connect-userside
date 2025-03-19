@@ -462,8 +462,8 @@ const EditPost = () => {
       }
 
       // Log the state for debugging
-      console.log("Current postDataState:", postDataState);
-      console.log("Current postData:", postData);
+      // console.log("Current postDataState:", postDataState);
+      // console.log("Current postData:", postData);
 
       let hasErrors = false;
       const errors = {};
@@ -579,21 +579,21 @@ const EditPost = () => {
       // Determine the correct endpoint based on item type
       const endpoint = `http://localhost:3001/posts/users/19/update/46`;
 
-      console.log("Submitting to endpoint:", endpoint);
+      // console.log("Submitting to endpoint:", endpoint);
 
       // Debug the form data being sent
-      console.log("Form data being sent:", {
-        url: endpoint,
-        formDataEntries: [...formData.entries()].map((entry) => ({
-          key: entry[0],
-          value:
-            entry[0] === "To Rent" || entry[0] === "To Buy"
-              ? JSON.parse(entry[1])
-              : entry[1] instanceof File
-              ? `File: ${entry[1].name}`
-              : entry[1],
-        })),
-      });
+      // console.log("Form data being sent:", {
+      //   url: endpoint,
+      //   formDataEntries: [...formData.entries()].map((entry) => ({
+      //     key: entry[0],
+      //     value:
+      //       entry[0] === "To Rent" || entry[0] === "To Buy"
+      //         ? JSON.parse(entry[1])
+      //         : entry[1] instanceof File
+      //         ? `File: ${entry[1].name}`
+      //         : entry[1],
+      //   })),
+      // });
 
       // Show loading notification
       ShowAlert(dispatch, "loading", "Submitting changes", "Please wait...");
@@ -606,7 +606,7 @@ const EditPost = () => {
         timeout: 30000, // 30 seconds timeout
       });
 
-      console.log("API response:", response);
+      // console.log("API response:", response);
 
       // Send notification if successful
       if (socket) {

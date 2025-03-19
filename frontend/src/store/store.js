@@ -81,8 +81,13 @@ const appReducer = combineReducers({
 // Root reducer with reset functionality
 const rootReducer = (state, action) => {
   if (action.type === logoutStudent.type) {
-    state = undefined; // Reset entire Redux state
-    localStorage.clear(); // Clear local storage as well
+    state = {
+      ...state,
+      // studentAuth: undefined,
+      user: undefined,
+      // otherUser: undefined,
+    };
+    localStorage.clear(); // Clear local storage
   }
   return appReducer(state, action);
 };

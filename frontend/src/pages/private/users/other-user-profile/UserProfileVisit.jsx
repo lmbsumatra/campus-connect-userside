@@ -103,7 +103,7 @@ const UserProfileVisit = () => {
         "http://localhost:3001/api/reports",
         reportData
       ); // API endpoint
-      console.log("Report submitted:", response.data);
+      // console.log("Report submitted:", response.data);
 
       // Update hasReported state
       setHasReported(true);

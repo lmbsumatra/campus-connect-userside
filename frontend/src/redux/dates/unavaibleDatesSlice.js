@@ -13,7 +13,7 @@ export const fetchUnavailableDates = createAsyncThunk(
   "dates/UnavailableDates",
   async () => {
     const response = await axios.get(BASE_URL);
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   }
 );
@@ -30,7 +30,7 @@ const unavailableDates = createSlice({
       .addCase(fetchUnavailableDates.fulfilled, (state, action) => {
         state.loadingUnavailableDates = false;
         state.unavailableDates = action.payload;
-        console.log(action.payload);
+        // console.log(action.payload);
       })
       .addCase(fetchUnavailableDates.rejected, (state, action) => {
         state.loadingUnavailableDates = false;

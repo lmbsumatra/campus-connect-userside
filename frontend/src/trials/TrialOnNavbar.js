@@ -140,7 +140,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
   };
 
   const handleLogout = () => {
-    console.log("clicked");
+    // console.log("clicked");
     dispatch(logoutStudent());
     navigate("/");
   };

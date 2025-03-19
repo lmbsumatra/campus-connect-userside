@@ -118,7 +118,7 @@ export const validateInput = (name, value, itemType) => {
         error = "Delivery method cannot be empty.";
       } else if (value !== PICK_UP && value !== MEET_UP) {
         // Changed to AND
-        console.log(value, PICK_UP, MEET_UP);
+        // console.log(value, PICK_UP, MEET_UP);
         hasError = true;
         error = "Please choose between pickup and meetup only.";
       } else {
@@ -205,11 +205,11 @@ export const validateInput = (name, value, itemType) => {
     case "tags":
       const isTagsEmpty = value.length === 0;
       const isTagsLessThan3 = value.length < 3;
-      console.log(isTagsEmpty, isTagsLessThan3, value.length);
+      // console.log(isTagsEmpty, isTagsLessThan3, value.length);
       if (isTagsEmpty) {
         hasError = true;
         error = "Tag is required.";
-        console.log(isTagsEmpty, error, hasError);
+        // console.log(isTagsEmpty, error, hasError);
       } else if (value.length < 3) {
         hasError = true;
         error = "Add at least 3 tags.";
@@ -335,7 +335,7 @@ const postFormSlice = createSlice({
   initialState,
   reducers: {
     updateRequestDates: (state, action) => {
-      console.log(action.payload);
+      // console.log(action.payload);
       const { hasError, error } = validateInput("requestDates", action.payload);
       state.requestDates = {
         value: action.payload,

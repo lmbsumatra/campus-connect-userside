@@ -15,7 +15,7 @@ const ChatAndNotif = () => {
     if (!studentUser) return;  // Ensure studentUser is available
 
     socket.on("connect", () => {
-      console.log("Connected to server, socket id:", socket.id);
+      // console.log("Connected to server, socket id:", socket.id);
 
       // Register user with server
       const userId = studentUser ? studentUser.userId : null;
@@ -28,7 +28,7 @@ const ChatAndNotif = () => {
     const getConversations = async () => {
       try {
         const res = await axios.get(`http://localhost:3001/api/conversations/` + studentUser.userId);
-        console.log("Fetched conversations: ", res.data);
+        // console.log("Fetched conversations: ", res.data);
 
         if (Array.isArray(res.data.conversations)) {
           setConversations(res.data.conversations);
@@ -38,7 +38,7 @@ const ChatAndNotif = () => {
         }
         setIsLoading(false);
       } catch (err) {
-        console.log("Error fetching conversations:", err);
+        // console.log("Error fetching conversations:", err);
         setIsLoading(false);
       }
     };
@@ -49,7 +49,7 @@ const ChatAndNotif = () => {
 
     // Listen for incoming messages
     socket.on("receiveMessage", (messageData) => {
-      console.log("New message received:", messageData);
+      // console.log("New message received:", messageData);
     });
 
     return () => {
@@ -58,7 +58,7 @@ const ChatAndNotif = () => {
   }, [studentUser]);  // Dependency array with studentUser to re-fetch conversations on login
 
   const sendMessage = (messageText, recipientUserId) => {
-    console.log(messageText, recipientUserId)
+    // console.log(messageText, recipientUserId)
     const userId = studentUser ? studentUser.userId : null;
     if (!userId || !messageText.trim() || !recipientUserId) return;  // Prevent sending empty message
 
@@ -72,7 +72,7 @@ const ChatAndNotif = () => {
 
     // Emit message with userId and recipientUserId
     socket.emit("sendMessageToUser", messageData);
-    console.log("Sending message:", messageData);
+    // console.log("Sending message:", messageData);
     setNewMessage("");  // Reset input after sending
   };
 

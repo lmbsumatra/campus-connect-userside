@@ -162,7 +162,7 @@ const removeDatesAndDurations = async (postId, removedDates) => {
 
 // Main function
 const updatePostById = async (req, res) => {
-  console.log("update post");
+  // console.log("update post");
   const transaction = await sequelize.transaction();
 
   try {

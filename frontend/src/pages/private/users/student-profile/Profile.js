@@ -48,7 +48,7 @@ const Profile = () => {
   // trigger update rental status
   useEffect(() => {
     if (!socket || !userId) return;
-    console.log("Registering user with socket:", userId); // Debugging
+    // console.log("Registering user with socket:", userId); // Debugging
     socket.emit("registerUser", userId);
   }, [socket, userId]);
 
@@ -56,7 +56,7 @@ const Profile = () => {
     if (!socket) return;
 
     socket.on("receiveRentalUpdate", (data) => {
-      console.log("Received rental update:", data);
+      // console.log("Received rental update:", data);
       dispatch(fetchRentalTransactions(userId));
 
       toast.info(`🔔 Rental Update: ${data.status}`, {
@@ -79,7 +79,7 @@ const Profile = () => {
     if (!socket) return;
 
     socket.on("receiveUpdate", (data) => {
-      console.log("Received rental update:", data);
+      // console.log("Received rental update:", data);
       dispatch(fetchRentalTransactions(userId));
 
       toast.info(`🔔 Rental Update: ${data.status}`, {

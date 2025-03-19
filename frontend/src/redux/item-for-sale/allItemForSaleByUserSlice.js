@@ -17,7 +17,7 @@ export const fetchAllItemForSaleByUser = createAsyncThunk(
   "ItemForSale/fetchAllItemForSaleByUser",
   async (userId) => {
     const response = await axios.get(`${BASE_URL}/${userId}`);
-    console.log(userId, response);
+    // console.log(userId, response);
     return response.data;
   }
 );
@@ -26,7 +26,7 @@ export const fetchAllItemForSaleByUser = createAsyncThunk(
 export const deleteItemForSaleById = createAsyncThunk(
   "ItemForSale/deleteItemForSaleById",
   async ({ userId, itemForSaleId }, { rejectWithValue }) => {
-    console.log(userId, itemForSaleId);
+    // console.log(userId, itemForSaleId);
     try {
       await axios.delete(`${BASE_URL}/${userId}/delete/${itemForSaleId}`);
       return itemForSaleId; // Return the ID of the deleted itemForSaleId

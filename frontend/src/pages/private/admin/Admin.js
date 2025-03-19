@@ -49,7 +49,7 @@ const Admin = () => {
       socket.emit("admin-connect");
 
       socket.on("connect", () => {
-        console.log("Socket connected with ID:", socket.id);
+        // console.log("Socket connected with ID:", socket.id);
       });
 
       // Generic notification handler
@@ -80,22 +80,22 @@ const Admin = () => {
 
       // Set up event listeners
       socket.on("new-listing-notification", (notification) => {
-        console.log("Received listing notification:", notification);
+        // console.log("Received listing notification:", notification);
         handleNotification({ ...notification, type: "listing" });
       });
 
       socket.on("new-item-for-sale-notification", (notification) => {
-        console.log("Received item-for-sale notification:", notification);
+        // console.log("Received item-for-sale notification:", notification);
         handleNotification({ ...notification, type: "item-for-sale" });
       });
 
       socket.on("new-post-notification", (notification) => {
-        console.log("Received post notification:", notification);
+        // console.log("Received post notification:", notification);
         handleNotification({ ...notification, type: "new-post" });
       });
 
       socket.on("disconnect", () => {
-        console.log("Socket disconnected");
+        // console.log("Socket disconnected");
         toast.warn("Lost connection to server. Reconnecting...");
       });
 

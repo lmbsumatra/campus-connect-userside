@@ -104,7 +104,7 @@ const ReviewModal = ({
           `${baseApi}/review-and-rate/submit`,
           data
         );
-        console.log(response.data);
+        // console.log(response.data);
       }
       onClose();
     } catch (error) {

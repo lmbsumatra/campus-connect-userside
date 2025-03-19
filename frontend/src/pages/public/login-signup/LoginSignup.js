@@ -14,7 +14,7 @@ const TABS = {
 };
 
 const LoginSignup = ({ initialTab, onClose, show }) => {
-  console.log(initialTab);
+  // console.log(initialTab);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [errorMessage, setErrorMessage] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);

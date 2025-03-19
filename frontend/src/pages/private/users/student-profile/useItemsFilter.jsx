@@ -59,10 +59,10 @@ const useItemsFilter = (items) => {
       listing.deliveryMethod.trim().toLowerCase() !==
         filters.deliveryMethod.trim().toLowerCase()
     ) {
-      console.log(
-        listing.deliveryMethod.trim().toLowerCase(),
-        filters.deliveryMethod.trim().toLowerCase()
-      );
+      // console.log(
+      //   listing.deliveryMethod.trim().toLowerCase(),
+      //   filters.deliveryMethod.trim().toLowerCase()
+      // );
       return false;
     }
     // delivery
@@ -89,7 +89,7 @@ const useItemsFilter = (items) => {
 
     // Apply security deposit Filter
     if (filters.repairReplacement && listing.repairReplacement) {
-      console.log(filters, listing);
+      // console.log(filters, listing);
       return true;
     }
 

@@ -42,7 +42,7 @@ function EditProfile() {
   } = FetchUserInfo({ userId });
   const [errorMessage, setErrorMessage] = useState("");
 
-  console.log(user, student);
+  // console.log(user, student);
   useEffect(() => {
     if (user && student) {
       setFormData({

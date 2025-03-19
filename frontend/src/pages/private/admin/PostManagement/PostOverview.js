@@ -44,11 +44,11 @@ const PostDashboard = () => {
   };
 
   const handleEdit = (postId) => {
-    console.log(`Editing post with ID: ${postId}`);
+    // console.log(`Editing post with ID: ${postId}`);
   };
 
   const handleDelete = (postId) => {
-    console.log(`Deleting post with ID: ${postId}`);
+    // console.log(`Deleting post with ID: ${postId}`);
   };
 
   const getStatusInfo = (status) => {

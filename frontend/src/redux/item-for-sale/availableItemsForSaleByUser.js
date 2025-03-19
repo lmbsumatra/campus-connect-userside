@@ -13,7 +13,7 @@ export const fetchAvailableItemsForSaleByUser = createAsyncThunk(
   "listings/AvailableItemsForSaleByUser",
   async (userId) => {
     const response = await axios.get(`${BASE_URL}/${userId}/available`);
-    console.log(userId, response.data);
+    // console.log(userId, response.data);
     return response.data;
   }
 );

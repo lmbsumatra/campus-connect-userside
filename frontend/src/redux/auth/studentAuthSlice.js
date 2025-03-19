@@ -14,7 +14,7 @@ export const googleLogin = createAsyncThunk(
     const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
 
     try {
-      console.log("Sending Google Token:", token); // Debug log
+      // console.log("Sending Google Token:", token); // Debug log
 
       const response = await fetch(`http://localhost:3001/user/google-login`, {
         method: "POST",
@@ -32,7 +32,7 @@ export const googleLogin = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log("Google Login Response Data:", data); // Debug log
+      // console.log("Google Login Response Data:", data); // Debug log
 
       if (data.token && data.role && data.userId) {
         localStorage.setItem("studentUser", JSON.stringify(data));

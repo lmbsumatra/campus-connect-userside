@@ -51,11 +51,11 @@ const ListingDashboard = () => {
   };
 
   const handleEdit = (itemId) => {
-    console.log(`Editing listing with ID: ${itemId}`);
+    // console.log(`Editing listing with ID: ${itemId}`);
   };
 
   const handleDelete = (itemId) => {
-    console.log(`Deleting listing with ID: ${itemId}`);
+    // console.log(`Deleting listing with ID: ${itemId}`);
   };
 
   const getStatusInfo = (status) => {

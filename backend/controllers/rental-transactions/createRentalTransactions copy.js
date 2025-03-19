@@ -41,7 +41,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       payment_mode,
       isFromCart,
     } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
 
     const missingFields = [];
     if (!owner_id) missingFields.push("owner_id");
@@ -78,7 +78,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
 
     // If it's from cart, handle additional logic or flags here
     if (isFromCart) {
-      console.log("yp!");
+      // console.log("yp!");
       // Add any cart-specific data or flags needed
       rentalData.from_cart = true;
 

@@ -21,7 +21,7 @@ const UserCard = ({ users }) => {
     (state) => state.allUsers
   );
 
-  console.log(users);
+  // console.log(users);
 
   // Local state to store the last action performed (Followed/Unfollowed)
   const [lastAction, setLastAction] = useState(null);
@@ -133,7 +133,7 @@ const UserCard = ({ users }) => {
                     className="btn btn-rectangle secondary"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log("Message button clicked");
+                      // console.log("Message button clicked");
                     }}
                   >
                     Message

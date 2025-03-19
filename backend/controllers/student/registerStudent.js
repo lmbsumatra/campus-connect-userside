@@ -24,7 +24,7 @@ const registerStudent = async (req, res) => {
       course,
     } = req.body;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     const { scanned_id, photo_with_id } = req.files;
 

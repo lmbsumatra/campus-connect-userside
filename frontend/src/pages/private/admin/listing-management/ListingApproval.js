@@ -41,9 +41,9 @@ const ListingApproval = () => {
         body: JSON.stringify({ status: selectedAction, reason: reason }),
       });
       setStatus(selectedAction);
-      console.log(
-        `Status updated to: ${selectedAction} with reason: ${reason}`
-      );
+      // console.log(
+      //   `Status updated to: ${selectedAction} with reason: ${reason}`
+      // );
     } catch (error) {
       console.error("Error updating status:", error);
     } finally {

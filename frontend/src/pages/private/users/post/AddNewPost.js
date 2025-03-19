@@ -301,9 +301,9 @@ const AddNewPost = () => {
 
       formData.append("post", JSON.stringify(itemData));
 
-      console.log("FormData before submission:");
+      // console.log("FormData before submission:");
       formData.forEach((value, key) => {
-        console.log(key, value);
+        // console.log(key, value);
       });
 
       const endpoint = itemType === TO_RENT ? "/posts/create" : "/posts/create";

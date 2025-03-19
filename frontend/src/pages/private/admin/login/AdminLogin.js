@@ -63,7 +63,7 @@ const AdminLogin = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Login Response Data:", data); // Log the full response
+        // console.log("Login Response Data:", data); // Log the full response
 
         const { token, refreshToken, role, userId, first_name, last_name } =
           data; // Destructure the fields

@@ -42,7 +42,7 @@ const AdminNavBar = () => {
     return currentDate.toLocaleString();
   };
   useEffect(() => {
-    console.log("showNotifications:", showNotifications);
+    // console.log("showNotifications:", showNotifications);
   }, [showNotifications]);
 
   // Fetch notifications when component mounts

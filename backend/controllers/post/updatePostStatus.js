@@ -104,9 +104,9 @@ const updatePostStatus = async (req, res) => {
     }
 
     // Commit the transaction
-    console.log("Committing transaction...");
+    // console.log("Committing transaction...");
     await transaction.commit();
-    console.log("Transaction committed successfully.");
+    // console.log("Transaction committed successfully.");
 
     res.json({
       message: "Post status updated successfully",
@@ -115,7 +115,7 @@ const updatePostStatus = async (req, res) => {
   } catch (error) {
     // Rollback the transaction in case of error
     if (transaction.finished !== "commit") {
-      console.log("Rolling back transaction due to error...");
+      // console.log("Rolling back transaction due to error...");
       await transaction.rollback();
     }
 

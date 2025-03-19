@@ -51,11 +51,11 @@ const UserOverview = () => {
   };
 
   const handleEdit = (userId) => {
-    console.log(`Editing user with ID: ${userId}`);
+    // console.log(`Editing user with ID: ${userId}`);
   };
 
   const handleDelete = (userId) => {
-    console.log(`Delete user with ID: ${userId}`);
+    // console.log(`Delete user with ID: ${userId}`);
   };
 
   const handleSortChange = (column, order) => {

@@ -145,7 +145,7 @@ const AddNewItem = () => {
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
   const [localImages, setLocalImages] = useState([]);
   const { config, loading } = useSystemConfig();
-  console.log(config?.Stripe);
+  // console.log(config?.Stripe);
 
   const handleGenerateData = () => {
     dispatch(generateSampleData());
@@ -176,7 +176,7 @@ const AddNewItem = () => {
   useEffect(() => {
     if (userId) {
       dispatch(fetchUser(userId))
-        .then((response) => console.log("User fetch response:", response))
+        // .then((response) => console.log("User fetch response:", response))
         .catch((error) => console.error("User fetch error:", error));
     }
   }, [userId, dispatch]);

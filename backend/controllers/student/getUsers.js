@@ -90,7 +90,7 @@ const getUsers = async (req, res) => {
 
     return res.status(200).json(formattedUsers);
   } catch (error) {
-    console.log("Error fetching users: ", error);
+    // console.log("Error fetching users: ", error);
     res.status(500).json({ error: error.message });
   }
 };

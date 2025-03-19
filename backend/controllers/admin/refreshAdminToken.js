@@ -7,19 +7,19 @@ const refreshAdminToken = async (req, res) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
-    console.log("No refresh token provided in request body.");
+    // console.log("No refresh token provided in request body.");
     return res
       .status(401)
       .json({ message: "Access denied. No refresh token provided." });
   }
 
   // Debugging: Display the refresh token being used
-  console.log("Refresh token received:", refreshToken);
+  // console.log("Refresh token received:", refreshToken);
 
   try {
     // Verify the refresh token
     const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
-    console.log("Refresh token decoded successfully:", decoded);
+    // console.log("Refresh token decoded successfully:", decoded);
 
     // Find the admin in the database using the adminId from the decoded token
     const admin = await Admin.findOne({
@@ -33,8 +33,8 @@ const refreshAdminToken = async (req, res) => {
     }
 
     if (admin.refreshToken !== refreshToken) {
-      console.log("Stored Refresh Token:", admin.refreshToken);
-      console.log("Received Refresh Token:", refreshToken);
+      // console.log("Stored Refresh Token:", admin.refreshToken);
+      // console.log("Received Refresh Token:", refreshToken);
     }
 
     if (!admin) {
@@ -61,10 +61,10 @@ const refreshAdminToken = async (req, res) => {
     await admin.save();
 
     // Debugging: Display the new tokens
-    const currentTime = new Date().toLocaleString();
-    console.log("Tokens refreshed at:", currentTime);
-    console.log("New Access Token:", token);
-    console.log("New Refresh Token:", newRefreshToken);
+    // const currentTime = new Date().toLocaleString();
+    // console.log("Tokens refreshed at:", currentTime);
+    // console.log("New Access Token:", token);
+    // console.log("New Refresh Token:", newRefreshToken);
 
     // Send the new tokens to the client
     res.status(200).json({ token, refreshToken: newRefreshToken });
