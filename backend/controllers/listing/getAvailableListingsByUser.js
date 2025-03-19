@@ -22,12 +22,14 @@ const getAvailableListingsByUser = async (req, res) => {
           required: false,
           where: {
             item_type: "listing",
+            status: "available"
           },
           include: [
             {
               model: models.Duration,
               as: "durations",
               required: false,
+              where: { status: "available" },
             },
           ],
         },

@@ -21,12 +21,14 @@ const getAllItemForSaleByUser = async (req, res) => {
           required: false,
           where: {
             item_type: "item_for_sale",
+            status: "available",
           },
           include: [
             {
               model: models.Duration,
               as: "durations",
               required: false,
+              where: { status: "available" },
             },
           ],
         },

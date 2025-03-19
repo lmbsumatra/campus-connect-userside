@@ -24,6 +24,7 @@ import {
   defaultImages,
   FOR_RENT,
   FOR_SALE,
+  GCASH,
   MEET_UP,
   PICK_UP,
   TO_RENT,
@@ -40,6 +41,7 @@ import useHandleActionWithAuthCheck from "../../../utils/useHandleActionWithAuth
 import ShowAlert from "../../../utils/ShowAlert";
 import handleUnavailableDateError from "../../../utils/handleUnavailableDateError";
 import ViewToolbar from "../common/ViewToolbar";
+import ConfirmationModal from "./ConfirmationModal";
 
 function ItemForSaleDetail() {
   const navigate = useNavigate();
@@ -152,7 +154,7 @@ function ItemForSaleDetail() {
           userId: studentUser.userId,
           ownerId: item.seller.id,
           owner: { fname: item.seller.lname, lname: item.seller.lname },
-          itemType: item.itemType === TO_RENT ? "rent" : "buy",
+          itemType: item.itemType === FOR_SALE ? "rent" : "buy",
           dateId: selectedDateId,
           durationId: selectedDurationId,
           itemId: item.id,
@@ -176,6 +178,71 @@ function ItemForSaleDetail() {
           text: "Failed to add item to cart.",
         })
       );
+    }
+  };
+
+  const [stripePaymentDetails, setStripePaymentDetails] = useState(null);
+
+  const confirmRental = async () => {
+    try {
+      const selectedDateId = approvedItemForSaleById.rentalDates.find(
+        (rentalDate) => rentalDate.date === selectedDate
+      )?.id;
+
+      const rentalDetails = {
+        owner_id: approvedItemForSaleById.seller.id,
+        buyer_id: loggedInUserId,
+        item_id: approvedItemForSaleById.id,
+        delivery_method: approvedItemForSaleById.deliveryMethod || "meetup", // Default to meetup if not specified
+        date_id: selectedDateId,
+        time_id: selectedDuration.id,
+        payment_mode: approvedItemForSaleById.paymentMethod,
+        isFromCart: false,
+        transaction_type: "sell",
+        price: approvedItemForSaleById.price,
+      };
+
+      const response = await axios.post(
+        "http://localhost:3001/rental-transaction/add",
+        rentalDetails
+      );
+
+      if (approvedItemForSaleById.paymentMethod === GCASH) {
+        if (!response.data.clientSecret || !response.data.paymentIntentId) {
+          ShowAlert(dispatch, "error", "Error", "Failed to setup payment.");
+          return;
+        }
+
+        // Store payment details in state instead of localStorage
+        setStripePaymentDetails({
+          paymentIntentId: response.data.paymentIntentId,
+          clientSecretFromState: response.data.clientSecret,
+          rentalId: response.data.id,
+          userId: loggedInUserId,
+        });
+
+        setShowModal(false);
+        navigate("/payment", {
+          state: {
+            paymentIntentId: response.data.paymentIntentId,
+            clientSecretFromState: response.data.clientSecret,
+            rentalId: response.data.id,
+            userId: loggedInUserId,
+          },
+        });
+      } else {
+        setShowModal(false);
+        ShowAlert(
+          dispatch,
+          "success",
+          "Success",
+          "Rental confirmed successfully!"
+        );
+        navigate("/profile/transactions/renter/requests");
+      }
+    } catch (error) {
+      console.error("Error in confirmRental:", error);
+      ShowAlert(dispatch, "error", "Error", "Failed to confirm rental.");
     }
   };
 
@@ -713,31 +780,16 @@ function ItemForSaleDetail() {
         tags={approvedItemForSaleById.tags}
       />
 
-      {/* Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Offer</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>
-            <strong>Date:</strong> {new Date(selectedDate).toDateString()}
-          </p>
-          <p>
-            <strong>Duration:</strong>
-            {selectedDuration
-              ? selectedDuration.timeFrom && selectedDuration.timeTo
-                ? `${selectedDuration.timeFrom} - ${selectedDuration.timeTo}`
-                : "Invalid duration"
-              : "Nooooooooooo"}
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary">Confirm</Button>
-        </Modal.Footer>
-      </Modal>
+      {showModal && (
+        <ConfirmationModal
+          show={showModal}
+          onHide={() => setShowModal(false)}
+          itemforsale={approvedItemForSaleById}
+          confirm={(e) => confirmRental(e)}
+          selectedDate={selectedDate}
+          selectedDuration={selectedDuration}
+        />
+      )}
     </div>
   );
 }

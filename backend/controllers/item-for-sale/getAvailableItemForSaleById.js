@@ -12,6 +12,7 @@ const getAvailableItemForSaleById = async (req, res) => {
           model: models.Date,
           as: "available_dates",
           where: {
+            item_type: "item_for_sale",
             status: "available", // Ensures only "available" rental dates are included
           },
           include: [
