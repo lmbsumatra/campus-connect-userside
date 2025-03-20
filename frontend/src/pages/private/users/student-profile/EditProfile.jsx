@@ -223,7 +223,7 @@ function EditProfile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileUpload = (e, type) => {
-    if (formData.status !== "pending" && formData.status !== "rejected") return;
+    if (formData.status !== "pending" && formData.status !== "flagged") return;
 
     const file = e.target.files[0];
     if (!file) return;
@@ -308,6 +308,7 @@ function EditProfile() {
         setFormData((prev) => ({
           ...prev,
           status: data.status,
+          statusMsg: data.statusMsg,
         }));
 
         setUploadedFiles({
@@ -444,7 +445,7 @@ function EditProfile() {
           {/* {formData.status === "flagged" && (
             <div className="alert alert-danger mb-3">
               <small>
-                Your verification was rejected. Please upload new documents.
+                Your verification was flagged. Please upload new documents.
               </small>
             </div>
           )} */}
@@ -455,7 +456,7 @@ function EditProfile() {
                 <div className="document-label d-flex justify-content-between">
                   <span>Photo with ID</span>
                   {(formData.status === "pending" ||
-                    formData.status === "rejected") && (
+                    formData.status === "flagged") && (
                     <small className="text-primary">
                       Click image to change
                     </small>
@@ -464,19 +465,19 @@ function EditProfile() {
                 <div
                   className={`document-preview ${
                     formData.status === "pending" ||
-                    formData.status === "rejected"
+                    formData.status === "flagged"
                       ? "document-preview-editable"
                       : ""
                   }`}
                   onMouseEnter={() =>
                     (formData.status === "pending" ||
-                      formData.status === "rejected") &&
+                      formData.status === "flagged") &&
                     setPhotoHover(true)
                   }
                   onMouseLeave={() => setPhotoHover(false)}
                   onClick={() =>
                     (formData.status === "pending" ||
-                      formData.status === "rejected") &&
+                      formData.status === "flagged") &&
                     photoFileRef.current.click()
                   }
                 >
@@ -489,7 +490,7 @@ function EditProfile() {
                       />
                       {photoHover &&
                         (formData.status === "pending" ||
-                          formData.status === "rejected") && (
+                          formData.status === "flagged") && (
                           <div className="document-overlay d-flex align-items-center justify-content-center">
                             <i className="bi bi-camera-fill me-2"></i>
                             Update Photo
@@ -501,7 +502,7 @@ function EditProfile() {
                       <i className="bi bi-person-badge fs-1 mb-2"></i>
                       <span>Upload a photo of yourself holding your ID</span>
                       {(formData.status === "pending" ||
-                        formData.status === "rejected") && (
+                        formData.status === "flagged") && (
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-primary mt-2"
@@ -521,7 +522,7 @@ function EditProfile() {
                   onChange={(e) => handleFileUpload(e, "photoWithId")}
                   disabled={
                     formData.status !== "pending" &&
-                    formData.status !== "rejected"
+                    formData.status !== "flagged"
                   }
                 />
               </div>
@@ -532,7 +533,7 @@ function EditProfile() {
                 <div className="document-label d-flex justify-content-between">
                   <span>Scanned ID</span>
                   {(formData.status === "pending" ||
-                    formData.status === "rejected") && (
+                    formData.status === "flagged") && (
                     <small className="text-primary">
                       Click image to change
                     </small>
@@ -541,19 +542,19 @@ function EditProfile() {
                 <div
                   className={`document-preview ${
                     formData.status === "pending" ||
-                    formData.status === "rejected"
+                    formData.status === "flagged"
                       ? "document-preview-editable"
                       : ""
                   }`}
                   onMouseEnter={() =>
                     (formData.status === "pending" ||
-                      formData.status === "rejected") &&
+                      formData.status === "flagged") &&
                     setIdHover(true)
                   }
                   onMouseLeave={() => setIdHover(false)}
                   onClick={() =>
                     (formData.status === "pending" ||
-                      formData.status === "rejected") &&
+                      formData.status === "flagged") &&
                     idFileRef.current.click()
                   }
                 >
@@ -566,7 +567,7 @@ function EditProfile() {
                       />
                       {idHover &&
                         (formData.status === "pending" ||
-                          formData.status === "rejected") && (
+                          formData.status === "flagged") && (
                           <div className="document-overlay d-flex align-items-center justify-content-center">
                             <i className="bi bi-camera-fill me-2"></i>
                             Update ID
@@ -578,7 +579,7 @@ function EditProfile() {
                       <i className="bi bi-card-image fs-1 mb-2"></i>
                       <span>Upload a clear scan of your student ID</span>
                       {(formData.status === "pending" ||
-                        formData.status === "rejected") && (
+                        formData.status === "flagged") && (
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-primary mt-2"
@@ -598,15 +599,14 @@ function EditProfile() {
                   onChange={(e) => handleFileUpload(e, "scannedId")}
                   disabled={
                     formData.status !== "pending" &&
-                    formData.status !== "rejected"
+                    formData.status !== "flagged"
                   }
                 />
               </div>
             </div>
           </div>
 
-          {(formData.status === "pending" ||
-            formData.status === "rejected") && (
+          {(formData.status === "pending" || formData.status === "flagged") && (
             <div className="text-center mt-4">
               <button
                 className="btn btn-primary px-4"
