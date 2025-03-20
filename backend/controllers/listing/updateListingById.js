@@ -265,6 +265,8 @@ const updateListingById = async (req, res) => {
         price: listingData.price || existingListing.price,
         tags: listingData.tags || existingListing.tags,
         specifications: listingData.specs || existingListing.specifications,
+        status: "pending",
+        status_message: "Pending approval",
       },
       { where: { id: listingId }, transaction }
     );

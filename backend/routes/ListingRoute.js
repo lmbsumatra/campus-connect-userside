@@ -42,6 +42,8 @@ router.delete(
 );
 router.patch("/:id", ListingController.updateStatus);
 
+router.get("/admin/get/:id", ListingController2.adminListingById);
+
 // New route for updating listing status and emitting notifications
 router.patch("/:id/status", authenticateToken, updateListingStatus);
 

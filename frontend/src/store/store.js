@@ -37,6 +37,9 @@ import postMatchedItemsReducer from "../redux/post/postMatchedItems.js";
 import systemConfigReducer from "../redux/system-config/systemConfigSlice.js";
 import followingsReducer from "../redux/user/followingsSlice.js";
 import postByIdReducer from "../redux/post/postByIdSlice.js";
+import adminListingByIdReducer from "../redux/listing/adminListingByIdSlice.js";
+import adminPostByIdReducer from "../redux/post/adminPostByIdSlice.js";
+import adminItemForSaleByIdReducer from "../redux/item-for-sale/adminItemForSaleByIdSlice.js";
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -76,6 +79,9 @@ const appReducer = combineReducers({
   systemConfig: systemConfigReducer,
   followings: followingsReducer,
   postById: postByIdReducer,
+  adminListingById: adminListingByIdReducer,
+  adminItemForSaleById: adminItemForSaleByIdReducer,
+  adminPostById: adminPostByIdReducer,
 });
 
 // Root reducer with reset functionality

@@ -1,67 +1,107 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./forSaleManagement.css";
-import ActionModal from "../../../../components/admin/Action Modal/ActionModal";
-import FetchPostData from "../../../../utils/FetchPostData";
 import { useParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import ActionModal from "../common/ActionModal";
 import { ItemStatus } from "../../../../utils/Status";
 import ItemForSalePreview from "./ItemForSalePreview";
-import useFetchAllItemsForSaleData from "../../../../utils/FetchAllItemsForSaleData";
-import FetchItemForSaleData from "../../../../utils/FetchItemForSaleData";
 import { useAuth } from "../../../../context/AuthContext";
+import { fetchAdminItemForSaleById } from "../../../../redux/item-for-sale/adminItemForSaleByIdSlice";
 
 const ItemSaleApproval = () => {
   const [showModal, setShowModal] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [statusMessage, setStatusMessage] = useState("");
+
   const { id } = useParams();
-  const [status, setStatus] = useState(null); // Store current status
-  const { adminUser, refreshAdminToken } = useAuth();
+  const dispatch = useDispatch();
+  const { adminUser } = useAuth();
 
-  const handleOpenModal = () => setShowModal(true);
-  const handleCloseModal = () => setShowModal(false);
-
-  // Custom labels for the modal
   const formLabels = {
-    approvalLabel: "Are you sure you want to approve the post?",
+    approvalLabel: "Are you sure you want to approve the item?",
     reasonForDenialLabel: "Reason(s) for Denial",
-    removalLabel: "Are you sure you want to remove the post?",
+    removalLabel: "Are you sure you want to remove the item?",
     reasonForRestrictionLabel: "Reason(s) for Restriction",
     actionLabel: "Action",
     additionalReasonLabel: "Reason",
   };
-  const { selectedItem, loading, error, tags } = FetchItemForSaleData({ id });
+  // Redux state
+  const {
+    adminItemForSaleById,
+    loadingAdminItemForSaleById,
+    errorAdminItemForSaleById,
+  } = useSelector((state) => state.adminItemForSaleById);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchAdminItemForSaleById({ id }));
+    }
+  }, [id, dispatch]);
+
+  const handleOpenModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
+
   const handleStatusChange = async (selectedAction, reason) => {
     try {
-      await fetch(`http://localhost:3001/item-for-sale/${id}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${adminUser?.token}`,
-        },
-        body: JSON.stringify({ status: selectedAction, reason }), // Update to new status
-      });
-      setStatus(selectedAction); // Update local status
-      // console.log(
-      //   `Status updated to: ${selectedAction} with reason: ${reason}`
-      // );
+      const response = await fetch(
+        `http://localhost:3001/item-for-sale/${id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${adminUser?.token}`,
+          },
+          body: JSON.stringify({ status: selectedAction, reason }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update item status");
+      }
+
+      alert(`Item status updated to ${selectedAction} successfully!`);
+
+      setStatus(selectedAction);
+      setStatusMessage(reason);
+
+      // Refetch data to update UI
+      dispatch(fetchAdminItemForSaleById({ id }));
     } catch (error) {
-      console.error("Error updating status:", error);
+      alert("Failed to update item status.");
     } finally {
-      handleCloseModal(); // Close modal after operation
+      handleCloseModal();
     }
   };
-  const { label, className } = ItemStatus(selectedItem?.status);
+
+  // Get status label and style class
+  const { label, className } = ItemStatus(
+    adminItemForSaleById?.status || status
+  );
+
   return (
     <div className="admin-content-container">
-      <span>
-        Status: <span className={`badge ${className} ms-2`}>{label}</span>
-      </span>
-      {/* Display current status */}
+      <div className="status-container mb-3">
+        <h4>
+          Status: <span className={`badge ${className} ms-2`}>{label}</span>
+        </h4>
+
+        {/* Show reason if available */}
+        {(adminItemForSaleById?.statusReason || statusMessage) && (
+          <p className="status-reason">
+            <strong>Reason:</strong>{" "}
+            {adminItemForSaleById?.statusReason || statusMessage}
+          </p>
+        )}
+      </div>
+
       <ItemForSalePreview
-        selectedItem={selectedItem}
-        loading={loading}
-        error={error}
-        tags={tags}
+        selectedItem={adminItemForSaleById}
+        loading={loadingAdminItemForSaleById}
+        error={errorAdminItemForSaleById}
+        isAdmin={true}
       />
+
       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
         <button
           className="btn btn-rectangle primary no-fill my-3 me-4 btn-lg"
@@ -71,14 +111,15 @@ const ItemSaleApproval = () => {
           Action
         </button>
       </div>
+
       {/* Action Modal */}
       <ActionModal
         show={showModal}
         onHide={handleCloseModal}
-        title="Actions for Post"
+        title="Update Listing Status"
         formLabels={formLabels}
-        onConfirm={handleStatusChange} // Pass the single handler
-        status={selectedItem?.status || status} // Ensure it reflects current status
+        onConfirm={handleStatusChange}
+        status={adminItemForSaleById?.status || status}
       />
     </div>
   );

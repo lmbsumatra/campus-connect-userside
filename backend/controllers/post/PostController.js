@@ -8,6 +8,8 @@ const matchedItems = require("./matchedItems.js");
 const getPostById = require("./getPostById.js");
 const updatePostById = require("./updatePostById.js");
 const deletePostById = require("./deletePostById.js");
+const { adminItemForSaleById } = require("../item-for-sale/ItemForSaleController.js");
+const adminPostById = require("./adminPostById.js");
 
 const PostController = {
   getAllAvailablePost,
@@ -19,7 +21,8 @@ const PostController = {
   matchedItems,
   getPostById,
   updatePostById,
-  deletePostById
+  deletePostById,
+  adminPostById
 };
 
 module.exports = PostController;

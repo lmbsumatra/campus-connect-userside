@@ -7,6 +7,8 @@ const updateItemForSaleById = require("./updateItemForSaleById");
 const getItemForSaleById = require("./getItemForSaleById");
 const getAvailableItemsForSaleByUser = require("./getAvailableItemsForSaleByUser.js");
 const updateItemForSaleStatus = require("./updateItemForSaleStatus.js");
+const adminItemForSaleById = require("./adminItemForSaleById.js");
+const adminPostById = require("../post/adminPostById.js");
 
 const ItemForSaleContoller = {
   getAllAvailable,
@@ -18,6 +20,8 @@ const ItemForSaleContoller = {
   getItemForSaleById,
   getAvailableItemsForSaleByUser,
   updateItemForSaleStatus,
+  adminPostById,
+  adminItemForSaleById,
 };
 
 module.exports = ItemForSaleContoller;

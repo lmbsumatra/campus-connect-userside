@@ -24,7 +24,7 @@ const updateItemForSaleStatus = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    await item.update({ status }, { transaction });
+    await item.update({ status, status_message: reason }, { transaction });
 
     // Notification messages
     const messages = {

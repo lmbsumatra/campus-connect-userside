@@ -13,6 +13,7 @@ import DateDurationPicker from "../common/DateDurationPicker.jsx";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import ShowAlert from "../../../../utils/ShowAlert.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
+import { useSystemConfig } from "../../../../context/SystemConfigProvider.js";
 import {
   FOR_RENT,
   PAY_UPON_MEETUP,
@@ -20,6 +21,7 @@ import {
   PICK_UP,
   MEET_UP,
   FOR_SALE,
+  getStatusClass,
 } from "../../../../utils/consonants.js";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
@@ -45,6 +47,7 @@ import axios from "axios";
 import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
+
 import { fetchListingById } from "../../../../redux/listing/listingByIdSlice.js";
 import ComparisonView from "./ComparisonView.jsx";
 import { Modal } from "react-bootstrap";
@@ -114,13 +117,14 @@ const FormField = ({
 const EditItem = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { config } = useSystemConfig();
   const itemDataState = useSelector((state) => state.itemForm);
-  console.log(itemDataState);
+  // console.log(itemDataState);
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const { userId, role } = useSelector(selectStudentUser);
   const location = useLocation();
   const { id } = useParams();
-  console.log(id);
+  // console.log(id);
 
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
@@ -224,7 +228,7 @@ const EditItem = () => {
     errorListingById,
   ]);
 
-  console.log("Item Data:", itemData);
+  // console.log("Item Data:", itemData);
 
   useEffect(() => {
     if (!loading && itemData) {
@@ -420,7 +424,7 @@ const EditItem = () => {
     dispatch(updateAvailableDates(serializedDates));
 
     // Log the formatted removed dates for debugging
-    console.log(formattedRemovedDates);
+    // console.log(formattedRemovedDates);
   };
 
   const handleCategoryChange = (selectedCategory) => {
@@ -564,7 +568,19 @@ const EditItem = () => {
   return (
     <div className="container-content add-item-detail">
       <BreadCrumb breadcrumbs={editItemBreadcrumbs({ itemType })} />
-      <button onClick={handleGenerateData}>Generate Sample Data</button>
+
+      {itemData.statusMessage && (
+        <div className={`alert py-2 ${getStatusClass(itemData.status)}`}>
+          {itemData.status}
+          {": "}
+          {itemData.statusMessage}
+        </div>
+      )}
+
+      {config["Generate Sample Data"] && (
+        <button onClick={handleGenerateData}>Generate Sample Data</button>
+      )}
+
       <div className="add-item-container">
         <div className="imgs-container">
           <Tooltip title={`This item is ${itemType}`}>
@@ -604,7 +620,11 @@ const EditItem = () => {
             )}
 
           <FormField
-            label= {itemDataState.itemType.value === FOR_RENT ? "For Rent" : "For Sale"}
+            label={
+              itemDataState.itemType.value === FOR_RENT
+                ? "For Rent"
+                : "For Sale"
+            }
             id="itemName"
             value={itemDataState.itemName.value}
             onChange={handleFieldChange}

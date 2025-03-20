@@ -28,6 +28,10 @@ module.exports = (sequelize) => {
       description: {
         type: DataTypes.TEXT,
       },
+      status_message: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       tags: {
         type: DataTypes.JSON,
       },

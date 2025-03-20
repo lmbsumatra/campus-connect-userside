@@ -22,6 +22,7 @@ router.get("/users/:userId", PostController2.getAllPostsByUser);
 
 // displayed for all admins
 router.get("/info", PostContoller.getAllPosts);
+router.get("/admin/get/:id", PostController2.adminPostById);
 
 // crud for user
 router.post(

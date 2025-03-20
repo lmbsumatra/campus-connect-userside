@@ -40,11 +40,22 @@ module.exports = (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+      status_message: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       tags: {
         type: DataTypes.JSON,
       },
       status: {
-        type: DataTypes.ENUM('pending','approved','declined','removed','revoked','flagged'),
+        type: DataTypes.ENUM(
+          "pending",
+          "approved",
+          "declined",
+          "removed",
+          "revoked",
+          "flagged"
+        ),
         allowNull: false,
       },
       payment_mode: {
@@ -74,14 +85,14 @@ module.exports = (sequelize) => {
 
   ItemForSale.associate = (models) => {
     ItemForSale.hasMany(models.Date, {
-        foreignKey: 'item_id',
-        as: 'available_dates',
+      foreignKey: "item_id",
+      as: "available_dates",
     });
     ItemForSale.belongsTo(models.User, {
-        foreignKey: 'seller_id', 
-        as: 'seller', 
+      foreignKey: "seller_id",
+      as: "seller",
     });
-};
+  };
 
   return ItemForSale;
 };

@@ -12,7 +12,7 @@ import DateDurationPicker from "../common/DateDurationPicker.jsx";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import ShowAlert from "../../../../utils/ShowAlert.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
-import { FOR_SALE, TO_RENT } from "../../../../utils/consonants.js";
+import { FOR_SALE, getStatusClass, TO_RENT } from "../../../../utils/consonants.js";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
 import { fetchUser } from "../../../../redux/user/userSlice.js";
@@ -656,6 +656,13 @@ const EditPost = () => {
   return (
     <div className="container-content add-item-detail">
       <BreadCrumb breadcrumbs={editPostBreadcrumbs({ itemType })} />
+      {postData.statusMessage && (
+        <div className={`alert py-2 ${getStatusClass(postData.status)}`}>
+          {postData.status}
+          {": "}
+          {postData.statusMessage}
+        </div>
+      )}
       {/* <button onClick={handleGenerateData}>Generate Sample Data</button> */}
       <div className="add-item-container">
         <div className="imgs-container">

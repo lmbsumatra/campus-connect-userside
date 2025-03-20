@@ -1,252 +1,457 @@
-import React, { useState } from "react";
-import "../../../../components/item-card/itemCardStyles.css";
-import { useParams } from "react-router-dom";
-import FetchListingData from "../../../../utils/FetchListingData";
-import userProfilePicture from "../../../../assets/images/icons/user-icon.svg";
-import itemImage from "../../../../assets/images/item/item_1.jpg";
-import { formatDate } from "../../../../utils/dateFormat";
-import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchApprovedListingById } from "../../../../redux/listing/approvedListingByIdSlice.js";
+import "bootstrap/dist/css/bootstrap.min.css";
+import store from "../../../../store/store.js";
+import { loadStripe } from "@stripe/stripe-js";
 
-function ListingPreview({ selectedItem, loading, error, tags }) {
+import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
+import Tooltip from "@mui/material/Tooltip";
+import cartIcon from "../../../../assets/images/pdp/cart.svg";
+import forRentIcon from "../../../../assets/images/card/rent.svg";
+import forSaleIcon from "../../../../assets/images/card/buy.svg";
+import "./listingPreviewStyles.css";
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
+import {
+  defaultImages,
+  FOR_RENT,
+  FOR_SALE,
+  GCASH,
+  MEET_UP,
+  PICK_UP,
+  TO_BUY,
+} from "../../../../utils/consonants.js";
+import { addCartItem } from "../../../../redux/cart/cartSlice.js";
+import {
+  clearNotification,
+  showNotification,
+} from "../../../../redux/alert-popup/alertPopupSlice.js";
+import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
+import UserToolbar from "../common/UserToolbar.jsx";
+import ItemDescAndSpecs from "../common/ItemDescAndSpecs.jsx";
+import Terms from "./Terms.jsx";
+import ImageSlider from "../common/ImageSlider.jsx";
+import ItemBadges from "../common/ItemBadges.jsx";
+import { useSocket } from "../../../../context/SocketContext.js";
+import axios from "axios";
+import ViewToolbar from "../common/ViewToolbar.js";
+import ReportModal from "../../../../components/report/ReportModal.js";
+import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
+import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
+import ShowAlert from "../../../../utils/ShowAlert.js";
+import { fetchAdminListingById } from "../../../../redux/listing/adminListingByIdSlice.js";
+
+function ListingDetail({ selectedItem, loading, error, isAdmin = false }) {
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const isVerified = user?.student?.status ?? false;
+
+  const [isPreparing, setPreparing] = useState(true);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const dispatch = useDispatch();
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDuration, setSelectedDuration] = useState(null);
+  const [showDurations, setShowDurations] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+  const studentUser = useSelector(selectStudentUser);
 
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
+  const [redirecting, setRedirecting] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const loggedInUserId = studentUser?.userId || null;
+  const socket = useSocket();
+  const [hasReported, setHasReported] = useState(false);
 
-  if (!selectedItem) {
-    return <p>Item not found</p>;
-  }
+  const location = useLocation();
+  const { item, warnSelectDateAndTime } = location.state || {};
 
-  const {
-    itemImage: itemImageUrl = itemImage,
-    rating = 0,
-    rate = "0",
-    rental_dates = [],
-    userProfilePicture: userProfilePic = userProfilePicture,
-    userName = "Unknown User",
-    userRating = 0,
-    description = "No description available.",
-  } = selectedItem;
+  useLayoutEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromStripe = urlParams.get("from_stripe");
+    const rentalId = urlParams.get("rental_id");
 
-  let specifications = {};
-
-  if (typeof selectedItem.specifications === "string") {
-    try {
-      specifications = JSON.parse(selectedItem.specifications);
-    } catch (error) {
-      console.error("Error parsing specifications:", error);
-      specifications = {};
+    if (fromStripe === "cancelled" && rentalId) {
+      navigate(`/payment-cancelled?rentalId=${rentalId}`, { replace: true });
+    } else {
+      setPreparing(false); // Only allow rendering if no redirect happens
     }
-  } else if (typeof selectedItem.specifications === "object") {
-    specifications = selectedItem.specifications;
-  }
+  }, [navigate]);
 
-  const itemSpecifications = Object.entries(specifications).map(
-    ([key, value]) => ({
-      label: key || "N/A",
-      value: value || "N/A",
-    })
-  );
+  useEffect(() => {
+    if (warnSelectDateAndTime) {
+    }
+  }, [warnSelectDateAndTime]);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchAdminListingById({ id: id }));
+    }
+  }, [id, dispatch]);
+
+  const rentalDates = selectedItem?.availableDates || [];
+
+  const handleDateClick = (dateId) => {
+    const formatDate = (d) => d.toLocaleDateString("en-CA");
+
+    const selectedRentalDate = selectedItem.availableDates.find(
+      (rentalDate) => rentalDate.id === dateId
+    );
+
+    if (selectedRentalDate && selectedRentalDate.durations) {
+      setSelectedDate(formatDate(new Date(selectedRentalDate.date)));
+      setShowDurations(selectedRentalDate.durations);
+    }
+  };
+
+  const handleSelectDuration = (duration) => {
+    setSelectedDuration(duration);
+  };
+
+  const availableDates = rentalDates
+    .filter((rentalDate) => rentalDate.status === "available")
+    .map((rentalDate) => new Date(rentalDate.date));
+
+
+  useEffect(() => {
+    if (error) {
+      ShowAlert(dispatch, "error", "Error", "Item not found!");
+    }
+    if (error) {
+      setRedirecting(true);
+      const timer = setTimeout(() => {
+        ShowAlert(dispatch, "loading", "Redirecting");
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error, loading, selectedItem, dispatch]);
+
+  useEffect(() => {
+    if (redirecting) {
+      const redirectTimer = setTimeout(() => {
+        navigate(-1);
+      }, 3000);
+
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [redirecting, navigate]);
+
+  if (loading || redirecting || isPreparing) {
+    return <LoadingItemDetailSkeleton />;
+  }
 
   return (
-    <div>
-      <div className="">
-        <div className="py-4 px-2 m-0 rounded row bg-white">
-          <div className="col-md-6 item-image">
+    <div className="container-content-admin listing-detail">
+      {isAdmin && <ViewToolbar />}
+
+      <div className="listing-container">
+        <div className="imgs-container">
+          <Tooltip
+            title={`This item is ${
+              selectedItem.itemType === FOR_RENT ? FOR_RENT : FOR_SALE
+            }`}
+            componentsProps={{
+              popper: {
+                modifiers: [
+                  {
+                    name: "offset",
+                    options: {
+                      offset: [0, 0],
+                    },
+                  },
+                ],
+              },
+            }}
+          >
             <img
-              src={itemImageUrl}
-              alt="Item"
-              className="img-container img-fluid"
+              src={
+                selectedItem.itemType === FOR_RENT ? forRentIcon : forSaleIcon
+              }
+              alt={selectedItem.itemType === FOR_RENT ? FOR_RENT : FOR_SALE}
+              className="item-type"
+            />
+          </Tooltip>
+          <ImageSlider
+            images={
+              selectedItem.images && selectedItem.images.length
+                ? selectedItem.images
+                : [defaultImages]
+            }
+          />
+        </div>
+        <div className="rental-details">
+          <div className="item-header">
+            <ItemBadges
+              values={{
+                college: selectedItem?.owner?.college,
+                category: selectedItem.category,
+              }}
+            />
+            {loggedInUserId !== selectedItem?.owner?.id && !hasReported && (
+              <div className="report-button">
+                <button className="btn btn-rectangle danger">Report</button>
+              </div>
+            )}
+            {hasReported && (
+              <div className="report-button">
+                <button className="btn btn-rectangle danger" disabled>
+                  Already Reported
+                </button>
+              </div>
+            )}
+
+            {/* Report Modal */}
+            <ReportModal
+              show={showReportModal}
+              handleClose={() => setShowReportModal(false)}
             />
           </div>
 
-          <div className="col-md-6 item-desc">
-            <button className="btn btn-rounded thin">
-              {selectedItem.category}
-            </button>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <p className="mb-0">
-                <strong>{selectedItem.listing_name}</strong>
-              </p>
-              <p className="mb-0">
-                <strong>{rating}</strong>
-              </p>
-            </div>
-            <span className="price">₱{rate}/hr</span>
-            <div className="mt-5 d-flex justify-content-end">
-              <button className="btn btn-rectangle secondary no-fill me-2">
-                Message
-              </button>
-              <button className="btn btn-rectangle primary no-fill me-2">
-                Borrow
-              </button>
-            </div>
-
-            <hr />
-
-            <p>
-              <strong>Available Dates</strong>
-              {rental_dates.map((rental) => (
-                <button
-                  key={rental.id}
-                  className="btn btn-rounded thin me-2 ms-2"
-                  onClick={() => setSelectedDate(rental.date)}
-                >
-                  {formatDate(rental.date)}
-                </button>
-              ))}
-            </p>
-
-            <div>
-              <p>
-                <strong>Available Times</strong>{" "}
-                {selectedDate ? (
-                  formatDate(selectedDate)
-                ) : (
-                  <i>Please select a preferred date</i>
-                )}
-                :
-              </p>
-              {(selectedDate &&
-                rental_dates
-                  .find((rental) => rental.date === selectedDate)
-                  ?.durations?.map((duration) => (
-                    <button
-                      key={duration.id}
-                      className="btn btn-rounded thin me-2 ms-2"
-                    >
-                      {`${formatTimeTo12Hour(
-                        duration.rental_time_from
-                      )} - ${formatTimeTo12Hour(duration.rental_time_to)}`}
-                    </button>
-                  ))) || <p>No times available</p>}
-            </div>
-
-            <p>
-              <strong>Late Charges:</strong> ₱{selectedItem.late_charges}/hr
-            </p>
-            <p>
-              <strong>Security Deposit:</strong> ₱
-              {selectedItem.security_deposit}
-            </p>
-            <p>
-              <strong>Repair and Replacement:</strong>{" "}
-              {selectedItem.repair_replacement}
-            </p>
-
-            <div>
-              <p>
-                <strong>Payment Mode:</strong>
-                <button className="btn btn-rounded primary thin ms-2">
-                  {selectedItem.payment_mode === "payment upon meetup"
-                    ? "Upon meetup"
-                    : "Gcash"}
-                </button>
-              </p>
-            </div>
-            <div>
-              <p>
-                <strong>Delivery:</strong>
-                <button className="btn btn-rounded primary thin ms-2">
-                  {selectedItem.delivery_mode === "pickup"
-                    ? "Pickup"
-                    : "Meetup"}
-                </button>
-              </p>
-            </div>
-
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="flexCheckDefault"
-              />
-              <label className="form-check-label" htmlFor="flexCheckDefault">
-                I agree to the rental terms set by the owner
-              </label>
-            </div>
+          <div className="item-title">
+            <>
+              <i>For rent </i>
+              {selectedItem.itemName ? (
+                <span className="title">{selectedItem.itemName}</span>
+              ) : (
+                <span className="error-msg">No available name.</span>
+              )}
+            </>
           </div>
-        </div>
-
-        <div className="user-info mt-5 bg-white">
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center">
-              <img
-                src={userProfilePic}
-                alt="Profile"
-                className="profile-pic me-2"
-              />
-              <div>
-                <a
-                  href={`/userprofile/${userName}`}
-                  className="text-dark small text-decoration-none"
-                >
-                  {userName}
-                </a>
-              </div>
-            </div>
-            <div className="rating">
-              <span>Rating:</span>
-              {"★".repeat(Math.floor(userRating))}
-              {"☆".repeat(5 - Math.floor(userRating))}
-            </div>
-            <button className="btn btn-rectangle secondary me-2">
-              View Listings
-            </button>
-            <button className="btn btn-rectangle secondary me-2">
-              View Profile
-            </button>
-          </div>
-        </div>
-
-        <div className="item-specs mt-5 p-4 bg-white">
-          <h4>Item Specifications</h4>
-          <table className="specifications-table">
-            <thead>
-              <tr>
-                <th>Specification</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {itemSpecifications.map((spec, index) => (
-                <tr key={index}>
-                  <td>
-                    <strong>{spec.label}</strong>
-                  </td>
-                  <td>{spec.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <hr />
-
-          <h4>Item Description</h4>
-          <p>{description}</p>
-          <div>
-            <strong>Tags:</strong>
-            {Array.isArray(tags) && tags.length > 0 ? (
-              <div className="tags-container">
-                {tags.map((tag, index) => (
-                  <span key={index} className="badge bg-primary me-2">
-                    {tag}
-                  </span>
-                ))}
-              </div>
+          <div className="item-price">
+            {selectedItem.rate ? (
+              <span className="price">₱ {selectedItem.rate}</span>
             ) : (
-              <p>No tags available</p>
+              <span className="error-msg">No available rate.</span>
             )}
+          </div>
+          <div className="action-btns">
+            <button className="btn btn-icon primary" disabled={isAdmin}>
+              <img src={cartIcon} alt="Add to cart" />
+            </button>
+            <button className="btn btn-rectangle secondary" disabled={isAdmin}>
+              Message
+            </button>
+            <button className="btn btn-rectangle primary" disabled={isAdmin}>
+              {selectedItem.itemType === FOR_RENT ? "Rent" : "Buy"}
+            </button>
+          </div>
+          <hr />
+          <div className="rental-dates-durations">
+            <div className="date-picker">
+              <span>
+                Pick a date to{" "}
+                {selectedItem.itemType === FOR_RENT ? "rent" : "buy"}:
+              </span>
+              <DatePicker
+                inline
+                selected={selectedDate ? new Date(selectedDate) : null}
+                onChange={(date) => {
+                  const rentalDate = rentalDates.find(
+                    (r) =>
+                      new Date(r.date).toDateString() === date.toDateString()
+                  );
+
+                  if (rentalDate) {
+                    handleDateClick(rentalDate.id);
+                  } else {
+                    setShowDurations(null);
+                    setSelectedDate(date);
+                  }
+                }}
+                highlightDates={availableDates}
+                dayClassName={(date) => {
+                  return availableDates.some(
+                    (d) => d.toDateString() === date.toDateString()
+                  )
+                    ? "bg-green"
+                    : "";
+                }}
+              />
+            </div>
+
+            <div className="duration-picker group-container">
+              <strong>Available Durations:</strong>
+              <div>
+                {selectedDate ? (
+                  showDurations && showDurations.length > 0 ? (
+                    <div className="duration-list">
+                      {showDurations.map((duration) => (
+                        <div key={duration.id} className="duration-item">
+                          <input
+                            type="checkbox"
+                            id={`duration-${duration.id}`}
+                            onChange={() => handleSelectDuration(duration)}
+                          />
+                          {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+                          {formatTimeTo12Hour(duration.timeTo)}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-duration-message">
+                      No available duration for this date.
+                    </p>
+                  )
+                ) : (
+                  <p className="select-date-message">
+                    Please select a date first.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="group-container delivery-method ">
+            <label className="label">Delivery Method</label>
+            {selectedItem.deliveryMethod ? (
+              <Tooltip
+                title="Delivery method has been preselected by owner."
+                placement="bottom"
+                componentsProps={{
+                  popper: {
+                    modifiers: [
+                      {
+                        name: "offset",
+                        options: {
+                          offset: [0, -10],
+                        },
+                      },
+                    ],
+                  },
+                }}
+              >
+                <span className="value selected">
+                  {selectedItem.deliveryMethod}
+                </span>
+              </Tooltip>
+            ) : (
+              <div className="delivery-method">
+                <Tooltip
+                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                  placement="bottom"
+                  componentsProps={{
+                    popper: {
+                      modifiers: [
+                        {
+                          name: "offset",
+                          options: {
+                            offset: [0, -10],
+                          },
+                        },
+                      ],
+                    },
+                  }}
+                >
+                  <div className="action-btns">
+                    <button
+                      className={`value ${
+                        selectedItem.deliveryMethod === MEET_UP
+                          ? "selected"
+                          : ""
+                      }`}
+                      disabled={isAdmin}
+                    >
+                      Meet up
+                    </button>
+                    <button
+                      className={`value ${
+                        selectedItem.deliveryMethod === PICK_UP
+                          ? "selected"
+                          : ""
+                      }`}
+                      disabled={isAdmin}
+                    >
+                      Pick up
+                    </button>
+                  </div>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+
+          <div className="group-container payment-method ">
+            <label className="label">Payment Method</label>
+
+            {selectedItem.paymentMethod ? (
+              <Tooltip
+                title="Delivery method has been preselected by owner."
+                placement="bottom"
+                componentsProps={{
+                  popper: {
+                    modifiers: [
+                      {
+                        name: "offset",
+                        options: {
+                          offset: [0, -10],
+                        },
+                      },
+                    ],
+                  },
+                }}
+              >
+                <span className="value selected">
+                  {selectedItem.paymentMethod}
+                </span>
+              </Tooltip>
+            ) : (
+              <div className="delivery-method">
+                <Tooltip
+                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                  placement="bottom"
+                >
+                  <div className="action-btns">
+                    <button className="value selected" disabled={isAdmin}>
+                      Pay upon Meet up
+                    </button>
+                    <button
+                      className={`value ${
+                        selectedItem.paymentMethod === PICK_UP ? "selected" : ""
+                      }`}
+                      disabled={isAdmin}
+                    >
+                      Gcash
+                    </button>
+                  </div>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+
+          <div className="group-container item-condition">
+            <label className="label">Item Condition</label>
+            <div>
+              {selectedItem.itemCondition ? (
+                <span className="value">{selectedItem.itemCondition}</span>
+              ) : (
+                <span className="error-msg">No item condition specified.</span>
+              )}
+            </div>
+          </div>
+          <div className="group-container terms">
+            <Terms
+              values={{
+                lateCharges: selectedItem.lateCharges,
+                securityDeposit: selectedItem.securityDeposit,
+                repairReplacement: selectedItem.repairReplacement,
+              }}
+            />
           </div>
         </div>
       </div>
+
+      <UserToolbar user={selectedItem.owner} isAdmin={true} />
+
+      <ItemDescAndSpecs
+        specs={selectedItem.specs}
+        desc={selectedItem.desc}
+        tags={selectedItem.tags}
+      />
     </div>
   );
 }
 
-export default ListingPreview;
+export default ListingDetail;

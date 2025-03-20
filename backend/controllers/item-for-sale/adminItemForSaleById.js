@@ -1,12 +1,15 @@
 const { models } = require("../../models/index");
 
-const getItemForSaleById = async (req, res) => {
+const adminItemForSaleById = async (req, res) => {
   try {
-    const item = await models.ItemForSale.findByPk(req.params.itemForSaleId, {
+    const item = await models.ItemForSale.findByPk(req.params.id, {
       include: [
         {
           model: models.Date,
           as: "available_dates",
+          where: {
+            item_type: "item_for_sale",
+          },
           include: [
             {
               model: models.Duration,
@@ -25,10 +28,6 @@ const getItemForSaleById = async (req, res) => {
           ],
         },
       ],
-      where: {
-        // Assuming you have a column 'item_type' in your Item model
-        item_type: "item_for_sale", // Filter for item for sale only
-      },
     });
 
     if (!item) {
@@ -46,12 +45,11 @@ const getItemForSaleById = async (req, res) => {
       deliveryMethod: item.delivery_mode,
       itemCondition: item.item_condition,
       paymentMethod: item.payment_mode,
-      statusMessage: item.status_message,
       status: item.status,
       category: item.category,
       itemType: "For Sale",
       desc: item.description,
-      specs: JSON.parse(item.specifications),
+      specs: item.specifications,
       availableDates: item.available_dates.map((date) => ({
         id: date.id,
         itemId: date.item_id,
@@ -72,12 +70,11 @@ const getItemForSaleById = async (req, res) => {
         college: item.seller.student.college,
       },
     };
-
     res.status(200).json(formattedItem);
   } catch (error) {
-    console.error("Error fetching post:", error);
+    console.error("Error fetching admin listing:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = getItemForSaleById;
+module.exports = adminItemForSaleById;

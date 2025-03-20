@@ -263,6 +263,8 @@ const updateItemForSaleById = async (req, res) => {
         price: itemData.price || existingItem.price,
         tags: itemData.tags || existingItem.tags,
         specifications: itemData.specs || existingItem.specifications,
+        status: "pending",
+        status_message: "Pending approval",
       },
       { where: { id: itemId }, transaction }
     );

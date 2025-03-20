@@ -1,8 +1,8 @@
 const { models } = require("../../models/index");
 
-const getPostById = async (req, res) => {
+const adminPostById = async (req, res) => {
   try {
-    const post = await models.Post.findByPk(req.params.postId, {
+    const post = await models.Post.findByPk(req.params.id, {
       include: [
         {
           model: models.Date,
@@ -28,10 +28,6 @@ const getPostById = async (req, res) => {
           ],
         },
       ],
-      //   where: {
-      //     // Assuming you have a column 'item_type' in your Item model
-      //     post_type: "item_for_sale", // Filter for item for sale only
-      //   },
     });
 
     if (!post) {
@@ -48,9 +44,8 @@ const getPostById = async (req, res) => {
       category: post.category,
       itemType: post.post_type,
       desc: post.description,
-      status: post.status,
       statusMessage: post.status_message,
-      specs: JSON.parse(post.specifications),
+      specs: post.specifications,
       requestDates: post.rental_dates.map((date) => ({
         id: date.id,
         itemId: date.item_id,
@@ -71,12 +66,11 @@ const getPostById = async (req, res) => {
         college: post.renter.student.college,
       },
     };
-
     res.status(200).json(formattedPost);
   } catch (error) {
-    console.error("Error fetching post:", error);
+    console.error("Error fetching admin listing:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = getPostById;
+module.exports = adminPostById;

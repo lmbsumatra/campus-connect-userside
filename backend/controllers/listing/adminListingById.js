@@ -1,8 +1,8 @@
 const { models } = require("../../models/index");
 
-const getListingById = async (req, res) => {
+const adminListingById = async (req, res) => {
   try {
-    const listing = await models.Listing.findByPk(req.params.listingId, {
+    const listing = await models.Listing.findByPk(req.params.id, {
       include: [
         {
           model: models.Date,
@@ -25,23 +25,18 @@ const getListingById = async (req, res) => {
           ],
         },
       ],
-      where: {
-        // Assuming you have a column 'item_type' in your Listing model
-        item_type: "listing", // Filter for listings only
-      },
     });
 
     if (!listing) {
       return res.status(404).json({ error: "Listing not found" });
     }
 
-    // Format the response to flatten fields like item_name, price, etc.
     const formattedListing = {
       id: listing.id,
       itemName: listing.listing_name,
       images: JSON.parse(listing.images),
       tags: JSON.parse(listing.tags),
-      price: listing.rate,
+      rate: listing.rate,
       createdAt: listing.created_at,
       deliveryMethod: listing.delivery_mode,
       lateCharges: listing.late_charges,
@@ -50,11 +45,11 @@ const getListingById = async (req, res) => {
       itemCondition: listing.listing_condition,
       paymentMethod: listing.payment_mode,
       status: listing.status,
+      statusMsg: listing.status_message,
       category: listing.category,
       itemType: "For Rent",
       desc: listing.description,
-      specs: JSON.parse(listing.specifications),
-      statusMessage: listing.status_message,
+      specs: listing.specifications,
       availableDates: listing.rental_dates.map((date) => ({
         id: date.id,
         listingId: date.listing_id,
@@ -72,15 +67,17 @@ const getListingById = async (req, res) => {
         id: listing.owner.user_id,
         fname: listing.owner.first_name,
         lname: listing.owner.last_name,
-        college: listing.owner.student.college,
+        email: listing.owner.email, // Admin-specific field
+        phone: listing.owner.phone, // Admin-specific field
+        college: listing.owner.student?.college || "N/A",
       },
     };
 
     res.status(200).json(formattedListing);
   } catch (error) {
-    console.error("Error fetching post:", error);
+    console.error("Error fetching admin listing:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = getListingById;
+module.exports = adminListingById;

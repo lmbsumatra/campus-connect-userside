@@ -26,8 +26,11 @@ const updateListingStatus = async (req, res) => {
       return res.status(404).json({ error: "Listing not found" });
     }
 
-    // Update the listing’s status
-    await listing.update({ status }, { transaction });
+    // Update the listing's status and status_message
+    await listing.update({ 
+      status, 
+      status_message: reason 
+    }, { transaction });
 
     // Define custom messages for each status
     const messages = {

@@ -29,7 +29,7 @@ const updatePostStatus = async (req, res) => {
     // console.log("Fetched Post:", post.toJSON());
 
     // Update the post’s status
-    await post.update({ status }, { transaction });
+    await post.update({ status, status_message: reason }, { transaction });
 
     // Define custom messages for each status
     const messages = {

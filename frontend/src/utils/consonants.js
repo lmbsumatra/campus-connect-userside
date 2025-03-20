@@ -166,3 +166,23 @@ export const collegesAndCourses = {
     46: "Bachelor of Science in Hospitality Management (BSHM)",
   },
 };
+
+
+export const getStatusClass = (status) => {
+  switch (status.toLowerCase()) {
+    case 'pending':
+      return 'alert-warning';
+    case 'approved':
+      return 'alert-success';
+    case 'declined':
+    case 'revoked':
+    case 'flagged':
+      return 'alert-danger';
+    case 'removed':
+      return 'alert-secondary';
+    case 'unavailable':
+      return 'alert-dark';
+    default:
+      return 'alert-info';
+  }
+};

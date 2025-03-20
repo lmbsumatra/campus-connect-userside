@@ -30,6 +30,7 @@ router.get("/users/:id", ItemForSaleController2.getAllItemForSaleByUser);
 
 // patch by admins
 router.patch("/:id", ItemForSaleController.updateStatus);
+router.get("/admin/get/:id", ItemForSaleController2.adminItemForSaleById);
 
 // crud for user
 router.post("/add", upload_item, ItemForSaleController2.addItemForSale);
