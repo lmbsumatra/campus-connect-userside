@@ -348,101 +348,100 @@ function EditProfile() {
         <div className="alert alert-success mb-3">{successMessage}</div>
       )}
 
-      <form className="edit-profile-form" onSubmit={handleProfileSubmit}>
-        <div className="form-section personal-details">
-          <h3 className="section-label">Edit Personal Details</h3>
-          <div className="details-grid">
-            {[
-              "surname",
-              "firstname",
-              "middlename",
-              "college",
-              "course",
-              "tup_id",
-            ].map((field) => (
-              <div className="form-group" key={field}>
-                <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                <input
-                  type="text"
-                  name={field}
-                  value={formData[field]}
-                  onChange={handleChange}
-                  placeholder="Example Input"
-                  disabled={field === "tup_id"}
-                />
+      <div className="edit-profile-form">
+        <form className="" onSubmit={handleProfileSubmit}>
+          <div className="form-section personal-details">
+            <h3 className="section-label">Edit Personal Details</h3>
+            <div className="details-grid">
+              {[
+                "surname",
+                "firstname",
+                "middlename",
+                "college",
+                "course",
+                "tup_id",
+              ].map((field) => (
+                <div className="form-group" key={field}>
+                  <label>
+                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                  </label>
+                  <input
+                    type="text"
+                    name={field}
+                    value={formData[field]}
+                    onChange={handleChange}
+                    placeholder="Example Input"
+                    disabled={field === "tup_id"}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-section account-details">
+            <h3 className="section-label">Account Details</h3>
+            <div className="details-grid">
+              <div className="form-group">
+                <label>Email</label>
+                <Tooltip title="Changing email is not available for now.">
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Example Input"
+                    disabled
+                  />
+                </Tooltip>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="form-section account-details">
-          <h3 className="section-label">Account Details</h3>
-          <div className="details-grid">
-            <div className="form-group">
-              <label>Email</label>
-              <Tooltip title="Changing email is not available for now.">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Example Input"
-                  disabled
-                />
-              </Tooltip>
+              <div className="form-group">
+                <label>Change Password</label>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setModalOpen(true)}
+                >
+                  Change Password
+                </button>
+              </div>
             </div>
-            <div className="form-group">
-              <label>Change Password</label>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setModalOpen(true)}
+          </div>
+        </form>
+
+        <form onSubmit={handleDocumentSubmission} className="mt-4">
+          <div className="form-section verification mb-5">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h3 className="section-label">Verification Documents</h3>
+              <div className="verification-status">
+                {formData.status === "pending" && (
+                  <span className="badge bg-warning text-dark py-2 px-3">
+                    Pending Verification
+                  </span>
+                )}
+                {formData.status === "verified" && (
+                  <span className="badge bg-success py-2 px-3">Verified</span>
+                )}
+                {formData.status === "flagged" && (
+                  <span className="badge bg-danger py-2 px-3">Flagged</span>
+                )}
+              </div>
+            </div>
+
+            {formData.status && formData.statusMsg && (
+              <div
+                className={`alert ${
+                  formData.status === "verified"
+                    ? "alert-success"
+                    : formData.status === "flagged"
+                    ? "alert-danger"
+                    : "alert-warning"
+                } mb-3`}
               >
-                Change Password
-              </button>
-            </div>
-          </div>
-        </div>
+                {formData.statusMsg}
+              </div>
+            )}
 
-        <button className="btn btn-rectangle primary" type="submit">
-          Save Changes
-        </button>
-      </form>
-
-      <form onSubmit={handleDocumentSubmission} className="mt-4">
-        <div className="form-section verification mb-5">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h3 className="section-label">Verification Documents</h3>
-            <div className="verification-status">
-              {formData.status === "pending" && (
-                <span className="badge bg-warning text-dark py-2 px-3">
-                  Pending Verification
-                </span>
-              )}
-              {formData.status === "verified" && (
-                <span className="badge bg-success py-2 px-3">Verified</span>
-              )}
-              {formData.status === "flagged" && (
-                <span className="badge bg-danger py-2 px-3">Flagged</span>
-              )}
-            </div>
-          </div>
-
-          {formData.status && formData.statusMsg && (
-            <div
-              className={`alert ${
-                formData.status === "verified"
-                  ? "alert-success"
-                  : formData.status === "flagged"
-                  ? "alert-danger"
-                  : "alert-warning"
-              } mb-3`}
-            >
-              {formData.statusMsg}
-            </div>
-          )}
-
-          {/* {formData.status === "flagged" && (
+            {/* {formData.status === "flagged" && (
             <div className="alert alert-danger mb-3">
               <small>
                 Your verification was flagged. Please upload new documents.
@@ -450,175 +449,177 @@ function EditProfile() {
             </div>
           )} */}
 
-          <div className="row verification-grid g-4">
-            <div className="col-md-6">
-              <div className="document-container">
-                <div className="document-label d-flex justify-content-between">
-                  <span>Photo with ID</span>
-                  {(formData.status === "pending" ||
-                    formData.status === "flagged") && (
-                    <small className="text-primary">
-                      Click image to change
-                    </small>
-                  )}
-                </div>
-                <div
-                  className={`document-preview ${
-                    formData.status === "pending" ||
-                    formData.status === "flagged"
-                      ? "document-preview-editable"
-                      : ""
-                  }`}
-                  onMouseEnter={() =>
-                    (formData.status === "pending" ||
-                      formData.status === "flagged") &&
-                    setPhotoHover(true)
-                  }
-                  onMouseLeave={() => setPhotoHover(false)}
-                  onClick={() =>
-                    (formData.status === "pending" ||
-                      formData.status === "flagged") &&
-                    photoFileRef.current.click()
-                  }
-                >
-                  {formData.photoWithId ? (
-                    <div className="position-relative">
-                      <img
-                        src={formData.photoWithId}
-                        alt="Photo with ID"
-                        className="img-fluid rounded"
-                      />
-                      {photoHover &&
-                        (formData.status === "pending" ||
+            <div className="row verification-grid g-4">
+              <div className="col-md-6">
+                <div className="document-container">
+                  <div className="document-label d-flex justify-content-between">
+                    <span>Photo with ID</span>
+                    {(formData.status === "pending" ||
+                      formData.status === "flagged") && (
+                      <small className="text-primary">
+                        Click image to change
+                      </small>
+                    )}
+                  </div>
+                  <div
+                    className={`document-preview ${
+                      formData.status === "pending" ||
+                      formData.status === "flagged"
+                        ? "document-preview-editable"
+                        : ""
+                    }`}
+                    onMouseEnter={() =>
+                      (formData.status === "pending" ||
+                        formData.status === "flagged") &&
+                      setPhotoHover(true)
+                    }
+                    onMouseLeave={() => setPhotoHover(false)}
+                    onClick={() =>
+                      (formData.status === "pending" ||
+                        formData.status === "flagged") &&
+                      photoFileRef.current.click()
+                    }
+                  >
+                    {formData.photoWithId ? (
+                      <div className="position-relative">
+                        <img
+                          src={formData.photoWithId}
+                          alt="Photo with ID"
+                          className="img-fluid rounded"
+                        />
+                        {photoHover &&
+                          (formData.status === "pending" ||
+                            formData.status === "flagged") && (
+                            <div className="document-overlay d-flex align-items-center justify-content-center">
+                              <i className="bi bi-camera-fill me-2"></i>
+                              Update Photo
+                            </div>
+                          )}
+                      </div>
+                    ) : (
+                      <div className="empty-document d-flex flex-column align-items-center justify-content-center">
+                        <i className="bi bi-person-badge fs-1 mb-2"></i>
+                        <span>Upload a photo of yourself holding your ID</span>
+                        {(formData.status === "pending" ||
                           formData.status === "flagged") && (
-                          <div className="document-overlay d-flex align-items-center justify-content-center">
-                            <i className="bi bi-camera-fill me-2"></i>
-                            Update Photo
-                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-primary mt-2"
+                            onClick={() => photoFileRef.current.click()}
+                          >
+                            Select Photo
+                          </button>
                         )}
-                    </div>
-                  ) : (
-                    <div className="empty-document d-flex flex-column align-items-center justify-content-center">
-                      <i className="bi bi-person-badge fs-1 mb-2"></i>
-                      <span>Upload a photo of yourself holding your ID</span>
-                      {(formData.status === "pending" ||
-                        formData.status === "flagged") && (
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary mt-2"
-                          onClick={() => photoFileRef.current.click()}
-                        >
-                          Select Photo
-                        </button>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={photoFileRef}
+                    style={{ display: "none" }}
+                    onChange={(e) => handleFileUpload(e, "photoWithId")}
+                    disabled={
+                      formData.status !== "pending" &&
+                      formData.status !== "flagged"
+                    }
+                  />
                 </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={photoFileRef}
-                  style={{ display: "none" }}
-                  onChange={(e) => handleFileUpload(e, "photoWithId")}
-                  disabled={
-                    formData.status !== "pending" &&
-                    formData.status !== "flagged"
-                  }
-                />
+              </div>
+
+              <div className="col-md-6">
+                <div className="document-container">
+                  <div className="document-label d-flex justify-content-between">
+                    <span>Scanned ID</span>
+                    {(formData.status === "pending" ||
+                      formData.status === "flagged") && (
+                      <small className="text-primary">
+                        Click image to change
+                      </small>
+                    )}
+                  </div>
+                  <div
+                    className={`document-preview ${
+                      formData.status === "pending" ||
+                      formData.status === "flagged"
+                        ? "document-preview-editable"
+                        : ""
+                    }`}
+                    onMouseEnter={() =>
+                      (formData.status === "pending" ||
+                        formData.status === "flagged") &&
+                      setIdHover(true)
+                    }
+                    onMouseLeave={() => setIdHover(false)}
+                    onClick={() =>
+                      (formData.status === "pending" ||
+                        formData.status === "flagged") &&
+                      idFileRef.current.click()
+                    }
+                  >
+                    {formData.scannedId ? (
+                      <div className="position-relative">
+                        <img
+                          src={formData.scannedId}
+                          alt="Scanned ID"
+                          className="img-fluid rounded"
+                        />
+                        {idHover &&
+                          (formData.status === "pending" ||
+                            formData.status === "flagged") && (
+                            <div className="document-overlay d-flex align-items-center justify-content-center">
+                              <i className="bi bi-camera-fill me-2"></i>
+                              Update ID
+                            </div>
+                          )}
+                      </div>
+                    ) : (
+                      <div className="empty-document d-flex flex-column align-items-center justify-content-center">
+                        <i className="bi bi-card-image fs-1 mb-2"></i>
+                        <span>Upload a clear scan of your student ID</span>
+                        {(formData.status === "pending" ||
+                          formData.status === "flagged") && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-primary mt-2"
+                            onClick={() => idFileRef.current.click()}
+                          >
+                            Select ID
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={idFileRef}
+                    style={{ display: "none" }}
+                    onChange={(e) => handleFileUpload(e, "scannedId")}
+                    disabled={
+                      formData.status !== "pending" &&
+                      formData.status !== "flagged"
+                    }
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="col-md-6">
-              <div className="document-container">
-                <div className="document-label d-flex justify-content-between">
-                  <span>Scanned ID</span>
-                  {(formData.status === "pending" ||
-                    formData.status === "flagged") && (
-                    <small className="text-primary">
-                      Click image to change
-                    </small>
-                  )}
-                </div>
-                <div
-                  className={`document-preview ${
-                    formData.status === "pending" ||
-                    formData.status === "flagged"
-                      ? "document-preview-editable"
-                      : ""
-                  }`}
-                  onMouseEnter={() =>
-                    (formData.status === "pending" ||
-                      formData.status === "flagged") &&
-                    setIdHover(true)
-                  }
-                  onMouseLeave={() => setIdHover(false)}
-                  onClick={() =>
-                    (formData.status === "pending" ||
-                      formData.status === "flagged") &&
-                    idFileRef.current.click()
-                  }
+            {(formData.status === "pending" ||
+              formData.status === "flagged") && (
+              <div className="text-center mt-4">
+                <button
+                  className="btn btn-primary px-4"
+                  type="submit"
+                  disabled={isSubmitting}
                 >
-                  {formData.scannedId ? (
-                    <div className="position-relative">
-                      <img
-                        src={formData.scannedId}
-                        alt="Scanned ID"
-                        className="img-fluid rounded"
-                      />
-                      {idHover &&
-                        (formData.status === "pending" ||
-                          formData.status === "flagged") && (
-                          <div className="document-overlay d-flex align-items-center justify-content-center">
-                            <i className="bi bi-camera-fill me-2"></i>
-                            Update ID
-                          </div>
-                        )}
-                    </div>
-                  ) : (
-                    <div className="empty-document d-flex flex-column align-items-center justify-content-center">
-                      <i className="bi bi-card-image fs-1 mb-2"></i>
-                      <span>Upload a clear scan of your student ID</span>
-                      {(formData.status === "pending" ||
-                        formData.status === "flagged") && (
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary mt-2"
-                          onClick={() => idFileRef.current.click()}
-                        >
-                          Select ID
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={idFileRef}
-                  style={{ display: "none" }}
-                  onChange={(e) => handleFileUpload(e, "scannedId")}
-                  disabled={
-                    formData.status !== "pending" &&
-                    formData.status !== "flagged"
-                  }
-                />
+                  {isSubmitting ? "Submitting..." : "Submit for Verification"}
+                </button>
               </div>
-            </div>
+            )}
           </div>
-
-          {(formData.status === "pending" || formData.status === "flagged") && (
-            <div className="text-center mt-4">
-              <button
-                className="btn btn-primary px-4"
-                type="submit"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit for Verification"}
-              </button>
-            </div>
-          )}
-        </div>
-      </form>
+        </form>
+      </div>
 
       <Modal
         show={isModalOpen}
