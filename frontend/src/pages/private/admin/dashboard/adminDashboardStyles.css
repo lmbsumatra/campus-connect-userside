@@ -180,6 +180,20 @@
   height: 100%; /* Allow flexibility */
 }
 
+.chart-container {
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.chart-selector {
+  margin-bottom: 15px;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
 .chart-header {
   display: flex;
   justify-content: space-between;

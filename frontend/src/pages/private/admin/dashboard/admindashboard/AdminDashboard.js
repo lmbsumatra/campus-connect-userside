@@ -22,7 +22,10 @@ import useFetchAllTransactionsData from "../../../../../utils/FetchAllTransactio
 import useFetchAllItemsForSaleData from "../../../../../utils/FetchAllItemsForSaleData";
 import useFetchRecentActivities from "../../../../../utils/FetchRecentActivities";
 
-import { GrowthData } from "../../../../../components/Analytics/AdminDashboardAnalytics";
+import {
+  GrowthData,
+  TotalRegisteredUser,
+} from "../../../../../components/Analytics/AdminDashboardAnalytics";
 
 const AdminDashboard = () => {
   const { activities } = useFetchRecentActivities();
@@ -212,7 +215,7 @@ const AdminDashboard = () => {
                       className="view-btn"
                       onClick={() => handleViewActivity(activity)}
                     >
-                      View
+                      Manage
                     </button>
                   </td>
                 </tr>
@@ -230,6 +233,9 @@ const AdminDashboard = () => {
             posts={posts}
             sales={sale.items}
           />
+        </div>
+        <div className="chart-card">
+          <TotalRegisteredUser users={users} />
         </div>
       </div>
     </div>
