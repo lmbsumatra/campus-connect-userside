@@ -23,6 +23,7 @@ function PublicLayout() {
   }, [dispatch, studentUser?.userId]);
 
   const isVerified = user?.user?.emailVerified ?? false;
+  const isApproved = user?.student?.status ?? false;
 
   // if (loadingFetchUser) {
   //   return "loading";
@@ -35,7 +36,7 @@ function PublicLayout() {
       {studentUser?.userId && !loadingFetchUser && (
         <>
           <TopBar isVerified={isVerified} user={user?.user} />
-          <PendingUserApproval isVerified={isVerified} user={user?.user} />
+          <PendingUserApproval isVerified={isApproved} user={user?.user} />
         </>
       )}
       {isDarkTheme && <TrialOnNavbar theme="dark" />}

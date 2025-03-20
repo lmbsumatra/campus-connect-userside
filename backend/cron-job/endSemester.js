@@ -20,8 +20,8 @@ cron.schedule("0 * * * *", async () => {
     // Fetch the end semester date in UTC
     const endSemesterDate = await EndSemesterDate.findOne({
       where: sequelize.where(
-        sequelize.fn("DATE", sequelize.col("date")),  // Extracts date part only from the database
-        formattedToday  // Comparing with the formattedToday (which is in YYYY-MM-DD format)
+        sequelize.fn("DATE", sequelize.col("date")), // Extracts date part only from the database
+        formattedToday // Comparing with the formattedToday (which is in YYYY-MM-DD format)
       ),
     });
 
@@ -29,12 +29,16 @@ cron.schedule("0 * * * *", async () => {
 
     if (endSemesterDate) {
       // console.log("End semester date found. Resetting 'verified' students to 'pending'...");
-    
+
       await Student.update(
-        { status: "pending" },
+        {
+          status: "pending",
+          status_message:
+            "Your student verification is under review for the new semester. Please ensure all required documents are submitted to continue accessing RenTUPeers.",
+        },
         { where: { status: "verified" } } // ✅ Only verified students are affected
       );
-    
+
       // console.log("Verified students have been reset to 'pending'.");
     } else {
       // console.log("No matching end semester date found.");

@@ -1,70 +1,31 @@
 import React, { useState } from "react";
 import "./topBarStyles.css";
-import ShowAlert from "../../utils/ShowAlert";
 import { useDispatch } from "react-redux";
 
 const PendingUserApproval = ({ isVerified, user }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const dispatch = useDispatch();
 
-  const handleResendVerification = async (event) => {
-    ShowAlert(dispatch, "loading", "Loading");
-    event.preventDefault();
-    setIsLoading(true);
-    setMessage("");
-
-    try {
-      const response = await fetch(
-        "http://localhost:3001/user/verify-email/resend",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: user.email }), // Ensure email is passed
-        }
-      );
-
-      if (response.ok) {
-        ShowAlert(
-          dispatch,
-          "success",
-          "Success!",
-          "Verification email has been resent!"
-        );
-      } else {
-        ShowAlert(
-          dispatch,
-          "error",
-          "Error!",
-          "Failed to resend verification email. Please try again."
-        );
-      }
-    } catch (error) {
-      ShowAlert(
-        dispatch,
-        "error",
-        "Error!",
-        error.message || "An error occurred"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isVerified) return null;
+  let statusMessage = "";
+  if (isVerified === "pending") {
+    statusMessage = "Your account is under review. Please wait for approval.";
+  } else if (isVerified === "approved" || isVerified === "verified") {
+    return null; // Hide the notification if approved
+  } else if (isVerified === "flagged") {
+    statusMessage = (
+      <>
+        Your verification was flagged. Please update your documents and try
+        again. <a href="/profile/edit-profile">Go to profile</a>
+      </>
+    );
+  } else {
+    statusMessage =
+      "Your verification status is unknown. Please contact support.";
+  }
 
   return (
-    <div className="pending-topbar-notification">
-      <p>
-        Your account is under approval.
-        {/* <a href="#" onClick={handleResendVerification}>
-          {isLoading
-            ? "Resending..."
-            : "Click here to resend verification email."}
-        </a> */}
-      </p>
+    <div className={`pending-topbar-notification ${isVerified}`}>
+      <p>{statusMessage}</p>
       {message && <p className="notification-message">{message}</p>}
     </div>
   );

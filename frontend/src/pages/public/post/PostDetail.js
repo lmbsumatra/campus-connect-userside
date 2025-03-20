@@ -52,6 +52,9 @@ import { fetchPostMatchedItems } from "../../../redux/post/postMatchedItems";
 import ViewToolbar from "../common/ViewToolbar";
 
 function PostDetail() {
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const isVerified = user?.student?.status ?? false;
+
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -123,6 +126,27 @@ function PostDetail() {
     .map((rentalDate) => new Date(rentalDate.date));
 
   const handleOfferClick = async () => {
+    if (!studentUser) {
+      handleActionWithAuthCheck("");
+      return;
+    }
+
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+
     if (!selectedDate || !selectedDuration) {
       alert("Please select a date and duration before offering.");
       return;
@@ -146,6 +170,27 @@ function PostDetail() {
   };
 
   const handleMessageClick = async () => {
+    if (!studentUser) {
+      handleActionWithAuthCheck("");
+      return;
+    }
+
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+
     try {
       const response = await fetch(
         `${
@@ -277,7 +322,6 @@ function PostDetail() {
       dispatch(fetchApprovedPostById(id));
       dispatch(fetchPostMatchedItems(id));
     }
-
   }, [id, dispatch]);
 
   useEffect(() => {
@@ -433,7 +477,10 @@ function PostDetail() {
   return (
     <div className="container-content post-detail">
       {isYou && <ViewToolbar />}
-      <div className="post-container" data-item-type={approvedPostById.itemType}>
+      <div
+        className="post-container"
+        data-item-type={approvedPostById.itemType}
+      >
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
@@ -606,7 +653,11 @@ function PostDetail() {
             {/* Offer Details Section - Moved closer to duration picker */}
             <div className="offer-details-section mt-3">
               <div className="form-group">
-                <label>{approvedPostById.itemType === TO_RENT ? "Rental Fee" : "Price"}</label>
+                <label>
+                  {approvedPostById.itemType === TO_RENT
+                    ? "Rental Fee"
+                    : "Price"}
+                </label>
                 <input
                   type="number"
                   className="form-control"
@@ -620,7 +671,11 @@ function PostDetail() {
                   }}
                   min="0.01"
                   step="0.01"
-                  placeholder={`Enter ${approvedPostById.itemType === TO_RENT ? "rental fee" : "price"}`}
+                  placeholder={`Enter ${
+                    approvedPostById.itemType === TO_RENT
+                      ? "rental fee"
+                      : "price"
+                  }`}
                 />
                 {offerPrice && parseFloat(offerPrice) <= 0 && (
                   <small className="text-danger">
@@ -828,7 +883,10 @@ function PostDetail() {
               : "No duration selected"}
           </p>
           <p>
-            <strong>{approvedPostById.itemType === TO_RENT ? "Rental Fee" : "Price"}:</strong> ₱{offerPrice}
+            <strong>
+              {approvedPostById.itemType === TO_RENT ? "Rental Fee" : "Price"}:
+            </strong>{" "}
+            ₱{offerPrice}
           </p>
           <p>
             <strong>Delivery Method:</strong>{" "}
@@ -843,32 +901,33 @@ function PostDetail() {
           </p>
 
           {/* Terms and Conditions in Modal - only for rental posts */}
-          {approvedPostById.itemType === TO_RENT && (termsValues.lateCharges ||
-            termsValues.securityDeposit ||
-            termsValues.repairReplacement) && (
-            <div className="terms-summary">
-              <strong>Terms and Conditions:</strong>
-              <ul>
-                {termsValues.lateCharges && (
-                  <li>
-                    <strong>Late Charges:</strong> {termsValues.lateCharges}
-                  </li>
-                )}
-                {termsValues.securityDeposit && (
-                  <li>
-                    <strong>Security Deposit:</strong>{" "}
-                    {termsValues.securityDeposit}
-                  </li>
-                )}
-                {termsValues.repairReplacement && (
-                  <li>
-                    <strong>Repair and Replacement:</strong>{" "}
-                    {termsValues.repairReplacement}
-                  </li>
-                )}
-              </ul>
-            </div>
-          )}
+          {approvedPostById.itemType === TO_RENT &&
+            (termsValues.lateCharges ||
+              termsValues.securityDeposit ||
+              termsValues.repairReplacement) && (
+              <div className="terms-summary">
+                <strong>Terms and Conditions:</strong>
+                <ul>
+                  {termsValues.lateCharges && (
+                    <li>
+                      <strong>Late Charges:</strong> {termsValues.lateCharges}
+                    </li>
+                  )}
+                  {termsValues.securityDeposit && (
+                    <li>
+                      <strong>Security Deposit:</strong>{" "}
+                      {termsValues.securityDeposit}
+                    </li>
+                  )}
+                  {termsValues.repairReplacement && (
+                    <li>
+                      <strong>Repair and Replacement:</strong>{" "}
+                      {termsValues.repairReplacement}
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
 
           {imagePreview && (
             <div className="mt-3">

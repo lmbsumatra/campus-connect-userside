@@ -2,17 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedItemForSaleById } from "../../../redux/item-for-sale/approvedItemForSaleByIdSlice";
-import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
 import cartIcon from "../../../assets/images/pdp/cart.svg";
-import itemImage1 from "../../../assets/images/item/item_1.jpg";
-import itemImage2 from "../../../assets/images/item/item_2.jpg";
-import itemImage3 from "../../../assets/images/item/item_3.jpg";
-import itemImage4 from "../../../assets/images/item/item_4.jpg";
 import forRentIcon from "../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../assets/images/card/buy.svg";
 import "./itemForSaleDetailStyles.css";
@@ -27,7 +22,6 @@ import {
   GCASH,
   MEET_UP,
   PICK_UP,
-  TO_RENT,
 } from "../../../utils/consonants";
 import { addCartItem } from "../../../redux/cart/cartSlice";
 import { showNotification } from "../../../redux/alert-popup/alertPopupSlice";
@@ -44,6 +38,9 @@ import ViewToolbar from "../common/ViewToolbar";
 import ConfirmationModal from "./ConfirmationModal";
 
 function ItemForSaleDetail() {
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const isVerified = user?.student?.status ?? false;
+
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -61,21 +58,10 @@ function ItemForSaleDetail() {
   const isYou = approvedItemForSaleById?.seller?.id === studentUser?.userId;
   const rentalDates = approvedItemForSaleById.rentalDates || [];
   const [redirecting, setRedirecting] = useState(false);
-  const [expandTerm, setExpandTerm] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const loggedInUserId = studentUser?.userId || null;
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
   const [hasReported, setHasReported] = useState(false);
-
-  const images = [
-    itemImage1,
-    itemImage2,
-    itemImage3,
-    itemImage4,
-    itemImage4,
-    itemImage4,
-    itemImage4,
-  ];
 
   const handleDateClick = (dateId) => {
     const formatDate = (d) => d.toLocaleDateString("en-CA");
@@ -99,6 +85,27 @@ function ItemForSaleDetail() {
     .map((rentalDate) => new Date(rentalDate.date));
 
   const handleOfferClick = async () => {
+    if (!studentUser) {
+      handleActionWithAuthCheck("");
+      return;
+    }
+
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+
     if (selectedDate && selectedDuration) {
       setShowModal(true);
     } else {
@@ -112,6 +119,27 @@ function ItemForSaleDetail() {
 
   const handleAddToCart = async (e, item) => {
     e.stopPropagation();
+
+    if (!studentUser) {
+      handleActionWithAuthCheck("");
+      return;
+    }
+
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
 
     dispatch(
       showNotification({
@@ -316,6 +344,27 @@ function ItemForSaleDetail() {
   }
 
   const handleMessageSellerClick = async () => {
+    if (!studentUser) {
+      handleActionWithAuthCheck("");
+      return;
+    }
+
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+
     try {
       const response = await fetch(
         `${

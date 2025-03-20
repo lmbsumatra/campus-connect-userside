@@ -99,7 +99,6 @@ h3.section-label {
 }
 
 .change-pass-window-content {
-  
   background: white;
   padding: 20px;
   border-radius: 5px;
@@ -119,4 +118,180 @@ h3.section-label {
 }
 .pass-icon img:hover {
   background-color: var(--clr-muted);
+}
+
+/* Add this to your editProfileStyles.css file */
+
+.password-change-modal .modal-content {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.password-change-modal .modal-header {
+  padding-bottom: 0;
+}
+
+.password-change-modal .modal-title {
+  font-size: 1.4rem;
+  color: #333;
+}
+
+.password-change-modal .modal-body {
+  padding: 1.5rem;
+}
+
+.password-change-modal .form-label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.password-change-modal .form-control {
+  padding: 0.75rem 1rem;
+  border-color: #e0e0e0;
+  transition: border-color 0.2s ease;
+}
+
+.password-change-modal .form-control:focus {
+  box-shadow: none;
+  border-color: #80bdff;
+}
+
+.password-change-modal .password-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+}
+
+.password-change-modal .btn-outline-secondary {
+  border-color: #e0e0e0;
+}
+
+.password-change-modal .btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+}
+
+.password-change-modal .btn-primary {
+  background-color: #0d6efd;
+  border: none;
+  font-weight: 500;
+}
+
+.password-change-modal .btn-light {
+  border: 1px solid #e0e0e0;
+  font-weight: 500;
+}
+
+/* Add these styles to your editProfileStyles.css file */
+
+.verification-status .badge {
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.document-container {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+}
+
+.document-label {
+  background-color: #f8f9fa;
+  padding: 10px 15px;
+  font-weight: 500;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.document-preview {
+  flex: 1;
+  padding: 15px;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.document-preview-editable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.document-preview-editable:hover {
+  background-color: #f8f9fa;
+}
+
+.document-preview img {
+  max-height: 300px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.document-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: opacity 0.2s ease;
+}
+
+.empty-document {
+  width: 100%;
+  height: 200px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  color: #6c757d;
+  text-align: center;
+  padding: 20px;
+}
+
+.empty-document span {
+  font-size: 0.9rem;
+  max-width: 200px;
+}
+
+/* Media query for small devices */
+@media (max-width: 767.98px) {
+  .verification-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .verification-grid .col-md-6 {
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+
+  .document-container {
+    margin-bottom: 20px;
+  }
+
+  .document-preview {
+    min-height: 180px;
+  }
+
+  .empty-document {
+    height: 180px;
+  }
+
+  .verification-status .badge {
+    font-size: 0.8rem;
+    padding: 6px 10px !important;
+  }
+
+  .document-label {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
 }

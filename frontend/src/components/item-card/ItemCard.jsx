@@ -14,6 +14,8 @@ import { defaultImages, FOR_RENT } from "../../utils/consonants";
 
 // Import custom hook
 import useSortItems from "../../pages/private/users/student-profile/useSortItems";
+import { useDispatch, useSelector } from "react-redux";
+import ShowAlert from "../../utils/ShowAlert";
 
 const tooltipProps = {
   componentsProps: {
@@ -38,6 +40,9 @@ const ItemCard = ({
   viewType = "card",
   itemType,
 }) => {
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const isVerified = user?.student?.status ?? false;
+  const dispatch = useDispatch();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const dropdownRefs = useRef({});
   const navigate = useNavigate();
@@ -113,6 +118,21 @@ const ItemCard = ({
   };
 
   const handleAddItemClick = () => {
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
     navigate(
       `/profile/${itemType === FOR_RENT ? "my-listings" : "my-for-sale"}/add`
     );

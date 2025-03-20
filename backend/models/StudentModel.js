@@ -48,6 +48,9 @@ Student.init(
       defaultValue: "pending", // Default status is 'pending'
       allowNull: false,
     },
+    status_message: {
+      type: DataTypes.TEXT,
+    },
   },
   {
     sequelize,

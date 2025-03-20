@@ -25,8 +25,6 @@ const ProfileHeader = ({
   selectedOption,
   onOptionChange,
 }) => {
-  console.log("ProfileHeader props:", { userId, isProfileVisit, selectedOption });
-
   const navigate = useNavigate();
   const { user, loadingFetchUser, errorFetchUser } = useSelector((state) =>
     !isProfileVisit ? state.user : state.otherUser
@@ -198,26 +196,31 @@ const ProfileHeader = ({
 
   const handleMessageClick = async () => {
     // Try to get the user ID from any available source
-    const otherUserId = 
+    const otherUserId =
       // The viewed user's ID
-      (user?.user?.user_id || user?.user?.userId || userId) || 
+      user?.user?.user_id ||
+      user?.user?.userId ||
+      userId ||
       // If we're on our own profile but viewing someone else
       (isProfileVisit ? userId : null);
 
-    console.log("Message click - user sources:", { 
-      fromUserObject: user?.user?.user_id || user?.user?.userId,
-      fromPropsUserId: userId,
-      loggedInUserId,
-      otherUserId
-    });
-    
     if (!loggedInUserId) {
-      ShowAlert(dispatch, "error", "Error", "You need to be logged in to send messages");
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "You need to be logged in to send messages"
+      );
       return;
     }
-    
+
     if (!otherUserId) {
-      ShowAlert(dispatch, "error", "Error", "Recipient information not available");
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Recipient information not available"
+      );
       return;
     }
 
@@ -230,7 +233,9 @@ const ProfileHeader = ({
     try {
       // Create/get a conversation with the user
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/createConversation`,
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:3001"
+        }/api/conversations/createConversation`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -247,21 +252,23 @@ const ProfileHeader = ({
       }
 
       const conversationData = await response.json();
-      console.log("Created/fetched conversation:", conversationData);
-      
+
       // Navigate to messages with the conversation already active
       navigate("/messages", {
         state: {
-          activeConversationId: conversationData.id
-        }
+          activeConversationId: conversationData.id,
+        },
       });
     } catch (error) {
       console.error("Error creating conversation:", error);
-      ShowAlert(dispatch, "error", "Error", error.message || "Failed to start conversation");
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        error.message || "Failed to start conversation"
+      );
     }
   };
-
-  console.log({ user });
 
   return (
     <div className="header-container profile-header">

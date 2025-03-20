@@ -16,6 +16,8 @@ import deleteIcon from "../../assets/images/table/delete.svg";
 import "./postCardStyles.css";
 import { defaultImages } from "../../utils/consonants";
 import { ItemStatus } from "../../utils/Status";
+import { useDispatch, useSelector } from "react-redux";
+import ShowAlert from "../../utils/ShowAlert";
 
 const tooltipProps = {
   componentsProps: {
@@ -40,6 +42,9 @@ const PostCard = ({
   viewType = "card",
   onDelete,
 }) => {
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+    const isVerified = user?.student?.status ?? false;
+    const dispatch = useDispatch();
   const [selectedIndex, setSelectedIndex] = useState(null);
   const dropdownRefs = useRef({});
   const [showOptions, setShowOptions] = useState(null);
@@ -92,6 +97,25 @@ const PostCard = ({
     setActiveDropdown(activeDropdown === index ? null : index);
   };
 
+  const handleAddItemClick = () => {
+    if (isVerified !== "verified") {
+          ShowAlert(
+            dispatch,
+            "warning",
+            "Access Denied",
+            "You must be verified to proceed.",
+            {
+              text: "View Profile",
+              action: () => {
+                navigate("/profile/edit-profile");
+              },
+            }
+          );
+          return;
+        }
+    navigate(`/profile/my-posts/new`);
+  };
+
   const handleOptionClick = (e, option, item) => {
     e.stopPropagation();
     setActiveDropdown(null);
@@ -132,6 +156,17 @@ const PostCard = ({
 
   const renderCardView = () => (
     <div className="card-container">
+      {/* Add Item Card */}
+      {isYou && (
+        <div
+          className="card variant-1 add-item bg-light"
+          onClick={handleAddItemClick}
+        >
+          <div className="add-item-content">
+            <p className="add-item-text">+ Add New Post</p>
+          </div>
+        </div>
+      )}
       {borrowingPosts.length > 0 ? (
         borrowingPosts.map((item, index) => (
           <div

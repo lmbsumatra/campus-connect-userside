@@ -6,7 +6,9 @@ const StudentController = require("../controllers/student/StudentController");
 const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 
 const { upload, upload_prof } = require("../config/multer");
-const { StudentPaymentController } = require("../controllers/student-payment/StudentPaymentController");
+const {
+  StudentPaymentController,
+} = require("../controllers/student-payment/StudentPaymentController");
 
 router.post(
   "/register",
@@ -36,17 +38,26 @@ router.post(
 );
 
 router.post(
+  "/update-verification-documents",
+  authenticateToken,
+  upload,
+  StudentController.updateVerificationDocx
+);
+
+router.post(
   "/create-onboarding-link",
   StudentPaymentController.createStripeOnBoardingLink
 );
 
-router.get("/merchant-details/:userId", StudentPaymentController.getMerchantDetails);
+router.get(
+  "/merchant-details/:userId",
+  StudentPaymentController.getMerchantDetails
+);
 router.post(
   "/info/:userId/upload-profile-image",
   upload_prof,
   StudentController.uploadProfileImage
 );
-
 
 router.get("/get", authenticateToken, StudentController.getUsers);
 

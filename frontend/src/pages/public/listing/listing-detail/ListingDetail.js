@@ -77,6 +77,9 @@ import ConfirmationModal from "../ConfirmationModal.js";
 // }
 
 function ListingDetail() {
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const isVerified = user?.student?.status ?? false;
+
   const [isPreparing, setPreparing] = useState(true);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -183,6 +186,27 @@ function ListingDetail() {
     .map((rentalDate) => new Date(rentalDate.date));
 
   const handleOfferClick = async () => {
+    if (!studentUser) {
+      handleActionWithAuthCheck("");
+      return;
+    }
+
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+
     if (selectedDate && selectedDuration) {
       setShowModal(true);
     } else {
@@ -194,6 +218,27 @@ function ListingDetail() {
 
   const handleAddToCart = async (e, item) => {
     e.stopPropagation();
+
+    if (!studentUser) {
+      handleActionWithAuthCheck("");
+      return;
+    }
+
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
 
     const loadingNotify = ShowAlert(
       dispatch,
@@ -336,7 +381,7 @@ function ListingDetail() {
   // }, [loggedInUserId, approvedListingById.id]);
 
   // item not found alert
-  
+
   useEffect(() => {
     if (errorApprovedListingById) {
       ShowAlert(dispatch, "error", "Error", "Item not found!");
@@ -377,6 +422,27 @@ function ListingDetail() {
   }
 
   const handleMessageClick = async () => {
+    if (!studentUser) {
+      handleActionWithAuthCheck("");
+      return;
+    }
+
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+
     try {
       const response = await fetch(
         `${

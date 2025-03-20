@@ -6,20 +6,61 @@ import addItemIcon from "../../../assets/images/fab/RENTALS.svg";
 import cartIcon from "../../../assets/images/fab/cart.svg";
 import Cart from "../../../pages/private/users/cart/Cart";
 import useHandleActionWithAuthCheck from "../../../utils/useHandleActionWithAuthCheck";
+import ShowAlert from "../../../utils/ShowAlert";
+import { useDispatch, useSelector } from "react-redux";
 
 const FAB = ({ cartItems }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const isVerified = user?.student?.status ?? false;
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
-
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const createPost = () => handleActionWithAuthCheck("/profile/my-posts/new");
-  const addItem = () => handleActionWithAuthCheck("/profile/my-listings/add");
-  const toggleCart = () => setIsCartOpen(!isCartOpen);
+  const createPost = () => {
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+    handleActionWithAuthCheck("/profile/my-posts/new");
+  };
+  const addItem = () => {
+    if (isVerified !== "verified") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+    handleActionWithAuthCheck("/profile/my-listings/add");
+  };
+  const toggleCart = () => {
+    setIsCartOpen(!isCartOpen);
+  };
 
   return (
     <>

@@ -46,7 +46,7 @@ const loginAdmin = async (req, res) => {
         details: JSON.stringify({ email, reason: "Incorrect password" }),
       });
 
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Incorrect password" });
     }
 
     // Ensure the user is an admin by checking the Admin model

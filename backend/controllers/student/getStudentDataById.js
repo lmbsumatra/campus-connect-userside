@@ -17,9 +17,24 @@ const getStudentById = async (req, res) => {
           model: models.Student,
           as: "student",
           required: true,
+          attributes: [
+            "tup_id",
+            "college",
+            "scanned_id",
+            "photo_with_id",
+            "profile_pic",
+            "course",
+            "status",
+            "status_message",
+          ],
         },
       ],
     });
+
+    // Debugging logs
+    // console.log("Fetched user:", JSON.stringify(user, null, 2));
+    // console.log("Raw student data:", user?.student || "No student data");
+    // console.log("Raw status_message:", user?.student?.status_message || "NULL or Undefined");
 
     if (!user) {
       return res.status(404).json({ error: "Student not found!" });
@@ -78,20 +93,24 @@ const getStudentById = async (req, res) => {
         joinDate: user.createdAt,
         rating: averageRating,
       },
-      student: {
-        id: user.student.tup_id,
-        college: user.student.college,
-        scannedId: user.student.scanned_id,
-        photoWithId: user.student.photo_with_id,
-        profilePic: user.student.profile_pic,
-        course: user.student.course,
-      },
+      student: user.student
+        ? {
+            id: user.student.tup_id,
+            college: user.student.college,
+            scannedId: user.student.scanned_id,
+            photoWithId: user.student.photo_with_id,
+            profilePic: user.student.profile_pic,
+            course: user.student.course,
+            status: user.student.status,
+            statusMsg: user.student.status_message || "No status message available",
+          }
+        : null, // If student is null, return null instead of an empty object
       action: action,
     };
 
     return res.status(200).json(formattedUser);
   } catch (error) {
-    // console.log("Error fetching student by ID: ", error);
+    // console.error("Error fetching student by ID:", error);
     res.status(500).json({ error: error.message });
   }
 };

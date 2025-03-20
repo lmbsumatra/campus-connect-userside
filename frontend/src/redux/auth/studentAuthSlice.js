@@ -52,7 +52,6 @@ export const googleLogin = createAsyncThunk(
 );
 
 
-
 // Async thunk for manual login
 export const manualLogin = createAsyncThunk(
   "studentAuth/manualLogin",
