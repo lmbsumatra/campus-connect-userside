@@ -40,6 +40,7 @@ import ConfirmationModal from "./ConfirmationModal";
 function ItemForSaleDetail() {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -90,7 +91,7 @@ function ItemForSaleDetail() {
       return;
     }
 
-    if (isVerified !== "verified") {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
         "warning",
@@ -125,7 +126,7 @@ function ItemForSaleDetail() {
       return;
     }
 
-    if (isVerified !== "verified") {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
         "warning",
@@ -349,7 +350,7 @@ function ItemForSaleDetail() {
       return;
     }
 
-    if (isVerified !== "verified") {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
         "warning",

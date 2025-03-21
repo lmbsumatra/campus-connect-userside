@@ -10,8 +10,18 @@ const getAllAvailable = async (req, res) => {
       user = await models.User.findOne({
         where: { user_id: userId },
         attributes: ["user_id"],
+        where: {
+          email_verified: true,
+        },
         include: [
-          { model: models.Student, as: "student", attributes: ["college"] },
+          {
+            model: models.Student,
+            as: "student",
+            attributes: ["college"],
+            where: {
+              status: "verified",
+            },
+          },
           {
             model: models.Follow,
             as: "follower",
@@ -65,8 +75,18 @@ const getAllAvailable = async (req, res) => {
           model: models.User,
           as: "owner",
           attributes: ["first_name", "last_name"],
+          where: {
+            email_verified: true,
+          },
           include: [
-            { model: models.Student, as: "student", attributes: ["college"] },
+            {
+              model: models.Student,
+              as: "student",
+              attributes: ["college"],
+              where: {
+                status: "verified",
+              },
+            },
           ],
         },
       ],

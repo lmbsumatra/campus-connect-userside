@@ -35,6 +35,19 @@ const getAvailableListingsByUser = async (req, res) => {
           model: models.User,
           as: "renter",
           attributes: ["first_name", "last_name"],
+          where: {
+            email_verified: true,
+          },
+          include: [
+            {
+              model: models.Student,
+              as: "student",
+              attributes: ["college"],
+              where: {
+                status: "verified",
+              },
+            },
+          ],
         },
       ],
     });

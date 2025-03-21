@@ -14,6 +14,7 @@ const FAB = ({ cartItems }) => {
   const dispatch = useDispatch();
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -23,7 +24,7 @@ const FAB = ({ cartItems }) => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const createPost = () => {
-    if (isVerified !== "verified") {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
         "warning",
@@ -41,7 +42,7 @@ const FAB = ({ cartItems }) => {
     handleActionWithAuthCheck("/profile/my-posts/new");
   };
   const addItem = () => {
-    if (isVerified !== "verified") {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
         "warning",

@@ -29,11 +29,17 @@ const getAllAvailablePost = async (req, res) => {
         {
           model: models.User,
           as: "renter",
+          where: {
+            email_verified: true,
+          },
           include: [
             {
               model: models.Student,
               as: "student",
               attributes: ["college"],
+              where: {
+                status: "verified",
+              },
             },
           ],
         },
@@ -54,7 +60,7 @@ const getAllAvailablePost = async (req, res) => {
       itemType: post.post_type,
       desc: post.description,
       specs: post.specifications,
-      images: JSON.parse(post.images) , // Safely parse or use default
+      images: JSON.parse(post.images), // Safely parse or use default
       rentalDates: post.rental_dates.map((date) => ({
         id: date.id,
         postId: date.post_id,

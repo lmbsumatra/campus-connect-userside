@@ -121,13 +121,16 @@ const FormField = ({
   </div>
 );
 const AddNewItem = () => {
+  const { user, loadingFetchUser, errorFetchUser } = useSelector(
+    (state) => state.user
+  );
+  const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const itemDataState = useSelector((state) => state.itemForm);
   const [removedImages, setRemovedImages] = useState([]);
-  const { user, loadingFetchUser, errorFetchUser } = useSelector(
-    (state) => state.user
-  );
 
   const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
     useSelector((state) => state.unavailableDates);
@@ -290,6 +293,21 @@ const AddNewItem = () => {
   };
 
   const handleSubmit = async () => {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
     if (!user?.user) {
       ShowAlert(
         dispatch,

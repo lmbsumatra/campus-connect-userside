@@ -43,8 +43,18 @@ const getAllAvailable = async (req, res) => {
           model: models.User,
           as: "seller",
           attributes: ["first_name", "last_name"],
+          where: {
+            email_verified: true,
+          },
           include: [
-            { model: models.Student, as: "student", attributes: ["college"] },
+            {
+              model: models.Student,
+              as: "student",
+              attributes: ["college"],
+              where: {
+                status: "verified",
+              },
+            },
           ],
         },
       ],

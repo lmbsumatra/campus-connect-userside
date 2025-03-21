@@ -82,12 +82,16 @@ const FormField = ({
 );
 
 const AddNewPost = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const postDataState = useSelector((state) => state.postForm);
   const { user, loadingFetchUser, errorFetchUser } = useSelector(
     (state) => state.user
   );
+  const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const postDataState = useSelector((state) => state.postForm);
+
   const { userId } = useSelector(selectStudentUser);
   const socket = io("http://localhost:3001", {
     transports: ["polling", "websocket"],
@@ -251,6 +255,22 @@ const AddNewPost = () => {
   };
 
   const handleSubmit = async () => {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+
     let hasErrors = false;
 
     Object.keys(postDataState).forEach((key) => {

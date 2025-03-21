@@ -33,7 +33,7 @@ const tooltipProps = {
 };
 
 const PostCard = ({
-  borrowingPosts,
+  borrowingPosts = [],
   title,
   isProfileVisit,
   isYou = false,
@@ -43,8 +43,10 @@ const PostCard = ({
   onDelete,
 }) => {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
-    const isVerified = user?.student?.status ?? false;
-    const dispatch = useDispatch();
+  const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
+
+  const dispatch = useDispatch();
   const [selectedIndex, setSelectedIndex] = useState(null);
   const dropdownRefs = useRef({});
   const [showOptions, setShowOptions] = useState(null);
@@ -86,10 +88,12 @@ const PostCard = ({
   }, [activeDropdown]);
 
   useEffect(() => {
-    borrowingPosts.forEach((_, index) => {
-      dropdownRefs.current[index] =
-        dropdownRefs.current[index] || React.createRef();
-    });
+    if (Array.isArray(borrowingPosts)) {
+      borrowingPosts.forEach((_, index) => {
+        dropdownRefs.current[index] =
+          dropdownRefs.current[index] || React.createRef();
+      });
+    }
   }, [borrowingPosts]);
 
   const handleDropdownToggle = (e, index) => {
@@ -98,21 +102,21 @@ const PostCard = ({
   };
 
   const handleAddItemClick = () => {
-    if (isVerified !== "verified") {
-          ShowAlert(
-            dispatch,
-            "warning",
-            "Access Denied",
-            "You must be verified to proceed.",
-            {
-              text: "View Profile",
-              action: () => {
-                navigate("/profile/edit-profile");
-              },
-            }
-          );
-          return;
+    if (isVerified !== "verified" || isEmailVerified !== true) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
         }
+      );
+      return;
+    }
     navigate(`/profile/my-posts/new`);
   };
 
@@ -139,7 +143,9 @@ const PostCard = ({
   };
 
   const sortedItems = useMemo(() => {
-    let sortableItems = [...borrowingPosts];
+    let sortableItems = Array.isArray(borrowingPosts)
+      ? [...borrowingPosts]
+      : [];
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
         if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -167,7 +173,7 @@ const PostCard = ({
           </div>
         </div>
       )}
-      {borrowingPosts.length > 0 ? (
+      {Array.isArray(borrowingPosts) && borrowingPosts.length > 0 ? (
         borrowingPosts.map((item, index) => (
           <div
             key={index}

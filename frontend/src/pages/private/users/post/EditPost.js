@@ -12,7 +12,11 @@ import DateDurationPicker from "../common/DateDurationPicker.jsx";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import ShowAlert from "../../../../utils/ShowAlert.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
-import { FOR_SALE, getStatusClass, TO_RENT } from "../../../../utils/consonants.js";
+import {
+  FOR_SALE,
+  getStatusClass,
+  TO_RENT,
+} from "../../../../utils/consonants.js";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
 import { fetchUser } from "../../../../redux/user/userSlice.js";
@@ -111,10 +115,15 @@ const FormField = ({
 );
 
 const EditPost = () => {
+  const { user, loadingFetchUser, errorFetchUser } = useSelector(
+    (state) => state.user
+  );
+  const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const postDataState = useSelector((state) => state.postForm);
-  const { user, loadingFetchUser } = useSelector((state) => state.user);
   const { userId, role } = useSelector(selectStudentUser);
   const location = useLocation();
   const { id } = useParams();
@@ -448,6 +457,22 @@ const EditPost = () => {
   };
 
   const handleSubmit = async () => {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+
     try {
       // Check if postDataState is defined
       if (!postDataState) {

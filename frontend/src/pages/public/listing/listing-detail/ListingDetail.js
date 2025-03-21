@@ -79,6 +79,7 @@ import ConfirmationModal from "../ConfirmationModal.js";
 function ListingDetail() {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
 
   const [isPreparing, setPreparing] = useState(true);
   const navigate = useNavigate();
@@ -191,7 +192,7 @@ function ListingDetail() {
       return;
     }
 
-    if (isVerified !== "verified") {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
         "warning",
@@ -224,7 +225,7 @@ function ListingDetail() {
       return;
     }
 
-    if (isVerified !== "verified") {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
         "warning",
@@ -427,7 +428,7 @@ function ListingDetail() {
       return;
     }
 
-    if (isVerified !== "verified") {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
         "warning",

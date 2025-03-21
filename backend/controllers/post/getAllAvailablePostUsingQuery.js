@@ -22,7 +22,18 @@ const getAllAvailablePostUsingQuery = async (req, res) => {
         {
           model: models.User,
           as: "renter",
-          include: [{ model: models.Student, as: "student" }],
+          where: {
+            email_verified: true,
+          },
+          include: [
+            {
+              model: models.Student,
+              as: "student",
+              where: {
+                status: "verified",
+              },
+            },
+          ],
         },
       ],
     });

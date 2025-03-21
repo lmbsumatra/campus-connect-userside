@@ -115,12 +115,15 @@ const FormField = ({
   </div>
 );
 const EditItem = () => {
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { config } = useSystemConfig();
   const itemDataState = useSelector((state) => state.itemForm);
   // console.log(itemDataState);
-  const { user, loadingFetchUser } = useSelector((state) => state.user);
   const { userId, role } = useSelector(selectStudentUser);
   const location = useLocation();
   const { id } = useParams();
@@ -434,6 +437,22 @@ const EditItem = () => {
   };
 
   const handleSubmit = async () => {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+
     try {
       let hasErrors = false;
       const errors = {};

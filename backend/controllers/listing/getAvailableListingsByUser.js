@@ -22,7 +22,7 @@ const getAvailableListingsByUser = async (req, res) => {
           required: false,
           where: {
             item_type: "listing",
-            status: "available"
+            status: "available",
           },
           include: [
             {
@@ -37,6 +37,19 @@ const getAvailableListingsByUser = async (req, res) => {
           model: models.User,
           as: "owner",
           attributes: ["first_name", "last_name"],
+          where: {
+            email_verified: true,
+          },
+          include: [
+            {
+              model: models.Student,
+              as: "student",
+              attributes: ["college"],
+              where: {
+                status: "verified",
+              },
+            },
+          ],
         },
       ],
     });

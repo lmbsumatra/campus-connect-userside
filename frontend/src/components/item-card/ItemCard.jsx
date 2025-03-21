@@ -42,6 +42,8 @@ const ItemCard = ({
 }) => {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
+  
   const dispatch = useDispatch();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const dropdownRefs = useRef({});
@@ -118,7 +120,7 @@ const ItemCard = ({
   };
 
   const handleAddItemClick = () => {
-    if (isVerified !== "verified") {
+    if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
         "warning",
