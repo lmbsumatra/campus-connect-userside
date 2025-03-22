@@ -18,7 +18,7 @@ const TableComponent = ({
       case "Owner":
         return (
           <select
-            className="form-select"
+            className="form-select form-select-sm control-select"
             onChange={(e) => onSortChange(header, e.target.value)}
           >
             <option value="default">Default</option>
@@ -30,7 +30,7 @@ const TableComponent = ({
       case "Category":
         return (
           <select
-            className="form-select"
+            className="form-select form-select-sm control-select"
             onChange={(e) => onFilterChange(header, e.target.value)}
           >
             <option value="">All</option>
@@ -45,7 +45,7 @@ const TableComponent = ({
       case "Type":
         return (
           <select
-            className="form-select"
+            className="form-select form-select-sm control-select"
             onChange={(e) => onFilterChange(header, e.target.value)}
           >
             <option value="">All</option>
@@ -58,7 +58,7 @@ const TableComponent = ({
       case "Date":
         return (
           <select
-            className="form-select"
+            className="form-select form-select-sm control-select"
             onChange={(e) => onSortChange(header, e.target.value)}
           >
             <option value="default">Default</option>
@@ -69,7 +69,7 @@ const TableComponent = ({
       case "Status":
         return (
           <select
-            className="form-select"
+            className="form-select form-select-sm control-select"
             onChange={(e) => onFilterChange(header, e.target.value)}
           >
             <option value="">All</option>
@@ -86,29 +86,35 @@ const TableComponent = ({
   };
 
   return (
-    <div className="table-responsive">
-      <table className="table table-bordered">
+    <div className="table-responsive custom-table-container">
+      <table className="table table-hover custom-table">
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <th key={index}>
-                {header}
-                {renderHeaderControls(header, index)}
+              <th key={index} className="header-cell">
+                <div className="header-content">
+                  <span className="header-text">{header}</span>
+                  <div className="header-control">
+                    {renderHeaderControls(header, index)}
+                  </div>
+                </div>
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {data.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr key={rowIndex} className="data-row">
               {row.map((cell, cellIndex) => (
-                <td key={cellIndex}>
+                <td key={cellIndex} className="data-cell">
                   {cellIndex === statusColumnIndex ? (
-                    <span className={`badge ${getStatusBadgeClass(cell)}`}>
+                    <span
+                      className={`status-badge ${getStatusBadgeClass(cell)}`}
+                    >
                       {cell}
                     </span>
                   ) : (
-                    cell
+                    <div className="cell-content">{cell}</div>
                   )}
                 </td>
               ))}
@@ -122,15 +128,18 @@ const TableComponent = ({
 
 // Helper function to determine badge color based on status
 const getStatusBadgeClass = (status) => {
-  switch (status) {
-    case "Approved":
-      return "bg-success";
-    case "Declined":
-      return "bg-danger";
-    case "Suspended":
-      return "bg-secondary";
+  switch (status?.toLowerCase()) {
+    case "approved":
+      return "status-approved";
+    case "declined":
+    case "rejected":
+      return "status-declined";
+    case "suspended":
+      return "status-suspended";
+    case "pending":
+      return "status-pending";
     default:
-      return "bg-light";
+      return "status-default";
   }
 };
 

@@ -12,6 +12,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isTokenRefreshing, setIsTokenRefreshing] = useState(false);
   const [studentUser, setStudentUser] = useState(null);
   const [adminUser, setAdminUser] = useState(() => {
     const savedUser = localStorage.getItem("adminUser");
@@ -36,7 +37,6 @@ export const AuthProvider = ({ children }) => {
     const newUser = { role, token, userId };
     setStudentUser(newUser);
     localStorage.setItem("studentUser", JSON.stringify(newUser));
-    // console.log("User logged in:", newUser);
   };
 
   const logoutStudent = () => {
@@ -55,10 +55,8 @@ export const AuthProvider = ({ children }) => {
     const newUser = { role, token, refreshToken, userId, firstName, lastName };
     setAdminUser(newUser);
     localStorage.setItem("adminUser", JSON.stringify(newUser));
-    // console.log("Admin logged in:", newUser);
   };
 
-  // ✅ Fixed missing closing bracket for logoutAdmin
   const logoutAdmin = useCallback(async () => {
     if (!adminUser || isLoggingOut) return; // Prevent multiple calls
 
@@ -89,18 +87,18 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Error logging logout event:", error);
     } finally {
-      setIsLoggingOut(false); // Reset logging out state
+      setIsLoggingOut(false);
     }
 
     setAdminUser(null);
     localStorage.removeItem("adminUser");
   }, [adminUser, isLoggingOut]);
 
-  // ✅ Fixed misplaced closing bracket for refreshAdminToken
   const refreshAdminToken = useCallback(async () => {
-    if (!adminUser?.refreshToken || adminUser.isRefreshing) return null;
+    if (!adminUser?.refreshToken || adminUser.isRefreshing || isTokenRefreshing)
+      return null;
 
-    setAdminUser((prev) => ({ ...prev, isRefreshing: true }));
+    setIsTokenRefreshing(true); // Set token refreshing state
 
     try {
       const response = await fetch(`${baseApi}/admin/refresh-token`, {
@@ -110,7 +108,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        logoutAdmin();
+        await logoutAdmin(); // Ensure logout is called only once
         return null;
       }
 
@@ -125,37 +123,36 @@ export const AuthProvider = ({ children }) => {
       return data.token;
     } catch (error) {
       console.error("Error refreshing token:", error);
-      logoutAdmin();
+      await logoutAdmin(); // Ensure logout is called only once
       return null;
+    } finally {
+      setIsTokenRefreshing(false); // Reset token refreshing state
     }
-  }, [adminUser, logoutAdmin]);
+  }, [adminUser, logoutAdmin, isTokenRefreshing]);
 
-  // Auto-refresh token on app start
   useEffect(() => {
     const autoRefreshToken = async () => {
-      if (!adminUser?.refreshToken) return; // Do nothing if there's no refresh token
+      if (!adminUser?.refreshToken || isTokenRefreshing) return; // Do nothing if refresh is already in progress
 
       try {
         const decodedToken = jwtDecode(adminUser.token);
         const currentTime = Date.now() / 1000;
 
         if (decodedToken.exp < currentTime) {
-          // console.log("Token expired on app start, attempting refresh...");
           const newToken = await refreshAdminToken();
 
           if (!newToken) {
-            // console.log("Refresh failed on app start, logging out...");
-            logoutAdmin();
+            await logoutAdmin();
           }
         }
       } catch (error) {
         console.error("Error decoding token:", error);
-        logoutAdmin();
+        await logoutAdmin();
       }
     };
 
     autoRefreshToken();
-  }, [adminUser, logoutAdmin, refreshAdminToken]); // ✅ Now properly includes dependencies
+  }, [adminUser, logoutAdmin, refreshAdminToken, isTokenRefreshing]);
 
   return (
     <AuthContext.Provider

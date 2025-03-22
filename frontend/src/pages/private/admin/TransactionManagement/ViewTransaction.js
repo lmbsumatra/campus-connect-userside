@@ -21,8 +21,7 @@ const ViewTransaction = () => {
           throw new Error("Failed to fetch transaction details.");
         }
         const data = await response.json();
-        console.log("Backend response:", data);
-        setTransaction(data.rental); // Assuming the backend returns { success: true, rental: {...} }
+        setTransaction(data.rental);
       } catch (error) {
         console.error("Error fetching transaction:", error);
         setError(error.message);
