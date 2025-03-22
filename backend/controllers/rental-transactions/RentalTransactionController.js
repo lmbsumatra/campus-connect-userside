@@ -195,10 +195,44 @@ module.exports = ({ emitNotification }) => {
   const getAllRentalTransactions = async (req, res) => {
     try {
       const rentals = await models.RentalTransaction.findAll({
-        include: ["Borrower", "Lender", "Item", "LookingForPost"],
+        include: [
+          {
+            model: models.User,
+            as: "renter",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.User,
+            as: "owner",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.User,
+            as: "buyer",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
+            model: models.Listing,
+            attributes: ["id", "listing_name", "description", "rate"],
+          },
+          {
+            model: models.Post,
+            attributes: ["id", "post_item_name"],
+          },
+          {
+            model: models.Date,
+            attributes: ["id", "date"],
+          },
+          {
+            model: models.Duration,
+            attributes: ["id", "rental_time_from", "rental_time_to"],
+          },
+        ],
       });
-      res.json(rentals);
+
+      res.status(200).json(rentals);
     } catch (error) {
+      console.error("Error fetching rental transactions:", error);
       res.status(500).json({ error: error.message });
     }
   };
@@ -221,7 +255,7 @@ module.exports = ({ emitNotification }) => {
           },
           {
             model: models.Listing,
-            attributes: ["id", "listing_name", "description", "rate"],
+            attributes: ["id", "listing_name", "category"],
           },
           { model: models.Post, attributes: ["id", "post_item_name"] },
           { model: models.Date, attributes: ["id", "date"] },

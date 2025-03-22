@@ -21,7 +21,7 @@ module.exports = function (rentalTransactionController) {
 
   // Routes that don't need io
   router.post("/add", createRentalTransaction);
-  router.get("/", getAllRentalTransactions);
+  router.get("/all", getAllRentalTransactions);
   router.get("/:id", getRentalTransactionById);
   router.put("/:id", updateRentalTransaction);
   router.delete("/:id", deleteRentalTransaction);

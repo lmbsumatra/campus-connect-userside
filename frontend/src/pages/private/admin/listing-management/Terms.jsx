@@ -1,10 +1,10 @@
 import { useState } from "react";
-import "./listingDetailStyles.css";
+//import "./listingDetailStyles.css";
 import expandIcon from "../../../../assets/images/pdp/plus.svg";
 
 const Terms = ({ values }) => {
   const [expandTerm, setExpandTerm] = useState(false);
-  
+
   const handleExpandTerms = (e) => {
     e.stopPropagation();
     setExpandTerm(!expandTerm);
@@ -21,7 +21,7 @@ const Terms = ({ values }) => {
           <img src={expandIcon} alt="Expand terms and condition" />
         </button>
       </div>
-      
+
       {expandTerm && (
         <div className="terms-popup">
           <div className="term late-charges">
@@ -40,7 +40,9 @@ const Terms = ({ values }) => {
               {values.securityDeposit ? (
                 <span className="value">{values.securityDeposit}</span>
               ) : (
-                <span className="error-msg">No security deposit specified.</span>
+                <span className="error-msg">
+                  No security deposit specified.
+                </span>
               )}
             </div>
           </div>
@@ -50,7 +52,9 @@ const Terms = ({ values }) => {
               {values.repairReplacement ? (
                 <span className="value">{values.repairReplacement}</span>
               ) : (
-                <span className="error-msg">No repair and replacement specified.</span>
+                <span className="error-msg">
+                  No repair and replacement specified.
+                </span>
               )}
             </div>
           </div>

@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
-  const { adminUser, refreshAdminToken } = useAuth(); // Get user and refresh function from AuthContext
+  const { adminUser, refreshAdminToken, logoutAdmin } = useAuth(); // Get user, refresh function, and logout function from AuthContext
   const [loading, setLoading] = useState(true); // Loading state to prevent redirection before checking everything
   const [hasAccess, setHasAccess] = useState(false); // State to track if user has access
 
@@ -22,18 +22,24 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
         const currentTime = Date.now() / 1000; // Get current time in seconds
 
         if (decodedToken.exp < currentTime) {
-          // If token is expired, try refreshing it
-          // console.log("Token expired, trying to refresh...");
+          // Token has expired, check if a refresh token is available
+          if (!adminUser?.refreshToken) {
+            // No refresh token, force logout and restrict access
+            setHasAccess(false);
+            setLoading(false);
+            return;
+          }
+
+          // Attempt to refresh the token
           const newToken = await refreshAdminToken();
 
-          if (newToken) {
-            // If refresh was successful, allow access
-            // console.log("Token refreshed successfully.");
-            setHasAccess(allowedRoles.includes(adminUser.role));
-          } else {
-            // If refresh failed, redirect to login
-            // console.log("Refresh failed, logging out...");
+          if (!newToken) {
+            // If refreshing failed, ensure the admin is logged out and restrict access
+            if (adminUser) logoutAdmin(); // Ensure logout happens only once
             setHasAccess(false);
+          } else {
+            // If refresh was successful, check access again
+            setHasAccess(allowedRoles.includes(adminUser.role));
           }
         } else {
           // If token is still valid, allow access
@@ -48,7 +54,7 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
     };
 
     checkAccess();
-  }, [adminUser, allowedRoles, refreshAdminToken]);
+  }, [adminUser, allowedRoles, refreshAdminToken, logoutAdmin]);
 
   // Show a loading message while checking the token
   if (loading) {

@@ -11,6 +11,7 @@ import { baseApi } from "../App";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [studentUser, setStudentUser] = useState(null);
   const [adminUser, setAdminUser] = useState(() => {
     const savedUser = localStorage.getItem("adminUser");
@@ -59,7 +60,9 @@ export const AuthProvider = ({ children }) => {
 
   // ✅ Fixed missing closing bracket for logoutAdmin
   const logoutAdmin = useCallback(async () => {
-    if (!adminUser) return;
+    if (!adminUser || isLoggingOut) return; // Prevent multiple calls
+
+    setIsLoggingOut(true); // Set logging out state
 
     const logoutData = {
       admin_id: adminUser.userId,
@@ -81,57 +84,51 @@ export const AuthProvider = ({ children }) => {
       if (!response.ok) {
         console.error("Failed to log logout event:", await response.text());
       } else {
-        // console.log("Logout event logged successfully");
+        console.log("Logout event logged successfully");
       }
     } catch (error) {
       console.error("Error logging logout event:", error);
+    } finally {
+      setIsLoggingOut(false); // Reset logging out state
     }
 
-    // Proceed with logout even if logging fails
-    // console.log("Logging out admin...");
     setAdminUser(null);
     localStorage.removeItem("adminUser");
-  }, [adminUser]); // ✅ Dependencies added properly
+  }, [adminUser, isLoggingOut]);
 
   // ✅ Fixed misplaced closing bracket for refreshAdminToken
   const refreshAdminToken = useCallback(async () => {
-    const storedAdminUser = JSON.parse(localStorage.getItem("adminUser"));
-    if (!storedAdminUser || !storedAdminUser.refreshToken) return null;
+    if (!adminUser?.refreshToken || adminUser.isRefreshing) return null;
+
+    setAdminUser((prev) => ({ ...prev, isRefreshing: true }));
 
     try {
       const response = await fetch(`${baseApi}/admin/refresh-token`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken: storedAdminUser.refreshToken }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: adminUser.refreshToken }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to refresh token");
+        logoutAdmin();
+        return null;
       }
 
       const data = await response.json();
-      // console.log("New tokens received at:", new Date().toLocaleString());
-      // console.log("New Access Token:", data.token);
-      // console.log("New Refresh Token:", data.refreshToken);
-      // console.log("New tokens received:", data);
-
-      const newUser = {
-        ...storedAdminUser,
+      setAdminUser((prev) => ({
+        ...prev,
         token: data.token,
         refreshToken: data.refreshToken,
-      };
-      setAdminUser(newUser);
-      localStorage.setItem("adminUser", JSON.stringify(newUser));
+        isRefreshing: false,
+      }));
+
       return data.token;
     } catch (error) {
       console.error("Error refreshing token:", error);
       logoutAdmin();
       return null;
     }
-  }, [logoutAdmin]); // ✅ Dependencies added properly
+  }, [adminUser, logoutAdmin]);
 
   // Auto-refresh token on app start
   useEffect(() => {

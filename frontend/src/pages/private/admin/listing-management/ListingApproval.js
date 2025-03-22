@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./listingDashboard.css";
+//import "./listingDashboard.css";
 import { useParams, useNavigate } from "react-router-dom";
 import ListingPreview from "./ListingPreview";
 import { ItemStatus } from "../../../../utils/Status";
@@ -85,7 +85,6 @@ const ListingApproval = () => {
 
   const { label, className } = getStatusInfo();
 
- 
   return (
     <div className="listing-approval-container">
       <div className="status-container mb-3">

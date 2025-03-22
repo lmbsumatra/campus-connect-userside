@@ -6,14 +6,13 @@ import PaginationComponent from "../../../../components/Pagination/PaginationCom
 import useFetchAllUsersData from "../../../../utils/FetchAllUsersData";
 import { formatDate } from "../../../../utils/dateFormat";
 import { StudentStatus } from "../../../../utils/Status";
-import "./postDashboard.css";
+import "./userDashboard.css";
 import {
   UserAnalytics,
   ActiveUsersByCollege,
   VerificationRate,
   RetentionRate,
 } from "../../../../components/Analytics/UserAnalyticsComponents";
-import FetchUserInfoForAdmin from "../../../../utils/FetchUserInfoAdmin";
 
 const UserDashboard = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
@@ -170,7 +169,17 @@ const UserDashboard = () => {
       user.student?.status || "pending"
     );
     return [
-      <div className="thumbnail-placeholder"></div>,
+      <>
+        {user.student.profile_pic ? (
+          <img
+            src={user.student.profile_pic}
+            alt="Profile"
+            style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+          />
+        ) : (
+          <div className="thumbnail-placeholder">No Image</div>
+        )}
+      </>,
       <>{user.student?.college || ""}</>,
       <>
         {user.first_name} {user.last_name}

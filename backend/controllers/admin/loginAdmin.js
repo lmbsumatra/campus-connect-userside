@@ -65,7 +65,7 @@ const loginAdmin = async (req, res) => {
     const token = jwt.sign(
       { userId: user.user_id, role: user.role },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "30m" }
     );
 
     const refreshToken = jwt.sign(

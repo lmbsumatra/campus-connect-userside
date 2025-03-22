@@ -32,6 +32,10 @@ exports.getAllRecentActivities = async (req, res) => {
       include: [
         { model: User, as: "renter", attributes: ["first_name", "last_name"] },
         { model: User, as: "owner", attributes: ["first_name", "last_name"] },
+        {
+          model: models.Listing, // ✅ Ensure Listing is included
+          attributes: ["listing_name"],
+        },
       ],
     });
     const recentReports = await Report.findAll({
@@ -42,6 +46,22 @@ exports.getAllRecentActivities = async (req, res) => {
           model: User,
           as: "reporter",
           attributes: ["first_name", "last_name"],
+        },
+        {
+          model: User,
+          as: "reportedUser",
+          attributes: ["first_name", "last_name"],
+        },
+        {
+          model: Listing,
+          as: "reportedListing",
+          include: [
+            {
+              model: User,
+              as: "owner",
+              attributes: ["first_name", "last_name"],
+            },
+          ],
         },
       ],
     });
@@ -93,7 +113,7 @@ exports.getAllRecentActivities = async (req, res) => {
 
         return {
           type: "New Rental Transaction",
-          description: `Transaction between ${ownerName} and ${renterName} with TransactionID:${transaction.id}.`,
+          description: `Transaction between ${ownerName} and ${renterName} with Transaction Item Name:${transaction.Listing?.listing_name}.`,
           date: transaction.createdAt,
         };
       }),
@@ -103,9 +123,28 @@ exports.getAllRecentActivities = async (req, res) => {
           ? `${report.reporter.first_name} ${report.reporter.last_name}`
           : "Unknown Reporter";
 
+        let reportedEntityDetails = "";
+
+        if (report.entity_type === "user") {
+          // If the reported entity is a user, get the reported user's name
+          const reportedUserName = report.reportedUser
+            ? `${report.reportedUser.first_name} ${report.reportedUser.last_name}`
+            : "Unknown User";
+          reportedEntityDetails = `user: ${reportedUserName} (ID: ${report.reported_entity_id})`;
+        } else if (report.entity_type === "listing") {
+          // If the reported entity is a listing, get the listing's owner name
+          const listingOwnerName = report.reportedListing?.owner
+            ? `${report.reportedListing.owner.first_name} ${report.reportedListing.owner.last_name}`
+            : "Unknown Owner";
+          reportedEntityDetails = `listing: ${report.reportedListing.listing_name} (ID: ${report.reported_entity_id}, Owner: ${listingOwnerName})`;
+        } else {
+          // For other entity types, just show the ID
+          reportedEntityDetails = `${report.entity_type} (ID: ${report.reported_entity_id})`;
+        }
+
         return {
           type: "New Report",
-          description: `Report filed by ${reporterName} regarding ${report.entity_type} (${report.reported_entity_id}).`,
+          description: `Report filed by ${reporterName} regarding ${reportedEntityDetails}.`,
           date: report.createdAt,
         };
       }),

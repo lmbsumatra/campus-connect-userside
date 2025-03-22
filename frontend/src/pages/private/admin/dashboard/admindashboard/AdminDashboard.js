@@ -18,13 +18,14 @@ import useFetchAllUsersData from "../../../../../utils/FetchAllUsersData";
 import useFetchAllListingsData from "../../../../../utils/FetchAllListingsData";
 import useFetchAllPostsData from "../../../../../utils/FetchAllPostsData";
 import useFetchAllReportsData from "../../../../../utils/FetchAllReportsData";
-import useFetchAllTransactionsData from "../../../../../utils/FetchAllTransactionsData";
+import useFetchAllRentalTransactionsData from "../../../../../utils/FetchAllRentalTransactionsData";
 import useFetchAllItemsForSaleData from "../../../../../utils/FetchAllItemsForSaleData";
 import useFetchRecentActivities from "../../../../../utils/FetchRecentActivities";
 
 import {
   GrowthData,
   TotalRegisteredUser,
+  CompletedTransactionsAndPopularCategories,
 } from "../../../../../components/Analytics/AdminDashboardAnalytics";
 
 const AdminDashboard = () => {
@@ -34,7 +35,7 @@ const AdminDashboard = () => {
   const { listings } = useFetchAllListingsData();
   const { posts } = useFetchAllPostsData();
   const { reports } = useFetchAllReportsData();
-  const { transactions } = useFetchAllTransactionsData();
+  const { transactions } = useFetchAllRentalTransactionsData();
   const sale = useFetchAllItemsForSaleData();
   const navigate = useNavigate();
 
@@ -236,6 +237,12 @@ const AdminDashboard = () => {
         </div>
         <div className="chart-card">
           <TotalRegisteredUser users={users} />
+        </div>
+        <div className="chart-card">
+          <CompletedTransactionsAndPopularCategories
+            transactions={transactions}
+            listings={listings}
+          />
         </div>
       </div>
     </div>

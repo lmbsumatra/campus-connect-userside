@@ -42,17 +42,17 @@ const TableComponent = ({
             <option value="COS">COS</option>
           </select>
         );
-        case "Type":
-          return (
-            <select
-              className="form-select"
-              onChange={(e) => onFilterChange(header, e.target.value)}
-            >
-              <option value="">All</option>
-              <option value="rental">RENTAL</option>
-              <option value="buy_and_sell">SALE</option>
-            </select>
-          );
+      case "Type":
+        return (
+          <select
+            className="form-select"
+            onChange={(e) => onFilterChange(header, e.target.value)}
+          >
+            <option value="">All</option>
+            <option value="rental">RENTAL</option>
+            <option value="sell">SALE</option>
+          </select>
+        );
       case "Date Added":
       case "Date Updated":
       case "Date":
@@ -66,20 +66,20 @@ const TableComponent = ({
             <option value="oldest">Oldest</option>
           </select>
         );
-        case "Status":
-          return (
-            <select
-              className="form-select"
-              onChange={(e) => onFilterChange(header, e.target.value)}
-            >
-              <option value="">All</option>
-              {statusOptions.map((status, idx) => (
-                <option key={idx} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          );
+      case "Status":
+        return (
+          <select
+            className="form-select"
+            onChange={(e) => onFilterChange(header, e.target.value)}
+          >
+            <option value="">All</option>
+            {statusOptions.map((status, idx) => (
+              <option key={idx} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        );
       default:
         return null;
     }

@@ -14,6 +14,7 @@ import {
   Cell,
   CartesianGrid,
 } from "recharts";
+import { ShoppingCart, Handshake } from "lucide-react";
 
 export const GrowthData = ({ users, listings, posts, sales }) => {
   const [timeInterval, setTimeInterval] = useState("monthly");
@@ -268,6 +269,73 @@ export const TotalRegisteredUser = ({ users }) => {
             </ResponsiveContainer>
           </>
         )}
+      </div>
+    </div>
+  );
+};
+
+export const CompletedTransactionsAndPopularCategories = ({
+  transactions,
+  listings,
+}) => {
+  // Filter completed transactions
+  const completedTransactions = transactions.filter(
+    (transaction) => transaction.status === "Completed"
+  );
+
+  // Calculate completed rentals and sales
+  const completedRentals = completedTransactions.filter(
+    (transaction) => transaction.transaction_type === "rental"
+  ).length;
+
+  const completedSales = completedTransactions.filter(
+    (transaction) => transaction.transaction_type === "sell"
+  ).length;
+
+  // Calculate popular categories from listings
+  const categoryCounts = listings.reduce((acc, listing) => {
+    const category = listing.category || "Unknown";
+    acc[category] = (acc[category] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Sort categories by count and limit to top 5
+  const topCategories = Object.entries(categoryCounts)
+    .sort((a, b) => b[1] - a[1]) // Sort by count in descending order
+    .slice(0, 5) // Limit to top 5 categories
+    .map(([name, count]) => ({ name, count }));
+
+  return (
+    <div className="chart-card">
+      <h3>Completed Transactions & Popular Categories</h3>
+
+      {/* Improved Counters for Completed Transactions */}
+      <div className="counters-grid">
+        <div className="counter-card" style={{ backgroundColor: "#3498db" }}>
+          <Handshake size={24} color="#fff" />
+          <span className="counter-label">Completed Rentals</span>
+          <span className="counter-value">{completedRentals}</span>
+        </div>
+        <div className="counter-card" style={{ backgroundColor: "#27ae60" }}>
+          <ShoppingCart size={24} color="#fff" />
+          <span className="counter-label">Completed Sales</span>
+          <span className="counter-value">{completedSales}</span>
+        </div>
+      </div>
+
+      {/* Popular Categories (Limited to Top 5) */}
+      <div>
+        <h4>Top 5 Popular Categories</h4>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={topCategories}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="count" fill="#8884d8" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

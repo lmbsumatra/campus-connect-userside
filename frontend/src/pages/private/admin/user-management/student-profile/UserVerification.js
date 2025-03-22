@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../postDashboard.css";
+import "../userDashboard.css";
 import { useParams } from "react-router-dom";
 import FetchUserInfoForAdmin from "../../../../../utils/FetchUserInfoAdmin";
 import { Modal, Button } from "react-bootstrap";
