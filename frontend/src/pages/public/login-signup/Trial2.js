@@ -15,6 +15,7 @@ import {
 } from "../../../redux/login-form/loginFormSlice"; // Redux Toolkit slice actions
 import emailIcon from "../../../assets/images/input-icons/email.svg"; // Email input icon
 import passwordIcon from "../../../assets/images/input-icons/password.svg"; // Password visibility toggle icon
+import showPasswordIcon from "../../../assets/images/input-icons/show-password.svg"; // Password visibility toggle icon
 import hidePasswordIcon from "../../../assets/images/input-icons/hide-password.svg"; // Password visibility toggle icon
 import warningIcon from "../../../assets/images/input-icons/warning.svg"; // Warning icon for validation
 
@@ -32,6 +33,7 @@ const Trial2 = ({ onTabClick }) => {
   const loginDataState = useSelector((state) => state.loginForm);
   const loadingManualLogin = useSelector((state) => state.studentAuth.loading); // Loading state for manual login
   const errorManualLogin = useSelector((state) => state.studentAuth.error);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (errorManualLogin) {
@@ -52,7 +54,13 @@ const Trial2 = ({ onTabClick }) => {
     dispatch(manualLogin(loginData))
       .unwrap()
       .then(() => {
-        ShowAlert(dispatch, "success", "Login successful!", "You are now logged in!", { text: "OK" });
+        ShowAlert(
+          dispatch,
+          "success",
+          "Login successful!",
+          "You are now logged in!",
+          { text: "OK" }
+        );
         navigate("/");
       })
       .catch((error) => {
@@ -78,6 +86,10 @@ const Trial2 = ({ onTabClick }) => {
   // Handle Google login error
   const handleGoogleError = () => {
     setErrorMessage("An error occurred during Google login. Please try again.");
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevState) => !prevState);
   };
 
   return (
@@ -131,7 +143,7 @@ const Trial2 = ({ onTabClick }) => {
             className="input"
             placeholder="Your password"
             required
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={loginDataState.password.value}
             onChange={(e) =>
               dispatch(updateField({ name: "password", value: e.target.value }))
@@ -142,8 +154,9 @@ const Trial2 = ({ onTabClick }) => {
           />
           <img
             className="password-toggle-icon"
-            src={hidePasswordIcon}
-            alt="Password visibility toggle"
+            src={showPassword ? showPasswordIcon : hidePasswordIcon}
+            alt="Toggle password visibility"
+            onClick={togglePasswordVisibility}
           />
         </div>
         {loginDataState.password.triggered &&
@@ -181,7 +194,11 @@ const Trial2 = ({ onTabClick }) => {
       {/* Sign-up Link */}
       <p>
         Don't have an account?{" "}
-        <a className="link" onClick={() => onTabClick("signupTab")}>
+        <a
+          className="link fw-bold"
+          style={{ cursor: "pointer" }}
+          onClick={() => onTabClick("signupTab")}
+        >
           Sign up here!
         </a>
       </p>

@@ -117,7 +117,7 @@ const TransactionsTable = ({ transactions }) => {
                   }
                 >
                   <option value="">All</option>
-                  <option value="GCASH">GCash</option>
+                  <option value="GCASH">Online Payment</option>
                   <option value="PAYMENT UPON MEETUP">
                     Payment Upon Meetup
                   </option>

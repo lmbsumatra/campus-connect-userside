@@ -169,7 +169,7 @@ const CheckoutModal = ({ show, onHide, items }) => {
                     type="radio"
                     id="gcash-payment"
                     name="paymentMethod"
-                    label="GCash"
+                    label="Online Payment"
                     checked={paymentMethod === "gcash"}
                     disabled={!!selectedItem.paymentMode}
                     onChange={() => setPaymentMethod("gcash")}

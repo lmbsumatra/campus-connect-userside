@@ -67,6 +67,7 @@ const loginStudent = async (req, res) => {
       token,
       role: user.role,
       userId: user.user_id,
+      hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
     });
   } catch (error) {
     console.error("Login error:", error);

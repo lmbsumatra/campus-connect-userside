@@ -263,7 +263,7 @@ const EditPost = () => {
               processedImages = JSON.parse(cleanString);
             } catch (innerError) {
               // If both parsing attempts fail, log the error and use as is
-              console.error("Error parsing images:", innerError);
+              // console.error("Error parsing images:", innerError);
               processedImages = postData.images;
             }
           }
@@ -318,7 +318,7 @@ const EditPost = () => {
         ShowAlert(dispatch, "loading", "Redirecting");
 
         setTimeout(() => {
-          navigate("/profile", { state: { redirecting: true } });
+          navigate("/profile/my-posts", { state: { redirecting: true } });
         }, 3000);
       }
     };
@@ -476,7 +476,7 @@ const EditPost = () => {
     try {
       // Check if postDataState is defined
       if (!postDataState) {
-        console.error("postDataState is not defined");
+        // console.error("postDataState is not defined");
         ShowAlert(
           dispatch,
           "error",
@@ -528,7 +528,7 @@ const EditPost = () => {
             }
           } else {
             // Handle the case where field is undefined or doesn't have a value property
-            console.warn(`Field ${key} is undefined or missing value property`);
+            // console.warn(`Field ${key} is undefined or missing value property`);
             // Optionally set a default error for this field
             hasErrors = true;
             errors[key] = `Field ${key} is required`;
@@ -601,8 +601,10 @@ const EditPost = () => {
 
       formData.append("item", JSON.stringify(postDataToSubmit));
 
+      // console.log(id, postDataToSubmit.itemId);
+
       // Determine the correct endpoint based on item type
-      const endpoint = `http://localhost:3001/posts/users/19/update/46`;
+      const endpoint = `http://localhost:3001/posts/users/19/update/${postDataToSubmit.itemId}`;
 
       // console.log("Submitting to endpoint:", endpoint);
 
@@ -647,25 +649,27 @@ const EditPost = () => {
       }
 
       // Show success notification
-      ShowAlert(
+      await ShowAlert(
         dispatch,
         "success",
         "Success",
-        `Looking for post updated successfully!`
+        `Looking for post changed!`,
+        { text: "Ok" }
       );
 
-      // Navigate to the item detail page
-      // setTimeout(() => {
-      //   navigate(`/posts/46`);
-      // }, 2000);
+      ShowAlert(dispatch, "loading", "Redirecting");
+
+      navigate(`/profile/my-posts`, {
+        state: { redirecting: true },
+      });
     } catch (error) {
       // Log detailed error information
-      console.error("Submission error:", error);
-      console.error("Error details:", {
-        message: error.message,
-        stack: error.stack,
-        response: error.response?.data,
-      });
+      // console.error("Submission error:", error);
+      // console.error("Error details:", {
+      //   message: error.message,
+      //   stack: error.stack,
+      //   response: error.response?.data,
+      // });
 
       ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
 

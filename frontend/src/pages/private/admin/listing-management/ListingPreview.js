@@ -413,7 +413,7 @@ function ListingDetail({ selectedItem, loading, error, isAdmin = false }) {
                       }`}
                       disabled={isAdmin}
                     >
-                      Gcash
+                      Online Payment
                     </button>
                   </div>
                 </Tooltip>

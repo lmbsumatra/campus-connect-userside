@@ -1,4 +1,4 @@
-.header-container.profile-header {
+.header-container.profile-header2 {
   background-color: white;
   padding: 14px;
   overflow: hidden;
@@ -97,19 +97,19 @@
 .header-container .profile-info {
   gap: 36px;
 }
-.header-container .profile-header .label,
-.header-container .profile-header .value {
+.header-container .profile-header2 .label,
+.header-container .profile-header2 .value {
   display: block;
   color: white;
   line-height: 1.2;
   margin-bottom: 8px
 }
 
-.header-container .profile-header .value {
+.header-container .profile-header2 .value {
   font-weight: 500;
 }
 
-.header-container.profile-header .select-option {
+.header-container.profile-header2 .select-option {
   /* background-color: #6c757d; */
   height: 100%;
   position: absolute;
@@ -121,7 +121,7 @@
   /* align-items: center; */
   line-height: 1;
 }
-.header-container.profile-header .select-option .dikoalam{
+.header-container.profile-header2 .select-option .dikoalam{
   margin: 12px;
   font-weight: 500;
   color: white;

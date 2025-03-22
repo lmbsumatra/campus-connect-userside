@@ -577,18 +577,31 @@ const Trial = ({ onTabClick }) => {
       {step === 4 && (
         <div>
           <h4>Verification</h4>
+          <p>
+            After submitting this, you will receive an email to verify your
+            email.
+          </p>
         </div>
       )}
 
       <div className="navigation-buttons">
-        <button onClick={handlePrevStep} disabled={step === 1}>
+        <button
+          className="btn btn-secondary"
+          onClick={handlePrevStep}
+          disabled={step === 1}
+        >
           Previous
         </button>
-        {step < 4 && <button onClick={handleNextStep}>Next</button>}
+        {step < 4 && (
+          <button className="btn btn-primary" onClick={handleNextStep}>
+            Next
+          </button>
+        )}
         {step === 4 && (
           <button
             onClick={handleSubmit}
             disabled={!signupDataState.isFormValid}
+            className="btn btn-primary"
           >
             Submit
           </button>
@@ -602,7 +615,11 @@ const Trial = ({ onTabClick }) => {
       {/* Sign-up Link */}
       <p>
         Already have an account?{" "}
-        <a className="link" onClick={() => onTabClick("loginTab")}>
+        <a
+          className="link fw-bold"
+          style={{ cursor: "pointer" }}
+          onClick={() => onTabClick("loginTab")}
+        >
           Login here!
         </a>
       </p>

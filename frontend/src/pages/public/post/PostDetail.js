@@ -50,11 +50,13 @@ import SingleImageUpload from "../../private/users/common/SingleImageUpload";
 import ItemCard from "../../../components/item-card/ItemCard";
 import { fetchPostMatchedItems } from "../../../redux/post/postMatchedItems";
 import ViewToolbar from "../common/ViewToolbar";
+import { useSystemConfig } from "../../../context/SystemConfigProvider";
 
 function PostDetail() {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
   const isEmailVerified = user?.user?.emailVerified ?? false;
+  const { config } = useSystemConfig();
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -732,14 +734,24 @@ function PostDetail() {
               <label className="label">Payment Method</label>
               <div className="delivery-method">
                 <div className="action-btns">
-                  <button
-                    className={`value ${
-                      paymentMethod === GCASH ? "selected" : ""
+                  <Tooltip
+                    title={`${
+                      studentUser?.hasStripe === false
+                        ? "This is disabled. You must have a Stripe account first. Create one by going to /profile/dashboard."
+                        : ""
                     }`}
-                    onClick={() => setPaymentMethod(GCASH)}
                   >
-                    Gcash
-                  </button>
+                    <button
+                      className={`value ${
+                        paymentMethod === GCASH ? "selected" : ""
+                      }`}
+                      onClick={() => setPaymentMethod(GCASH)}
+                      disabled={!studentUser?.hasStripe} // Ensures the button is disabled if hasStripe is false or undefined
+                    >
+                      Online Payment
+                    </button>
+                  </Tooltip>
+
                   <button
                     className={`value ${
                       paymentMethod === PAY_UPON_MEETUP ? "selected" : ""

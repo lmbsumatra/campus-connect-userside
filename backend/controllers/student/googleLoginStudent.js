@@ -43,6 +43,7 @@ const googleLogin = async (req, res) => {
       token: jwtToken,
       role: user.role,
       userId: user.user_id,
+      hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
     });
   } catch (error) {
     console.error("Google login error:", error);

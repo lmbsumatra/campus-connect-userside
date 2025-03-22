@@ -85,6 +85,7 @@ const AddNewPost = () => {
   const { user, loadingFetchUser, errorFetchUser } = useSelector(
     (state) => state.user
   );
+  const studentUser = useSelector(selectStudentUser);
   const isVerified = user?.student?.status ?? false;
   const isEmailVerified = user?.user?.emailVerified ?? false;
 
@@ -351,7 +352,7 @@ const AddNewPost = () => {
       });
 
       ShowAlert(dispatch, "loading", "Redirecting");
-      // navigate(`/profile/my-posts`, { state: { redirecting: true } });
+      navigate(`/profile/my-posts`, { state: { redirecting: true } });
     } catch (error) {
       console.error("Error Response:", error.response?.data);
       console.error("Error Object:", error);

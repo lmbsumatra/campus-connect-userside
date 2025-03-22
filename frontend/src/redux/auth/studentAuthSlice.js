@@ -36,6 +36,7 @@ export const googleLogin = createAsyncThunk(
 
       if (data.token && data.role && data.userId) {
         localStorage.setItem("studentUser", JSON.stringify(data));
+        console.log(data);
         return data; // Return successful login data
       } else {
         throw new Error("Invalid response data from server.");
@@ -50,7 +51,6 @@ export const googleLogin = createAsyncThunk(
     }
   }
 );
-
 
 // Async thunk for manual login
 export const manualLogin = createAsyncThunk(
@@ -86,6 +86,7 @@ export const manualLogin = createAsyncThunk(
       const data = await response.json();
       if (data.token && data.role && data.userId) {
         localStorage.setItem("studentUser", JSON.stringify(data));
+        
         return data; // Return successful login data
       } else {
         return rejectWithValue("Invalid response data. Please try again.");
@@ -162,12 +163,8 @@ export const studentAuthLoading = (state) => state.studentAuth.loading;
 export const studentAuthError = (state) => state.studentAuth.error;
 
 // Export actions
-export const {
-  logoutStudent,
-  saveUserData,
-  setLoading,
-  setError,
-} = studentAuthSlice.actions;
+export const { logoutStudent, saveUserData, setLoading, setError } =
+  studentAuthSlice.actions;
 
 // Export reducer
 export default studentAuthSlice.reducer;

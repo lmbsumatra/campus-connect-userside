@@ -124,6 +124,7 @@ const AddNewItem = () => {
   const { user, loadingFetchUser, errorFetchUser } = useSelector(
     (state) => state.user
   );
+  const studentUser = useSelector(selectStudentUser);
   const isVerified = user?.student?.status ?? false;
   const isEmailVerified = user?.user?.emailVerified ?? false;
 
@@ -680,20 +681,29 @@ const AddNewItem = () => {
             <div className="delivery-method">
               <div className="action-btns">
                 {config?.Stripe && (
-                  <button
-                    className={`value ${
-                      itemDataState.paymentMethod.value === GCASH
-                        ? "selected"
+                  <Tooltip
+                    title={`${
+                      studentUser?.hasStripe === false
+                        ? "This is disabled. You must have stripe account first. Create one by going to /profile/dashboard."
                         : ""
                     }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "paymentMethod", value: GCASH })
-                      )
-                    }
                   >
-                    Gcash
-                  </button>
+                    <button
+                      className={`value ${
+                        itemDataState.paymentMethod.value === GCASH
+                          ? "selected"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        dispatch(
+                          updateField({ name: "paymentMethod", value: GCASH })
+                        )
+                      }
+                      disabled={studentUser?.hasStripe === true ? false : true}
+                    >
+                      Gcash
+                    </button>
+                  </Tooltip>
                 )}
                 <button
                   className={`value ${

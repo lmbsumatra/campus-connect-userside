@@ -22,6 +22,8 @@ import {
   MEET_UP,
   FOR_SALE,
   getStatusClass,
+  MY_LISTINGS,
+  MY_ITEMS,
 } from "../../../../utils/consonants.js";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
@@ -551,30 +553,19 @@ const EditItem = () => {
         },
       });
 
-      if (socket) {
-        const notification = {
-          title: `New ${itemType === FOR_RENT ? "Listing!" : "Item for Sale!"}`,
-          owner: {
-            name: user.user.fname + " " + user.user.lname,
-          },
-          message:
-            itemType === FOR_RENT
-              ? "has added a new rental listing."
-              : "has listed an item for sale.",
-          type:
-            itemType === FOR_RENT
-              ? "new-listing-notification"
-              : "new-item-for-sale-notification",
-        };
-        socket.emit(notification.type, notification);
-      }
-
-      ShowAlert(
+      await ShowAlert(
         dispatch,
         "success",
         "Success",
-        `Item for ${itemType === FOR_RENT ? "listing" : "sale"} changed!`
+        `Item for ${itemType === FOR_RENT ? "listing" : "sale"} changed!`,
+        { text: "Ok" }
       );
+
+      ShowAlert(dispatch, "loading", "Redirecting");
+
+      navigate(`/${itemType === FOR_RENT ? MY_LISTINGS : MY_ITEMS}`, {
+        state: { redirecting: true },
+      });
     } catch (error) {
       ShowAlert(dispatch, "error", "Error", "Request failed or timed out.");
       console.error("Submission error:", error);
@@ -857,7 +848,7 @@ const EditItem = () => {
                       )
                     }
                   >
-                    Gcash
+                    Online Payment
                   </button>
                   <button
                     className={`value ${
@@ -967,7 +958,7 @@ const EditItem = () => {
       >
         <div className="flex justify-end mb-4">
           <button
-            className="text-gray-500 hover:text-gray-700"
+            className="btn btn-secondary"
             onClick={() => setShowComparison(false)}
           >
             Close
@@ -977,9 +968,17 @@ const EditItem = () => {
           originalData={originalData}
           currentData={itemDataState}
         />
-        <button className="btn btn-primary" onClick={() => handleSubmit()}>
-          Submit
-        </button>
+        <Modal.Footer>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setShowComparison(false)}
+          >
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={handleSubmit}>
+            Confirm and Submit
+          </button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

@@ -205,19 +205,22 @@ const FilterModal = ({
           ))}
 
         {/* College Checkboxes */}
-        <Form.Group className="mb-3">
-          <Form.Label>College</Form.Label>
-          {COLLEGES.map((college) => (
-            <Form.Check
-              key={college}
-              type="checkbox"
-              label={college}
-              value={college}
-              checked={filters.college.includes(college)}
-              onChange={() => handleCollegeChange(college)}
-            />
-          ))}
-        </Form.Group>
+        {isYou &&
+          !(
+            <Form.Group className="mb-3">
+              <Form.Label>College</Form.Label>
+              {COLLEGES.map((college) => (
+                <Form.Check
+                  key={college}
+                  type="checkbox"
+                  label={college}
+                  value={college}
+                  checked={filters.college.includes(college)}
+                  onChange={() => handleCollegeChange(college)}
+                />
+              ))}
+            </Form.Group>
+          )}
 
         {/* Sorting Options */}
         {isPostPage !== true && (

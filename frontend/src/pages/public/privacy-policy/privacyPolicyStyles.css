@@ -11,3 +11,29 @@
 .privacy-policy-wrapper .accordion-wrapper {
   width: 50vw;
 }
+
+.container-content.privacy-policy .privacy-policy-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 36px;
+}
+
+/* Medium devices (tablets) */
+@media (max-width: 992px) {
+  .container-content.privacy-policy .privacy-policy-wrapper {
+    gap: 24px;
+  }
+}
+
+/* Small devices (mobile phones) */
+@media (max-width: 768px) {
+  .container-content.privacy-policy .privacy-policy-wrapper { 
+    display: flex !important;
+    flex-direction: column !important; /* Ensure stacking */
+  }
+
+  .privacy-policy-wrapper .intro,
+  .privacy-policy-wrapper .accordion-wrapper {
+    width: 100% !important; /* Ensure full width */
+  }
+}

@@ -11,36 +11,57 @@ const TrialOnSearchResults = ({ keyword }) => {
     <div id="search-results-popup" className="search-results-container">
       {keyword ? (
         <>
-          <span>You are searching for "{keyword}"</span>
-          <span>Users</span>{" "}
-          <a href={`/results?q=${keyword}&type=users`}>View All</a>
-          <div className="result-wrapper">
-            <a href="" className="user-result">
-              <div className="img-holder">
-                <img src={userProfileIcon} />
-              </div>
-              <span>{keyword}</span>
-            </a>
+          <div className="search-title">
+            <p>You are searching for "{keyword}"</p>
           </div>
-          <span>Items</span>
-          <Link to={`/results?q=${keyword}&type=items`}>View All</Link>
-          <div className="result-wrapper">
-            <div className="item-result">
-              <span>{keyword}</span>
-              <a href={`/rent?q=${keyword}`}>View All Rental Items</a>
+          {/*           
+          <div className="result-section">
+            <div className="section-header">
+              <h3>Users</h3>
+              <Link to={`/results?q=${keyword}&type=users`} className="view-all">
+                View All
+              </Link>
             </div>
-            <div className="item-result">
-              <span>{keyword}</span>
-              <a href={`/shop?q=${keyword}`}>View All for Sale Item</a>
+            <div className="result-wrapper">
+              <Link to="" className="user-result">
+                <div className="img-holder">
+                  <img src={userProfileIcon} alt="User profile" />
+                </div>
+                <span>{keyword}</span>
+              </Link>
             </div>
-            <div className="item-result">
-              <span>{keyword}</span>
-              <Link to={`/lookingfor?q=${keyword}`}>View All Posts</Link>
+          </div> */}
+
+          <div className="result-section">
+            <div className="section-header">
+              <h3>All</h3>
+              <Link
+                to={`/results?q=${keyword}&type=items`}
+                className="view-all"
+              >
+                View All
+              </Link>
+            </div>
+            <div className="result-wrapper">
+              <div className="item-result">
+                <span>{keyword}</span>
+                <Link to={`/rent?q=${keyword}`}>View All Rental Items</Link>
+              </div>
+              <div className="item-result">
+                <span>{keyword}</span>
+                <Link to={`/shop?q=${keyword}`}>View All for Sale Items</Link>
+              </div>
+              <div className="item-result">
+                <span>{keyword}</span>
+                <Link to={`/lookingfor?q=${keyword}`}>View All Posts</Link>
+              </div>
             </div>
           </div>
         </>
       ) : (
-        <span>Please enter a keyword</span>
+        <div className="empty-state">
+          <p>Please enter a keyword</p>
+        </div>
       )}
     </div>
   );

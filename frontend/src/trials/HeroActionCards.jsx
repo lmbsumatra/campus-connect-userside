@@ -3,18 +3,95 @@ import "./heroActionCardsStyles.css";
 import addItemIcon from "../assets/images/header/add-item.svg";
 import createPostIcon from "../assets/images/header/create-post.svg";
 import useHandleActionWithAuthCheck from "../utils/useHandleActionWithAuthCheck";
+import { useDispatch, useSelector } from "react-redux";
+import ShowAlert from "../utils/ShowAlert";
+import { useNavigate } from "react-router-dom";
+import { selectStudentUser } from "../redux/auth/studentAuthSlice";
 
 const HeroActionCards = ({ show, hide }) => {
-  const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
+  const { user, loadingFetchUser } = useSelector((state) => state.user);
+  const studentUser = useSelector(selectStudentUser);
+  const isVerified = user?.student?.status ?? false;
+  const isEmailVerified = user?.user?.emailVerified ?? false;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+
+  const addItem = (hide) => {
+    // First check if user is logged in
+    if (studentUser === null) {
+      hide(); // Hide modal first
+      ShowAlert(dispatch, "warning", "Action Required", "Please login first", {
+        text: "Login",
+        action: () => {
+          navigate("/", { state: { showLogin: true, authTab: "loginTab" } });
+        },
+      });
+      return;
+    }
+    
+    // User is logged in, now check if verified
+    if (isVerified !== "verified" || isEmailVerified !== true) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+    
+    // User is logged in and verified, proceed
+    navigate("/profile/my-listings/add");
+    hide();
+  };
+
+  const createPost = (hide) => {
+    // First check if user is logged in
+    if (studentUser === null) {
+      hide(); // Hide modal first
+      ShowAlert(dispatch, "warning", "Action Required", "Please login first", {
+        text: "Login",
+        action: () => {
+          navigate("/", { state: { showLogin: true, authTab: "loginTab" } });
+        },
+      });
+      return;
+    }
+    
+    // User is logged in, now check if verified
+    if (isVerified !== "verified" || isEmailVerified !== true) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Access Denied",
+        "You must be verified to proceed.",
+        {
+          text: "View Profile",
+          action: () => {
+            navigate("/profile/edit-profile");
+          },
+        }
+      );
+      return;
+    }
+    
+    // User is logged in and verified, proceed
+    navigate("/profile/my-posts/new");
+    hide();
+  };
 
   return (
     <>
       <Modal centered show={show} onHide={hide} dialogClassName="modal-width">
         <div className="hero-actions-container">
-          <div
-            className="card"
-            onClick={() => handleActionWithAuthCheck("/profile/my-listings/add", hide)}
-          >
+          <div className="card" onClick={() => addItem(hide)}>
             <label>
               <img src={addItemIcon} alt="" />
               <h2>Add Item</h2>
@@ -26,17 +103,16 @@ const HeroActionCards = ({ show, hide }) => {
             </p>
           </div>
 
-          <div
-            className="card"
-            onClick={() => handleActionWithAuthCheck("/profile/my-posts/new", hide)}
-          >
+          <div className="card" onClick={() => createPost(hide)}>
             <label>
               <img src={createPostIcon} alt="" />
               <h2>Create Post</h2>
             </label>
             <p>
               Click here to create new post. <br />
-              You are allowed to post items you are looking for either renting or buying as long as it is aligned with our policy. Read <a href="">here.</a>
+              You are allowed to post items you are looking for either renting
+              or buying as long as it is aligned with our policy. Read{" "}
+              <a href="">here.</a>
             </p>
           </div>
         </div>

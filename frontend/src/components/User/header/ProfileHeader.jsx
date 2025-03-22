@@ -271,7 +271,7 @@ const ProfileHeader = ({
   };
 
   return (
-    <div className="header-container profile-header">
+    <div className="header-container profile-header2">
       <div
         className="profile-banner"
         style={{ background: getBackgroundColor() }}
@@ -426,7 +426,7 @@ const ProfileHeader = ({
         </div>
         {isTransactionPage && (
           <div className="select-option" onClick={() => handleDropDown()}>
-            <span className="text-white mx-3">
+            <span className="text-white m-3 ">
               As{" "}
               {capitalizeFirstLetter(selectedOption) === "Owner" ? "an" : "a"}
             </span>

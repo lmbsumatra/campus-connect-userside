@@ -55,7 +55,6 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
 
   const getGearClassName = () => {
     if (isFirstRender) {
-     
       return activeTab === TABS.LOGIN ? "left-position" : "right-position";
     }
     return gearPosition === "gear-left" ? "gear-right" : "gear-left";
@@ -105,9 +104,11 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
   return (
     <div className="overlay">
       <div className="custom-modal overlay">
-        <button className="modal-close" onClick={onClose}>
-          Close
-        </button>
+        <div className="btn-container2">
+          <button className="btn btn-secondary" onClick={onClose}>
+            Close
+          </button>
+        </div>
 
         <div className={`bg-gear ${getGearClassName()}`}>
           <img src={gearIcon} alt="Background gear" />

@@ -29,8 +29,8 @@ const PaymentConfirmationModal = ({
     // Payment method specific instructions
     const gcashInstructions = {
       owner: "Please check your account for pending payouts. ",
-      buyer: "Please ensure that you have sent the payment via GCash. ",
-      renter: "Please ensure that you have sent the payment via GCash. ",
+      buyer: "Please ensure that you have sent the payment via Online Payment. ",
+      renter: "Please ensure that you have sent the payment via Online Payment. ",
     };
 
     const meetupInstructions = {
@@ -46,19 +46,19 @@ const PaymentConfirmationModal = ({
     switch (role) {
       case "renter":
         return `Are you sure you want to send the rental payment to the owner ${
-          isGcash ? "via GCash" : "upon meetup"
+          isGcash ? "via Online Payment" : "upon meetup"
         }? ${instructions}`;
       case "owner":
         return `Have you received the ${transactionName} payment ${
-          isGcash ? "via GCash" : "upon meetup"
+          isGcash ? "via Online Payment" : "upon meetup"
         }? ${instructions}Confirming this means you acknowledge receiving it.`;
       case "buyer":
         return `Are you sure you want to complete this ${transactionName} ${
-          isGcash ? "via GCash" : "upon meetup"
+          isGcash ? "via Online Payment" : "upon meetup"
         }? ${instructions}`;
       default:
         return `Are you sure you want to proceed with this ${transactionName} payment ${
-          isGcash ? "via GCash" : "upon meetup"
+          isGcash ? "via Online Payment" : "upon meetup"
         }?`;
     }
   };
@@ -74,10 +74,10 @@ const PaymentConfirmationModal = ({
         return isPurchase ? "Confirm Sale Receipt" : "Confirm Rental Receipt";
       case "buyer":
         return isGcash
-          ? `Complete GCash ${isPurchase ? "Purchase" : "Rental"}`
+          ? `Complete Online Payment ${isPurchase ? "Purchase" : "Rental"}`
           : `Complete ${isPurchase ? "Purchase" : "Rental"}`;
       default:
-        return isGcash ? "Send GCash Payment" : "Confirm Payment";
+        return isGcash ? "Send Online Payment" : "Confirm Payment";
     }
   };
 

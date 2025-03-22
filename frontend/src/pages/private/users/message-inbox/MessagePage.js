@@ -1838,7 +1838,7 @@ const MessagePage = () => {
                               
                               {message.productDetails?.paymentMethod && (
                                 <p className="mb-1">
-                                  <strong>Payment:</strong> {message.productDetails.paymentMethod === "gcash" ? "Gcash" : "Pay upon meetup"}
+                                  <strong>Payment:</strong> {message.productDetails.paymentMethod === "gcash" ? "Online Payment" : "Pay upon meetup"}
                                 </p>
                               )}
                               

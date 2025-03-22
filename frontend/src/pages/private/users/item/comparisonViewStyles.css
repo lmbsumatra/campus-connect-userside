@@ -1,0 +1,99 @@
+.comparison-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  margin: 0 !important; 
+  padding: 0 !important;
+  width: auto;
+}
+
+.comparison-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.comparison-icon {
+  color: #4c6ef5;
+  margin-right: 12px;
+  width: 24px;
+  height: 24px;
+}
+
+.comparison-title {
+  color: #333;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.no-changes {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  padding: 24px 0;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.changes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.change-item {
+  padding: 16px;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  border-left: 3px solid #4c6ef5;
+}
+
+.field-label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.comparison-row {
+  display: flex;
+  gap: 16px;
+}
+
+.comparison-column {
+  flex: 1;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.previous {
+  background-color: #fff4e5;
+  border: 1px solid #ffd8a8;
+}
+
+.new {
+  background-color: #e6f7ff;
+  border: 1px solid #bae7ff;
+}
+
+.column-header {
+  color: #555;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value-container {
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  min-height: 24px;
+  word-break: break-word;
+  font-size: 14px;
+  line-height: 1.5;
+}

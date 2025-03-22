@@ -29,7 +29,7 @@ function Toolbar({
 
   useEffect(() => {
     setFilteredItems(items);
-  }, [items]);
+  }, [items, setFilteredItems]);
 
   const handleSearchChange = (e) => {
     const term = e.target.value;
@@ -93,6 +93,7 @@ function Toolbar({
           isYou={isYou}
           isListingsPage={true}
           isPostPage={isPostPage}
+          setFilteredItems={setFilteredItems}
         />
       )}
 

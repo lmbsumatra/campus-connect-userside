@@ -466,6 +466,37 @@ module.exports = ({ emitNotification }) => {
 
       // Update the rental status to "Accepted"
       rental.status = "Accepted";
+
+      // Capture payment upon handover
+      try {
+        if (
+          transaction.stripe_payment_intent_id &&
+          (transaction.owner_confirmed || transaction.renter_confirmed) &&
+          transaction.transaction_type === "rental"
+        ) {
+          // console.log(transaction.stripe_payment_intent_id);
+          const paymentIntent = await stripe.paymentIntents.capture(
+            transaction.stripe_payment_intent_id
+          );
+
+          const chargeId = await stripe.paymentIntents.retrieve(
+            transaction.stripe_payment_intent_id
+          );
+
+          // console.log({ charge: chargeId.latest_charge });
+          await transaction.update({
+            stripe_charge_id: chargeId.latest_charge || null,
+            payment_status: "completed",
+          });
+        }
+      } catch (stripeError) {
+        // console.error("Error capturing payment:", stripeError);
+        return res.status(500).json({
+          error: "Payment capture failed.",
+          details: stripeError.message,
+        });
+      }
+
       await rental.save();
 
       // Determine notification type and message based on transaction_type

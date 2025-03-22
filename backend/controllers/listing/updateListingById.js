@@ -285,6 +285,46 @@ const updateListingById = async (req, res) => {
       // console.log("No new dates or durations provided.");
     }
 
+    // Fetch owner details
+    const owner = await models.User.findOne({
+      where: { user_id: existingListing.owner_id },
+      attributes: ["user_id", "first_name", "last_name"],
+    });
+
+    const ownerName = owner
+      ? `${owner.first_name} ${owner.last_name}`
+      : "Unknown";
+
+    // Create notification in database
+    const adminNotificationData = {
+      type: "new-listing",
+      title: "Updated Listing awaiting approval",
+      message: `updated a new listing: "${existingListing.listing_name}"`,
+      ownerName,
+      ownerId: owner.user_id,
+      itemId: existingListing.id,
+      itemType: "listing",
+      timestamp: new Date(),
+      isRead: false,
+    };
+
+    const adminNotification = await models.Notification.create(
+      adminNotificationData,
+      {
+        transaction,
+      }
+    );
+
+    if (req.notifyAdmins) {
+      req.notifyAdmins({
+        ...adminNotification.toJSON(),
+        owner: {
+          id: owner.user_id,
+          name: ownerName,
+        },
+      });
+    }
+
     await transaction.commit();
     // console.log("Transaction committed");
 

@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Diff } from "lucide-react";
+import "./comparisonViewStyles.css";
 
 const formatValue = (value) => {
   if (value === null || value === undefined) return "None";
@@ -112,29 +113,33 @@ const ComparisonView = ({ originalData, currentData }) => {
   };
 
   return (
-    <div>
-      <div>
-        <Diff />
-        <h2>Changes Summary</h2>
+    <div className="comparison-container">
+      <div className="comparison-header">
+        <Diff className="comparison-icon" />
+        <h2 className="comparison-title">Changes Summary</h2>
       </div>
 
       {!hasChanges ? (
-        <p>No changes detected</p>
+        <p className="no-changes">No changes detected</p>
       ) : (
-        <div>
+        <div className="changes-list">
           {Object.entries(changes).map(([field, values]) => (
-            <div key={field}>
-              <label>{normalizeFieldName(field)}</label>
+            <div key={field} className="change-item">
+              <label className="field-label">{normalizeFieldName(field)}</label>
 
-              <div>
-                <div>
-                  <p>Previous</p>
-                  <div>{renderValue(values.old, field)}</div>
+              <div className="comparison-row">
+                <div className="comparison-column previous">
+                  <p className="column-header">Previous</p>
+                  <div className="value-container">
+                    {renderValue(values.old, field)}
+                  </div>
                 </div>
 
-                <div>
-                  <p>New</p>
-                  <div>{renderValue(values.new, field)}</div>
+                <div className="comparison-column new">
+                  <p className="column-header">New</p>
+                  <div className="value-container">
+                    {renderValue(values.new, field)}
+                  </div>
                 </div>
               </div>
             </div>

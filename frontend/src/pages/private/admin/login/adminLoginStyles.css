@@ -82,8 +82,8 @@
   font-size: 0.85rem;
 }
 
-.alert {
-  border-left: 4px solid #dc3545;
+.alert.alert-danger {
+  border-left: 4px solid #dc3545; /*  changed from .alter to .anooverride lahats*/ 
 }
 
 @media (max-width: 576px) {
