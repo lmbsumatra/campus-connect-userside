@@ -11,7 +11,6 @@ const useFetchAllRentalTransactionsData = () => {
     const fetchTransactions = async () => {
       try {
         const response = await axios.get(`${baseApi}/rental-transaction/all`);
-        console.log("Fetched Transactions:", response.data);
         setTransactions(response.data);
       } catch (err) {
         setError(err.message);
