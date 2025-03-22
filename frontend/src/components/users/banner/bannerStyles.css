@@ -5,20 +5,44 @@
   border-radius: 10px;
   overflow: hidden;
   height: auto;
-  background-image: linear-gradient(
-      to right,
-      rgba(33, 121, 200, 1),
-      #ff55003a,
-      rgba(195, 31, 59, 0)
-    ),
-    url("../../../assets//images//banner/banner-img.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   padding: 40px 100px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+}
+
+/* Different background images for each slide with gradient overlay */
+.banner-img-lend {
+  background-image: linear-gradient(
+      to right,
+      rgba(33, 121, 200, 0.8),
+      rgba(255, 85, 0, 0.3),
+      rgba(195, 31, 59, 0)
+    ),
+    url("../../../assets//images//banner/banner-img.jpg");
+}
+
+.banner-img-rent {
+  background-image: linear-gradient(
+      to right,
+      rgba(33, 121, 200, 0.8),
+      rgba(255, 85, 0, 0.3),
+      rgba(195, 31, 59, 0)
+    ),
+    url("../../../assets//images//banner/banner-img.jpg");
+}
+
+.banner-img-sell {
+  background-image: linear-gradient(
+      to right,
+      rgba(33, 121, 200, 0.8),
+      rgba(255, 85, 0, 0.3),
+      rgba(195, 31, 59, 0)
+    ),
+    url("../../../assets//images//banner/banner-img.jpg");
 }
 
 .banner h5 {
@@ -27,35 +51,22 @@
 }
 
 .banner h1 {
-  font-size: 98px;
-  margin: 0px 0;
+  font-size: 72px;
+  margin: 10px 0;
   overflow-wrap: break-word;
-}
-
-.banner button {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.banner a {
-  color: white;
-  padding: 0 10px;
 }
 
 @media (max-width: 902px) {
   .banner h1 {
-    font-size: 70px;
+    font-size: 60px;
     line-height: 1;
-  }
-  .banner button {
-   margin: 20px 0;
   }
 }
 
 @media (max-width: 700px) {
   .banner {
     padding: 20px 50px;
+    height: 350px;
   }
 }
 
@@ -63,9 +74,9 @@
   .banner {
     padding: 20px 30px;
     text-align: center;
+    height: 300px;
   }
   .banner h1 {
-    font-size: 66px;
+    font-size: 48px;
   }
-
 }

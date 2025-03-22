@@ -12,27 +12,24 @@ const Banner = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 2000,
+    autoplaySpeed: 3000,
   };
 
   const slides = [
     {
       title: "Want to lend a hand?",
-      subtitle: "Rent out your stuff!",
-      buttonText: "Rent out now!",
-      link: "#",
+      subtitle: "Rent out your materials",
+      imageClass: "banner-img-lend",
     },
     {
-      title: "Looking some items to rent?",
-      subtitle: "Rent here!",
-      buttonText: "Rent now!",
-      link: "#",
+      title: "Need school supplies?",
+      subtitle: "Rent affordably",
+      imageClass: "banner-img-rent",
     },
     {
-      title: "Ready to sell?",
-      subtitle: "Buy and sell easily!",
-      buttonText: "Start Selling!",
-      link: "#",
+      title: "Buy & Sell Textbooks",
+      subtitle: "Save money easily",
+      imageClass: "banner-img-sell",
     },
   ];
 
@@ -40,16 +37,10 @@ const Banner = () => {
     <div className="container-content">
       <Slider {...settings}>
         {slides.map((slide, index) => (
-          <div key={index} className="banner">
+          <div key={index} className={`banner ${slide.imageClass}`}>
             <div className="text-white">
               <h5 className="text-light">{slide.title}</h5>
               <h1 className="fw-bold">{slide.subtitle}</h1>
-            </div>
-            <div className="d-flex align-items-center">
-              <button className="btn btn-rounded primary">
-                {slide.buttonText}
-              </button>
-              <a href={slide.link}>Learn More</a>
             </div>
           </div>
         ))}

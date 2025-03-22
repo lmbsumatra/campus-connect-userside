@@ -41,6 +41,7 @@ const PostCard = ({
   onSelectItem,
   viewType = "card",
   onDelete,
+  isHome = false,
 }) => {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
@@ -439,7 +440,7 @@ const PostCard = ({
   );
 
   return (
-    <div className="post-card-container">
+    <div className="post-card-container  horizontal-scroll">
       <div className="header-section">
         <h2 className="fs-2 fw-bold">{title}</h2>
       </div>

@@ -22,7 +22,15 @@ const FAB = ({ cartItems }) => {
 
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
+  // Add effect to ensure cart state is consistent with menu state
+  useEffect(() => {
+    if (!isMenuOpen && isCartOpen) {
+      setIsCartOpen(false);
+    }
+  }, [isMenuOpen, isCartOpen]);
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
   const createPost = () => {
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
@@ -41,6 +49,7 @@ const FAB = ({ cartItems }) => {
     }
     handleActionWithAuthCheck("/profile/my-posts/new");
   };
+
   const addItem = () => {
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
@@ -59,6 +68,7 @@ const FAB = ({ cartItems }) => {
     }
     handleActionWithAuthCheck("/profile/my-listings/add");
   };
+
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
   };
@@ -93,13 +103,13 @@ const FAB = ({ cartItems }) => {
           +
         </button>
       </div>
-      {!isMobile && (
-        <Cart
-          items={cartItems}
-          isOpen={isCartOpen}
-          onClose={() => setIsCartOpen(false)}
-        />
-      )}
+
+      {/* Always render the Cart for non-mobile */}
+      <Cart
+        items={cartItems}
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+      />
     </>
   );
 };

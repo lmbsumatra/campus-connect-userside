@@ -14,11 +14,35 @@ import { fetchAllApprovedListings } from "../../redux/listing/allApprovedListing
 import { fetchAllApprovedItemForSale } from "../../redux/item-for-sale/allApprovedItemsForSaleSlice";
 import TrialOnHeroSection from "../../trials/TrialOnHeroSection";
 import BrowseByCollection from "../../components/browse-by-collection/BrowseByCollection.jsx";
+import { Link } from "react-router-dom";
+import "./homeStyles.css";
 
-function ContentSection({ error, loading, fallback, children }) {
+// Section Title component with View All link
+function SectionTitle({ title, viewAllLink }) {
   return (
-    <div className="container-content">
-      {error && <p>Error: {error}</p>}
+    <div className="section-header">
+      <h2 className="section-title">{title}</h2>
+      {viewAllLink && (
+        <Link to={viewAllLink} className="view-all-link">
+          View All
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function ContentSection({
+  error,
+  loading,
+  fallback,
+  children,
+  title,
+  viewAllLink,
+}) {
+  return (
+    <div className="container-content content-section">
+      {title && <SectionTitle title={title} viewAllLink={viewAllLink} />}
+      {error && <p className="error-message">Error: {error}</p>}
       <TimeoutComponent timeoutDuration={1000} fallback={fallback}>
         {!loading && children}
       </TimeoutComponent>
@@ -58,50 +82,62 @@ function Home() {
   }));
 
   return (
-    <div className="over-flow-hidden">
+    <div className="">
       <TrialOnHeroSection />
       <Subheader />
-      {/* <Categories />
-      <BrowseByCollection /> */}
 
       <ContentSection
+        title="Listings"
+        viewAllLink="/listings"
         error={errorAllApprovedListings}
         loading={loadingAllApprovedListings}
         fallback={
-          <div className="card-container vertical">
+          <div className="card-container minimal">
             {renderSkeleton(LoadingItemCardSkeleton, 6)}
           </div>
         }
       >
-        <ItemCard items={allApprovedListings} title="Listings" />
+        <div className="card-wrapper">
+          <ItemCard items={allApprovedListings.slice(0, 6)} />
+        </div>
       </ContentSection>
 
       <ContentSection
+        title="For Sale"
+        viewAllLink="/for-sale"
         error={errorAllApprovedItemForSale}
         loading={loadingAllApprovedItemForSale}
         fallback={
-          <div className="card-container vertical">
+          <div className="card-container minimal">
             {renderSkeleton(LoadingItemCardSkeleton, 6)}
           </div>
         }
       >
-        <ItemCard items={allApprovedItemForSale} title="For Sale" />
+        <div className="card-wrapper">
+          <ItemCard items={allApprovedItemForSale.slice(0, 6)} />
+        </div>
       </ContentSection>
 
-      <React.Suspense fallback={<div>Loading Banner...</div>}>
+      <React.Suspense
+        fallback={<div className="banner-loading">Loading Banner...</div>}
+      >
         <Banner />
       </React.Suspense>
 
       <ContentSection
+        title="Looking for..."
+        viewAllLink="/posts"
         error={errorAllApprovedPosts}
         loading={loadingAllApprovedPosts}
         fallback={
-          <div className="card-container">
+          <div className="card-container minimal">
             {renderSkeleton(LoadingPostCardSkeleton, 4)}
           </div>
         }
       >
-        <PostCard borrowingPosts={allApprovedPosts} title="Looking for..." />
+        <div className="card-wrapper">
+          <PostCard borrowingPosts={allApprovedPosts.slice(0, 4)} />
+        </div>
       </ContentSection>
     </div>
   );
