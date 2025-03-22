@@ -12,19 +12,15 @@ import { GCASH } from "../../../../utils/consonants.js";
 const CheckoutModal = ({ show, onHide, items }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState(null);
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [stripePaymentDetails, setStripePaymentDetails] = useState(null);
   // Ensure only one item is selected
   const selectedItem = items.length === 1 ? items[0] : null;
-
-  // Set payment method if available
-  useEffect(() => {
-    if (selectedItem?.paymentMode) {
-      setPaymentMethod(selectedItem.paymentMode);
-    } else {
-    }
-  }, [selectedItem, items]); // ✅ Fixed typo in dependency array
+  const [paymentMethod, setPaymentMethod] = useState(
+    selectedItem?.paymentMode || null
+  );
+  console.log(selectedItem);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,7 +44,7 @@ const CheckoutModal = ({ show, onHide, items }) => {
         delivery_method: selectedItem.deliveryMethod || "meetup", // Default to meetup if not specified
         date_id: selectedItem.dateId,
         time_id: selectedItem.durationId,
-        payment_mode: paymentMethod,
+        payment_mode: selectedItem?.paymentMode || paymentMethod,
         isFromCart: true,
         transaction_type: selectedItem.itemType === "buy" ? "sell" : "rental",
         [selectedItem.itemType === "buy" ? "rate" : "price"]:
@@ -161,7 +157,7 @@ const CheckoutModal = ({ show, onHide, items }) => {
                     id="meetup-payment"
                     name="paymentMethod"
                     label="Pay upon Meetup"
-                    checked={paymentMethod === "payment upon meetup"}
+                    checked={selectedItem.paymentMode === "payment upon meetup"}
                     disabled={!!selectedItem.paymentMode}
                     onChange={() => setPaymentMethod("payment upon meetup")}
                   />
@@ -170,7 +166,7 @@ const CheckoutModal = ({ show, onHide, items }) => {
                     id="gcash-payment"
                     name="paymentMethod"
                     label="Online Payment"
-                    checked={paymentMethod === "gcash"}
+                    checked={selectedItem.paymentMode === "gcash"}
                     disabled={!!selectedItem.paymentMode}
                     onChange={() => setPaymentMethod("gcash")}
                   />

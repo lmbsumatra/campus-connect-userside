@@ -20,7 +20,6 @@
 
 .header-container .profile-banner > * {
   padding: 10px;
-  
 }
 
 .header-container .profile-picture {
@@ -29,7 +28,6 @@
   align-items: center;
   height: 100%;
   width: auto;
-  
 }
 
 .header-container .holder {
@@ -47,7 +45,8 @@
   border: 8px solid white;
 }
 
-.header-container .profile-info h1, .header-container .profile-info span {
+.header-container .profile-info h1,
+.header-container .profile-info span {
   display: block;
   width: auto;
   color: white;
@@ -97,15 +96,15 @@
 .header-container .profile-info {
   gap: 36px;
 }
-.header-container .profile-header2 .label,
-.header-container .profile-header2 .value {
+.header-container.profile-header2 .label,
+.header-container.profile-header2 .value {
   display: block;
   color: white;
   line-height: 1.2;
-  margin-bottom: 8px
+  margin-bottom: 8px;
 }
 
-.header-container .profile-header2 .value {
+.header-container.profile-header2 .value {
   font-weight: 500;
 }
 
@@ -121,12 +120,11 @@
   /* align-items: center; */
   line-height: 1;
 }
-.header-container.profile-header2 .select-option .dikoalam{
+.header-container .profile-header2 .select-option .dikoalam {
   margin: 12px;
   font-weight: 500;
   color: white;
 }
-
 
 .header-container .select-option .custom-dropdown {
   background-color: white;
@@ -137,10 +135,10 @@
   height: 42px;
   overflow: hidden;
   cursor: pointer;
-  transition: ease-in-out 0.3s height ;
+  transition: ease-in-out 0.3s height;
 }
 .header-container .select-option .custom-dropdown.active {
-  transition: ease-in-out 0.3s ;
+  transition: ease-in-out 0.3s;
   height: 162px;
 }
 
@@ -158,30 +156,65 @@
 }
 .header-container .transaction-indicator {
   background-color: red;
-  color: white;         
-  border-radius: 50%;    
-  width: 16px;          
-  height: 16px;           
-  display: flex;         
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
   justify-content: center;
-  align-items: center;    
-  font-size: 10px; 
+  align-items: center;
+  font-size: 10px;
   line-height: 0;
 }
 
 .header-container .transaction-indicator.not-active {
-  background-color:var(--clr-secondary);
+  background-color: var(--clr-secondary);
 }
 
+/* For small devices (phones, 425px and below) */
+@media (max-width: 425px) {
+  .header-container .profile-banner {
+    height: auto;
+    flex-direction: column;
+    float: left;
+    padding: 20px 15px;
+  }
 
-/* For Tablets (minimum width: 600px) */
-@media (min-width: 600px) {
+  .header-container .profile-photo {
+    width: 150px;
+    height: 150px;
+    border-width: 5px;
+  }
+
+  .header-container .profile-info {
+    gap: 15px;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .header-container .profile-details {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-container .profile-details > div {
+    margin-bottom: 10px;
+  }
 }
 
-/* For Desktops (minimum width: 1024px) */
-@media (min-width: 601px) and (max-width: 1024px) {
-}
+/* For very small devices (phones less than 375px) */
+@media (max-width: 374px) {
+  .header-container .profile-banner {
+    padding: 15px 10px;
+  }
 
-/* For Large Screens (minimum width: 1440px) */
-@media (min-width: 1025px) {
+
+  .header-container .profile-info h1 {
+    font-size: 1.2rem;
+  }
+
+  .header-container .profile-info span {
+    margin: 4px;
+    font-size: 0.9rem;
+  }
 }

@@ -57,11 +57,12 @@ const addCartItem = async (req, res) => {
         attributes: ["item_for_sale_name", "specifications"],
       });
       itemName = itemDetails ? itemDetails.dataValues.item_for_sale_name : "";
-    } else {
+    } else if (itemType === "rent") {
       itemDetails = await models.Listing.findOne({
         where: { id: itemId },
-        attributes: ["listing_name", "specifications"],
+        // attributes: ["listing_name", "specifications"],
       });
+      console.log(itemType, itemId, itemDetails);
       itemName = itemDetails ? itemDetails.dataValues.listing_name : "";
     }
 
@@ -97,6 +98,7 @@ const addCartItem = async (req, res) => {
       },
     };
 
+    console.log(formattedItem);
     // Return success response
     return res.status(201).json(formattedItem);
   } catch (error) {

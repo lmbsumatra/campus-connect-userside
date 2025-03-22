@@ -34,7 +34,6 @@ const Profile = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-
   // This will match URLs like "/profile/transactions/:option/:tab"
   const match = useMatch("/profile/transactions/:option/:tab");
   const currentOption = match ? match.params.option.toLowerCase() : "renter";
@@ -74,7 +73,7 @@ const Profile = () => {
     return () => {
       socket.off("receiveRentalUpdate");
     };
-  }, [dispatch, userId]);
+  }, [dispatch, userId, location]);
 
   useEffect(() => {
     if (!socket) return;

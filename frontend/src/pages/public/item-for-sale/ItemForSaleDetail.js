@@ -36,6 +36,7 @@ import ShowAlert from "../../../utils/ShowAlert";
 import handleUnavailableDateError from "../../../utils/handleUnavailableDateError";
 import ViewToolbar from "../common/ViewToolbar";
 import ConfirmationModal from "./ConfirmationModal";
+import store from "../../../store/store";
 
 function ItemForSaleDetail() {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
@@ -183,7 +184,7 @@ function ItemForSaleDetail() {
           userId: studentUser.userId,
           ownerId: item.seller.id,
           owner: { fname: item.seller.lname, lname: item.seller.lname },
-          itemType: item.itemType === FOR_SALE ? "rent" : "buy",
+          itemType: item.itemType === FOR_SALE ? "buy" : "rent",
           dateId: selectedDateId,
           durationId: selectedDurationId,
           itemId: item.id,
@@ -192,13 +193,18 @@ function ItemForSaleDetail() {
         })
       );
 
-      dispatch(
-        showNotification({
-          type: "success",
-          title: "Success!",
-          text: "Item added to cart successfully!",
-        })
-      );
+      const { successCartMessage, errorCartMessage, warningCartMessage } =
+        store.getState().cart;
+
+      if (successCartMessage) {
+        ShowAlert(dispatch, "success", "Success!", successCartMessage);
+      }
+      if (warningCartMessage) {
+        ShowAlert(dispatch, "warning", "Already in Cart", warningCartMessage);
+      }
+      if (errorCartMessage) {
+        ShowAlert(dispatch, "error", "Error", errorCartMessage);
+      }
     } catch (error) {
       dispatch(
         showNotification({
@@ -768,7 +774,9 @@ function ItemForSaleDetail() {
                 }}
               >
                 <span className="value selected">
-                  {approvedItemForSaleById.paymentMethod}
+                  {approvedItemForSaleById.paymentMethod === GCASH
+                    ? "Online Payment"
+                    : "Pay upon meetup"}
                 </span>
               </Tooltip>
             ) : (
@@ -782,7 +790,7 @@ function ItemForSaleDetail() {
                       className="value selected"
                       onClick={() => handleSelectDeliveryMethod("meetup")}
                     >
-                      Pay upon Meet up
+                      Meetup
                     </button>
                     <button
                       className={`value ${
@@ -792,7 +800,7 @@ function ItemForSaleDetail() {
                       }`}
                       onClick={() => handleSelectDeliveryMethod("pickup")}
                     >
-                      Gcash
+                      Pickup
                     </button>
                   </div>
                 </Tooltip>

@@ -24,7 +24,7 @@ import warningIcon from "../../../assets/images/input-icons/warning.svg"; // War
 import { manualLogin, googleLogin } from "../../../redux/auth/studentAuthSlice"; // Import login actions
 import ShowAlert from "../../../utils/ShowAlert";
 
-const Trial2 = ({ onTabClick }) => {
+const Trial2 = ({ onTabClick, onForgotPassword }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate(); // Navigation hook
 
@@ -178,8 +178,15 @@ const Trial2 = ({ onTabClick }) => {
       </button>
 
       {/* Forgot Password Link */}
-      <button className="btn btn-secondary">Forgot Password</button>
-
+      <div className="forgot-password-link">
+        <button
+          type="button"
+          onClick={onForgotPassword}
+          className="text-button"
+        >
+          Forgot Password?
+        </button>
+      </div>
       <div className="or-divider">
         <span>or</span>
       </div>

@@ -14,6 +14,8 @@ import ListingDetail from "../pages/public/listing/listing-detail/ListingDetail.
 import ItemForSaleDetail from "../pages/public/item-for-sale/ItemForSaleDetail.js";
 import PrivacyPolicy from "../pages/public/privacy-policy/PrivacyPolicy.js";
 import TermsAndCondition from "../pages/public/t&c/TermsAndCondition.js";
+import ForgotPassword from "../pages/public/login-signup/ForgotPassword.jsx";
+import ResetPasswordPage from "../pages/public/login-signup/ResetPassword.jsx";
 
 const PublicRoutes = [
   <Route
@@ -38,6 +40,8 @@ const PublicRoutes = [
   <Route path="/terms-and-condition" element={<TermsAndCondition />} />,
   <Route path="/privacy-policy" element={<PrivacyPolicy />} />,
   <Route path="/terms-and-condition" element={<TermsAndCondition />} />,
+  <Route path="/forgot-password" element={<ForgotPassword />} />,
+  <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 ];
 
 export default PublicRoutes;

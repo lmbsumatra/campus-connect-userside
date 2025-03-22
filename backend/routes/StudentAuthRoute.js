@@ -60,5 +60,7 @@ router.post(
 );
 
 router.get("/get", authenticateToken, StudentController.getUsers);
+router.post("/forgot-password", StudentController.forgotPassword);
+router.post("/reset-password", StudentController.resetPassword);
 
 module.exports = router;

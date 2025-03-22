@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Trial2 from "./Trial2";
 import Trial from "./Trial";
 import { resetLoginForm } from "../../../redux/login-form/loginFormSlice";
 import { resetSignupForm } from "../../../redux/signup-form/signupFormSlice";
+import ForgotPassword from "./ForgotPassword";
 import "./loginSignupStyle.css";
 import gearIcon from "./gear-blue.svg"; // Renamed for clarity
 
@@ -11,6 +12,7 @@ const TRANSITION_DURATION = 300;
 const TABS = {
   LOGIN: "loginTab",
   SIGNUP: "signupTab",
+  FORGOT_PASSWORD: "forgotPasswordTab",
 };
 
 const LoginSignup = ({ initialTab, onClose, show }) => {
@@ -22,6 +24,19 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
   const [isFirstRender, setIsFirstRender] = useState(true);
   const [isBottomShadowVisible, setIsBottomShadowVisible] = useState(false);
   const dispatch = useDispatch();
+
+  // Get the authentication state to check login status
+  const isLoggedIn = useSelector((state) => !!state.studentAuth.studentUser);
+
+  // Effect to close modal when logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      // Add a small delay to allow success message to be seen
+      setTimeout(() => {
+        onClose();
+      }, 1000);
+    }
+  }, [isLoggedIn, onClose]);
 
   useEffect(() => {
     if (show) {
@@ -38,6 +53,20 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
   }, [initialTab]);
 
   const handleTabSwitch = (newTab) => {
+    // Don't animate when switching to/from forgot password
+    if (newTab === TABS.FORGOT_PASSWORD || activeTab === TABS.FORGOT_PASSWORD) {
+      setActiveTab(newTab);
+      dispatch(
+        newTab === TABS.LOGIN
+          ? resetLoginForm()
+          : newTab === TABS.SIGNUP
+          ? resetSignupForm()
+          : resetLoginForm()
+      );
+      setErrorMessage("");
+      return;
+    }
+
     setGearPosition(activeTab === TABS.LOGIN ? "gear-left" : "gear-right");
     setIsTransitioning(true);
     // setGearPosition((prevPosition) =>
@@ -54,6 +83,9 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
   };
 
   const getGearClassName = () => {
+    if (activeTab === TABS.FORGOT_PASSWORD) {
+      return "hidden"; // Hide gear for forgot password
+    }
     if (isFirstRender) {
       return activeTab === TABS.LOGIN ? "left-position" : "right-position";
     }
@@ -61,10 +93,22 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
   };
 
   const renderAuthContent = () => {
+    // Show forgot password component
+    if (activeTab === TABS.FORGOT_PASSWORD) {
+      return (
+        <ForgotPassword
+          onClose={onClose}
+          show={show}
+          onBackToLogin={() => handleTabSwitch(TABS.LOGIN)}
+        />
+      );
+    }
+
     const sharedProps = {
       onTabClick: handleTabSwitch,
       errorMessage,
       setErrorMessage,
+      onForgotPassword: () => handleTabSwitch(TABS.FORGOT_PASSWORD),
     };
 
     const contentClassName = `auth-content ${
@@ -101,11 +145,30 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
     );
   };
 
+  // If in forgot password mode, just render the ForgotPassword component directly
+  if (activeTab === TABS.FORGOT_PASSWORD) {
+    return (
+      <ForgotPassword
+        onClose={onClose}
+        show={show}
+        onBackToLogin={() => handleTabSwitch(TABS.LOGIN)}
+      />
+    );
+  }
+
   return (
     <div className="overlay">
       <div className="custom-modal overlay">
         <div className="btn-container2">
-          <button className="btn btn-secondary" onClick={onClose}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => {
+              dispatch(
+                activeTab === TABS.LOGIN ? resetLoginForm() : resetSignupForm()
+              );
+              onClose();
+            }}
+          >
             Close
           </button>
         </div>

@@ -10,6 +10,7 @@ const initialState = {
   loadingCart: false,
   errorCartMessage: null,
   successCartMessage: null,
+  warningCartMessage: null,
 };
 
 export const fetchCart = createAsyncThunk(
@@ -143,15 +144,12 @@ const cartSlice = createSlice({
         const { status, item } = action.payload;
 
         if (status === "existing") {
-          // Don't modify the cart if the item is already there
           state.warningCartMessage = "Item already added to cart!";
         } else if (status === "new") {
-          // Add the item to the cart if it doesn't already exist
-          state.cartItems.push({ ...item });
+          state.cartItems.push(item);
           state.successCartMessage = "Item added to cart successfully!";
         }
 
-        // Recalculate the total price by summing all cartItems in the cart
         state.totalPrice = state.cartItems.reduce(
           (total, item) => total + item.price,
           0

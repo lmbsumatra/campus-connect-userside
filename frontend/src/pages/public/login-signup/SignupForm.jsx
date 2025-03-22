@@ -7,6 +7,7 @@ import "./loginSignupStyle.css";
 import showPassword from "../../../assets/images/icons/eye-open.svg";
 import hidePassword from "../../../assets/images/icons/eye-closed.svg";
 import { baseApi } from "../../../App";
+import { resetSignupForm } from "../../../redux/signup-form/signupFormSlice";
 
 // Helper function to validate form fields and check for empty required fields
 const validateRequiredFields = (
@@ -168,6 +169,7 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
       if (response.ok) {
         const data = await response.json();
         alert("Registered Successfully");
+        resetSignupForm();
       } else {
         const errorData = await response.json();
         setErrorMessage(

@@ -10,6 +10,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import showPassword from "../../../assets/images/icons/eye-open.svg";
 import hidePassword from "../../../assets/images/icons/eye-closed.svg";
 import { baseApi } from "../../../App";
+import { resetLoginForm } from "../../../redux/login-form/loginFormSlice";
 
 const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
   const dispatch = useDispatch(); // Initialize dispatch function
@@ -69,6 +70,7 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
           errorData.message || "Google login failed. Please try again."
         );
       }
+      resetLoginForm();
     } catch (error) {
       setErrorMessage(
         "An unexpected error occurred during Google login. Please try again later."
@@ -109,6 +111,7 @@ const LoginForm = ({ tab, setErrorMessage, handleTabClick, errorMessage }) => {
           userId: data.userId,
         }; // Dispatch to Redux
         dispatch(saveUserData(loginData));
+        resetLoginForm();
         navigate("/");
       } else {
         const errorData = await response.json();

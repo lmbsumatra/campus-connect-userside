@@ -43,6 +43,15 @@ const User = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true, // Set to null initially and later updated
     },
+    // New columns for email verification
+    reset_password_token: {
+      type: DataTypes.STRING(255),
+      allowNull: true, // The token will be generated upon registration
+    },
+    reset_password_token_expiration: {
+      type: DataTypes.DATE,
+      allowNull: true, // Set to null initially and later updated
+    },
     email_verified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false, // Default to false, will be updated upon email verification

@@ -43,7 +43,7 @@ const ItemCard = ({
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
   const isEmailVerified = user?.user?.emailVerified ?? false;
-  
+
   const dispatch = useDispatch();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const dropdownRefs = useRef({});
@@ -135,9 +135,7 @@ const ItemCard = ({
       );
       return;
     }
-    navigate(
-      `/profile/${itemType === FOR_RENT ? "my-listings" : "my-for-sale"}/add`
-    );
+    navigate(`/profile/my-listings/add`);
   };
 
   const displayItems = isYou ? (items.length > 0 ? items : sortedItems) : items;

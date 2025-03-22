@@ -39,6 +39,12 @@ const Cart = ({ isOpen, onClose }) => {
   }, [dispatch]);
 
   useEffect(() => {
+    setSelectedItems([]); // Clear selection when cart updates
+    setSelectAll(false); // Reset "Select All"
+  }, [cartItems]);
+
+  
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (cartRef.current && !cartRef.current.contains(event.target)) {
         onClose();
@@ -84,6 +90,7 @@ const Cart = ({ isOpen, onClose }) => {
         console.error("Error removing item from cart:", error);
         notify("error", "Error", "Failed to remove item from cart.");
       });
+    setShowConfirm(false);
   };
 
   const handleCancelRemove = () => {

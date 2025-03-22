@@ -16,6 +16,7 @@ import {
   selectUnreadCount,
   markNotificationAsRead,
 } from "../../../redux/notif/notificationSlice";
+import { fetchRentalTransactions } from "../../../redux/transactions/rentalTransactionsSlice";
 
 // Updated notification routes configuration including purchase-related routes
 const notificationRoutes = {
@@ -530,11 +531,13 @@ const Notification = ({
       try {
         await dispatch(fetchNotifications(studentUser.userId)).unwrap();
         // Register the user with the socket
+        // await dispatch(fetchRentalTransactions(studentUser?.userId)).unwrap();
         const userIdStr = studentUser.userId.toString();
         socket.emit("registerUser", userIdStr);
 
         const handler = (notification) => {
           // For new listing or post, show a temporary pop-up alert
+          dispatch(fetchRentalTransactions(studentUser.userId));
           if (
             notification.type === "new-listing" ||
             notification.type === "new-post"

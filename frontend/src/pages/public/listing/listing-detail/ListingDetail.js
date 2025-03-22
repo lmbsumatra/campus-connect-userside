@@ -290,9 +290,8 @@ function ListingDetail() {
         ShowAlert(dispatch, "success", "Success!", successCartMessage);
       }
       if (warningCartMessage) {
-        ShowAlert(dispatch, "warning", "Warning", warningCartMessage);
+        ShowAlert(dispatch, "warning", "Already in Cart", warningCartMessage);
       }
-
       if (errorCartMessage) {
         ShowAlert(dispatch, "error", "Error", errorCartMessage);
       }
@@ -829,7 +828,9 @@ function ListingDetail() {
                 }}
               >
                 <span className="value selected">
-                  {approvedListingById.paymentMethod}
+                  {approvedListingById.paymentMethod === GCASH
+                    ? "Online Payment"
+                    : "Pay upon meetup"}
                 </span>
               </Tooltip>
             ) : (
@@ -848,14 +849,14 @@ function ListingDetail() {
                     </button>
                     <button
                       className={`value ${
-                        approvedListingById.paymentMethod === PICK_UP
+                        approvedListingById.deliveryMethod === PICK_UP
                           ? "selected"
                           : ""
                       }`}
                       onClick={() => handleSelectDeliveryMethod("pickup")}
                       disabled={isYou}
                     >
-                      Gcash
+                      Pickup
                     </button>
                   </div>
                 </Tooltip>

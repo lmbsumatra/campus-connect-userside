@@ -130,6 +130,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
 
   const handleSearchFocus = () => {
     setShowPopUpSearchBarResults(true);
+    setIsSearchFocused(true);
   };
 
   const closeLoginSignUp = () => {

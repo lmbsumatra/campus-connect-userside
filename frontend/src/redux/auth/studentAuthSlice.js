@@ -5,6 +5,8 @@ const initialState = {
   studentUser: JSON.parse(localStorage.getItem("studentUser")) || null,
   loading: false,
   error: null,
+  passwordResetStatus: null,
+  passwordResetError: null,
 };
 
 export const googleLogin = createAsyncThunk(
@@ -86,11 +88,91 @@ export const manualLogin = createAsyncThunk(
       const data = await response.json();
       if (data.token && data.role && data.userId) {
         localStorage.setItem("studentUser", JSON.stringify(data));
-        
+
         return data; // Return successful login data
       } else {
         return rejectWithValue("Invalid response data. Please try again.");
       }
+    } catch (error) {
+      if (error.name === "AbortError") {
+        return rejectWithValue("Request timed out. Please try again.");
+      }
+      return rejectWithValue(error.message || "Unexpected error occurred.");
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+);
+
+// Async thunk for forgot password
+export const forgotPassword = createAsyncThunk(
+  "studentAuth/forgotPassword",
+  async (email, { rejectWithValue }) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/user/forgot-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+          signal: controller.signal,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(
+          errorData.message || "Failed to send reset email. Please try again."
+        );
+      }
+
+      const data = await response.json();
+      return data.message || "Password reset link sent to your email";
+    } catch (error) {
+      if (error.name === "AbortError") {
+        return rejectWithValue("Request timed out. Please try again.");
+      }
+      return rejectWithValue(error.message || "Unexpected error occurred.");
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+);
+
+// Async thunk for reset password
+export const resetPassword = createAsyncThunk(
+  "studentAuth/resetPassword",
+  async ({ token, newPassword }, { rejectWithValue }) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/user/reset-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token, newPassword }),
+          signal: controller.signal,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(
+          errorData.message || "Password reset failed. Please try again."
+        );
+      }
+
+      const data = await response.json();
+      return data.message || "Password reset successful";
     } catch (error) {
       if (error.name === "AbortError") {
         return rejectWithValue("Request timed out. Please try again.");
@@ -125,6 +207,10 @@ const studentAuthSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
+    clearPasswordResetStatus: (state) => {
+      state.passwordResetStatus = null;
+      state.passwordResetError = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -153,6 +239,38 @@ const studentAuthSlice = createSlice({
       .addCase(googleLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      // Forgot password
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.passwordResetStatus = null;
+        state.passwordResetError = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.passwordResetStatus = "email-sent";
+        state.passwordResetError = null;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.passwordResetStatus = null;
+        state.passwordResetError = action.payload;
+      })
+      // Reset password
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.passwordResetStatus = null;
+        state.passwordResetError = null;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.passwordResetStatus = "reset-success";
+        state.passwordResetError = null;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.passwordResetStatus = null;
+        state.passwordResetError = action.payload;
       });
   },
 });
@@ -161,10 +279,19 @@ const studentAuthSlice = createSlice({
 export const selectStudentUser = (state) => state.studentAuth.studentUser;
 export const studentAuthLoading = (state) => state.studentAuth.loading;
 export const studentAuthError = (state) => state.studentAuth.error;
+export const selectPasswordResetStatus = (state) =>
+  state.studentAuth.passwordResetStatus;
+export const selectPasswordResetError = (state) =>
+  state.studentAuth.passwordResetError;
 
 // Export actions
-export const { logoutStudent, saveUserData, setLoading, setError } =
-  studentAuthSlice.actions;
+export const {
+  logoutStudent,
+  saveUserData,
+  setLoading,
+  setError,
+  clearPasswordResetStatus,
+} = studentAuthSlice.actions;
 
 // Export reducer
 export default studentAuthSlice.reducer;
