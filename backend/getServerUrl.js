@@ -22,11 +22,11 @@ const getLocalIP = () => {
 // Function to get the full server URL (IP + port)
 const getServerUrl = (port = 3001) => {
   const ipAddress = getLocalIP();
-  return `http://${ipAddress}:${port}`;
+  return `https://${ipAddress}:${port}`;
 };
 const getOriginUrl = (port = 3000) => {
   const ipAddress = getLocalIP();
-  return `http://${ipAddress}:${port}`;
+  return `https://${ipAddress}:${port}`;
 };
 
 module.exports = { getServerUrl, getOriginUrl };
