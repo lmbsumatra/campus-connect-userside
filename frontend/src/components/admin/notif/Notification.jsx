@@ -3,6 +3,7 @@ import axios from "axios";
 import Bell from "../../../assets/images/icons/notif.svg";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
+import { baseApi } from "../../../utils/consonants";
 
 const Notification = ({
   showNotifications,
@@ -17,7 +18,7 @@ const Notification = ({
     if (notificationId) {
       try {
         await axios.put(
-          `http://localhost:3001/api/notifications/${notificationId}/read`
+          `${baseApi}/api/notifications/${notificationId}/read`
         );
         setNotifications((prev) =>
           prev.map((notif) =>
@@ -33,7 +34,7 @@ const Notification = ({
   const handleMarkAllAsRead = async (e) => {
     e.preventDefault();
     try {
-      await axios.put("http://localhost:3001/api/notifications/mark-all-read");
+      await axios.put(`${baseApi}/api/notifications/mark-all-read`);
       setNotifications((prev) =>
         prev.map((notif) => ({ ...notif, isRead: true }))
       );

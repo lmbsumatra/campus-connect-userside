@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/posts/user";
+const BASE_URL = `${baseApi}/posts/user`;
 
 const initialState = {
   availablePostsByUser: [],

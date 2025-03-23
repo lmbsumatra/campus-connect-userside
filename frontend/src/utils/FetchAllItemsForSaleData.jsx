@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { baseApi } from "./consonants";
 
 const useFetchAllItemsForSaleData = () => {
   const [items, setItems] = useState([]);
@@ -9,7 +10,7 @@ const useFetchAllItemsForSaleData = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/item-for-sale/info`);
+        const response = await axios.get(`${baseApi}/item-for-sale/info`);
         setItems(response.data);
       } catch (err) {
         setError(err.message);

@@ -101,7 +101,7 @@ const UserProfileVisit = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/reports",
+        `${baseApi}/api/reports`,
         reportData
       ); // API endpoint
       // console.log("Report submitted:", response.data);
