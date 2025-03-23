@@ -34,11 +34,6 @@ const {
   AllowToProceed,
 } = require("./cron-job/rental-transaction/AllowToProceed.js");
 
-// cron.schedule("1 * * * * * *", async () => {
-//   console.log("Running cron job to auto-decline expired rentals...");
-//   await autoDeclineExpired(); // Call the function to decline expired rentals
-// });
-
 // Load environment variables
 dotenv.config();
 
@@ -109,9 +104,6 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/follow", followRoutes);
 
 app.use("/api/posts", uploadRoutes);
-// app.use("/api/messages/upload-message-images", messageRoutes);
-
-app.use("/api/transaction-reports", transactionReportsRoutes);
 
 // Ensure rentalTransactionRoutes is correctly wrapped with its controller
 app.use(
@@ -127,18 +119,8 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something went wrong!");
 });
 
-// Sync Database and Start Server
-sequelize
-  .sync()
-  .then(() => {
-    const PORT = process.env.PORT || 3001;
-    server.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error("Unable to connect to the database:", error);
-  });
+// Removed sequelize.sync() to prevent auto-creation of tables
+// Ensure to use migrations instead for manual schema management
 
 AllowToProceed();
 module.exports = { app, server, io };

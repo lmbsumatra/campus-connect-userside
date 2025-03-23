@@ -33,43 +33,35 @@ const BlockedUser = require("./BlockedUserModel");
 const DeletedConversation = require("./DeletedConversationModel");
 
 const models = {
-  // Listing,
-  // Post,
-  // Cart,
-  // Student,
-  // User,
-  // Date,
-  // Duration,
-  // ItemForSale,
-  // RentalTransaction,
-  // Conversation,
-  // Message,
-  // UnavailableDate,
-  // Report,
-
-
+  Listing,
+  Post,
+  Cart,
+  Student,
+  User,
+  Date,
+  Duration,
+  ItemForSale,
+  RentalTransaction,
+  Conversation,
+  Message,
+  UnavailableDate,
+  Report,
   // BuyAndSellTransaction,
-
-
-  // ReviewAndRate,
-  // Notification,
-  // MessageNotification,
-  // StudentNotification,
-  // Follow,
-  // TransactionReport,
-  // TransactionEvidence,
-  // TransactionReportResponse,
-
-
+  ReviewAndRate,
+  Notification,
+  MessageNotification,
+  StudentNotification,
+  Follow,
+  TransactionReport,
+  TransactionEvidence,
+  TransactionReportResponse,
   // RentalReport,
   // RentalEvidence,
   // RentalReportResponse,
-
-
-  // SystemConfig,
-  // AuditLog,
-  // BlockedUser,
-  // DeletedConversation,
+  SystemConfig,
+  AuditLog,
+  BlockedUser,
+  DeletedConversation,
 };
 
 Object.values(models).forEach((model) => {
