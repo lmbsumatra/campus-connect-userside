@@ -1,7 +1,7 @@
 // Change Password for Admin
 const User = require("../../models/UserModel");
 const { Op } = require("sequelize");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const adminChangePassword = async (req, res) => {
   const adminId = req.adminUser.adminId;

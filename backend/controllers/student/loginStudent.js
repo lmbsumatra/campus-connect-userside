@@ -1,5 +1,5 @@
 const { models } = require("../../models");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken");
 const TokenGenerator = require("../../middlewares/TokenGenerator.js");

@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const { models, sequelize } = require("../../models");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const resetPassword = async (req, res) => {
   try {

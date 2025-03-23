@@ -36,7 +36,7 @@ const AuditLog = sequelize.define(
   },
   {
     timestamps: true, // ✅ Correct placement
-    tableName: "AuditLogs",
+    tableName: "auditlogs",
   }
 );
 AuditLog.associate = (models) => {

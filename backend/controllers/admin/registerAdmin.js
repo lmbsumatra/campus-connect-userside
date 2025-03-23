@@ -2,7 +2,7 @@
 const User = require("../../models/UserModel");
 const Admin = require("../../models/AdminModel");
 const sequelize = require("../../config/database");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { rollbackUpload } = require("../../config/multer");
 
 const registerAdmin = async (req, res) => {

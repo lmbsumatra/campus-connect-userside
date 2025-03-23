@@ -8,7 +8,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const cloudinary = require("cloudinary").v2;
 const { models } = require("../models/index");
 
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { rollbackUpload } = require("../config/multer");
 
 async function verify(token) {

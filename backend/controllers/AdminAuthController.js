@@ -9,7 +9,7 @@
 // const UnavailableDate = require("../models/UnavailableDateModel");
 // const EndSemesterDate = require("../models/EndSemesterDate");
 // const AuditLog = require("../models/AuditLogModel");
-// const bcrypt = require("bcrypt");
+// const bcrypt = require("bcryptjs");
 // const { rollbackUpload } = require("../config/multer");
 
 // async function verify(token) {

@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const { models } = require("../../models");
 const sequelize = require("../../models").sequelize;
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { rollbackUpload } = require("../../config/multer");
 const transporter = require("../../config/nodemailer");
 const JWT_SECRET = process.env.JWT_SECRET;
