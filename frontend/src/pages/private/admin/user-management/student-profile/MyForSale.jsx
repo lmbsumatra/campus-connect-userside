@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../../../../context/AuthContext";
 import ItemSale from "../../../../../components/itemsale/ItemSale";
+import { baseApi } from "../../../../../utils/consonants";
 
 function MyForSale() {
   const [forsales, setForSales] = useState([]);
@@ -15,7 +16,7 @@ function MyForSale() {
     const fetchItem = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/item-for-sale/info`
+          `${baseApi}/item-for-sale/info`
         );
         const userForsale = response.data.filter(
           (forsale) => forsale.seller_id === userId

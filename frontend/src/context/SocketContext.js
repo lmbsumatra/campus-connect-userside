@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import io from "socket.io-client";
-import { baseApi } from "../App";
+import { baseApi } from "../utils/consonants";
 
 const SocketContext = createContext();
 

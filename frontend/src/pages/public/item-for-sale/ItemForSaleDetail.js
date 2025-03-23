@@ -16,6 +16,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 import {
+  baseApi,
   defaultImages,
   FOR_RENT,
   FOR_SALE,
@@ -238,7 +239,7 @@ function ItemForSaleDetail() {
       };
 
       const response = await axios.post(
-        "http://localhost:3001/rental-transaction/add",
+        `${baseApi}/rental-transaction/add`,
         rentalDetails
       );
 
@@ -375,7 +376,7 @@ function ItemForSaleDetail() {
     try {
       const response = await fetch(
         `${
-          process.env.REACT_APP_API_URL || "http://localhost:3001"
+          process.env.REACT_APP_API_URL || `${baseApi}`
         }/api/conversations/createBySeller`,
         {
           method: "POST",
@@ -420,7 +421,7 @@ function ItemForSaleDetail() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/reports",
+        `${baseApi}/api/reports`,
         reportData
       ); // API endpoint
       // Update hasReported state
@@ -483,7 +484,7 @@ function ItemForSaleDetail() {
   const checkIfReported = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/reports/check`,
+        `${baseApi}/api/reports/check`,
         {
           params: {
             reporter_id: loggedInUserId,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { baseApi } from "../App";
+import { baseApi } from "./consonants";
 
 const FetchUserInfoForAdmin = (userId) => {
   const { adminUser } = useAuth(); // Get admin token from AuthContext

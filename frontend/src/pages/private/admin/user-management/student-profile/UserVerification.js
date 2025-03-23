@@ -3,9 +3,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useParams } from "react-router-dom";
 import FetchUserInfoForAdmin from "../../../../../utils/FetchUserInfoAdmin";
 import { Modal, Button } from "react-bootstrap";
-import { baseApi } from "../../../../../App";
 import { useAuth } from "../../../../../context/AuthContext";
 import "./userVerification.css";
+import { baseApi } from "../../../../../utils/consonants";
 
 const UserVerification = () => {
   const { adminUser } = useAuth();

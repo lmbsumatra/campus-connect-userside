@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/user/merchant-details";
+const BASE_URL = `${baseApi}/user/merchant-details`;
 
 // Async thunk for fetching merchant data
 export const fetchMerchant = createAsyncThunk(

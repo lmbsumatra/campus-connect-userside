@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/api/system-config/";
+const BASE_URL = `${baseApi}/api/system-config/`;
 
 export const fetchSystemConfig = createAsyncThunk(
   "systemConfig/fetchSystemConfig",
@@ -20,7 +21,7 @@ export const updateSystemConfig = createAsyncThunk(
   async ({ config, config_value }, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `http://localhost:3001/api/system-config/${config}`,
+        `${baseApi}/api/system-config/${config}`,
         { config_value }
       );
         return response.data;

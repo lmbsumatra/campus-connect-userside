@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./verifyEmailStyles.css"; // Add custom styles here
 import successIcon from "./success.svg";
+import { baseApi } from "../../utils/consonants";
 
 const VerifyEmail = () => {
   const { token } = useParams();
@@ -19,7 +20,7 @@ const VerifyEmail = () => {
       hasVerifiedRef.current = true; // Set flag to true
       try {
         const response = await fetch(
-          `http://localhost:3001/user/verify-email/${encodeURIComponent(
+          `${baseApi}/user/verify-email/${encodeURIComponent(
             token
           )}`,
           { method: "GET" }

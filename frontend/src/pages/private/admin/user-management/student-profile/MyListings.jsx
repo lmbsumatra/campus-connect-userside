@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../../../../context/AuthContext";
 import ItemList from "../../../../../components/itemlisting/ItemList";
+import { baseApi } from "../../../../../utils/consonants";
 
 function MyListings() {
     const [listings, setListings] = useState([]);
@@ -14,7 +15,7 @@ function MyListings() {
     useEffect(() => {
       const fetchItem = async () => {
         try {
-          const response = await axios.get(`http://localhost:3001/listings/info`);
+          const response = await axios.get(`${baseApi}/listings/info`);
           const userListings = response.data.filter(
             (listing) => listing.owner_id === userId
           );

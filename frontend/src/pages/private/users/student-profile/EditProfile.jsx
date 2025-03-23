@@ -5,10 +5,10 @@ import { useAuth } from "../../../../context/AuthContext";
 import showPassword from "../../../../assets/images/icons/eye-open.svg";
 import hidePassword from "../../../../assets/images/icons/eye-closed.svg";
 import PasswordMeter from "../../../../components/common/PasswordMeter";
-import { baseApi } from "../../../../App";
 import { Modal, Button, InputGroup, Form } from "react-bootstrap";
 import { Tooltip } from "@mui/material";
 import { toast } from "react-toastify";
+import { baseApi } from "../../../../utils/consonants";
 
 function EditProfile() {
   const [formData, setFormData] = useState({

@@ -18,6 +18,7 @@ import {
 } from "../../../../components/Analytics/ReportAnalyticsComponent";
 import { ReportStatus } from "../../../../utils/Status";
 import { useAuth } from "../../../../context/AuthContext";
+import { baseApi } from "../../../../utils/consonants";
 
 const ReportDashboard = () => {
   const { adminUser } = useAuth();
@@ -77,7 +78,7 @@ const ReportDashboard = () => {
           action: async () => {
             try {
               const response = await fetch(
-                `http://localhost:3001/api/reports/${reportId}`,
+                `${baseApi}/api/reports/${reportId}`,
                 {
                   method: "DELETE",
                   headers: {

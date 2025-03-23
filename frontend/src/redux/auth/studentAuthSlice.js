@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { baseApi } from "../../utils/consonants";
 
 // Initial state
 const initialState = {
@@ -18,7 +19,7 @@ export const googleLogin = createAsyncThunk(
     try {
       // console.log("Sending Google Token:", token); // Debug log
 
-      const response = await fetch(`http://localhost:3001/user/google-login`, {
+      const response = await fetch(`${baseApi}/user/google-login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,7 +64,7 @@ export const manualLogin = createAsyncThunk(
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
 
     try {
-      const response = await fetch(`http://localhost:3001/user/login`, {
+      const response = await fetch(`${baseApi}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -113,7 +114,7 @@ export const forgotPassword = createAsyncThunk(
 
     try {
       const response = await fetch(
-        `http://localhost:3001/user/forgot-password`,
+        `${baseApi}/user/forgot-password`,
         {
           method: "POST",
           headers: {
@@ -153,7 +154,7 @@ export const resetPassword = createAsyncThunk(
 
     try {
       const response = await fetch(
-        `http://localhost:3001/user/reset-password`,
+        `${baseApi}/user/reset-password`,
         {
           method: "POST",
           headers: {

@@ -4,6 +4,7 @@ import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice"
 import "bootstrap/dist/css/bootstrap.min.css";
 import { formatDate } from "../../../../utils/dateFormat";
 import { useAuth } from "../../../../context/AuthContext";
+import { baseApi } from "../../../../utils/consonants";
 
 const AdminResetStatus = ({ onClose }) => {
   const { adminUser } = useAuth();
@@ -15,7 +16,7 @@ const AdminResetStatus = ({ onClose }) => {
   const [showInfo, setShowInfo] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:3001/admin/end-semester-dates")
+    fetch(`${baseApi}/admin/end-semester-dates`)
       .then((response) => response.json())
       .then((data) => setDates(data))
       .catch((error) => console.error("Error fetching dates:", error));
@@ -47,7 +48,7 @@ const AdminResetStatus = ({ onClose }) => {
 
             try {
               const response = await fetch(
-                "http://localhost:3001/admin/end-semester-dates",
+                `${baseApi}/admin/end-semester-dates`,
                 {
                   method: "POST",
                   headers: {
@@ -104,7 +105,7 @@ const AdminResetStatus = ({ onClose }) => {
           action: async () => {
             try {
               const response = await fetch(
-                `http://localhost:3001/admin/end-semester-dates/${date}`,
+                `${baseApi}/admin/end-semester-dates/${date}`,
                 {
                   method: "DELETE",
                   headers: {

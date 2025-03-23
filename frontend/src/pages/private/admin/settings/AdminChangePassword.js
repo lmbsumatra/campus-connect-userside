@@ -1,6 +1,7 @@
 // src/pages/private/admin/settings/AdminChangePassword.js
 import React, { useState } from "react";
 import { useAuth } from "../../../../context/AuthContext";
+import { baseApi } from "../../../../utils/consonants";
 
 const AdminChangePassword = ({ onClose }) => {
   const { adminUser } = useAuth();
@@ -22,7 +23,7 @@ const AdminChangePassword = ({ onClose }) => {
 
     try {
       const response = await fetch(
-        "http://localhost:3001/admin/change-password",
+        `${baseApi}/admin/change-password`,
         {
           method: "POST",
           headers: {

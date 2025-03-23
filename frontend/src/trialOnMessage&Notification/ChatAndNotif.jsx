@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { baseApi } from "../utils/consonants";
 
 const ChatAndNotif = () => {
   const { studentUser } = useAuth();  // Always call this first
   const [conversations, setConversations] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const socket = io("http://localhost:3001");
+  const socket = io(`${baseApi}`);
 
   // Register user with socket server when connected
   useEffect(() => {
@@ -27,7 +28,7 @@ const ChatAndNotif = () => {
     // Get conversations on mount or when studentUser changes
     const getConversations = async () => {
       try {
-        const res = await axios.get(`http://localhost:3001/api/conversations/` + studentUser.userId);
+        const res = await axios.get(`${baseApi}/api/conversations/` + studentUser.userId);
         // console.log("Fetched conversations: ", res.data);
 
         if (Array.isArray(res.data.conversations)) {

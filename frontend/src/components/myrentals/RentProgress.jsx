@@ -5,6 +5,7 @@ import item1 from "../../assets/images/item/item_1.jpg";
 import { useAuth } from "../../context/AuthContext";
 import { useParams, useNavigate } from "react-router-dom";
 import ReportModal from "../../components/report/ReportModalRental";
+import { baseApi } from "../../utils/consonants";
 
 function RentProgress() {
   const [transaction, setTransaction] = useState(null);
@@ -20,7 +21,7 @@ function RentProgress() {
     const fetchTransaction = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/rental-transaction/${id}`
+          `${baseApi}/rental-transaction/${id}`
         );
         setTransaction(response.data);
       } catch (err) {
@@ -111,7 +112,7 @@ Total Cost: ${calculateTotalCost()} php`
         });
       }
 
-      await axios.post("http://localhost:3001/api/reports", formData, {
+      await axios.post(`${baseApi}/api/reports`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

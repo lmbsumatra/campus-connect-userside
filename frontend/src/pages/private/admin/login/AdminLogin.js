@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../context/AuthContext";
 import "./adminLoginStyles.css";
+import { baseApi } from "../../../../utils/consonants";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3001/admin/login", {
+      const response = await fetch(`${baseApi}/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

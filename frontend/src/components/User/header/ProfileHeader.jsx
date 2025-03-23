@@ -13,6 +13,7 @@ import {
   Follow,
   FollowBack,
   Following,
+  baseApi,
 } from "../../../utils/consonants";
 import { updateUserActionById } from "../../../redux/user/otherUserSlice";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
@@ -234,7 +235,7 @@ const ProfileHeader = ({
       // Create/get a conversation with the user
       const response = await fetch(
         `${
-          process.env.REACT_APP_API_URL || "http://localhost:3001"
+          process.env.REACT_APP_API_URL || `${baseApi}`
         }/api/conversations/createConversation`,
         {
           method: "POST",

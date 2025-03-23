@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/user/info";
+const BASE_URL = `${baseApi}/user/info`;
 
 export const fetchUser = createAsyncThunk(
   "user/fetchUser",
@@ -65,7 +66,7 @@ export const updateUserAction = createAsyncThunk(
     }
     try {
       const response = await fetch(
-        "http://localhost:3001/api/follow/follow-user",
+        `${baseApi}/api/follow/follow-user`,
         {
           method: "POST",
           headers: {

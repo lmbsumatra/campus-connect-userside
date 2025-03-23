@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { baseApi } from "./consonants";
 
 const FetchItemForSaleData = ({ id }) => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -11,7 +12,7 @@ const FetchItemForSaleData = ({ id }) => {
     const fetchItem = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/item-for-sale/${id}`
+          `${baseApi}/item-for-sale/${id}`
         );
         setSelectedItem(response.data);
 

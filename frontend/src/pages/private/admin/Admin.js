@@ -8,6 +8,7 @@ import { useAuth } from "../../../context/AuthContext";
 import axios from 'axios';
 import io from "socket.io-client";
 import "./adminStyles.css";
+import { baseApi } from "../../../utils/consonants";
 
 const Admin = () => {
   const { adminUser } = useAuth();
@@ -17,7 +18,7 @@ const Admin = () => {
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io("http://localhost:3001", {
+    const newSocket = io(`${baseApi}`, {
       transports: ["polling", "websocket"],
     });
     setSocket(newSocket);
@@ -29,7 +30,7 @@ const Admin = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/notifications');
+        const response = await axios.get(`${baseApi}/api/notifications`);
         setNotifications(response.data);
       } catch (error) {
         console.error('Error fetching notifications:', error);

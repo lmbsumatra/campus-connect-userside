@@ -10,6 +10,7 @@ import { ReportStatus } from "../../../../utils/Status";
 import CardComponent from "../../../../components/Table/CardComponent"; 
 import {useDispatch} from "react-redux";
 import ShowAlert from "../../../../utils/ShowAlert";
+import { baseApi } from "../../../../utils/consonants";
 
 const ReportOverview = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -63,7 +64,7 @@ const ReportOverview = () => {
   
     if (isConfirmed) {
       try {
-        const response = await fetch(`http://localhost:3001/api/reports/${reportId}`, {
+        const response = await fetch(`${baseApi}/api/reports/${reportId}`, {
           method: "DELETE",
         });
   

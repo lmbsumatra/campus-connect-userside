@@ -1,5 +1,4 @@
-import { baseApi } from "../App";
-
+import { baseApi } from "./consonants";
 const fetchAuditLogs = async (adminUser) => {
   if (!adminUser || !adminUser.token) {
     throw new Error("No authentication token found.");

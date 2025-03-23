@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { baseApi } from "../../../../utils/consonants";
 
 const AdminViewAccounts = () => {
   const [accounts, setAccounts] = useState([]);
@@ -7,7 +8,7 @@ const AdminViewAccounts = () => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:3001/admin/accounts"); // Adjust URL to your backend endpoint
+        const response = await fetch(`${baseApi}/admin/accounts`); // Adjust URL to your backend endpoint
         if (!response.ok) {
           throw new Error("Failed to fetch accounts");
         }

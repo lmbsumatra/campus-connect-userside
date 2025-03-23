@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { baseApi } from "../App";
+import { baseApi } from "./consonants";
 
 const useFetchAllRentalTransactionsData = () => {
   const [transactions, setTransactions] = useState([]);

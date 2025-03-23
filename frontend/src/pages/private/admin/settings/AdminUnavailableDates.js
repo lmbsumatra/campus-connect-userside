@@ -4,6 +4,7 @@ import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice"
 import "bootstrap/dist/css/bootstrap.min.css";
 import { formatDate } from "../../../../utils/dateFormat";
 import { useAuth } from "../../../../context/AuthContext";
+import { baseApi } from "../../../../utils/consonants";
 
 const AdminUnavailableDates = ({ onClose }) => {
   const { adminUser } = useAuth();
@@ -15,7 +16,7 @@ const AdminUnavailableDates = ({ onClose }) => {
   const [showInfo, setShowInfo] = useState(false); // Toggle for info section
 
   useEffect(() => {
-    fetch("http://localhost:3001/admin/unavailable-dates")
+    fetch(`${baseApi}/admin/unavailable-dates`)
       .then((response) => response.json())
       .then((data) => setDates(data))
       .catch((error) => console.error("Error fetching dates:", error));
@@ -47,7 +48,7 @@ const AdminUnavailableDates = ({ onClose }) => {
 
             try {
               const response = await fetch(
-                "http://localhost:3001/admin/unavailable-dates",
+                `${baseApi}/admin/unavailable-dates`,
                 {
                   method: "POST",
                   headers: {
@@ -104,7 +105,7 @@ const AdminUnavailableDates = ({ onClose }) => {
           action: async () => {
             try {
               const response = await fetch(
-                `http://localhost:3001/admin/unavailable-dates/${date}`,
+                `${baseApi}/admin/unavailable-dates/${date}`,
                 {
                   method: "DELETE",
                   headers: {

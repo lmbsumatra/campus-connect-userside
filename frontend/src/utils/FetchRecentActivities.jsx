@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { baseApi } from './consonants';
 
 const useFetchRecentActivities = () => {
     const [activities, setActivities] = useState([]);
@@ -9,7 +10,7 @@ const useFetchRecentActivities = () => {
     useEffect(() => {
         const fetchActivities = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/recent-activities');
+                const response = await axios.get(`${baseApi}/api/recent-activities`);
                 setActivities(response.data);
             } catch (err) {
                 setError(err.message);

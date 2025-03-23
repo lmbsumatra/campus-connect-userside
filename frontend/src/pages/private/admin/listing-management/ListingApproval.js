@@ -8,6 +8,7 @@ import { useAuth } from "../../../../context/AuthContext";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchAdminListingById } from "../../../../redux/listing/adminListingByIdSlice";
 import ActionModal from "../common/ActionModal";
+import { baseApi } from "../../../../utils/consonants";
 
 const ListingApproval = () => {
   const [showModal, setShowModal] = useState(false);
@@ -42,7 +43,7 @@ const ListingApproval = () => {
   const handleStatusChange = async (selectedAction, reason) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/listings/${id}/status`,
+        `${baseApi}/listings/${id}/status`,
         {
           method: "PATCH",
           headers: {

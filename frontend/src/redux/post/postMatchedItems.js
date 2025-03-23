@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/posts/";
+const BASE_URL = `${baseApi}/posts/`;
 
 const initialState = {
   postMatchedItems: [],

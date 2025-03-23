@@ -15,11 +15,10 @@ import closeIcon from "../../../assets/images/input-icons/close.svg";
 import userIcon from "../../../assets/images/input-icons/user.svg";
 import infoIcon from "../../../assets/images/input-icons/info.svg";
 import successIcon from "../../../assets/images/input-icons/success.svg";
-import { baseApi } from "../../../App";
 import ShowAlert from "../../../utils/ShowAlert";
 import { useNavigate } from "react-router-dom";
 import { saveUserData } from "../../../redux/auth/studentAuthSlice";
-import { collegesAndCourses } from "../../../utils/consonants";
+import { baseApi, collegesAndCourses } from "../../../utils/consonants";
 
 const Trial = ({ onTabClick }) => {
   const dispatch = useDispatch();

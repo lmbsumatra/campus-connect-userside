@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/admin/all-unavailable-dates";
+const BASE_URL = `${baseApi}/admin/all-unavailable-dates`;
 
 const initialState = {
   unavailableDates: [],

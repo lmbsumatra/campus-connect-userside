@@ -9,6 +9,7 @@ import PostPreview from "./PostPreview";
 import { useAuth } from "../../../../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminPostById } from "../../../../redux/post/adminPostByIdSlice";
+import { baseApi } from "../../../../utils/consonants";
 
 const PostApproval = () => {
   const [showModal, setShowModal] = useState(false);
@@ -41,7 +42,7 @@ const PostApproval = () => {
   const handleStatusChange = async (selectedAction, reason) => {
     // console.log("Admin user token being sent:", adminUser?.token);
     try {
-      const response = await fetch(`http://localhost:3001/posts/${id}/status`, {
+      const response = await fetch(`${baseApi}/posts/${id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

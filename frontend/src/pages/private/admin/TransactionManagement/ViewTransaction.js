@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { formatDate } from "../../../../utils/dateFormat";
 import { TransactionStatus } from "../../../../utils/Status";
 import "./ViewTransaction.css";
+import { baseApi } from "../../../../utils/consonants";
 
 const ViewTransaction = () => {
   const { id } = useParams();
@@ -15,7 +16,7 @@ const ViewTransaction = () => {
     const fetchTransaction = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/rental-transaction/${id}`
+          `${baseApi}/rental-transaction/${id}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch transaction details.");

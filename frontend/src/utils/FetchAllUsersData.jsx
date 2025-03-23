@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { baseApi } from "./consonants";
 
 const useFetchAllUsersData = () => {
   const [users, setUsers] = useState([]);
@@ -9,7 +10,7 @@ const useFetchAllUsersData = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/user/`);
+        const response = await axios.get(`${baseApi}/user/`);
         setUsers(response.data);
       } catch (err) {
         setError(err.message);

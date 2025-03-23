@@ -9,6 +9,7 @@ import AdminViewAccounts from "./AdminViewAccounts"; // Import the new component
 import AdminUnavailableDates from "./AdminUnavailableDates";
 import AdminResetStatus from "./AdminResetStatus";
 import AdminViewSystemConfig from "./AdminViewSystemConfig";
+import { baseApi } from "../../../../utils/consonants";
 
 const AdminSettings = ({ tab, onClose }) => {
   const navigate = useNavigate();
@@ -141,7 +142,7 @@ const AdminSettings = ({ tab, onClose }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/admin/register", {
+      const response = await fetch(`${baseApi}/admin/register`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${adminUser.token}`,

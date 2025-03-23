@@ -20,7 +20,6 @@ import { defaultFilters } from "../../utils/consonants";
 
 const Rent = () => {
   const location = useLocation();
-  const baseUrl = "http://localhost:3001";
 
   const dispatch = useDispatch();
 

@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/item-for-sale/users";
+const BASE_URL = `${baseApi}/item-for-sale/users`;
 
 const initialState = {
   itemForSaleById: null, // item data (e.g., {id, name, rate, etc.})

@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./checkoutModalStyles.css";
 import { Tooltip } from "@mui/material";
-import { GCASH } from "../../../../utils/consonants.js";
+import { baseApi, GCASH } from "../../../../utils/consonants.js";
 
 const CheckoutModal = ({ show, onHide, items }) => {
   const dispatch = useDispatch();
@@ -55,7 +55,7 @@ const CheckoutModal = ({ show, onHide, items }) => {
 
       // Send rental details to backend
       const response = await axios.post(
-        "http://localhost:3001/rental-transaction/add",
+        `${baseApi}/rental-transaction/add`,
         rentalDetails
       );
 

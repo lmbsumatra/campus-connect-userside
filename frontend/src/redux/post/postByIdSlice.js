@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/posts/users";
+const BASE_URL = `${baseApi}/posts/users`;
 
 const initialState = {
   postById: null, // item data (e.g., {id, name, rate, etc.})

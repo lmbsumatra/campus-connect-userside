@@ -24,6 +24,7 @@ import {
   getStatusClass,
   MY_LISTINGS,
   MY_ITEMS,
+  baseApi,
 } from "../../../../utils/consonants.js";
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice.js";
@@ -46,7 +47,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./addNewItemStyles.css";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 
@@ -131,7 +131,7 @@ const EditItem = () => {
   const { id } = useParams();
   // console.log(id);
 
-  const socket = io("http://localhost:3001", {
+  const socket = io(`${baseApi}`, {
     transports: ["polling", "websocket"],
   });
   const [category, setCategory] = useState("");

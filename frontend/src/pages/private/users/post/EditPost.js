@@ -13,6 +13,7 @@ import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/L
 import ShowAlert from "../../../../utils/ShowAlert.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import {
+  baseApi,
   FOR_SALE,
   getStatusClass,
   TO_RENT,
@@ -29,7 +30,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import { fetchListingById } from "../../../../redux/listing/listingByIdSlice.js";
@@ -129,7 +129,7 @@ const EditPost = () => {
   const { id } = useParams();
   const [itemType, setItemType] = useState("");
 
-  const socket = io("http://localhost:3001", {
+  const socket = io(`${baseApi}`, {
     transports: ["polling", "websocket"],
   });
   const [category, setCategory] = useState("");
@@ -604,7 +604,7 @@ const EditPost = () => {
       // console.log(id, postDataToSubmit.itemId);
 
       // Determine the correct endpoint based on item type
-      const endpoint = `http://localhost:3001/posts/users/19/update/${postDataToSubmit.itemId}`;
+      const endpoint = `${baseApi}/posts/users/19/update/${postDataToSubmit.itemId}`;
 
       // console.log("Submitting to endpoint:", endpoint);
 

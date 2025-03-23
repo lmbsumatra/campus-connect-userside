@@ -32,6 +32,7 @@ import {
   PAY_UPON_MEETUP,
   GCASH,
   CONDITIONS,
+  baseApi,
 } from "../../../utils/consonants";
 import AddTerms from "../../private/users/common/AddTerms";
 
@@ -197,7 +198,7 @@ function PostDetail() {
     try {
       const response = await fetch(
         `${
-          process.env.REACT_APP_API_URL || "http://localhost:3001"
+          process.env.REACT_APP_API_URL || `${baseApi}`
         }/api/conversations/createConversationPost`,
         {
           method: "POST",
@@ -247,7 +248,7 @@ function PostDetail() {
 
         const uploadResponse = await axios.post(
           `${
-            process.env.REACT_APP_API_URL || "http://localhost:3001"
+            process.env.REACT_APP_API_URL || `${baseApi}`
           }/api/posts/upload-offer-image`,
           formData,
           {
@@ -265,7 +266,7 @@ function PostDetail() {
       // Then create conversation
       const createConversationResponse = await fetch(
         `${
-          process.env.REACT_APP_API_URL || "http://localhost:3001"
+          process.env.REACT_APP_API_URL || `${baseApi}`
         }/api/conversations/createConversationPost`,
         {
           method: "POST",
@@ -400,7 +401,7 @@ function PostDetail() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/reports",
+        `${baseApi}/api/reports`,
         reportData
       ); // API endpoint
 
@@ -463,7 +464,7 @@ function PostDetail() {
   const checkIfReported = async () => {
     // try {
     //   const response = await axios.get(
-    //     `http://localhost:3001/api/reports/check`,
+    //     `${baseApi}/api/reports/check`,
     //     {
     //       params: {
     //         reporter_id: loggedInUserId,

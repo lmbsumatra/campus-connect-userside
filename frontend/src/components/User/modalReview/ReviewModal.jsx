@@ -3,8 +3,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import PropTypes from "prop-types";
 import StarRatings from "react-star-ratings";
 import axios from "axios";
-import { baseApi } from "../../../App";
-import { defaultImages } from "../../../utils/consonants";
+import { baseApi, defaultImages } from "../../../utils/consonants";
 
 const ReviewModal = ({
   isOpen,

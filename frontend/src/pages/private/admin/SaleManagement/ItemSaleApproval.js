@@ -8,6 +8,7 @@ import { ItemStatus } from "../../../../utils/Status";
 import ItemForSalePreview from "./ItemForSalePreview";
 import { useAuth } from "../../../../context/AuthContext";
 import { fetchAdminItemForSaleById } from "../../../../redux/item-for-sale/adminItemForSaleByIdSlice";
+import { baseApi } from "../../../../utils/consonants";
 
 const ItemSaleApproval = () => {
   const [showModal, setShowModal] = useState(false);
@@ -45,7 +46,7 @@ const ItemSaleApproval = () => {
   const handleStatusChange = async (selectedAction, reason) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/item-for-sale/${id}/status`,
+        `${baseApi}/item-for-sale/${id}/status`,
         {
           method: "PATCH",
           headers: {

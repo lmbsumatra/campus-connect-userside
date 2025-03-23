@@ -9,6 +9,7 @@ import { useChat } from "../../../context/ChatContext";
 import { formatDistanceToNow } from "date-fns";
 import useSound from "use-sound";
 import notificationSound from "../../../assets/audio/message.mp3";
+import { baseApi } from "../../../utils/consonants";
 
 const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   const [notifications, setNotifications] = useState([]);
@@ -26,7 +27,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
 
     // Initialize socket connection
     socket.current = io(
-      process.env.REACT_APP_SOCKET_URL || "http://localhost:3001"
+      process.env.REACT_APP_SOCKET_URL || `${baseApi}`
     );
 
     socket.current.on("connect", () => {
@@ -62,7 +63,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   const fetchConversations = async () => {
     try {
       const res = await fetch(
-        `http://localhost:3001/api/conversations/preview/${userId}`
+        `${baseApi}/api/conversations/preview/${userId}`
       );
       if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
@@ -103,7 +104,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
     try {
       // Mark conversation as read
       await fetch(
-        `http://localhost:3001/api/notifications/message/conversation/${conv.id}/user/${userId}/read`,
+        `${baseApi}/api/notifications/message/conversation/${conv.id}/user/${userId}/read`,
         { method: "PUT" }
       );
 
@@ -129,7 +130,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   //   try {
   //     await fetch(
   //       `${
-  //         process.env.REACT_APP_API_URL || "http://localhost:3001"
+  //         process.env.REACT_APP_API_URL || `${baseApi}`
   //       }/api/notifications/message/${notificationId}/read`,
   //       {
   //         method: "PUT",
@@ -154,7 +155,7 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
     try {
       const response = await fetch(
         `${
-          process.env.REACT_APP_API_URL || "http://localhost:3001"
+          process.env.REACT_APP_API_URL || `${baseApi}`
         }/api/notifications/message/mark-all-read/${userId}`,
         {
           method: "PUT",
@@ -197,12 +198,12 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   //     const [conversationRes, messagesRes] = await Promise.all([
   //       fetch(
   //         `${
-  //           process.env.REACT_APP_API_URL || "http://localhost:3001"
+  //           process.env.REACT_APP_API_URL || `${baseApi}`
   //         }/api/conversations/${notif.conversation_id}`
   //       ),
   //       fetch(
   //         `${
-  //           process.env.REACT_APP_API_URL || "http://localhost:3001"
+  //           process.env.REACT_APP_API_URL || `${baseApi}`
   //         }/api/messages/${notif.conversation_id}`
   //       ),
   //     ]);

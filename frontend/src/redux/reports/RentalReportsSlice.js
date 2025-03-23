@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { baseApi } from "../../utils/consonants";
 
 // Base URL for transaction reports API
-const BASE_URL = "http://localhost:3001/api/transaction-reports";
+const BASE_URL = `${baseApi}/api/transaction-reports`;
 
 // Thunk to submit a new transaction report
 export const submitTransactionReport = createAsyncThunk(

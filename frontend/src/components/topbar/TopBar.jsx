@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./topBarStyles.css";
 import ShowAlert from "../../utils/ShowAlert";
 import { useDispatch } from "react-redux";
+import { baseApi } from "../../utils/consonants";
 
 const TopBar = ({ isVerified, user }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -13,16 +14,16 @@ const TopBar = ({ isVerified, user }) => {
     event.preventDefault();
     setIsLoading(true);
     setMessage("");
-  
+
     try {
-      const response = await fetch("http://localhost:3001/user/verify-email/resend", {
+      const response = await fetch(`${baseApi}/user/verify-email/resend`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: user.email }), // Ensure email is passed
       });
-  
+
       if (response.ok) {
         ShowAlert(
           dispatch,
@@ -39,12 +40,16 @@ const TopBar = ({ isVerified, user }) => {
         );
       }
     } catch (error) {
-      ShowAlert(dispatch, "error", "Error!", error.message || "An error occurred");
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error!",
+        error.message || "An error occurred"
+      );
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   if (isVerified) return null;
 

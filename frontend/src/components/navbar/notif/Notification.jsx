@@ -17,6 +17,7 @@ import {
   markNotificationAsRead,
 } from "../../../redux/notif/notificationSlice";
 import { fetchRentalTransactions } from "../../../redux/transactions/rentalTransactionsSlice";
+import { baseApi } from "../../../utils/consonants";
 
 // Updated notification routes configuration including purchase-related routes
 const notificationRoutes = {
@@ -663,7 +664,7 @@ const Notification = ({
         // Handle rental- and purchase-related notifications with rental_id
         if (notif.rental_id) {
           const rentalRes = await axios.get(
-            `http://localhost:3001/rental-transaction/${notif.rental_id}`
+            `${baseApi}/rental-transaction/${notif.rental_id}`
           );
           const rental = rentalRes.data.rental;
           if (!rental) {

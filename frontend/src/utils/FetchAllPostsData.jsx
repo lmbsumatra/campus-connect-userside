@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { baseApi } from "./consonants";
 
 const useFetchAllPostsData = () => {
   const [posts, setPosts] = useState([]);
@@ -10,7 +11,7 @@ const useFetchAllPostsData = () => {
     const fetchPosts = async () => {
       
       try {
-        const response = await axios.get(`http://localhost:3001/posts/info`);
+        const response = await axios.get(`${baseApi}/posts/info`);
         setPosts(response.data);
       } catch (err) {
         setError(err.message);

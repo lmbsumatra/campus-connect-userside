@@ -11,6 +11,7 @@ import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
 import ShowAlert from "../../../../utils/ShowAlert";
 import { useSystemConfig } from "../../../../context/SystemConfigProvider";
 import { fetchRentalTransactions } from "../../../../redux/transactions/rentalTransactionsSlice";
+import { baseApi } from "../../../../utils/consonants";
 
 const MyTransactions = () => {
   const dispatch = useDispatch();
@@ -75,7 +76,7 @@ const MyTransactions = () => {
     );
     try {
       const response = await axios.post(
-        "http://localhost:3001/user/create-onboarding-link",
+        `${baseApi}/user/create-onboarding-link`,
         {
           email: user.user.email,
           userId: studentUser.userId,

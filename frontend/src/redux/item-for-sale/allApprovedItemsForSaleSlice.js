@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/item-for-sale/available";
+const BASE_URL = `${baseApi}/item-for-sale/available`;
 
 const initialState = {
   allApprovedItemForSale: [],

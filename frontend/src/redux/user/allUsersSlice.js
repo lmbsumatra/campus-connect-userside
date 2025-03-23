@@ -2,8 +2,9 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { updateUserActionById } from "./otherUserSlice";
 import { useDispatch } from "react-redux";
+import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = "http://localhost:3001/user/get";
+const BASE_URL = `${baseApi}/user/get`;
 
 const initialState = {
   allUsers: [],

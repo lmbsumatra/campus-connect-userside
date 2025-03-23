@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-const BASE_URL = "http://localhost:3001/posts/approved";
+import { baseApi } from "../../utils/consonants";
+const BASE_URL = `${baseApi}/posts/approved`;
 
 const initialState = {
   allApprovedPosts: [],

@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import { jwtDecode } from "jwt-decode";
-import { baseApi } from "../App";
+import { baseApi } from "../utils/consonants";
 
 const AuthContext = createContext();
 

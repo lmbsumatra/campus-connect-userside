@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { baseApi } from "./consonants";
 
 const FetchPostData = ({ id }) => {
   const [selectedPost, setSelectedPost] = useState(null);
@@ -14,7 +15,7 @@ const FetchPostData = ({ id }) => {
       setError(null); // Reset error state before fetch
 
       try {
-        const response = await axios.get(`http://localhost:3001/posts/${id}`);
+        const response = await axios.get(`${baseApi}/posts/${id}`);
         setSelectedPost(response.data);
 
         // Process tags from the response

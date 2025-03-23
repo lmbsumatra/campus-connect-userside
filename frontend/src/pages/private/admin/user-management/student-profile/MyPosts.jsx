@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../../../../context/AuthContext";
 import BorrowingPost from "../../../../../components/borrowingposts/BorrowingPost";
+import { baseApi } from "../../../../../utils/consonants";
 
 function MyPosts() {
     const [posts, setPosts] = useState([]);
@@ -15,7 +16,7 @@ function MyPosts() {
     useEffect(() => {
       const fetchItem = async () => {
         try {
-          const response = await axios.get(`http://localhost:3001/posts/info`);
+          const response = await axios.get(`${baseApi}/posts/info`);
           const userPosts = response.data.filter(
             (post) => post.renter_id === userId
           );

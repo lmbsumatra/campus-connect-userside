@@ -16,7 +16,7 @@ import ShowAlert from "../../../../utils/ShowAlert.js";
 
 // Constants and Utils
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
-import { FOR_RENT, TO_RENT } from "../../../../utils/consonants";
+import { baseApi, FOR_RENT, TO_RENT } from "../../../../utils/consonants";
 
 // Redux
 import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice";
@@ -41,7 +41,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./addNewPostStyles.css";
 import { ToastContainer } from "react-toastify";
 import axios from "axios";
-import { baseApi } from "../../../../App";
 import { io } from "socket.io-client";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
 
@@ -94,7 +93,7 @@ const AddNewPost = () => {
   const postDataState = useSelector((state) => state.postForm);
 
   const { userId } = useSelector(selectStudentUser);
-  const socket = io("http://localhost:3001", {
+  const socket = io(`${baseApi}`, {
     transports: ["polling", "websocket"],
   });
 

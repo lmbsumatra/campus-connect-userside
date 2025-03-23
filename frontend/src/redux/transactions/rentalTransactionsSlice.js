@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { baseApi } from "../../utils/consonants";
 
 export const fetchRentalTransactions = createAsyncThunk(
   "rentalTransactions/fetch",
@@ -23,7 +24,7 @@ export const fetchRentalTransactions = createAsyncThunk(
 
     try {
       const response = await axios.get(
-        `http://localhost:3001/rental-transaction/user/${userId}`
+        `${baseApi}/rental-transaction/user/${userId}`
       );
       // console.log("Fetch response:", response.data);
 
@@ -46,7 +47,7 @@ export const updateRentalStatus = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post(
-        `http://localhost:3001/rental-transaction/user/${rentalId}/${newStatus}`,
+        `${baseApi}/rental-transaction/user/${rentalId}/${newStatus}`,
         { userId, transactionType }
       );
 
@@ -78,7 +79,7 @@ export const addReview = createAsyncThunk(
 
     try {
       const response = await axios.post(
-        `http://localhost:3001/rental-transaction/review/${rentalId}`,
+        `${baseApi}/rental-transaction/review/${rentalId}`,
         { userId, ...reviewData }
       );
 
@@ -105,7 +106,7 @@ export const processPayment = createAsyncThunk(
 
     try {
       const response = await axios.post(
-        `http://localhost:3001/rental-transaction/payment/${rentalId}`,
+        `${baseApi}/rental-transaction/payment/${rentalId}`,
         { userId, paymentMethod }
       );
 

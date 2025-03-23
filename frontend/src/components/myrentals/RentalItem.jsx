@@ -14,6 +14,7 @@ import axios from "axios";
 import socket from "../../hooks/socket";
 import { Tooltip } from "@mui/material";
 import PaymentConfirmationModal from "./PaymentConfirmationModal";
+import { baseApi } from "../../utils/consonants";
 
 function RentalItem({
   item,
@@ -274,7 +275,7 @@ function RentalItem({
       });
 
       const response = await axios.post(
-        "http://localhost:3001/api/conversations/createConversation",
+        `${baseApi}/api/conversations/createConversation`,
         {
           senderId: senderId,
           ownerId: recipientId,

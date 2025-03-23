@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { baseApi } from "../../utils/consonants";
 
 const initialState = {
   notifications: [],
@@ -14,7 +15,7 @@ export const fetchNotifications = createAsyncThunk(
   async (userId, { getState }) => {
     const token = getState().studentAuth.studentUser?.token;
     const response = await axios.get(
-      `http://localhost:3001/api/notifications/student/${userId}`,
+      `${baseApi}/api/notifications/student/${userId}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -27,7 +28,7 @@ export const markAllRead = createAsyncThunk(
   "notifications/markAllRead",
   async (userId) => {
     await axios.put(
-      `http://localhost:3001/api/notifications/student/mark-all-read/${userId}`
+      `${baseApi}/api/notifications/student/mark-all-read/${userId}`
     );
     return userId;
   }
@@ -43,7 +44,7 @@ export const markNotificationAsRead = createAsyncThunk(
       }
 
       const response = await axios.patch(
-        `http://localhost:3001/api/notifications/student/${notifId}/read`
+        `${baseApi}/api/notifications/student/${notifId}/read`
       );
       return response.data;
     } catch (error) {

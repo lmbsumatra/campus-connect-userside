@@ -3,7 +3,6 @@ import "./inboxStyles.css";
 import UserIcon from "../../../../assets/images/icons/user-icon.svg";
 import { useAuth } from "../../../../context/AuthContext";
 import { io } from "socket.io-client";
-import { baseApi } from "../../../../App";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useChat } from "../../../../context/ChatContext";
@@ -23,6 +22,7 @@ import { AiOutlineSearch, AiOutlineFilter } from "react-icons/ai";
 import { RiCloseCircleLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { MdProductionQuantityLimits } from "react-icons/md";
+import { baseApi } from "../../../../utils/consonants.js";
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
@@ -99,7 +99,7 @@ const MessagePage = () => {
     if (!userId) return;
 
     socket.current = io(
-      process.env.REACT_APP_SOCKET_URL || "http://localhost:3001"
+      process.env.REACT_APP_SOCKET_URL || `${baseApi}`
     );
 
     socket.current.on("connect", () => {
@@ -281,7 +281,7 @@ const MessagePage = () => {
 
         // Fetch conversations
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL || "http://localhost:3001"
+          `${process.env.REACT_APP_API_URL || `${baseApi}`
           }/api/conversations/${userId}`,
           {
             headers: {
@@ -425,7 +425,7 @@ const MessagePage = () => {
 
         const response = await fetch(
           `${
-            process.env.REACT_APP_API_URL || "http://localhost:3001"
+            process.env.REACT_APP_API_URL || `${baseApi}`
           }/api/conversations/${activeChat.id}/message`,
           {
             method: "POST",
@@ -490,7 +490,7 @@ const MessagePage = () => {
 
         const res = await fetch(
           `${
-            process.env.REACT_APP_API_URL || "http://localhost:3001"
+            process.env.REACT_APP_API_URL || `${baseApi}`
           }/api/conversations/${activeChat.id}/message`,
           {
             method: "POST",
@@ -702,7 +702,7 @@ const MessagePage = () => {
       });
       
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/messages/upload-message-images`,
+        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/messages/upload-message-images`,
         {
           method: 'POST',
           body: formData,
@@ -915,7 +915,7 @@ const MessagePage = () => {
         if (window.confirm(`Are you sure you want to block ${chat.otherUser.first_name}?`)) {
           try {
             const response = await fetch(
-              `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/block`,
+              `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/block`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -985,7 +985,7 @@ const MessagePage = () => {
         if (window.confirm(`Are you sure you want to delete this conversation with ${chat.otherUser.first_name}?`)) {
           try {
             const response = await fetch(
-              `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/delete`,
+              `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/delete`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1022,7 +1022,7 @@ const MessagePage = () => {
       case 'unblock':
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/unblock`,
+            `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/unblock`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -1110,7 +1110,7 @@ const MessagePage = () => {
     
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/reports/check`,
+        `${baseApi}/api/reports/check`,
         {
           params: {
             reporter_id: studentUser.userId,
@@ -1144,7 +1144,7 @@ const MessagePage = () => {
     try {
       // console.log("Sending report data:", reportData);
       const response = await axios.post(
-        "http://localhost:3001/api/reports",
+        `${baseApi}/api/reports`,
         reportData
       );
       // console.log("Report submission response:", response.data);
@@ -1213,7 +1213,7 @@ const MessagePage = () => {
   const handleBlockUser = async (userId) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/block`,
+        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/block`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1265,7 +1265,7 @@ const MessagePage = () => {
   const handleUnblockUser = async (userId) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/unblock`,
+        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/unblock`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1318,7 +1318,7 @@ const MessagePage = () => {
   const handleDeleteConversation = async (conversationId) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/delete`,
+        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/delete`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1360,7 +1360,7 @@ const MessagePage = () => {
     
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/conversations/single/${conversationId}/${userId}`
+        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/single/${conversationId}/${userId}`
       );
       
       if (response.ok) {

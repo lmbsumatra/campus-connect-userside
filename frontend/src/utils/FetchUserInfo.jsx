@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { selectStudentUser } from "../redux/auth/studentAuthSlice";
 import { useSelector } from "react-redux";
+import { baseApi } from "./consonants";
 
 const FetchUserInfo = ({ userId }) => {
   const [user, setUser] = useState({});
@@ -14,7 +15,7 @@ const FetchUserInfo = ({ userId }) => {
       setErrorMessage("");
 
       try {
-        const res = await fetch(`http://localhost:3001/user/info/${userId}`, {
+        const res = await fetch(`${baseApi}/user/info/${userId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

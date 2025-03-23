@@ -17,6 +17,7 @@ import { selectStudentUser } from "../../../../redux/auth/studentAuthSlice.js";
 import "./UserProfileVisit.css";
 import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
 import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
+import { baseApi } from "../../../../utils/consonants.js";
 
 const UserProfileVisit = () => {
   const navigate = useNavigate();
@@ -165,7 +166,7 @@ const UserProfileVisit = () => {
   const checkIfReported = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/reports/check`,
+        `${baseApi}/api/reports/check`,
         {
           params: {
             reporter_id: loggedInUserId,

@@ -8,6 +8,7 @@ import SaleEntityView from "./ReportItemDetails/SaleEntityView";
 import UserEntityView from "./ReportItemDetails/UserEntityView";
 import ReportActionModal from "../../../../components/report/ReportActionModal";
 import { useAuth } from "../../../../context/AuthContext";
+import { baseApi } from "../../../../utils/consonants";
 
 const ReportItemView = () => {
   const { adminUser } = useAuth();
@@ -26,7 +27,7 @@ const ReportItemView = () => {
     const fetchEntityDetails = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/reports/details",
+          `${baseApi}/api/reports/details`,
           {
             params: { entity_type, entity_id: reported_entity_id },
           }
@@ -65,7 +66,7 @@ const ReportItemView = () => {
   const handleStatusChange = async (selectedAction, entityAction) => {
     try {
       await axios.patch(
-        `http://localhost:3001/api/reports/${reportDetails.id}`,
+        `${baseApi}/api/reports/${reportDetails.id}`,
         {
           reportId: reportDetails.id, // Include reportId in the payload
           reportStatus: selectedAction,

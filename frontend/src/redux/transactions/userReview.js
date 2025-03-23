@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { baseApi } from "../../utils/consonants";
 
 // Base URL for your backend API
-const BASE_URL = "http://localhost:3001/review-and-rate/get";
+const BASE_URL = `${baseApi}/review-and-rate/get`;
 
 // Initial state for reviews
 const initialState = {

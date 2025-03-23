@@ -29,6 +29,8 @@ import "./styles/indication.css";
 import {
   REACT_APP_API_URL,
   REACT_APP_GOOGLE_CLIENT_ID,
+  baseApi,
+  baseUrl
 } from "./utils/consonants.js";
 
 import PageNotFound from "./pages/public/PageNotFound.js";
@@ -65,5 +67,4 @@ function App() {
   );
 }
 
-export const baseApi = REACT_APP_API_URL || "http://localhost:3001";
 export default App;

@@ -11,6 +11,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import ShowAlert from "../../utils/ShowAlert";
 import "./paymentPageStyles.css";
+import { baseApi } from "../../utils/consonants";
 
 const stripePromise = loadStripe(
   "pk_test_51Qd6OGJyLaBvZZCyI1v3VC4nkJ4FnP3JqVkEeRlpth6sUUKxeaGVwsgpOKEUIiDI61ITMyzWvTYJUYshL6H4jfks00mNbCIiZP"
@@ -133,7 +134,7 @@ const PaymentPage = () => {
 
         try {
           await axios.post(
-            `http://localhost:3001/rental-transaction/user/${rentalId}/cancel`,
+            `${baseApi}/rental-transaction/user/${rentalId}/cancel`,
             { userId }
           );
           localStorage.removeItem("paymentData");

@@ -6,6 +6,7 @@ import userProfilePicture from "../../assets/images/icons/user-icon.svg";
 import itemImage from "../../assets/images/item/item_1.jpg";
 import { formatDate } from "../../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
+import { baseApi } from "../../../utils/consonants";
 
 function ViewPost() {
   const { id } = useParams();
@@ -19,7 +20,7 @@ function ViewPost() {
     const fetchItem = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/listings/${id}`
+          `${baseApi}/listings/${id}`
         );
         console.log("Response data:", response.data);
 

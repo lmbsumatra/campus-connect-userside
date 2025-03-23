@@ -28,6 +28,7 @@ import {
   SHOP,
   MY_LISTINGS,
   MY_ITEMS,
+  baseApi,
 } from "../../../../utils/consonants.js";
 
 // Redux
@@ -54,7 +55,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./addNewItemStyles.css";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import { baseApi } from "../../../../App.js";
 import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import { addItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
@@ -138,7 +138,7 @@ const AddNewItem = () => {
 
   const { userId } = useSelector(selectStudentUser);
   // comment ko lang to, insufficient resources
-  // const socket = io("http://localhost:3001", {
+  // const socket = io(`${baseApi}`, {
   //   transports: ["polling", "websocket"],
   // });
 

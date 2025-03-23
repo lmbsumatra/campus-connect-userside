@@ -6,13 +6,14 @@ import UserDropdown from "../dropdown/UserDropdown";
 import Notification from "../notif/Notification";
 import { useAuth } from "../../../context/AuthContext";
 import "./adminNavBarStyles.css";
+import { baseApi } from "../../../utils/consonants";
 
 const AdminNavBar = () => {
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const socket = useSocket("http://localhost:3001");
+  const socket = useSocket(`${baseApi}`);
   const { adminUser, logoutAdmin } = useAuth();
   const [openPopup, setOpenPopup] = useState(null);
   const notificationsRef = useRef(null);
@@ -50,7 +51,7 @@ const AdminNavBar = () => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/notifications"
+          `${baseApi}/api/notifications`
         );
         setNotifications(response.data);
       } catch (error) {
@@ -93,7 +94,7 @@ const AdminNavBar = () => {
   const handleNotificationClick = async (notificationId) => {
     try {
       await axios.put(
-        `http://localhost:3001/api/notifications/${notificationId}/read`
+        `${baseApi}/api/notifications/${notificationId}/read`
       );
       setNotifications((prev) =>
         prev.map((notif) =>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { baseApi } from "./consonants";
 
 const useFetchRentalTransactionsByUserId = (userId) => {
   const [transactions, setTransactions] = useState([]);
@@ -14,7 +15,7 @@ const useFetchRentalTransactionsByUserId = (userId) => {
 
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/rental-transaction/user/${userId}`);
+        const response = await axios.get(`${baseApi}/rental-transaction/user/${userId}`);
         if (response.data && Array.isArray(response.data)) {
           setTransactions(response.data);
         } else {
