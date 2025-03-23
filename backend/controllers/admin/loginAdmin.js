@@ -16,14 +16,10 @@ const loginAdmin = async (req, res) => {
 
   try {
     const user = await User.findOne({
-      where: {
-        email,
-        role: { [Op.or]: ["admin", "superadmin"] },
-      },
+      where: { email, role: { [Op.or]: ["admin", "superadmin"] } },
     });
 
     if (!user) {
-      // Log failed login attempt (Invalid email)
       await AuditLog.create({
         admin_id: null,
         role: "unknown",
@@ -31,13 +27,11 @@ const loginAdmin = async (req, res) => {
         endpoint: "/admin/login",
         details: JSON.stringify({ email, reason: "Invalid credentials" }),
       });
-
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      // Log failed login attempt (Invalid password)
       await AuditLog.create({
         admin_id: user.user_id,
         role: user.role,
@@ -45,40 +39,41 @@ const loginAdmin = async (req, res) => {
         endpoint: "/admin/login",
         details: JSON.stringify({ email, reason: "Incorrect password" }),
       });
-
       return res.status(401).json({ message: "Incorrect password" });
     }
 
-    // Ensure the user is an admin by checking the Admin model
-    const admin = await Admin.findOne({
-      where: { user_id: user.user_id },
-    });
+    const admin = await Admin.findOne({ where: { user_id: user.user_id } });
+    if (!admin) return res.status(403).json({ message: "Unauthorized access" });
 
-    if (!admin) {
-      return res.status(403).json({ message: "Unauthorized access" });
-    }
-
-    // Update last login time
     user.lastlogin = new Date();
     await user.save();
 
     const token = jwt.sign(
       { userId: user.user_id, role: user.role },
       JWT_SECRET,
-      { expiresIn: "30m" }
+      {
+        expiresIn: "30m",
+      }
     );
 
     const refreshToken = jwt.sign(
       { userId: user.user_id, role: user.role },
       JWT_REFRESH_SECRET,
-      { expiresIn: "5d" }
+      {
+        expiresIn: "5d",
+      }
     );
 
-    // Store the refresh token in the database
-    admin.refreshToken = refreshToken;
+    // ✅ Allow multiple refresh tokens (instead of replacing old ones)
+    const storedTokens = Array.isArray(admin.refreshToken)
+      ? admin.refreshToken
+      : [admin.refreshToken];
+
+    const updatedTokens = [...storedTokens, refreshToken];
+
+    admin.refreshToken = updatedTokens;
     await admin.save();
 
-    // Log successful login attempt
     await AuditLog.create({
       admin_id: user.user_id,
       role: user.role,

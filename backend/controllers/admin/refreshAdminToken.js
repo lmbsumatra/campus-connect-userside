@@ -13,11 +13,9 @@ const refreshAdminToken = async (req, res) => {
   }
 
   try {
-    // Decode the refresh token
     const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
-
-    // Ensure the correct field name
     const adminId = decoded.userId;
+
     if (!adminId) {
       return res
         .status(403)
@@ -25,9 +23,7 @@ const refreshAdminToken = async (req, res) => {
     }
 
     // Find the admin in the database
-    const admin = await Admin.findOne({
-      where: { user_id: adminId },
-    });
+    const admin = await Admin.findOne({ where: { user_id: adminId } });
 
     if (!admin || !admin.refreshToken) {
       return res
@@ -35,7 +31,12 @@ const refreshAdminToken = async (req, res) => {
         .json({ message: "Refresh token missing or invalid." });
     }
 
-    if (admin.refreshToken !== refreshToken) {
+    // ✅ Convert refreshToken to an array (if it isn't already)
+    const storedTokens = Array.isArray(admin.refreshToken)
+      ? admin.refreshToken
+      : [admin.refreshToken];
+
+    if (!storedTokens.includes(refreshToken)) {
       return res.status(403).json({ message: "Refresh token mismatch." });
     }
 
@@ -43,16 +44,25 @@ const refreshAdminToken = async (req, res) => {
     const token = jwt.sign(
       { userId: admin.user_id, role: decoded.role },
       JWT_SECRET,
-      { expiresIn: "30m" }
+      {
+        expiresIn: "30m",
+      }
     );
+
     const newRefreshToken = jwt.sign(
       { userId: admin.user_id, role: decoded.role },
       JWT_REFRESH_SECRET,
       { expiresIn: "5d" }
     );
 
-    // Update the refresh token in the database
-    admin.refreshToken = newRefreshToken;
+    // ✅ Append new refresh token instead of replacing
+    const updatedTokens = [
+      ...storedTokens.filter((t) => t !== refreshToken),
+      newRefreshToken,
+    ];
+
+    // Update refresh tokens in database
+    admin.refreshToken = updatedTokens;
     await admin.save();
 
     res.status(200).json({ token, refreshToken: newRefreshToken });
