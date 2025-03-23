@@ -50,7 +50,7 @@ Report.init(
   {
     sequelize,
     modelName: "Report",
-    tableName: "reports",
+    // tableName: "reports",
     timestamps: true,
   }
 );

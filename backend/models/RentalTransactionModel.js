@@ -100,7 +100,7 @@ module.exports = (sequelize) => {
     {
       sequelize,
       modelName: "RentalTransaction",
-      tableName: "rental_transactions",
+      // tableName: "rental_transactions",
       timestamps: true,
     }
   );

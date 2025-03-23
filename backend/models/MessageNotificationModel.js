@@ -32,7 +32,7 @@ MessageNotification.init({
 }, {
   sequelize,
   modelName: "MessageNotification",
-  tableName: "messages_notif",
+  // tableName: "messages_notif",
   timestamps: true,
 });
 

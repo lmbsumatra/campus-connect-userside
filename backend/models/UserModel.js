@@ -70,7 +70,9 @@ const User = sequelize.define(
       allowNull: true, // Allow null initially
     },
   },
-  { sequelize, modelName: "User", tableName: "users" }
+  { sequelize, modelName: "User", 
+    // tableName: "users" 
+  }
 );
 
 User.associate = (models) => {

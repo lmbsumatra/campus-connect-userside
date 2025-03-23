@@ -20,7 +20,7 @@ Conversation.init(
   {
     sequelize,
     modelName: "Conversation",
-    tableName: "conversations",
+    // tableName: "conversations",
     timestamps: true,
     
   }

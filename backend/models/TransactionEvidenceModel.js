@@ -49,7 +49,7 @@ TransactionEvidence.init(
   {
     sequelize,
     modelName: "TransactionEvidence",
-    tableName: "transaction_report_evidences",
+    // tableName: "transaction_report_evidences",
     timestamps: false,
   }
 );

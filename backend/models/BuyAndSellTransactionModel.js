@@ -94,7 +94,7 @@
 //     {
 //       sequelize,
 //       modelName: 'BuyAndSellTransaction',
-//       tableName: 'buy_and_sell_transactions',
+    //   tableName: 'buy_and_sell_transactions',
 //       timestamps: false, // Use 'created_at' and 'updated_at' for timestamps
 //     }
 //   );
