@@ -20,13 +20,13 @@ async function calculateUnreadMessages(userId) {
 }
 
 function initializeSocket(server) {
+  // Update the cors configuration in initializeSocket function
   const io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3000", getServerUrl],
+      origin: ["https://rentupeers.shop", "http://localhost:3000"],
       methods: ["GET", "POST"],
     },
   });
-
   const adminSockets = new Set();
   const userSockets = new Map();
 
