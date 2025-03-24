@@ -13,7 +13,7 @@ const EndSemesterDate = sequelize.define("EndSemesterDate", {
     allowNull: false,
   },
 }, {
-  // tableName: "end_semester_dates",
+  tableName: "end_semester_dates",
   timestamps: true,
 });
 

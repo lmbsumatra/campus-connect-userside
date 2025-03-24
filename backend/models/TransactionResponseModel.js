@@ -29,7 +29,7 @@ TransactionReportResponse.init(
   {
     sequelize,
     modelName: "TransactionReportResponse",
-    // tableName: "transaction_report_responses",
+    tableName: "transaction_report_responses",
     timestamps: true,
   }
 );

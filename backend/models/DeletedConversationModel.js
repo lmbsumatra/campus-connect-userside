@@ -34,7 +34,7 @@ DeletedConversation.init(
   {
     sequelize,
     modelName: "DeletedConversation",
-    // tableName: "deleted_conversations",
+    tableName: "deleted_conversations",
     timestamps: false,
   }
 );

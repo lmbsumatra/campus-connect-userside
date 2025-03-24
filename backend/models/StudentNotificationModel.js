@@ -59,7 +59,7 @@ const StudentNotification = sequelize.define(
     },
   },
   {
-    // tableName: "student_notifications",
+    tableName: "student_notifications",
     timestamps: true,
   }
 );

@@ -30,7 +30,7 @@ Admin.init(
   {
     sequelize,
     modelName: "Admin",
-    // tableName: "admins",
+    tableName: "admins",
   }
 );
 

@@ -71,7 +71,7 @@ const User = sequelize.define(
     },
   },
   { sequelize, modelName: "User", 
-    // tableName: "users" 
+    tableName: "users" 
   }
 );
 

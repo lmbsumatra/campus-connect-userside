@@ -22,7 +22,7 @@ const SystemConfig = sequelize.define(
   },
   {
     sequelize,
-    // tableName: "system_config",
+    tableName: "system_config",
     timestamps: true,
     underscored: true,
   }

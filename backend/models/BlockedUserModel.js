@@ -34,7 +34,7 @@ BlockedUser.init(
   {
     sequelize,
     modelName: "BlockedUser",
-    // tableName: "blocked_users",
+    tableName: "blocked_users",
     timestamps: false,
   }
 );

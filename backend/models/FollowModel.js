@@ -30,7 +30,7 @@ const Follow = sequelize.define(
   {
     sequelize,
     modelName: "Follow",
-    // tableName: "follows",
+    tableName: "follows",
     timestamps: true,
   }
 );

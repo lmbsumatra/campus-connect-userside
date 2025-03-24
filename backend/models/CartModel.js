@@ -66,7 +66,7 @@ module.exports = (sequelize) => {
       },
     },
     { sequelize, modelName: "cart", 
-      // tableName: "cart", 
+      tableName: "cart", 
       timestamps: false }
   );
 
