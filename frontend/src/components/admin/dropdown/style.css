@@ -11,7 +11,9 @@
   width: 250px;
   padding: 10px;
 }
-
+.nav-item{
+  position: relative;
+}
 .admin-menu .triangle {
   position: absolute;
   top: -10px;
@@ -34,16 +36,13 @@
   }
 }
 
-.icon img {
-  height: 20px;
-  width: 20px;
-}
 
 .user-icon {
-  width: 35px;
-  height: 35px;
-}
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
+}
 .dropdown-header {
   display: flex;
   align-items: center;

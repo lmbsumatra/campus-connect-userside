@@ -299,7 +299,7 @@ const updateListingById = async (req, res) => {
     const adminNotificationData = {
       type: "new-listing",
       title: "Updated Listing awaiting approval",
-      message: `updated a new listing: "${existingListing.listing_name}"`,
+      message: ` updated a new listing: "${existingListing.listing_name}"`,
       ownerName,
       ownerId: owner.user_id,
       itemId: existingListing.id,

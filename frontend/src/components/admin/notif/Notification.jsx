@@ -1,11 +1,12 @@
 import React from "react";
 import axios from "axios";
-import Bell from "../../../assets/images/icons/notif.svg";
+import Bell from "../../../assets/images/icons/bell.png";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
 import { baseApi } from "../../../utils/consonants";
 
 const Notification = ({
+  icon,
   showNotifications,
   toggleNotifications,
   notifications,
@@ -17,9 +18,7 @@ const Notification = ({
 
     if (notificationId) {
       try {
-        await axios.put(
-          `${baseApi}/api/notifications/${notificationId}/read`
-        );
+        await axios.put(`${baseApi}/api/notifications/${notificationId}/read`);
         setNotifications((prev) =>
           prev.map((notif) =>
             notif.id === notificationId ? { ...notif, isRead: true } : notif
@@ -80,7 +79,7 @@ const Notification = ({
   return (
     <div className="notification-container">
       <a
-        className="icon-link"
+        className="icon"
         href="#"
         onClick={(e) => {
           e.preventDefault();
@@ -88,7 +87,7 @@ const Notification = ({
         }}
         data-count={unreadCount}
       >
-        <img src={Bell} alt="Notification Icon" />
+        <img src={icon || Bell} alt="Notification Icon" />
       </a>
 
       {showNotifications && (

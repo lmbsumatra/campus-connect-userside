@@ -4,9 +4,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--clr-primary-light);
+  /* background-color: var(--clr-primary-light); */
   padding: 8px;
-  color: white;
   gap: 16px; /* Add some gap between items */
 }
 
@@ -87,4 +86,6 @@
   filter: brightness(120%);
   fill: white;
   filter: none;
+  width: 30px;
+  height: 30px;
 }

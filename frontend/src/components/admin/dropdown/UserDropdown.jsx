@@ -1,5 +1,5 @@
 import React from "react";
-import UserIcon from "../../../assets/images/icons/user.svg";
+import UserIcon from "../../../assets/images/icons/user.png";
 import MyRentalsIcon from "../../../assets/images/icons/rental.svg";
 import MyItemsIcon from "../../../assets/images/icons/item.svg";
 import MyPostsIcon from "../../../assets/images/icons/post.svg";
@@ -15,7 +15,7 @@ const UserDropdown = ({
 }) => {
   return (
     <div className="nav-item">
-      <a className="icon-link" href="#" onClick={toggleDropdown}>
+      <a className="icon" href="#" onClick={toggleDropdown}>
         <img src={UserIcon} alt="User Icon" className="user-icon" />
       </a>
 
