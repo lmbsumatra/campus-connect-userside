@@ -34,7 +34,7 @@ exports.getAllApprovedPost = async (req, res) => {
     });
 
     res.status(200).json(items);
-    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+    console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
@@ -93,7 +93,7 @@ exports.getAllApprovedPost = async (req, res) => {
 
 // Get all approved posts for a specific user (by userId)
 exports.getAvailablePostsByUser = async (req, res) => {
-  // console.log("userId", req.query);
+  console.log("userId", req.query);
   try {
     // Extract userId from query params or route parameters
     const { userId } = req.query; // or req.params if userId is in URL params
@@ -336,7 +336,7 @@ exports.getPostById = async (req, res) => {
     });
 
     // Log the rental dates
-    // console.log(JSON.stringify(post.rental_dates, null, 2));
+    console.log(JSON.stringify(post.rental_dates, null, 2));
 
     if (!post) {
       return res.status(404).json({ error: "Post not found" });

@@ -51,7 +51,7 @@ app.use(express.urlencoded({ extended: true }));
 // CORS configuration
 app.use(
   cors({
-    origin: "*",
+    origin: "https://rentupeers.shop",
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })

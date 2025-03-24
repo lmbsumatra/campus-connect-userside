@@ -44,7 +44,7 @@ const { models } = require("../models/index");
 //     });
 
 //     res.status(200).json(items);
-//     // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+//     console.log(JSON.stringify(listings, null, 2)); // Log for debugging
 //   } catch (error) {
 //     console.error("Error fetching posts:", error);
 //     res.status(500).json({ error: error.message });
@@ -187,7 +187,7 @@ exports.getAllItemForSale = async (req, res) => {
     });
 
     res.status(200).json(items);
-    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+    console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
@@ -382,7 +382,7 @@ exports.updateItemForSale = async (req, res) => {
 // };
 
 exports.updateStatus = async (req, res) => {
-  // console.log(req.body);
+  console.log(req.body);
   const { status } = req.body;
 
   try {

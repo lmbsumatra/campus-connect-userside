@@ -89,7 +89,7 @@ const seedPost = async () => {
       await Promise.all(datePromises);
   
       await transaction.commit();
-      // console.log(`Post created successfully with ID: ${post.id}`);
+      console.log(`Post created successfully with ID: ${post.id}`);
       return post;
     } catch (error) {
       if (transaction) await transaction.rollback();

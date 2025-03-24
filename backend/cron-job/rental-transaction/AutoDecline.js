@@ -5,7 +5,7 @@ const moment = require('moment-timezone');
 // Function to auto-decline expired rental transactions
 async function autoDeclineExpired() {
   try {
-    // console.log("Running cron job to auto-decline expired rentals...");
+    console.log("Running cron job to auto-decline expired rentals...");
     const manilaTime = moment().tz('Asia/Manila').format('YYYY-MM-DD HH:mm:ss')
     // Find all rental transactions with status 'Requested' that have expired rental times
     const expiredRentals = await models.RentalTransaction.findAll({
@@ -36,12 +36,12 @@ async function autoDeclineExpired() {
     for (const rental of expiredRentals) {
       rental.status = "Declined"; // Update status to "Declined"
       await rental.save(); // Save the changes to the database
-      // console.log(
+      console.log(
       //   `Rental transaction ${rental.id} has been declined due to expiration.`
       // );
     }
 
-    // console.log(
+    console.log(
     //   `Checked and updated ${expiredRentals.length} rental transactions.`
     // );
   } catch (error) {

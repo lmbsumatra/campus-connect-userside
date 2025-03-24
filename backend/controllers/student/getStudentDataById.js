@@ -32,9 +32,9 @@ const getStudentById = async (req, res) => {
     });
 
     // Debugging logs
-    // console.log("Fetched user:", JSON.stringify(user, null, 2));
-    // console.log("Raw student data:", user?.student || "No student data");
-    // console.log("Raw status_message:", user?.student?.status_message || "NULL or Undefined");
+    console.log("Fetched user:", JSON.stringify(user, null, 2));
+    console.log("Raw student data:", user?.student || "No student data");
+    console.log("Raw status_message:", user?.student?.status_message || "NULL or Undefined");
 
     if (!user) {
       return res.status(404).json({ error: "Student not found!" });
@@ -110,7 +110,7 @@ const getStudentById = async (req, res) => {
 
     return res.status(200).json(formattedUser);
   } catch (error) {
-    // console.error("Error fetching student by ID:", error);
+    console.error("Error fetching student by ID:", error);
     res.status(500).json({ error: error.message });
   }
 };

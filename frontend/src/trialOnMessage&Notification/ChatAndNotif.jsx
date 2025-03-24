@@ -9,7 +9,11 @@ const ChatAndNotif = () => {
   const [conversations, setConversations] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const socket = io(`${baseApi}`);
+  const socket = io(`${baseApi}`, {
+    withCredentials: true,
+    transports: ["websocket", "polling"], // explicitly set both if needed
+  });
+  
 
   // Register user with socket server when connected
   useEffect(() => {

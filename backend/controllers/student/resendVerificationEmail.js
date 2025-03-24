@@ -6,7 +6,7 @@ const resendVerificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // console.log(req.body)
+    console.log(req.body)
 
     // Validate input
     if (!email) {
@@ -234,7 +234,7 @@ const resendVerificationEmail = async (req, res) => {
         console.error("Failed to send email:", error);
         return res.status(500).json({ message: "Failed to send email" });
       }
-      // console.log("Email sent:", info.response);
+      console.log("Email sent:", info.response);
       res.status(200).json({ message: "Verification email resent" });
     });
   } catch (error) {

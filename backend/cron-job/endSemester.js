@@ -7,15 +7,15 @@ const Student = require("../models/StudentModel");
 
 cron.schedule("0 * * * *", async () => {
   try {
-    // console.log("Cron job started...");
+    console.log("Cron job started...");
 
     // Get today's date in Asia/Manila timezone and format it to YYYY-MM-DD
     const formattedToday = moment.tz("Asia/Manila").format("YYYY-MM-DD");
-    // console.log("Today (GMT+8):", formattedToday);
+    console.log("Today (GMT+8):", formattedToday);
 
     // Fetch all records for debugging
     const allDates = await EndSemesterDate.findAll();
-    // console.log("All EndSemesterDate Records in DB:", JSON.stringify(allDates, null, 2));
+    console.log("All EndSemesterDate Records in DB:", JSON.stringify(allDates, null, 2));
 
     // Fetch the end semester date in UTC
     const endSemesterDate = await EndSemesterDate.findOne({
@@ -25,10 +25,10 @@ cron.schedule("0 * * * *", async () => {
       ),
     });
 
-    // console.log("Matching Record:", endSemesterDate);
+    console.log("Matching Record:", endSemesterDate);
 
     if (endSemesterDate) {
-      // console.log("End semester date found. Resetting 'verified' students to 'pending'...");
+      console.log("End semester date found. Resetting 'verified' students to 'pending'...");
 
       await Student.update(
         {
@@ -39,9 +39,9 @@ cron.schedule("0 * * * *", async () => {
         { where: { status: "verified" } } // ✅ Only verified students are affected
       );
 
-      // console.log("Verified students have been reset to 'pending'.");
+      console.log("Verified students have been reset to 'pending'.");
     } else {
-      // console.log("No matching end semester date found.");
+      console.log("No matching end semester date found.");
     }
   } catch (error) {
     console.error("Error in cron job: ", error);

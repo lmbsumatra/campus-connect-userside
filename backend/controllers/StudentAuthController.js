@@ -48,7 +48,7 @@ exports.getAllStudents = async (req, res) => {
     });
 
     res.status(200).json(users);
-    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+    console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });

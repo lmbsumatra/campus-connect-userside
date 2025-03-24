@@ -18,7 +18,7 @@ const logAdminLogout = async (req, res) => {
     });
 
     if (existingLog) {
-      // console.log(
+      console.log(
       //   "Duplicate logout detected within 10 seconds, skipping log entry."
       // );
       return res.status(200).json({ message: "Duplicate logout ignored" });

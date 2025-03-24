@@ -24,7 +24,7 @@ const registerStudent = async (req, res) => {
       course,
     } = req.body;
 
-    // console.log(req.body);
+    console.log(req.body);
 
     const { scanned_id, photo_with_id } = req.files;
 
@@ -98,7 +98,7 @@ const registerStudent = async (req, res) => {
       },
       { where: { user_id: newUser.user_id }, transaction: t }
     );
-    // console.log(`Affected Rows: ${affectedRows}`);
+    console.log(`Affected Rows: ${affectedRows}`);
 
     const mailOptions = {
       from: "jione.capstone@gmail.com",
@@ -294,7 +294,7 @@ const registerStudent = async (req, res) => {
         console.error("Email send failed:", error);
         return res.status(500).send("Failed to send email");
       }
-      // console.log("Email sent:", info.response);
+      console.log("Email sent:", info.response);
     });
 
     // Commit transaction if all actions succeed

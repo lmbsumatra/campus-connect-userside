@@ -130,8 +130,10 @@ const EditPost = () => {
   const [itemType, setItemType] = useState("");
 
   const socket = io(`${baseApi}`, {
-    transports: ["polling", "websocket"],
+    withCredentials: true,
+    transports: ["websocket", "polling"], // explicitly set both if needed
   });
+  
   const [category, setCategory] = useState("");
   const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);

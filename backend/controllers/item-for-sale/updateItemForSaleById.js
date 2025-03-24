@@ -15,7 +15,7 @@ const validateUpdateData = (itemData) => {
 // Helper function to add new dates and durations
 const addDatesAndDurations = async (itemId, dates) => {
   for (const date of dates) {
-    // console.log(`Checking if date ${date.date} exists for item ${itemId}`);
+    console.log(`Checking if date ${date.date} exists for item ${itemId}`);
 
     // Check if the date already exists in the database
     const existingDate = await models.Date.findOne({
@@ -28,12 +28,12 @@ const addDatesAndDurations = async (itemId, dates) => {
 
     let dateRecord;
     if (existingDate) {
-      // console.log(
+      console.log(
       //   `Date ${date.date} already exists for item ${itemId}. Using existing date.`
       // );
       dateRecord = existingDate; // Use existing date
     } else {
-      // console.log(
+      console.log(
       //   `Date ${date.date} not found. Creating new date for item ${itemId}.`
       // );
       // If not exists, create a new date record
@@ -43,14 +43,14 @@ const addDatesAndDurations = async (itemId, dates) => {
         status: date.status,
         item_type: "item_for_sale",
       });
-      // console.log(
+      console.log(
       //   `Created new date: ${dateRecord.date} with ID ${dateRecord.id}`
       // );
     }
 
     // Check if any duration for the current date already exists
     for (const duration of date.durations) {
-      // console.log(
+      console.log(
       //   `Checking if duration from ${duration.timeFrom} to ${duration.timeTo} exists for date ${dateRecord.id}`
       // );
 
@@ -63,11 +63,11 @@ const addDatesAndDurations = async (itemId, dates) => {
       });
 
       if (existingDuration) {
-        // console.log(
+        console.log(
         //   `Duration from ${duration.timeFrom} to ${duration.timeTo} already exists for date ${dateRecord.id}. Skipping creation.`
         // );
       } else {
-        // console.log(
+        console.log(
         //   `Duration from ${duration.timeFrom} to ${duration.timeTo} does not exist. Creating new duration.`
         // );
         // If duration doesn't exist, create a new duration
@@ -77,7 +77,7 @@ const addDatesAndDurations = async (itemId, dates) => {
           rental_time_to: duration.timeTo,
           status: duration.status,
         });
-        // console.log(
+        console.log(
         //   `Created new duration from ${duration.timeFrom} to ${duration.timeTo} for date ${dateRecord.id}`
         // );
       }
@@ -98,7 +98,7 @@ const removeDatesAndDurations = async (itemId, removedDates) => {
     });
 
     if (dateRecord) {
-      // console.log(
+      console.log(
       //   `Processing date ${removedDate} for removal for item ${itemId}`
       // );
 
@@ -108,7 +108,7 @@ const removeDatesAndDurations = async (itemId, removedDates) => {
       });
 
       if (rentalTransactionForDate) {
-        // console.log(
+        console.log(
         //   `Date ${removedDate} is linked to active rentals. Skipping deletion.`
         // );
         continue; // Skip this date
@@ -127,7 +127,7 @@ const removeDatesAndDurations = async (itemId, removedDates) => {
           });
 
         if (rentalTransactionForDuration) {
-          // console.log(
+          console.log(
           //   `Duration from ${duration.rental_time_from} to ${duration.rental_time_to} is linked to active rentals. Skipping deletion.`
           // );
           continue; // Skip this duration
@@ -135,7 +135,7 @@ const removeDatesAndDurations = async (itemId, removedDates) => {
 
         // If no active rentals, delete the duration
         await duration.destroy();
-        // console.log(
+        console.log(
         //   `Removed duration from ${duration.rental_time_from} to ${duration.rental_time_to}`
         // );
       }
@@ -148,14 +148,14 @@ const removeDatesAndDurations = async (itemId, removedDates) => {
       if (remainingDurations.length === 0) {
         // If no durations remain, delete the date
         await dateRecord.destroy();
-        // console.log(`Removed date ${removedDate}`);
+        console.log(`Removed date ${removedDate}`);
       } else {
-        // console.log(
+        console.log(
         //   `Date ${removedDate} has active durations linked to rentals. Skipping date deletion.`
         // );
       }
     } else {
-      // console.log(`No date record found for date ${removedDate}`);
+      console.log(`No date record found for date ${removedDate}`);
     }
   }
 };
@@ -172,7 +172,7 @@ const updateItemForSaleById = async (req, res) => {
       throw new Error("Item ID is required");
     }
 
-    // console.log(`Item ID ${itemId} received for update`);
+    console.log(`Item ID ${itemId} received for update`);
 
     // Parse and validate the item data
     const itemData =
@@ -199,17 +199,17 @@ const updateItemForSaleById = async (req, res) => {
         : [req.files.upload_images.path];
     }
 
-    // console.log("Uploaded Cloudinary URLs:", imageUrls); // Debug uploaded URLs
+    console.log("Uploaded Cloudinary URLs:", imageUrls); // Debug uploaded URLs
 
     // Extract remove_images field if provided
     const removeImages = req.body.remove_images || [];
-    // console.log("Images to remove:", removeImages); // Debug remove images
+    console.log("Images to remove:", removeImages); // Debug remove images
 
     // Extract removed dates if provided
     const removedDates = Array.isArray(itemData.toRemoveDates)
       ? itemData.toRemoveDates
       : [];
-    // console.log("Dates to remove:", removedDates); // Debug removed dates
+    console.log("Dates to remove:", removedDates); // Debug removed dates
 
     // Fetch the existing item
     const existingItem = await models.ItemForSale.findByPk(itemId);
@@ -218,7 +218,7 @@ const updateItemForSaleById = async (req, res) => {
       throw new Error("Item not found");
     }
 
-    // console.log(`Found existing item with ID ${existingItem.id}`);
+    console.log(`Found existing item with ID ${existingItem.id}`);
 
     // If images are to be removed, process the removal
     if (removeImages.length) {
@@ -227,7 +227,7 @@ const updateItemForSaleById = async (req, res) => {
         oldImages.includes(removeUrl)
       );
 
-      // console.log(`Removing images: ${imagesToDelete.join(", ")}`);
+      console.log(`Removing images: ${imagesToDelete.join(", ")}`);
 
       // Rollback the old images that are being removed
       if (imagesToDelete.length) {
@@ -271,21 +271,21 @@ const updateItemForSaleById = async (req, res) => {
 
     // Remove the dates and durations if they exist in removedDates
     if (removedDates.length > 0) {
-      // console.log("Removing dates and associated durations...");
+      console.log("Removing dates and associated durations...");
       await removeDatesAndDurations(itemId, removedDates);
     }
 
     // Add new dates and durations if they exist in itemData
     if (itemData.dates && itemData.dates.length > 0) {
-      // console.log("Adding new dates and durations...");
+      console.log("Adding new dates and durations...");
       await addDatesAndDurations(itemId, itemData.dates);
     } else {
-      // console.log("No new dates or durations provided.");
+      console.log("No new dates or durations provided.");
     }
 
     // Commit the transaction
     await transaction.commit();
-    // console.log("Transaction committed");
+    console.log("Transaction committed");
 
     res.status(200).json({
       message: "Item updated successfully",
@@ -297,7 +297,7 @@ const updateItemForSaleById = async (req, res) => {
   } catch (error) {
     // Rollback the transaction in case of any errors
     await transaction.rollback();
-    // console.log("Transaction rolled back due to error: ", error);
+    console.log("Transaction rolled back due to error: ", error);
 
     // Rollback uploaded images if any
     const imageUrls = req.files?.upload_images
@@ -307,7 +307,7 @@ const updateItemForSaleById = async (req, res) => {
       : [];
     if (imageUrls.length) {
       await rollbackUpload(imageUrls);
-      // console.log("Rolled back uploaded images");
+      console.log("Rolled back uploaded images");
     }
 
     res.status(400).json({

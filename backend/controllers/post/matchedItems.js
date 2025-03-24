@@ -225,7 +225,7 @@ const matchedItems = async (req, res) => {
       threshold: 0.7,
     });
 
-    // console.log("here", typeof formattedPost.name, formattedPost.name);
+    console.log("here", typeof formattedPost.name, formattedPost.name);
 
     const results = fuse
       .search(formattedPost.name)

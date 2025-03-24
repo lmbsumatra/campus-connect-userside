@@ -13,7 +13,7 @@ const createReview = async (req, res) => {
       review,
     } = req.body;
 
-    // console.log("Received request body:", req.body);
+    console.log("Received request body:", req.body);
 
     // Check for required fields
     const missingFields = [];

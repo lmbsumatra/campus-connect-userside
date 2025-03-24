@@ -15,7 +15,7 @@ const validateUpdateData = (listingData) => {
 // Helper function to add new dates and durations
 const addDatesAndDurations = async (listingId, dates) => {
   for (const date of dates) {
-    // console.log(`Checking if date ${date.date} exists for item ${listingId}`);
+    console.log(`Checking if date ${date.date} exists for item ${listingId}`);
 
     // Check if the date already exists in the database
     const existingDate = await models.Date.findOne({
@@ -28,12 +28,12 @@ const addDatesAndDurations = async (listingId, dates) => {
 
     let dateRecord;
     if (existingDate) {
-      // console.log(
+      console.log(
       //   `Date ${date.date} already exists for item ${listingId}. Using existing date.`
       // );
       dateRecord = existingDate; // Use existing date
     } else {
-      // console.log(
+      console.log(
       //   `Date ${date.date} not found. Creating new date for item ${listingId}.`
       // );
       // If not exists, create a new date record
@@ -43,14 +43,14 @@ const addDatesAndDurations = async (listingId, dates) => {
         status: date.status,
         item_type: "listing",
       });
-      // console.log(
+      console.log(
       //   `Created new date: ${dateRecord.date} with ID ${dateRecord.id}`
       // );
     }
 
     // Check if any duration for the current date already exists
     for (const duration of date.durations) {
-      // console.log(
+      console.log(
       //   `Checking if duration from ${duration.timeFrom} to ${duration.timeTo} exists for date ${dateRecord.id}`
       // );
 
@@ -63,11 +63,11 @@ const addDatesAndDurations = async (listingId, dates) => {
       });
 
       if (existingDuration) {
-        // console.log(
+        console.log(
         //   `Duration from ${duration.timeFrom} to ${duration.timeTo} already exists for date ${dateRecord.id}. Skipping creation.`
         // );
       } else {
-        // console.log(
+        console.log(
         //   `Duration from ${duration.timeFrom} to ${duration.timeTo} does not exist. Creating new duration.`
         // );
         // If duration doesn't exist, create a new duration
@@ -77,7 +77,7 @@ const addDatesAndDurations = async (listingId, dates) => {
           rental_time_to: duration.timeTo,
           status: duration.status,
         });
-        // console.log(
+        console.log(
         //   `Created new duration from ${duration.timeFrom} to ${duration.timeTo} for date ${dateRecord.id}`
         // );
       }
@@ -97,7 +97,7 @@ const removeDatesAndDurations = async (listingId, removedDates) => {
     });
 
     if (dateRecord) {
-      // console.log(
+      console.log(
       //   `Processing date ${removedDate} for removal for listing ${listingId}`
       // );
 
@@ -107,7 +107,7 @@ const removeDatesAndDurations = async (listingId, removedDates) => {
       });
 
       if (rentalTransactionForDate) {
-        // console.log(
+        console.log(
         //   `Date ${removedDate} is linked to active rentals. Skipping deletion.`
         // );
         continue; // Skip this date
@@ -126,7 +126,7 @@ const removeDatesAndDurations = async (listingId, removedDates) => {
           });
 
         if (rentalTransactionForDuration) {
-          // console.log(
+          console.log(
           //   `Duration from ${duration.rental_time_from} to ${duration.rental_time_to} is linked to active rentals. Skipping deletion.`
           // );
           continue; // Skip this duration
@@ -134,7 +134,7 @@ const removeDatesAndDurations = async (listingId, removedDates) => {
 
         // If no active rentals, delete the duration
         await duration.destroy();
-        // console.log(
+        console.log(
         //   `Removed duration from ${duration.rental_time_from} to ${duration.rental_time_to}`
         // );
       }
@@ -147,14 +147,14 @@ const removeDatesAndDurations = async (listingId, removedDates) => {
       if (remainingDurations.length === 0) {
         // If no durations remain, delete the date
         await dateRecord.destroy();
-        // console.log(`Removed date ${removedDate}`);
+        console.log(`Removed date ${removedDate}`);
       } else {
-        // console.log(
+        console.log(
         //   `Date ${removedDate} has active durations linked to rentals. Skipping date deletion.`
         // );
       }
     } else {
-      // console.log(`No date record found for date ${removedDate}`);
+      console.log(`No date record found for date ${removedDate}`);
     }
   }
 };
@@ -171,7 +171,7 @@ const updateListingById = async (req, res) => {
       throw new Error("Listing ID is required");
     }
 
-    // console.log(`Listing ID ${listingId} received for update`);
+    console.log(`Listing ID ${listingId} received for update`);
 
     // Parse and validate the listing data
     const listingData =
@@ -197,17 +197,17 @@ const updateListingById = async (req, res) => {
         : [req.files.upload_images.path];
     }
 
-    // console.log("Uploaded Cloudinary URLs:", imageUrls);
+    console.log("Uploaded Cloudinary URLs:", imageUrls);
 
     // Extract remove_images field if provided
     const removeImages = req.body.remove_images || [];
-    // console.log("Images to remove:", removeImages);
+    console.log("Images to remove:", removeImages);
 
     // Extract removed dates if provided
     const removedDates = Array.isArray(listingData.toRemoveDates)
       ? listingData.toRemoveDates
       : [];
-    // console.log("Dates to remove:", removedDates);
+    console.log("Dates to remove:", removedDates);
 
     // Fetch the existing listing
     const existingListing = await models.Listing.findByPk(listingId);
@@ -216,7 +216,7 @@ const updateListingById = async (req, res) => {
       throw new Error("Listing not found");
     }
 
-    // console.log(`Found existing listing with ID ${existingListing.id}`);
+    console.log(`Found existing listing with ID ${existingListing.id}`);
 
     // If images are to be removed, process the removal
     if (removeImages.length) {
@@ -225,7 +225,7 @@ const updateListingById = async (req, res) => {
         oldImages.includes(removeUrl)
       );
 
-      // console.log(`Removing images: ${imagesToDelete.join(", ")}`);
+      console.log(`Removing images: ${imagesToDelete.join(", ")}`);
 
       if (imagesToDelete.length) {
         await rollbackUpload(imagesToDelete);
@@ -273,16 +273,16 @@ const updateListingById = async (req, res) => {
 
     // Remove dates and durations if they exist in removedDates
     if (removedDates.length > 0) {
-      // console.log("Removing dates and associated durations...");
+      console.log("Removing dates and associated durations...");
       await removeDatesAndDurations(listingId, removedDates);
     }
 
     // Add new dates and durations if they exist in listingData
     if (listingData.dates && listingData.dates.length > 0) {
-      // console.log("Adding new dates and durations...");
+      console.log("Adding new dates and durations...");
       await addDatesAndDurations(listingId, listingData.dates);
     } else {
-      // console.log("No new dates or durations provided.");
+      console.log("No new dates or durations provided.");
     }
 
     // Fetch owner details
@@ -326,7 +326,7 @@ const updateListingById = async (req, res) => {
     }
 
     await transaction.commit();
-    // console.log("Transaction committed");
+    console.log("Transaction committed");
 
     res.status(200).json({
       message: "Listing updated successfully",
@@ -339,7 +339,7 @@ const updateListingById = async (req, res) => {
     });
   } catch (error) {
     await transaction.rollback();
-    // console.log("Transaction rolled back due to error");
+    console.log("Transaction rolled back due to error");
 
     const imageUrls = req.files?.upload_images
       ? Array.isArray(req.files.upload_images)
@@ -348,7 +348,7 @@ const updateListingById = async (req, res) => {
       : [];
     if (imageUrls.length) {
       await rollbackUpload(imageUrls);
-      // console.log("Rolled back uploaded images");
+      console.log("Rolled back uploaded images");
     }
 
     res.status(400).json({

@@ -4,7 +4,7 @@ const removeCartItem = async (req, res) => {
   const user_id = req.user.userId;
   try {
     const { cart_item_id } = req.params;
-    // console.log(cart_item_id);
+    console.log(cart_item_id);
 
     if (!cart_item_id) {
       return res.status(400).json({ message: "cart_item_id is required" });

@@ -8,7 +8,7 @@ router.post("/", async (req, res) => {
   try {
     const { conversationId, sender, text, isProductCard, productDetails } = req.body;
 
-    // console.log("Incoming Request Body:", req.body); // Log the incoming data
+    console.log("Incoming Request Body:", req.body); // Log the incoming data
 
     // Validate the incoming payload
     if (!conversationId || !sender) {

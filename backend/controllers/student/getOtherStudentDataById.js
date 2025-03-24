@@ -93,7 +93,7 @@ const getUserById = async (req, res) => {
 
     return res.status(200).json(formattedUser);
   } catch (error) {
-    // console.log("Error fetching user by ID: ", error);
+    console.log("Error fetching user by ID: ", error);
     res.status(500).json({ error: error.message });
   }
 };

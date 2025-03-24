@@ -12,6 +12,7 @@ export function SocketProvider({ children }) {
 
     const newSocket = io(baseApi, {
       transports: ["websocket", "polling"], // Enable both WebSocket and polling
+      withCredentials: true,
       reconnection: true, // Enable reconnection
       reconnectionAttempts: 5, // Number of reconnection attempts
       reconnectionDelay: 1000, // Delay between reconnection attempts

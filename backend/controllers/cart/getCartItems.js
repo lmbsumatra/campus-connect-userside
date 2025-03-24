@@ -96,7 +96,7 @@ const getCartItems = async (req, res) => {
       });
     }
 
-    // console.log(enrichedCartItems);
+    console.log(enrichedCartItems);
 
     // Format the enriched cart items for response
     const formattedCart = enrichedCartItems.map((cartItem) => ({

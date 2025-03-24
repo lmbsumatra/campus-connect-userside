@@ -232,7 +232,7 @@ exports.getAllListings = async (req, res) => {
     });
 
     res.status(200).json(listings);
-    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+    console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
@@ -327,13 +327,13 @@ exports.getAllListings = async (req, res) => {
 //       }
 //     };
 //     // Just before calling req.notifyAdmins
-//     // console.log("ItemType:", itemType);
-//     // console.log("CreatedItem:", {
+//     console.log("ItemType:", itemType);
+//     console.log("CreatedItem:", {
 //     //   id: createdItem.id,
 //     //   name: itemType === 'item-for-sale' ? createdItem.item_for_sale_name : createdItem.listing_name,
 //     //  category: createdItem.category
 //     // });
-//     // console.log("Owner:", {
+//     console.log("Owner:", {
 //     //   id: owner.user_id,
 //     //   name: ownerName
 //     // });
@@ -435,7 +435,7 @@ exports.getListingById = async (req, res) => {
 
 // Update the status of a listing
 exports.updateStatus = async (req, res) => {
-  // console.log(req.body);
+  console.log(req.body);
   const { status } = req.body;
 
   try {
@@ -448,7 +448,7 @@ exports.updateStatus = async (req, res) => {
     await listing.save();
 
     res.status(200).json(listing);
-    // console.log(listing);
+    console.log(listing);
   } catch (error) {
     console.error("Error updating listing status:", error);
     res.status(500).json({ error: error.message });

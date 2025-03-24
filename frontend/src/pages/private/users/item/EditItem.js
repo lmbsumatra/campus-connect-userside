@@ -132,8 +132,10 @@ const EditItem = () => {
   // console.log(id);
 
   const socket = io(`${baseApi}`, {
-    transports: ["polling", "websocket"],
+    withCredentials: true,
+    transports: ["websocket", "polling"], // explicitly set both if needed
   });
+  
   const [category, setCategory] = useState("");
 
   // getting item type

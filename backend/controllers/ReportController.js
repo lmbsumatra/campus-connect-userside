@@ -90,12 +90,12 @@ exports.getAllReports = async (req, res) => {
 exports.updateReportStatus = async (req, res) => {
   try {
     const { reportId, reportStatus, entityAction } = req.body;
-    // console.log("Request Body:", req.body); // Log the request body
+    console.log("Request Body:", req.body); // Log the request body
 
     // Find the report
     const report = await models.Report.findByPk(reportId);
     if (!report) {
-      // console.log("Report not found for ID:", reportId);
+      console.log("Report not found for ID:", reportId);
       return res.status(404).json({ message: "Report not found" });
     }
 
@@ -112,7 +112,7 @@ exports.updateReportStatus = async (req, res) => {
         });
 
         if (!student) {
-          // console.log(
+          console.log(
           //   "Student not found for User ID:",
           //   report.reported_entity_id
           // );
@@ -193,7 +193,7 @@ exports.deleteReport = async (req, res) => {
 
 //Get the selected report Details
 exports.getReportDetails = async (req, res) => {
-  // console.log("Query Params:", req.query); // Debugging query params
+  console.log("Query Params:", req.query); // Debugging query params
   const { entity_type, entity_id } = req.query;
   //  console.log("Entity Type:", entity_type);
   //  console.log("Entity ID:", entity_id);
