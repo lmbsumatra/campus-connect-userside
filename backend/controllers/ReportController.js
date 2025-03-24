@@ -89,18 +89,25 @@ exports.getAllReports = async (req, res) => {
 // update report status and the entity status
 exports.updateReportStatus = async (req, res) => {
   try {
-    const { reportId, reportStatus, entityAction } = req.body;
-    // console.log("Request Body:", req.body); // Log the request body
+    const {
+      reportId,
+      reportStatus,
+      entityAction,
+      statusMessage,
+      lastUpdated,
+      reviewedBy,
+    } = req.body;
 
     // Find the report
     const report = await models.Report.findByPk(reportId);
     if (!report) {
-      // console.log("Report not found for ID:", reportId);
       return res.status(404).json({ message: "Report not found" });
     }
 
-    // Update report status
+    // Update report status, lastUpdated, and reviewedBy
     report.status = reportStatus;
+    report.lastUpdated = lastUpdated || new Date().toISOString(); // Use provided timestamp or current time
+    report.reviewedBy = reviewedBy; // Save the admin's full name
     await report.save();
 
     // Only update entity status if report is reviewed
@@ -112,15 +119,11 @@ exports.updateReportStatus = async (req, res) => {
         });
 
         if (!student) {
-          // console.log(
-          //   "Student not found for User ID:",
-          //   report.reported_entity_id
-          // );
           return res.status(404).json({ error: "Student not found." });
         }
-
         // Update student status
         student.status = entityAction; // Set status to "flagged" or "banned"
+        student.status_message = statusMessage || "";
         await student.save();
       } else {
         // Handle other entity types (posts, listings, sales, etc.)
@@ -138,12 +141,12 @@ exports.updateReportStatus = async (req, res) => {
           default:
             return res.status(400).json({ error: "Invalid entity type." });
         }
-
         // Update entity status to "flagged"
         if (entityModel) {
           const entity = await entityModel.findByPk(report.reported_entity_id);
           if (entity) {
-            entity.status = "flagged"; // Non-user entities always get flagged
+            entity.status = "flagged";
+            entity.status_message = statusMessage || "";
             await entity.save();
           } else {
             return res
@@ -153,14 +156,14 @@ exports.updateReportStatus = async (req, res) => {
         }
       }
 
-      // Update all reports for the same entity to "reviewed" status
+      // Update all reports for the same entity to "resolved"
       await models.Report.update(
         { status: "resolved" },
         {
           where: {
             reported_entity_id: report.reported_entity_id,
             entity_type: report.entity_type,
-            status: "pending", // Only update pending reports
+            status: "pending",
           },
         }
       );
@@ -168,7 +171,7 @@ exports.updateReportStatus = async (req, res) => {
 
     res.status(200).json(report);
   } catch (error) {
-    // console.error("Error updating report status:", error);
+    console.error("Error updating report status:", error);
     res.status(500).json({ error: "Failed to update report status." });
   }
 };

@@ -83,7 +83,25 @@
 }
 
 .alert.alert-danger {
-  border-left: 4px solid #dc3545; /*  changed from .alter to .anooverride lahats*/ 
+  border-left: 4px solid #dc3545;
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.password-toggle {
+  border-left: none;
+  background-color: #f8f9fa;
+  border-color: #ced4da;
+  z-index: 1;
+}
+
+.password-toggle:hover {
+  background-color: #e2e6ea;
+  border-color: #ced4da;
+}
+
+.password-toggle:focus {
+  box-shadow: none;
 }
 
 @media (max-width: 576px) {

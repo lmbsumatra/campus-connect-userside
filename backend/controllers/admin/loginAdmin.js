@@ -45,35 +45,28 @@ const loginAdmin = async (req, res) => {
     const admin = await Admin.findOne({ where: { user_id: user.user_id } });
     if (!admin) return res.status(403).json({ message: "Unauthorized access" });
 
+    // Update last login time
     user.lastlogin = new Date();
     await user.save();
 
+    // Generate tokens
     const token = jwt.sign(
       { userId: user.user_id, role: user.role },
       JWT_SECRET,
-      {
-        expiresIn: "30m",
-      }
+      { expiresIn: "30m" }
     );
 
     const refreshToken = jwt.sign(
       { userId: user.user_id, role: user.role },
       JWT_REFRESH_SECRET,
-      {
-        expiresIn: "5d",
-      }
+      { expiresIn: "5d" }
     );
-    // ✅ Allow multiple refresh tokens (instead of replacing old ones)
-    const storedTokens = Array.isArray(admin.refreshToken)
-      ? admin.refreshToken
-      : [admin.refreshToken];
 
-    const updatedTokens = [...storedTokens, refreshToken];
-
-    // ✅ Store the refreshToken as a plain string
+    // Store the new refresh token (overwriting the old one)
     admin.refreshToken = refreshToken;
     await admin.save();
 
+    // Log successful login
     await AuditLog.create({
       admin_id: user.user_id,
       role: user.role,

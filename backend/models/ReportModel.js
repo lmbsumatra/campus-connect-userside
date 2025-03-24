@@ -46,6 +46,14 @@ Report.init(
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    lastUpdated: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    reviewedBy: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     sequelize,

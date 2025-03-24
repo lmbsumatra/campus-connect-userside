@@ -10,6 +10,7 @@ const AdminLogin = () => {
   const { loginAdmin } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // User data state
   const [userData, setUserData] = useState({
@@ -22,6 +23,10 @@ const AdminLogin = () => {
     email: false,
     password: false,
   });
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handlePasswordChange = (e) => {
     const { value } = e.target;
@@ -62,13 +67,13 @@ const AdminLogin = () => {
         loginAdmin(token, refreshToken, role, userId, first_name, last_name);
         navigate("/admin/dashboard");
       } else {
-        const errorData = await response.json();
-        console.error("Login failed:", errorData);
-        setErrorMessage(errorData.message || "Login failed. Please try again.");
+        setErrorMessage("Invalid email or password. Please try again.");
       }
     } catch (error) {
       console.error("Error logging in:", error);
-      setErrorMessage("An unexpected error occurred. Please try again later.");
+      setErrorMessage(
+        "Unable to connect to the server. Please try again later."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +124,7 @@ const AdminLogin = () => {
                 <i className="bi bi-lock"></i>
               </span>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={userData.password}
                 onChange={handlePasswordChange}
@@ -131,6 +136,16 @@ const AdminLogin = () => {
                 placeholder="Enter your password"
                 required
               />
+              <button
+                className="btn btn-outline-secondary password-toggle"
+                type="button"
+                onClick={togglePasswordVisibility}
+                tabIndex="-1"
+              >
+                <i
+                  className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
+                ></i>
+              </button>
             </div>
             {inputTriggers.password && (
               <div className="invalid-feedback d-block">
@@ -141,7 +156,7 @@ const AdminLogin = () => {
 
           {errorMessage && (
             <div className="alert alert-danger" role="alert">
-              <i className="bi bi-exclamation-triangle-fill me-2"></i>
+              <i className="bi bi-shield-exclamation me-2"></i>
               {errorMessage}
             </div>
           )}
@@ -158,10 +173,10 @@ const AdminLogin = () => {
                   role="status"
                   aria-hidden="true"
                 ></span>
-                Logging in...
+                Authenticating...
               </>
             ) : (
-              "Sign In"
+              "Login"
             )}
           </button>
         </form>

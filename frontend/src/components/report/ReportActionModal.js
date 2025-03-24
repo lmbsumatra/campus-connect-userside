@@ -3,19 +3,61 @@ import { Modal, Button, Form } from "react-bootstrap";
 import ShowAlert from "../../utils/ShowAlert";
 import { useDispatch } from "react-redux";
 
-const ReportActionModal = ({ show, onHide, onConfirm, currentStatus, entityType }) => {
-  const [selectedReportStatus, setSelectedReportStatus] = useState(currentStatus || "pending");
+const ReportActionModal = ({
+  show,
+  onHide,
+  onConfirm,
+  currentStatus,
+  entityType,
+}) => {
+  const [selectedReportStatus, setSelectedReportStatus] = useState(
+    currentStatus || "pending"
+  );
   const [entityAction, setEntityAction] = useState(""); // Action on entity
+  const [statusMessage, setStatusMessage] = useState("");
   const dispatch = useDispatch();
 
   const handleConfirm = () => {
-    if (selectedReportStatus === "reviewed" && entityType === "user" && !entityAction) {
-      alert("Please select an action for the user (flagged or banned).");
-      return;
+    if (selectedReportStatus === "reviewed") {
+      if (
+        entityType === "user" &&
+        (!entityAction || entityAction.trim() === "")
+      ) {
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Action Required",
+          "Please select an action for the user (flagged or banned)."
+        );
+        return;
+      }
+
+      if (!statusMessage.trim()) {
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Action Required",
+          "Please provide a reason for this action."
+        );
+        return;
+      }
+
+      // Additional check for entityAction when entityType is not "user"
+      if (
+        entityType !== "user" &&
+        (!entityAction || entityAction.trim() === "")
+      ) {
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Action Required",
+          "Please select an action for the entity."
+        );
+        return;
+      }
     }
-  
-    onConfirm(selectedReportStatus, entityAction);
-    ShowAlert(dispatch, "success", "Report Status", "Report status changed successfully.");
+
+    onConfirm(selectedReportStatus, entityAction, statusMessage);
   };
 
   return (
@@ -42,7 +84,9 @@ const ReportActionModal = ({ show, onHide, onConfirm, currentStatus, entityType 
           {/* Show flagged/banned options only when the report is reviewed */}
           {selectedReportStatus === "reviewed" && (
             <Form.Group>
-              <Form.Label>{entityType === "user" ? "User Action" : "Entity Action"}</Form.Label>
+              <Form.Label>
+                {entityType === "user" ? "User Action" : "Entity Action"}
+              </Form.Label>
               <Form.Control
                 as="select"
                 value={entityAction}
@@ -50,8 +94,18 @@ const ReportActionModal = ({ show, onHide, onConfirm, currentStatus, entityType 
               >
                 <option value="">Select Action</option>
                 <option value="flagged">Flagged</option>
-                {entityType === "user" && <option value="banned">Banned</option>}
+                {entityType === "user" && (
+                  <option value="banned">Banned</option>
+                )}
               </Form.Control>
+              <Form.Label>Status Reason/Feedback</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={statusMessage}
+                onChange={(e) => setStatusMessage(e.target.value)}
+                placeholder="Provide a reason for this action..."
+              />
             </Form.Group>
           )}
         </Form>

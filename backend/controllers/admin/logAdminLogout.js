@@ -11,7 +11,8 @@ const logAdminLogout = async (req, res) => {
         admin_id,
         action: "Logout",
         endpoint: "/admin/logout",
-        timestamp: {
+        createdAt: {
+          // 🔥 Use "createdAt" instead of "timestamp"
           [Op.gte]: new Date(Date.now() - 4 * 1000),
         },
       },
