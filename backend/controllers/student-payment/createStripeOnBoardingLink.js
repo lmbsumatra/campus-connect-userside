@@ -37,8 +37,8 @@ const createStripeOnBoardingLink = async (req, res) => {
     // Step 5: Create an account onboarding link
     const accountLink = await stripe.accountLinks.create({
       account: account.id,
-      refresh_url: "https://yourwebsite.com/onboarding-failed",
-      return_url: "http://localhost:3000/profile/dashboard",
+      refresh_url: "https://rentupeers.shop/onboarding-failed",
+      return_url: "https://rentupeers.shop/profile/dashboard",
       type: "account_onboarding",
     });
 

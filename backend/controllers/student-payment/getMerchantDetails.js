@@ -56,8 +56,8 @@ const getStripeConnectAccount = async (req, res) => {
     ) {
       accountLink = await stripe.accountLinks.create({
         account: user.stripe_acct_id,
-        refresh_url: `http://localhost:3000/profile/dashboard`,
-        return_url: `http://localhost:3000/profile/dashboard`,
+        refresh_url: `https://rentupeers.shop/profile/dashboard`,
+        return_url: `https://rentupeers.shop/profile/dashboard`,
         type: "account_onboarding",
       });
     }

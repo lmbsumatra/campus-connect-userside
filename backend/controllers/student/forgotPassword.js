@@ -192,7 +192,7 @@ const forgotPassword = async (req, res) => {
               We received a request to reset your password for your Campus Connect account. Click the button below to create a new password.
             </p>
             
-            <a class="reset-button" href="http://localhost:3000/reset-password/${resetToken}" target="_blank">
+            <a class="reset-button" href="https://rentupeers.shop/reset-password/${resetToken}" target="_blank">
               Reset Password
             </a>
             
@@ -201,8 +201,8 @@ const forgotPassword = async (req, res) => {
             <p class="alternative-link">
               If the button above doesn't work, click or copy + paste this link in your browser:
               <br />
-              <a class="link" href="http://localhost:3000/reset-password/${resetToken}">
-                http://localhost:3000/reset-password/${resetToken}
+              <a class="link" href="https://rentupeers.shop/reset-password/${resetToken}">
+                https://rentupeers.shop/reset-password/${resetToken}
               </a>
             </p>
             

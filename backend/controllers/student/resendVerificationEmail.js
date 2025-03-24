@@ -203,7 +203,7 @@ const resendVerificationEmail = async (req, res) => {
               Click the button below to verify your email address and make your account active.
             </p>
             
-            <a class="verify-button" href="http://localhost:3000/verify-email/${verificationToken}" target="_blank">
+            <a class="verify-button" href=https://rentupeers.shop/verify-email/${verificationToken}" target="_blank">
               Verify Email
             </a>
             
@@ -212,8 +212,8 @@ const resendVerificationEmail = async (req, res) => {
             <p class="alternative-link">
               If the button above doesn't work, click or copy + paste this link in your browser:
               <br />
-              <a class="link" href="http://localhost:3000/verify-email/${verificationToken}">
-                http://localhost:3000/verify-email/${verificationToken}
+              <a class="link" href="https://rentupeers.shop/verify-email/${verificationToken}">
+                https://rentupeers.shop/verify-email/${verificationToken}
               </a>
             </p>
             

@@ -27,8 +27,8 @@ const VerifyEmail = () => {
           If the button above doesn't work, click or copy + paste this link in
           you browser:
         </span>
-        <a href="http://localhost:3001/verfiy-email/{{token}}">
-          http://localhost:3001/verfiy-email/{{ token }}
+        <a href="https://rentupeers.shop/verfiy-email/{{token}}">
+         https://rentupeers.shop/verfiy-email/{{ token }}
         </a>
       </div>
       <div>
