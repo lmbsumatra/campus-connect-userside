@@ -179,11 +179,12 @@
 }
 
 .chat-input {
-  padding: 15px;
-  background: #fff;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 10px;
+  background-color: #fff;
   border-top: 1px solid #ddd;
-  position: sticky;
-  bottom: 0;
 }
 
 .chat-input input {
@@ -355,12 +356,10 @@
 
 .preview-container {
   display: flex;
-  gap: 10px;
   flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 10px;
-  padding: 8px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  width: 100%;
 }
 
 .img-thumbnail {
@@ -389,9 +388,8 @@
 /* Input styling */
 .input-group {
   display: flex;
-  align-items: center;
-  gap: 10px;
   width: 100%;
+  gap: 8px;
 }
 
 .message-input {
@@ -805,5 +803,19 @@
   padding: 20px;
   color: #6c757d;
   font-style: italic;
+}
+
+/* Add the accepted offer badge styles at the end of the file */
+.accepted-offer-badge {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 8px;
+  text-align: center;
+  width: fit-content;
+  pointer-events: none;
 }
 

@@ -280,6 +280,11 @@ function PostDetail() {
 
       const conversation = await createConversationResponse.json();
 
+      // Get the selected date ID from the rentalDates array
+      const selectedDateId = approvedPostById.rentalDates.find(
+        (rentalDate) => rentalDate.date === selectedDate
+      )?.id;
+
       // Prepare offer details with Cloudinary URL and additional fields
       const offerDetails = {
         name: approvedPostById.name,
@@ -298,6 +303,9 @@ function PostDetail() {
         paymentMethod: paymentMethod,
         itemCondition: itemCondition,
         terms: approvedPostById.itemType === TO_RENT ? termsValues : null,
+        // Add date_id and time_id for transaction creation
+        date_id: selectedDateId,
+        time_id: selectedDuration.id
       };
 
       navigate("/messages", {

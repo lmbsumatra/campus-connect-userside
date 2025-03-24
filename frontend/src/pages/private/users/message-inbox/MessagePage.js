@@ -8,7 +8,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useChat } from "../../../../context/ChatContext";
 import useSound from "use-sound";
 import sendSound from "../../../../assets/audio/sent.mp3";
-import { Modal } from "react-bootstrap"
+import { Modal, Button } from "react-bootstrap"
 import { FiPaperclip, FiX, FiSearch, FiMoreVertical } from "react-icons/fi"; 
 import axios from "axios";
 import { useDispatch } from "react-redux";
@@ -23,6 +23,8 @@ import { RiCloseCircleLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { MdProductionQuantityLimits } from "react-icons/md";
 import { baseApi } from "../../../../utils/consonants.js";
+import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
+import { formatDate } from "../../../../utils/dateFormat";
 
 const MessagePage = () => {
   const { studentUser } = useAuth();
@@ -88,6 +90,10 @@ const MessagePage = () => {
   
   
   const { userId } = studentUser || {};
+
+  // Add these state variables after other state variables
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [currentOffer, setCurrentOffer] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -407,7 +413,10 @@ const MessagePage = () => {
             deliveryMethod: product.deliveryMethod || null,
             paymentMethod: product.paymentMethod || null,
             itemCondition: product.itemCondition || null,
-            terms: product.terms || null
+            terms: product.terms || null,
+            // Include date and time IDs if they exist
+            date_id: product.date_id || null,
+            time_id: product.time_id || null
           },
         };
         // console.log("Sending product message payload:", productMessage);
@@ -584,33 +593,112 @@ const MessagePage = () => {
   };
 
   const handleAcceptOffer = async (message) => {
+    // Set the current offer and show confirmation modal
+    setCurrentOffer(message);
+    setShowConfirmModal(true);
+  };
+
+  const confirmAcceptOffer = async () => {
+    if (!currentOffer) return;
+
     try {
       // Add the message ID to accepted offers
-      setAcceptedOffers((prev) => new Set([...prev, message.id]));
+      setAcceptedOffers((prev) => new Set([...prev, currentOffer.id]));
 
       // Check if it's a rental or sale offer based on terms existence
-      const isRentalOffer = message.productDetails?.terms && 
-        Object.values(message.productDetails.terms).some(term => term);
+      const isRentalOffer = currentOffer.productDetails?.terms && 
+        Object.values(currentOffer.productDetails.terms).some(term => term);
 
       // Emit socket event to notify other user
       socket.current.emit("offerAccepted", {
-        messageId: message.id,
+        messageId: currentOffer.id,
         conversationId: activeChat.id,
-        recipient: message.sender,
+        recipient: currentOffer.sender,
+        sender: userId, // Add sender ID for notification
         offerType: isRentalOffer ? "rental" : "sale" // Include type of offer
       });
 
-      // Create or update a transaction record in the database if needed
-      // This would involve an API call to your backend
+      // Create a transaction record in the database
+      if (currentOffer.productDetails?.date_id && currentOffer.productDetails?.time_id) {
+        try {
+          const transactionDetails = {
+            owner_id: currentOffer.sender, // The person who sent the offer
+            renter_id: userId, // Current user accepting the offer
+            buyer_id: isRentalOffer ? null : userId, // Add buyer_id for sales
+            item_id: currentOffer.productDetails.productId,
+            delivery_method: currentOffer.productDetails.deliveryMethod || "meetup",
+            date_id: currentOffer.productDetails.date_id,
+            time_id: currentOffer.productDetails.time_id,
+            payment_mode: currentOffer.productDetails.paymentMethod || "payUponMeetup",
+            transaction_type: isRentalOffer ? "rental" : "sell",
+            price: currentOffer.productDetails.offerPrice || 0,
+            sender_id: userId // Add sender_id for notification
+          };
 
+          // Call backend API to create transaction
+          const response = await axios.post(
+            `${baseApi}/rental-transaction/add`,
+            transactionDetails
+          );
+
+          // If payment method is GCASH/online, redirect to payment page
+          if (currentOffer.productDetails.paymentMethod === "gcash") {
+            if (!response.data.clientSecret || !response.data.paymentIntentId) {
+              ShowAlert(dispatch, "error", "Error", "Failed to setup payment.");
+              return;
+            }
+
+            // Close modal and navigate to payment
+            setShowConfirmModal(false);
+            navigate("/payment", {
+              state: {
+                paymentIntentId: response.data.paymentIntentId,
+                clientSecretFromState: response.data.clientSecret,
+                rentalId: response.data.id,
+                userId: userId,
+              },
+            });
+          } else {
+            // Close modal and show success
+            setShowConfirmModal(false);
+            ShowAlert(
+              dispatch,
+              "success",
+              "Success",
+              `${isRentalOffer ? "Rental" : "Purchase"} confirmed successfully!`
+            );
+            // Navigate to transactions page
+            navigate("/profile/transactions/renter/requests");
+          }
+        } catch (error) {
+          console.error("Error creating transaction:", error);
+          ShowAlert(
+            dispatch,
+            "error",
+            "Error",
+            "Failed to create transaction record."
+          );
+          setShowConfirmModal(false);
+        }
+      } else {
+        console.warn("Missing date_id or time_id in offer details");
+        setShowConfirmModal(false);
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Missing Information",
+          "The offer is missing date or time information required for transaction."
+        );
+      }
     } catch (error) {
       console.error("Error accepting offer:", error);
       // Optionally revert the UI state if the API call fails
       setAcceptedOffers((prev) => {
         const newSet = new Set([...prev]);
-        newSet.delete(message.id);
+        newSet.delete(currentOffer.id);
         return newSet;
       });
+      setShowConfirmModal(false);
     }
   };
 
@@ -1420,6 +1508,33 @@ const MessagePage = () => {
     });
   };
 
+  // Add CSS for image preview positioning
+  const messageInputStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: '10px',
+    width: '100%'
+  };
+
+  const previewContainerStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '5px',
+    marginBottom: '10px'
+  };
+
+  // Add this CSS for the accepted offer badge
+  const acceptedOfferBadgeStyle = {
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    padding: '8px 12px',
+    borderRadius: '4px',
+    fontWeight: 'bold',
+    display: 'inline-block',
+    pointerEvents: 'none'
+  };
+
   return (
     <div className="container-content message-page">
       <div className="message-content">
@@ -1779,15 +1894,7 @@ const MessagePage = () => {
                                 {message.productDetails?.title === "Offer" && (
                                   isRecipient(message) ? (
                                     acceptedOffers.has(message.id) ? (
-                                      <span 
-                                        style={{
-                                          color: '#4CAF50',
-                                          fontWeight: 'bold',
-                                          marginLeft: '100px'
-                                        }}
-                                      >
-                                        Offer Accepted
-                                      </span>
+                                      <div className="accepted-offer-badge">Offer Accepted</div>
                                     ) : (
                                       <button
                                         type="button"
@@ -1806,15 +1913,7 @@ const MessagePage = () => {
                                     )
                                   ) : (
                                     acceptedOffers.has(message.id) && (
-                                      <span 
-                                        style={{
-                                          color: '#4CAF50',
-                                          fontWeight: 'bold',
-                                          marginLeft: '100px'
-                                        }}
-                                      >
-                                        Offer Accepted
-                                      </span>
+                                      <div className="accepted-offer-badge">Offer Accepted</div>
                                     )
                                   )
                                 )}
@@ -1927,61 +2026,58 @@ const MessagePage = () => {
               </div>
             )}
 
-            <div className="chat-input">
+            <div className="chat-input" style={messageInputStyle}>
+              {selectedImages.length > 0 && (
+                <div className="preview-container" style={previewContainerStyle}>
+                  {selectedImages.map((img, index) => (
+                    <div key={index} className="position-relative" style={{width: '60px', height: '60px'}}>
+                      <img
+                        src={img}
+                        alt={`Preview ${index}`}
+                        className="img-thumbnail"
+                        onClick={() => handleImageClick(img)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <button 
+                        className="position-absolute top-0 start-100 translate-middle p-0 border-0 bg-transparent"
+                        onClick={() => removeImage(index)}
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          minWidth: '20px',
+                          transform: 'translate(-50%, -50%)'
+                        }}
+                      >
+                        <div className="d-flex align-items-center justify-content-center rounded-circle bg-danger"
+                             style={{
+                               width: '100%',
+                               height: '100%',
+                             }}>
+                                 <FiX size={12} color="white" />
+                          </div>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
               <div className="input-group">
                 <button
-                  type="button"
-                  className="attach-btn"
+                  className="btn btn-light attach-btn"
                   onClick={() => fileInputRef.current.click()}
                   disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
                 >
-                  <FiPaperclip size={20} />
+                  <FiPaperclip />
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleImageUpload}
+                    multiple
+                    accept="image/*"
+                  />
                 </button>
                 
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="d-none"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageUpload}
-                  disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
-                />
-              
-                {selectedImages.length > 0 && (
-                  <div className="preview-container">
-                    {selectedImages.map((img, index) => (
-                      <div key={index} className="position-relative" style={{width: '60px', height: '60px'}}>
-                        <img
-                          src={img}
-                          alt={`Preview ${index}`}
-                          className="img-thumbnail"
-                          onClick={() => handleImageClick(img)}
-                          style={{ cursor: 'pointer' }}
-                        />
-                        <button 
-                          className="position-absolute top-0 start-100 translate-middle p-0 border-0 bg-transparent"
-                          onClick={() => removeImage(index)}
-                          style={{
-                            width: '20px',
-                            height: '20px',
-                            minWidth: '20px',
-                            transform: 'translate(-50%, -50%)'
-                          }}
-                        >
-                          <div className="d-flex align-items-center justify-content-center rounded-circle bg-danger"
-                               style={{
-                                 width: '100%',
-                                 height: '100%',
-                               }}>
-                               <FiX size={12} color="white" />
-                          </div>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
                 <input
                   type="text"
                   className="form-control flex-grow-1"
@@ -2036,6 +2132,110 @@ const MessagePage = () => {
         }}
         handleSubmit={handleReportSubmit}
       />
+
+      {/* Offer Confirmation Modal */}
+      {showConfirmModal && currentOffer && (
+        <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {currentOffer.productDetails?.terms ? "Confirm Rental" : "Confirm Purchase"}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="confirmation-modal">
+              <div className="item-card">
+                <div className="img-container">
+                  <img
+                    src={currentOffer.productDetails?.image}
+                    style={{ height: "100px", width: "100px" }}
+                    alt="Item image"
+                  />
+                </div>
+                <div className="item-desc">
+                  <span className="value">{currentOffer.productDetails?.name}</span>
+                  <span className="value">₱{currentOffer.productDetails?.offerPrice}</span>
+                  {currentOffer.productDetails?.itemCondition && (
+                    <span className="label">
+                      Item Condition:{" "}
+                      <span className="value">{currentOffer.productDetails.itemCondition}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="rental-desc">
+                {currentOffer.productDetails?.deliveryMethod && (
+                  <span className="label">
+                    Delivery Method:{" "}
+                    <span className="value">
+                      {currentOffer.productDetails.deliveryMethod === "meetup" ? "Meet up" : "Pick up"}
+                    </span>
+                  </span>
+                )}
+                {currentOffer.productDetails?.paymentMethod && (
+                  <span className="label">
+                    Payment Method:{" "}
+                    <span className="value">
+                      {currentOffer.productDetails.paymentMethod === "gcash" ? "Online Payment" : "Pay upon meetup"}
+                    </span>
+                  </span>
+                )}
+                {currentOffer.productDetails?.date_id && (
+                  <span className="label">
+                    Date:{" "}
+                    <span className="value">
+                      {currentOffer.productDetails.status && 
+                       currentOffer.productDetails.status.split('\n')[0].replace('Date: ', '')}
+                    </span>
+                  </span>
+                )}
+                {currentOffer.productDetails?.time_id && (
+                  <span className="label">
+                    Duration:{" "}
+                    <span className="value">
+                      {currentOffer.productDetails.status && 
+                       currentOffer.productDetails.status.split('\n')[1].replace('Duration: ', '')}
+                    </span>
+                  </span>
+                )}
+              </div>
+              {currentOffer.productDetails?.terms && Object.values(currentOffer.productDetails.terms).some(term => term) && (
+                <div className="terms-condition">
+                  {currentOffer.productDetails.terms.lateCharges && (
+                    <span className="label">
+                      Late Charges: <span className="value">{currentOffer.productDetails.terms.lateCharges}</span>
+                    </span>
+                  )}
+                  {currentOffer.productDetails.terms.securityDeposit && (
+                    <span className="label">
+                      Security Deposit:{" "}
+                      <span className="value">{currentOffer.productDetails.terms.securityDeposit}</span>
+                    </span>
+                  )}
+                  {currentOffer.productDetails.terms.repairReplacement && (
+                    <span className="label">
+                      Repair and Replacement:{" "}
+                      <span className="value">{currentOffer.productDetails.terms.repairReplacement}</span>
+                    </span>
+                  )}
+                </div>
+              )}
+              <span>
+                By confirming your {currentOffer.productDetails?.terms ? "rental" : "purchase"}, you agree to the platform's Policies,
+                Terms and Conditions, and the terms with the other party
+                (as shown above).
+              </span>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={confirmAcceptOffer}>
+              Confirm
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </div>
   );
 };
