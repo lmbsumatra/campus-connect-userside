@@ -401,7 +401,7 @@ const Trial = ({ onTabClick }) => {
   };
 
   return (
-    <div className="auth-container">
+    <div className="form-wrapper">
       {showWarning && (
         <div className="validation error" ref={warningMessageRef}>
           <img src={warningIcon} className="icon" />
