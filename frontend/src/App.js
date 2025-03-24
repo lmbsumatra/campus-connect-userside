@@ -3,17 +3,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
-import store from "./store/store";
-import { AuthProvider } from "./context/AuthContext";
-import { SocketProvider } from "./context/SocketContext";
-import { ChatProvider } from "./context/ChatContext";
-import { SystemConfigProvider } from "./context/SystemConfigProvider"; // Import SystemConfigProvider
+import store from "./store/store.js";
+import { AuthProvider } from "./context/AuthContext.js";
+import { SocketProvider } from "./context/SocketContext.js";
+import { ChatProvider } from "./context/ChatContext.js";
+import { SystemConfigProvider } from "./context/SystemConfigProvider.js"; // Import SystemConfigProvider
 
 import PublicLayout from "./layouts/PublicLayout.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
-import AdminRoutes from "./routes/AdminRoutes";
-import PublicRoutes from "./routes/PublicRoutes";
-import StudentProtectedRoutes from "./routes/StudentProtectedRoutes";
+import AdminRoutes from "./routes/AdminRoutes.jsx";
+import PublicRoutes from "./routes/PublicRoutes.jsx";
+import StudentProtectedRoutes from "./routes/StudentProtectedRoutes.jsx";
 
 import "./App.css";
 import "./styles/buttons.css";
