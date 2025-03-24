@@ -171,7 +171,7 @@ router.get("/:id", async (req, res) => {
     // Query the database for all conversations involving the user
     const query = `
           SELECT * 
-          FROM Conversations 
+          FROM conversations 
           WHERE JSON_CONTAINS(members, '["${userId}"]')
           ORDER BY updatedAt DESC
       `;
@@ -364,7 +364,7 @@ router.get("/preview/:userId", async (req, res) => {
     // Fetch conversations
     const query = `
       SELECT * 
-      FROM Conversations 
+      FROM conversations 
       WHERE JSON_CONTAINS(members, '["${userId}"]')
       ORDER BY updatedAt DESC; 
     `;
