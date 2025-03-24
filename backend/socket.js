@@ -23,12 +23,16 @@ function initializeSocket(server) {
   // Update the cors configuration in initializeSocket function
   const io = new Server(server, {
     cors: {
-      origin: ["https://rentupeers.shop", "http://localhost:3000"],
+      origin: [
+        "https://rentupeers.shop",
+        "http://localhost:3000",
+        "https://api.rentupeers.shop",
+      ],
       methods: ["GET", "POST"],
       credentials: true,
     },
   });
-  
+
   const adminSockets = new Set();
   const userSockets = new Map();
 

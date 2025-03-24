@@ -526,35 +526,36 @@ const Notification = ({
   const [tempAlert, setTempAlert] = useState(null);
 
   useEffect(() => {
-    if (!studentUser?.userId) return;
+    if (!studentUser?.userId || !socket) return;
 
     const fetchAndSubscribe = async () => {
       try {
         await dispatch(fetchNotifications(studentUser.userId)).unwrap();
-        // Register the user with the socket
-        // await dispatch(fetchRentalTransactions(studentUser?.userId)).unwrap();
-        const userIdStr = studentUser.userId.toString();
-        socket.emit("registerUser", userIdStr);
 
-        const handler = (notification) => {
-          // For new listing or post, show a temporary pop-up alert
-          dispatch(fetchRentalTransactions(studentUser.userId));
-          if (
-            notification.type === "new-listing" ||
-            notification.type === "new-post"
-          ) {
-            setTempAlert(
-              `New ${
-                notification.type === "new-listing" ? "listing" : "post"
-              } "${notification.message}" available!`
-            );
-            setTimeout(() => setTempAlert(null), 5000);
-          }
-          dispatch(addNotification(notification));
-        };
-        socket.on("receiveNotification", handler);
+        // Only attempt to register if socket exists
+        if (socket) {
+          const userIdStr = studentUser.userId.toString();
+          socket.emit("registerUser", userIdStr);
 
-        return () => socket.off("receiveNotification", handler);
+          const handler = (notification) => {
+            dispatch(fetchRentalTransactions(studentUser.userId));
+            if (
+              notification.type === "new-listing" ||
+              notification.type === "new-post"
+            ) {
+              setTempAlert(
+                `New ${
+                  notification.type === "new-listing" ? "listing" : "post"
+                } "${notification.message}" available!`
+              );
+              setTimeout(() => setTempAlert(null), 5000);
+            }
+            dispatch(addNotification(notification));
+          };
+
+          socket.on("receiveNotification", handler);
+          return () => socket.off("receiveNotification", handler);
+        }
       } catch (error) {
         console.error("Failed to load notifications:", error);
       }
