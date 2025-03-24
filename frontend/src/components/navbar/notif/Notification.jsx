@@ -39,7 +39,7 @@ const notificationRoutes = {
       : "/profile/transactions/owner/to hand over",
   return_confirmed: (isOwner) =>
     isOwner
-      ? "/profile/transactions/owner/to receive"
+      ? "/profile/transactions/owner/completed"
       : "/profile/transactions/renter/to receive",
   rental_completed: (isOwner) =>
     isOwner

@@ -5,42 +5,60 @@ module.exports = ({ emitNotification }) => {
     try {
       const { transaction_id, transaction_type, reason } = req.body;
       const files = req.files;
+      const reporterId = req.user.userId;
 
-      const transactionModel =
-        transaction_type === "rental"
-          ? models.RentalTransaction
-          : models.BuyAndSellTransaction;
+      // Standardize transaction type handling
+      const normalizedType = transaction_type;
 
-      const transaction = await transactionModel.findByPk(transaction_id, {
-        include:
-          transaction_type === "rental"
-            ? [
-                { model: models.User, as: "renter" },
-                { model: models.Listing, include: ["owner"] },
-              ]
-            : [
-                { model: models.User, as: "buyer" },
-                { model: models.User, as: "seller" },
-                { model: models.ItemForSale },
-              ],
-      });
+      // Always use RentalTransaction model since it appears to handle both types
+      const transaction = await models.RentalTransaction.findByPk(
+        transaction_id,
+        {
+          include:
+            normalizedType === "rental"
+              ? [
+                  { model: models.User, as: "renter" },
+                  { model: models.Listing, include: ["owner"] },
+                ]
+              : [
+                  { model: models.User, as: "buyer" },
+                  { model: models.User, as: "owner" },
+                  { model: models.ItemForSale },
+                ],
+        }
+      );
 
       if (!transaction) {
         return res.status(404).json({ error: "Transaction not found" });
       }
 
-      const reporterId = req.user.userId;
+      // Determine reported user ID first
       let reportedUserId;
-      if (transaction_type === "rental") {
+      if (normalizedType === "rental") {
         reportedUserId =
           transaction.renter_id === reporterId
             ? transaction.Listing.owner_id
             : transaction.renter_id;
       } else {
+        // For sell transactions, use seller_id if available, otherwise fall back to owner_id
+        const sellerId = transaction.seller_id || transaction.owner_id;
         reportedUserId =
-          transaction.buyer_id === reporterId
-            ? transaction.seller_id
-            : transaction.buyer_id;
+          transaction.buyer_id === reporterId ? sellerId : transaction.buyer_id;
+      }
+
+      console.log("Transaction:", transaction);
+      console.log("Reporter ID:", reporterId);
+      console.log("Reported User ID:", reportedUserId);
+      console.log("Transaction type:", normalizedType);
+      console.log("Buyer ID:", transaction.buyer_id);
+      console.log("Seller ID:", transaction.seller_id);
+      console.log("Owner ID:", transaction.owner_id);
+
+      // Validate reported user ID exists
+      if (!reportedUserId) {
+        return res
+          .status(400)
+          .json({ error: "Could not determine reported user" });
       }
 
       const reportData = {
@@ -48,10 +66,8 @@ module.exports = ({ emitNotification }) => {
         reported_id: reportedUserId,
         report_description: reason,
         status: "open",
-        transaction_type,
-        [transaction_type === "rental"
-          ? "rental_transaction_id"
-          : "buy_and_sell_transaction_id"]: transaction_id,
+        transaction_type: normalizedType,
+        rental_transaction_id: transaction_id,
       };
 
       const report = await models.TransactionReport.create(reportData);
@@ -66,12 +82,13 @@ module.exports = ({ emitNotification }) => {
           })
         )
       );
-      // Create report
+
+      // Create notification
       const notification = await models.StudentNotification.create({
         sender_id: reporterId,
         recipient_id: reportedUserId,
         type: "transaction_report",
-        message: `New ${transaction_type} report filed against you`,
+        message: `New ${normalizedType} report filed against you`,
         transaction_report_id: report.id,
         transaction_id,
       });
@@ -82,6 +99,7 @@ module.exports = ({ emitNotification }) => {
 
       res.status(201).json({ report, evidence });
     } catch (error) {
+      console.error("Error in createTransactionReport:", error);
       res.status(500).json({ error: error.message });
     }
   };
@@ -148,19 +166,13 @@ module.exports = ({ emitNotification }) => {
           {
             model: models.RentalTransaction,
             as: "rentalTransaction",
-            include: [models.Listing],
-          },
-          {
-            model: models.BuyAndSellTransaction,
-            as: "buySellTransaction",
-            include: [models.ItemForSale],
+            include: [{ model: models.Listing }, { model: models.ItemForSale }],
           },
         ],
         order: [["createdAt", "DESC"]],
       });
       res.status(200).json(reports);
     } catch (error) {
-      // console.error("Error in getAllTransactionReports:", error);
       res.status(500).json({ error: error.message });
     }
   };
@@ -169,25 +181,20 @@ module.exports = ({ emitNotification }) => {
     try {
       const { reportId } = req.params;
 
-      // Fetch the report first, without conditional includes
+      // Fetch the report first to determine transaction type
       const initialReport = await models.TransactionReport.findByPk(reportId);
-
       if (!initialReport)
         return res.status(404).json({ error: "Report not found" });
 
       // Determine transaction includes based on transaction_type
-      const transactionInclude =
-        initialReport.transaction_type === "rental"
-          ? {
-              model: models.RentalTransaction,
-              as: "rentalTransaction",
-              include: [{ model: models.Listing }],
-            }
-          : {
-              model: models.BuyAndSellTransaction,
-              as: "buySellTransaction",
-              include: [{ model: models.ItemForSale }],
-            };
+      const transactionInclude = {
+        model: models.RentalTransaction,
+        as: "rentalTransaction",
+        include:
+          initialReport.transaction_type === "rental"
+            ? [{ model: models.Listing }]
+            : [{ model: models.ItemForSale }],
+      };
 
       // Refetch the report with correct includes
       const fullReport = await models.TransactionReport.findByPk(reportId, {
@@ -200,13 +207,13 @@ module.exports = ({ emitNotification }) => {
             as: "responses",
             include: [{ model: models.TransactionEvidence, as: "evidence" }],
           },
-          transactionInclude, // Add the correct transaction model
+          transactionInclude,
         ],
       });
 
       return res.status(200).json(fullReport);
     } catch (error) {
-      // console.error("Error in getTransactionReportById:", error);
+      console.error("Error in getTransactionReportById:", error);
       res.status(500).json({ error: error.message });
     }
   };

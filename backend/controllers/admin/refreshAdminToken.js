@@ -37,9 +37,11 @@ const refreshAdminToken = async (req, res) => {
       : [admin.refreshToken];
 
     if (!storedTokens.includes(refreshToken)) {
-      return res.status(403).json({ message: "Refresh token mismatch." });
+      // ✅ Compare the refreshToken directly (no JSON parsing)
+      if (admin.refreshToken !== refreshToken) {
+        return res.status(403).json({ message: "Refresh token mismatch." });
+      }
     }
-
     // Generate new tokens
     const token = jwt.sign(
       { userId: admin.user_id, role: decoded.role },
@@ -54,20 +56,19 @@ const refreshAdminToken = async (req, res) => {
       JWT_REFRESH_SECRET,
       { expiresIn: "5d" }
     );
-
     // ✅ Append new refresh token instead of replacing
     const updatedTokens = [
       ...storedTokens.filter((t) => t !== refreshToken),
       newRefreshToken,
     ];
 
-    // Update refresh tokens in database
-    admin.refreshToken = updatedTokens;
+    // ✅ Update the refreshToken in the database
+    admin.refreshToken = refreshToken;
     await admin.save();
 
     res.status(200).json({ token, refreshToken: newRefreshToken });
   } catch (error) {
-    // console.error("Refresh token error:", error);
+    console.error("Refresh token error:", error);
     res.status(403).json({ message: "Invalid or expired refresh token." });
   }
 };

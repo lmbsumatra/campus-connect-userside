@@ -20,9 +20,9 @@ module.exports = ({ emitNotification }) => {
 
       if (!transaction) {
         // console.error(
-          "createRentalReport error: Transaction not found for rental_transaction_id:",
-          rental_transaction_id
-        );
+        //   "createRentalReport error: Transaction not found for rental_transaction_id:",
+        //   rental_transaction_id
+        // );
         return res.status(404).json({ error: "Transaction not found" });
       }
 

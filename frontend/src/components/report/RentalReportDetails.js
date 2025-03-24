@@ -252,7 +252,7 @@ const RentalReportDetails = () => {
           <h2>
             Report Case for:{" "}
             {reportDetails.rentalTransaction?.Listing?.listing_name ||
-              "Unnamed Item"}
+              reportDetails.rentalTransaction?.ItemForSale?.item_for_sale_name}
           </h2>
           <span
             className={`status status-${getStatusBadgeVariant(

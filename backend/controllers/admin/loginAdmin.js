@@ -63,7 +63,6 @@ const loginAdmin = async (req, res) => {
         expiresIn: "5d",
       }
     );
-
     // ✅ Allow multiple refresh tokens (instead of replacing old ones)
     const storedTokens = Array.isArray(admin.refreshToken)
       ? admin.refreshToken
@@ -71,7 +70,8 @@ const loginAdmin = async (req, res) => {
 
     const updatedTokens = [...storedTokens, refreshToken];
 
-    admin.refreshToken = updatedTokens;
+    // ✅ Store the refreshToken as a plain string
+    admin.refreshToken = refreshToken;
     await admin.save();
 
     await AuditLog.create({
@@ -92,7 +92,7 @@ const loginAdmin = async (req, res) => {
       last_name: user.last_name,
     });
   } catch (error) {
-    // console.error("Login error:", error);
+    console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
