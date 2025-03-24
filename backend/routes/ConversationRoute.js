@@ -290,7 +290,7 @@ router.post("/:conversationId/message", async (req, res) => {
 
   try {
     // Ensure the conversation exists before sending a message
-    const conversation = await Conversation.findByPk(conversationId);
+    const conversation = await models.Conversation.findByPk(conversationId);
     if (!conversation) {
       return res.status(404).json({ error: "Conversation not found" });
     }
