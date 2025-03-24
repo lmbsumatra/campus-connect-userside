@@ -281,8 +281,7 @@ const MessagePage = () => {
 
         // Fetch conversations
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL || `${baseApi}`
-          }/api/conversations/${userId}`,
+          `${baseApi}/api/conversations/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -424,9 +423,7 @@ const MessagePage = () => {
           }));
 
         const response = await fetch(
-          `${
-            process.env.REACT_APP_API_URL || `${baseApi}`
-          }/api/conversations/${activeChat.id}/message`,
+          `${process.env.REACT_APP_API_URL ?? baseApi}/api/conversations/${activeChat.id}/message`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -489,9 +486,7 @@ const MessagePage = () => {
         };
 
         const res = await fetch(
-          `${
-            process.env.REACT_APP_API_URL || `${baseApi}`
-          }/api/conversations/${activeChat.id}/message`,
+          `${process.env.REACT_APP_API_URL ?? baseApi}/api/conversations/${activeChat.id}/message`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
