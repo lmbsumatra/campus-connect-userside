@@ -18,7 +18,7 @@ const Report = require("./ReportModel");
 // const BuyAndSellTransaction = require("./BuyAndSellTransactionModel")(
 //   sequelize
 // );
-const Notification = require("./NotificationModel")(sequelize);
+const Notification = require("./NotificationModel");
 const MessageNotification = require("./MessageNotificationModel");
 const StudentNotification = require("./StudentNotificationModel");
 const Follow = require("./FollowModel");
