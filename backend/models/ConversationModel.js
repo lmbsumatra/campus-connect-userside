@@ -1,33 +1,40 @@
 const { DataTypes, Model } = require("sequelize");
-const sequelize = require("../config/database");
-const User = require("./UserModel");
 
+module.exports = (sequelize) => {
+  class Conversation extends Model {}
 
-class Conversation extends Model {}
-
-Conversation.init(
-  {
-    members: {
-      type: DataTypes.JSON, // JSON field to store an array of user IDs
-      allowNull: false,
+  Conversation.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      members: {
+        type: DataTypes.JSON, // Array of user IDs
+        allowNull: false,
+      },
+      user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
-
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+    {
+      sequelize,
+      modelName: "Conversation",
+      tableName: "conversations",
+      timestamps: true,
+      freezeTableName: true,
     }
-  },
-  {
-    sequelize,
-    modelName: "Conversation",
-    tableName: "conversations",
-    timestamps: true,
-    
-  }
-);
+  );
 
-Conversation.belongsTo(User, { foreignKey: "user_id", as: "conversations" });
+  Conversation.associate = (models) => {
+    Conversation.belongsTo(models.User, {
+      foreignKey: "user_id",
+      as: "user",
+      onDelete: "CASCADE",
+    });
+  };
 
-
-
-module.exports = Conversation;
+  return Conversation;
+};
