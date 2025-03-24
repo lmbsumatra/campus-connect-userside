@@ -40,7 +40,7 @@ export const defaultImages = [
 
 export const REACT_APP_API_URL = "https://api.rentupeers.shop";
 export const baseApi = REACT_APP_API_URL || "https://api.rentupeers.shop";
-export const baseUrl = "http://localhost:3000"
+export const baseUrl = "https://rentupeers.shop"
 export const REACT_APP_GOOGLE_CLIENT_ID =
   "474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com";
 

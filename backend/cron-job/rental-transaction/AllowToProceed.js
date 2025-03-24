@@ -10,7 +10,7 @@ const server = http.createServer(app);
 const { io } = require("socket.io-client");
 
 // Create the socket connection outside the cron job
-const socket = io("http://localhost:3001", {
+const socket = io("https://api.rentupeers.shop/", {
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
