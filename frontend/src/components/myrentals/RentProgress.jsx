@@ -20,9 +20,7 @@ function RentProgress() {
   useEffect(() => {
     const fetchTransaction = async () => {
       try {
-        const response = await axios.get(
-          `${baseApi}/rental-transaction/${id}`
-        );
+        const response = await axios.get(`${baseApi}/rental-transaction/${id}`);
         setTransaction(response.data);
       } catch (err) {
         setError(
@@ -52,37 +50,40 @@ function RentProgress() {
   const handleSendMessage = () => {
     // Determine whether the user is the owner or the renter
     const isOwner = transaction.rental?.owner?.id === userId;
-    const recipientId = isOwner 
-      ? transaction.rental?.renter?.user_id 
+    const recipientId = isOwner
+      ? transaction.rental?.renter?.user_id
       : transaction.rental?.owner?.id;
-    
+
     if (!recipientId) {
       alert("Recipient information not available");
       return;
     }
-    
+
     // Format date to a readable string
-    const formattedDate = transaction.rental?.Date?.date 
+    const formattedDate = transaction.rental?.Date?.date
       ? new Date(transaction.rental.Date.date).toLocaleDateString()
       : "Not specified";
-    
+
     // Navigate to messages with rental details
     navigate("/messages", {
       state: {
         ownerId: recipientId, // The recipient ID (either owner or renter)
         product: {
           productId: transaction.rental.id,
-          name: transaction.rental?.Listing?.listing_name || "Rental Transaction",
+          name:
+            transaction.rental?.Listing?.listing_name || "Rental Transaction",
           price: transaction.rental?.Listing?.rate || "0",
           image: transaction.rental?.Listing?.image_url || item1,
           title: "Inquiry", // This ensures it shows as "Inquiring about this item"
           type: "rental-transaction", // Custom type for navigation
-          status: `Status: ${transaction.rental?.status?.replace("_", " ").toUpperCase() || "N/A"}
+          status: `Status: ${
+            transaction.rental?.status?.replace("_", " ").toUpperCase() || "N/A"
+          }
 Period: ${formattedDate}
 Delivery: ${transaction.rental?.delivery_method || "Not specified"}
-Total Cost: ${calculateTotalCost()} php`
-        }
-      }
+Total Cost: ${calculateTotalCost()} php`,
+        },
+      },
     });
   };
 
@@ -336,9 +337,14 @@ Total Cost: ${calculateTotalCost()} php`
         show={showReportModal}
         handleClose={() => setShowReportModal(false)}
         handleSubmit={handleRentalReportSubmit}
-        entityType="rental_transaction"
+        entityType={
+          transaction.rental?.transaction_type === "sell"
+            ? "sale_transaction"
+            : "rental_transaction"
+        }
         entityId={transaction.rental?.id}
         currentUserId={userId}
+        transactionType={transaction.rental?.transaction_type} // Pass the actual transaction type
       />
     </div>
   );

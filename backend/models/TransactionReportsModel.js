@@ -11,7 +11,7 @@ TransactionReport.init(
       primaryKey: true,
     },
     transaction_type: {
-      type: DataTypes.ENUM("rental", "buy_sell"),
+      type: DataTypes.ENUM("rental", "sell"),
       allowNull: false,
     },
     rental_transaction_id: {
@@ -19,14 +19,6 @@ TransactionReport.init(
       allowNull: true,
       references: {
         model: "rental_transactions",
-        key: "id",
-      },
-    },
-    buy_and_sell_transaction_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: "buy_and_sell_transactions",
         key: "id",
       },
     },
@@ -85,12 +77,6 @@ TransactionReport.associate = (models) => {
     foreignKey: "rental_transaction_id",
     as: "rentalTransaction",
   });
-
-  // TransactionReport.belongsTo(models.BuyAndSellTransaction, {
-  //   foreignKey: "buy_and_sell_transaction_id",
-  //   as: "buySellTransaction",
-  // });
-
   // Keep user associations the same
   TransactionReport.belongsTo(models.User, {
     foreignKey: "reporter_id",

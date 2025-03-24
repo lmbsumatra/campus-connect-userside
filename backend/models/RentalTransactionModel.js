@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      seller_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       item_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -117,6 +121,13 @@ module.exports = (sequelize) => {
     RentalTransaction.belongsTo(models.User, {
       as: "buyer",
       foreignKey: "buyer_id",
+    });
+    RentalTransaction.belongsTo(models.User, {
+      as: "seller",
+      foreignKey: "seller_id",
+    });
+    RentalTransaction.belongsTo(models.ItemForSale, {
+      foreignKey: "item_id",
     });
     RentalTransaction.belongsTo(models.Listing, { foreignKey: "item_id" });
     RentalTransaction.belongsTo(models.Post, { foreignKey: "post_id" });

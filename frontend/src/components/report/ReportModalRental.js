@@ -93,12 +93,12 @@ const ReportModal = ({
     const formData = new FormData();
     formData.append("reason", reason);
 
-    // Add transaction type to form data
+    const typeToSend =
+      transactionType ||
+      (entityType === "rental_transaction" ? "rental" : "sell");
+
     if (!reportId) {
-      formData.append(
-        "transaction_type",
-        entityType === "rental_transaction" ? "rental" : "buy_sell"
-      );
+      formData.append("transaction_type", typeToSend);
       formData.append("transaction_id", entityId);
     }
 

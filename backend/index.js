@@ -113,6 +113,9 @@ app.use(
 
 app.use("/api/system-config", systemConfigRoutes);
 
+// Mount the transaction reports route
+app.use("/api/transaction-reports", transactionReportsRoutes);
+
 // Error Handling Middleware
 app.use((err, req, res, next) => {
   // console.error(err.stack);
