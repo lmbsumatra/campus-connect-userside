@@ -38,8 +38,8 @@ export const defaultImages = [
   `https://res.cloudinary.com/campusconnectcl/image/upload/v1735920030/cc/upjauojvyedsriwhdcks.svg`,
 ];
 
-export const REACT_APP_API_URL = "https://rentupeers.shop";
-export const baseApi = REACT_APP_API_URL || "https://rentupeers.shop";
+export const REACT_APP_API_URL = "https://api.rentupeers.shop";
+export const baseApi = REACT_APP_API_URL || "https://api.rentupeers.shop";
 export const baseUrl = "https://rentupeers.shop";
 export const REACT_APP_GOOGLE_CLIENT_ID =
   "474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com";
