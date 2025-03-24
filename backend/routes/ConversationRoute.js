@@ -39,7 +39,7 @@ router.post("/createConversation", async (req, res) => {
     }
 
     // Check if a conversation already exists between the sender and owner
-    const existingConversation = await models.models.Conversation.findOne({
+    const existingConversation = await models.Conversation.findOne({
       where: {
         members: sequelize.literal(
           `JSON_CONTAINS(members, '["${senderId}"]') AND JSON_CONTAINS(members, '["${ownerId}"]')`
@@ -290,7 +290,7 @@ router.post("/:conversationId/message", async (req, res) => {
 
   try {
     // Ensure the conversation exists before sending a message
-    const conversation = await models.models.Conversation.findByPk(conversationId);
+    const conversation = await models.Conversation.findByPk(conversationId);
     if (!conversation) {
       return res.status(404).json({ error: "models.Conversation not found" });
     }
