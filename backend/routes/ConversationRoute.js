@@ -14,7 +14,7 @@ const { models } = require("../models/index");
 router.post("/", async (req, res) => {
   try {
     // Create a new conversation by storing senderId and receiverId
-    const savedConversation = await Conversation.create({
+    const savedConversation = await models.Conversation.create({
       members: [req.body.senderId, req.body.receiverId], // Conversation members
     });
 
@@ -39,7 +39,7 @@ router.post("/createConversation", async (req, res) => {
     }
 
     // Check if a conversation already exists between the sender and owner
-    const existingConversation = await Conversation.findOne({
+    const existingConversation = await models.models.Conversation.findOne({
       where: {
         members: sequelize.literal(
           `JSON_CONTAINS(members, '["${senderId}"]') AND JSON_CONTAINS(members, '["${ownerId}"]')`
@@ -49,7 +49,7 @@ router.post("/createConversation", async (req, res) => {
 
     if (!existingConversation) {
       // If no existing conversation, create a new one
-      const newConversation = await Conversation.create({
+      const newConversation = await models.Conversation.create({
         members: [String(senderId), String(ownerId)], // Store IDs as strings in the members array
         user_id: senderId, // Mark senderId as the user_id (creator)
       });
@@ -80,7 +80,7 @@ router.post("/createConversationPost", async (req, res) => {
     }
 
     // Check if a conversation already exists between the sender and owner
-    const existingConversation = await Conversation.findOne({
+    const existingConversation = await models.Conversation.findOne({
       where: {
         members: sequelize.literal(
           `JSON_CONTAINS(members, '["${senderId}"]') AND JSON_CONTAINS(members, '["${renterId}"]')`
@@ -90,7 +90,7 @@ router.post("/createConversationPost", async (req, res) => {
 
     if (!existingConversation) {
       // If no existing conversation, create a new one
-      const newConversation = await Conversation.create({
+      const newConversation = await models.Conversation.create({
         members: [String(senderId), String(renterId)], // Store IDs as strings in the members array
         user_id: senderId, // Mark senderId as the user_id (creator)
       });
@@ -121,7 +121,7 @@ router.post("/createBySeller", async (req, res) => {
     }
 
     // Check if a conversation already exists between the sender and seller
-    const existingConversation = await Conversation.findOne({
+    const existingConversation = await models.Conversation.findOne({
       where: {
         members: sequelize.literal(
           `JSON_CONTAINS(members, '["${senderId}"]') AND JSON_CONTAINS(members, '["${sellerId}"]')`
@@ -131,7 +131,7 @@ router.post("/createBySeller", async (req, res) => {
 
     if (!existingConversation) {
       // If no existing conversation, create a new one
-      const newConversation = await Conversation.create({
+      const newConversation = await models.Conversation.create({
         members: [String(senderId), String(sellerId)], // Store IDs as strings in the members array
         user_id: senderId, // Mark senderId as the user_id (creator)
       });
@@ -290,9 +290,9 @@ router.post("/:conversationId/message", async (req, res) => {
 
   try {
     // Ensure the conversation exists before sending a message
-    const conversation = await models.Conversation.findByPk(conversationId);
+    const conversation = await models.models.Conversation.findByPk(conversationId);
     if (!conversation) {
-      return res.status(404).json({ error: "Conversation not found" });
+      return res.status(404).json({ error: "models.Conversation not found" });
     }
 
     // Validate product card data
@@ -493,13 +493,13 @@ router.post("/delete", async (req, res) => {
     const { conversationId, userId } = req.body;
     
     if (!conversationId || !userId) {
-      return res.status(400).json({ error: "Conversation ID and User ID are required" });
+      return res.status(400).json({ error: "models.Conversation ID and User ID are required" });
     }
     
     // Check if conversation exists
-    const conversation = await Conversation.findByPk(conversationId);
+    const conversation = await models.Conversation.findByPk(conversationId);
     if (!conversation) {
-      return res.status(404).json({ error: "Conversation not found" });
+      return res.status(404).json({ error: "models.Conversation not found" });
     }
     
     // Create a record to mark this conversation as deleted for this user
@@ -509,7 +509,7 @@ router.post("/delete", async (req, res) => {
       deleted_at: new Date()
     });
     
-    res.status(200).json({ success: true, message: "Conversation deleted successfully" });
+    res.status(200).json({ success: true, message: "models.Conversation deleted successfully" });
   } catch (err) {
     // console.error("Error deleting conversation:", err);
     res.status(500).json({ error: err.message });
@@ -522,13 +522,13 @@ router.get("/single/:conversationId/:userId", async (req, res) => {
     const { conversationId, userId } = req.params;
     
     if (!conversationId || !userId) {
-      return res.status(400).json({ error: "Conversation ID and User ID are required" });
+      return res.status(400).json({ error: "models.Conversation ID and User ID are required" });
     }
     
     // Find the conversation
-    const conversation = await Conversation.findByPk(conversationId);
+    const conversation = await models.Conversation.findByPk(conversationId);
     if (!conversation) {
-      return res.status(404).json({ error: "Conversation not found" });
+      return res.status(404).json({ error: "models.Conversation not found" });
     }
     
     // Parse members to identify the other participant
