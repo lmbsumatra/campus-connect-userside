@@ -16,7 +16,7 @@ const deleteUnavailableDate = async (req, res) => {
       return res.status(404).json({ message: "Date not found" });
     }
   } catch (error) {
-    console.error("Error removing date:", error);
+    // console.error("Error removing date:", error);
     return res.status(500).json({ message: "Failed to remove date" });
   }
 };

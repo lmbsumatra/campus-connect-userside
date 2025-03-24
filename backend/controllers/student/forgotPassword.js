@@ -224,7 +224,7 @@ const forgotPassword = async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error("Failed to send password reset email:", error);
+        // console.error("Failed to send password reset email:", error);
         return res
           .status(500)
           .json({ message: "Failed to send password reset email" });
@@ -235,7 +235,7 @@ const forgotPassword = async (req, res) => {
       });
     });
   } catch (error) {
-    console.error("Error sending password reset email:", error);
+    // console.error("Error sending password reset email:", error);
     res
       .status(500)
       .json({ message: "Failed to process password reset request" });

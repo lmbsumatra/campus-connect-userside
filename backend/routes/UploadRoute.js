@@ -14,7 +14,7 @@ router.post('/upload-offer-image', upload_offer_image, async (req, res) => {
     });
     
   } catch (error) {
-    console.error("Upload error:", error);
+    // console.error("Upload error:", error);
     res.status(500).json({ error: "Image upload failed" });
   }
 });

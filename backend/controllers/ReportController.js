@@ -37,7 +37,7 @@ exports.createReport = async (req, res) => {
 
     res.status(201).json(newReport);
   } catch (error) {
-    console.error("Error creating report:", error);
+    // console.error("Error creating report:", error);
     res.status(500).json({ error: "Failed to create report." });
   }
 };
@@ -62,7 +62,7 @@ exports.checkReport = async (req, res) => {
 
     res.status(200).json({ hasReported: !!existingReport });
   } catch (error) {
-    console.error("Error checking report:", error);
+    // console.error("Error checking report:", error);
     res.status(500).json({ error: "Failed to check report." });
   }
 };
@@ -81,7 +81,7 @@ exports.getAllReports = async (req, res) => {
     });
     res.status(200).json(reports);
   } catch (error) {
-    console.error("Error fetching reports:", error);
+    // console.error("Error fetching reports:", error);
     res.status(500).json({ error: "Failed to fetch reports." });
   }
 };
@@ -90,12 +90,12 @@ exports.getAllReports = async (req, res) => {
 exports.updateReportStatus = async (req, res) => {
   try {
     const { reportId, reportStatus, entityAction } = req.body;
-    console.log("Request Body:", req.body); // Log the request body
+    // console.log("Request Body:", req.body); // Log the request body
 
     // Find the report
     const report = await models.Report.findByPk(reportId);
     if (!report) {
-      console.log("Report not found for ID:", reportId);
+      // console.log("Report not found for ID:", reportId);
       return res.status(404).json({ message: "Report not found" });
     }
 
@@ -112,7 +112,7 @@ exports.updateReportStatus = async (req, res) => {
         });
 
         if (!student) {
-          console.log(
+          // console.log(
           //   "Student not found for User ID:",
           //   report.reported_entity_id
           // );
@@ -168,7 +168,7 @@ exports.updateReportStatus = async (req, res) => {
 
     res.status(200).json(report);
   } catch (error) {
-    console.error("Error updating report status:", error);
+    // console.error("Error updating report status:", error);
     res.status(500).json({ error: "Failed to update report status." });
   }
 };
@@ -186,17 +186,17 @@ exports.deleteReport = async (req, res) => {
     await report.destroy();
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting report:", error);
+    // console.error("Error deleting report:", error);
     res.status(500).json({ error: "Failed to delete report." });
   }
 };
 
 //Get the selected report Details
 exports.getReportDetails = async (req, res) => {
-  console.log("Query Params:", req.query); // Debugging query params
+  // console.log("Query Params:", req.query); // Debugging query params
   const { entity_type, entity_id } = req.query;
-  //  console.log("Entity Type:", entity_type);
-  //  console.log("Entity ID:", entity_id);
+  //  // console.log("Entity Type:", entity_type);
+  //  // console.log("Entity ID:", entity_id);
 
   if (!entity_type || !entity_id) {
     return res.status(400).json({ error: "Entity type and ID are required." });
@@ -294,7 +294,7 @@ exports.getReportDetails = async (req, res) => {
 
     res.status(200).json(entityData);
   } catch (error) {
-    console.error("Error fetching entity data:", error);
+    // console.error("Error fetching entity data:", error);
     res.status(500).json({ error: "Internal server error." });
   }
 };

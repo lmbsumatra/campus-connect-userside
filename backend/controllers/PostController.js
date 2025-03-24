@@ -34,9 +34,9 @@ exports.getAllApprovedPost = async (req, res) => {
     });
 
     res.status(200).json(items);
-    console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    // console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -86,14 +86,14 @@ exports.getAllApprovedPost = async (req, res) => {
 
 //     res.status(200).json(post);
 //   } catch (error) {
-//     console.error("Error fetching post:", error);
+//     // console.error("Error fetching post:", error);
 //     res.status(500).json({ error: error.message });
 //   }
 // };
 
 // Get all approved posts for a specific user (by userId)
 exports.getAvailablePostsByUser = async (req, res) => {
-  console.log("userId", req.query);
+  // console.log("userId", req.query);
   try {
     // Extract userId from query params or route parameters
     const { userId } = req.query; // or req.params if userId is in URL params
@@ -135,7 +135,7 @@ exports.getAvailablePostsByUser = async (req, res) => {
     // Return the filtered listings
     res.status(200).json(posts);
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    // console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -176,7 +176,7 @@ exports.getAllPosts = async (req, res) => {
 
     res.status(200).json(posts);
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    // console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -185,7 +185,7 @@ exports.getAllPosts = async (req, res) => {
 // exports.createPost = async (req, res, next) => {
 //   const transaction = await sequelize.transaction();
 
-//   console.log(req.body.post)
+//   // console.log(req.body.post)
 
 //   try {
 //     // Check if required post data is provided
@@ -216,7 +216,7 @@ exports.getAllPosts = async (req, res) => {
 //           },
 //           { transaction }
 //         );
-//         console.log("Created rental date:", rentalDate);
+//         // console.log("Created rental date:", rentalDate);
 
 //         // Handle rental times (if provided)
 //         if (date.times && Array.isArray(date.times)) {
@@ -236,7 +236,7 @@ exports.getAllPosts = async (req, res) => {
 //             );
 //           }
 //         } else {
-//           console.warn(`No rental times provided for date: ${date.date}`);
+//           // console.warn(`No rental times provided for date: ${date.date}`);
 //         }
 //       }
 //     }
@@ -267,12 +267,12 @@ exports.getAllPosts = async (req, res) => {
 //     };
 
 //     // Log the details for debugging
-//     console.log("CreatedPost:", {
+//     // console.log("CreatedPost:", {
 //       id: createdPost.id,
 //       title: createdPost.title,
 //       category: createdPost.category,
 //     });
-//     console.log("Owner:", {
+//     // console.log("Owner:", {
 //       id: owner.user_id,
 //       name: ownerName
 //     });
@@ -287,7 +287,7 @@ exports.getAllPosts = async (req, res) => {
 //       await transaction.rollback();
 //     }
 
-//     console.error("Error creating post:", {
+//     // console.error("Error creating post:", {
 //       message: error.message,
 //       stack: error.stack,
 //       body: req.body,
@@ -336,7 +336,7 @@ exports.getPostById = async (req, res) => {
     });
 
     // Log the rental dates
-    console.log(JSON.stringify(post.rental_dates, null, 2));
+    // console.log(JSON.stringify(post.rental_dates, null, 2));
 
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
@@ -344,7 +344,7 @@ exports.getPostById = async (req, res) => {
 
     res.status(200).json(post);
   } catch (error) {
-    console.error("Error fetching post:", error);
+    // console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -393,7 +393,7 @@ exports.updateStatus = async (req, res) => {
 
     res.status(200).json(post);
   } catch (error) {
-    console.error("Error updating listing status:", error);
+    // console.error("Error updating listing status:", error);
     res.status(500).json({ error: error.message });
   }
 };

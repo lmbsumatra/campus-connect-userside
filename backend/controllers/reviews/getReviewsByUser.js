@@ -112,7 +112,7 @@ const getReviewsByUser = async (req, res) => {
 
     res.status(200).json(formattedReviews);
   } catch (error) {
-    console.error("Error fetching user reviews:", error);
+    // console.error("Error fetching user reviews:", error);
     res
       .status(500)
       .json({ error: "An error occurred while fetching reviews." });

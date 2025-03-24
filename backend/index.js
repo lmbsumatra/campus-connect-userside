@@ -51,7 +51,7 @@ app.use(express.urlencoded({ extended: true }));
 // CORS configuration
 app.use(
   cors({
-    origin: "https://rentupeers.shop",
+    origin: "*",
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
@@ -115,12 +115,21 @@ app.use("/api/system-config", systemConfigRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  // console.error(err.stack);
   res.status(500).send("Something went wrong!");
 });
 
 // Removed sequelize.sync() to prevent auto-creation of tables
 // Ensure to use migrations instead for manual schema management
+
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`App is running on port ${PORT}`);
+});
+
+app.use("/try", (req, res) => {
+  res.send({ message: "hi" });
+});
 
 AllowToProceed();
 module.exports = { app, server, io };

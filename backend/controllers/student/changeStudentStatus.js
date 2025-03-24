@@ -19,7 +19,7 @@ const changeStudentStatus = async (req, res) => {
       statusMessage: statusMessage,
     });
   } catch (error) {
-    console.error("Error updating student status:", error);
+    // console.error("Error updating student status:", error);
     return res.status(500).json({ error: "Internal server error." });
   }
 };

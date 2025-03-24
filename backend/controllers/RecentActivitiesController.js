@@ -169,7 +169,7 @@ exports.getAllRecentActivities = async (req, res) => {
 
     res.json(activities);
   } catch (error) {
-    console.error("Error fetching activities:", error);
+    // console.error("Error fetching activities:", error);
     res.status(500).json({ error: "Failed to fetch recent activities." });
   }
 };

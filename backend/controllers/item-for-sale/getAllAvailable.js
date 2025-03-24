@@ -68,13 +68,13 @@ const getAllAvailable = async (req, res) => {
       try {
         tags = JSON.parse(item.tags);
       } catch (error) {
-        console.warn(`Failed to parse tags for item ${item.id}`);
+        // console.warn(`Failed to parse tags for item ${item.id}`);
       }
 
       try {
         images = JSON.parse(item.images);
       } catch (error) {
-        console.warn(`Failed to parse images for item ${item.id}`);
+        // console.warn(`Failed to parse images for item ${item.id}`);
       }
 
       return {
@@ -126,7 +126,7 @@ const getAllAvailable = async (req, res) => {
 
     res.status(200).json(formattedItems);
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    // console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };

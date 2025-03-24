@@ -19,7 +19,7 @@ module.exports = ({ emitNotification }) => {
       );
 
       if (!transaction) {
-        console.error(
+        // console.error(
           "createRentalReport error: Transaction not found for rental_transaction_id:",
           rental_transaction_id
         );
@@ -52,7 +52,7 @@ module.exports = ({ emitNotification }) => {
               uploaded_by_id: reporterId,
             });
           } catch (e) {
-            console.error("Error creating RentalEvidence for file:", file, e);
+            // console.error("Error creating RentalEvidence for file:", file, e);
             throw e;
           }
         })
@@ -75,8 +75,8 @@ module.exports = ({ emitNotification }) => {
 
       res.status(201).json({ report, evidence });
     } catch (error) {
-      console.error("Error in createRentalReport:", error);
-      console.error("Stack Trace:", error.stack);
+      // console.error("Error in createRentalReport:", error);
+      // console.error("Stack Trace:", error.stack);
       res.status(500).json({ error: error.message });
     }
   };
@@ -139,7 +139,7 @@ module.exports = ({ emitNotification }) => {
         evidence: evidenceRecords,
       });
     } catch (error) {
-      console.error("Error in addResponse:", error);
+      // console.error("Error in addResponse:", error);
       return res.status(500).json({ error: error.message });
     }
   };
@@ -157,8 +157,8 @@ module.exports = ({ emitNotification }) => {
       });
       res.status(200).json(reports);
     } catch (error) {
-      console.error("Error in getAllRentalReports:", error);
-      console.error("Stack Trace:", error.stack);
+      // console.error("Error in getAllRentalReports:", error);
+      // console.error("Stack Trace:", error.stack);
       res.status(500).json({ error: error.message });
     }
   };
@@ -166,7 +166,7 @@ module.exports = ({ emitNotification }) => {
   const getRentalReportById = async (req, res) => {
     try {
       const { reportId } = req.params;
-      console.log(`Fetching report with ID: ${reportId}`);
+      // console.log(`Fetching report with ID: ${reportId}`);
 
       const report = await models.RentalReport.findByPk(reportId, {
         include: [
@@ -187,12 +187,12 @@ module.exports = ({ emitNotification }) => {
       });
 
       if (!report) {
-        console.log(`Report not found for ID: ${reportId}`); // Log if report is not found
+        // console.log(`Report not found for ID: ${reportId}`); // Log if report is not found
         return res.status(404).json({ error: "Report not found" });
       }
       return res.status(200).json(report);
     } catch (error) {
-      console.error("Error in getRentalReportById:", error);
+      // console.error("Error in getRentalReportById:", error);
       res.status(500).json({ error: error.message });
     }
   };

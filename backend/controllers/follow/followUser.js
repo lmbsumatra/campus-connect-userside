@@ -36,7 +36,7 @@ const followUser = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error following user:", error);
+    // console.error("Error following user:", error);
     res.status(500).json({ error: "Internal server error." });
   }
 };

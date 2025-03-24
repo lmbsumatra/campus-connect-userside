@@ -19,14 +19,14 @@ const notificationController = {
 
   // Create a new student notification
   createStudentNotification: async (req, res) => {
-    console.log("createStudentNotification called with body:", req.body);
+    // console.log("createStudentNotification called with body:", req.body);
     try {
       // Validate required fields
       const requiredFields = ["sender_id", "recipient_id", "type", "message"];
       const missingFields = requiredFields.filter((field) => !req.body[field]);
 
       if (missingFields.length > 0) {
-        console.error("Missing required fields:", missingFields);
+        // console.error("Missing required fields:", missingFields);
         return res.status(400).json({
           error: `Missing required fields: ${missingFields.join(", ")}`,
         });
@@ -42,15 +42,15 @@ const notificationController = {
         transaction_report_id: report.id,
       });
 
-      console.log("Creating notification with data:", notificationData);
+      // console.log("Creating notification with data:", notificationData);
 
-      console.log(
+      // console.log(
       //   "StudentNotification created successfully:",
       //   notification.toJSON()
       // );
       res.status(201).json(notification);
     } catch (error) {
-      console.error("Error in createStudentNotification:", error);
+      // console.error("Error in createStudentNotification:", error);
       res.status(500).json({
         error: error.message,
         stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
@@ -81,7 +81,7 @@ const notificationController = {
         order: [["createdAt", "DESC"]],
       });
 
-      // console.log(
+      // // console.log(
       // //   "🔔 Fetched Notifications:",
       // //   notifications.map((n) => ({
       // //     id: n.id,
@@ -93,7 +93,7 @@ const notificationController = {
 
       res.json(notifications);
     } catch (error) {
-      console.error("❌ Error fetching notifications:", error);
+      // console.error("❌ Error fetching notifications:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -133,7 +133,7 @@ const notificationController = {
 
   createMessageNotification: async (req, res) => {
     try {
-      console.log("Creating message notification with body:", req.body);
+      // console.log("Creating message notification with body:", req.body);
       const notification = await MessageNotification.create({
         recipient_id: req.body.recipient_id,
         sender_id: req.body.sender_id,
@@ -143,7 +143,7 @@ const notificationController = {
       });
       res.status(201).json(notification);
     } catch (error) {
-      console.error("Error creating message notification:", error);
+      // console.error("Error creating message notification:", error);
       res.status(500).json({
         error: error.message,
         stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
@@ -154,7 +154,7 @@ const notificationController = {
   getMessageNotifications: async (req, res) => {
     try {
       const { userId } = req.params;
-      console.log("Fetching notifications for userId:", userId);
+      // console.log("Fetching notifications for userId:", userId);
 
       const notifications = await MessageNotification.findAll({
         where: { recipient_id: userId },
@@ -179,13 +179,13 @@ const notificationController = {
       // Send the final response with the updated notifications
       res.json(notificationsWithConversationId); // Only send this once
     } catch (error) {
-      console.error("Error fetching notifications:", error);
+      // console.error("Error fetching notifications:", error);
       res.status(500).json({ error: error.message });
     }
   },
   markAllMessagesAsRead: async (userId) => {
     try {
-      console.log(`Marking all messages as read for user: ${userId}`);
+      // console.log(`Marking all messages as read for user: ${userId}`);
 
       const updatedRows = await MessageNotification.update(
         { is_read: true },
@@ -206,7 +206,7 @@ const notificationController = {
             : "No unread messages found",
       };
     } catch (error) {
-      console.error("Error in markAllMessagesAsRead:", error);
+      // console.error("Error in markAllMessagesAsRead:", error);
       throw error;
     }
   },
@@ -230,7 +230,7 @@ const notificationController = {
         message: "Message marked as read successfully",
       });
     } catch (error) {
-      console.error("Error marking message as read:", error);
+      // console.error("Error marking message as read:", error);
       res.status(500).json({ error: error.message });
     }
   },

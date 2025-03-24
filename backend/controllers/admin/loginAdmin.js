@@ -92,7 +92,7 @@ const loginAdmin = async (req, res) => {
       last_name: user.last_name,
     });
   } catch (error) {
-    console.error("Login error:", error);
+    // console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };

@@ -2,8 +2,8 @@ const { models } = require("../../models/index");
 
 const addCartItem = async (req, res) => {
   const user_id = req.user.userId;
-  console.log("Authenticated User:", req.user);
-  console.log("Request received to add item to cart:", req.body);
+  // console.log("Authenticated User:", req.user);
+  // console.log("Request received to add item to cart:", req.body);
 
   try {
     const { ownerId, itemId, itemType, dateId, durationId, price } = req.body;
@@ -62,7 +62,7 @@ const addCartItem = async (req, res) => {
         where: { id: itemId },
         // attributes: ["listing_name", "specifications"],
       });
-      console.log(itemType, itemId, itemDetails);
+      // console.log(itemType, itemId, itemDetails);
       itemName = itemDetails ? itemDetails.dataValues.listing_name : "";
     }
 
@@ -98,12 +98,12 @@ const addCartItem = async (req, res) => {
       },
     };
 
-    console.log(formattedItem);
+    // console.log(formattedItem);
     // Return success response
     return res.status(201).json(formattedItem);
   } catch (error) {
     // Log the full error for debugging
-    console.error("Error adding item to cart:", error);
+    // console.error("Error adding item to cart:", error);
 
     // Return detailed error response
     return res.status(500).json({

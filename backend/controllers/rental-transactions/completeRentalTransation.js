@@ -24,7 +24,7 @@ const convertToCAD = async (amount) => {
   try {
     return amount * 0.025;
   } catch (error) {
-    console.error("Error fetching exchange rate:", error);
+    // console.error("Error fetching exchange rate:", error);
     return amount; // Fallback to original amount if API fails
   }
 };
@@ -74,7 +74,7 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: "Transaction not found." });
     }
 
-    console.log(transaction);
+    // console.log(transaction);
     const isRental = transaction.transaction_type === "rental";
     const isPurchase = transaction.transaction_type === "sell";
 
@@ -243,7 +243,7 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
     // Return the updated transaction data
     res.json(transaction);
   } catch (error) {
-    console.error("Error completing transaction:", error);
+    // console.error("Error completing transaction:", error);
     return res.status(500).json({
       error: "An error occurred while completing the transaction.",
       details: error.message,

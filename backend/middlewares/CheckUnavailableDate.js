@@ -21,7 +21,7 @@ const checkUnavailableDate = async (req, res, next) => {
 
     next(); // Proceed to the next middleware or route handler
   } catch (error) {
-    console.error("Error checking unavailable dates:", error);
+    // console.error("Error checking unavailable dates:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 };

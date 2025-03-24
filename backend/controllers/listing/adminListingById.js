@@ -75,7 +75,7 @@ const adminListingById = async (req, res) => {
 
     res.status(200).json(formattedListing);
   } catch (error) {
-    console.error("Error fetching admin listing:", error);
+    // console.error("Error fetching admin listing:", error);
     res.status(500).json({ error: error.message });
   }
 };

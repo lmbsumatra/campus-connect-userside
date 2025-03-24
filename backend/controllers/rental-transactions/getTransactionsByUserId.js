@@ -245,7 +245,7 @@ const getTransactionsByUserId = async (req, res) => {
     // Return the formatted data
     res.json(formattedData);
   } catch (error) {
-    console.error("Error fetching transactions:", error);
+    // console.error("Error fetching transactions:", error);
 
     // Provide detailed error messages
     let errorMessage =

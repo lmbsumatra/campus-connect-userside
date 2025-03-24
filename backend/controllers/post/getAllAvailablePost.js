@@ -100,7 +100,7 @@ const getAllAvailablePost = async (req, res) => {
 
     res.status(200).json(formattedPosts);
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    // console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };

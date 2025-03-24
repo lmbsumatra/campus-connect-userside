@@ -41,7 +41,7 @@ const getMerchantDetails = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching merchant details:", error);
+    // console.error("Error fetching merchant details:", error);
     res.status(500).json({ error: error.message });
   }
 };

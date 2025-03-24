@@ -36,7 +36,7 @@ exports.getAllTransactions = async (req, res) => {
       ],
     });
 
-    console.log(rentalTransactions);
+    // console.log(rentalTransactions);
 
     // Combine and return transactions
     const transactions = [
@@ -46,7 +46,7 @@ exports.getAllTransactions = async (req, res) => {
 
     res.status(200).json(transactions);
   } catch (error) {
-    console.error("Error fetching transactions:", error);
+    // console.error("Error fetching transactions:", error);
     res.status(500).json({ error: "Failed to fetch transactions." });
   }
 };
@@ -54,7 +54,7 @@ exports.getAllTransactions = async (req, res) => {
 exports.getTransactionById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(`Fetching transaction with ID: ${id}`); // Add log for debugging
+    // console.log(`Fetching transaction with ID: ${id}`); // Add log for debugging
 
     let transaction = await BuyAndSellTransaction.findOne({
       where: { id },
@@ -75,7 +75,7 @@ exports.getTransactionById = async (req, res) => {
     if (transaction) {
       transaction = { ...transaction.toJSON(), type: "buy_and_sell" };
     } else {
-      console.log(`Transaction not found in BuyAndSellTransaction model, searching in RentalTransaction.`);
+      // console.log(`Transaction not found in BuyAndSellTransaction model, searching in RentalTransaction.`);
       transaction = await RentalTransaction.findOne({
         where: { id },
         include: [
@@ -103,7 +103,7 @@ exports.getTransactionById = async (req, res) => {
 
     res.status(200).json(transaction);
   } catch (error) {
-    console.error("Error fetching transaction by ID:", error); // Log any error that occurs
+    // console.error("Error fetching transaction by ID:", error); // Log any error that occurs
     res.status(500).json({ error: "Failed to fetch transaction." });
   }
 };

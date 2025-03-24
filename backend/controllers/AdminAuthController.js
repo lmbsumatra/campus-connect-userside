@@ -70,7 +70,7 @@
 //     await t.rollback();
 
 //     await rollbackUpload(publicIds);
-//     console.error("Registration error:", error);
+//     // console.error("Registration error:", error);
 //     res.status(500).json({
 //       message: "Failed registration. Please check your information",
 //       error: error.message,
@@ -123,7 +123,7 @@
 //       last_name: user.last_name,
 //     });
 //   } catch (error) {
-//     console.error("Login error:", error);
+//     // console.error("Login error:", error);
 //     res.status(500).json({ message: "Error logging in", error: error.message });
 //   }
 // };
@@ -157,7 +157,7 @@
 
 //     res.status(200).json({ message: "Password updated successfully." });
 //   } catch (error) {
-//     console.error("Error changing password:", error);
+//     // console.error("Error changing password:", error);
 //     res
 //       .status(500)
 //       .json({ message: "Error changing password", error: error.message });
@@ -186,7 +186,7 @@
 
 //     res.status(200).json(users);
 //   } catch (error) {
-//     console.error("Error fetching admin accounts:", error);
+//     // console.error("Error fetching admin accounts:", error);
 //     res
 //       .status(500)
 //       .json({ message: "Error fetching admin accounts", error: error.message });
@@ -203,7 +203,7 @@
 //       unavailableDates,
 //     });
 //   } catch (error) {
-//     console.error("Error fetching dates:", error);
+//     // console.error("Error fetching dates:", error);
 //     res.status(500).json({ message: "Server Error" });
 //   }
 // };
@@ -213,7 +213,7 @@
 //     const dates = await UnavailableDate.findAll(); // This should work if the model is set up correctly
 //     res.status(200).json(dates);
 //   } catch (error) {
-//     console.error("Error fetching dates:", error);
+//     // console.error("Error fetching dates:", error);
 //     res.status(500).json({ message: "Server Error" });
 //   }
 // };
@@ -241,7 +241,7 @@
 //     const newDate = await UnavailableDate.create({ date, description });
 //     res.status(201).json(newDate);
 //   } catch (error) {
-//     console.error("Error creating unavailable date:", error);
+//     // console.error("Error creating unavailable date:", error);
 //     res.status(500).json({ message: "Server Error" });
 //   }
 // };
@@ -262,7 +262,7 @@
 //       return res.status(404).json({ message: "Date not found" });
 //     }
 //   } catch (error) {
-//     console.error("Error removing date:", error);
+//     // console.error("Error removing date:", error);
 //     return res.status(500).json({ message: "Failed to remove date" });
 //   }
 // };
@@ -273,7 +273,7 @@
 //     const dates = await EndSemesterDate.findAll(); // Use the correct model here
 //     res.status(200).json(dates);
 //   } catch (error) {
-//     console.error("Error fetching end-semester dates:", error);
+//     // console.error("Error fetching end-semester dates:", error);
 //     res.status(500).json({ message: "Server Error" });
 //   }
 // };
@@ -301,7 +301,7 @@
 //     const newDate = await EndSemesterDate.create({ date, description });
 //     res.status(201).json(newDate);
 //   } catch (error) {
-//     console.error("Error creating end-semester date:", error);
+//     // console.error("Error creating end-semester date:", error);
 //     res.status(500).json({ message: "Server Error" });
 //   }
 // };
@@ -321,7 +321,7 @@
 //       return res.status(404).json({ message: "Date not found" });
 //     }
 //   } catch (error) {
-//     console.error("Error removing end-semester date:", error);
+//     // console.error("Error removing end-semester date:", error);
 //     return res.status(500).json({ message: "Failed to remove date" });
 //   }
 // };
@@ -335,7 +335,7 @@
 
 //     res.json(logs);
 //   } catch (error) {
-//     console.error("Error fetching audit logs:", error);
+//     // console.error("Error fetching audit logs:", error);
 //     res.status(500).json({ message: "Error fetching logs" });
 //   }
 // };

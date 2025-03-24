@@ -52,7 +52,7 @@ const upload_message_images = multer({ storage: storage }).array(
 const uploadEvidence = multer({ storage: storage }).array("evidence", 5);
 
 const rollbackUpload = async (imageUrls) => {
-  console.log("Received image URLs:", imageUrls);
+  // console.log("Received image URLs:", imageUrls);
 
   try {
     const publicIds = imageUrls.map((url) => {
@@ -60,27 +60,27 @@ const rollbackUpload = async (imageUrls) => {
       if (matches && matches[1]) {
         return matches[1]; // Return the public_id part
       }
-      console.error(`Failed to extract public_id from URL: ${url}`);
+      // console.error(`Failed to extract public_id from URL: ${url}`);
       throw new Error("Invalid Cloudinary URL");
     });
 
-    console.log("Extracted public_ids:", publicIds);
+    // console.log("Extracted public_ids:", publicIds);
 
     await Promise.all(
       publicIds.map(async (publicId) => {
         try {
-          console.log(`Attempting to delete public_id: ${publicId}`);
+          // console.log(`Attempting to delete public_id: ${publicId}`);
           const result = await cloudinary.uploader.destroy(publicId);
-          console.log(`Deleted public_id: ${publicId}`, result);
+          // console.log(`Deleted public_id: ${publicId}`, result);
         } catch (error) {
-          console.error(`Error deleting public_id: ${publicId}`, error);
+          // console.error(`Error deleting public_id: ${publicId}`, error);
         }
       })
     );
 
-    console.log("All image deletions attempted.");
+    // console.log("All image deletions attempted.");
   } catch (error) {
-    console.error("Error during Cloudinary rollback:", error);
+    // console.error("Error during Cloudinary rollback:", error);
   }
 };
 

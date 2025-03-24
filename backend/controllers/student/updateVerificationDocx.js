@@ -85,9 +85,9 @@ const updateVerificationDocx = async (req, res) => {
     if (oldFiles.length > 0) {
       try {
         await rollbackUpload(oldFiles);
-        console.log("Old verification documents deleted from Cloudinary");
+        // console.log("Old verification documents deleted from Cloudinary");
       } catch (error) {
-        console.error("Error deleting old verification documents:", error);
+        // console.error("Error deleting old verification documents:", error);
         // Don't fail the request if cleanup fails
       }
     }
@@ -107,15 +107,15 @@ const updateVerificationDocx = async (req, res) => {
       try {
         await rollbackUpload(cloudinaryUrls);
       } catch (rollbackError) {
-        console.error("Error rolling back Cloudinary uploads:", rollbackError);
+        // console.error("Error rolling back Cloudinary uploads:", rollbackError);
       }
     }
 
     // Log error and send response
-    console.error("Document update error:", {
-      message: error.message,
-      stack: error.stack,
-    });
+    // console.error("Document update error:", {
+    //   message: error.message,
+    //   stack: error.stack,
+    // });
 
     res.status(500).json({
       message: "Failed to update verification documents.",

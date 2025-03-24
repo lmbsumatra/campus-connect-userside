@@ -105,17 +105,17 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
               }
             : null; // Exclude items with no availableDates
         } catch (error) {
-          console.error("Error formatting item:", error);
+          // console.error("Error formatting item:", error);
           return null;
         }
       })
       .filter(Boolean); // Remove items that are null (i.e., no dates)
 
-    console.log("getching here?", formattedItems);
+    // console.log("getching here?", formattedItems);
     // Return the formatted items
     res.status(200).json(formattedItems);
   } catch (error) {
-    console.error("Error fetching listings:", error);
+    // console.error("Error fetching listings:", error);
     res.status(500).json({ error: error.message });
   }
 };

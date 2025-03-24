@@ -4,7 +4,7 @@ const { rollbackUpload } = require("../../config/multer");
 const deleteItemForSaleById = async (req, res) => {
   try {
     const { itemForSaleId, userId } = req.params;
-    console.log("Attempting to delete itemForSale:", itemForSaleId, "by user:", userId);
+    // console.log("Attempting to delete itemForSale:", itemForSaleId, "by user:", userId);
 
     if (!itemForSaleId || isNaN(itemForSaleId)) {
       return res.status(400).json({ error: "Invalid itemForSale ID" });
@@ -25,7 +25,7 @@ const deleteItemForSaleById = async (req, res) => {
       try {
         images = JSON.parse(itemForSale.images);
       } catch (error) {
-        console.error("Failed to parse itemForSale.images as JSON:", error);
+        // console.error("Failed to parse itemForSale.images as JSON:", error);
       }
     }
 
@@ -36,22 +36,22 @@ const deleteItemForSaleById = async (req, res) => {
 
         if (cloudinaryImages.length > 0) {
           await rollbackUpload(cloudinaryImages);
-          console.log("Cloudinary rollback completed for images:", cloudinaryImages);
+          // console.log("Cloudinary rollback completed for images:", cloudinaryImages);
         } else {
-          console.log("No Cloudinary images to delete.");
+          // console.log("No Cloudinary images to delete.");
         }
       } catch (error) {
-        console.error("Error during Cloudinary rollback:", error.message);
+        // console.error("Error during Cloudinary rollback:", error.message);
       }
     }
 
     // Delete the item (Cascade deletes related records)
     await itemForSale.destroy();
 
-    console.log(`ItemForSale ID ${itemForSaleId} deleted successfully by User ID ${userId}`);
+    // console.log(`ItemForSale ID ${itemForSaleId} deleted successfully by User ID ${userId}`);
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting itemForSale:", error.message);
+    // console.error("Error deleting itemForSale:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

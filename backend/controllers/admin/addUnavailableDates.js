@@ -23,7 +23,7 @@ const addUnavailableDate = async (req, res) => {
     const newDate = await UnavailableDate.create({ date, description });
     res.status(201).json(newDate);
   } catch (error) {
-    console.error("Error creating unavailable date:", error);
+    // console.error("Error creating unavailable date:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

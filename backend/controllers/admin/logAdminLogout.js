@@ -18,7 +18,7 @@ const logAdminLogout = async (req, res) => {
     });
 
     if (existingLog) {
-      console.log(
+      // console.log(
       //   "Duplicate logout detected within 10 seconds, skipping log entry."
       // );
       return res.status(200).json({ message: "Duplicate logout ignored" });
@@ -36,7 +36,7 @@ const logAdminLogout = async (req, res) => {
 
     res.status(200).json({ message: "Logout logged successfully" });
   } catch (error) {
-    console.error("Error logging logout:", error);
+    // console.error("Error logging logout:", error);
     res.status(500).json({ message: "Error logging logout event" });
   }
 };

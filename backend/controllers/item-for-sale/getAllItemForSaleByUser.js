@@ -76,7 +76,7 @@ const getAllItemForSaleByUser = async (req, res) => {
     // Return the filtered ItemForSale
     res.status(200).json(formattedItems);
   } catch (error) {
-    console.error("Error fetching ItemForSale:", error);
+    // console.error("Error fetching ItemForSale:", error);
     res.status(500).json({ error: error.message });
   }
 };

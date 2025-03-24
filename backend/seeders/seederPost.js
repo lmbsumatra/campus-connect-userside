@@ -89,11 +89,11 @@ const seedPost = async () => {
       await Promise.all(datePromises);
   
       await transaction.commit();
-      console.log(`Post created successfully with ID: ${post.id}`);
+      // console.log(`Post created successfully with ID: ${post.id}`);
       return post;
     } catch (error) {
       if (transaction) await transaction.rollback();
-      console.error("Error creating post:", error);
+      // console.error("Error creating post:", error);
       throw error;
     }
   };
@@ -105,7 +105,7 @@ const runSeeder = async () => {
     await seedPost();
     process.exit(0);
   } catch (error) {
-    console.error("Seeder failed:", error);
+    // console.error("Seeder failed:", error);
     process.exit(1);
   }
 };

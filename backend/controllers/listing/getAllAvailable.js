@@ -30,7 +30,7 @@ const getAllAvailable = async (req, res) => {
         ],
       });
     } catch (error) {
-      console.error("Error fetching user:", error);
+      // console.error("Error fetching user:", error);
     }
   }
 
@@ -159,11 +159,11 @@ const getAllAvailable = async (req, res) => {
       return res.status(200).json(results.length ? results : []);
     }
 
-    console.log(formattedItems);
+    // console.log(formattedItems);
 
     res.status(200).json(formattedItems);
   } catch (error) {
-    console.error("Error fetching listings:", error);
+    // console.error("Error fetching listings:", error);
     res.status(500).json({ error: error.message });
   }
 };

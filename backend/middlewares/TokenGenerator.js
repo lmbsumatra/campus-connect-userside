@@ -20,7 +20,7 @@ const TokenGenerator = {
       const token = jwt.sign(payload, JWT_SECRET, tokenOptions);
       return token;
     } catch (error) {
-      console.error("Error generating token:", error.message);
+      // console.error("Error generating token:", error.message);
       throw new Error("Failed to generate token");
     }
   },
@@ -36,7 +36,7 @@ const TokenGenerator = {
       const decoded = jwt.verify(token, JWT_SECRET);
       return decoded;
     } catch (error) {
-      console.error("Token verification failed:", error.message);
+      // console.error("Token verification failed:", error.message);
       throw error;
     }
   },
@@ -51,7 +51,7 @@ const TokenGenerator = {
       const decoded = jwt.decode(token);
       return decoded;
     } catch (error) {
-      console.error("Error decoding token:", error.message);
+      // console.error("Error decoding token:", error.message);
       throw new Error("Failed to decode token");
     }
   },

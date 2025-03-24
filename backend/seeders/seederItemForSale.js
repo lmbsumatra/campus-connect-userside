@@ -52,7 +52,7 @@ const seedItemForSale = async () => {
     const itemData = generateRandomItemForSale();
 
     // Log the tags before creation to verify format
-    console.log("Tags before creation:", itemData.tags);
+    // console.log("Tags before creation:", itemData.tags);
 
     // Insert item for sale into database
     const item = await models.ItemForSale.create(
@@ -101,11 +101,11 @@ const seedItemForSale = async () => {
     await Promise.all(datePromises);
     await transaction.commit();
 
-    console.log(`Item for sale created successfully with ID: ${item.id}`);
+    // console.log(`Item for sale created successfully with ID: ${item.id}`);
     return item;
   } catch (error) {
     if (transaction) await transaction.rollback();
-    console.error("Error creating item for sale:", error);
+    // console.error("Error creating item for sale:", error);
     throw error;
   }
 };
@@ -116,7 +116,7 @@ const runSeeder = async () => {
     await seedItemForSale();
     process.exit(0);
   } catch (error) {
-    console.error("Seeder failed:", error);
+    // console.error("Seeder failed:", error);
     process.exit(1);
   }
 };

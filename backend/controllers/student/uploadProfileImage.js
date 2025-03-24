@@ -25,14 +25,14 @@ const uploadProfileImage = async (req, res) => {
     student.profile_pic = imageUrl;
     await student.save();
 
-    console.log(student, student.profile_pic)
+    // console.log(student, student.profile_pic)
 
     res.status(200).json({
       message: "Profile picture uploaded successfully",
       imageUrl: imageUrl,
     });
   } catch (error) {
-    console.error("Error updating profile picture:", error);
+    // console.error("Error updating profile picture:", error);
 
     // Rollback uploaded image in case of an error
     await rollbackUpload([imageUrl]);

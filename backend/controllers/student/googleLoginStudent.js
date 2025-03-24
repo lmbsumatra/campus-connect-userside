@@ -46,7 +46,7 @@ const googleLogin = async (req, res) => {
       hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
     });
   } catch (error) {
-    console.error("Google login error:", error);
+    // console.error("Google login error:", error);
     res.status(401).json({ message: "Invalid token" });
   }
 };

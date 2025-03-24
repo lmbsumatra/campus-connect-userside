@@ -8,7 +8,7 @@ router.post("/", async (req, res) => {
   try {
     const { conversationId, sender, text, isProductCard, productDetails } = req.body;
 
-    console.log("Incoming Request Body:", req.body); // Log the incoming data
+    // console.log("Incoming Request Body:", req.body); // Log the incoming data
 
     // Validate the incoming payload
     if (!conversationId || !sender) {
@@ -73,7 +73,7 @@ router.post("/", async (req, res) => {
 
     res.status(200).json(newMessage);
   } catch (err) {
-    console.error("Error saving message:", err);
+    // console.error("Error saving message:", err);
     res.status(500).json({ error: "Failed to save message." });
   }
 });
@@ -93,7 +93,7 @@ router.post("/upload-message-images", upload_message_images, async (req, res) =>
       images: imageUrls 
     });
   } catch (err) {
-    console.error("Error uploading message images:", err);
+    // console.error("Error uploading message images:", err);
     
     // Try to rollback uploads if available
     if (req.files && req.files.length > 0) {
@@ -101,7 +101,7 @@ router.post("/upload-message-images", upload_message_images, async (req, res) =>
       try {
         await rollbackUpload(imagePaths);
       } catch (rollbackErr) {
-        console.error("Error rolling back uploads:", rollbackErr);
+        // console.error("Error rolling back uploads:", rollbackErr);
       }
     }
     
@@ -132,7 +132,7 @@ router.get("/:conversationId", async (req, res) => {
     // Return the messages or an empty array
     res.status(200).json(messages);
   } catch (err) {
-    console.error("Error fetching messages:", err);
+    // console.error("Error fetching messages:", err);
     res.status(500).json({ error: err.message });
   }
 });

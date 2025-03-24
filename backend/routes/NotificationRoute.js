@@ -45,13 +45,13 @@ router.put(
   "/message/mark-all-read/:userId",
   asyncHandler(async (req, res) => {
     try {
-      console.log("Received params:", req.params); // Log the params to verify
+      // console.log("Received params:", req.params); // Log the params to verify
       const { userId } = req.params;
-      console.log(`Marking all messages as read for user: ${userId}`);
+      // console.log(`Marking all messages as read for user: ${userId}`);
       await notificationController.markAllMessagesAsRead(req.params.userId);
       res.json({ message: "All messages marked as read" });
     } catch (error) {
-      console.error("Error in markAllMessagesAsRead:", error);
+      // console.error("Error in markAllMessagesAsRead:", error);
       res.status(500).json({ error: error.message });
     }
   })
@@ -79,7 +79,7 @@ router.put(
 );
 // Error handling middleware
 router.use((err, req, res, next) => {
-  console.error(err.stack);
+  // console.error(err.stack);
   res.status(500).json({
     error: "An error occurred processing your request",
     message: err.message,

@@ -23,7 +23,7 @@ const addEndSemesterDate = async (req, res) => {
     const newDate = await EndSemesterDate.create({ date, description });
     res.status(201).json(newDate);
   } catch (error) {
-    console.error("Error creating end-semester date:", error);
+    // console.error("Error creating end-semester date:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

@@ -198,7 +198,7 @@ const getStripeConnectAccount = async (req, res) => {
       message: missingRequirements.length > 0 ? missingRequirements.join(" ") : null,
     });
   } catch (error) {
-    console.error("Error fetching Stripe Connect account details:", error);
+    // console.error("Error fetching Stripe Connect account details:", error);
     res.status(500).json({ error: error.message });
   }
 };

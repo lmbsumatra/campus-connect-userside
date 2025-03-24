@@ -62,7 +62,7 @@ router.post("/createConversation", async (req, res) => {
     res.status(200).json(existingConversation);
   } catch (err) {
     // Log and return error message in case of failure
-    console.error("Error creating conversation:", err);
+    // console.error("Error creating conversation:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -70,7 +70,7 @@ router.post("/createConversation", async (req, res) => {
 // Create a conversation between user and renter
 router.post("/createConversationPost", async (req, res) => {
   const { senderId, renterId } = req.body; // Extract senderId and ownerId from request body
-  console.log({ senderId, renterId });
+  // console.log({ senderId, renterId });
   try {
     // Check if senderId and ownerId are provided
     if (!senderId || !renterId) {
@@ -103,7 +103,7 @@ router.post("/createConversationPost", async (req, res) => {
     res.status(200).json(existingConversation);
   } catch (err) {
     // Log and return error message in case of failure
-    console.error("Error creating conversation:", err);
+    // console.error("Error creating conversation:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -144,7 +144,7 @@ router.post("/createBySeller", async (req, res) => {
     res.status(200).json(existingConversation);
   } catch (err) {
     // Log and return error message in case of failure
-    console.error("Error creating conversation:", err);
+    // console.error("Error creating conversation:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -156,7 +156,7 @@ router.get("/:id", async (req, res) => {
   // Fetch associated student record for the user
   const student = await models.Student.findOne({ where: { user_id: userId } });
   if (!student) {
-    console.warn(`Student record not found for user ID: ${userId}`);
+    // console.warn(`Student record not found for user ID: ${userId}`);
     return res.status(404).json({
       message: `Student record not found for user ID: ${userId}`,
     });
@@ -278,7 +278,7 @@ router.get("/:id", async (req, res) => {
     res.status(200).json(responseData);
   } catch (err) {
     // Log and return error in case of failure
-    console.error("Error fetching conversations:", err);
+    // console.error("Error fetching conversations:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -357,7 +357,7 @@ router.get("/:conversationId/messages", async (req, res) => {
 
 // Add this new route to get conversations with latest message and unread status
 router.get("/preview/:userId", async (req, res) => {
-  console.log("Fetching conversations for user:", req.params.userId);
+  // console.log("Fetching conversations for user:", req.params.userId);
   try {
     const userId = req.params.userId;
 
@@ -417,7 +417,7 @@ router.get("/preview/:userId", async (req, res) => {
 
     res.status(200).json(processed);
   } catch (err) {
-    console.error("Error fetching conversation previews:", err);
+    // console.error("Error fetching conversation previews:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -452,7 +452,7 @@ router.post("/block", async (req, res) => {
     
     res.status(200).json({ success: true, message: "User has been blocked" });
   } catch (err) {
-    console.error("Error blocking user:", err);
+    // console.error("Error blocking user:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -482,7 +482,7 @@ router.post("/unblock", async (req, res) => {
     
     res.status(200).json({ success: true, message: "User has been unblocked" });
   } catch (err) {
-    console.error("Error unblocking user:", err);
+    // console.error("Error unblocking user:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -511,7 +511,7 @@ router.post("/delete", async (req, res) => {
     
     res.status(200).json({ success: true, message: "Conversation deleted successfully" });
   } catch (err) {
-    console.error("Error deleting conversation:", err);
+    // console.error("Error deleting conversation:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -576,7 +576,7 @@ router.get("/single/:conversationId/:userId", async (req, res) => {
     
     if (deletedRecord) {
       await deletedRecord.destroy();
-      console.log("Removed deleted conversation record");
+      // console.log("Removed deleted conversation record");
     }
     
     // Format and return the conversation
@@ -604,7 +604,7 @@ router.get("/single/:conversationId/:userId", async (req, res) => {
     
     res.status(200).json({ success: true, conversation: formattedConversation });
   } catch (err) {
-    console.error("Error fetching single conversation:", err);
+    // console.error("Error fetching single conversation:", err);
     res.status(500).json({ error: err.message });
   }
 });

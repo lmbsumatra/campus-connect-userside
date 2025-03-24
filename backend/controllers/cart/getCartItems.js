@@ -47,7 +47,7 @@ const getCartItems = async (req, res) => {
             item_image =
               imagesArray && imagesArray.length > 0 ? imagesArray[0] : "";
           } catch (error) {
-            console.error("Error parsing images for item:", error);
+            // console.error("Error parsing images for item:", error);
             item_image = ""; // Fallback if parsing fails
           }
         }
@@ -96,7 +96,7 @@ const getCartItems = async (req, res) => {
       });
     }
 
-    console.log(enrichedCartItems);
+    // console.log(enrichedCartItems);
 
     // Format the enriched cart items for response
     const formattedCart = enrichedCartItems.map((cartItem) => ({
@@ -121,7 +121,7 @@ const getCartItems = async (req, res) => {
 
     return res.status(200).json(formattedCart);
   } catch (error) {
-    console.error("Error fetching cart items:", error);
+    // console.error("Error fetching cart items:", error);
     return res.status(500).json({ message: "Failed to fetch cart items" });
   }
 };

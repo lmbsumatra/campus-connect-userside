@@ -19,20 +19,20 @@ const socket = io("https://api.rentupeers.shop/", {
 
 // Handle socket connection events
 socket.on("connect", () => {
-  console.log("Cron job socket connected to server", socket.id);
+  // console.log("Cron job socket connected to server", socket.id);
 });
 
 socket.on("connect_error", (error) => {
-  console.error("Socket connection error:", error);
+  // console.error("Socket connection error:", error);
 });
 
 socket.on("disconnect", (reason) => {
-  console.log("Socket disconnected:", reason);
+  // console.log("Socket disconnected:", reason);
 });
 
 const AllowToProceed = () => {
   cron.schedule("* * * * *", async () => {
-    console.log("Running cron job to update rental status...");
+    // console.log("Running cron job to update rental status...");
 
     try {
       const now = new Date();
@@ -62,9 +62,9 @@ const AllowToProceed = () => {
 
       for (const rental of rentals) {
         if (!rental.Date || !rental.Date.durations) {
-          console.error(
-            `Missing rental date or duration for rental ID ${rental.id}`
-          );
+          // console.error(
+          //   `Missing rental date or duration for rental ID ${rental.id}`
+          // );
           continue;
         }
 
@@ -142,22 +142,22 @@ const AllowToProceed = () => {
               status: nextStatus,
             });
 
-            console.log(
-              `Rental ID ${rental.id} automatically updated to ${nextStatus}.`
-            );
+            // console.log(
+            //   `Rental ID ${rental.id} automatically updated to ${nextStatus}.`
+            // );
           }
 
           // Reset is_allowed_to_proceed after the allowed time window expires
           if (shouldResetAllow) {
             await rental.update({ is_allowed_to_proceed: false });
-            console.log(
-              `Rental ID ${rental.id}: is_allowed_to_proceed reset to false.`
-            );
+            // console.log(
+            //   `Rental ID ${rental.id}: is_allowed_to_proceed reset to false.`
+            // );
           }
         }
       }
     } catch (error) {
-      console.error("Error updating rental statuses:", error);
+      // console.error("Error updating rental statuses:", error);
     }
   });
 };

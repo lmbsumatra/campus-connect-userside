@@ -96,7 +96,7 @@ const getAvailableListingsByUser = async (req, res) => {
     // Return the filtered listings
     res.status(200).json(formattedItems);
   } catch (error) {
-    console.error("Error fetching listings:", error);
+    // console.error("Error fetching listings:", error);
     res.status(500).json({ error: error.message });
   }
 };

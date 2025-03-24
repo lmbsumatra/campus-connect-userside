@@ -26,7 +26,7 @@ const updatePostStatus = async (req, res) => {
     }
 
     // // Debug: Log the fetched post
-    console.log("Fetched Post:", post.toJSON());
+    // console.log("Fetched Post:", post.toJSON());
 
     // Update the post’s status
     await post.update({ status, status_message: reason }, { transaction });
@@ -41,8 +41,8 @@ const updatePostStatus = async (req, res) => {
     };
 
     // // Debug: Log the status and message
-    console.log("Status:", status);
-    console.log("Message:", messages[status]);
+    // console.log("Status:", status);
+    // console.log("Message:", messages[status]);
 
     // Create a notification record for the student (post owner)
     const notification = await StudentNotification.create(
@@ -58,7 +58,7 @@ const updatePostStatus = async (req, res) => {
     );
 
     // // Debug: Log the created notification
-    console.log("Notification created:", notification.toJSON());
+    // console.log("Notification created:", notification.toJSON());
 
     // Send notifications to all students when approved
     if (status === "approved") {
@@ -104,9 +104,9 @@ const updatePostStatus = async (req, res) => {
     }
 
     // Commit the transaction
-    console.log("Committing transaction...");
+    // console.log("Committing transaction...");
     await transaction.commit();
-    console.log("Transaction committed successfully.");
+    // console.log("Transaction committed successfully.");
 
     res.json({
       message: "Post status updated successfully",
@@ -115,11 +115,11 @@ const updatePostStatus = async (req, res) => {
   } catch (error) {
     // Rollback the transaction in case of error
     if (transaction.finished !== "commit") {
-      console.log("Rolling back transaction due to error...");
+      // console.log("Rolling back transaction due to error...");
       await transaction.rollback();
     }
 
-    console.error("Error updating post status:", error);
+    // console.error("Error updating post status:", error);
     res.status(500).json({ error: error.message });
   }
 };

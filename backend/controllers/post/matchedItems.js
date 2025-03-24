@@ -225,7 +225,7 @@ const matchedItems = async (req, res) => {
       threshold: 0.7,
     });
 
-    console.log("here", typeof formattedPost.name, formattedPost.name);
+    // console.log("here", typeof formattedPost.name, formattedPost.name);
 
     const results = fuse
       .search(formattedPost.name)
@@ -233,7 +233,7 @@ const matchedItems = async (req, res) => {
 
     res.status(200).json({ matchedItems: results });
   } catch (error) {
-    console.error("Error fetching post:", error);
+    // console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };

@@ -48,7 +48,7 @@ const getStudentDataForAdmin = async (req, res) => {
 
     return res.status(200).json(formattedUser);
   } catch (error) {
-    console.error("Error fetching student data (Admin):", error);
+    // console.error("Error fetching student data (Admin):", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

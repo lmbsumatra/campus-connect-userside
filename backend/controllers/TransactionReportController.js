@@ -134,7 +134,7 @@ module.exports = ({ emitNotification }) => {
         evidence: evidenceRecords,
       });
     } catch (error) {
-      console.error("Error in addResponse:", error);
+      // console.error("Error in addResponse:", error);
       return res.status(500).json({ error: error.message });
     }
   };
@@ -160,7 +160,7 @@ module.exports = ({ emitNotification }) => {
       });
       res.status(200).json(reports);
     } catch (error) {
-      console.error("Error in getAllTransactionReports:", error);
+      // console.error("Error in getAllTransactionReports:", error);
       res.status(500).json({ error: error.message });
     }
   };
@@ -206,7 +206,7 @@ module.exports = ({ emitNotification }) => {
 
       return res.status(200).json(fullReport);
     } catch (error) {
-      console.error("Error in getTransactionReportById:", error);
+      // console.error("Error in getTransactionReportById:", error);
       res.status(500).json({ error: error.message });
     }
   };

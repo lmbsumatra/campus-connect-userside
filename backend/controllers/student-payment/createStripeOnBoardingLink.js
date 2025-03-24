@@ -44,7 +44,7 @@ const createStripeOnBoardingLink = async (req, res) => {
 
     res.status(200).json({ url: accountLink.url });
   } catch (error) {
-    console.error("Error creating onboarding link:", error);
+    // console.error("Error creating onboarding link:", error);
 
     // Rollback: Delete the Stripe account if there was an error
     if (account) {
@@ -55,10 +55,10 @@ const createStripeOnBoardingLink = async (req, res) => {
           await existingUser.save();
         }
       } catch (delError) {
-        console.error(
-          "Error deleting Stripe account during rollback:",
-          delError
-        );
+        // console.error(
+        //   "Error deleting Stripe account during rollback:",
+        //   delError
+        // );
       }
     }
 

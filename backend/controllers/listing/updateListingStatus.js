@@ -100,7 +100,7 @@ const updateListingStatus = async (req, res) => {
       await transaction.rollback();
     }
 
-    console.error("Error updating status:", error);
+    // console.error("Error updating status:", error);
     res.status(500).json({ error: error.message });
   }
 };

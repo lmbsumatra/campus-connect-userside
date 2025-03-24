@@ -15,7 +15,7 @@ const loginStudent = async (req, res) => {
   try {
     // Find user
     const user = await models.User.findOne({ where: { email } });
-    console.log(user);
+    // console.log(user);
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -32,7 +32,7 @@ const loginStudent = async (req, res) => {
     try {
       isMatch = await bcrypt.compare(password, user.password);
     } catch (error) {
-      console.error("Error comparing passwords:", error);
+      // console.error("Error comparing passwords:", error);
       return res.status(500).json({
         message: "Error verifying credentials",
         error: "Password comparison failed",
@@ -70,7 +70,7 @@ const loginStudent = async (req, res) => {
       hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
     });
   } catch (error) {
-    console.error("Login error:", error);
+    // console.error("Login error:", error);
     return res
       .status(500)
       .json({ message: "Error logging in", error: error.message });

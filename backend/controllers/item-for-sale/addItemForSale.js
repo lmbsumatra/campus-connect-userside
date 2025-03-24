@@ -58,18 +58,18 @@ const rollbackUpload = async (publicIds) => {
     for (const publicId of publicIds) {
       // If using a cloud service like Cloudinary, for example:
       // await cloudinary.uploader.destroy(publicId);
-      console.log(`Rollback image: ${publicId}`);
+      // console.log(`Rollback image: ${publicId}`);
     }
   } catch (err) {
-    console.error("Error during image rollback:", err);
+    // console.error("Error during image rollback:", err);
   }
 };
 // Main function
 const addItemForSale = async (req, res) => {
   const transaction = await sequelize.transaction();
 
-  console.log("Request body:", req.body);
-  console.log("Uploaded files:", req.files.upload_images);
+  // console.log("Request body:", req.body);
+  // console.log("Uploaded files:", req.files.upload_images);
 
   try {
     const itemData =

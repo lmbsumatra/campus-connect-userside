@@ -23,7 +23,7 @@ const getAllAdminAccounts = async (req, res) => {
 
     res.status(200).json(users);
   } catch (error) {
-    console.error("Error fetching admin accounts:", error);
+    // console.error("Error fetching admin accounts:", error);
     res
       .status(500)
       .json({ message: "Error fetching admin accounts", error: error.message });

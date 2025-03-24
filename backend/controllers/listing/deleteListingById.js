@@ -29,19 +29,19 @@ const deleteListingById = async (req, res) => {
       try {
         images = JSON.parse(listing.images);
       } catch (error) {
-        console.error("Failed to parse listing.images as JSON:", error);
+        // console.error("Failed to parse listing.images as JSON:", error);
       }
     }
 
-    console.log("Parsed images:", images, Array.isArray(images), images.length);
+    // console.log("Parsed images:", images, Array.isArray(images), images.length);
 
     // Call rollbackUpload to delete images from Cloudinary if there are any images
     if (Array.isArray(images) && images.length > 0) {
       try {
         await rollbackUpload(images);
-        console.log("Cloudinary rollback completed for images:", images);
+        // console.log("Cloudinary rollback completed for images:", images);
       } catch (error) {
-        console.error("Error during Cloudinary rollback:", error.message);
+        // console.error("Error during Cloudinary rollback:", error.message);
       }
     }
 
@@ -71,19 +71,19 @@ const deleteListingById = async (req, res) => {
         },
       });
 
-      console.log(`Deleted associated dates and durations for listing ID ${listingId}`);
+      // console.log(`Deleted associated dates and durations for listing ID ${listingId}`);
     }
 
     // Delete the listing from the database
     await listing.destroy();
 
-    console.log(
+    // console.log(
     //   `Listing ID ${listingId} and associated images deleted by User ID ${req.params.userId}`
     // );
 
     res.status(204).send(); // Respond with no content, meaning deletion was successful
   } catch (error) {
-    console.error("Error deleting listing:", error.message);
+    // console.error("Error deleting listing:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

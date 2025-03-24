@@ -48,9 +48,9 @@ exports.getAllStudents = async (req, res) => {
     });
 
     res.status(200).json(users);
-    console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    // console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -123,7 +123,7 @@ exports.getAllStudents = async (req, res) => {
 
 //     await rollbackUpload(publicIds);
 
-//     console.error("Registration error:", error);
+//     // console.error("Registration error:", error);
 //     res.status(500).json({
 //       message: "Failed registration. Please check your information",
 //       error: error.message,
@@ -156,7 +156,7 @@ exports.getAllStudents = async (req, res) => {
 //     let token;
 //     try {
 //       if (!JWT_SECRET) {
-//         console.error("JWT_SECRET is not defined");
+//         // console.error("JWT_SECRET is not defined");
 //         return res.status(500).json({ message: "Server configuration error: Missing JWT secret" });
 //       }
 //       token = jwt.sign(
@@ -164,7 +164,7 @@ exports.getAllStudents = async (req, res) => {
 //         JWT_SECRET
 //       );
 //     } catch (error) {
-//       console.error("Error signing JWT:", error);
+//       // console.error("Error signing JWT:", error);
 //       return res.status(500).json({ message: "Error generating authentication token", error: error.message });
 //     }
 
@@ -177,7 +177,7 @@ exports.getAllStudents = async (req, res) => {
 //     });
 
 //   } catch (error) {
-//     console.error("Login error:", error);
+//     // console.error("Login error:", error);
 //     return res.status(500).json({ message: "Error logging in", error: error.message });
 //   }
 // };
@@ -212,7 +212,7 @@ exports.getAllStudents = async (req, res) => {
 //       userId: user.user_id,
 //     });
 //   } catch (error) {
-//     console.error("Google login error:", error);
+//     // console.error("Google login error:", error);
 //     res.status(401).json({ message: "Invalid token" });
 //   }
 // };
@@ -250,7 +250,7 @@ exports.getAllStudents = async (req, res) => {
 //       },
 //     });
 //   } catch (error) {
-//     console.error("Error retrieving user information:", error);
+//     // console.error("Error retrieving user information:", error);
 //     res.status(500).json({
 //       message: "Error retrieving user information",
 //       error: error.message,
@@ -286,7 +286,7 @@ exports.userChangePassword = async (req, res) => {
 
     res.status(200).json({ message: "Password updated successfully." });
   } catch (error) {
-    console.error("Error changing password:", error);
+    // console.error("Error changing password:", error);
     res.status(500).json({
       message: "Error changing password",
       error: error.message,

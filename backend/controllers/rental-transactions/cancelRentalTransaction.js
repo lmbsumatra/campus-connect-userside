@@ -24,7 +24,7 @@ const convertToCAD = async (amount) => {
   try {
     return amount * 0.025;
   } catch (error) {
-    console.error("Error fetching exchange rate:", error);
+    // console.error("Error fetching exchange rate:", error);
     return amount;
   }
 };
@@ -85,7 +85,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
         await stripe.paymentIntents.cancel(rental.stripe_payment_intent_id);
         rental.payment_status = "Cancelled";
       } catch (stripeError) {
-        console.error("Error canceling payment intent:", stripeError);
+        // console.error("Error canceling payment intent:", stripeError);
         return res.status(500).json({
           error: "Failed to cancel payment intent.",
           details: stripeError.message,
@@ -156,7 +156,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
 
     res.json(rental);
   } catch (error) {
-    console.error("Error canceling rental transaction:", error);
+    // console.error("Error canceling rental transaction:", error);
     res.status(500).json({ error: error.message });
   }
 };

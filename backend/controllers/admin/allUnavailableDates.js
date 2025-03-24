@@ -11,7 +11,7 @@ const allUnavailableDates = async (req, res) => {
       unavailableDates,
     });
   } catch (error) {
-    console.error("Error fetching dates:", error);
+    // console.error("Error fetching dates:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

@@ -67,7 +67,7 @@ const refreshAdminToken = async (req, res) => {
 
     res.status(200).json({ token, refreshToken: newRefreshToken });
   } catch (error) {
-    console.error("Refresh token error:", error);
+    // console.error("Refresh token error:", error);
     res.status(403).json({ message: "Invalid or expired refresh token." });
   }
 };

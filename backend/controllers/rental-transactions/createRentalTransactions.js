@@ -32,7 +32,7 @@ const convertToCAD = async (amount) => {
   try {
     return amount * 0.025;
   } catch (error) {
-    console.error("Error fetching exchange rate:", error);
+    // console.error("Error fetching exchange rate:", error);
     return amount; // Fallback to original amount if API fails
   }
 };
@@ -71,14 +71,14 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     if (missingFields.length > 0) {
       const errorMsg =
         "The following fields are required: " + missingFields.join(", ");
-      console.error(errorMsg);
+      // console.error(errorMsg);
       return res.status(400).json({ error: errorMsg });
     }
 
     // Check if owner_id is the same as renter_id
     if (owner_id === renter_id) {
       const errorMsg = "The owner cannot rent the item to themselves.";
-      console.error(errorMsg);
+      // console.error(errorMsg);
       return res.status(400).json({ error: errorMsg });
     }
 
@@ -108,7 +108,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
           },
         });
       } catch (cartError) {
-        console.error("Error removing item from cart:", cartError);
+        // console.error("Error removing item from cart:", cartError);
       }
     }
 
@@ -213,7 +213,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
           paymentIntentId: paymentIntent.id,
         };
       } catch (stripeError) {
-        console.error("Error creating Stripe PaymentIntent:", stripeError);
+        // console.error("Error creating Stripe PaymentIntent:", stripeError);
         return res.status(500).json({
           error: "Stripe payment setup failed.",
           details: stripeError.message,
@@ -273,7 +273,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
         if (rentalDate) {
           await rentalDate.update({ status: "rented" });
         } else {
-          console.error("Rental date not found for id:", date_id);
+          // console.error("Rental date not found for id:", date_id);
         }
       }
 
@@ -295,18 +295,18 @@ const createRentalTransaction = async (req, res, emitNotification) => {
         if (item) {
           await item.update({ status: "unavailable" });
         } else {
-          console.error("Item not found for id:", item_id);
+          // console.error("Item not found for id:", item_id);
         }
       }
     } else {
       const errorMsg = "The specified rental duration was not found.";
-      console.error(errorMsg);
+      // console.error(errorMsg);
       return res.status(404).json({ error: errorMsg });
     }
 
     return res.status(200).json(result);
   } catch (error) {
-    console.error("Error creating rental transaction:", error);
+    // console.error("Error creating rental transaction:", error);
 
     let errorMessage =
       "An error occurred while creating the rental transaction. Please try again.";
@@ -322,7 +322,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       errorMessage = error.original.sqlMessage || error.message;
     }
 
-    console.error("Detailed error:", errorMessage);
+    // console.error("Detailed error:", errorMessage);
 
     res.status(500).json({
       error: errorMessage,

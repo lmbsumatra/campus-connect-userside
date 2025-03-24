@@ -37,7 +37,7 @@ const updateSystemConfig = async (req, res) => {
       [reverseMapping[existingConfig.config] || existingConfig.config]: existingConfig.config_value,
     });
   } catch (error) {
-    console.error("Error updating system config:", error);
+    // console.error("Error updating system config:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

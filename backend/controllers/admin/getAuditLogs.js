@@ -15,11 +15,11 @@ const getAuditLogs = async (req, res) => {
       ],
     });
 
-    console.log("Logs with Admin Info:", JSON.stringify(logs, null, 2)); // ✅ Debugging output
+    // console.log("Logs with Admin Info:", JSON.stringify(logs, null, 2)); // ✅ Debugging output
 
     res.json(logs);
   } catch (error) {
-    console.error("Error fetching audit logs:", error);
+    // console.error("Error fetching audit logs:", error);
     res.status(500).json({ message: "Error fetching logs" });
   }
 };

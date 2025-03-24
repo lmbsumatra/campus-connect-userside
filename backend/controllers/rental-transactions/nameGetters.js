@@ -9,7 +9,7 @@ const getUserNames = async (userId) => {
 
     return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
   } catch (error) {
-    console.error(`Error fetching user names for ID ${userId}:`, error);
+    // console.error(`Error fetching user names for ID ${userId}:`, error);
     return "Unknown User";
   }
 };
@@ -23,7 +23,7 @@ const getRentalItemName = async (itemId) => {
 
     return item ? item.listing_name : "Unknown Item";
   } catch (error) {
-    console.error(`Error fetching item name for ID ${itemId}:`, error);
+    // console.error(`Error fetching item name for ID ${itemId}:`, error);
     return "Unknown Item";
   }
 };

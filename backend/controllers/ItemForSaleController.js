@@ -44,9 +44,9 @@ const { models } = require("../models/index");
 //     });
 
 //     res.status(200).json(items);
-//     console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+//     // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
 //   } catch (error) {
-//     console.error("Error fetching posts:", error);
+//     // console.error("Error fetching posts:", error);
 //     res.status(500).json({ error: error.message });
 //   }
 // };
@@ -95,14 +95,14 @@ const { models } = require("../models/index");
 
 //     res.status(200).json(item);
 //   } catch (error) {
-//     console.error("Error fetching item:", error);
+//     // console.error("Error fetching item:", error);
 //     res.status(500).json({ error: error.message });
 //   }
 // };
 
 // Get all approved posts for a specific user (by userId)
 // exports.getAvailableItemsForSaleByUser = async (req, res) => {
-//   console.log("userId", req.query);
+//   // console.log("userId", req.query);
 //   try {
 //     // Extract userId from query params or route parameters
 //     const { userId } = req.query; // or req.params if userId is in URL params
@@ -144,7 +144,7 @@ const { models } = require("../models/index");
 //     // Return the filtered listings
 //     res.status(200).json(items);
 //   } catch (error) {
-//     console.error("Error fetching listings:", error);
+//     // console.error("Error fetching listings:", error);
 //     res.status(500).json({ error: error.message });
 //   }
 // };
@@ -187,9 +187,9 @@ exports.getAllItemForSale = async (req, res) => {
     });
 
     res.status(200).json(items);
-    console.log(JSON.stringify(listings, null, 2)); // Log for debugging
+    // console.log(JSON.stringify(listings, null, 2)); // Log for debugging
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    // console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -299,7 +299,7 @@ exports.getAllItemForSale = async (req, res) => {
 //       await rollbackUpload(publicIds);
 //     }
 
-//     console.error("Error creating item for sale:", error);
+//     // console.error("Error creating item for sale:", error);
 //     res.status(500).json({
 //       error: "Internal Server Error",
 //       message: error.message,
@@ -348,7 +348,7 @@ exports.getItemForSaleById = async (req, res) => {
 
     res.status(200).json(post);
   } catch (error) {
-    console.error("Error fetching post:", error);
+    // console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -382,7 +382,7 @@ exports.updateItemForSale = async (req, res) => {
 // };
 
 exports.updateStatus = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { status } = req.body;
 
   try {
@@ -396,7 +396,7 @@ exports.updateStatus = async (req, res) => {
 
     res.status(200).json(item_for_sale);
   } catch (error) {
-    console.error("Error updating listing status:", error);
+    // console.error("Error updating listing status:", error);
     res.status(500).json({ error: error.message });
   }
 };

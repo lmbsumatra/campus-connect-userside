@@ -24,7 +24,7 @@ const registerStudent = async (req, res) => {
       course,
     } = req.body;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     const { scanned_id, photo_with_id } = req.files;
 
@@ -98,7 +98,7 @@ const registerStudent = async (req, res) => {
       },
       { where: { user_id: newUser.user_id }, transaction: t }
     );
-    console.log(`Affected Rows: ${affectedRows}`);
+    // console.log(`Affected Rows: ${affectedRows}`);
 
     const mailOptions = {
       from: "jione.capstone@gmail.com",
@@ -291,10 +291,10 @@ const registerStudent = async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error("Email send failed:", error);
+        // console.error("Email send failed:", error);
         return res.status(500).send("Failed to send email");
       }
-      console.log("Email sent:", info.response);
+      // console.log("Email sent:", info.response);
     });
 
     // Commit transaction if all actions succeed
@@ -334,10 +334,10 @@ const registerStudent = async (req, res) => {
     }
 
     // Log error and send appropriate response
-    console.error("Registration error:", {
-      message: error.message,
-      stack: error.stack,
-    });
+    // console.error("Registration error:", {
+    //   message: error.message,
+    //   stack: error.stack,
+    // });
     if (error.name === "SequelizeValidationError") {
       return res
         .status(400)

@@ -78,7 +78,7 @@ const getListingById = async (req, res) => {
 
     res.status(200).json(formattedListing);
   } catch (error) {
-    console.error("Error fetching post:", error);
+    // console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };

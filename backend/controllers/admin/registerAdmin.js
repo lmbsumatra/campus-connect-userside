@@ -34,7 +34,7 @@ const registerAdmin = async (req, res) => {
       },
       { transaction: t }
     );
-    console.log("New User Created:", newUser);
+    // console.log("New User Created:", newUser);
 
     const newAdmin = await Admin.create(
       {
@@ -54,7 +54,7 @@ const registerAdmin = async (req, res) => {
     await t.rollback();
 
     await rollbackUpload(publicIds);
-    console.error("Registration error:", error);
+    // console.error("Registration error:", error);
     res.status(500).json({
       message: "Failed registration. Please check your information",
       error: error.message,

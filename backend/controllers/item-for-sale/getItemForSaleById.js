@@ -75,7 +75,7 @@ const getItemForSaleById = async (req, res) => {
 
     res.status(200).json(formattedItem);
   } catch (error) {
-    console.error("Error fetching post:", error);
+    // console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };

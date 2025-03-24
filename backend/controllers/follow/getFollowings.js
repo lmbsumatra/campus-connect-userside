@@ -110,7 +110,7 @@ const getFollowings = async (req, res) => {
 
     return res.status(200).json({ followings: formattedFollowings, followers: formattedFollowers });
   } catch (error) {
-    console.error("Error fetching followings and followers:", error);
+    // console.error("Error fetching followings and followers:", error);
     return res.status(500).json({ error: error.message });
   }
 };

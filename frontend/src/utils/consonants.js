@@ -38,9 +38,9 @@ export const defaultImages = [
   `https://res.cloudinary.com/campusconnectcl/image/upload/v1735920030/cc/upjauojvyedsriwhdcks.svg`,
 ];
 
-export const REACT_APP_API_URL = "https://api.rentupeers.shop";
-export const baseApi = REACT_APP_API_URL || "https://api.rentupeers.shop";
-export const baseUrl = "https://rentupeers.shop"
+export const REACT_APP_API_URL = "http://localhost:3001";
+export const baseApi = REACT_APP_API_URL || "http://localhost:3001";
+export const baseUrl = "https://rentupeers.shop";
 export const REACT_APP_GOOGLE_CLIENT_ID =
   "474440031362-3ja3qh8j5bpn0bfs1t7216u8unf0ogat.apps.googleusercontent.com";
 
@@ -169,22 +169,21 @@ export const collegesAndCourses = {
   },
 };
 
-
 export const getStatusClass = (status) => {
   switch (status.toLowerCase()) {
-    case 'pending':
-      return 'alert-warning';
-    case 'approved':
-      return 'alert-success';
-    case 'declined':
-    case 'revoked':
-    case 'flagged':
-      return 'alert-danger';
-    case 'removed':
-      return 'alert-secondary';
-    case 'unavailable':
-      return 'alert-dark';
+    case "pending":
+      return "alert-warning";
+    case "approved":
+      return "alert-success";
+    case "declined":
+    case "revoked":
+    case "flagged":
+      return "alert-danger";
+    case "removed":
+      return "alert-secondary";
+    case "unavailable":
+      return "alert-dark";
     default:
-      return 'alert-info';
+      return "alert-info";
   }
 };

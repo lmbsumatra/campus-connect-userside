@@ -125,11 +125,11 @@ const seedListing = async () => {
     );
 
     await transaction.commit();
-    console.log(`Listing created successfully with ID: ${listing.id}`);
+    // console.log(`Listing created successfully with ID: ${listing.id}`);
     return listing;
   } catch (error) {
     if (transaction) await transaction.rollback();
-    console.error("Error creating listing:", error);
+    // console.error("Error creating listing:", error);
     throw error;
   }
 };
@@ -140,7 +140,7 @@ const runSeeder = async () => {
     await seedListing();
     process.exit(0);
   } catch (error) {
-    console.error("Seeder failed:", error);
+    // console.error("Seeder failed:", error);
     process.exit(1);
   }
 };

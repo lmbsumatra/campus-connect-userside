@@ -4,7 +4,7 @@ const logAdminActivity = async (req, res, next) => {
   try {
     if (!req.adminUser) {
       // ✅ Use req.adminUser instead of req.user
-      console.error("Audit log error: No admin details found in request.");
+      // console.error("Audit log error: No admin details found in request.");
       return next();
     }
 
@@ -21,7 +21,7 @@ const logAdminActivity = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("Error logging admin activity:", error);
+    // console.error("Error logging admin activity:", error);
     next(); // Continue execution even if logging fails
   }
 };
