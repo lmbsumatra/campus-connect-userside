@@ -46,9 +46,9 @@ const getAllAvailablePost = async (req, res) => {
       ],
     });
 
-    if (!posts || posts.length === 0) {
-      return res.status(404).json({ error: "No approved posts found" });
-    }
+    // if (!posts || posts.length === 0) {
+    //   return res.status(404).json({ error: "No approved posts found" });
+    // }
 
     const formattedPosts = posts.map((post) => ({
       id: post.id,
