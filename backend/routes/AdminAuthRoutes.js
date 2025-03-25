@@ -25,6 +25,7 @@ router.post("/login", AdminController.loginAdmin);
 router.post(
   "/change-password",
   authenticateToken,
+  logAdminActivity,
   AdminController.adminChangePassword
 );
 

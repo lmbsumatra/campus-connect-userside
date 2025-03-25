@@ -3,20 +3,24 @@ const AuditLog = require("../models/AuditLogModel");
 const logAdminActivity = async (req, res, next) => {
   try {
     if (!req.adminUser) {
-      // ✅ Use req.adminUser instead of req.user
-      // console.error("Audit log error: No admin details found in request.");
-      return next();
+      return next(); // Skip logging if adminUser is missing
     }
 
-    const { adminId, role } = req.adminUser; // ✅ Use req.adminUser
+    const { adminId, role } = req.adminUser;
     const { method, originalUrl, body } = req;
+
+    // ✅ Remove sensitive fields
+    const sanitizedBody = { ...body };
+    delete sanitizedBody.currentPassword;
+    delete sanitizedBody.newPassword;
+    delete sanitizedBody.confirmPassword;
 
     await AuditLog.create({
       admin_id: adminId,
       role,
       action: method,
       endpoint: originalUrl,
-      details: JSON.stringify(body),
+      details: JSON.stringify(sanitizedBody),
     });
 
     next();

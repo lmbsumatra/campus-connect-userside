@@ -1,99 +1,266 @@
-/* Main container */
-.logs-dashboard {
+/* Global Dashboard Container */
+.logs-dashboard-container {
+  min-height: 100vh;
   padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  max-width: 1200px;
-  margin: auto;
+  display: flex;
+  justify-content: center;
 }
 
-/* Title */
+/* Main Dashboard Wrapper */
+.logs-dashboard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 1400px;
+  padding: 25px;
+  overflow-x: auto; /* Ensure horizontal scrolling on smaller screens */
+}
+
+/* Header Styling */
+.logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 15px;
+}
+
 .logs-title {
-  font-size: 22px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 15px;
+  font-size: 24px;
+  color: #1a202c;
+  margin: 0;
+  font-weight: 600;
 }
 
-/* Error message */
+/* Error Handling */
+.logs-error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
 .logs-error {
-  color: red;
-  font-size: 16px;
-  font-weight: bold;
+  color: #d63031;
+  background-color: #fff5f5;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid #fecaca;
 }
 
-/* Table container */
+/* Table Container */
 .logs-table-container {
   overflow-x: auto;
-  background: white;
   border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Table */
+/* Table Styling */
 .logs-table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: white;
 }
 
-/* Table headers */
 .logs-table th {
-  background: #007bff;
+  background-color: #4a5568;
   color: white;
-  padding: 10px;
+  padding: 12px 15px;
   text-align: left;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.5px;
 }
 
-/* Table rows */
+.logs-table-row {
+  transition: all 0.2s ease;
+}
+
+.logs-table-row:hover {
+  background-color: #f8fafc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
 .logs-table td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  padding: 12px 15px;
+  border-bottom: 1px solid #edf2f7;
 }
 
-/* Alternating row colors */
-.logs-table tr:nth-child(even) {
-  background: #f2f2f2;
+/* Cell-specific Styles */
+.admin-name {
+  font-weight: 600;
+  color: #2d3748;
 }
 
-/* Hover effect */
-.logs-table tr:hover {
-  background: #dfe8ff;
-  transition: 0.3s;
+.admin-role {
+  color: #718096;
+  font-style: italic;
 }
 
-/* Action styles */
+.action-cell {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Improved Details Tooltip */
+.details-cell {
+  position: relative;
+  max-width: 200px;
+}
+
+.details-tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.details-tooltip {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2c3e50;
+  color: white;
+  text-align: left;
+  border-radius: 8px;
+  padding: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+
+  /* New improvements for readability */
+  max-width: 400px; /* Wider tooltip */
+  width: max-content; /* Adjust width to content */
+  word-break: break-word; /* Break long words */
+  white-space: pre-wrap; /* Preserve formatting */
+  line-height: 1.5; /* Improved line spacing */
+  font-size: 0.9em; /* Slightly smaller font */
+  text-overflow: clip; /* Ensure full text is visible */
+  overflow-wrap: break-word; /* Ensure long strings break */
+}
+
+.details-tooltip-wrapper:hover .details-tooltip {
+  visibility: visible;
+  opacity: 1;
+  top: calc(100% + 5px);
+}
+
+/* Add a small arrow to the tooltip */
+.details-tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #2c3e50 transparent;
+}
+
+/* Ensure JSON-like content is more readable */
+.details-tooltip code {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: inline-block;
+  margin: 2px 0;
+}
+
+.endpoint-cell {
+  max-width: 200px;
+}
+
+.endpoint-cell .details-tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.endpoint-cell .details-truncated {
+  display: block;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: help;
+}
+
+/* Action Colors */
+/* Action Colors with Distinct Palette */
+.action-login {
+  color: #2ecc71; /* Vibrant Green for Successful Login */
+  font-weight: bold;
+}
+
+.action-failed-login {
+  color: #e74c3c; /* Vibrant Red for Failed Login */
+  font-weight: bold;
+}
+
+.action-logout {
+  color: #3498db; /* Bright Blue for Logout */
+  font-weight: bold;
+}
+
 .action-created {
-  color: green;
+  color: #27ae60; /* Deep Green for Created Actions */
   font-weight: bold;
 }
 
 .action-updated {
-  color: blue;
+  color: #2980b9; /* Darker Blue for Updated Actions */
   font-weight: bold;
 }
 
 .action-deleted {
-  color: red;
+  color: #c0392b; /* Deep Red for Deleted Actions */
   font-weight: bold;
 }
 
 .action-default {
-  color: gray;
+  color: #7f8c8d; /* Neutral Gray for Undefined Actions */
+  font-weight: bold;
 }
 
-/* Timestamp styling */
-.timestamp {
-  text-align: right;
-  color: #555;
-}
-
-/* No data message */
+/* No Data Message */
 .logs-no-data {
   text-align: center;
-  padding: 15px;
+  padding: 20px;
+  color: #718096;
   font-style: italic;
-  color: #777;
+}
+
+/* Pagination Container */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f7fafc;
+  border-radius: 8px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .logs-dashboard {
+    padding: 15px;
+  }
+
+  .logs-table th,
+  .logs-table td {
+    padding: 10px;
+  }
+
+  .details-tooltip {
+    max-width: 250px;
+    left: 0;
+    transform: translateX(0);
+  }
 }

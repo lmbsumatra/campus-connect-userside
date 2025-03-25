@@ -61,37 +61,45 @@ export const AuthProvider = ({ children }) => {
   const logoutAdmin = useCallback(async () => {
     if (!adminUser) return;
 
-    const logoutData = {
-      admin_id: adminUser.userId,
-      role: adminUser.role,
-      action: "Logout",
-      endpoint: "/admin/logout",
-      details: `${adminUser.firstName} ${adminUser.lastName} logged out`,
-    };
+    const lastLogoutTimestamp = localStorage.getItem("lastLogoutTimestamp");
+    const now = Date.now();
 
-    try {
-      const response = await fetch(`${baseApi}/admin/audit-logout`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(logoutData),
-      });
+    // Check if the last logout was within 4 seconds
+    if (lastLogoutTimestamp && now - lastLogoutTimestamp < 4000) {
+      console.warn("Logout event ignored: Cooldown active.");
+    } else {
+      const logoutData = {
+        admin_id: adminUser.userId,
+        role: adminUser.role,
+        action: "Logout",
+        endpoint: "/admin/logout",
+        details: `${adminUser.firstName} ${adminUser.lastName} logged out`,
+      };
 
-      if (!response.ok) {
-        console.error("Failed to log logout event:", await response.text());
-      } else {
-        // console.log("Logout event logged successfully");
+      try {
+        const response = await fetch(`${baseApi}/admin/audit-logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(logoutData),
+        });
+
+        if (!response.ok) {
+          console.error("Failed to log logout event:", await response.text());
+        } else {
+          // Update last logout timestamp on successful log
+          localStorage.setItem("lastLogoutTimestamp", now);
+        }
+      } catch (error) {
+        console.error("Error logging logout event:", error);
       }
-    } catch (error) {
-      console.error("Error logging logout event:", error);
     }
 
     // Proceed with logout even if logging fails
-    // console.log("Logging out admin...");
     setAdminUser(null);
     localStorage.removeItem("adminUser");
-  }, [adminUser]); // ✅ Dependencies added properly
+  }, [adminUser]);
 
   // ✅ Fixed misplaced closing bracket for refreshAdminToken
   const refreshAdminToken = useCallback(async () => {

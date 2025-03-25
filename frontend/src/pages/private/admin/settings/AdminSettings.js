@@ -5,7 +5,7 @@ import "./adminSettingStyles.css";
 import PasswordMeter from "../../../../components/common/PasswordMeter";
 import { useAuth } from "../../../../context/AuthContext";
 import AdminChangePassword from "./AdminChangePassword";
-import AdminViewAccounts from "./AdminViewAccounts"; // Import the new component
+import AdminViewAccounts from "./AdminViewAccounts";
 import AdminUnavailableDates from "./AdminUnavailableDates";
 import AdminResetStatus from "./AdminResetStatus";
 import AdminViewSystemConfig from "./AdminViewSystemConfig";
@@ -15,7 +15,7 @@ const AdminSettings = ({ tab, onClose }) => {
   const navigate = useNavigate();
   const { adminUser } = useAuth();
   const [showCreateAcctWindow, setShowCreateAcctWindow] = useState(false);
-  const [showAccounts, setShowAccounts] = useState(false);
+  const [showAdminAccounts, setShowAdminAccounts] = useState(false);
 
   const [uploadedImage, setUploadedImage] = useState(null);
   const [authTab, setAuthTab] = useState(tab);
@@ -185,13 +185,11 @@ const AdminSettings = ({ tab, onClose }) => {
   return (
     <div className="admin-content-container">
       <div className="admin content">
-        <button
-          className="btn btn-secondary mb-2"
-          onClick={() => setShowAccounts(!showAccounts)}
-        >
-          {showAccounts ? "Hide Accounts" : "View Admin Accounts"}
-        </button>
-        {showAccounts && <AdminViewAccounts />}
+        {/* Modal for Admin Accounts */}
+        <AdminViewAccounts
+          show={showAdminAccounts}
+          onClose={() => setShowAdminAccounts(false)}
+        />
 
         {/* Changing password for Admin/SuperAdmin */}
         <div>
@@ -250,84 +248,71 @@ const AdminSettings = ({ tab, onClose }) => {
         </div>
 
         {showCreateAcctWindow && (
-          <div className="modal show bg-shadow" style={{ display: "block" }}>
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title" ref={errorRef}>
-                    Create Admin Account
-                  </h5>
-                  <button
-                    type="button"
-                    className="close"
-                    onClick={() => setShowCreateAcctWindow(false)}
-                  >
-                    <span>&times;</span>
-                  </button>
+          <div className="admin-modal-overlay">
+            <div className="admin-modal-container">
+              <div className="admin-modal-header">
+                <div className="admin-modal-title">
+                  <i className="upload-icon">👥</i>
+                  Create Admin Account
                 </div>
-                <div className="modal-body">
-                  <form>
-                    <span
-                      className={`${
-                        errorMessage ? "text-danger" : "text-secondary"
-                      }`}
+                <button
+                  className="admin-modal-close"
+                  onClick={() => setShowCreateAcctWindow(false)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="admin-modal-content">
+                <div className="admin-modal-notification">
+                  Please complete all required fields to register.
+                </div>
+
+                <div className="admin-modal-body">
+                  <div className="profile-upload-section">
+                    <div
+                      className="profile-upload-box"
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      onClick={() =>
+                        document.getElementById("file-input").click()
+                      }
                     >
-                      {errorMessage
-                        ? errorMessage
-                        : "Please complete all required fields to register."}
-                    </span>
-
-                    {/* Profile Picture Upload Box */}
-                    <div className="form-group">
-                      <label>Profile Picture:</label>
-                      <div
-                        className="border border-dashed rounded p-3 text-center"
-                        style={{
-                          cursor: "pointer",
-                          width: "200px",
-                          maxHeight: "200px",
-                        }}
-                        onDragOver={handleDragOver}
-                        onDrop={handleDrop}
-                        onClick={() =>
-                          document.getElementById("file-input").click()
-                        }
-                      >
-                        {uploadedImage ? (
-                          <img
-                            src={URL.createObjectURL(uploadedImage)}
-                            alt="Profile Preview"
-                            style={{
-                              width: "100%",
-                              maxHeight: "200px",
-                              objectFit: "cover",
-                            }}
-                          />
-                        ) : (
-                          <p>Drag and drop an image here, or click to upload</p>
-                        )}
-                        <input
-                          type="file"
-                          id="file-input"
-                          accept="image/*"
-                          style={{ display: "none" }}
-                          onChange={handleFileChange}
+                      {uploadedImage ? (
+                        <img
+                          src={URL.createObjectURL(uploadedImage)}
+                          alt="Profile Preview"
+                          className="profile-preview-image"
                         />
-                      </div>
+                      ) : (
+                        <>
+                          <i className="upload-icon">⬆️</i>
+                          <span>
+                            Drag and drop an image here,
+                            <br /> or click to upload
+                          </span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        id="file-input"
+                        accept="image/*"
+                        className="file-input-hidden"
+                        onChange={handleFileChange}
+                      />
                     </div>
+                  </div>
 
-                    {/* User Input Fields */}
-                    <section className="personal-details bordered-section">
-                      <p>Personal Details</p>
-                      <label>Input your complete name</label>
-                      <div className="input-group">
+                  <div className="details-section">
+                    <div className="personal-details-card">
+                      <div className="card-header">Personal Details</div>
+                      <div className="input-row">
                         <input
                           type="text"
                           name="firstName"
                           value={userData.firstName}
                           onChange={handleChange}
                           placeholder="First name"
-                          className="form-control"
                           required
                         />
                         <input
@@ -335,8 +320,7 @@ const AdminSettings = ({ tab, onClose }) => {
                           name="middleName"
                           value={userData.middleName}
                           onChange={handleChange}
-                          placeholder="Middle name (optional)"
-                          className="form-control"
+                          placeholder="Middle name"
                         />
                         <input
                           type="text"
@@ -344,80 +328,76 @@ const AdminSettings = ({ tab, onClose }) => {
                           value={userData.lastName}
                           onChange={handleChange}
                           placeholder="Last name"
-                          className="form-control"
                           required
                         />
                       </div>
-                    </section>
+                    </div>
 
-                    {/* Account Details */}
-                    <section className="account-details bordered-section">
-                      <p>Account Details</p>
+                    <div className="account-details-card">
+                      <div className="card-header">Account Details</div>
                       <div className="input-group">
-                        <span className="input-group-text">Email</span>
-                        <input
-                          type="email"
-                          name="email"
-                          value={userData.email}
-                          onChange={handleChange}
-                          className="form-control"
-                          required
-                        />
+                        <div className="input-wrapper">
+                          <i className="input-icon">✉️</i>
+                          <input
+                            type="email"
+                            name="email"
+                            value={userData.email}
+                            onChange={handleChange}
+                            placeholder="Email Address"
+                            required
+                          />
+                        </div>
+                        <div className="input-wrapper">
+                          <i className="input-icon">🔒</i>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={userData.password}
+                            onChange={handleChange}
+                            placeholder="Password"
+                            required
+                          />
+                          <button
+                            className="show-password-btn"
+                            onClick={() => togglePasswordVisibility("password")}
+                          >
+                            {showPassword ? "Hide" : "Show"}
+                          </button>
+                        </div>
+                        {userData.password && (
+                          <PasswordMeter password={userData.password} />
+                        )}
+                        <div className="input-wrapper">
+                          <i className="input-icon">🔒</i>
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            name="confirmPassword"
+                            value={userData.confirmPassword}
+                            onChange={handleChange}
+                            placeholder="Confirm Password"
+                            required
+                          />
+                          <button
+                            className="show-password-btn"
+                            onClick={() =>
+                              togglePasswordVisibility("confirmPassword")
+                            }
+                          >
+                            {showConfirmPassword ? "Hide" : "Show"}
+                          </button>
+                        </div>
                       </div>
-                      <div className="input-group">
-                        <span className="input-group-text">Password</span>
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          name="password"
-                          value={userData.password}
-                          onChange={handleChange}
-                          className="form-control"
-                          required
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-outline-secondary"
-                          onClick={() => togglePasswordVisibility("password")}
-                        >
-                          {showPassword ? "Hide" : "Show"}
-                        </button>
-                      </div>
-                      {userData.password && (
-                        <PasswordMeter password={userData.password} />
-                      )}
-                      <div className="input-group">
-                        <span className="input-group-text">
-                          Confirm Password
-                        </span>
-                        <input
-                          type={showConfirmPassword ? "text" : "password"}
-                          name="confirmPassword"
-                          value={userData.confirmPassword}
-                          onChange={handleChange}
-                          className="form-control"
-                          required
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-outline-secondary"
-                          onClick={() =>
-                            togglePasswordVisibility("confirmPassword")
-                          }
-                        >
-                          {showConfirmPassword ? "Hide" : "Show"}
-                        </button>
-                      </div>
-                    </section>
+                    </div>
+                  </div>
+                </div>
 
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      className="btn btn-success"
-                      onClick={handleRegisterSubmit}
-                    >
-                      Add Admin
-                    </button>
-                  </form>
+                <div className="admin-modal-footer">
+                  <button
+                    className="add-admin-btn"
+                    onClick={handleRegisterSubmit}
+                  >
+                    Add Admin
+                  </button>
                 </div>
               </div>
             </div>

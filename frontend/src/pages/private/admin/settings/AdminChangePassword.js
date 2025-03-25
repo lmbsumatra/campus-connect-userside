@@ -1,4 +1,3 @@
-// src/pages/private/admin/settings/AdminChangePassword.js
 import React, { useState } from "react";
 import { useAuth } from "../../../../context/AuthContext";
 import { baseApi } from "../../../../utils/consonants";
@@ -10,6 +9,25 @@ const AdminChangePassword = ({ onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const togglePasswordVisibility = (field) => {
+    switch (field) {
+      case "currentPassword":
+        setShowCurrentPassword(!showCurrentPassword);
+        break;
+      case "newPassword":
+        setShowNewPassword(!showNewPassword);
+        break;
+      case "confirmPassword":
+        setShowConfirmPassword(!showConfirmPassword);
+        break;
+      default:
+        break;
+    }
+  };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -22,17 +40,19 @@ const AdminChangePassword = ({ onClose }) => {
     }
 
     try {
-      const response = await fetch(
-        `${baseApi}/admin/change-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminUser.token}`,
-          },
-          body: JSON.stringify({ currentPassword, newPassword }),
-        }
-      );
+      const response = await fetch(`${baseApi}/admin/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminUser.token}`,
+        },
+        body: JSON.stringify({
+          admin_id: adminUser.id,
+          role: adminUser.role,
+          currentPassword,
+          newPassword,
+        }),
+      });
 
       if (response.ok) {
         setSuccessMessage("Password changed successfully.");
@@ -50,54 +70,99 @@ const AdminChangePassword = ({ onClose }) => {
   };
 
   return (
-    <div className="modal show bg-shadow" style={{ display: "block" }}>
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">Change Password</h5>
-            <button type="button" className="close" onClick={onClose}>
-              <span>&times;</span>
-            </button>
+    <div className="admin-modal-overlay">
+      <div className="admin-modal-container">
+        <div className="admin-modal-header">
+          <div className="admin-modal-title">
+            <i className="upload-icon">🔐</i>
+            Change Password
           </div>
-          <div className="modal-body">
-            {errorMessage && <div className="text-danger">{errorMessage}</div>}
-            {successMessage && (
-              <div className="text-success">{successMessage}</div>
-            )}
+          <button className="admin-modal-close" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+
+        <div className="admin-modal-content">
+          {(errorMessage || successMessage) && (
+            <div
+              className={`admin-modal-notification ${
+                errorMessage ? "text-danger" : "text-success"
+              }`}
+            >
+              {errorMessage || successMessage}
+            </div>
+          )}
+
+          <div className="admin-modal-body">
             <form onSubmit={handleChangePassword}>
-              <div className="form-group">
-                <label>Current Password</label>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="form-control"
-                  required
-                />
+              <div className="account-details-card">
+                <div className="card-header">Password Change</div>
+                <div className="input-group">
+                  <div className="input-wrapper">
+                    <i className="input-icon">🔒</i>
+                    <input
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Current Password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="show-password-btn"
+                      onClick={() =>
+                        togglePasswordVisibility("currentPassword")
+                      }
+                    >
+                      {showCurrentPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
+
+                  <div className="input-wrapper">
+                    <i className="input-icon">🔒</i>
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="New Password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="show-password-btn"
+                      onClick={() => togglePasswordVisibility("newPassword")}
+                    >
+                      {showNewPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
+
+                  <div className="input-wrapper">
+                    <i className="input-icon">🔒</i>
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm New Password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="show-password-btn"
+                      onClick={() =>
+                        togglePasswordVisibility("confirmPassword")
+                      }
+                    >
+                      {showConfirmPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="form-group">
-                <label>New Password</label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="form-control"
-                  required
-                />
+
+              <div className="admin-modal-footer">
+                <button type="submit" className="add-admin-btn">
+                  Change Password
+                </button>
               </div>
-              <div className="form-group">
-                <label>Confirm New Password</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="form-control"
-                  required
-                />
-              </div>
-              <button type="submit" className="btn btn-primary mt-2">
-                Change Password
-              </button>
             </form>
           </div>
         </div>
