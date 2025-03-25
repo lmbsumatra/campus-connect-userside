@@ -1,57 +1,35 @@
-/* Admin Accounts Modal and Table Styles */
-.admin-accounts-modal .modal-dialog {
-  max-width: 95%;
-  margin: 1.75rem auto;
+.status-enabled {
+  color: green;
+  font-weight: bold;
 }
 
-.table-responsive {
-  max-height: 500px;
-  overflow-y: auto;
+.status-disabled {
+  color: red;
+  font-weight: bold;
 }
 
-.table {
-  width: 100%;
-  margin-bottom: 0;
+.btn {
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background 0.3s ease-in-out;
 }
 
-.table thead {
-  position: sticky;
-  top: 0;
-  background-color: #f8f9fa;
-  z-index: 10;
+.btn-success {
+  background-color: #28a745;
+  color: white;
 }
 
-.table th,
-.table td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  padding: 0.75rem;
+.btn-warning {
+  background-color: #ffc107;
+  color: black;
 }
 
-.table-striped tbody tr:nth-of-type(odd) {
-  background-color: rgba(0, 0, 0, 0.05);
+.btn:hover {
+  opacity: 0.8;
 }
 
-.table-hover tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.075);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .admin-accounts-modal .modal-dialog {
-    max-width: 98%;
-    margin: 1rem;
-  }
-
-  .table-responsive {
-    max-height: 400px;
-  }
-
-  .table th,
-  .table td {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-  }
+.table td,
+.table th {
+  vertical-align: middle !important;
 }

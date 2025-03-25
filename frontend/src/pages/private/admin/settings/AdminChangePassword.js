@@ -70,22 +70,22 @@ const AdminChangePassword = ({ onClose }) => {
   };
 
   return (
-    <div className="admin-modal-overlay">
-      <div className="admin-modal-container">
-        <div className="admin-modal-header">
-          <div className="admin-modal-title">
-            <i className="upload-icon">🔐</i>
+    <div className="admin1-modal-overlay">
+      <div className="admin1-modal-container">
+        <div className="admin1-modal-header">
+          <div className="admin1-modal-title">
+            <i className="upload1-icon">🔐</i>
             Change Password
           </div>
-          <button className="admin-modal-close" onClick={onClose}>
+          <button className="admin1-modal-close" onClick={onClose}>
             ✕
           </button>
         </div>
 
-        <div className="admin-modal-content">
+        <div className="admin1-modal-content">
           {(errorMessage || successMessage) && (
             <div
-              className={`admin-modal-notification ${
+              className={`admin1-modal-notification ${
                 errorMessage ? "text-danger" : "text-success"
               }`}
             >
@@ -93,13 +93,13 @@ const AdminChangePassword = ({ onClose }) => {
             </div>
           )}
 
-          <div className="admin-modal-body">
+          <div className="admin1-modal-body">
             <form onSubmit={handleChangePassword}>
-              <div className="account-details-card">
-                <div className="card-header">Password Change</div>
-                <div className="input-group">
-                  <div className="input-wrapper">
-                    <i className="input-icon">🔒</i>
+              <div className="account1-details-card">
+                <div className="card1-header">Password Change</div>
+                <div className="input1-group">
+                  <div className="input1-wrapper">
+                    <i className="input1-icon">🔒</i>
                     <input
                       type={showCurrentPassword ? "text" : "password"}
                       value={currentPassword}
@@ -109,7 +109,7 @@ const AdminChangePassword = ({ onClose }) => {
                     />
                     <button
                       type="button"
-                      className="show-password-btn"
+                      className="show1-password-btn"
                       onClick={() =>
                         togglePasswordVisibility("currentPassword")
                       }
@@ -118,8 +118,8 @@ const AdminChangePassword = ({ onClose }) => {
                     </button>
                   </div>
 
-                  <div className="input-wrapper">
-                    <i className="input-icon">🔒</i>
+                  <div className="input1-wrapper">
+                    <i className="input1-icon">🔒</i>
                     <input
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
@@ -129,15 +129,15 @@ const AdminChangePassword = ({ onClose }) => {
                     />
                     <button
                       type="button"
-                      className="show-password-btn"
+                      className="show1-password-btn"
                       onClick={() => togglePasswordVisibility("newPassword")}
                     >
                       {showNewPassword ? "Hide" : "Show"}
                     </button>
                   </div>
 
-                  <div className="input-wrapper">
-                    <i className="input-icon">🔒</i>
+                  <div className="input1-wrapper">
+                    <i className="input1-icon">🔒</i>
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
@@ -147,7 +147,7 @@ const AdminChangePassword = ({ onClose }) => {
                     />
                     <button
                       type="button"
-                      className="show-password-btn"
+                      className="show1-password-btn"
                       onClick={() =>
                         togglePasswordVisibility("confirmPassword")
                       }
@@ -158,8 +158,8 @@ const AdminChangePassword = ({ onClose }) => {
                 </div>
               </div>
 
-              <div className="admin-modal-footer">
-                <button type="submit" className="add-admin-btn">
+              <div className="admin1-modal-footer">
+                <button type="submit" className="add1-admin-btn">
                   Change Password
                 </button>
               </div>

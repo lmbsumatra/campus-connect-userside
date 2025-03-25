@@ -58,20 +58,20 @@ const LogsDashboard = () => {
   const currentLogs = logs.slice(indexOfFirstLog, indexOfLastLog);
 
   return (
-    <div className="logs-dashboard-container">
-      <div className="logs-dashboard">
-        <div className="logs-header">
-          <h2 className="logs-title">Admin Activity Logs</h2>
+    <div className="admin-logs-dashboard-container">
+      <div className="admin-logs-dashboard">
+        <div className="admin-logs-header">
+          <h2 className="admin-logs-title">Admin Activity Logs</h2>
         </div>
 
         {error ? (
-          <div className="logs-error-container">
-            <p className="logs-error">{error}</p>
+          <div className="admin-logs-error-container">
+            <p className="admin-logs-error">{error}</p>
           </div>
         ) : (
           <>
-            <div className="logs-table-container">
-              <table className="logs-table">
+            <div className="admin-logs-table-container">
+              <table className="admin-logs-table">
                 <thead>
                   <tr>
                     <th>Admin Name</th>
@@ -85,52 +85,52 @@ const LogsDashboard = () => {
                 <tbody>
                   {currentLogs.length > 0 ? (
                     currentLogs.map((log) => (
-                      <tr key={log.id} className="logs-table-row">
-                        <td className="admin-name">
+                      <tr key={log.id} className="admin-logs-table-row">
+                        <td className="admin-admin-name">
                           {log.admin
                             ? `${log.admin.last_name}, ${log.admin.first_name}`
                             : "Unknown"}
                         </td>
-                        <td className="admin-role">{log.role}</td>
+                        <td className="admin-admin-role">{log.role}</td>
                         <td
-                          className={`action-cell ${getActionClass(
+                          className={`admin-action-cell ${getActionClass(
                             log.action
                           )}`}
                         >
                           {log.action}
                         </td>
-                        <td className="endpoint-cell">
-                          <div className="details-tooltip-wrapper">
-                            <span className="details-truncated">
+                        <td className="admin-endpoint-cell">
+                          <div className="admin-details-tooltip-wrapper">
+                            <span className="admin-details-truncated">
                               {truncate(log.endpoint, 25)}
                             </span>
                             {log.endpoint && log.endpoint.length > 25 && (
-                              <span className="details-tooltip">
+                              <span className="admin-details-tooltip">
                                 {log.endpoint}
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="details-cell">
-                          <div className="details-tooltip-wrapper">
-                            <span className="details-truncated">
+                        <td className="admin-details-cell">
+                          <div className="admin-details-tooltip-wrapper">
+                            <span className="admin-details-truncated">
                               {truncate(log.details)}
                             </span>
                             {log.details && log.details.length > 30 && (
-                              <span className="details-tooltip">
+                              <span className="admin-details-tooltip">
                                 {log.details}
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="timestamp-cell">
+                        <td className="admin-timestamp-cell">
                           {new Date(log.timestamp).toLocaleString()}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" className="logs-no-data">
+                      <td colSpan="6" className="admin-logs-no-data">
                         No logs available.
                       </td>
                     </tr>
@@ -139,7 +139,7 @@ const LogsDashboard = () => {
               </table>
             </div>
 
-            <div className="pagination-container">
+            <div className="admin-pagination-container">
               <PaginationComponent
                 currentPage={currentPage}
                 totalPages={totalPages}

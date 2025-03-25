@@ -80,11 +80,11 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
+    <div className="admin-login-container">
+      <div className="admin-login-card">
+        <div className="admin-login-header">
           <h2 className="text-center mb-4">Admin Portal</h2>
-          <div className="login-divider"></div>
+          <div className="admin-login-divider"></div>
         </div>
 
         <form onSubmit={handleAdminLogin}>
@@ -92,7 +92,7 @@ const AdminLogin = () => {
             <label htmlFor="username" className="form-label">
               Email Address
             </label>
-            <div className="input-group">
+            <div className="admin-login-input-group">
               <span className="input-group-text">
                 <i className="bi bi-envelope"></i>
               </span>
@@ -137,7 +137,7 @@ const AdminLogin = () => {
                 required
               />
               <button
-                className="btn btn-outline-secondary password-toggle"
+                className="btn btn-outline-secondary admin-password-toggle"
                 type="button"
                 onClick={togglePasswordVisibility}
                 tabIndex="-1"
@@ -163,7 +163,7 @@ const AdminLogin = () => {
 
           <button
             type="submit"
-            className="btn btn-primary w-100 login-btn"
+            className="btn btn-primary w-100 admin-login-btn"
             disabled={isLoading}
           >
             {isLoading ? (

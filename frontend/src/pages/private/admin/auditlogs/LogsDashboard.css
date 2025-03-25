@@ -1,5 +1,5 @@
 /* Global Dashboard Container */
-.logs-dashboard-container {
+.admin-logs-dashboard-container {
   min-height: 100vh;
   padding: 20px;
   display: flex;
@@ -7,7 +7,7 @@
 }
 
 /* Main Dashboard Wrapper */
-.logs-dashboard {
+.admin-logs-dashboard {
   background: white;
   border-radius: 12px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
@@ -18,7 +18,7 @@
 }
 
 /* Header Styling */
-.logs-header {
+.admin-logs-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -27,7 +27,7 @@
   padding-bottom: 15px;
 }
 
-.logs-title {
+.admin-logs-title {
   font-size: 24px;
   color: #1a202c;
   margin: 0;
@@ -35,14 +35,14 @@
 }
 
 /* Error Handling */
-.logs-error-container {
+.admin-logs-error-container {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
 }
 
-.logs-error {
+.admin-logs-error {
   color: #d63031;
   background-color: #fff5f5;
   padding: 15px;
@@ -53,21 +53,21 @@
 }
 
 /* Table Container */
-.logs-table-container {
+.admin-logs-table-container {
   overflow-x: auto;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Table Styling */
-.logs-table {
+.admin-logs-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   background-color: white;
 }
 
-.logs-table th {
+.admin-logs-table th {
   background-color: #4a5568;
   color: white;
   padding: 12px 15px;
@@ -77,49 +77,49 @@
   letter-spacing: 0.5px;
 }
 
-.logs-table-row {
+.admin-logs-table-row {
   transition: all 0.2s ease;
 }
 
-.logs-table-row:hover {
+.admin-logs-table-row:hover {
   background-color: #f8fafc;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.logs-table td {
+.admin-logs-table td {
   padding: 12px 15px;
   border-bottom: 1px solid #edf2f7;
 }
 
 /* Cell-specific Styles */
-.admin-name {
+.admin-admin-name {
   font-weight: 600;
   color: #2d3748;
 }
 
-.admin-role {
+.admin-admin-role {
   color: #718096;
   font-style: italic;
 }
 
-.action-cell {
+.admin-action-cell {
   font-weight: bold;
   text-transform: uppercase;
 }
 
 /* Improved Details Tooltip */
-.details-cell {
+.admin-details-cell {
   position: relative;
   max-width: 200px;
 }
 
-.details-tooltip-wrapper {
+.admin-details-tooltip-wrapper {
   position: relative;
   display: inline-block;
   max-width: 100%;
 }
 
-.details-tooltip {
+.admin-details-tooltip {
   position: absolute;
   z-index: 50;
   top: calc(100% + 10px);
@@ -146,14 +146,14 @@
   overflow-wrap: break-word; /* Ensure long strings break */
 }
 
-.details-tooltip-wrapper:hover .details-tooltip {
+.admin-details-tooltip-wrapper:hover .admin-details-tooltip {
   visibility: visible;
   opacity: 1;
   top: calc(100% + 5px);
 }
 
 /* Add a small arrow to the tooltip */
-.details-tooltip::before {
+.admin-details-tooltip::before {
   content: "";
   position: absolute;
   bottom: 100%;
@@ -165,7 +165,7 @@
 }
 
 /* Ensure JSON-like content is more readable */
-.details-tooltip code {
+.admin-details-tooltip code {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 2px 4px;
   border-radius: 4px;
@@ -173,17 +173,17 @@
   margin: 2px 0;
 }
 
-.endpoint-cell {
+.admin-endpoint-cell {
   max-width: 200px;
 }
 
-.endpoint-cell .details-tooltip-wrapper {
+.admin-endpoint-cell .admin-details-tooltip-wrapper {
   position: relative;
   display: inline-block;
   max-width: 100%;
 }
 
-.endpoint-cell .details-truncated {
+.admin-endpoint-cell .admin-details-truncated {
   display: block;
   max-width: 200px;
   white-space: nowrap;
@@ -230,7 +230,7 @@
 }
 
 /* No Data Message */
-.logs-no-data {
+.admin-logs-no-data {
   text-align: center;
   padding: 20px;
   color: #718096;
@@ -238,7 +238,7 @@
 }
 
 /* Pagination Container */
-.pagination-container {
+.admin-pagination-container {
   display: flex;
   justify-content: center;
   margin-top: 20px;
@@ -249,16 +249,16 @@
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-  .logs-dashboard {
+  .admin-logs-dashboard {
     padding: 15px;
   }
 
-  .logs-table th,
-  .logs-table td {
+  .admin-logs-table th,
+  .admin-logs-table td {
     padding: 10px;
   }
 
-  .details-tooltip {
+  .admin-details-tooltip {
     max-width: 250px;
     left: 0;
     transform: translateX(0);

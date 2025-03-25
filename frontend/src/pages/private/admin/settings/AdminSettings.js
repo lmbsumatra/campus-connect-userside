@@ -248,30 +248,30 @@ const AdminSettings = ({ tab, onClose }) => {
         </div>
 
         {showCreateAcctWindow && (
-          <div className="admin-modal-overlay">
-            <div className="admin-modal-container">
-              <div className="admin-modal-header">
-                <div className="admin-modal-title">
-                  <i className="upload-icon">👥</i>
+          <div className="admin1-modal-overlay">
+            <div className="admin1-modal-container">
+              <div className="admin1-modal-header">
+                <div className="admin1-modal-title">
+                  <i className="upload1-icon">👥</i>
                   Create Admin Account
                 </div>
                 <button
-                  className="admin-modal-close"
+                  className="admin1-modal-close"
                   onClick={() => setShowCreateAcctWindow(false)}
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="admin-modal-content">
-                <div className="admin-modal-notification">
+              <div className="admin1-modal-content">
+                <div className="admin1-modal-notification">
                   Please complete all required fields to register.
                 </div>
 
-                <div className="admin-modal-body">
-                  <div className="profile-upload-section">
+                <div className="admin1-modal-body">
+                  <div className="profile1-upload-section">
                     <div
-                      className="profile-upload-box"
+                      className="profile1-upload-box"
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}
                       onClick={() =>
@@ -282,11 +282,11 @@ const AdminSettings = ({ tab, onClose }) => {
                         <img
                           src={URL.createObjectURL(uploadedImage)}
                           alt="Profile Preview"
-                          className="profile-preview-image"
+                          className="profile1-preview-image"
                         />
                       ) : (
                         <>
-                          <i className="upload-icon">⬆️</i>
+                          <i className="upload1-icon">⬆️</i>
                           <span>
                             Drag and drop an image here,
                             <br /> or click to upload
@@ -297,16 +297,16 @@ const AdminSettings = ({ tab, onClose }) => {
                         type="file"
                         id="file-input"
                         accept="image/*"
-                        className="file-input-hidden"
+                        className="file1-input-hidden"
                         onChange={handleFileChange}
                       />
                     </div>
                   </div>
 
-                  <div className="details-section">
-                    <div className="personal-details-card">
-                      <div className="card-header">Personal Details</div>
-                      <div className="input-row">
+                  <div className="details1-section">
+                    <div className="personal1-details-card">
+                      <div className="card1-header">Personal Details</div>
+                      <div className="input1-row">
                         <input
                           type="text"
                           name="firstName"
@@ -333,11 +333,11 @@ const AdminSettings = ({ tab, onClose }) => {
                       </div>
                     </div>
 
-                    <div className="account-details-card">
-                      <div className="card-header">Account Details</div>
-                      <div className="input-group">
-                        <div className="input-wrapper">
-                          <i className="input-icon">✉️</i>
+                    <div className="account1-details-card">
+                      <div className="card1-header">Account Details</div>
+                      <div className="input1-group">
+                        <div className="input1-wrapper">
+                          <i className="input1-icon">✉️</i>
                           <input
                             type="email"
                             name="email"
@@ -347,8 +347,8 @@ const AdminSettings = ({ tab, onClose }) => {
                             required
                           />
                         </div>
-                        <div className="input-wrapper">
-                          <i className="input-icon">🔒</i>
+                        <div className="input1-wrapper">
+                          <i className="input1-icon">🔒</i>
                           <input
                             type={showPassword ? "text" : "password"}
                             name="password"
@@ -358,7 +358,7 @@ const AdminSettings = ({ tab, onClose }) => {
                             required
                           />
                           <button
-                            className="show-password-btn"
+                            className="show1-password-btn"
                             onClick={() => togglePasswordVisibility("password")}
                           >
                             {showPassword ? "Hide" : "Show"}
@@ -367,8 +367,8 @@ const AdminSettings = ({ tab, onClose }) => {
                         {userData.password && (
                           <PasswordMeter password={userData.password} />
                         )}
-                        <div className="input-wrapper">
-                          <i className="input-icon">🔒</i>
+                        <div className="input1-wrapper">
+                          <i className="input1-icon">🔒</i>
                           <input
                             type={showConfirmPassword ? "text" : "password"}
                             name="confirmPassword"
@@ -378,7 +378,7 @@ const AdminSettings = ({ tab, onClose }) => {
                             required
                           />
                           <button
-                            className="show-password-btn"
+                            className="show1-password-btn"
                             onClick={() =>
                               togglePasswordVisibility("confirmPassword")
                             }
@@ -391,9 +391,9 @@ const AdminSettings = ({ tab, onClose }) => {
                   </div>
                 </div>
 
-                <div className="admin-modal-footer">
+                <div className="admin1-modal-footer">
                   <button
-                    className="add-admin-btn"
+                    className="add1-admin-btn"
                     onClick={handleRegisterSubmit}
                   >
                     Add Admin

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { baseApi } from "../../../../utils/consonants";
 import { Modal, Button } from "react-bootstrap";
-import "./adminViewConfigStyles.css";
 
 const AdminViewAccounts = () => {
   const [accounts, setAccounts] = useState([]);
@@ -35,7 +34,7 @@ const AdminViewAccounts = () => {
         onHide={() => setShowModal(false)}
         size="lg"
         centered
-        dialogClassName="admin-accounts-modal"
+        dialogClassName="admin1-accounts-modal"
       >
         <Modal.Header closeButton>
           <Modal.Title>Admin Accounts</Modal.Title>
