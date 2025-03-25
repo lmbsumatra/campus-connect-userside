@@ -60,7 +60,7 @@ const CheckoutModal = ({ show, onHide, items }) => {
       );
 
       // Handle payment based on payment method
-      if (paymentMethod === GCASH) {
+      if (selectedItem?.paymentMode === GCASH) {
         if (!response.data.clientSecret || !response.data.paymentIntentId) {
           dispatch(
             showNotification({
@@ -151,7 +151,7 @@ const CheckoutModal = ({ show, onHide, items }) => {
                     : ""
                 }
               >
-                <div className="payment-options">
+                {/* <div className="payment-options">
                   <Form.Check
                     type="radio"
                     id="meetup-payment"
@@ -170,7 +170,8 @@ const CheckoutModal = ({ show, onHide, items }) => {
                     disabled={!!selectedItem.paymentMode}
                     onChange={() => setPaymentMethod("gcash")}
                   />
-                </div>
+                </div> */}
+                <div>{selectedItem?.paymentMode}</div>
               </Tooltip>
             </div>
 

@@ -28,7 +28,7 @@ import {
   PICK_UP,
   TO_BUY,
 } from "../../../../utils/consonants.js";
-import { addCartItem } from "../../../../redux/cart/cartSlice.js";
+import { addCartItem, fetchCart } from "../../../../redux/cart/cartSlice.js";
 import {
   clearNotification,
   showNotification,
@@ -111,15 +111,12 @@ function ListingDetail() {
 
   const checkIfReported = async () => {
     try {
-      const response = await axios.get(
-        `${baseApi}/api/reports/check`,
-        {
-          params: {
-            reporter_id: loggedInUserId,
-            reported_entity_id: approvedListingById.id,
-          },
-        }
-      );
+      const response = await axios.get(`${baseApi}/api/reports/check`, {
+        params: {
+          reporter_id: loggedInUserId,
+          reported_entity_id: approvedListingById.id,
+        },
+      });
       setHasReported(response.data.hasReported);
     } catch (error) {
       console.error("Error checking report:", error);
@@ -282,7 +279,9 @@ function ListingDetail() {
           price: item.rate,
           name: item.name,
         })
-      ).unwrap();
+      ).then(() => {
+        dispatch(fetchCart());
+      });
 
       const { successCartMessage, errorCartMessage, warningCartMessage } =
         store.getState().cart;
@@ -492,10 +491,7 @@ function ListingDetail() {
     };
 
     try {
-      const response = await axios.post(
-        `${baseApi}/api/reports`,
-        reportData
-      );
+      const response = await axios.post(`${baseApi}/api/reports`, reportData);
 
       // Update hasReported state
       setHasReported(true);

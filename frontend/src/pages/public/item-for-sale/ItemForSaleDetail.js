@@ -24,7 +24,7 @@ import {
   MEET_UP,
   PICK_UP,
 } from "../../../utils/consonants";
-import { addCartItem } from "../../../redux/cart/cartSlice";
+import { addCartItem, fetchCart } from "../../../redux/cart/cartSlice";
 import { showNotification } from "../../../redux/alert-popup/alertPopupSlice";
 import LoadingItemDetailSkeleton from "../../../components/loading-skeleton/LoadingItemDetailSkeleton";
 import UserToolbar from "../common/UserToolbar";
@@ -192,7 +192,9 @@ function ItemForSaleDetail() {
           price: item.price,
           name: item.name,
         })
-      );
+      ).then(() => {
+        dispatch(fetchCart());
+      });
 
       const { successCartMessage, errorCartMessage, warningCartMessage } =
         store.getState().cart;
@@ -420,10 +422,7 @@ function ItemForSaleDetail() {
     };
 
     try {
-      const response = await axios.post(
-        `${baseApi}/api/reports`,
-        reportData
-      ); // API endpoint
+      const response = await axios.post(`${baseApi}/api/reports`, reportData); // API endpoint
       // Update hasReported state
       setHasReported(true);
 
@@ -483,15 +482,12 @@ function ItemForSaleDetail() {
 
   const checkIfReported = async () => {
     try {
-      const response = await axios.get(
-        `${baseApi}/api/reports/check`,
-        {
-          params: {
-            reporter_id: loggedInUserId,
-            reported_entity_id: approvedItemForSaleById.id,
-          },
-        }
-      );
+      const response = await axios.get(`${baseApi}/api/reports/check`, {
+        params: {
+          reporter_id: loggedInUserId,
+          reported_entity_id: approvedItemForSaleById.id,
+        },
+      });
       setHasReported(response.data.hasReported);
     } catch (error) {
       console.error("Error checking report:", error);
