@@ -26,6 +26,7 @@ import {
   GrowthData,
   TotalRegisteredUser,
   CompletedTransactionsAndPopularCategories,
+  TopTransactionUsers,
 } from "../../../../../components/Analytics/AdminDashboardAnalytics";
 
 const AdminDashboard = () => {
@@ -243,6 +244,9 @@ const AdminDashboard = () => {
             transactions={transactions}
             listings={listings}
           />
+        </div>
+        <div className="chart-card">
+          <TopTransactionUsers transactions={transactions} users={users} />
         </div>
       </div>
     </div>

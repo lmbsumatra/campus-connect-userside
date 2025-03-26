@@ -14,7 +14,6 @@ import {
   TopSellers,
 } from "../../../../components/Analytics/SaleAnalyticsComponents";
 
-
 const ForSaleManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOptions, setSortOptions] = useState({});
@@ -22,7 +21,6 @@ const ForSaleManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
-
 
   const headers = [
     "Thumbnail",
@@ -48,14 +46,6 @@ const ForSaleManagement = () => {
 
   const handleView = (itemId) => {
     navigate(`/admin/sales/item-approval/${itemId}`);
-  };
-
-  const handleEdit = (itemId) => {
-    // console.log(`Editing item with ID: ${itemId}`);
-  };
-
-  const handleDelete = (itemId) => {
-    // console.log(`Deleting item with ID: ${itemId}`);
   };
 
   const getStatusInfo = (status) => {
@@ -135,9 +125,11 @@ const ForSaleManagement = () => {
   const sortedData = () => {
     let sorted = [...getFilteredData()];
 
-     // Always sort by Date Added (newest first) if no sort option is selected
-     if (!sortOptions["Date Added"]) {
-      sorted = sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    // Always sort by Date Added (newest first) if no sort option is selected
+    if (!sortOptions["Date Added"]) {
+      sorted = sorted.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
     }
 
     if (Object.keys(sortOptions).length > 0) {
@@ -202,23 +194,9 @@ const ForSaleManagement = () => {
         >
           View
         </button>
-        <button
-          className="btn btn-action edit"
-          onClick={() => handleEdit(item.id)}
-        >
-          Edit
-        </button>
-        <button
-          className="btn btn-action delete"
-          onClick={() => handleDelete(item.id)}
-        >
-          Delete
-        </button>
       </div>,
     ];
   });
-
-
 
   return (
     <div className="admin-content-container">
@@ -230,13 +208,13 @@ const ForSaleManagement = () => {
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
             />
-          <TableComponent
-            headers={headers}
-            data={data}
-            onSortChange={handleSortChange}
-            onFilterChange={handleFilterChange}
-            statusOptions={filterableStatusOptions} 
-          />
+            <TableComponent
+              headers={headers}
+              data={data}
+              onSortChange={handleSortChange}
+              onFilterChange={handleFilterChange}
+              statusOptions={filterableStatusOptions}
+            />
             <PaginationComponent
               currentPage={currentPage}
               totalPages={totalPages}

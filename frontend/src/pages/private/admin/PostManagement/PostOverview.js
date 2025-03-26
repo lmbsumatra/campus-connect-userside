@@ -7,8 +7,7 @@ import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import { ItemStatus } from "../../../../utils/Status";
-import CardComponent from "../../../../components/Table/CardComponent"; 
-
+import CardComponent from "../../../../components/Table/CardComponent";
 
 const PostDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,13 +42,13 @@ const PostDashboard = () => {
     navigate(`/admin/posts/post-approval/${postId}`);
   };
 
-  const handleEdit = (postId) => {
-    // console.log(`Editing post with ID: ${postId}`);
-  };
+  // const handleEdit = (postId) => {
+  //   // console.log(`Editing post with ID: ${postId}`);
+  // };
 
-  const handleDelete = (postId) => {
-    // console.log(`Deleting post with ID: ${postId}`);
-  };
+  // const handleDelete = (postId) => {
+  //   // console.log(`Deleting post with ID: ${postId}`);
+  // };
 
   const getStatusInfo = (status) => {
     const { label, className } = ItemStatus(status);
@@ -199,18 +198,6 @@ const PostDashboard = () => {
         >
           View
         </button>
-        <button
-          className="btn btn-action edit"
-          onClick={() => handleEdit(post.id)}
-        >
-          Edit
-        </button>
-        <button
-          className="btn btn-action delete"
-          onClick={() => handleDelete(post.id)}
-        >
-          Delete
-        </button>
       </div>,
     ];
   });
@@ -236,25 +223,38 @@ const PostDashboard = () => {
               onSearchChange={setSearchQuery}
             />
 
-       {/* View switcher */}
-       <div className="admin-view-toggle">
-            <button onClick={() => handleSwitchView("table")} className={`btn btn-secondary mb-4 ${viewMode === "table" ? "active" : ""}`}>Table View</button>
-            <button onClick={() => handleSwitchView("card")} className={`btn btn-secondary mb-4 ${viewMode === "card" ? "active" : ""}`}>Card View</button>
-          </div>
+            {/* View switcher */}
+            <div className="admin-view-toggle">
+              <button
+                onClick={() => handleSwitchView("table")}
+                className={`btn btn-secondary mb-4 ${
+                  viewMode === "table" ? "active" : ""
+                }`}
+              >
+                Table View
+              </button>
+              <button
+                onClick={() => handleSwitchView("card")}
+                className={`btn btn-secondary mb-4 ${
+                  viewMode === "card" ? "active" : ""
+                }`}
+              >
+                Card View
+              </button>
+            </div>
 
-          {/* Conditionally render Table or Card View */}
-          {viewMode === "table" ? (
-            <TableComponent
-              headers={headers}
-              data={data}
-              onSortChange={handleSortChange}
-              onFilterChange={handleFilterChange}
-              statusOptions={filterableStatusOptions} 
-            />
-          ) : (
-            <CardComponent data={data} headers={headers}/>
-
-          )}
+            {/* Conditionally render Table or Card View */}
+            {viewMode === "table" ? (
+              <TableComponent
+                headers={headers}
+                data={data}
+                onSortChange={handleSortChange}
+                onFilterChange={handleFilterChange}
+                statusOptions={filterableStatusOptions}
+              />
+            ) : (
+              <CardComponent data={data} headers={headers} />
+            )}
 
             {/* Pagination Component */}
             <PaginationComponent

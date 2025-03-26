@@ -21,7 +21,6 @@ const PostDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page state
   const [postsPerPage] = useState(10); // Posts per page
   const [originalData, setOriginalData] = useState([]); // State for storing original data
-  
 
   const headers = [
     "Thumbnail",
@@ -49,14 +48,6 @@ const PostDashboard = () => {
     navigate(`/admin/posts/post-approval/${postId}`);
   };
 
-  const handleEdit = (postId) => {
-    // console.log(`Editing post with ID: ${postId}`);
-  };
-
-  const handleDelete = (postId) => {
-    // console.log(`Deleting post with ID: ${postId}`);
-  };
-
   const getStatusInfo = (status) => {
     const { label, className } = ItemStatus(status);
     return { label, className };
@@ -70,7 +61,7 @@ const PostDashboard = () => {
     "revoked",
     "flagged",
   ];
-  
+
   const handleSortChange = (column, order) => {
     if (order === "default") {
       setSortOptions({});
@@ -135,11 +126,12 @@ const PostDashboard = () => {
   const sortedData = () => {
     let sorted = [...getFilteredData()];
 
-     // Always sort by Date Added (newest first) if no sort option is selected
+    // Always sort by Date Added (newest first) if no sort option is selected
     if (!sortOptions["Date Added"]) {
-      sorted = sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      sorted = sorted.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
     }
-  
 
     if (Object.keys(sortOptions).length > 0) {
       if (sortOptions["Title"]) {
@@ -205,7 +197,7 @@ const PostDashboard = () => {
         >
           View
         </button>
-        <button
+        {/* <button
           className="btn btn-action edit"
           onClick={() => handleEdit(post.id)}
         >
@@ -216,11 +208,10 @@ const PostDashboard = () => {
           onClick={() => handleDelete(post.id)}
         >
           Delete
-        </button>
+        </button> */}
       </div>,
     ];
   });
-
 
   return (
     <div className="admin-content-container">

@@ -14,7 +14,7 @@ import {
   Cell,
   CartesianGrid,
 } from "recharts";
-import { ShoppingCart, Handshake } from "lucide-react";
+import { ShoppingCart, Handshake, Crown } from "lucide-react";
 
 export const GrowthData = ({ users, listings, posts, sales }) => {
   const [timeInterval, setTimeInterval] = useState("monthly");
@@ -336,6 +336,146 @@ export const CompletedTransactionsAndPopularCategories = ({
             <Bar dataKey="count" fill="#8884d8" />
           </BarChart>
         </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
+
+export const TopTransactionUsers = ({ transactions, users }) => {
+  const [timeInterval, setTimeInterval] = useState("all"); // Default to "all time"
+
+  // Filter only completed transactions
+  const completedTransactions = transactions.filter(
+    (t) => t.status === "Completed"
+  );
+
+  // Filter transactions based on selected time interval
+  const filterTransactionsByTime = (transactions) => {
+    const now = new Date();
+    return transactions.filter((t) => {
+      const transactionDate = new Date(t.createdAt || t.created_at);
+
+      switch (timeInterval) {
+        case "daily":
+          return transactionDate.toDateString() === now.toDateString();
+        case "weekly":
+          const weekStart = new Date(now);
+          weekStart.setDate(now.getDate() - now.getDay());
+          return transactionDate >= weekStart;
+        case "monthly":
+          return (
+            transactionDate.getMonth() === now.getMonth() &&
+            transactionDate.getFullYear() === now.getFullYear()
+          );
+        case "yearly":
+          return transactionDate.getFullYear() === now.getFullYear();
+        default: // "all"
+          return true;
+      }
+    });
+  };
+
+  const filteredTransactions = filterTransactionsByTime(completedTransactions);
+
+  // Process data to find top owners (sellers/renters) and top buyers/renters
+  const processLeaderboard = () => {
+    const ownerCounts = {};
+    const buyerCounts = {};
+
+    filteredTransactions.forEach((transaction) => {
+      // Count for owners (sellers/renters)
+      const ownerId = transaction.owner_id;
+      if (ownerId) {
+        ownerCounts[ownerId] = (ownerCounts[ownerId] || 0) + 1;
+      }
+
+      // Count for buyers/renters
+      const buyerId = transaction.renter_id || transaction.buyer_id;
+      if (buyerId) {
+        buyerCounts[buyerId] = (buyerCounts[buyerId] || 0) + 1;
+      }
+    });
+
+    // Convert to arrays and sort
+    const topOwners = Object.entries(ownerCounts)
+      .map(([userId, count]) => {
+        const user = users.find((u) => u.user_id === parseInt(userId));
+        return {
+          user,
+          count,
+          type: "Owner",
+          name: user ? `${user.first_name} ${user.last_name}` : "Unknown User",
+        };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10); // Top 10 owners
+
+    const topBuyers = Object.entries(buyerCounts)
+      .map(([userId, count]) => {
+        const user = users.find((u) => u.user_id === parseInt(userId));
+        return {
+          user,
+          count,
+          type: "Buyer/Renter",
+          name: user ? `${user.first_name} ${user.last_name}` : "Unknown User",
+        };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10); // Top 10 buyers
+
+    return { topOwners, topBuyers };
+  };
+
+  const { topOwners, topBuyers } = processLeaderboard();
+
+  const renderLeaderboard = (title, leaderboardData) => (
+    <div className="leaderboard-section">
+      <h4>{title}</h4>
+      <div className="leaderboard-grid">
+        {leaderboardData.map((item, index) => {
+          const rankClass = index < 3 ? `rank-${index + 1}` : "";
+          return (
+            <div
+              key={`${title}-${index}`}
+              className={`leaderboard-item ${rankClass}`}
+              title={item.name} // This adds a tooltip on hover
+            >
+              {index < 3 && <Crown className="crown-icon" />}
+              <div className="leaderboard-content">
+                <div className="leaderboard-rank">{index + 1}</div>
+                <div className="leaderboard-name">{item.name}</div>
+                <div className="leaderboard-count">
+                  <ShoppingCart size={16} />
+                  <span>{item.count} Transactions</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="transaction-leaderboard">
+      <div className="leaderboard-header">
+        <h3>Transaction Leaderboard</h3>
+        <div className="time-interval-selector">
+          <select
+            value={timeInterval}
+            onChange={(e) => setTimeInterval(e.target.value)}
+          >
+            <option value="all">All Time</option>
+            <option value="yearly">Yearly</option>
+            <option value="monthly">Monthly</option>
+            <option value="weekly">Weekly</option>
+            <option value="daily">Daily</option>
+          </select>
+        </div>
+      </div>
+      <div className="leaderboard-container">
+        {renderLeaderboard("Top Owners", topOwners)}
+        {renderLeaderboard("Top Buyers/Renters", topBuyers)}
       </div>
     </div>
   );

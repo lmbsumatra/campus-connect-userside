@@ -32,9 +32,14 @@ exports.getAllRecentActivities = async (req, res) => {
       include: [
         { model: User, as: "renter", attributes: ["first_name", "last_name"] },
         { model: User, as: "owner", attributes: ["first_name", "last_name"] },
+        { model: User, as: "buyer", attributes: ["first_name", "last_name"] },
         {
-          model: models.Listing, // ✅ Ensure Listing is included
+          model: models.Listing,
           attributes: ["listing_name"],
+        },
+        {
+          model: models.ItemForSale,
+          attributes: ["item_for_sale_name"],
         },
       ],
     });
@@ -102,18 +107,33 @@ exports.getAllRecentActivities = async (req, res) => {
         date: listing.created_at,
       })),
       ...recentTransactions.map((transaction) => {
-        // Check if owner and renter exist before accessing their properties
         const ownerName = transaction.owner
           ? `${transaction.owner.first_name} ${transaction.owner.last_name}`
           : "Unknown Owner";
 
         const renterName = transaction.renter
           ? `${transaction.renter.first_name} ${transaction.renter.last_name}`
-          : "Unknown Renter";
+          : null;
+
+        const buyerName = transaction.buyer
+          ? `${transaction.buyer.first_name} ${transaction.buyer.last_name}`
+          : null;
+
+        const isRental = transaction.transaction_type === "rental";
+        const isSale = transaction.transaction_type === "sell";
+
+        const listingName = transaction.Listing?.listing_name || null;
+        const itemForSaleName =
+          transaction.ItemForSale?.item_for_sale_name || null;
+        const itemDescription = [listingName, itemForSaleName]
+          .filter(Boolean)
+          .join(" / ");
 
         return {
-          type: "New Rental Transaction",
-          description: `Transaction between ${ownerName} and ${renterName} with Transaction Item Name:${transaction.Listing?.listing_name}.`,
+          type: isRental ? "New Rental Transaction" : "New Sale Transaction",
+          description: isRental
+            ? `Rental transaction between ${ownerName} and ${renterName} for item: ${itemDescription}`
+            : `Sale transaction between ${ownerName} and ${buyerName} for item: ${itemDescription}`,
           date: transaction.createdAt,
         };
       }),

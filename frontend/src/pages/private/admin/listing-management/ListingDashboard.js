@@ -14,7 +14,6 @@ import {
   TopUsersForListings,
 } from "../../../../components/Analytics/ListingAnalyticsComponent";
 
-
 const ListingDashboard = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
   const [sortOptions, setSortOptions] = useState({}); // Sort options state
@@ -22,7 +21,6 @@ const ListingDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page state
   const [listingsPerPage] = useState(10); // Listings per page
   const [originalData, setOriginalData] = useState([]); // State for storing original data
-
 
   const headers = [
     "Thumbnail",
@@ -48,14 +46,6 @@ const ListingDashboard = () => {
 
   const handleView = (itemId) => {
     navigate(`/admin/listings/listing-approval/${itemId}`);
-  };
-
-  const handleEdit = (itemId) => {
-    // console.log(`Editing listing with ID: ${itemId}`);
-  };
-
-  const handleDelete = (itemId) => {
-    // console.log(`Deleting listing with ID: ${itemId}`);
   };
 
   const getStatusInfo = (status) => {
@@ -135,34 +125,35 @@ const ListingDashboard = () => {
   };
 
   const sortedData = () => {
-  let sorted = [...getFilteredData()];
+    let sorted = [...getFilteredData()];
 
-  // Always sort by Date Added (newest first) if no sort option is selected
-  if (!sortOptions["Date Added"]) {
-    sorted = sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  }
-
-  if (Object.keys(sortOptions).length > 0) {
-    if (sortOptions["Title"]) {
-      sorted = sorted.sort((a, b) =>
-        sortOptions["Title"] === "asc"
-          ? a.listing_name.localeCompare(b.listing_name)
-          : b.listing_name.localeCompare(a.listing_name)
+    // Always sort by Date Added (newest first) if no sort option is selected
+    if (!sortOptions["Date Added"]) {
+      sorted = sorted.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
     }
 
-    if (sortOptions["Date Added"]) {
-      sorted = sorted.sort((a, b) =>
-        sortOptions["Date Added"] === "newest"
-          ? new Date(b.created_at) - new Date(a.created_at)
-          : new Date(a.created_at) - new Date(b.created_at)
-      );
+    if (Object.keys(sortOptions).length > 0) {
+      if (sortOptions["Title"]) {
+        sorted = sorted.sort((a, b) =>
+          sortOptions["Title"] === "asc"
+            ? a.listing_name.localeCompare(b.listing_name)
+            : b.listing_name.localeCompare(a.listing_name)
+        );
+      }
+
+      if (sortOptions["Date Added"]) {
+        sorted = sorted.sort((a, b) =>
+          sortOptions["Date Added"] === "newest"
+            ? new Date(b.created_at) - new Date(a.created_at)
+            : new Date(a.created_at) - new Date(b.created_at)
+        );
+      }
     }
-  }
 
-  return sorted;
-};
-
+    return sorted;
+  };
 
   const sortedFilteredData = sortedData();
 
@@ -193,22 +184,9 @@ const ListingDashboard = () => {
         >
           View
         </button>
-        <button
-          className="btn btn-action edit"
-          onClick={() => handleEdit(listing.id)}
-        >
-          Edit
-        </button>
-        <button
-          className="btn btn-action delete"
-          onClick={() => handleDelete(listing.id)}
-        >
-          Delete
-        </button>
       </div>,
     ];
   });
-
 
   return (
     <div className="admin-content-container">

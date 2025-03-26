@@ -50,8 +50,21 @@ const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
       </Pagination.Item>
     );
 
-    // If there are more than 4 pages, add ellipsis and only a few middle items
-    if (totalPages > 4) {
+    // If total pages is 4 or less, show all pages directly
+    if (totalPages <= 4) {
+      for (let page = 2; page <= totalPages; page++) {
+        items.push(
+          <Pagination.Item
+            key={page}
+            active={currentPage === page}
+            onClick={() => onPageChange(page)}
+          >
+            {page}
+          </Pagination.Item>
+        );
+      }
+    } else {
+      // If there are more than 4 pages, add ellipsis and show a few middle items
       if (currentPage > 3) {
         items.push(
           <Pagination.Ellipsis
@@ -61,7 +74,7 @@ const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
         );
       }
 
-      // Display middle pages
+      // Display middle pages dynamically
       const startPage = Math.max(2, currentPage - 1);
       const endPage = Math.min(totalPages - 1, currentPage + 1);
 
@@ -86,10 +99,8 @@ const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
           />
         );
       }
-    }
 
-    // Always show the last page if there are more than one
-    if (totalPages > 1) {
+      // Always show the last page
       items.push(
         <Pagination.Item
           key={totalPages}
