@@ -4,7 +4,7 @@ const { faker } = require("@faker-js/faker");
 
 // Function to generate random post data
 const generateRandomPost = () => {
-  const predefinedRenterIds = [51, 179];
+  const predefinedRenterIds = [25];
 
   const generateTags = () => {
     return [faker.word.noun().toLowerCase()];

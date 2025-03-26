@@ -62,7 +62,7 @@ const FormField = ({
   placeholder,
 }) => (
   <div className="field-container">
-    <div className="input-wrapper">
+    <div className="input-wrapper d-flex align-items-center">
       {label && <label className="label">{label}</label>}
       <input
         id={id}
@@ -97,7 +97,6 @@ const AddNewPost = () => {
     withCredentials: true,
     transports: ["websocket", "polling"], // explicitly set both if needed
   });
-  
 
   const [category, setCategory] = useState("");
   const [itemType, setItemType] = useState("To Rent");
@@ -130,15 +129,23 @@ const AddNewPost = () => {
   );
 
   useEffect(() => {
-    if (unavailableDates && unavailableDates.length > 0) {
-      setFormattedUnavailableDates(
-        unavailableDates.map((item) => {
-          return {
-            date: new Date(item.date), // Convert string to Date object
-            reason: item.description, // Keep the reason
-          };
-        })
-      );
+    console.log("unavailableDates before processing:", unavailableDates);
+
+    if (
+      unavailableDates.unavailableDates &&
+      Array.isArray(unavailableDates.unavailableDates) &&
+      unavailableDates.unavailableDates.length > 0
+    ) {
+      const formatted = unavailableDates.unavailableDates.map((item) => ({
+        date: new Date(item.date),
+        reason: item.description,
+      }));
+
+      console.log("Formatted unavailable dates:", formatted);
+      setFormattedUnavailableDates(formatted);
+    } else {
+      console.log("No valid unavailableDates found.");
+      setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);
 
@@ -414,7 +421,13 @@ const AddNewPost = () => {
             )}
 
           <FormField
-            label="For rent"
+            label={
+              postDataState.itemType.value
+                ? postDataState.itemType.value === FOR_RENT
+                  ? "To Rent"
+                  : "To Sale"
+                : "To Rent"
+            }
             id="itemName"
             value={postDataState.itemName.value}
             onChange={handleFieldChange}

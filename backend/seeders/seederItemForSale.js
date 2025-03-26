@@ -4,7 +4,7 @@ const { faker } = require("@faker-js/faker");
 
 // Function to generate a random item for sale
 const generateRandomItemForSale = () => {
-  const predefinedSellerIds = [19];
+  const predefinedSellerIds = [25];
 
   // Generate tags as an array of strings
   const generateTags = () => {

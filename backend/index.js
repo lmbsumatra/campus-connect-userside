@@ -122,8 +122,6 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something went wrong!");
 });
 
-// Removed sequelize.sync() to prevent auto-creation of tables
-// Ensure to use migrations instead for manual schema management
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

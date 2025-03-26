@@ -154,7 +154,7 @@ ul.tabs > li {
 }
 
 .indication {
-  background-color: var(--clr-secondary);
+  background-color: var(--clr-neutral-muted);
   width: 16px;
   height: 16px;
   border-radius: 100%;

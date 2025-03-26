@@ -176,7 +176,7 @@ const AdminSidebar = () => {
               ></div>
               {(expandSidebar || isHovered) && <>Users Overview</>}
             </div>
-            <div
+            {/* <div
               className={`sub-tab ${
                 activeSubTab === "usersVerification" ? "active" : ""
               }`}
@@ -193,7 +193,7 @@ const AdminSidebar = () => {
                 }`}
               ></div>
               {(expandSidebar || isHovered) && <>User Verification</>}
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -281,7 +281,7 @@ const AdminSidebar = () => {
                   activeSubTab === "postsOverview" ? "active" : ""
                 }`}
               ></div>
-              {(expandSidebar || isHovered) && <>Posts</>}
+              {(expandSidebar || isHovered) && <>Posts Overview</>}
             </div>
           </div>
         </div>

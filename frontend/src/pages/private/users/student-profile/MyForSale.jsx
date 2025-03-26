@@ -30,11 +30,19 @@ function MyForSale() {
     errorAllItemForSaleByUser,
   } = useSelector((state) => state.allItemForSaleByUser);
 
+  const [filteredItems, setFilteredItems] = useState(allItemForSaleByUser);
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchAllItemForSaleByUser(userId)); // Dispatch the action with userId as payload
     }
   }, [userId, dispatch]);
+
+   useEffect(() => {
+      if (allItemForSaleByUser) {
+        setFilteredItems(allItemForSaleByUser); // Initialize with all listings
+      }
+    }, [allItemForSaleByUser]);
 
   // Set the error if there is any error in fetching the ItemForSale
   useEffect(() => {
@@ -138,6 +146,7 @@ function MyForSale() {
             onAction={handleBulkDelete}
             items={allItemForSaleByUser}
             onSearch={setSearchTerm}
+            filterOptions={setFilteredItems}
           />
 
           <div className="card-items-container">
@@ -153,7 +162,7 @@ function MyForSale() {
             >
               <ItemList
                 itemType={FOR_SALE}
-                items={allItemForSaleByUser.filter((item) =>
+                items={filteredItems.filter((item) =>
                   item.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )}
                 title="For Sale"

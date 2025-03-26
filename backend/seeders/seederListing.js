@@ -4,7 +4,7 @@ const { faker } = require("@faker-js/faker");
 
 // Function to generate random listing data
 const generateRandomListing = () => {
-  const predefinedOwnerIds = [19];
+  const predefinedOwnerIds = [25];
 
   const generateTags = () => {
     return [faker.word.noun().toLowerCase()];

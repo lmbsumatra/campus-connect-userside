@@ -52,6 +52,7 @@ import ItemCard from "../../../components/item-card/ItemCard";
 import { fetchPostMatchedItems } from "../../../redux/post/postMatchedItems";
 import ViewToolbar from "../common/ViewToolbar";
 import { useSystemConfig } from "../../../context/SystemConfigProvider";
+import { fetchUnavailableDates } from "../../../redux/dates/unavaibleDatesSlice";
 
 function PostDetail() {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
@@ -237,6 +238,38 @@ function PostDetail() {
     setExpandTerm(!expandTerm);
   };
 
+  const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
+    useSelector((state) => state.unavailableDates);
+
+  useEffect(() => {
+    dispatch(fetchUnavailableDates());
+  }, [dispatch]);
+
+  const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
+    []
+  );
+
+  useEffect(() => {
+    console.log("unavailableDates before processing:", unavailableDates);
+
+    if (
+      unavailableDates.unavailableDates &&
+      Array.isArray(unavailableDates.unavailableDates) &&
+      unavailableDates.unavailableDates.length > 0
+    ) {
+      const formatted = unavailableDates.unavailableDates.map((item) => ({
+        date: new Date(item.date),
+        reason: item.description,
+      }));
+
+      console.log("Formatted unavailable dates:", formatted);
+      setFormattedUnavailableDates(formatted);
+    } else {
+      console.log("No valid unavailableDates found.");
+      setFormattedUnavailableDates([]);
+    }
+  }, [unavailableDates]);
+
   const handleConfirmOffer = async () => {
     try {
       let imageUrl = approvedPostById.images?.[0] || defaultImages[0];
@@ -305,7 +338,7 @@ function PostDetail() {
         terms: approvedPostById.itemType === TO_RENT ? termsValues : null,
         // Add date_id and time_id for transaction creation
         date_id: selectedDateId,
-        time_id: selectedDuration.id
+        time_id: selectedDuration.id,
       };
 
       navigate("/messages", {
@@ -408,10 +441,7 @@ function PostDetail() {
     };
 
     try {
-      const response = await axios.post(
-        `${baseApi}/api/reports`,
-        reportData
-      ); // API endpoint
+      const response = await axios.post(`${baseApi}/api/reports`, reportData); // API endpoint
 
       // Update hasReported state
       setHasReported(true);
@@ -628,6 +658,15 @@ function PostDetail() {
                     ? "bg-green"
                     : "";
                 }}
+                minDate={new Date()} // Prevents selecting past dates
+                maxDate={
+                  unavailableDates?.endSemesterDates?.length > 0
+                    ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                    : null
+                }
+                excludeDates={formattedUnavailableDates.map(
+                  (item) => new Date(item.date)
+                )}
               />
             </div>
 

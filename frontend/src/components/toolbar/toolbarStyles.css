@@ -8,6 +8,9 @@
   padding: 8px;
   gap: 16px; /* Add some gap between items */
 }
+.toolbar.blue {
+  background-color: var(--clr-primary-light);
+}
 
 .toolbar .select-container label {
   color: white;

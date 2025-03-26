@@ -38,6 +38,7 @@ import handleUnavailableDateError from "../../../utils/handleUnavailableDateErro
 import ViewToolbar from "../common/ViewToolbar";
 import ConfirmationModal from "./ConfirmationModal";
 import store from "../../../store/store";
+import { fetchUnavailableDates } from "../../../redux/dates/unavaibleDatesSlice";
 
 function ItemForSaleDetail() {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
@@ -220,6 +221,37 @@ function ItemForSaleDetail() {
   };
 
   const [stripePaymentDetails, setStripePaymentDetails] = useState(null);
+   const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
+      useSelector((state) => state.unavailableDates);
+  
+    useEffect(() => {
+      dispatch(fetchUnavailableDates());
+    }, [dispatch]);
+  
+    const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
+      []
+    );
+  
+    useEffect(() => {
+      console.log("unavailableDates before processing:", unavailableDates);
+  
+      if (
+        unavailableDates.unavailableDates &&
+        Array.isArray(unavailableDates.unavailableDates) &&
+        unavailableDates.unavailableDates.length > 0
+      ) {
+        const formatted = unavailableDates.unavailableDates.map((item) => ({
+          date: new Date(item.date),
+          reason: item.description,
+        }));
+  
+        console.log("Formatted unavailable dates:", formatted);
+        setFormattedUnavailableDates(formatted);
+      } else {
+        console.log("No valid unavailableDates found.");
+        setFormattedUnavailableDates([]);
+      }
+    }, [unavailableDates]);
 
   const confirmRental = async () => {
     try {
@@ -625,6 +657,9 @@ function ItemForSaleDetail() {
               </span>
               <DatePicker
                 inline
+                excludeDates={formattedUnavailableDates.map(
+                  (item) => new Date(item.date)
+                )}
                 selected={selectedDate ? new Date(selectedDate) : null}
                 onChange={(date) => {
                   const rentalDate = rentalDates.find(
@@ -647,6 +682,12 @@ function ItemForSaleDetail() {
                     ? "bg-green"
                     : "";
                 }}
+                minDate={new Date()} // Prevents selecting past dates
+                maxDate={
+                  unavailableDates?.endSemesterDates?.length > 0
+                    ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                    : null
+                }
               />
             </div>
 

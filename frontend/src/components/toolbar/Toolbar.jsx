@@ -50,7 +50,7 @@ function Toolbar({
   };
 
   return (
-    <div className="toolbar">
+    <div className="toolbar blue">
       <div className="select-container">
         <label className="select">
           <input

@@ -46,6 +46,7 @@ import ReportModal from "../../../../components/report/ReportModal.js";
 import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
 import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
 import ConfirmationModal from "../ConfirmationModal.js";
+import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
 
 // async function getUserFullName(userId) {
 //   console.log("Fetching user details for userId:", userId);
@@ -122,6 +123,38 @@ function ListingDetail() {
       console.error("Error checking report:", error);
     }
   };
+
+  const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
+    useSelector((state) => state.unavailableDates);
+
+  useEffect(() => {
+    dispatch(fetchUnavailableDates());
+  }, [dispatch]);
+
+  const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
+    []
+  );
+
+  useEffect(() => {
+    console.log("unavailableDates before processing:", unavailableDates);
+
+    if (
+      unavailableDates.unavailableDates &&
+      Array.isArray(unavailableDates.unavailableDates) &&
+      unavailableDates.unavailableDates.length > 0
+    ) {
+      const formatted = unavailableDates.unavailableDates.map((item) => ({
+        date: new Date(item.date),
+        reason: item.description,
+      }));
+
+      console.log("Formatted unavailable dates:", formatted);
+      setFormattedUnavailableDates(formatted);
+    } else {
+      console.log("No valid unavailableDates found.");
+      setFormattedUnavailableDates([]);
+    }
+  }, [unavailableDates]);
 
   useEffect(() => {
     checkIfReported().then((reported) => {
@@ -699,6 +732,15 @@ function ListingDetail() {
                     ? "bg-green"
                     : "";
                 }}
+                excludeDates={formattedUnavailableDates.map(
+                  (item) => new Date(item.date)
+                )}
+                minDate={new Date()} // Prevents selecting past dates
+                maxDate={
+                  unavailableDates?.endSemesterDates?.length > 0
+                    ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                    : null
+                }
               />
             </div>
 

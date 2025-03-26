@@ -81,7 +81,7 @@ const FormField = ({
   options = [],
 }) => (
   <div className="field-container">
-    <div className="input-wrapper">
+    <div className="input-wrapper d-flex align-items-center">
       {label && <label className="label">{label}</label>}
 
       {type === "select" ? (
@@ -136,6 +136,8 @@ const AddNewItem = () => {
   const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
     useSelector((state) => state.unavailableDates);
 
+  console.log(unavailableDates);
+
   const { userId } = useSelector(selectStudentUser);
   // comment ko lang to, insufficient resources
   // const socket = io(`${baseApi}`, {
@@ -165,15 +167,23 @@ const AddNewItem = () => {
   );
 
   useEffect(() => {
-    if (unavailableDates && unavailableDates.length > 0) {
-      setFormattedUnavailableDates(
-        unavailableDates.map((item) => {
-          return {
-            date: new Date(item.date), // Convert string to Date object
-            reason: item.description, // Keep the reason
-          };
-        })
-      );
+    console.log("unavailableDates before processing:", unavailableDates);
+
+    if (
+      unavailableDates.unavailableDates &&
+      Array.isArray(unavailableDates.unavailableDates) &&
+      unavailableDates.unavailableDates.length > 0
+    ) {
+      const formatted = unavailableDates.unavailableDates.map((item) => ({
+        date: new Date(item.date),
+        reason: item.description,
+      }));
+
+      console.log("Formatted unavailable dates:", formatted);
+      setFormattedUnavailableDates(formatted);
+    } else {
+      console.log("No valid unavailableDates found.");
+      setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);
 
@@ -515,9 +525,11 @@ const AddNewItem = () => {
 
           <FormField
             label={
-              itemDataState.itemType.value === FOR_RENT
-                ? "For Rent"
-                : "For Sale"
+              itemDataState.itemType.value
+                ? itemDataState.itemType.value === FOR_RENT
+                  ? "For Rent"
+                  : "For Sale"
+                : "For Rent"
             }
             id="itemName"
             value={itemDataState.itemName.value}
