@@ -440,6 +440,22 @@ const AdminSidebar = () => {
           {(expandSidebar || isHovered) && "Audit Logs"}
         </div>
 
+        <div
+          className={`tab ${activeTab === "generate-report" ? "active" : ""} ${
+            openTabs.includes("generate-report") ? "expand" : ""
+          }`}
+          onClick={() =>
+            handleActiveTab(["generate-report", "/admin/generate-report"])
+          }
+        >
+          <img
+            src={dashboardIcon}
+            alt="Admin dashboard icon"
+            className="sidebar-icon"
+          />
+          {(expandSidebar || isHovered) && "Generate Report"}
+        </div>
+
         {/* Settings tab */}
         <div
           className={`tab ${activeTab === "settings" ? "active" : ""} ${

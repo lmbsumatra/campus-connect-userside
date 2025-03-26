@@ -83,4 +83,6 @@ router.post(
 
 router.post("/audit-logout", AdminController.logAdminLogout);
 
+router.get("/report", AdminController.reportGeneration);
+
 module.exports = router;

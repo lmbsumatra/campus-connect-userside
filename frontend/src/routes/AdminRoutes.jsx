@@ -30,6 +30,7 @@ import PostOverview from "../pages/private/admin/PostManagement/PostOverview";
 import PostApproval from "../pages/private/admin/PostManagement/PostApproval";
 import PostDashboard from "../pages/private/admin/PostManagement/PostDashboard";
 import LogsDashboard from "../pages/private/admin/auditlogs/LogsDashboard";
+import MonthlyReportGenerator from "../pages/private/admin/settings/report-generation/ReportGeneration";
 
 const AdminRoutes = [
   <Route path="/admin-login" element={<AdminLogin />} />,
@@ -93,6 +94,8 @@ const AdminRoutes = [
     <Route path="logs" element={<LogsDashboard />} />
     <Route path="settings" element={<AdminSettings />} />
     <Route path="*" element={<Navigate to="/admin/dashboard" />} />
+
+    <Route path="generate-report" element={<MonthlyReportGenerator />} />
   </Route>,
 ];
 
