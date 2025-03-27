@@ -49,8 +49,8 @@ const TableComponent = ({
             onChange={(e) => onFilterChange(header, e.target.value)}
           >
             <option value="">All</option>
-            <option value="rental">RENTAL</option>
-            <option value="sell">SALE</option>
+            <option value="rental">Rental</option>
+            <option value="sell">Sell</option>
           </select>
         );
       case "Date Added":

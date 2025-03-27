@@ -208,26 +208,29 @@ const UserDashboard = () => {
     <div className="admin-content-container">
       <div className="row">
         <div className="col-lg-8">
-          <SearchBarComponent
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-          />
+          <div className="recent-users-header  p-3 mb-3">
+            <h4>Recent Users</h4>
+            <SearchBarComponent
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
 
-          <TableComponent
-            headers={headers}
-            data={data}
-            onSortChange={handleSortChange}
-            onFilterChange={handleFilterChange}
-            statusOptions={filterableStatusOptions}
-          />
-          {loading && <p>Loading ...</p>}
-          {error && <p>Error: {error}</p>}
+            <TableComponent
+              headers={headers}
+              data={data}
+              onSortChange={handleSortChange}
+              onFilterChange={handleFilterChange}
+              statusOptions={filterableStatusOptions}
+            />
+            {loading && <p>Loading ...</p>}
+            {error && <p>Error: {error}</p>}
 
-          <PaginationComponent
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
         </div>
         <div className="col-lg-4">
           <UserAnalytics users={users} />

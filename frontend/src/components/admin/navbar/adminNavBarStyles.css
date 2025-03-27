@@ -1,63 +1,64 @@
 .nav.nav-container {
-    height: 124px;
-    width: 100%;
-    display: flex;
-    padding: 24px;
-    gap: 16px;
-    align-items: center;
-  }
-  
- .toolbar, .admin-info {
-    width: 100%;
-    border: none;
-    height: 81px;
-    border-radius: 8px;
-    background-color: white;
-    padding: 24px;
-  } 
-  
-  .toolbar {
-    width: auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .searchbar .search-icon {
-    position: absolute;
-    right: 200px;
-    top: 52px;
-    z-index: 1;
-  }
-  
-  .user-dropdown {
-    height: auto;
-    width: auto;
-    background-color: white;
-    position: absolute;
-    right: 20px;
-    top: 100px;
-  }
-  
-  .admin-info {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start; 
-    background-color: white;
-    padding: 0 24px;
-    height: 81px; 
-    border-radius: 8px;
-  }
-  
-  .admin-name {
-    font-size: 16px;
-    font-weight: bold;
-  }
-  
-  .date-time {
-    font-size: 12px;
-    color: #888;
-  }
-  
+  height: 124px;
+  width: 100%;
+  display: flex;
+  padding: 24px;
+  gap: 16px;
+  align-items: center;
+}
+
+.admin-toolbar,
+.admin-info {
+  width: 100%;
+  border: none;
+  height: 81px;
+  border-radius: 8px;
+  background-color: white;
+  padding: 24px;
+}
+
+.admin-toolbar {
+  width: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.searchbar .search-icon {
+  position: absolute;
+  right: 200px;
+  top: 52px;
+  z-index: 1;
+}
+
+.user-dropdown {
+  height: auto;
+  width: auto;
+  background-color: rgb(30, 154, 249);
+  position: absolute;
+  right: 20px;
+  top: 100px;
+}
+
+.admin-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: white;
+  padding: 0 24px;
+  height: 81px;
+  border-radius: 8px;
+}
+
+.admin-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.date-time {
+  font-size: 12px;
+  color: #888;
+}

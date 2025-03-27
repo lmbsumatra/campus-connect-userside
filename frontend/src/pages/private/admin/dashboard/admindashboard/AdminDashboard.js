@@ -196,9 +196,11 @@ const AdminDashboard = () => {
                     {activity.type === "New Listing" && (
                       <FilePlus size={20} color="#f39c12" />
                     )}
-                    {activity.type === "New Rental Transaction" && (
+                    {(activity.type === "New Rental Transaction" ||
+                      activity.type === "New Sale Transaction") && (
                       <Handshake size={20} color="#27ae60" />
                     )}
+
                     {activity.type === "New Post" && (
                       <FileText size={20} color="#e74c3c" />
                     )}

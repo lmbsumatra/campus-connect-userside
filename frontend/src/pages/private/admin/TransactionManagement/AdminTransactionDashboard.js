@@ -164,7 +164,8 @@ const AdminTransactionDashboard = () => {
         {transaction.seller?.first_name || transaction.owner?.first_name}{" "}
         {transaction.seller?.last_name || transaction.owner?.last_name}
       </>,
-      transaction.Listing?.listing_name,
+      transaction.Listing?.listing_name ||
+        transaction.ItemForSale?.item_for_sale_name,
       // transaction.amount || "N/A",
       formatDate(transaction.createdAt),
       <span className={`badge ${className}`}>{label}</span>,
@@ -183,24 +184,27 @@ const AdminTransactionDashboard = () => {
     <div className="admin-content-container">
       <div className="row">
         <div className="col-lg-8">
-          <SearchBarComponent
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-          />
-          {loading && <p>Loading ...</p>}
-          {error && <p>Error: {error}</p>}
-          <TableComponent
-            headers={headers}
-            data={data}
-            onSortChange={handleSortChange}
-            onFilterChange={handleFilterChange}
-            statusOptions={filterableStatusOptions}
-          />
-          <PaginationComponent
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+          <div className="recent-transactions-header  p-3 mb-3">
+            <h4>Recent Transactions</h4>
+            <SearchBarComponent
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+            {loading && <p>Loading ...</p>}
+            {error && <p>Error: {error}</p>}
+            <TableComponent
+              headers={headers}
+              data={data}
+              onSortChange={handleSortChange}
+              onFilterChange={handleFilterChange}
+              statusOptions={filterableStatusOptions}
+            />
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
         </div>
         <div className="col-lg-4">
           <TransactionStatusDistribution transactions={transactions} />

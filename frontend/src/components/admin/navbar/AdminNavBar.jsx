@@ -50,9 +50,7 @@ const AdminNavBar = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get(
-          `${baseApi}/api/notifications`
-        );
+        const response = await axios.get(`${baseApi}/api/notifications`);
         setNotifications(response.data);
       } catch (error) {
         console.error("Error fetching notifications:", error);
@@ -93,9 +91,7 @@ const AdminNavBar = () => {
   // Function to mark notification as read
   const handleNotificationClick = async (notificationId) => {
     try {
-      await axios.put(
-        `${baseApi}/api/notifications/${notificationId}/read`
-      );
+      await axios.put(`${baseApi}/api/notifications/${notificationId}/read`);
       setNotifications((prev) =>
         prev.map((notif) =>
           notif.id === notificationId ? { ...notif, isRead: true } : notif
@@ -119,7 +115,7 @@ const AdminNavBar = () => {
         )}
       </div>
 
-      <div className="toolbar d-flex">
+      <div className="admin-toolbar d-flex">
         <div ref={notificationsRef} onClick={toggleNotifications}>
           <Notification
             showNotifications={openPopup === "notifications"}
