@@ -4,13 +4,13 @@ module.exports = ({ emitNotification }) => {
   const createTransactionReport = async (req, res) => {
     try {
       const { transaction_id, transaction_type, reason } = req.body;
-      const files = req.files;
+      const files = req.files || []; // Ensure files is an array
       const reporterId = req.user.userId;
 
       // Standardize transaction type handling
       const normalizedType = transaction_type;
 
-      // Always use RentalTransaction model since it appears to handle both types
+      // Use RentalTransaction model to fetch transaction details
       const transaction = await models.RentalTransaction.findByPk(
         transaction_id,
         {
@@ -22,7 +22,8 @@ module.exports = ({ emitNotification }) => {
                 ]
               : [
                   { model: models.User, as: "buyer" },
-                  { model: models.User, as: "owner" },
+                  { model: models.User, as: "seller" }, // Assuming seller association exists
+                  { model: models.User, as: "owner" }, // Fallback if seller isn't set
                   { model: models.ItemForSale },
                 ],
         }
@@ -32,33 +33,52 @@ module.exports = ({ emitNotification }) => {
         return res.status(404).json({ error: "Transaction not found" });
       }
 
-      // Determine reported user ID first
+      // Determine reported user ID more robustly
       let reportedUserId;
       if (normalizedType === "rental") {
+        // Reporter is either the renter or the listing owner
         reportedUserId =
           transaction.renter_id === reporterId
-            ? transaction.Listing.owner_id
+            ? transaction.Listing?.owner_id
             : transaction.renter_id;
       } else {
-        // For sell transactions, use seller_id if available, otherwise fall back to owner_id
+        // 'sell' type
+        // Determine seller and buyer IDs
+        const buyerId = transaction.buyer_id;
+        // Prefer seller_id if explicitly set, otherwise fallback to owner_id (associated via ItemForSale)
         const sellerId = transaction.seller_id || transaction.owner_id;
-        reportedUserId =
-          transaction.buyer_id === reporterId ? sellerId : transaction.buyer_id;
+
+        // console.log(`Sell Tx: Buyer=${buyerId}, Seller=${sellerId}, Reporter=${reporterId}`);
+
+        // Reportee is the other party in the transaction
+        if (reporterId === buyerId) {
+          reportedUserId = sellerId;
+        } else if (reporterId === sellerId) {
+          reportedUserId = buyerId;
+        } else {
+          // Edge case: If the reporter is neither buyer nor seller (e.g., admin initiating?), handle appropriately.
+          // For now, assume reporter must be one of the parties.
+          return res
+            .status(400)
+            .json({ error: "Reporter is not part of this sale transaction." });
+        }
       }
 
-      console.log("Transaction:", transaction);
-      console.log("Reporter ID:", reporterId);
-      console.log("Reported User ID:", reportedUserId);
-      console.log("Transaction type:", normalizedType);
-      console.log("Buyer ID:", transaction.buyer_id);
-      console.log("Seller ID:", transaction.seller_id);
-      console.log("Owner ID:", transaction.owner_id);
+      // console.log("Transaction:", JSON.stringify(transaction, null, 2));
+      // console.log("Reporter ID:", reporterId);
+      // console.log("Reported User ID:", reportedUserId);
+      // console.log("Transaction type:", normalizedType);
 
-      // Validate reported user ID exists
       if (!reportedUserId) {
+        console.error(
+          "Could not determine reported user for transaction:",
+          transaction_id,
+          "type:",
+          normalizedType
+        );
         return res
           .status(400)
-          .json({ error: "Could not determine reported user" });
+          .json({ error: "Could not determine the user to be reported" });
       }
 
       const reportData = {
@@ -67,37 +87,61 @@ module.exports = ({ emitNotification }) => {
         report_description: reason,
         status: "open",
         transaction_type: normalizedType,
-        rental_transaction_id: transaction_id,
+        // Correctly link based on the type if your model structure demands it
+        rental_transaction_id: transaction_id, // Assuming rental_transaction_id covers both rental and sell
+        // Or potentially use separate keys like:
+        // ...(normalizedType === 'rental' ? { rental_transaction_id: transaction_id } : {}),
+        // ...(normalizedType === 'sell' ? { sale_transaction_id: transaction_id } : {}), // If you add sale_transaction_id
       };
 
       const report = await models.TransactionReport.create(reportData);
 
       // Handle file uploads
-      const evidence = await Promise.all(
-        files.map((file) =>
-          models.TransactionEvidence.create({
-            transaction_report_id: report.id,
-            file_path: file.path,
-            uploaded_by_id: reporterId,
-          })
-        )
-      );
+      let evidence = [];
+      if (files && files.length > 0) {
+        evidence = await Promise.all(
+          files.map((file) =>
+            models.TransactionEvidence.create({
+              transaction_report_id: report.id,
+              file_path: file.path, // Ensure multer saves the path correctly
+              uploaded_by_id: reporterId,
+            })
+          )
+        );
+      }
 
-      // Create notification
+      // Create notification for the reported user
       const notification = await models.StudentNotification.create({
         sender_id: reporterId,
         recipient_id: reportedUserId,
         type: "transaction_report",
-        message: `New ${normalizedType} report filed against you`,
+        message: `A new ${normalizedType} report (ID: ${report.id}) has been filed regarding transaction #${transaction_id}. You were involved in this transaction.`,
         transaction_report_id: report.id,
-        transaction_id,
+        transaction_id: transaction_id, // Include transaction ID for context
       });
 
       if (emitNotification) {
         emitNotification(reportedUserId, notification.toJSON());
       }
 
-      res.status(201).json({ report, evidence });
+      // Fetch the created report with associations to return full details
+      const fullReport = await models.TransactionReport.findByPk(report.id, {
+        include: [
+          {
+            model: models.User,
+            as: "reporter",
+            attributes: ["user_id", "first_name", "last_name"],
+          },
+          {
+            model: models.User,
+            as: "reported",
+            attributes: ["user_id", "first_name", "last_name"],
+          },
+          { model: models.TransactionEvidence, as: "evidence" },
+        ],
+      });
+
+      res.status(201).json({ report: fullReport, evidence }); // Return the full report object
     } catch (error) {
       console.error("Error in createTransactionReport:", error);
       res.status(500).json({ error: error.message });
@@ -108,146 +152,610 @@ module.exports = ({ emitNotification }) => {
     try {
       const { reportId } = req.params;
       const { response: responseText } = req.body;
-      const files = req.files || [];
+      const files = req.files || []; // Ensure files is an array
+      const responderUserId = req.user.userId; // Use the authenticated user's ID
 
-      const report = await models.TransactionReport.findByPk(reportId);
+      const report = await models.TransactionReport.findByPk(reportId, {
+        include: [
+          // Include associated users to determine roles
+          { model: models.User, as: "reporter", attributes: ["user_id"] },
+          { model: models.User, as: "reported", attributes: ["user_id"] },
+        ],
+      });
+
       if (!report) return res.status(404).json({ error: "Report not found" });
+
+      // Authorization: Only reporter or reported user can add a response
+      if (
+        responderUserId !== report.reporter_id &&
+        responderUserId !== report.reported_id
+      ) {
+        return res
+          .status(403)
+          .json({ error: "Unauthorized: You cannot respond to this report." });
+      }
+
+      // Check if the report is already resolved or escalated
+      if (report.status === "resolved" || report.status === "escalated") {
+        return res.status(400).json({
+          error: `Cannot add response. Report is already ${report.status}.`,
+        });
+      }
 
       const newResponse = await models.TransactionReportResponse.create({
         transaction_report_id: report.id,
-        user_id: req.user.userId,
+        user_id: responderUserId, // Save who made the response
         response_text: responseText,
       });
 
-      const evidenceRecords = await Promise.all(
-        files.map((file) =>
-          models.TransactionEvidence.create({
-            transaction_report_id: report.id,
-            transaction_report_response_id: newResponse.id,
-            file_path: file.path,
-            uploaded_by_id: req.user.userId,
-          })
-        )
-      );
+      // Handle evidence uploads associated with this response
+      let evidenceRecords = [];
+      if (files && files.length > 0) {
+        evidenceRecords = await Promise.all(
+          files.map((file) =>
+            models.TransactionEvidence.create({
+              transaction_report_id: report.id,
+              transaction_report_response_id: newResponse.id, // Link evidence to the response
+              file_path: file.path,
+              uploaded_by_id: responderUserId, // Save who uploaded the evidence
+            })
+          )
+        );
+      }
 
+      // Update report status to 'under_review' if it was 'open'
       if (report.status === "open") {
         await report.update({ status: "under_review" });
       }
 
+      // Determine the recipient of the notification (the *other* party)
+      const recipientId =
+        responderUserId === report.reporter_id
+          ? report.reported_id
+          : report.reporter_id;
+
+      // Create notification for the *other* party involved in the report
       const notification = await models.StudentNotification.create({
-        sender_id: req.user.userId,
-        recipient_id: report.reporter_id,
+        sender_id: responderUserId, // The user who added the response
+        recipient_id: recipientId, // The other user involved in the report
         type: "transaction_report_response",
-        message: `New response posted for your ${report.transaction_type} report #${report.id}`,
+        message: `A new response has been added to the ${report.transaction_type} report (ID: ${report.id}).`,
         transaction_report_id: report.id,
       });
 
-      if (emitNotification) {
-        emitNotification(report.reporter_id, notification.toJSON());
+      if (emitNotification && recipientId) {
+        emitNotification(recipientId, notification.toJSON());
       }
+
+      // Fetch the new response with associated evidence to return
+      const fullResponse = await models.TransactionReportResponse.findByPk(
+        newResponse.id,
+        {
+          include: [{ model: models.TransactionEvidence, as: "evidence" }],
+        }
+      );
 
       return res.status(201).json({
         message: "Response added successfully",
-        response: newResponse,
-        evidence: evidenceRecords,
+        response: fullResponse, // Return the response with its evidence
+        // evidence: evidenceRecords, // Redundant if included in fullResponse
+        updatedReportStatus:
+          report.status === "open" ? "under_review" : report.status, // Inform client of potential status change
       });
     } catch (error) {
-      // console.error("Error in addResponse:", error);
+      console.error("Error in addResponse:", error);
       return res.status(500).json({ error: error.message });
     }
   };
+
+  // Fetch all reports
   const getAllTransactionReports = async (req, res) => {
     try {
       const reports = await models.TransactionReport.findAll({
         include: [
-          { model: models.User, as: "reporter" },
-          { model: models.User, as: "reported" },
-          { model: models.TransactionEvidence, as: "evidence" },
+          // Reporter User + Student Profile Pic
+          {
+            model: models.User,
+            as: "reporter",
+            attributes: ["user_id", "first_name", "last_name"],
+            include: [
+              {
+                model: models.Student,
+                as: "student",
+                attributes: ["profile_pic"],
+                required: false,
+              },
+            ],
+          },
+          // Reported User + Student Profile Pic
+          {
+            model: models.User,
+            as: "reported",
+            attributes: ["user_id", "first_name", "last_name"],
+            include: [
+              {
+                model: models.Student,
+                as: "student",
+                attributes: ["profile_pic"],
+                required: false,
+              },
+            ],
+          },
+          // Evidence
+          {
+            model: models.TransactionEvidence,
+            as: "evidence",
+            attributes: ["id", "file_path", "uploaded_by_id"],
+            required: false,
+          },
+          // Rental Transaction (Corrected Attributes)
           {
             model: models.RentalTransaction,
             as: "rentalTransaction",
-            include: [{ model: models.Listing }, { model: models.ItemForSale }],
+            // Select only columns that exist in rental_transactions table
+            attributes: ["id", "item_id", "transaction_type"], // REMOVED listing_id, item_for_sale_id
+            required: false,
+            include: [
+              // These nested includes are correct and use item_id for joining
+              {
+                model: models.Listing,
+                attributes: ["id", "listing_name"],
+                required: false,
+              },
+              {
+                model: models.ItemForSale,
+                attributes: ["id", "item_for_sale_name"],
+                required: false,
+              },
+            ],
+          },
+          // Responses (Limited)
+          {
+            model: models.TransactionReportResponse,
+            as: "responses",
+            attributes: ["id", "user_id", "createdAt"],
+            limit: 1,
+            order: [["createdAt", "DESC"]],
+            required: false,
           },
         ],
         order: [["createdAt", "DESC"]],
       });
       res.status(200).json(reports);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error("Error fetching all transaction reports:", error);
+      res.status(500).json({
+        error: "Failed to retrieve transaction reports",
+        details: error.message,
+      });
+    }
+  };
+  const getEscalatedTransactionReports = async (req, res) => {
+    try {
+      const reports = await models.TransactionReport.findAll({
+        where: {
+          status: {
+            [Op.or]: ["escalated", "admin_review"], // Fetch reports escalated OR already under admin review
+          },
+        },
+        // Include necessary details for the admin queue view
+        include: [
+          {
+            model: models.User,
+            as: "reporter",
+            attributes: ["user_id", "first_name", "last_name"],
+            include: [
+              {
+                model: models.Student,
+                as: "student",
+                attributes: ["profile_pic"],
+                required: false,
+              },
+            ],
+          },
+          {
+            model: models.User,
+            as: "reported",
+            attributes: ["user_id", "first_name", "last_name"],
+            include: [
+              {
+                model: models.Student,
+                as: "student",
+                attributes: ["profile_pic"],
+                required: false,
+              },
+            ],
+          },
+          // Maybe include transaction details briefly
+          {
+            model: models.RentalTransaction,
+            as: "rentalTransaction",
+            attributes: ["id", "item_id", "transaction_type"],
+            required: false,
+            include: [
+              {
+                model: models.Listing,
+                attributes: ["id", "listing_name"],
+                required: false,
+              },
+              {
+                model: models.ItemForSale,
+                attributes: ["id", "item_for_sale_name"],
+                required: false,
+              },
+            ],
+          },
+        ],
+        order: [["createdAt", "ASC"]], // Process older escalated reports first
+      });
+      res.status(200).json(reports);
+    } catch (error) {
+      console.error("Error fetching escalated transaction reports:", error);
+      res.status(500).json({
+        error: "Failed to retrieve escalated reports",
+        details: error.message,
+      });
+    }
+  };
+
+  // --- NEW: Admin action on an escalated report ---
+  const updateEscalatedReportStatusByAdmin = async (req, res) => {
+    try {
+      const { reportId } = req.params;
+      const adminUserId = req.adminUser?.adminId; // Get admin ID from admin auth middleware
+      const { newStatus, resolutionNotes, actionTaken } = req.body;
+
+      // Validate input
+      if (!adminUserId) {
+        return res
+          .status(403)
+          .json({ error: "Forbidden: Admin privileges required." });
+      }
+      const validAdminStatuses = [
+        "admin_review",
+        "admin_resolved",
+        "admin_dismissed",
+      ];
+      const validActions = [
+        "none",
+        "warning_issued",
+        "temp_ban_24h",
+        "temp_ban_48h",
+        "temp_ban_72h",
+        "perm_ban",
+      ];
+
+      if (!newStatus || !validAdminStatuses.includes(newStatus)) {
+        return res.status(400).json({
+          error: `Invalid status provided. Must be one of: ${validAdminStatuses.join(
+            ", "
+          )}`,
+        });
+      }
+      // actionTaken is required only if resolving, optional otherwise
+      if (
+        newStatus === "admin_resolved" &&
+        (!actionTaken || !validActions.includes(actionTaken))
+      ) {
+        return res.status(400).json({
+          error: `Invalid or missing actionTaken for resolved status. Must be one of: ${validActions.join(
+            ", "
+          )}`,
+        });
+      }
+      // resolutionNotes are recommended when resolving/dismissing
+      if (
+        (newStatus === "admin_resolved" || newStatus === "admin_dismissed") &&
+        !resolutionNotes
+      ) {
+        console.warn(
+          `Admin resolution notes missing for report ${reportId} status ${newStatus}`
+        ); // Log warning, but don't block
+      }
+
+      const report = await models.TransactionReport.findByPk(reportId, {
+        include: [
+          // Include users for notifications
+          {
+            model: models.User,
+            as: "reporter",
+            attributes: ["user_id", "email"],
+          },
+          {
+            model: models.User,
+            as: "reported",
+            attributes: ["user_id", "email"],
+          }, // Include email if sending email notifications
+        ],
+      });
+
+      if (!report) {
+        return res.status(404).json({ error: "Report not found." });
+      }
+
+      // Ensure report is in a state admin can action
+      if (!["escalated", "admin_review"].includes(report.status)) {
+        return res.status(400).json({
+          error: `Report status is '${report.status}', cannot perform admin action.`,
+        });
+      }
+
+      // Prepare update data
+      const updateData = {
+        status: newStatus,
+        resolved_by_admin_id: adminUserId,
+        admin_resolution_notes:
+          resolutionNotes || report.admin_resolution_notes, // Keep old notes if not provided
+        // Only set actionTaken if resolving, otherwise nullify or keep existing if just reviewing
+        admin_action_taken:
+          newStatus === "admin_resolved"
+            ? actionTaken
+            : newStatus === "admin_review"
+            ? report.admin_action_taken
+            : null,
+      };
+
+      await report.update(updateData);
+
+      // --- Trigger Side Effects (e.g., Ban Logic, Notifications) ---
+      if (
+        newStatus === "admin_resolved" &&
+        actionTaken &&
+        actionTaken !== "none" &&
+        actionTaken !== "warning_issued"
+      ) {
+        console.log(
+          `TODO: Trigger BAN LOGIC for user ${report.reported_id} based on action: ${actionTaken}`
+        );
+        // Example: BanService.applyBan(report.reported_id, actionTaken, `Transaction Report ID: ${report.id}`);
+        // Ensure this logic updates the user's status in the User/Student model appropriately.
+      }
+
+      // Send Notifications (Example using emitNotification)
+      const notifyMessageReporter = `Admin has updated the status of your transaction report #${reportId} to '${newStatus}'. Decision: ${
+        actionTaken || "N/A"
+      }. Notes: ${resolutionNotes || "N/A"}`;
+      const notifyMessageReported = `Admin has reviewed transaction report #${reportId} involving you. Status updated to '${newStatus}'. Decision: ${
+        actionTaken || "N/A"
+      }. Notes: ${resolutionNotes || "N/A"}`;
+
+      if (emitNotification) {
+        if (report.reporter_id) {
+          const notifReporter = await models.StudentNotification.create({
+            sender_id: adminUserId,
+            recipient_id: report.reporter_id,
+            type: "admin_report_update",
+            message: notifyMessageReporter,
+            transaction_report_id: report.id,
+          });
+          emitNotification(report.reporter_id, notifReporter.toJSON());
+        }
+        if (report.reported_id) {
+          const notifReported = await models.StudentNotification.create({
+            sender_id: adminUserId,
+            recipient_id: report.reported_id,
+            type: "admin_report_update",
+            message: notifyMessageReported,
+            transaction_report_id: report.id,
+          });
+          emitNotification(report.reported_id, notifReported.toJSON());
+        }
+      }
+
+      res.status(200).json({
+        message: "Report status updated successfully by admin.",
+        updatedReport: report,
+      });
+    } catch (error) {
+      console.error("Error updating escalated report status by admin:", error);
+      res.status(500).json({
+        error: "Failed to update report status",
+        details: error.message,
+      });
     }
   };
 
   const getTransactionReportById = async (req, res) => {
     try {
       const { reportId } = req.params;
+      const userId = req.user?.userId;
+      const adminId = req.adminUser?.adminId;
 
-      // Fetch the report first to determine transaction type
-      const initialReport = await models.TransactionReport.findByPk(reportId);
-      if (!initialReport)
-        return res.status(404).json({ error: "Report not found" });
-
-      // Determine transaction includes based on transaction_type
-      const transactionInclude = {
-        model: models.RentalTransaction,
-        as: "rentalTransaction",
-        include:
-          initialReport.transaction_type === "rental"
-            ? [{ model: models.Listing }]
-            : [{ model: models.ItemForSale }],
-      };
-
-      // Refetch the report with correct includes
-      const fullReport = await models.TransactionReport.findByPk(reportId, {
+      const report = await models.TransactionReport.findByPk(reportId, {
         include: [
-          { model: models.User, as: "reporter" },
-          { model: models.User, as: "reported" },
-          { model: models.TransactionEvidence, as: "evidence" },
+          // Reporter User + Profile
+          {
+            model: models.User,
+            as: "reporter",
+            attributes: ["user_id", "first_name", "last_name"],
+            include: [
+              {
+                model: models.Student,
+                as: "student",
+                attributes: ["profile_pic"],
+                required: false,
+              },
+            ],
+          },
+          // Reported User + Profile
+          {
+            model: models.User,
+            as: "reported",
+            attributes: ["user_id", "first_name", "last_name"],
+            include: [
+              {
+                model: models.Student,
+                as: "student",
+                attributes: ["profile_pic"],
+                required: false,
+              },
+            ],
+          },
+          // Admin Resolver + Profile
+          {
+            model: models.User,
+            as: "resolvedByAdmin",
+            attributes: ["user_id", "first_name", "last_name"],
+            include: [
+              {
+                model: models.Student,
+                as: "student",
+                attributes: ["profile_pic"],
+                required: false,
+              },
+            ],
+            required: false,
+          },
+
+          {
+            model: models.TransactionEvidence,
+            as: "evidence",
+            where: { transaction_report_response_id: null },
+            required: false,
+          },
+          // Responses
           {
             model: models.TransactionReportResponse,
             as: "responses",
-            include: [{ model: models.TransactionEvidence, as: "evidence" }],
+            required: false,
+            include: [
+              {
+                model: models.User,
+                as: "user",
+                attributes: ["user_id", "first_name", "last_name"],
+
+                include: [
+                  {
+                    model: models.Student,
+                    as: "student",
+                    attributes: ["profile_pic"],
+                    required: false,
+                  },
+                ],
+              },
+
+              {
+                model: models.TransactionEvidence,
+                as: "evidence",
+                required: false,
+              },
+            ],
           },
-          transactionInclude,
+          // Rental Transaction
+          {
+            model: models.RentalTransaction,
+            as: "rentalTransaction",
+            required: false,
+            include: [
+              {
+                model: models.Listing,
+
+                attributes: ["id", "listing_name", "owner_id"],
+                required: false,
+              },
+
+              {
+                model: models.ItemForSale,
+
+                attributes: ["id", "item_for_sale_name", "seller_id"],
+                required: false,
+              },
+            ],
+          },
+        ],
+        order: [
+          // Ensure responses are ordered chronologically
+          [
+            { model: models.TransactionReportResponse, as: "responses" },
+            "createdAt",
+            "ASC",
+          ],
         ],
       });
 
-      return res.status(200).json(fullReport);
+      if (!report) {
+        return res.status(404).json({ error: "Report not found" });
+      }
+
+      // Access Control (Admin OR Involved Student)
+      const isReporter = userId === report.reporter_id;
+      const isReported = userId === report.reported_id;
+      const isAdmin = !!adminId;
+
+      if (!isAdmin && !isReporter && !isReported) {
+        return res.status(403).json({
+          error: "Forbidden: You do not have permission to view this report.",
+        });
+      }
+      return res.status(200).json(report);
     } catch (error) {
       console.error("Error in getTransactionReportById:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({
+        error: "Failed to retrieve report details",
+        details: error.message,
+      });
     }
   };
 
   const markReportResolved = async (req, res) => {
     try {
       const { reportId } = req.params;
-      const report = await models.TransactionReport.findByPk(reportId);
+      const reporterUserId = req.user.userId; // Get the ID of the user making the request
+
+      const report = await models.TransactionReport.findByPk(reportId, {
+        include: [
+          // Include reported user for notification
+          { model: models.User, as: "reported", attributes: ["user_id"] },
+        ],
+      });
 
       if (!report) return res.status(404).json({ error: "Report not found" });
 
-      // Ensure only the reporter can mark it as resolved
-      if (req.user.userId !== report.reporter_id) {
-        return res.status(403).json({ error: "Unauthorized action" });
+      // Authorization: Ensure only the original reporter can mark it as resolved
+      if (reporterUserId !== report.reporter_id) {
+        return res.status(403).json({
+          error:
+            "Unauthorized: Only the reporter can mark this report as resolved.",
+        });
+      }
+
+      // Check if the report is already resolved or escalated
+      if (report.status === "resolved") {
+        return res
+          .status(400)
+          .json({ error: "Report is already marked as resolved." });
+      }
+      if (report.status === "escalated") {
+        return res.status(400).json({
+          error: "Cannot resolve an escalated report. Admin action required.",
+        });
       }
 
       await report.update({ status: "resolved" });
 
-      // Create notification for the reportee
-      const notification = await models.StudentNotification.create({
-        sender_id: report.reporter_id,
-        recipient_id: report.reported_id, // Notify the reportee
-        type: "report_resolved",
-        message: `The report filed against you has been marked as resolved.`,
-        transaction_report_id: report.id,
-      });
+      // Create notification for the reported user
+      if (report.reported_id) {
+        // Ensure reported_id exists
+        const notification = await models.StudentNotification.create({
+          sender_id: report.reporter_id, // Action performed by the reporter
+          recipient_id: report.reported_id, // Notify the person who was reported
+          type: "report_resolved",
+          message: `The transaction report (ID: ${report.id}) filed against you has been marked as resolved by the reporter.`,
+          transaction_report_id: report.id,
+        });
 
-      // Emit notification in real-time
-      if (emitNotification) {
-        emitNotification(report.reported_id, notification.toJSON());
+        // Emit notification in real-time if service is available
+        if (emitNotification) {
+          emitNotification(report.reported_id, notification.toJSON());
+        }
       }
 
-      return res.status(200).json({ message: "Report marked as resolved" });
+      return res.status(200).json({
+        message: "Report successfully marked as resolved",
+        newStatus: "resolved",
+      });
     } catch (error) {
+      console.error("Error marking report as resolved:", error);
       res.status(500).json({ error: error.message });
     }
   };
@@ -255,43 +763,76 @@ module.exports = ({ emitNotification }) => {
   const escalateReport = async (req, res) => {
     try {
       const { reportId } = req.params;
-      const report = await models.TransactionReport.findByPk(reportId);
+      const reporterUserId = req.user.userId; // Get the ID of the user making the request
+
+      const report = await models.TransactionReport.findByPk(reportId, {
+        include: [
+          // Include reported user for notification
+          { model: models.User, as: "reported", attributes: ["user_id"] },
+        ],
+      });
 
       if (!report) return res.status(404).json({ error: "Report not found" });
 
-      // Ensure only the reporter can escalate the report
-      if (req.user.userId !== report.reporter_id) {
-        return res.status(403).json({ error: "Unauthorized action" });
+      // Authorization: Ensure only the original reporter can escalate the report
+      if (reporterUserId !== report.reporter_id) {
+        return res.status(403).json({
+          error: "Unauthorized: Only the reporter can escalate this report.",
+        });
+      }
+
+      // Check if the report is already resolved or escalated
+      if (report.status === "resolved") {
+        return res
+          .status(400)
+          .json({ error: "Cannot escalate a resolved report." });
+      }
+      if (report.status === "escalated") {
+        return res.status(400).json({ error: "Report is already escalated." });
       }
 
       await report.update({ status: "escalated" });
 
-      // Create notification for the reportee
-      const notification = await models.StudentNotification.create({
-        sender_id: report.reporter_id,
-        recipient_id: report.reported_id, // Notify the reportee
-        type: "report_escalated",
-        message: `The report filed against you has been escalated for admin review.`,
-        transaction_report_id: report.id,
-      });
+      // Create notification for the reported user
+      if (report.reported_id) {
+        // Ensure reported_id exists
+        const notificationToReported = await models.StudentNotification.create({
+          sender_id: report.reporter_id, // Action by the reporter
+          recipient_id: report.reported_id, // Notify the reported user
+          type: "report_escalated",
+          message: `The transaction report (ID: ${report.id}) involving you has been escalated for admin review.`,
+          transaction_report_id: report.id,
+        });
 
-      // Emit notification in real-time
-      if (emitNotification) {
-        emitNotification(report.reported_id, notification.toJSON());
+        // Emit notification to the reported user
+        if (emitNotification) {
+          emitNotification(report.reported_id, notificationToReported.toJSON());
+        }
       }
 
-      return res.status(200).json({ message: "Report escalated to admin" });
+      // TODO: Notify Admins (Requires admin notification system/logic)
+      // Example: await notifyAdmins(`Transaction report ${report.id} has been escalated.`);
+
+      return res.status(200).json({
+        message: "Report successfully escalated to admin review",
+        newStatus: "escalated",
+      });
     } catch (error) {
+      console.error("Error escalating report:", error);
       res.status(500).json({ error: error.message });
     }
   };
+
+  // --- ADMIN ACTIONS ---
 
   return {
     createTransactionReport,
     addResponse,
     getAllTransactionReports,
+    getEscalatedTransactionReports,
     getTransactionReportById,
-    markReportResolved,
-    escalateReport,
+    markReportResolved, // Student action
+    escalateReport, // Student action
+    updateEscalatedReportStatusByAdmin, // Admin action
   };
 };

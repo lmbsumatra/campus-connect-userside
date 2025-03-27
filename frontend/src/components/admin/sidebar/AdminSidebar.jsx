@@ -54,6 +54,8 @@ const AdminSidebar = () => {
 
       if (path.includes("report-overview")) {
         setActiveSubTab("reportsOverview");
+      } else if (path.includes("transaction-reports")) {
+        setActiveSubTab("transactionReports");
       }
     } else if (path.includes("/admin/transactions")) {
       setActiveTab("transactions");
@@ -372,6 +374,24 @@ const AdminSidebar = () => {
                 }`}
               ></div>
               {(expandSidebar || isHovered) && <>Reports Overview</>}
+            </div>
+            <div
+              className={`sub-tab ${
+                activeSubTab === "transactionReports" ? "active" : ""
+              }`}
+              onClick={() =>
+                handleActiveTab([
+                  "transactionReports",
+                  "/admin/reports/transaction-reports",
+                ])
+              }
+            >
+              <div
+                className={`indication ${
+                  activeSubTab === "transactionReports" ? "active" : ""
+                }`}
+              ></div>
+              {(expandSidebar || isHovered) && <>Transaction Reports</>}
             </div>
           </div>
         </div>

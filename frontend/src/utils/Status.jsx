@@ -7,7 +7,7 @@ export const ItemStatus = (status) => {
     case "revoked":
       return { label: "Removal Revoked", className: "bg-info text-white" };
     case "pending":
-      return { label: "Pending", className: "bg-warning text-white" };
+      return { label: "Pending", className: "bg-warning text-white" }; // Changed from text-dark
     case "removed":
       return { label: "Removed", className: "bg-danger text-white" };
     case "flagged":
@@ -20,11 +20,11 @@ export const ItemStatus = (status) => {
 export const StudentStatus = (status) => {
   switch (status) {
     case "verified":
-      return { label: "verified", className: "bg-success text-white" };
+      return { label: "Verified", className: "bg-success text-white" }; // Changed label case
     case "banned":
-      return { label: "Banned", className: "bg-warning text-dark" };
+      return { label: "Banned", className: "bg-danger text-white" }; // Changed class to danger
     case "pending":
-      return { label: "Pending", className: "bg-warning text-white" };
+      return { label: "Pending", className: "bg-warning text-dark" }; // Changed text color
     case "flagged":
       return { label: "Flagged", className: "bg-primary text-white" };
     default:
@@ -56,19 +56,46 @@ export const TransactionStatus = (status) => {
       return { label: "Unknown", className: "bg-light text-dark" };
   }
 };
-  
 
 export const ReportStatus = (status) => {
   switch (status) {
     case "pending":
       return { label: "Pending", className: "bg-warning text-dark" };
-    case "reviewed":
-      return { label: "Reviewed", className: "bg-success text-white" };
+    case "under_review": // Added missing status
+      return { label: "Under Review", className: "bg-info text-white" };
     case "dismissed":
       return { label: "Dismissed", className: "bg-secondary text-white" };
-      case "resolved":
-        return { label: "Resolved", className: "bg-primary text-white" };
+    case "resolved":
+      return { label: "Resolved", className: "bg-success text-white" }; // Changed class to success
     default:
       return { label: "Unknown", className: "bg-light text-dark" };
+  }
+};
+
+// Status function for Transaction Reports
+export const TransactionReportStatus = (status) => {
+  const lowerStatus = status?.toLowerCase();
+
+  switch (lowerStatus) {
+    // Student-centric statuses
+    case "open":
+      return { label: "Open", className: "bg-warning text-dark" };
+    case "under_review": // After first response
+      return { label: "Under Review", className: "bg-info text-white" };
+    case "resolved": // Resolved by reporter
+      return { label: "Resolved", className: "bg-success text-white" };
+    case "escalated": // Escalated to admin
+      return { label: "Escalated", className: "bg-danger text-white" };
+
+    // Admin-centric statuses
+    case "admin_review":
+      return { label: "Admin Review", className: "bg-primary text-white" };
+    case "admin_resolved":
+      return { label: "Admin Resolved", className: "bg-dark text-white" };
+    case "admin_dismissed":
+      return { label: "Admin Dismissed", className: "bg-secondary text-white" };
+
+    default:
+      return { label: status || "Unknown", className: "bg-light text-dark" };
   }
 };

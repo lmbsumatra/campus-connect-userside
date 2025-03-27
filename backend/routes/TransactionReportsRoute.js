@@ -2,45 +2,75 @@ const express = require("express");
 const router = express.Router();
 const TransactionReportController = require("../controllers/TransactionReportController");
 const { uploadEvidence } = require("../config/multer");
-const authenticateToken = require("../middlewares/StudentAuthMiddleware");
+const authenticateStudentToken = require("../middlewares/StudentAuthMiddleware");
+const {
+  authenticateToken: authenticateAdminToken,
+} = require("../middlewares/AdminAuthMiddleware");
 
 module.exports = (dependencies) => {
-  router.get(
-    "/:reportId",
-    authenticateToken,
-    TransactionReportController(dependencies).getTransactionReportById
-  );
+  const controller = TransactionReportController(dependencies);
 
+  // GET All Reports (Admin Only) - Protected by Admin Auth
   router.get(
     "/",
-    authenticateToken,
-    TransactionReportController(dependencies).getAllTransactionReports
+    authenticateAdminToken, // Use Admin Auth
+    controller.getAllTransactionReports
   );
 
+  // GET Escalated Reports (Admin Only) ---
+  router.get(
+    "/escalated", // Specific endpoint for admin queue
+    authenticateAdminToken,
+    controller.getEscalatedTransactionReports
+  );
+
+  // GET Single Report (Admin)
+  router.get(
+    "/admin/:reportId", // Specific admin path
+    authenticateAdminToken, // Use only Admin Auth
+    controller.getTransactionReportById // Controller checks req.adminUser
+  );
+  // GET Single Report (Student)
+  router.get(
+    "/student/:reportId", // Specific student path
+    authenticateStudentToken, // Use only Student Auth
+    controller.getTransactionReportById // Controller checks req.user involvement
+  );
+
+  // POST Create Report (Student Action)
   router.post(
     "/",
-    authenticateToken,
+    authenticateStudentToken,
     uploadEvidence,
-    TransactionReportController(dependencies).createTransactionReport
+    controller.createTransactionReport
   );
 
+  // POST Add Response (Student - Reporter or Reportee)
   router.post(
     "/:reportId/response",
-    authenticateToken,
+    authenticateStudentToken, // Student action
     uploadEvidence,
-    TransactionReportController(dependencies).addResponse
+    controller.addResponse
   );
 
+  // PUT Mark as Resolved (Student - Reporter Only)
   router.put(
     "/:reportId/resolve",
-    authenticateToken,
-    TransactionReportController(dependencies).markReportResolved
+    authenticateStudentToken, // Student action
+    controller.markReportResolved
   );
 
+  // PUT Escalate Report (Reporter Only)
   router.put(
     "/:reportId/escalate",
-    authenticateToken,
-    TransactionReportController(dependencies).escalateReport
+    authenticateStudentToken, // Student action
+    controller.escalateReport
+  );
+  // PUT Admin Action ---
+  router.put(
+    "/:reportId/admin-action", // Specific endpoint for admin updates
+    authenticateAdminToken,
+    controller.updateEscalatedReportStatusByAdmin
   );
 
   return router;

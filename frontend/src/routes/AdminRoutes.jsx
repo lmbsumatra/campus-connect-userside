@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Navigate } from "react-router-dom";
+import { Route, Navigate, useParams, Outlet } from "react-router-dom";
 import Admin from "../pages/private/admin/Admin";
 import AdminDashboard from "../pages/private/admin/dashboard/admindashboard/AdminDashboard";
 import AdminLogin from "../pages/private/admin/login/AdminLogin";
@@ -24,6 +24,8 @@ import AdminTransactionOverview from "../pages/private/admin/TransactionManageme
 import ReportDashboard from "../pages/private/admin/ReportManagement/ReportDashboard";
 import ReportItemView from "../pages/private/admin/ReportManagement/ReportItemView";
 import ReportOverview from "../pages/private/admin/ReportManagement/ReportOverview";
+import TransactionReportOverview from "../pages/private/admin/ReportManagement/TransactionReportOverview";
+import TransactionReportItem from "../pages/private/admin/ReportManagement/TransactionReportItem";
 import SaleOverview from "../pages/private/admin/SaleManagement/SaleOverview";
 import ForSaleManagement from "../pages/private/admin/SaleManagement/ForSaleManagement";
 import PostOverview from "../pages/private/admin/PostManagement/PostOverview";
@@ -75,12 +77,25 @@ const AdminRoutes = [
     <Route path="sales/item-approval/:id" element={<ItemForSaleApproval />} />
 
     {/* REPORT MANAGEMENT */}
-    <Route path="reports" element={<ReportDashboard />} />
-    <Route path="reports/report-overview" element={<ReportOverview />} />
-    <Route
-      path="reports/:entity_type/:reported_entity_id"
-      element={<ReportItemView />}
-    />
+    <Route path="reports" element={<Outlet />}>
+      {" "}
+      <Route path="action/:reportId" element={<TransactionReportItem />} />
+      <Route
+        path="transaction-details/:reportId"
+        element={<TransactionReportItem />}
+      />
+      <Route path="report-overview" element={<ReportOverview />} />
+      <Route
+        path="transaction-reports"
+        element={<TransactionReportOverview />}
+      />
+      <Route
+        path=":entity_type/:reported_entity_id"
+        element={<ReportItemView />}
+      />
+      <Route index element={<ReportDashboard />} />
+      <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+    </Route>
 
     {/* TRANSACTION MANAGEMENT */}
     <Route path="transactions" element={<AdminTransactionDashboard />} />

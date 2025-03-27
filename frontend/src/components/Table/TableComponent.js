@@ -6,11 +6,73 @@ const TableComponent = ({
   headers,
   data,
   statusColumnIndex,
+  columnsConfig = [],
   onSortChange,
   onFilterChange,
-  statusOptions = [],
+  currentFilters = {},
+  currentSort = {},
+  statusOptions = [], // Kept for backward compatibility
 }) => {
+  // Helper to determine current filter value for a header
+  const getCurrentFilterValue = (header) => {
+    return currentFilters[header.toLowerCase()] || "";
+  };
+
+  // Helper to determine current sort order for a header
+  const getCurrentSortOrder = (header) => {
+    return currentSort.column === header ? currentSort.order : "default";
+  };
+
   const renderHeaderControls = (header, index) => {
+    // First try to use columnsConfig if available
+    const config = columnsConfig.find((c) => c.header === header) || {};
+
+    // If config exists, use the new approach
+    if (columnsConfig.length > 0) {
+      return (
+        <>
+          {/* Sort Control */}
+          {config.sortable && (
+            <select
+              className="form-select form-select-sm control-select sort-select"
+              value={getCurrentSortOrder(header)}
+              onChange={(e) => onSortChange(header, e.target.value)}
+              aria-label={`Sort by ${header}`}
+            >
+              <option value="default">Sort</option>
+              <option value="ascending">Ascending ↑</option>
+              <option value="descending">Descending ↓</option>
+            </select>
+          )}
+
+          {/* Filter Control */}
+          {config.filterable && (
+            <select
+              className="form-select form-select-sm control-select filter-select"
+              value={getCurrentFilterValue(header)}
+              onChange={(e) => onFilterChange(header, e.target.value)}
+              aria-label={`Filter by ${header}`}
+            >
+              <option value="all">
+                {config.filterLabels?.["all"] || "All"}
+              </option>
+              {Array.isArray(config.filterOptions) &&
+                config.filterOptions
+                  .filter((optValue) => optValue !== "all")
+                  .map((optionValue) => (
+                    <option key={optionValue} value={optionValue}>
+                      {(config.filterLabels &&
+                        config.filterLabels[optionValue]) ||
+                        optionValue}
+                    </option>
+                  ))}
+            </select>
+          )}
+        </>
+      );
+    }
+
+    // Fall back to original hardcoded controls if no columnsConfig
     switch (header) {
       case "User":
       case "Title":
@@ -46,7 +108,7 @@ const TableComponent = ({
         return (
           <select
             className="form-select form-select-sm control-select"
-            onChange={(e) => onFilterChange(header, e.target.value)}
+            onChange={(e) => onSortChange(header, e.target.value)}
           >
             <option value="">All</option>
             <option value="rental">Rental</option>
@@ -126,7 +188,7 @@ const TableComponent = ({
   );
 };
 
-// Helper function to determine badge color based on status
+// status badge helper
 const getStatusBadgeClass = (status) => {
   switch (status?.toLowerCase()) {
     case "approved":

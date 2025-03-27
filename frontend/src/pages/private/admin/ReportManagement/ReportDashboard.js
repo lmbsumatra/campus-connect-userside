@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import TableComponent from "../../../../components/Table/TableComponent";
 import "./ReportDashboard.css";
+import { Outlet } from "react-router-dom";
 import useFetchAllReportsData from "../../../../utils/FetchAllReportsData";
 import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
@@ -254,6 +255,7 @@ const ReportDashboard = () => {
         <div className="col-lg-8">
           <div className="recent-reports-header  p-3 mb-3">
             <h4>Recent Reports</h4>
+            <Outlet />
             <SearchBarComponent
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}

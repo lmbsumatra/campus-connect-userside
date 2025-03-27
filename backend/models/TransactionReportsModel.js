@@ -26,34 +26,33 @@ TransactionReport.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "users",
+        model: "users", // Table name
         key: "user_id",
       },
     },
     reported_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: "users", key: "user_id" },
+      references: { model: "users", key: "user_id" }, // Table name
     },
     report_description: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    response_description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    response_by_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: "users",
-        key: "user_id",
-      },
-    },
     status: {
-      type: DataTypes.ENUM("open", "under_review", "resolved", "escalated"),
+      type: DataTypes.ENUM(
+        "open",
+        "under_review",
+        "resolved",
+        "escalated",
+
+        //  Admin statuses
+        "admin_review",
+        "admin_resolved",
+        "admin_dismissed"
+      ),
       defaultValue: "open",
+      allowNull: false,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -62,6 +61,31 @@ TransactionReport.init(
     updatedAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+      onUpdate: DataTypes.NOW,
+    },
+    resolved_by_admin_id: {
+      // Which admin handled it
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "users",
+        key: "user_id",
+      },
+    },
+    admin_resolution_notes: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    admin_action_taken: {
+      type: DataTypes.ENUM(
+        "none",
+        "warning_issued",
+        "temp_ban_24h",
+        "temp_ban_48h",
+        "temp_ban_72h",
+        "perm_ban"
+      ),
+      allowNull: true,
     },
   },
   {
@@ -72,32 +96,34 @@ TransactionReport.init(
   }
 );
 
+// Associations should include the new admin reference
 TransactionReport.associate = (models) => {
   TransactionReport.belongsTo(models.RentalTransaction, {
     foreignKey: "rental_transaction_id",
     as: "rentalTransaction",
   });
-  // Keep user associations the same
   TransactionReport.belongsTo(models.User, {
     foreignKey: "reporter_id",
     as: "reporter",
   });
-
   TransactionReport.belongsTo(models.User, {
     foreignKey: "reported_id",
     as: "reported",
   });
-
+  // Association for the admin who resolved the report
   TransactionReport.belongsTo(models.User, {
-    foreignKey: "response_by_id",
-    as: "responder",
+    foreignKey: "resolved_by_admin_id",
+    as: "resolvedByAdmin", // Use this alias in includes
   });
-
+  // Optional: Keep responder if needed for student responses
+  // TransactionReport.belongsTo(models.User, {
+  //   foreignKey: "response_by_id",
+  //   as: "responder",
+  // });
   TransactionReport.hasMany(models.TransactionEvidence, {
     foreignKey: "transaction_report_id",
     as: "evidence",
   });
-
   TransactionReport.hasMany(models.TransactionReportResponse, {
     foreignKey: "transaction_report_id",
     as: "responses",

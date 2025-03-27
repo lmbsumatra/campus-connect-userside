@@ -29,3 +29,24 @@
   border: none;
   border: #ccc;
 }
+
+/* Transaction Report Status Badges */
+.status-open {
+  background-color: #ffd700;
+  color: #000;
+}
+
+.status-under-review {
+  background-color: #2196F3;
+  color: #fff;
+}
+
+.status-resolved {
+  background-color: #4CAF50;
+  color: #fff;
+}
+
+.status-escalated {
+  background-color: #f44336;
+  color: #fff;
+}

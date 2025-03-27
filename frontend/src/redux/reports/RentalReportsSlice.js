@@ -64,11 +64,15 @@ export const fetchReportDetails = createAsyncThunk(
   "reports/fetchDetails",
   async ({ reportId, token }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/${reportId}`, {
+      const response = await axios.get(`${BASE_URL}/student/${reportId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
+      console.error(
+        `Error fetching report details for student (Report ID: ${reportId}):`,
+        error
+      );
       return rejectWithValue(
         error.response ? error.response.data : error.message
       );
