@@ -407,7 +407,7 @@ const MonthlyReportGenerator = () => {
   useEffect(() => {
     const fetchReportData = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/admin/report");
+        const response = await axios.get("https://api.rentupeers.shop/admin/report");
         setReportData(response.data);
         setLoading(false);
       } catch (err) {
