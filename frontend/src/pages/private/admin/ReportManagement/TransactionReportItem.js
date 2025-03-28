@@ -3,10 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../../../context/AuthContext";
 import { baseApi } from "../../../../utils/consonants";
-import { Button, Col, Row, Form, Alert, Spinner, Badge } from "react-bootstrap";
-import { FiArrowLeft, FiPaperclip, FiSend } from "react-icons/fi";
+import { Button, Col, Row, Alert, Spinner, Badge } from "react-bootstrap";
+import { FiArrowLeft, FiPaperclip, FiEdit } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import ShowAlert from "../../../../utils/ShowAlert";
+import AdminActionModal from "../../../../components/admin/Action Modal/transaction reports/AdminActionModal";
 import "./TransactionReportItem.css";
 
 const TransactionReportItem = () => {
@@ -18,29 +19,7 @@ const TransactionReportItem = () => {
   const [reportDetails, setReportDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [actionLoading, setActionLoading] = useState(false);
-
-  // Admin action form state
-  const [adminStatus, setAdminStatus] = useState("admin_review");
-  const [resolutionNotes, setResolutionNotes] = useState("");
-  const [actionTaken, setActionTaken] = useState("none");
-
-  // Status options
-  const adminStatusOptions = [
-    { value: "admin_review", label: "Under Review" },
-    { value: "admin_resolved", label: "Resolve Case" },
-    { value: "admin_dismissed", label: "Dismiss Case" },
-  ];
-
-  // Action options
-  const adminActionOptions = [
-    { value: "none", label: "No Action" },
-    { value: "warning_issued", label: "Issue Warning" },
-    { value: "temp_ban_24h", label: "Temporary Ban (24h)" },
-    { value: "temp_ban_48h", label: "Temporary Ban (48h)" },
-    { value: "temp_ban_72h", label: "Temporary Ban (72h)" },
-    { value: "perm_ban", label: "Permanent Ban" },
-  ];
+  const [showActionModal, setShowActionModal] = useState(false);
 
   // Fetch report details
   const fetchReportDetails = useCallback(async () => {
@@ -61,20 +40,6 @@ const TransactionReportItem = () => {
         }
       );
       setReportDetails(response.data);
-
-      // If the report is escalated or admin_review, set that as default
-      if (
-        response.data &&
-        (response.data.status === "escalated" ||
-          response.data.status === "admin_review")
-      ) {
-        setAdminStatus(response.data.status);
-      } else if (response.data) {
-        // If resolved/dismissed, reflect that
-        setAdminStatus(response.data.status);
-        setResolutionNotes(response.data.admin_resolution_notes || "");
-        setActionTaken(response.data.admin_action_taken || "none");
-      }
     } catch (err) {
       console.error("Error fetching transaction report details:", err);
       setError(
@@ -97,75 +62,6 @@ const TransactionReportItem = () => {
     fetchReportDetails();
   }, [fetchReportDetails]);
 
-  // Handle admin action
-  const handleAdminAction = async (e) => {
-    e.preventDefault();
-    if (!adminUser?.token) {
-      ShowAlert(dispatch, "error", "Auth Error", "Admin token not found.");
-      return;
-    }
-    if (adminStatus === "admin_resolved" && actionTaken === "none") {
-      if (
-        !window.confirm(
-          "You are resolving the case with 'No Action' selected. Are you sure?"
-        )
-      ) {
-        return;
-      }
-    }
-    // Require notes if resolving or dismissing
-    if (
-      !resolutionNotes.trim() &&
-      (adminStatus === "admin_resolved" || adminStatus === "admin_dismissed")
-    ) {
-      ShowAlert(
-        dispatch,
-        "error",
-        "Validation Error",
-        "Resolution notes are required to resolve or dismiss the case."
-      );
-      return;
-    }
-
-    setActionLoading(true);
-    try {
-      const payload = {
-        newStatus: adminStatus,
-        resolutionNotes,
-        ...(adminStatus === "admin_resolved" && { actionTaken }),
-      };
-
-      await axios.put(
-        `${baseApi}/api/transaction-reports/${reportId}/admin-action`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${adminUser.token}`,
-          },
-        }
-      );
-
-      await ShowAlert(
-        dispatch,
-        "success",
-        "Action Submitted",
-        "Report status updated successfully."
-      );
-      fetchReportDetails(); // refresh
-    } catch (err) {
-      console.error("Error submitting admin action:", err);
-      await ShowAlert(
-        dispatch,
-        "error",
-        "Submission Error",
-        err.response?.data?.error || "Failed to submit action."
-      );
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  // Convert status to the correct `-admin` class
   const getStatusClass = (statusValue) => {
     switch (statusValue?.toLowerCase()) {
       case "open":
@@ -180,7 +76,7 @@ const TransactionReportItem = () => {
       case "admin_resolved":
         return "status-resolved-admin";
       case "admin_dismissed":
-        return "status-dismissed-admin"; // or "status-secondary-admin"
+        return "status-dismissed-admin";
       default:
         return "status-secondary-admin";
     }
@@ -252,6 +148,12 @@ const TransactionReportItem = () => {
     );
   };
 
+  // Function called on modal success
+  const handleModalSuccess = () => {
+    fetchReportDetails();
+    setShowActionModal(false);
+  };
+
   if (loading) {
     return (
       <div className="loading-container-admin">
@@ -301,33 +203,58 @@ const TransactionReportItem = () => {
       (ev) => !ev.transaction_report_response_id
     ) || [];
 
+  // Determine item name based on transaction type
+  const getItemName = () => {
+    if (!reportDetails.rentalTransaction) {
+      return "(Transaction details unavailable)";
+    }
+    if (reportDetails.transaction_type === "sell") {
+      return (
+        reportDetails.rentalTransaction.ItemForSale?.item_for_sale_name ||
+        reportDetails.rentalTransaction.item_for_sale?.item_for_sale_name ||
+        "(Item name unavailable)"
+      );
+    } else if (reportDetails.transaction_type === "rental") {
+      return (
+        reportDetails.rentalTransaction.Listing?.listing_name ||
+        reportDetails.rentalTransaction.listing?.listing_name ||
+        "(Listing name unavailable)"
+      );
+    }
+    return "(Details unavailable)";
+  };
+  const itemLabel =
+    reportDetails.transaction_type === "sell" ? "Item Sold" : "Item Rented";
+
   return (
     <div className="report-details-wrapper-admin">
       <button className="back-button-admin" onClick={() => navigate(-1)}>
         <FiArrowLeft className="icon-left-admin" /> Back to Reports
       </button>
-
       <div className="report-container-admin">
         <div className="report-header-admin">
-          <h2>
+          <h4>
             Transaction Report #{reportDetails.id} -{" "}
+            <span className="detail-item-admin header-item-name-inline">
+              {getItemName()}
+            </span>{" "}
             {reportDetails.transaction_type}
-          </h2>
+          </h4>
           <span
             className={`status-admin ${getStatusClass(reportDetails.status)}`}
           >
             {reportDetails.status.replace(/_/g, " ")}
           </span>
         </div>
-
-        <Row className="report-content-row-admin">
+        <Row className="report-content-row-admin mb-4">
+          {" "}
           {/* Left Column */}
           <Col md={6} className="report-column-left-admin">
             {/* Report Details */}
             <div className="details-section-admin mb-4">
               <h3>Report Details</h3>
               <div className="detail-item-admin">
-                <strong>Transaction ID:</strong>{" "}
+                <strong>Transaction ID: </strong>{" "}
                 {reportDetails.rental_transaction_id || "N/A"}
               </div>
               <div className="detail-item-admin">
@@ -376,7 +303,6 @@ const TransactionReportItem = () => {
               )}
             </div>
           </Col>
-
           {/* Right Column */}
           <Col md={6} className="report-column-right-admin ps-md-4">
             {/* Responses */}
@@ -404,7 +330,6 @@ const TransactionReportItem = () => {
                         </div>
                         {resp.evidence && resp.evidence.length > 0 && (
                           <div className="response-evidence-admin mt-2">
-                            {" "}
                             <h6 className="small mb-2">Evidence Provided:</h6>
                             <Row className="g-2">
                               {resp.evidence.map((ev) =>
@@ -429,11 +354,29 @@ const TransactionReportItem = () => {
               )}
             </div>
 
-            {/* Admin Resolution Info */}
-            {(reportDetails.status === "admin_resolved" ||
-              reportDetails.status === "admin_dismissed") && (
-              <div className="admin-resolution-section-admin response-item-admin mb-4">
-                <h3>Admin Resolution</h3>
+            {(reportDetails.status === "escalated" ||
+              reportDetails.status === "admin_review") && (
+              <div className="admin-action-trigger-section mb-4 d-flex justify-content-center">
+                {" "}
+                <Button
+                  onClick={() => setShowActionModal(true)}
+                  className="take-action-button"
+                >
+                  <FiEdit />
+                  Take Action
+                </Button>
+              </div>
+            )}
+          </Col>
+        </Row>{" "}
+        {(reportDetails.status === "admin_resolved" ||
+          reportDetails.status === "admin_dismissed") && (
+          <div className="admin-resolution-section-admin response-item-admin mb-4">
+            {" "}
+            <h3>Admin Resolution</h3>
+            <Row>
+              {" "}
+              <Col md={4} className="mb-2 mb-md-0">
                 <div className="detail-item-admin">
                   <strong>Status:</strong>{" "}
                   <span
@@ -451,6 +394,8 @@ const TransactionReportItem = () => {
                       "N/A"}
                   </Badge>
                 </div>
+              </Col>
+              <Col md={4} className="mb-2 mb-md-0">
                 <div className="detail-item-admin">
                   <strong>Resolved By:</strong>{" "}
                   {reportDetails.resolvedByAdmin
@@ -461,7 +406,11 @@ const TransactionReportItem = () => {
                   <strong>Date Resolved:</strong>{" "}
                   {formatDate(reportDetails.updatedAt)}
                 </div>
-                <div className="detail-item-admin mt-2">
+              </Col>
+              <Col md={4}>
+                {" "}
+                {/* Notes section */}
+                <div className="detail-item-admin">
                   <strong>Resolution Notes:</strong>
                   <div className="description-text-admin mt-1">
                     {reportDetails.admin_resolution_notes || (
@@ -469,102 +418,20 @@ const TransactionReportItem = () => {
                     )}
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Admin Action Form */}
-            {(reportDetails.status === "escalated" ||
-              reportDetails.status === "admin_review") && (
-              <div className="admin-action-section-admin mb-4 p-3">
-                <h3>Action</h3>
-                <Form onSubmit={handleAdminAction}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Update Status</Form.Label>
-                    <Form.Select
-                      value={adminStatus}
-                      onChange={(e) => setAdminStatus(e.target.value)}
-                      disabled={actionLoading}
-                    >
-                      {adminStatusOptions.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-
-                  {adminStatus === "admin_resolved" && (
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        Action Taken Against Reported User
-                      </Form.Label>
-                      <Form.Select
-                        value={actionTaken}
-                        onChange={(e) => setActionTaken(e.target.value)}
-                        disabled={actionLoading}
-                      >
-                        {adminActionOptions.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
-                  )}
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>
-                      Resolution Notes
-                      {(adminStatus === "admin_resolved" ||
-                        adminStatus === "admin_dismissed") && (
-                        <span className="text-danger"> *</span>
-                      )}
-                    </Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={4}
-                      value={resolutionNotes}
-                      onChange={(e) => setResolutionNotes(e.target.value)}
-                      placeholder="Enter notes about your decision..."
-                      disabled={actionLoading}
-                      required={
-                        adminStatus === "admin_resolved" ||
-                        adminStatus === "admin_dismissed"
-                      }
-                    />
-                  </Form.Group>
-
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    className="submit-btn-admin"
-                    disabled={actionLoading}
-                  >
-                    {actionLoading ? (
-                      <>
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          aria-hidden="true"
-                          className="btn-spinner-admin me-2"
-                        />
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <FiSend className="me-2" />
-                        Submit Action
-                      </>
-                    )}
-                  </Button>
-                </Form>
-              </div>
-            )}
-          </Col>
-        </Row>
-      </div>
+              </Col>
+            </Row>
+          </div>
+        )}
+      </div>{" "}
+      {reportDetails && (
+        <AdminActionModal
+          show={showActionModal}
+          onHide={() => setShowActionModal(false)}
+          reportId={reportId}
+          initialStatus={reportDetails.status}
+          onActionSuccess={handleModalSuccess}
+        />
+      )}
     </div>
   );
 };

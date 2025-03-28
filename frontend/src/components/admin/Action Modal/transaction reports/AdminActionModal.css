@@ -1,0 +1,125 @@
+
+.admin-action-form-content {
+    padding: 0;
+
+}
+
+.admin-action-form-content .form-label {
+    font-weight: 500;
+}
+
+.admin-action-form-content .form-control,
+.admin-action-form-content .form-select {
+    border-color: #ced4da;
+    font-size: 0.95rem;
+}
+
+.admin-action-form-content .form-control:focus,
+.admin-action-form-content .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.admin-action-form-content textarea.form-control {
+    min-height: 100px;
+    line-height: 1.5;
+    padding: 0.5rem;
+}
+
+.submit-btn-admin {
+    padding: 10px 20px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.submit-btn-admin:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.btn-spinner-admin {
+    border: 2px solid rgba(255, 255, 255, 0.5); 
+    border-top-color: #fff; 
+    border-radius: 50%; 
+    width: 1rem;
+    height: 1rem;
+    animation: spin-admin 0.75s linear infinite; 
+}
+
+
+.take-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 65%;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #4a90e2, #2965cc);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.take-action-button:hover {
+    background: linear-gradient(135deg, #5a9fee, #3a75e0);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.take-action-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.take-action-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: all 0.6s;
+}
+
+.take-action-button:hover::before {
+    left: 100%;
+}
+
+.take-action-button svg {
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+}
+
+.take-action-button svg path,
+.take-action-button svg line,
+.take-action-button svg polyline,
+.take-action-button svg rect
+    {
+    stroke: white;
+
+    fill: none;
+    stroke-width: 1.5;
+}
+
+@keyframes spin-admin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
