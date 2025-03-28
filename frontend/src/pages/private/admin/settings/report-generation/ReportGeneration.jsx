@@ -274,28 +274,6 @@ const MonthlyReportPDF = ({ data }) => (
       </View>
 
       {/* 3. Cart Statistics */}
-      {/* <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Cart Statistics</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Total Items:</Text>
-          <Text style={styles.value}>{data.cartStats.totalItems}</Text>
-        </View>
-        <Text style={{ ...styles.sectionTitle, marginTop: 10, fontSize: 12 }}>
-          Transaction Types
-        </Text>
-        {data.cartStats.transactionTypeCounts.map((type, index) => (
-          <View key={index} style={styles.row}>
-            <Text style={styles.label}>{type.transaction_type}:</Text>
-            <Text style={styles.value}>{type.count}</Text>
-          </View>
-        ))}
-        <View style={styles.row}>
-          <Text style={styles.label}>Total Revenue:</Text>
-          <Text style={styles.value}>
-            ${data.cartStats.totalRevenue.toFixed(2)}
-          </Text>
-        </View>
-      </View> */}
 
       {/* 4. Conversations Statistics */}
       <View style={styles.section}>
@@ -348,63 +326,7 @@ const MonthlyReportPDF = ({ data }) => (
       </View>
 
       {/* 5. Follow Statistics */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Follow Statistics</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Total Follows:</Text>
-          <Text style={styles.value}>
-            {data.followStats.currentMonth.totalFollows}
-          </Text>
-        </View>
-        <Text style={{ ...styles.sectionTitle, marginTop: 10, fontSize: 12 }}>
-          Most Followed Users
-        </Text>
-        {data.followStats.currentMonth.mostFollowedUsers.map((user, index) => (
-          <View key={index} style={styles.row}>
-            <Text style={styles.label}>User {user.followee_id}:</Text>
-            <Text style={styles.value}>{user.follower_count} followers</Text>
-          </View>
-        ))}
-
-        <Text style={{ ...styles.sectionTitle, marginTop: 10, fontSize: 12 }}>
-          Most Active Followers
-        </Text>
-        {data.followStats.currentMonth.mostActiveFollowers.map(
-          (user, index) => (
-            <View key={index} style={styles.row}>
-              <Text style={styles.label}>User {user.follower_id}:</Text>
-              <Text style={styles.value}>{user.following_count} following</Text>
-            </View>
-          )
-        )}
-        {/* Insight Analysis */}
-        <View style={styles.analysisSection}>
-          <Text style={styles.analysisTitle}>Insight Analysis:</Text>
-          <Text style={styles.analysisText}>
-            The total follows recorded for the current month are{" "}
-            {data.followStats.currentMonth.totalFollows}, which is{" "}
-            {data.followStats.currentMonth.totalFollows >
-            data.followStats.pastMonth.totalFollows
-              ? "higher"
-              : data.followStats.currentMonth.totalFollows <
-                data.followStats.pastMonth.totalFollows
-              ? "lower"
-              : "approximately the same"}{" "}
-            compared to the previous month. This indicates that user
-            interactions{" "}
-            {data.followStats.currentMonth.totalFollows >
-            data.followStats.pastMonth.totalFollows
-              ? "have increased, showing greater engagement or a growing interest in connecting with other users."
-              : data.followStats.currentMonth.totalFollows <
-                data.followStats.pastMonth.totalFollows
-              ? "have decreased, which could indicate a reduction in platform activity or changes in user preferences."
-              : "remain steady, suggesting consistent user engagement."}
-            Analyzing the most followed users and the most active followers can
-            help identify influential users or those with high engagement,
-            providing opportunities for further growth or targeted improvements.
-          </Text>
-        </View>
-      </View>
+      
 
       {/* 6. Item for Sale Statistics */}
       <View style={styles.section}>
