@@ -26,6 +26,11 @@ const Follow = sequelize.define(
         key: "user_id",
       },
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     sequelize,

@@ -1,49 +1,61 @@
-
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const { models } = require("../../../models");
 
 const reviewStats = async () => {
   try {
-    const totalReviews = await models.ReviewAndRate.count();
+    const now = new Date();
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
 
-    const averageRating = await models.ReviewAndRate.findOne({
-      attributes: [[models.ReviewAndRate.sequelize.fn("AVG", models.ReviewAndRate.sequelize.col("rate")), "avgRating"]],
+    // Total Reviews
+    const totalReviewsCurrentMonth = await models.ReviewAndRate.count({
+      where: { created_at: { [Op.gte]: startOfCurrentMonth } }
+    });
+
+    const totalReviewsPastMonth = await models.ReviewAndRate.count({
+      where: { created_at: { [Op.between]: [startOfPastMonth, endOfPastMonth] } }
+    });
+
+    // Average Rating
+    const averageRatingCurrentMonth = await models.ReviewAndRate.findOne({
+      attributes: [[Sequelize.fn("AVG", Sequelize.col("rate")), "avgRating"]],
+      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
       raw: true,
     });
 
-    const ratingDistribution = await models.ReviewAndRate.findAll({
-      attributes: ["rate", [models.ReviewAndRate.sequelize.fn("COUNT", "rate"), "count"]],
+    const averageRatingPastMonth = await models.ReviewAndRate.findOne({
+      attributes: [[Sequelize.fn("AVG", Sequelize.col("rate")), "avgRating"]],
+      where: { created_at: { [Op.between]: [startOfPastMonth, endOfPastMonth] } },
+      raw: true,
+    });
+
+    // Rating Distribution
+    const ratingDistributionCurrentMonth = await models.ReviewAndRate.findAll({
+      attributes: ["rate", [Sequelize.fn("COUNT", "rate"), "count"]],
+      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
       group: ["rate"],
       raw: true,
     });
 
-    const mostReviewedUsers = await models.ReviewAndRate.findAll({
-      attributes: ["reviewee_id", [models.ReviewAndRate.sequelize.fn("COUNT", "reviewee_id"), "reviewCount"]],
-      group: ["reviewee_id"],
-      order: [[models.ReviewAndRate.sequelize.literal("reviewCount"), "DESC"]],
-      limit: 5,
-      include: [{ model: models.User, as: "reviewee", attributes: ["user_id", "first_name", "last_name"] }],
-      raw: true,
-    });
-
-    const mostReviewedItems = await models.ReviewAndRate.findAll({
-      attributes: ["item_id", [models.ReviewAndRate.sequelize.fn("COUNT", "item_id"), "reviewCount"]],
-      group: ["item_id"],
-      order: [[models.ReviewAndRate.sequelize.literal("reviewCount"), "DESC"]],
-      limit: 5,
-      include: [
-        { model: models.Listing, as: "listing", attributes: ["id", "listing_name"] },
-        { model: models.ItemForSale, as: "itemforsale", attributes: ["id", "item_for_sale_name"] },
-      ],
+    const ratingDistributionPastMonth = await models.ReviewAndRate.findAll({
+      attributes: ["rate", [Sequelize.fn("COUNT", "rate"), "count"]],
+      where: { created_at: { [Op.between]: [startOfPastMonth, endOfPastMonth] } },
+      group: ["rate"],
       raw: true,
     });
 
     return {
-      totalReviews,
-      averageRating: parseFloat(averageRating.avgRating).toFixed(2),
-      ratingDistribution,
-      mostReviewedUsers,
-      mostReviewedItems,
+      currentMonth: {
+        totalReviews: totalReviewsCurrentMonth,
+        averageRating: parseFloat(averageRatingCurrentMonth?.avgRating || 0).toFixed(2),
+        ratingDistribution: ratingDistributionCurrentMonth,
+      },
+      pastMonth: {
+        totalReviews: totalReviewsPastMonth,
+        averageRating: parseFloat(averageRatingPastMonth?.avgRating || 0).toFixed(2),
+        ratingDistribution: ratingDistributionPastMonth,
+      }
     };
   } catch (error) {
     console.error("Error fetching review stats:", error);

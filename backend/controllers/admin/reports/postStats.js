@@ -3,47 +3,101 @@ const { models, sequelize } = require("../../../models");
 
 const postStats = async () => {
   try {
-    const totalPosts = await models.Post.count();
+    const now = new Date();
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
 
-    const postsByCategory = await models.Post.findAll({
+    // Total Posts
+    const totalPostsCurrentMonth = await models.Post.count({
+      where: { created_at: { [Op.gte]: startOfCurrentMonth } }
+    });
+
+    const totalPostsPastMonth = await models.Post.count({
+      where: { created_at: { [Op.between]: [startOfPastMonth, endOfPastMonth] } }
+    });
+
+    // Posts By Category
+    const postsByCategoryCurrentMonth = await models.Post.findAll({
       attributes: [
         "category",
-        [models.Post.sequelize.fn("COUNT", "*"), "count"],
+        [sequelize.fn("COUNT", "*"), "count"]
       ],
+      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
       group: ["category"],
       raw: true,
     });
 
-    const postsByStatus = await models.Post.findAll({
-      attributes: ["status", [models.Post.sequelize.fn("COUNT", "*"), "count"]],
+    const postsByCategoryPastMonth = await models.Post.findAll({
+      attributes: [
+        "category",
+        [sequelize.fn("COUNT", "*"), "count"]
+      ],
+      where: { created_at: { [Op.between]: [startOfPastMonth, endOfPastMonth] } },
+      group: ["category"],
+      raw: true,
+    });
+
+    // Posts By Status
+    const postsByStatusCurrentMonth = await models.Post.findAll({
+      attributes: ["status", [sequelize.fn("COUNT", "*"), "count"]],
+      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
       group: ["status"],
       raw: true,
     });
 
-    const postsByType = await models.Post.findAll({
-      attributes: [
-        "post_type",
-        [models.Post.sequelize.fn("COUNT", "*"), "count"],
-      ],
+    const postsByStatusPastMonth = await models.Post.findAll({
+      attributes: ["status", [sequelize.fn("COUNT", "*"), "count"]],
+      where: { created_at: { [Op.between]: [startOfPastMonth, endOfPastMonth] } },
+      group: ["status"],
+      raw: true,
+    });
+
+    // Posts By Type
+    const postsByTypeCurrentMonth = await models.Post.findAll({
+      attributes: ["post_type", [sequelize.fn("COUNT", "*"), "count"]],
+      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
       group: ["post_type"],
       raw: true,
     });
 
-    const postsByUser = await models.Post.findAll({
-      attributes: [
-        "user_id",
-        [models.Post.sequelize.fn("COUNT", "*"), "count"],
-      ],
+    const postsByTypePastMonth = await models.Post.findAll({
+      attributes: ["post_type", [sequelize.fn("COUNT", "*"), "count"]],
+      where: { created_at: { [Op.between]: [startOfPastMonth, endOfPastMonth] } },
+      group: ["post_type"],
+      raw: true,
+    });
+
+    // Posts By User
+    const postsByUserCurrentMonth = await models.Post.findAll({
+      attributes: ["user_id", [sequelize.fn("COUNT", "*"), "count"]],
+      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      group: ["user_id"],
+      raw: true,
+    });
+
+    const postsByUserPastMonth = await models.Post.findAll({
+      attributes: ["user_id", [sequelize.fn("COUNT", "*"), "count"]],
+      where: { created_at: { [Op.between]: [startOfPastMonth, endOfPastMonth] } },
       group: ["user_id"],
       raw: true,
     });
 
     return {
-      totalPosts,
-      postsByCategory,
-      postsByStatus,
-      postsByType,
-      postsByUser,
+      currentMonth: {
+        totalPosts: totalPostsCurrentMonth,
+        postsByCategory: postsByCategoryCurrentMonth,
+        postsByStatus: postsByStatusCurrentMonth,
+        postsByType: postsByTypeCurrentMonth,
+        postsByUser: postsByUserCurrentMonth,
+      },
+      pastMonth: {
+        totalPosts: totalPostsPastMonth,
+        postsByCategory: postsByCategoryPastMonth,
+        postsByStatus: postsByStatusPastMonth,
+        postsByType: postsByTypePastMonth,
+        postsByUser: postsByUserPastMonth,
+      }
     };
   } catch (error) {
     console.error("Error fetching post stats:", error);
