@@ -19,15 +19,19 @@ const getAvailableListingsByUser = async (req, res) => {
         {
           model: models.Date,
           as: "rental_dates",
-          required: false,
+          required: true,
           where: {
             item_type: "post",
+            status: "available"
           },
           include: [
             {
               model: models.Duration,
               as: "durations",
-              required: false,
+              required: true,
+              where: {
+                status: "available"
+              }
             },
           ],
         },
@@ -89,6 +93,7 @@ const getAvailableListingsByUser = async (req, res) => {
           id: item.user_id,
           fname: item.renter.first_name,
           lname: item.renter.last_name,
+          profilePic: item.renter.student.profile_pic,
         },
       };
     });
