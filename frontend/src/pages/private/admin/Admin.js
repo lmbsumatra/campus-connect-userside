@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../../context/AuthContext";
-import axios from 'axios';
+import axios from "axios";
 import io from "socket.io-client";
 import "./adminStyles.css";
 import { baseApi } from "../../../utils/consonants";
@@ -15,6 +15,7 @@ const Admin = () => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
   const [notifications, setNotifications] = useState([]);
   const [socket, setSocket] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Initialize socket connection
   useEffect(() => {
@@ -26,6 +27,31 @@ const Admin = () => {
     return () => newSocket.disconnect();
   }, []);
 
+  // Handle responsive sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+
+      // Auto-hide sidebar on mobile
+      if (mobile) {
+        setSidebarVisible(false);
+      } else {
+        setSidebarVisible(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Toggle sidebar function
+  const toggleSidebar = () => {
+    setSidebarVisible((prev) => !prev);
+  };
+
   // Fetch initial notifications
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -33,8 +59,8 @@ const Admin = () => {
         const response = await axios.get(`${baseApi}/api/notifications`);
         setNotifications(response.data);
       } catch (error) {
-        console.error('Error fetching notifications:', error);
-        toast.error('Failed to load notifications');
+        console.error("Error fetching notifications:", error);
+        toast.error("Failed to load notifications");
       }
     };
 
@@ -55,15 +81,14 @@ const Admin = () => {
 
       // Generic notification handler
       const handleNotification = (notification) => {
-        setNotifications(prev => [notification, ...prev]);
-        
+        setNotifications((prev) => [notification, ...prev]);
+
         // Determine the notification format based on type
         let toastContent;
         if (notification.type === "new-post") {
           toastContent = (
             <span>
-              <strong>{notification.title}</strong>:{" "}
-              {notification.renter?.name}
+              <strong>{notification.title}</strong>: {notification.renter?.name}
               <em>{notification.message}</em>
             </span>
           );
@@ -75,7 +100,7 @@ const Admin = () => {
             </span>
           );
         }
-        
+
         toast.info(toastContent);
       };
 
@@ -117,18 +142,6 @@ const Admin = () => {
     }
   }, [socket, adminUser]);
 
-  // Handle responsive sidebar
-  useEffect(() => {
-    const handleResize = () => {
-      setSidebarVisible(window.innerWidth > 768);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   // Authentication check
   if (!adminUser || !["admin", "superadmin"].includes(adminUser.role)) {
     return <Navigate to="/admin-login" />;
@@ -136,15 +149,25 @@ const Admin = () => {
 
   return (
     <div className="admin-container d-flex w-100">
-      {isSidebarVisible && <AdminSidebar />}
-      <main className="w-100">
+      <div
+        className={`sidebar-container ${
+          !isSidebarVisible && isMobile ? "sidebar-hidden" : ""
+        }`}
+      >
+        <AdminSidebar />
+      </div>
+      {isMobile && isSidebarVisible && (
+        <div className="sidebar-overlay active" onClick={toggleSidebar}></div>
+      )}
+      <main className={`w-100 ${isMobile ? "mobile-view" : ""}`}>
         <div className="admin-content">
-          <AdminNavBar 
-            notifications={notifications} 
+          <AdminNavBar
+            toggleSidebar={toggleSidebar}
+            notifications={notifications}
             setNotifications={setNotifications}
           />
-          <ToastContainer 
-            position="bottom-right" 
+          <ToastContainer
+            position="bottom-right"
             autoClose={5000}
             hideProgressBar={false}
             newestOnTop

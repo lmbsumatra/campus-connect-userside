@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import useSocket from "../../../hooks/useSocket";
@@ -7,8 +7,9 @@ import Notification from "../notif/Notification";
 import { useAuth } from "../../../context/AuthContext";
 import "./adminNavBarStyles.css";
 import { baseApi } from "../../../utils/consonants";
+import { Menu } from "lucide-react"; // Import the Menu icon
 
-const AdminNavBar = () => {
+const AdminNavBar = ({ toggleSidebar }) => {
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -18,6 +19,20 @@ const AdminNavBar = () => {
   const [openPopup, setOpenPopup] = useState(null);
   const notificationsRef = useRef(null);
   const userDropdownRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+
+    return () => {
+      window.removeEventListener("resize", checkIfMobile);
+    };
+  }, []);
 
   const togglePopup = (popup) => {
     setOpenPopup((prev) => (prev === popup ? null : popup));
@@ -105,6 +120,15 @@ const AdminNavBar = () => {
   return (
     <div className="nav nav-container">
       <div className="admin-info">
+        {isMobile && (
+          <button
+            className="menu-toggle-btn"
+            onClick={toggleSidebar}
+            aria-label="Toggle sidebar"
+          >
+            <Menu size={24} />
+          </button>
+        )}
         {adminUser ? (
           <>
             <span className="admin-name">{`${adminUser.firstName} ${adminUser.lastName}`}</span>

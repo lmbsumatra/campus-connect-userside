@@ -216,6 +216,10 @@ module.exports = ({ emitNotification }) => {
             attributes: ["id", "listing_name", "description", "rate"],
           },
           {
+            model: models.ItemForSale,
+            attributes: ["id", "item_for_sale_name", "description"],
+          },
+          {
             model: models.Post,
             attributes: ["id", "post_item_name"],
           },
@@ -232,7 +236,7 @@ module.exports = ({ emitNotification }) => {
 
       res.status(200).json(rentals);
     } catch (error) {
-      // console.error("Error fetching rental transactions:", error);
+      //console.error("Error fetching rental transactions:", error);
       res.status(500).json({ error: error.message });
     }
   };
@@ -254,8 +258,17 @@ module.exports = ({ emitNotification }) => {
             attributes: ["user_id", "first_name", "last_name", "email"],
           },
           {
+            model: models.User,
+            as: "buyer",
+            attributes: ["user_id", "first_name", "last_name", "email"],
+          },
+          {
             model: models.Listing,
-            attributes: ["id", "listing_name", "category"],
+            attributes: ["id", "listing_name", "category", "rate"],
+          },
+          {
+            model: models.ItemForSale,
+            attributes: ["id", "item_for_sale_name", "price", "category"],
           },
           { model: models.Post, attributes: ["id", "post_item_name"] },
           { model: models.Date, attributes: ["id", "date"] },
