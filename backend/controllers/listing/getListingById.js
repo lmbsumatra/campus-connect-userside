@@ -73,6 +73,7 @@ const getListingById = async (req, res) => {
         fname: listing.owner.first_name,
         lname: listing.owner.last_name,
         college: listing.owner.student.college,
+        profilePic: listing.owner.student.profile_pic,
       },
     };
 

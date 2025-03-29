@@ -104,6 +104,7 @@ const adminListingById = async (req, res) => {
         phone: listing.owner.phone,
         college: listing.owner.student?.college || "N/A",
         rating: averageOwnerRating,
+        profilePic: listing.owner.student.profile_pic,
       },
     };
 

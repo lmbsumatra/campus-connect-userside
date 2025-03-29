@@ -70,6 +70,7 @@ const getItemForSaleById = async (req, res) => {
         fname: item.seller.first_name,
         lname: item.seller.last_name,
         college: item.seller.student.college,
+        profilePic: item.seller.student.profile_pic,
       },
     };
 

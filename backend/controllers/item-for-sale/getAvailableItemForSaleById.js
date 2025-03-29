@@ -135,6 +135,7 @@ const getAvailableItemForSaleById = async (req, res) => {
         lname: item.seller.last_name,
         college: item.seller.student.college,
         rating: averageOwnerRating,
+        profilePic: item.seller.student.profile_pic,
       },
     };
 

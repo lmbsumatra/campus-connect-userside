@@ -6,7 +6,7 @@ export const UserToolbar = ({ user, isYou }) => {
     <div className="owner-info">
       <div className="user-link">
         <img
-          src={userProfilePicture}
+          src={user?.profilePic || userProfilePicture}
           alt="Profile picture"
           className="profile-avatar"
         />

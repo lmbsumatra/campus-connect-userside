@@ -143,6 +143,7 @@ const getAvailableListingById = async (req, res) => {
         lname: listing.owner.last_name,
         college: listing.owner.student.college,
         rating: averageOwnerRating,
+        profilePic: listing.owner.student.profile_pic,
       },
     };
 

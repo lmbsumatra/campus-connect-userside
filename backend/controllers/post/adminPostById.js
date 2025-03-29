@@ -84,6 +84,7 @@ const adminPostById = async (req, res) => {
         lname: post.renter.last_name,
         college: post.renter.student.college,
         rating: averageRenterRating,
+        profilePic: post.renter.student.profile_pic,
       },
     };
     res.status(200).json(formattedPost);
