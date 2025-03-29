@@ -68,20 +68,21 @@
 }
 
 
-/* Default hidden state */
+/* Initial hidden state (Keep this for the 'in' animation) */
 .feature {
   opacity: 0;
   transform: translateY(30px); /* Slide-in effect */
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* Keep transition for 'in' animation */
 }
 
-/* Active state when visible */
+/* Active state when visible (Keep this for the 'in' animation) */
 .feature.active {
   opacity: 1;
   transform: translateY(0);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* Keep transition for 'in' animation */
 }
 
-/* Add staggered animation */
+/* Remove staggered animation if you don't want delays */
 .feature:nth-child(1) {
   transition-delay: 0.2s;
 }
@@ -93,4 +94,10 @@
 }
 .feature:nth-child(4) {
   transition-delay: 0.8s;
+}
+
+/* Hover effect (Keep this for smooth hover transition) */
+.feature:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
 }

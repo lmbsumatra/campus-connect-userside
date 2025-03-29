@@ -3,8 +3,6 @@ import "./style.css";
 
 const Subheader = () => {
   const [visibleFeatures, setVisibleFeatures] = useState([]);
-  const [lastScrollY, setLastScrollY] = useState(0); // Track last scroll position
-
   const featureRefs = useRef([]);
 
   useEffect(() => {
@@ -13,41 +11,19 @@ const Subheader = () => {
         entries.forEach((entry) => {
           const index = featureRefs.current.indexOf(entry.target);
           if (entry.isIntersecting) {
+            // Add to visibleFeatures if intersecting
             setVisibleFeatures((prev) => [...new Set([...prev, index])]);
-          } else {
-            // Set a delay for disappearing feature when scrolled up
-            setVisibleFeatures((prev) => prev.filter((i) => i !== index));
-          }
+          } 
+          // Removing from visibleFeatures is now handled differently (see below)
         });
       },
-      { threshold: 0.2 } // Trigger when 20% of the element is visible
+      { threshold: 0.2 }
     );
 
     featureRefs.current.forEach((ref) => observer.observe(ref));
 
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > lastScrollY) {
-        // Scrolling down
-        // Logic to show new features or adjust visibility if needed
-      } else {
-        // Scrolling up
-        // Revert features visibility when scrolling up
-        setVisibleFeatures((prev) => {
-          // Example: If you want to hide features that are offscreen when scrolling up
-          return prev.slice(0, prev.length - 1);
-        });
-      }
-
-      setLastScrollY(window.scrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
 
   return (
     <div className="sub-header">
