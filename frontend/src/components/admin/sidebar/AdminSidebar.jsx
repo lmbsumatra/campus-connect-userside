@@ -5,6 +5,18 @@ import expandArrow from "../../../assets/images/icons/expandIcon.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import ccLogo from "../../../assets/images/navbar/cc-logo.png";
 import dashboardIcon from "../../../assets/images/admin/sidebar/dashboard.svg";
+import {
+  Home,
+  Users,
+  List,
+  MessageSquare,
+  ShoppingCart,
+  Flag,
+  Handshake,
+  ClipboardList,
+  FileText,
+  Settings,
+} from "lucide-react";
 
 const AdminSidebar = () => {
   const [openTabs, setOpenTabs] = useState([]);
@@ -133,10 +145,14 @@ const AdminSidebar = () => {
           }`}
           onClick={() => handleActiveTab(["dashboard", "/admin/dashboard"])}
         >
-          <img
-            src={dashboardIcon}
-            alt="Admin dashboard icon"
+          <Home
             className="sidebar-icon"
+            size={20}
+            color={
+              activeTab === "dashboard"
+                ? "var(--clr-primary)"
+                : "var(--clr-secondary)"
+            }
           />
           {(expandSidebar || isHovered) && "Dashboard"}
         </div>
@@ -149,10 +165,14 @@ const AdminSidebar = () => {
             }`}
             onClick={() => handleActiveTab(["users", "/admin/users"])}
           >
-            <img
-              src={dashboardIcon}
-              alt="Admin dashboard icon"
+            <Users
               className="sidebar-icon"
+              size={20}
+              color={
+                activeTab === "users"
+                  ? "var(--clr-primary)"
+                  : "var(--clr-secondary)"
+              }
             />
             {(expandSidebar || isHovered) && "Users Management"}
             <img
@@ -209,10 +229,14 @@ const AdminSidebar = () => {
             }`}
             onClick={() => handleActiveTab(["listings", "/admin/listings"])}
           >
-            <img
-              src={dashboardIcon}
-              alt="Admin dashboard icon"
+            <List
               className="sidebar-icon"
+              size={20}
+              color={
+                activeTab === "listings"
+                  ? "var(--clr-primary)"
+                  : "var(--clr-secondary)"
+              }
             />
             {(expandSidebar || isHovered) && "Listing Management"}
             <img
@@ -256,10 +280,14 @@ const AdminSidebar = () => {
             }`}
             onClick={() => handleActiveTab(["posts", "/admin/posts"])}
           >
-            <img
-              src={dashboardIcon}
-              alt="Admin dashboard icon"
+            <MessageSquare
               className="sidebar-icon"
+              size={20}
+              color={
+                activeTab === "posts"
+                  ? "var(--clr-primary)"
+                  : "var(--clr-secondary)"
+              }
             />
             {(expandSidebar || isHovered) && "Posts Management"}
             <img
@@ -298,10 +326,14 @@ const AdminSidebar = () => {
             }`}
             onClick={() => handleActiveTab(["sales", "/admin/sales"])}
           >
-            <img
-              src={dashboardIcon}
-              alt="Admin dashboard icon"
+            <ShoppingCart
               className="sidebar-icon"
+              size={20}
+              color={
+                activeTab === "sales"
+                  ? "var(--clr-primary)"
+                  : "var(--clr-secondary)"
+              }
             />
             {(expandSidebar || isHovered) && "For Sale Management"}
             <img
@@ -343,10 +375,14 @@ const AdminSidebar = () => {
             }`}
             onClick={() => handleActiveTab(["reports", "/admin/reports"])}
           >
-            <img
-              src={dashboardIcon}
-              alt="Reports icon"
+            <Flag
               className="sidebar-icon"
+              size={20}
+              color={
+                activeTab === "reports"
+                  ? "var(--clr-primary)"
+                  : "var(--clr-secondary)"
+              }
             />
             {(expandSidebar || isHovered) && "Reports Management"}
             <img
@@ -408,10 +444,14 @@ const AdminSidebar = () => {
               handleActiveTab(["transactions", "/admin/transactions"])
             }
           >
-            <img
-              src={dashboardIcon}
-              alt="Transactions icon"
+            <Handshake
               className="sidebar-icon"
+              size={20}
+              color={
+                activeTab === "transactions"
+                  ? "var(--clr-primary)"
+                  : "var(--clr-secondary)"
+              }
             />
             {(expandSidebar || isHovered) && "Transaction Management"}
             <img
@@ -454,26 +494,35 @@ const AdminSidebar = () => {
           }`}
           onClick={() => handleActiveTab(["logs", "/admin/logs"])}
         >
-          <img
-            src={dashboardIcon} // Replace with a log icon if available
-            alt="Logs dashboard icon"
+          <ClipboardList
             className="sidebar-icon"
+            size={20}
+            color={
+              activeTab === "logs"
+                ? "var(--clr-primary)"
+                : "var(--clr-secondary)"
+            }
           />
           {(expandSidebar || isHovered) && "Audit Logs"}
         </div>
 
+        {/* Generate report tab */}
         <div
-          className={`tab ${
-            activeTab === "generate-report" ? "active" : ""
-          } ${openTabs.includes("generate-report") ? "expand" : ""}`}
+          className={`tab ${activeTab === "generate-report" ? "active" : ""} ${
+            openTabs.includes("generate-report") ? "expand" : ""
+          }`}
           onClick={() =>
             handleActiveTab(["generate-report", "/admin/generate-report"])
           }
         >
-          <img
-            src={dashboardIcon}
-            alt="Admin dashboard icon"
+          <FileText
             className="sidebar-icon"
+            size={20}
+            color={
+              activeTab === "generate-report"
+                ? "var(--clr-primary)"
+                : "var(--clr-secondary)"
+            }
           />
           {(expandSidebar || isHovered) && "Generate Report"}
         </div>
@@ -485,10 +534,14 @@ const AdminSidebar = () => {
           }`}
           onClick={() => handleActiveTab(["settings", "/admin/settings"])}
         >
-          <img
-            src={dashboardIcon}
-            alt="Admin dashboard icon"
+          <Settings
             className="sidebar-icon"
+            size={20}
+            color={
+              activeTab === "settings"
+                ? "var(--clr-primary)"
+                : "var(--clr-secondary)"
+            }
           />
           {(expandSidebar || isHovered) && "Settings"}
         </div>

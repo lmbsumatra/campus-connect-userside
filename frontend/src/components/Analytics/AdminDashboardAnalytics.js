@@ -124,8 +124,9 @@ export const GrowthData = ({ users, listings, posts, sales }) => {
     </div>
   );
 };
+
 export const TotalRegisteredUser = ({ users }) => {
-  const [selectedChart, setSelectedChart] = useState("userStatus");
+  const [selectedChart, setSelectedChart] = useState("activeUsers");
 
   // Count users based on their status
   const totalVerifiedUsers = users.filter(
@@ -189,12 +190,33 @@ export const TotalRegisteredUser = ({ users }) => {
         onChange={(e) => setSelectedChart(e.target.value)}
         value={selectedChart}
       >
-        <option value="userStatus">User Status Distribution</option>
         <option value="activeUsers">Active Users Over Time</option>
+        <option value="userStatus">User Status Distribution</option>
         <option value="collegeDistribution">College Distribution</option>
       </select>
 
       <div className="chart-card">
+        {selectedChart === "activeUsers" && (
+          <>
+            <h4>Active Users Over the Last 7 Days</h4>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={activeUsersPerDay}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#3498db"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </>
+        )}
+
         {selectedChart === "userStatus" && (
           <>
             <h4>User Status Distribution</h4>
@@ -218,27 +240,6 @@ export const TotalRegisteredUser = ({ users }) => {
                 <Tooltip />
                 <Legend />
               </PieChart>
-            </ResponsiveContainer>
-          </>
-        )}
-
-        {selectedChart === "activeUsers" && (
-          <>
-            <h4>Active Users Over the Last 7 Days</h4>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={activeUsersPerDay}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke="#3498db"
-                  strokeWidth={2}
-                />
-              </LineChart>
             </ResponsiveContainer>
           </>
         )}

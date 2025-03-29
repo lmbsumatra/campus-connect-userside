@@ -167,9 +167,10 @@
 
 /* Charts Section */
 .charts-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
 .chart-card {
@@ -180,6 +181,8 @@
   border: 1px solid #ddd;
   width: 100%; /* Ensure chart cards take full width */
   height: 100%; /* Allow flexibility */
+  flex: 1 1 calc(50% - 20px);
+  min-width: 250px;
 }
 
 .chart-container {
@@ -296,6 +299,11 @@
 
   .chart-card {
     padding: 12px;
+    flex: 1 1 100%;
+  }
+
+  .chart-container {
+    width: 100%;
   }
   .status-section {
     grid-template-columns: 1fr 1fr;
@@ -397,133 +405,29 @@
   }
 }
 
-/* Transaction leaderboard*/
+/* Additional responsive adjustments */
+@media (max-width: 576px) {
+  .leaderboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-.transaction-leaderboard {
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+  .time-interval-selector {
+    width: 100%;
+  }
 
-.leaderboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
+  .time-interval-selector select {
+    width: 100%;
+  }
 
-.leaderboard-header h3 {
-  color: #333;
-  font-size: 1.8em;
-  margin: 0;
-}
+  .leaderboard-item {
+    padding: 10px;
+  }
 
-.time-interval-selector select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background-color: white;
-  font-size: 1em;
-  cursor: pointer;
-}
-
-.time-interval-selector select:focus {
-  outline: none;
-  border-color: #4c6ef5;
-  box-shadow: 0 0 0 2px rgba(76, 110, 245, 0.2);
-}
-
-.leaderboard-container {
-  display: flex;
-  gap: 20px;
-}
-
-.leaderboard-section {
-  flex: 1;
-  min-width: 300px;
-}
-
-.leaderboard-section h4 {
-  color: #555;
-  margin-bottom: 15px;
-  text-align: center;
-  font-size: 1.4em;
-}
-
-.leaderboard-grid {
-  display: grid;
-  gap: 10px;
-}
-
-.leaderboard-item {
-  background-color: white;
-  border-radius: 10px;
-  padding: 12px 15px;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  position: relative;
-}
-
-.leaderboard-item:hover {
-  transform: scale(1.03);
-}
-
-.crown-icon {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  color: gold;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
-}
-
-.leaderboard-content {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-width: 0; /* Crucial for text overflow to work */
-}
-
-.leaderboard-rank {
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-right: 10px;
-  color: #888;
-}
-
-.leaderboard-name {
-  flex-grow: 1;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px; /* Adjust based on your layout */
-}
-
-.leaderboard-count {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #555;
-  flex-shrink: 0; /* Prevent count from shrinking */
-  margin-left: 10px;
-}
-
-.rank-1 {
-  background: linear-gradient(135deg, #ffd700, #ffec4f);
-  color: #333;
-}
-
-.rank-2 {
-  background: linear-gradient(135deg, #c0c0c0, #e0e0e0);
-  color: #333;
-}
-
-.rank-3 {
-  background: linear-gradient(135deg, #cd7f32, #a0522d);
-  color: white;
+  .leaderboard-rank {
+    width: 15px;
+    margin-right: 8px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -589,4 +493,146 @@
   .status-value {
     font-size: 18px;
   }
+}
+
+/* Transaction leaderboard*/
+.transaction-leaderboard {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.leaderboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.leaderboard-header h3 {
+  color: #333;
+  font-size: 1.8em;
+  margin: 0;
+}
+
+.time-interval-selector select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background-color: white;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.time-interval-selector select:focus {
+  outline: none;
+  border-color: #4c6ef5;
+  box-shadow: 0 0 0 2px rgba(76, 110, 245, 0.2);
+}
+
+.leaderboard-container {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .leaderboard-container {
+    flex-direction: row;
+  }
+}
+
+.leaderboard-section {
+  flex: 1;
+  min-width: 0; /* Remove the fixed min-width */
+}
+
+.leaderboard-section h4 {
+  color: #555;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 1.4em;
+}
+
+.leaderboard-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.leaderboard-item {
+  background-color: white;
+  border-radius: 10px;
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  position: relative;
+  width: 100%;
+}
+
+.leaderboard-item:hover {
+  transform: scale(1.02);
+}
+
+.crown-icon {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  color: gold;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+.leaderboard-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0; /* Crucial for text overflow to work */
+}
+
+.leaderboard-rank {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-right: 10px;
+  color: #888;
+  flex-shrink: 0; /* Prevent rank from shrinking */
+  width: 20px; /* Fixed width for rank */
+}
+
+.leaderboard-name {
+  flex-grow: 1;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px; /* Add space between name and count */
+}
+
+.leaderboard-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #555;
+  flex-shrink: 0; /* Prevent count from shrinking */
+  white-space: nowrap; /* Prevent line breaks */
+}
+
+.rank-1 {
+  background: linear-gradient(135deg, #ffd700, #ffec4f);
+  color: #333;
+}
+
+.rank-2 {
+  background: linear-gradient(135deg, #c0c0c0, #e0e0e0);
+  color: #333;
+}
+
+.rank-3 {
+  background: linear-gradient(135deg, #cd7f32, #a0522d);
+  color: white;
 }

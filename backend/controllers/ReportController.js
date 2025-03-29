@@ -37,7 +37,7 @@ exports.createReport = async (req, res) => {
 
     res.status(201).json(newReport);
   } catch (error) {
-    // console.error("Error creating report:", error);
+    //console.error("Error creating report:", error);
     res.status(500).json({ error: "Failed to create report." });
   }
 };
@@ -62,7 +62,7 @@ exports.checkReport = async (req, res) => {
 
     res.status(200).json({ hasReported: !!existingReport });
   } catch (error) {
-    // console.error("Error checking report:", error);
+    console.error("Error checking report:", error);
     res.status(500).json({ error: "Failed to check report." });
   }
 };

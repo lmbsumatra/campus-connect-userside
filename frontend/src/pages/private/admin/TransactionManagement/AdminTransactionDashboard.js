@@ -102,12 +102,13 @@ const AdminTransactionDashboard = () => {
     }
 
     // Ensure the filter logic for "Type" works correctly
-    if (filterOptions["Type"] && filterOptions["Type"] !== "") {
+    if (filterOptions["Type"] && filterOptions["Type"] !== "all") {
       filteredData = filteredData.filter(
-        (transaction) => transaction.transaction_type === filterOptions["Type"]
+        (transaction) =>
+          transaction.transaction_type.toLowerCase() ===
+          filterOptions["Type"].toLowerCase()
       );
     }
-
     // Ensure the filter logic for "Status" works correctly
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(

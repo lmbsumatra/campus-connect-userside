@@ -108,9 +108,9 @@ const TableComponent = ({
         return (
           <select
             className="form-select form-select-sm control-select"
-            onChange={(e) => onSortChange(header, e.target.value)}
+            onChange={(e) => onFilterChange(header, e.target.value)}
           >
-            <option value="">All</option>
+            <option value="all">All</option>
             <option value="rental">Rental</option>
             <option value="sell">Sell</option>
           </select>

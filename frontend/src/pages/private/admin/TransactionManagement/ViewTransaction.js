@@ -15,9 +15,7 @@ const ViewTransaction = () => {
   useEffect(() => {
     const fetchTransaction = async () => {
       try {
-        const response = await fetch(
-          `${baseApi}/rental-transaction/${id}`
-        );
+        const response = await fetch(`${baseApi}/rental-transaction/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch transaction details.");
         }
@@ -68,7 +66,8 @@ const ViewTransaction = () => {
           {transaction.seller?.last_name || transaction.owner?.last_name}
         </p>
         <p>
-          <strong>Amount:</strong> {transaction.amount || "N/A"}
+          <strong>Amount:</strong>{" "}
+          {transaction.Listing?.rate || transaction.ItemForSale?.price}
         </p>
         <p>
           <strong>Date:</strong> {formatDate(transaction.createdAt)}
@@ -83,13 +82,17 @@ const ViewTransaction = () => {
           <strong>Payment Mode:</strong> {transaction.payment_mode}
         </p>
         <p>
-          <strong>Listing Name:</strong> {transaction.Listing?.listing_name}
+          <strong>Item Name:</strong>{" "}
+          {transaction.Listing?.listing_name ||
+            transaction.ItemForSale?.item_for_sale_name}
         </p>
         <p>
-          <strong>Category:</strong> {transaction.Listing?.category}
+          <strong>Category:</strong>{" "}
+          {transaction.Listing?.category || transaction.ItemForSale?.category}
         </p>
         <p>
-          <strong>Post Item Name:</strong> {transaction.Post?.post_item_name}
+          <strong>Post Item Name:</strong>{" "}
+          {transaction.Post?.post_item_name || "N/A"}
         </p>
         <p>
           <strong>Rental Date:</strong> {transaction.Date?.date}

@@ -62,3 +62,32 @@
   font-size: 12px;
   color: #888;
 }
+
+.menu-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  transition: color 0.2s ease;
+}
+
+.menu-toggle-btn:hover {
+  color: var(--clr-primary);
+}
+
+@media (max-width: 768px) {
+  .admin-info {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .admin-name-container {
+    display: flex;
+    flex-direction: column;
+  }
+}
