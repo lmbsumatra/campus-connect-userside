@@ -306,3 +306,28 @@
 }
 
 
+
+.nav-searchbar .search-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.nav-searchbar .search-wrapper input {
+  padding-left: 2rem; /* Space for the search icon */
+}
+
+.nav-searchbar .search-wrapper .fas {
+  position: absolute;
+  left: 0.75rem;
+  color: #888;
+  font-size: 1rem;
+}
+
+.nav-searchbar .search-wrapper .dark-icon {
+  color: #aaa;
+}
+
+.nav-searchbar .search-wrapper .light-icon {
+  color: #555;
+}

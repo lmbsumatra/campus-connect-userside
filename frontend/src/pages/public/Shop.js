@@ -57,19 +57,10 @@ const Shop = () => {
           setFilters={setFilters}
           showPriceRange={true}
           onFilterChange={handleFilterChange}
-        />
-
-        <button
-          className="btn btn-rectangle primary"
-          onClick={() => setShowAdvanceFilter(!showAdvancefilter)}
-        >
-          Advance Filter
-        </button>
-
-        <ResetFilters
-          setFilteredItems={setFilteredItems}
-          setFilters={setFilters}
+          setShowAdvanceFilter={setShowAdvanceFilter}
+          showAdvancefilter={showAdvancefilter}
           allApprovedPosts={allApprovedItemForSale}
+          setFilteredItems={setFilteredItems}
         />
 
         {showAdvancefilter && (

@@ -87,7 +87,7 @@ const FilterModal = ({
         {/* Delivery Method Dropdown */}
         {isPost !== true && (
           <Form.Group className="mb-3">
-            <Form.Label>Category</Form.Label>
+            <Form.Label>Delivery Method</Form.Label>
             <Form.Select
               value={filters.deliveryMethod}
               onChange={(e) =>

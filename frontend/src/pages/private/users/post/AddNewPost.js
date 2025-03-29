@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import Tooltip from "@mui/material/Tooltip";
 import { formatDateFromSelectDate } from "../../../../utils/dateFormat.js";
+import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
+
 
 // Components
 import UserToolbar from "../common/UserToolbar";
@@ -43,6 +45,7 @@ import { ToastContainer } from "react-toastify";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
+import { addItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
@@ -345,6 +348,8 @@ const AddNewPost = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      console.log("Server Response:", response.data);
+
       /* if (socket) {
         socket.emit("new-listing-notification", {
           title: `${itemType === TO_RENT ? "New Post to Rent" : "New Post to Buy"} Item`,
@@ -377,6 +382,7 @@ const AddNewPost = () => {
 
   return (
     <div className="container-content add-post-detail">
+      <BreadCrumb breadcrumbs={addItemBreadcrumbs({ itemType })} />
       <ToastContainer />
       <div className="add-post-container">
         <div className="imgs-container">

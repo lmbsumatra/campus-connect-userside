@@ -3,6 +3,8 @@
   padding: 8px 16px !important;
   background-color: white !important;
   border-radius: 8px !important;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 /* Styling for the ordered list */
@@ -11,6 +13,7 @@
   padding: 0;
   display: flex;
   margin: 0;
+  white-space: nowrap;
 }
 
 /* Styling for each breadcrumb item */

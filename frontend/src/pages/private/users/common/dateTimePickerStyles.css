@@ -54,3 +54,44 @@
   font-size: 1rem; /* Optional: Adjust label font size */
   color: #333; /* Optional: Label text color */
 }
+
+.calendar-container {
+  flex: 1;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .calendar-container {
+    flex: none;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  /* Adjust parent flex container for mobile */
+  .d-flex {
+    flex-direction: column;
+  }
+
+  .time-container {
+    margin-left: 0 !important;
+  }
+}
+
+/* Additional styling for the calendar */
+.calendar-container .picker {
+  margin-top: 15px;
+}
+
+.date-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}

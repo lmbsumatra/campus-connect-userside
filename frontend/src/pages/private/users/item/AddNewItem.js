@@ -472,6 +472,7 @@ const AddNewItem = () => {
       ShowAlert(dispatch, "error", "Error", errorMessage);
     }
   };
+  
   const renderUserToolbar = () => {
     if (!user?.user) return null;
     return <UserToolbar user={user.user} isYou={true} />;

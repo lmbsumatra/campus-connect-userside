@@ -62,14 +62,18 @@ function Toolbar({
         </label>
       </div>
 
+      {/* Search Bar */}
       <div className="search-container light">
-        <input
-          type="text"
-          className="light"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
+        <div className="search-wrapper">
+          <i className="fas fa-search white-icon"></i>
+          <input
+            type="text"
+            className="light"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
       </div>
 
       <div>

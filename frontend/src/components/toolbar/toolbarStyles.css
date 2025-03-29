@@ -1,15 +1,24 @@
+/* Toolbar Container */
 .toolbar {
   width: 100%;
   all: unset;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* background-color: var(--clr-primary-light); */
   padding: 8px;
   gap: 16px; /* Add some gap between items */
 }
+
 .toolbar.blue {
   background-color: var(--clr-primary-light);
+}
+
+/* Select Container */
+.toolbar .select-container {
+  background-color: transparent !important;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .toolbar .select-container label {
@@ -22,43 +31,73 @@
   background-color: transparent;
 }
 
-.toolbar .select-container {
-  background-color: transparent !important;
-  display: flex;
-  gap: 2px;
-  align-items: center;
-}
-
 .toolbar .select-container .select,
 .toolbar .view-type {
   display: flex;
-  gap: 2px;
+  gap: 8px;
   align-items: center;
 }
 
+/* Search Bar Container */
 .search-container {
   display: flex;
-  flex-grow: 1; 
+  flex-grow: 1;
+  position: relative;
 }
 
-/* Searchbar Styles */
-.search-container input {
+/* Search Wrapper */
+.search-container .search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Search Input */
+.search-container .search-wrapper input {
   flex-grow: 1;
   height: 36px;
   border-radius: 8px;
-  padding: 16px 10px !important;
-  width: 100%; /* Allow it to resize */
+  padding: 0 16px 0 40px; /* Adjusted for icon space */
+  width: 100%;
   font-size: 16px;
-  border: 1px solid;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Search Icon */
+.search-container .search-wrapper .fas {
+  position: absolute;
+  left: 12px;
+  color: white;
+  font-size: 18px;
+  pointer-events: none; /* Allows clicking directly on the input */
+}
+
+/* Placeholder Styling */
+.search-container .search-wrapper input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Focus Effect */
+.search-container .search-wrapper input:focus {
+  border-color: white;
+  box-shadow: 0px 0px 0px 6px rgba(255, 255, 255, 0.3);
+}
+
+/* Toolbar Icons */
+.toolbar img {
+  filter: brightness(120%);
+  width: 30px;
+  height: 30px;
 }
 
 /* Light Mode Styles */
 .search-container input.light {
   border-color: rgba(255, 255, 255, 0.3);
   background-color: rgba(255, 255, 255, 0.1);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .search-container input.light:focus {
@@ -66,29 +105,17 @@
   box-shadow: 0px 0px 0px 6px rgba(255, 255, 255, 0.3);
 }
 
-.search-container input.light::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-}
-
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-  .search-container input {
+  .search-container .search-wrapper input {
     max-width: 350px; /* Adjust for tablets */
-    width: 100%; /* Full width for tablets */
-  }
-}
-
-@media (max-width: 480px) {
-  .search-container input {
-    max-width: 100%; /* Full width on mobile */
     width: 100%;
   }
 }
 
-.toolbar img {
-  filter: brightness(120%);
-  fill: white;
-  filter: none;
-  width: 30px;
-  height: 30px;
+@media (max-width: 480px) {
+  .search-container .search-wrapper input {
+    max-width: 100%;
+    width: 100%;
+  }
 }

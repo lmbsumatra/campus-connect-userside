@@ -173,18 +173,25 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
 
         {/* Search Bar */}
         <div className="nav-searchbar">
-          <input
-            ref={searchRef}
-            type="text"
-            placeholder="Search"
-            className={isDarkTheme ? "dark" : "light"}
-            onChange={handleKeyword}
-            onKeyDown={handleSearchKeyDown}
-            name="search-value"
-            value={keyword}
-            onFocus={handleSearchFocus}
-            onBlur={() => setIsSearchFocused(false)}
-          />
+          <div className="search-wrapper">
+            <i
+              className={`fas fa-search ${
+                isDarkTheme ? "dark-icon" : "light-icon"
+              }`}
+            ></i>
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="       Search"
+              className={isDarkTheme ? "dark" : "light"}
+              onChange={handleKeyword}
+              onKeyDown={handleSearchKeyDown}
+              name="search-value"
+              value={keyword}
+              onFocus={handleSearchFocus}
+              onBlur={() => setIsSearchFocused(false)}
+            />
+          </div>
         </div>
 
         {showPopUpSearchBarResults && (

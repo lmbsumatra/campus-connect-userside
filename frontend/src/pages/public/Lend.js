@@ -10,7 +10,6 @@ import { useLocation } from "react-router-dom";
 import FilterToolbar from "../../components/item-filter/FilterToolbar";
 import FilterFunction from "../../components/item-filter/FilterFunction";
 import FilterModal from "../../components/item-filter/FilterModal";
-import ResetFilters from "../../components/item-filter/ResetFilters";
 import { defaultFilters } from "../../utils/consonants";
 
 const Lend = () => {
@@ -42,7 +41,7 @@ const Lend = () => {
   return (
     <div className="container-content page-container">
       {/* Filters Section */}
-      <div className="filters-section">
+      <div className="">
         {errorAllApprovedPosts && (
           <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>
         )}
@@ -53,19 +52,10 @@ const Lend = () => {
           setFilters={setFilters}
           showPriceRange={false}
           onFilterChange={handleFilterChange}
-        />
-
-        <button
-          className="btn btn-rectangle primary"
-          onClick={() => setShowAdvanceFilter(!showAdvancefilter)}
-        >
-          Advance Filter
-        </button>
-
-        <ResetFilters
-          setFilteredItems={setFilteredItems}
-          setFilters={setFilters}
+          setShowAdvanceFilter={setShowAdvanceFilter}
+          showAdvancefilter={showAdvancefilter}
           allApprovedPosts={allApprovedPosts}
+          setFilteredItems={setFilteredItems}
         />
 
         {showAdvancefilter && (

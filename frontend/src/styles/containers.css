@@ -60,15 +60,15 @@
 }
 
 .page-container {
-  display: flex;
+  display: block;
   gap: 20px;
   padding: 20px;
 }
 
 /* Filters Section */
 .page-container .filters-section {
-  flex: 1;
-  max-width: 300px;
+  width: 100%;
+  display: flex;
 }
 
 /* Items Section */

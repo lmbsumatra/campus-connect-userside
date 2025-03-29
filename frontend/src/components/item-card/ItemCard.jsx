@@ -344,71 +344,73 @@ const ItemCard = ({
     </div>
   );
 
-  // Render items as a table
   const renderTableView = () => (
-    <table className="table">
-      <thead>
-        <tr>
-          <th onClick={() => handleSort("select")}>Select</th>
-          <th onClick={() => handleSort("image")}>Image</th>
-          <th onClick={() => handleSort("name")}>
-            Name{" "}
-            {sortConfig.key === "name" &&
-              (sortConfig.direction === "asc" ? "↑" : "↓")}
-          </th>
-          <th onClick={() => handleSort("price")}>
-            Price{" "}
-            {sortConfig.key === "price" &&
-              (sortConfig.direction === "asc" ? "↑" : "↓")}
-          </th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortedItems.map((item, index) => (
-          <tr
-            key={item.id || index}
-            className={selectedItems.includes(item.id) ? "selected" : ""}
-          >
-            <td>
-              {isYou && (
-                <input
-                  type="checkbox"
-                  checked={selectedItems.includes(item.id)}
-                  onChange={(e) => onSelectItem(item.id)} // Handle selection
-                />
-              )}
-            </td>
-            <td>
-              <img
-                src={item.images[0] || [defaultImages]}
-                alt={item.name}
-                className="img-thumbnail"
-              />
-            </td>
-            <td>{item.name}</td>
-            <td>
-              P{item.price} {item.itemType === "Rent" ? "per hour" : ""}
-            </td>
-            <td>
-              <button
-                className="btn btn-icon primary"
-                onClick={(e) => onOptionClick(e, "edit", item)}
-              >
-                <img src={editIcon} alt="Edit" />
-              </button>
-              <button
-                className="btn btn-icon primary"
-                onClick={(e) => onOptionClick(e, "delete", item)}
-              >
-                <img src={deleteIcon} alt="Delete" />
-              </button>
-            </td>
+    <div className="table-responsive">
+      <table className="table">
+        <thead>
+          <tr>
+            <th onClick={() => handleSort("select")}>Select</th>
+            <th onClick={() => handleSort("image")}>Image</th>
+            <th onClick={() => handleSort("name")}>
+              Name{" "}
+              {sortConfig.key === "name" &&
+                (sortConfig.direction === "asc" ? "↑" : "↓")}
+            </th>
+            <th onClick={() => handleSort("price")}>
+              Price{" "}
+              {sortConfig.key === "price" &&
+                (sortConfig.direction === "asc" ? "↑" : "↓")}
+            </th>
+            <th>Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {sortedItems.map((item, index) => (
+            <tr
+              key={item.id || index}
+              className={selectedItems.includes(item.id) ? "selected" : ""}
+            >
+              <td>
+                {isYou && (
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.includes(item.id)}
+                    onChange={(e) => onSelectItem(item.id)}
+                  />
+                )}
+              </td>
+              <td>
+                <img
+                  src={item.images[0] || [defaultImages]}
+                  alt={item.name}
+                  className="img-thumbnail"
+                />
+              </td>
+              <td>{item.name}</td>
+              <td>
+                P{item.price} {item.itemType === "Rent" ? "per hour" : ""}
+              </td>
+              <td>
+                <button
+                  className="btn btn-icon primary"
+                  onClick={(e) => onOptionClick(e, "edit", item)}
+                >
+                  <img src={editIcon} alt="Edit" />
+                </button>
+                <button
+                  className="btn btn-icon primary"
+                  onClick={(e) => onOptionClick(e, "delete", item)}
+                >
+                  <img src={deleteIcon} alt="Delete" />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
+  
 
   return (
     <div>

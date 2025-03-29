@@ -311,7 +311,7 @@ const PostCard = ({
   );
 
   const renderTableView = () => (
-    <div className="table-container">
+    <div className="table-responsive">
       <table className="table">
         <thead>
           <tr>

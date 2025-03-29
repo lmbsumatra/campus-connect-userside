@@ -184,3 +184,11 @@
   font-size: 14px;
   line-height: 1;
 }
+
+
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* For smooth scrolling on mobile */
+  white-space: nowrap;
+}

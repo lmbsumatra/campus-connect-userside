@@ -254,6 +254,13 @@
   gap: 2px;
 }
 
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* For smooth scrolling on mobile */
+  white-space: nowrap;
+}
+
+
 .table .img-thumbnail {
   width: 100px;
   height: 100px;
