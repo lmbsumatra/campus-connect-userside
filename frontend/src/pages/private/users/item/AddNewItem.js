@@ -541,14 +541,14 @@ const AddNewItem = () => {
           />
 
           <FormField
-            label={<span className="price">₱</span>}
+            label={<span className="price">$</span>}
             id="price"
             value={itemDataState.price.value}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
             error={itemDataState.price.error}
             triggered={itemDataState.price.triggered}
-             placeholder={`Add ${itemType === FOR_RENT ? "rate" : "price"} per hour`}
+            placeholder="Add price"
             className="field-container item-price"
           />
 

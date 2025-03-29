@@ -18,6 +18,7 @@ const getAvailableListingById = async (req, res) => {
           where: {
             status: "available", // Ensures only "available" rental dates are included
           },
+          required: true,
           include: [
             {
               model: models.Duration,
@@ -25,6 +26,7 @@ const getAvailableListingById = async (req, res) => {
               where: {
                 status: "available", // Ensures only "available" rental durations are included
               },
+              required: true,
             },
           ],
         },

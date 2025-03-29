@@ -19,11 +19,13 @@ const getAvailableItemForSaleById = async (req, res) => {
             item_type: "item_for_sale",
             status: "available",
           },
+          required: true,
           include: [
             {
               model: models.Duration,
               as: "durations",
               where: { status: "available" },
+              required: true,
             },
           ],
         },

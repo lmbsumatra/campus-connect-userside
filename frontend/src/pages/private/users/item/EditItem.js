@@ -654,7 +654,7 @@ const EditItem = () => {
             onBlur={handleFieldBlur}
             error={itemDataState.price.error}
             triggered={itemDataState.price.triggered}
-            placeholder={`Add ${itemType === FOR_RENT ? "rate" : "price"} per hour`}
+            placeholder="Add price"
             className="field-container item-price"
           />
 

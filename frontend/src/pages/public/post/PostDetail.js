@@ -650,54 +650,23 @@ function PostDetail() {
                     setSelectedDate(date);
                   }
                 }}
+                highlightDates={availableDates}
                 dayClassName={(date) => {
-                  // Get today's date with time set to midnight for proper comparison
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-
-                  // Check if this date is in the past
-                  const isPast = date.getTime() < today.getTime();
-
-                  // Check if this date is in the unavailable dates
-                  const isUnavailable = formattedUnavailableDates.some(
-                    (item) =>
-                      new Date(item.date).toDateString() === date.toDateString()
-                  );
-
-                  // Check if this is the selected date
-                  const isSelected =
-                    selectedDate &&
-                    date.toDateString() ===
-                      new Date(selectedDate).toDateString();
-
-                  // Apply appropriate class based on conditions
-                  if (isSelected) {
-                    return "bg-blue";
-                  } else if (
-                    availableDates.some(
-                      (d) => d.toDateString() === date.toDateString()
-                    ) &&
-                    !isPast &&
-                    !isUnavailable
-                  ) {
-                    return "bg-green";
-                  } else {
-                    return "";
-                  }
+                  return availableDates.some(
+                    (d) => d.toDateString() === date.toDateString()
+                  )
+                    ? "bg-green"
+                    : "";
                 }}
-                excludeDates={formattedUnavailableDates.map(
-                  (item) => new Date(item.date)
-                )}
                 minDate={new Date()} // Prevents selecting past dates
                 maxDate={
                   unavailableDates?.endSemesterDates?.length > 0
                     ? new Date(unavailableDates?.endSemesterDates[0]?.date)
                     : null
                 }
-                shouldCloseOnSelect={false}
-                formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
-                calendarClassName="custom-calendar"
-                todayButton={null}
+                excludeDates={formattedUnavailableDates.map(
+                  (item) => new Date(item.date)
+                )}
               />
             </div>
 

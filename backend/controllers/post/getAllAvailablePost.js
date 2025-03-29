@@ -16,6 +16,7 @@ const getAllAvailablePost = async (req, res) => {
             status: "available", // Ensures only "available" rental dates are included
             item_type: "post",
           },
+          required: true,
           include: [
             {
               model: models.Duration,
@@ -23,6 +24,7 @@ const getAllAvailablePost = async (req, res) => {
               where: {
                 status: "available", // Ensures only "available" rental durations are included
               },
+              required: true,
             },
           ],
         },
@@ -79,7 +81,6 @@ const getAllAvailablePost = async (req, res) => {
         fname: post.renter?.first_name || "",
         lname: post.renter?.last_name || "",
         college: post.renter?.student?.college || "",
-        profilePic: post.renter.student.profile_pic,
       },
       college: post.renter.student ? post.renter.student.college : null,
     }));

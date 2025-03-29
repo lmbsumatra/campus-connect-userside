@@ -20,7 +20,7 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
         {
           model: models.Date,
           as: "available_dates",
-          required: false,
+          required: true,
           where: {
             item_type: "item_for_sale",
             status: "available",
@@ -29,7 +29,7 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
             {
               model: models.Duration,
               as: "durations",
-              required: false,
+              required: true,
               where: { status: "available" },
             },
           ],
