@@ -11,6 +11,7 @@ import editIcon from "../../assets/images/table/edit.svg";
 import deleteIcon from "../../assets/images/table/delete.svg";
 import { ItemStatus } from "../../utils/Status";
 import { defaultImages, FOR_RENT } from "../../utils/consonants";
+import targetIcon from "../../assets/images/card/target.svg";
 
 // Import custom hook
 import useSortItems from "../../pages/private/users/student-profile/useSortItems";
@@ -200,6 +201,39 @@ const ItemCard = ({
                 className="item-type"
               />
             </Tooltip>
+
+            {item.isFollowingRenter ||
+              (item.isFollowingBuyer && (
+                <Tooltip
+                  title={
+                    item.itemType === FOR_RENT
+                      ? "This item is rented by one of your followings"
+                      : "This item is bought by one of your followings"
+                  }
+                  componentsProps={{
+                    popper: {
+                      modifiers: [
+                        {
+                          name: "offset",
+                          options: {
+                            offset: [0, 0],
+                          },
+                        },
+                      ],
+                    },
+                  }}
+                >
+                  <img
+                    src={targetIcon}
+                    alt={
+                      item.itemType === FOR_RENT
+                        ? "This item is rented by one of your followings"
+                        : "This item is bought by one of your followings"
+                    }
+                    className="rented-indx"
+                  />
+                </Tooltip>
+              ))}
           </div>
 
           <div className="description">
@@ -230,7 +264,7 @@ const ItemCard = ({
               P{item.price} {item.itemType === "Rent" ? "per hour" : ""}
             </p>
 
-            <div className="action-btns">
+            {/* <div className="action-btns">
               <button
                 className="btn btn-rectangle primary"
                 onClick={(e) => handleActionBtnClick(e, item)}
@@ -271,6 +305,29 @@ const ItemCard = ({
                     </div>
                   )}
                 </div>
+              )}
+            </div> */}
+
+            <div className="d-flex align-items-center my-1">
+              {item.averageRating ? (
+                <>
+                  <span className="price me-2 fs-5 fw-bold text-success">
+                    {item.averageRating.toFixed(2)}
+                  </span>
+                  <div className="">
+                    {"("}
+                    <i
+                      className="bi-star-fill text-warning"
+                      style={{ fontSize: "1 rem" }}
+                    />
+                  </div>
+                  {")"}
+                </>
+              ) : (
+                <span className="error-msg text-gray">
+                  <i className="bi-star" style={{ fontSize: "1 rem" }} /> No
+                  ratings yet
+                </span>
               )}
             </div>
 

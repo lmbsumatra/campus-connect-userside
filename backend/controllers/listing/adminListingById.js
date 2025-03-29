@@ -1,4 +1,5 @@
-const { models } = require("../../models/index");
+const { Op } = require("sequelize");
+const { models, sequelize } = require("../../models/index");
 
 const adminListingById = async (req, res) => {
   try {
@@ -24,12 +25,43 @@ const adminListingById = async (req, res) => {
             },
           ],
         },
+        {
+          model: models.ReviewAndRate,
+          as: "reviews",
+          where: { review_type: "item" },
+          attributes: ["rate"],
+          required: false, // Allow fetching listings without reviews
+        },
       ],
     });
 
     if (!listing) {
       return res.status(404).json({ error: "Listing not found" });
     }
+
+    // Calculate average rating
+    const reviews = listing.reviews || [];
+    const averageRating = reviews.length
+      ? reviews.reduce((sum, review) => sum + review.rate, 0) / reviews.length
+      : null;
+
+    // Get the average rating for this user from all reviews where they were the reviewee
+    const userRating = await models.ReviewAndRate.findOne({
+      attributes: [
+        [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
+      ],
+      where: {
+        reviewee_id: listing.owner.user_id,
+        review_type: { [Op.in]: ["owner", "renter"] },
+      },
+      raw: true,
+    });
+
+    // Format the rating to one decimal place if it exists
+    const averageOwnerRating = userRating?.averageRating
+      ? parseFloat(userRating.averageRating).toFixed(1)
+      : "0.0";
 
     const formattedListing = {
       id: listing.id,
@@ -50,6 +82,7 @@ const adminListingById = async (req, res) => {
       itemType: "For Rent",
       desc: listing.description,
       specs: listing.specifications,
+      averageRating, // Including average rating in the response
       availableDates: listing.rental_dates.map((date) => ({
         id: date.id,
         listingId: date.listing_id,
@@ -67,15 +100,15 @@ const adminListingById = async (req, res) => {
         id: listing.owner.user_id,
         fname: listing.owner.first_name,
         lname: listing.owner.last_name,
-        email: listing.owner.email, // Admin-specific field
-        phone: listing.owner.phone, // Admin-specific field
+        email: listing.owner.email,
+        phone: listing.owner.phone,
         college: listing.owner.student?.college || "N/A",
+        rating: averageOwnerRating,
       },
     };
 
     res.status(200).json(formattedListing);
   } catch (error) {
-    // console.error("Error fetching admin listing:", error);
     res.status(500).json({ error: error.message });
   }
 };

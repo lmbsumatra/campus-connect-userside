@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { models } = require("../../models");
 const { sequelize } = require("../../models/index");
 
@@ -58,7 +59,10 @@ const getStudentById = async (req, res) => {
         [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
         [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
       ],
-      where: { reviewee_id: user.user_id },
+      where: {
+        reviewee_id: user.user_id,
+        review_type: { [Op.in]: ["owner", "renter"] },
+      },
       raw: true,
     });
 
@@ -102,7 +106,8 @@ const getStudentById = async (req, res) => {
             profilePic: user.student.profile_pic,
             course: user.student.course,
             status: user.student.status,
-            statusMsg: user.student.status_message || "No status message available",
+            statusMsg:
+              user.student.status_message || "No status message available",
           }
         : null, // If student is null, return null instead of an empty object
       action: action,

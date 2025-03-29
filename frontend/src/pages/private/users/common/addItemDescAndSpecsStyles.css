@@ -10,8 +10,13 @@
   border-radius: 4px;
 }
 
+.specifications-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .specifications-table {
-  width: 100px;
+  width: max-content;
   border-collapse: collapse;
   margin: 0 8px;
   gap: 10px;
@@ -22,7 +27,6 @@
   font-size: 14px;
   line-height: 1.5;
   padding: 4px 0;
- 
 }
 
 .specifications-table input {
@@ -95,7 +99,6 @@
   border: none !important;
   border: 2px solid var(--clr-neutral-muted) !important;
   gap: 4px;
-
 }
 .input-form .tags-holder .tag .text {
   line-height: 1;
@@ -126,7 +129,7 @@
   box-sizing: border-box; /* Ensure padding is included in width calculations */
 }
 .tags-holder .btn.btn-icon.secondary {
-  padding: 0 !important; 
+  padding: 0 !important;
   background-color: none;
 }
 

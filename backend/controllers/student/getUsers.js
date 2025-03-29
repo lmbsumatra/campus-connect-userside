@@ -1,6 +1,7 @@
 const { models } = require("../../models");
 const Fuse = require("fuse.js");
 const { sequelize } = require("../../models/index");
+const { Op } = require("sequelize");
 
 const getUsers = async (req, res) => {
   const loggedInUserId = req.user.userId;
@@ -35,7 +36,7 @@ const getUsers = async (req, res) => {
             follower_id: user.user_id,
           },
         });
-        
+
         let action = "Follow";
         if (loggedInUserId === user.user_id) {
           action = "You";
@@ -50,20 +51,23 @@ const getUsers = async (req, res) => {
         // Get the average rating for this user from all reviews where they were the reviewee
         const userRating = await models.ReviewAndRate.findOne({
           attributes: [
-            [sequelize.fn('AVG', sequelize.col('rate')), 'averageRating'],
-            [sequelize.fn('COUNT', sequelize.col('id')), 'totalReviews']
+            [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
+            [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
           ],
-          where: { reviewee_id: user.user_id },
-          raw: true
+          where: {
+            reviewee_id: user.user_id,
+            review_type: { [Op.in]: ["owner", "renter"] },
+          },
+          raw: true,
         });
 
         // Format the rating to one decimal place if it exists
-        const averageRating = userRating?.averageRating 
-          ? parseFloat(userRating.averageRating).toFixed(1) 
+        const averageRating = userRating?.averageRating
+          ? parseFloat(userRating.averageRating).toFixed(1)
           : "0.0";
-        
+
         const totalReviews = userRating?.totalReviews || 0;
-        
+
         return {
           id: user.user_id,
           fname: user.first_name,

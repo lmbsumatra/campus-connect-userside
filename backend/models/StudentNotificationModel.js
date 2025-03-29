@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
+const Student = require("./StudentModel");
+const User = require("./UserModel");
 const Listing = require("./ListingModel")(sequelize);
 const Post = require("./PostModel")(sequelize);
 
@@ -74,6 +76,11 @@ StudentNotification.belongsTo(Listing, {
 StudentNotification.belongsTo(Post, {
   foreignKey: "post_id",
   as: "post",
+});
+
+StudentNotification.belongsTo(User, {
+  foreignKey: "sender_id",
+  as: "sender",
 });
 
 module.exports = StudentNotification;

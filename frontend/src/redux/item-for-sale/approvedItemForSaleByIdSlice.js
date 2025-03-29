@@ -11,19 +11,33 @@ const initialState = {
 
 export const fetchApprovedItemForSaleById = createAsyncThunk(
   "item-for-sale/fetchApprovedItemForSaleById",
-  async (id, { rejectWithValue }) => {
+  async (id, { rejectWithValue, getState }) => {
+    const state = getState();
+    const { studentUser } = state.studentAuth || {};
+
+    // Initialize URLSearchParams for query parameters
+    const params = new URLSearchParams();
+    if (studentUser && studentUser.userId) {
+      params.append("userId", studentUser.userId);
+    }
+
+    // Construct the URL with query parameters if they exist
+    let url = `${BASE_URL}/${id}`;
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
     try {
-      const response = await fetch(`${BASE_URL}/${id}`);
+      const response = await fetch(url);
 
       if (!response.ok) {
-        // If response is not OK (404, 500, etc.), throw error
         const errorMessage = `Error ${response.status}: ${response.statusText}`;
         throw new Error(errorMessage);
       }
 
-      return await response.json(); // Return valid data
+      return await response.json();
     } catch (error) {
-      return rejectWithValue(error.message); // Pass error to Redux state
+      return rejectWithValue(error.message);
     }
   }
 );

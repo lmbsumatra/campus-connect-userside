@@ -2,6 +2,7 @@ const Notification = require("../models/NotificationModel");
 const MessageNotification = require("../models/MessageNotificationModel");
 const User = require("../models/UserModel");
 const StudentNotification = require("../models/StudentNotificationModel");
+const Student = require("../models/StudentModel");
 
 const notificationController = {
   // Existing admin notification methods
@@ -77,6 +78,20 @@ const notificationController = {
           "createdAt",
           "listing_id",
           "post_id",
+        ],
+        include: [
+          {
+            model: User,
+            as: "sender",
+            attributes: ["first_name", "last_name"],
+            include: [
+              {
+                model: Student,
+                as: "student", // Give it an alias for easy access
+                attributes: ["profile_pic"],
+              },
+            ],
+          },
         ],
         order: [["createdAt", "DESC"]],
       });

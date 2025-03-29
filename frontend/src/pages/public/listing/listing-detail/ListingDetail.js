@@ -11,6 +11,7 @@ import Tooltip from "@mui/material/Tooltip";
 import cartIcon from "../../../../assets/images/pdp/cart.svg";
 import forRentIcon from "../../../../assets/images/card/rent.svg";
 import forSaleIcon from "../../../../assets/images/card/buy.svg";
+import targetIcon from "../../../../assets/images/card/target.svg";
 import "./listingDetailStyles.css";
 import "../confirmationModalStyles.css";
 import ShowAlert from "../../../../utils/ShowAlert.js";
@@ -618,6 +619,37 @@ function ListingDetail() {
               className="item-type"
             />
           </Tooltip>
+          {approvedListingById.isFollowingRenter && (
+            <Tooltip
+              title={
+                approvedListingById.itemType === FOR_RENT
+                  ? "This item is rented by one of your followings"
+                  : "This item is bought by one of your followings"
+              }
+              componentsProps={{
+                popper: {
+                  modifiers: [
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, 0],
+                      },
+                    },
+                  ],
+                },
+              }}
+            >
+              <img
+                src={targetIcon}
+                alt={
+                  approvedListingById.itemType === FOR_RENT
+                    ? "This item is rented by one of your followings"
+                    : "This item is bought by one of your followings"
+                }
+                className="rented-indx"
+              />
+            </Tooltip>
+          )}
           <ImageSlider
             images={
               approvedListingById.images && approvedListingById.images.length
@@ -673,9 +705,32 @@ function ListingDetail() {
           </div>
           <div className="item-price">
             {approvedListingById.rate ? (
-              <span className="price">₱ {approvedListingById.rate}</span>
+              <span className="price">₱ {approvedListingById.rate} per hr</span>
             ) : (
               <span className="error-msg">No available name.</span>
+            )}
+          </div>
+
+          <div className="d-flex align-items-center my-1">
+            {approvedListingById.averageRating ? (
+              <>
+                <span className="price me-2 fs-5 fw-bold text-success">
+                  {approvedListingById.averageRating.toFixed(2)}
+                </span>
+                <div className="">
+                  {"("}
+                  <i
+                    className="bi-star-fill text-warning"
+                    style={{ fontSize: "1 rem" }}
+                  />
+                </div>
+                {")"}
+              </>
+            ) : (
+              <span className="error-msg text-gray fs-5">
+                <i className="bi-star" style={{ fontSize: "1 rem" }} /> No
+                ratings yet
+              </span>
             )}
           </div>
           <div className="action-btns">
@@ -724,13 +779,40 @@ function ListingDetail() {
                     setSelectedDate(date);
                   }
                 }}
-                highlightDates={availableDates}
                 dayClassName={(date) => {
-                  return availableDates.some(
-                    (d) => d.toDateString() === date.toDateString()
-                  )
-                    ? "bg-green"
-                    : "";
+                  // Get today's date with time set to midnight for proper comparison
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+
+                  // Check if this date is in the past
+                  const isPast = date.getTime() < today.getTime();
+
+                  // Check if this date is in the unavailable dates
+                  const isUnavailable = formattedUnavailableDates.some(
+                    (item) =>
+                      new Date(item.date).toDateString() === date.toDateString()
+                  );
+
+                  // Check if this is the selected date
+                  const isSelected =
+                    selectedDate &&
+                    date.toDateString() ===
+                      new Date(selectedDate).toDateString();
+
+                  // Apply appropriate class based on conditions
+                  if (isSelected) {
+                    return "bg-blue";
+                  } else if (
+                    availableDates.some(
+                      (d) => d.toDateString() === date.toDateString()
+                    ) &&
+                    !isPast &&
+                    !isUnavailable
+                  ) {
+                    return "bg-green";
+                  } else {
+                    return "";
+                  }
                 }}
                 excludeDates={formattedUnavailableDates.map(
                   (item) => new Date(item.date)
@@ -741,6 +823,10 @@ function ListingDetail() {
                     ? new Date(unavailableDates?.endSemesterDates[0]?.date)
                     : null
                 }
+                shouldCloseOnSelect={false}
+                formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
+                calendarClassName="custom-calendar"
+                todayButton={null}
               />
             </div>
 

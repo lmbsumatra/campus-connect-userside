@@ -104,6 +104,8 @@ User.associate = (models) => {
     foreignKey: "admin_id",
     as: "logs",
   });
+
+  
 };
 
 module.exports = User;

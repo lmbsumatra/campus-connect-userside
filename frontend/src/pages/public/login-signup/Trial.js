@@ -132,8 +132,8 @@ const Trial = ({ onTabClick }) => {
             userId: data.userId,
           };
           dispatch(saveUserData(loginData));
-          ShowAlert(dispatch, "success", "Logged in!");
-          navigate("/");
+          await ShowAlert(dispatch, "success", "Logged in!");
+          navigate(0);
         } else {
           ShowAlert(dispatch, "error", "Failed", "Please try to login again.");
         }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import UserIcon from "../../../assets/images/icons/user.svg";
 import MyRentalsIcon from "../../../assets/images/icons/rental.svg";
@@ -9,6 +9,7 @@ import "./style.css";
 import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 import { Navigate, useNavigate } from "react-router-dom";
+import Cart from "../../../pages/private/users/cart/Cart";
 
 const UserDropdown = ({
   icon,
@@ -19,6 +20,12 @@ const UserDropdown = ({
 }) => {
   const studentUser = useSelector(selectStudentUser);
   const { userId } = studentUser || {};
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const toggleCart = () => {
+    setIsCartOpen(!isCartOpen);
+    toggleDropdown(); // Close dropdown when opening the cart
+  };
 
   const navigate = useNavigate();
 
@@ -26,7 +33,6 @@ const UserDropdown = ({
     (state) => state.user
   );
 
-  console.log(user);
   return (
     <div className="user-dropdown-container" id="user-dropdown-popup">
       {/* Dropdown Trigger */}
@@ -110,6 +116,10 @@ const UserDropdown = ({
                 >
                   <h6>Dashboard</h6>
                 </button>
+
+                <button className="dropdown-btn" onClick={toggleCart}>
+                  View Cart
+                </button>
                 <button
                   className="dropdown-btn"
                   onClick={() => {
@@ -169,6 +179,7 @@ const UserDropdown = ({
           )}
         </div>
       )}
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 };

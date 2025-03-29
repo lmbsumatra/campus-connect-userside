@@ -3,7 +3,7 @@ const { models } = require("../../models");
 const getAvailableListingsByUser = async (req, res) => {
   try {
     // Extract userId from query params or route parameters
-    const { userId } = req.params; // or req.params if userId is in URL params
+    const { userId } = req.params;
 
     // Validate userId
     if (!userId) {
@@ -13,7 +13,7 @@ const getAvailableListingsByUser = async (req, res) => {
     const items = await models.Listing.findAll({
       where: {
         status: "approved",
-        owner_id: userId, // Filter by userId
+        owner_id: userId,
       },
       include: [
         {
@@ -51,10 +51,22 @@ const getAvailableListingsByUser = async (req, res) => {
             },
           ],
         },
+        {
+          model: models.ReviewAndRate,
+          as: "reviews",
+          where: { review_type: "item" },
+          attributes: ["rate"],
+          required: false,
+        },
       ],
     });
 
     const formattedItems = items.map((item) => {
+      const reviews = item.reviews || [];
+      const averageRating = reviews.length
+        ? reviews.reduce((sum, review) => sum + review.rate, 0) / reviews.length
+        : null;
+
       return {
         id: item.id,
         name: item.listing_name,
@@ -70,9 +82,9 @@ const getAvailableListingsByUser = async (req, res) => {
         lateCharges: item.late_charges,
         securityDeposit: item.security_deposit,
         repairReplacement: item.repair_replacement,
-        itemCondition: item.listing_condition,
         paymentMethod: item.payment_mode,
         specs: item.specifications,
+        averageRating, // Adding average rating to the response
         availableDates: item.rental_dates.map((date) => ({
           id: date.id,
           itemId: date.item_id,
@@ -95,10 +107,8 @@ const getAvailableListingsByUser = async (req, res) => {
       };
     });
 
-    // Return the filtered listings
     res.status(200).json(formattedItems);
   } catch (error) {
-    // console.error("Error fetching listings:", error);
     res.status(500).json({ error: error.message });
   }
 };

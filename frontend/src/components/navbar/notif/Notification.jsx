@@ -744,7 +744,7 @@ const Notification = ({
           }}
         >
           <img
-            src={UserIcon}
+            src={notif?.sender?.student?.profile_pic || UserIcon}
             className="notification-avatar"
             alt="User Avatar"
           />

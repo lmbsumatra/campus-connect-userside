@@ -9,6 +9,7 @@ import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import Tooltip from "@mui/material/Tooltip";
 import cartIcon from "../../../assets/images/pdp/cart.svg";
 import forRentIcon from "../../../assets/images/card/rent.svg";
+import targetIcon from "../../../assets/images/card/target.svg";
 import forSaleIcon from "../../../assets/images/card/buy.svg";
 import "./itemForSaleDetailStyles.css";
 
@@ -221,37 +222,37 @@ function ItemForSaleDetail() {
   };
 
   const [stripePaymentDetails, setStripePaymentDetails] = useState(null);
-   const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
-      useSelector((state) => state.unavailableDates);
-  
-    useEffect(() => {
-      dispatch(fetchUnavailableDates());
-    }, [dispatch]);
-  
-    const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
-      []
-    );
-  
-    useEffect(() => {
-      console.log("unavailableDates before processing:", unavailableDates);
-  
-      if (
-        unavailableDates.unavailableDates &&
-        Array.isArray(unavailableDates.unavailableDates) &&
-        unavailableDates.unavailableDates.length > 0
-      ) {
-        const formatted = unavailableDates.unavailableDates.map((item) => ({
-          date: new Date(item.date),
-          reason: item.description,
-        }));
-  
-        console.log("Formatted unavailable dates:", formatted);
-        setFormattedUnavailableDates(formatted);
-      } else {
-        console.log("No valid unavailableDates found.");
-        setFormattedUnavailableDates([]);
-      }
-    }, [unavailableDates]);
+  const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
+    useSelector((state) => state.unavailableDates);
+
+  useEffect(() => {
+    dispatch(fetchUnavailableDates());
+  }, [dispatch]);
+
+  const [formattedUnavailableDates, setFormattedUnavailableDates] = useState(
+    []
+  );
+
+  useEffect(() => {
+    console.log("unavailableDates before processing:", unavailableDates);
+
+    if (
+      unavailableDates.unavailableDates &&
+      Array.isArray(unavailableDates.unavailableDates) &&
+      unavailableDates.unavailableDates.length > 0
+    ) {
+      const formatted = unavailableDates.unavailableDates.map((item) => ({
+        date: new Date(item.date),
+        reason: item.description,
+      }));
+
+      console.log("Formatted unavailable dates:", formatted);
+      setFormattedUnavailableDates(formatted);
+    } else {
+      console.log("No valid unavailableDates found.");
+      setFormattedUnavailableDates([]);
+    }
+  }, [unavailableDates]);
 
   const confirmRental = async () => {
     try {
@@ -564,6 +565,38 @@ function ItemForSaleDetail() {
               className="item-type"
             />
           </Tooltip>
+
+          {approvedItemForSaleById.isFollowingBuyer && (
+            <Tooltip
+              title={
+                approvedItemForSaleById.itemType === FOR_RENT
+                  ? "This item is rented by one of your followings"
+                  : "This item is bought by one of your followings"
+              }
+              componentsProps={{
+                popper: {
+                  modifiers: [
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, 0],
+                      },
+                    },
+                  ],
+                },
+              }}
+            >
+              <img
+                src={targetIcon}
+                alt={
+                  approvedItemForSaleById.itemType === FOR_RENT
+                    ? "This item is rented by one of your followings"
+                    : "This item is bought by one of your followings"
+                }
+                className="rented-indx"
+              />
+            </Tooltip>
+          )}
           <ImageSlider
             images={
               approvedItemForSaleById.images &&
@@ -624,6 +657,29 @@ function ItemForSaleDetail() {
               <span className="error-msg">No available name.</span>
             )}
           </div>
+          <div className="d-flex align-items-center my-1">
+            {approvedItemForSaleById.averageRating ? (
+              <>
+                <span className="price me-2 fs-5 fw-bold text-success">
+                  {approvedItemForSaleById.averageRating.toFixed(2)}
+                </span>
+                <div className="">
+                  {"("}
+                  <i
+                    className="bi-star-fill text-warning"
+                    style={{ fontSize: "1 rem" }}
+                  />
+                </div>
+                {")"}
+              </>
+            ) : (
+              <span className="error-msg text-gray fs-5">
+                <i className="bi-star" style={{ fontSize: "1 rem" }} /> No
+                ratings yet
+              </span>
+            )}
+          </div>
+
           <div className="action-btns">
             <button
               className="btn btn-icon primary"
@@ -657,9 +713,6 @@ function ItemForSaleDetail() {
               </span>
               <DatePicker
                 inline
-                excludeDates={formattedUnavailableDates.map(
-                  (item) => new Date(item.date)
-                )}
                 selected={selectedDate ? new Date(selectedDate) : null}
                 onChange={(date) => {
                   const rentalDate = rentalDates.find(
@@ -674,20 +727,54 @@ function ItemForSaleDetail() {
                     setSelectedDate(date);
                   }
                 }}
-                highlightDates={availableDates}
                 dayClassName={(date) => {
-                  return availableDates.some(
-                    (d) => d.toDateString() === date.toDateString()
-                  )
-                    ? "bg-green"
-                    : "";
+                  // Get today's date with time set to midnight for proper comparison
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+
+                  // Check if this date is in the past
+                  const isPast = date.getTime() < today.getTime();
+
+                  // Check if this date is in the unavailable dates
+                  const isUnavailable = formattedUnavailableDates.some(
+                    (item) =>
+                      new Date(item.date).toDateString() === date.toDateString()
+                  );
+
+                  // Check if this is the selected date
+                  const isSelected =
+                    selectedDate &&
+                    date.toDateString() ===
+                      new Date(selectedDate).toDateString();
+
+                  // Apply appropriate class based on conditions
+                  if (isSelected) {
+                    return "bg-blue";
+                  } else if (
+                    availableDates.some(
+                      (d) => d.toDateString() === date.toDateString()
+                    ) &&
+                    !isPast &&
+                    !isUnavailable
+                  ) {
+                    return "bg-green";
+                  } else {
+                    return "";
+                  }
                 }}
+                excludeDates={formattedUnavailableDates.map(
+                  (item) => new Date(item.date)
+                )}
                 minDate={new Date()} // Prevents selecting past dates
                 maxDate={
                   unavailableDates?.endSemesterDates?.length > 0
                     ? new Date(unavailableDates?.endSemesterDates[0]?.date)
                     : null
                 }
+                shouldCloseOnSelect={false}
+                formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
+                calendarClassName="custom-calendar"
+                todayButton={null}
               />
             </div>
 

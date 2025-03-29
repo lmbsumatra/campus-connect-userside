@@ -10,12 +10,30 @@ const initialState = {
   errorApprovedListingById: null,
 };
 
-// Asynchronous action using createAsyncThunk with axios
 export const fetchApprovedListingById = createAsyncThunk(
   "listing/fetchApprovedListingById",
-  async (id) => {
-    const response = await axios.get(`${BASE_URL}/${id}`);
-    return response.data;
+  async (id, { getState, rejectWithValue }) => {
+    const state = getState();
+    const { studentUser } = state.studentAuth || {};
+
+    // Initialize URLSearchParams for query parameters
+    const params = new URLSearchParams();
+    if (studentUser && studentUser.userId) {
+      params.append("userId", studentUser.userId);
+    }
+
+    // Construct the URL with query parameters if they exist
+    let url = `${BASE_URL}/${id}`;
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
   }
 );
 

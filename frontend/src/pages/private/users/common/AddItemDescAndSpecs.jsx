@@ -12,11 +12,11 @@ const AddItemDescAndSpecs = ({
   onDescChange,
   onTagsChange,
   errors = {},
-  triggered = {}
+  triggered = {},
 }) => {
   // Ensure tags is always an array
   const tags = Array.isArray(initialTags) ? initialTags : [];
-  
+
   const [newTag, setNewTag] = useState("");
   const [duplicateTag, setDuplicateTag] = useState(null);
   const [blur, setBlur] = useState(false);
@@ -38,7 +38,7 @@ const AddItemDescAndSpecs = ({
   };
 
   const handleRemoveTag = (tagToRemove) => {
-    const updatedTags = tags.filter(tag => tag !== tagToRemove);
+    const updatedTags = tags.filter((tag) => tag !== tagToRemove);
     onTagsChange?.(updatedTags);
     if (duplicateTag === tagToRemove) setDuplicateTag(null);
   };
@@ -57,12 +57,12 @@ const AddItemDescAndSpecs = ({
 
   const handleAddSpec = () => {
     if (!newKey.trim() || !newValue.trim()) return;
-    
+
     const updatedSpecs = {
       ...specs,
-      [newKey.trim()]: newValue.trim()
+      [newKey.trim()]: newValue.trim(),
     };
-    
+
     onSpecsChange?.(updatedSpecs);
     setNewKey("");
     setNewValue("");
@@ -77,59 +77,58 @@ const AddItemDescAndSpecs = ({
   return (
     <div className="input-form item-desc">
       <label className="sub-section-label">Specifications</label>
-      <table className="specifications-table" role="table">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th>Value</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(specs).map(([key, value], index) => (
-            <tr key={index}>
-              <td>{key}</td>
-              <td>{value}</td>
+      <div className="specifications-wrapper">
+        <table className="specifications-table" role="table">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Value</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(specs).map(([key, value], index) => (
+              <tr key={index}>
+                <td>{key}</td>
+                <td>{value}</td>
+                <td>
+                  <button
+                    className="btn btn-rectangle secondary"
+                    onClick={() => handleRemoveSpec(key)}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+            <tr>
               <td>
-                <button
-                  className="btn btn-rectangle secondary"
-                  onClick={() => handleRemoveSpec(key)}
-                >
-                  Remove
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="Add key here"
+                  value={newKey}
+                  onChange={(e) => setNewKey(e.target.value)}
+                />
+              </td>
+              <td>
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="Add value here"
+                  value={newValue}
+                  onChange={(e) => setNewValue(e.target.value)}
+                />
+              </td>
+              <td>
+                <button className="btn btn-primary" onClick={handleAddSpec}>
+                  Add
                 </button>
               </td>
             </tr>
-          ))}
-          <tr>
-            <td>
-              <input
-                className="input"
-                type="text"
-                placeholder="Add key here"
-                value={newKey}
-                onChange={(e) => setNewKey(e.target.value)}
-              />
-            </td>
-            <td>
-              <input
-                className="input"
-                type="text"
-                placeholder="Add value here"
-                value={newValue}
-                onChange={(e) => setNewValue(e.target.value)}
-              />
-            </td>
-            <td>
-              <button
-                className="btn btn-primary"
-                onClick={handleAddSpec}
-              >
-                Add
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       {triggered.specs && errors.specs && (
         <div className="validation error">
           <img src={warningIcon} className="icon" alt="Error on specs" />

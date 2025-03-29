@@ -1,4 +1,5 @@
-const { models } = require("../../models/index");
+const { Op } = require("sequelize");
+const { models, sequelize } = require("../../models/index");
 
 const adminItemForSaleById = async (req, res) => {
   try {
@@ -27,6 +28,12 @@ const adminItemForSaleById = async (req, res) => {
             },
           ],
         },
+        {
+          model: models.ReviewAndRate,
+          as: "reviews",
+          where: { review_type: "item" },
+          required: false, // Allow items with no reviews to still be fetched
+        },
       ],
     });
 
@@ -34,7 +41,30 @@ const adminItemForSaleById = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    // Format the response to flatten fields like item_name, price, etc.
+    // Calculate average rating if reviews exist
+    const reviews = item.reviews || [];
+    const averageRating = reviews.length
+      ? reviews.reduce((sum, review) => sum + review.rate, 0) / reviews.length
+      : null;
+
+    // Get the average rating for this user from all reviews where they were the reviewee
+    const userRating = await models.ReviewAndRate.findOne({
+      attributes: [
+        [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
+      ],
+      where: {
+        reviewee_id: item.seller.user_id,
+        review_type: { [Op.in]: ["owner", "renter"] },
+      },
+      raw: true,
+    });
+
+    // Format the rating to one decimal place if it exists
+    const averageOwnerRating = userRating?.averageRating
+      ? parseFloat(userRating.averageRating).toFixed(1)
+      : "0.0";
+
     const formattedItem = {
       id: item.id,
       itemName: item.item_for_sale_name,
@@ -68,11 +98,20 @@ const adminItemForSaleById = async (req, res) => {
         fname: item.seller.first_name,
         lname: item.seller.last_name,
         college: item.seller.student.college,
+        rating: averageOwnerRating,
       },
+      reviews: reviews.map((review) => ({
+        id: review.id,
+        rate: review.rate,
+        review: review.review,
+        createdAt: review.created_at,
+        reviewerId: review.reviewer_id,
+      })),
+      averageRating,
     };
+
     res.status(200).json(formattedItem);
   } catch (error) {
-    // console.error("Error fetching admin listing:", error);
     res.status(500).json({ error: error.message });
   }
 };

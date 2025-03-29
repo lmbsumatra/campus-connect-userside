@@ -25,6 +25,8 @@ export const fetchAllApprovedListings = createAsyncThunk(
 
     if (params.toString()) {
       url += `?${params.toString()}`;
+
+      console.log(url);
     }
 
     // console.log(url);

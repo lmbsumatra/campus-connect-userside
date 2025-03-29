@@ -14,7 +14,7 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
     const items = await models.ItemForSale.findAll({
       where: {
         status: "approved",
-        seller_id: userId, // Filter by userId
+        seller_id: userId,
       },
       include: [
         {
@@ -52,6 +52,13 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
             },
           ],
         },
+        {
+          model: models.ReviewAndRate,
+          as: "reviews",
+          where: { review_type: "item" },
+          attributes: ["rate"],
+          required: false,
+        },
       ],
     });
 
@@ -61,6 +68,11 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
         try {
           const parsedTags = item.tags ? JSON.parse(item.tags) : [];
           const parsedImages = item.images ? JSON.parse(item.images) : [];
+          const reviews = item.reviews || [];
+          const averageRating = reviews.length
+            ? reviews.reduce((sum, review) => sum + review.rate, 0) /
+              reviews.length
+            : null;
 
           // Construct availableDates properly
           const availableDates = item.available_dates.map((date) => ({
@@ -96,26 +108,23 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
                 repairReplacement: item.repair_replacement,
                 paymentMethod: item.payment_mode,
                 specs: item.specifications,
-                availableDates, // Ensure only items with dates are included
+                averageRating, // Adding average rating to the response
+                availableDates,
                 seller: {
                   id: item.seller_id,
                   fname: item.seller.first_name,
                   lname: item.seller.last_name,
                 },
               }
-            : null; // Exclude items with no availableDates
+            : null;
         } catch (error) {
-          // console.error("Error formatting item:", error);
           return null;
         }
       })
       .filter(Boolean); // Remove items that are null (i.e., no dates)
 
-    // console.log("getching here?", formattedItems);
-    // Return the formatted items
     res.status(200).json(formattedItems);
   } catch (error) {
-    // console.error("Error fetching listings:", error);
     res.status(500).json({ error: error.message });
   }
 };

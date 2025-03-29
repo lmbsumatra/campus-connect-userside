@@ -66,6 +66,8 @@ const AdminSidebar = () => {
       setActiveTab("logs");
     } else if (path.includes("/admin/settings")) {
       setActiveTab("settings");
+    } else if (path.includes("/admin/generate-report")) {
+      setActiveTab("generate-report");
     }
   }, [location]);
 
@@ -461,9 +463,9 @@ const AdminSidebar = () => {
         </div>
 
         <div
-          className={`tab ${activeTab === "generate-report" ? "active" : ""} ${
-            openTabs.includes("generate-report") ? "expand" : ""
-          }`}
+          className={`tab ${
+            activeTab === "generate-report" ? "active" : ""
+          } ${openTabs.includes("generate-report") ? "expand" : ""}`}
           onClick={() =>
             handleActiveTab(["generate-report", "/admin/generate-report"])
           }

@@ -1,7 +1,10 @@
-const { models } = require("../../models/index");
+const { Op } = require("sequelize");
+const { models, sequelize } = require("../../models/index");
 
-// Get a single approved listing by ID with associated rental dates, durations, and renter info
+// Get a single approved listing by ID with associated rental dates, durations, renter info, and average rating
 const getAvailableListingById = async (req, res) => {
+  const userId = req.query.userId || "";
+
   try {
     const listing = await models.Listing.findOne({
       where: {
@@ -41,11 +44,63 @@ const getAvailableListingById = async (req, res) => {
             },
           ],
         },
+        {
+          model: models.ReviewAndRate,
+          as: "reviews",
+          where: { review_type: "item" },
+          attributes: ["rate"],
+          required: false,
+        },
       ],
     });
 
     if (!listing) {
-      return res.status(404).json({ error: "Listing not found why" });
+      return res.status(404).json({ error: "Listing not found" });
+    }
+
+    // Calculate average rating
+    const reviews = listing.reviews || [];
+    const averageRating = reviews.length
+      ? reviews.reduce((sum, review) => sum + review.rate, 0) / reviews.length
+      : null;
+
+    const userRating = await models.ReviewAndRate.findOne({
+      attributes: [
+        [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
+      ],
+      where: {
+        reviewee_id: listing.owner.user_id,
+        review_type: { [Op.in]: ["owner", "renter"] },
+      },
+      raw: true,
+    });
+
+    // Format the rating to one decimal place if it exists
+    const averageOwnerRating = userRating?.averageRating
+      ? parseFloat(userRating.averageRating).toFixed(1)
+      : "0.0";
+
+    let isFollowingRenter = false;
+
+    if (userId) {
+      // Only run this section if user is logged in
+      const followings = await models.Follow.findAll({
+        where: { follower_id: userId },
+        attributes: ["followee_id"],
+        raw: true,
+      });
+
+      const followingIds = followings.map((follow) => follow.followee_id);
+
+      const transaction = await models.RentalTransaction.findOne({
+        where: {
+          renter_id: { [Op.in]: followingIds },
+          item_id: listing.id,
+        },
+      });
+
+      isFollowingRenter = !!transaction;
     }
 
     // Format the response to flatten fields like item_name, price, etc.
@@ -67,6 +122,8 @@ const getAvailableListingById = async (req, res) => {
       desc: listing.description,
       specs: listing.specifications,
       images: JSON.parse(listing.images),
+      averageRating, // Adding average rating to the response
+      isFollowingRenter,
       availableDates: listing.rental_dates.map((date) => ({
         id: date.id,
         listingId: date.listing_id,
@@ -85,12 +142,12 @@ const getAvailableListingById = async (req, res) => {
         fname: listing.owner.first_name,
         lname: listing.owner.last_name,
         college: listing.owner.student.college,
+        rating: averageOwnerRating,
       },
     };
 
     res.status(200).json(formattedListing);
   } catch (error) {
-    // console.error("Error fetching listing:", error);
     res.status(500).json({ error: error.message });
   }
 };

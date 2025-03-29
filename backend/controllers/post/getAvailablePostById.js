@@ -1,4 +1,5 @@
-const { models } = require("../../models/index");
+const { Op } = require("sequelize");
+const { models, sequelize } = require("../../models/index");
 
 // Get a single approved post by ID with associated available rental dates, available durations, and renter info
 const getAvailablePostById = async (req, res) => {
@@ -49,6 +50,24 @@ const getAvailablePostById = async (req, res) => {
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
+
+    // Get the average rating for this user from all reviews where they were the reviewee
+    const userRating = await models.ReviewAndRate.findOne({
+      attributes: [
+        [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
+      ],
+      where: {
+        reviewee_id: post.renter.user_id,
+        review_type: { [Op.in]: ["owner", "renter"] },
+      },
+      raw: true,
+    });
+
+    // Format the rating to one decimal place if it exists
+    const averageRenterRating = userRating?.averageRating
+      ? parseFloat(userRating.averageRating).toFixed(1)
+      : "0.0";
     // Format the response to flatten fields like item_name, price, etc.
     const formattedPost = {
       id: post.id,
@@ -80,6 +99,7 @@ const getAvailablePostById = async (req, res) => {
         fname: post.renter.first_name,
         lname: post.renter.last_name,
         college: post.renter.student.college,
+        rating: averageRenterRating,
       },
     };
 

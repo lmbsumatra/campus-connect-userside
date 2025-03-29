@@ -1,4 +1,5 @@
-const { models } = require("../../models/index");
+const { Op } = require("sequelize");
+const { models, sequelize } = require("../../models/index");
 
 const adminPostById = async (req, res) => {
   try {
@@ -34,6 +35,24 @@ const adminPostById = async (req, res) => {
       return res.status(404).json({ error: "Post not found" });
     }
 
+    // Get the average rating for this user from all reviews where they were the reviewee
+    const userRating = await models.ReviewAndRate.findOne({
+      attributes: [
+        [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
+      ],
+      where: {
+        reviewee_id: post.renter.user_id,
+        review_type: { [Op.in]: ["owner", "renter"] },
+      },
+      raw: true,
+    });
+
+    // Format the rating to one decimal place if it exists
+    const averageRenterRating = userRating?.averageRating
+      ? parseFloat(userRating.averageRating).toFixed(1)
+      : "0.0";
+
     // Format the response to flatten fields like item_name, price, etc.
     const formattedPost = {
       id: post.id,
@@ -64,6 +83,7 @@ const adminPostById = async (req, res) => {
         fname: post.renter.first_name,
         lname: post.renter.last_name,
         college: post.renter.student.college,
+        rating: averageRenterRating,
       },
     };
     res.status(200).json(formattedPost);

@@ -102,7 +102,10 @@
     /* Blue */ #7f00ff /* Violet */
   );
 }
-
+.bg-green {
+  background-color: #00db00;
+  border-radius: 4px;
+}
 /* Text Colors */
 
 :root {

@@ -16,6 +16,7 @@ import TrialOnHeroSection from "../../trials/TrialOnHeroSection";
 import BrowseByCollection from "../../components/browse-by-collection/BrowseByCollection.jsx";
 import { Link } from "react-router-dom";
 import "./homeStyles.css";
+import { baseUrl } from "../../utils/consonants.js";
 
 // Section Title component with View All link
 function SectionTitle({ title, viewAllLink }) {
@@ -88,7 +89,7 @@ function Home() {
 
       <ContentSection
         title="Listings"
-        viewAllLink="/listings"
+        viewAllLink={`${baseUrl}/rent`}
         error={errorAllApprovedListings}
         loading={loadingAllApprovedListings}
         fallback={
@@ -104,7 +105,7 @@ function Home() {
 
       <ContentSection
         title="For Sale"
-        viewAllLink="/for-sale"
+        viewAllLink={`${baseUrl}/shop`}
         error={errorAllApprovedItemForSale}
         loading={loadingAllApprovedItemForSale}
         fallback={
@@ -126,7 +127,7 @@ function Home() {
 
       <ContentSection
         title="Looking for..."
-        viewAllLink="/posts"
+        viewAllLink={`${baseUrl}/lookingfor`}
         error={errorAllApprovedPosts}
         loading={loadingAllApprovedPosts}
         fallback={

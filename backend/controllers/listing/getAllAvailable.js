@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { models, sequelize } = require("../../models/index.js");
 const { notifyAdmins } = require("../../socket.js");
 const Fuse = require("fuse.js");
@@ -89,48 +90,87 @@ const getAllAvailable = async (req, res) => {
             },
           ],
         },
+        {
+          model: models.ReviewAndRate,
+          as: "reviews",
+          where: { review_type: "item" },
+          attributes: ["rate"],
+          required: false,
+        },
       ],
       order: [[sequelize.literal("no_of_rentals"), "DESC"]],
     });
-    const formattedItems = items.map((item) => {
-      return {
-        id: item.id,
-        name: item.listing_name,
-        tags: JSON.parse(item.tags),
-        price: item.rate,
-        createdAt: item.created_at,
-        status: item.status,
-        category: item.category,
-        itemType: "For Rent",
-        images: JSON.parse(item.images),
-        deliveryMethod: item.delivery_mode,
-        paymentMethod: item.payment_mode,
-        condition: item.listing_condition,
-        lateCharges: item.late_charges,
-        securityDeposit: item.security_deposit,
-        repairReplacement: item.repair_replacement,
-        availableDates: item.rental_dates.map((date) => ({
-          id: date.id,
-          itemId: date.item_id,
-          date: date.date,
-          itemType: date.item_type,
-          status: date.status,
-          durations: date.durations.map((duration) => ({
-            id: duration.id,
-            dateId: duration.date_id,
-            timeFrom: duration.rental_time_from,
-            timeTo: duration.rental_time_to,
-            status: duration.status,
+
+    const formattedItems = await Promise.all(
+      items.map(async (item) => {
+        const reviews = item.reviews || [];
+        const averageRating = reviews.length
+          ? reviews.reduce((sum, review) => sum + review.rate, 0) /
+            reviews.length
+          : null;
+
+        let isFollowingBuyer = false;
+
+        if (userId) {
+          const followings = await models.Follow.findAll({
+            where: { follower_id: userId },
+            attributes: ["followee_id"],
+            raw: true,
+          });
+
+          const followingIds = followings.map((follow) => follow.followee_id);
+
+          const transaction = await models.RentalTransaction.findOne({
+            where: {
+              renter_id: { [Op.in]: followingIds },
+              item_id: item.id,
+            },
+          });
+
+          isFollowingBuyer = !!transaction;
+        }
+
+        return {
+          id: item.id,
+          name: item.listing_name,
+          tags: JSON.parse(item.tags),
+          price: item.rate,
+          createdAt: item.created_at,
+          status: item.status,
+          category: item.category,
+          itemType: "For Rent",
+          images: JSON.parse(item.images),
+          deliveryMethod: item.delivery_mode,
+          paymentMethod: item.payment_mode,
+          condition: item.listing_condition,
+          lateCharges: item.late_charges,
+          securityDeposit: item.security_deposit,
+          repairReplacement: item.repair_replacement,
+          averageRating,
+          isFollowingBuyer,
+          availableDates: item.rental_dates.map((date) => ({
+            id: date.id,
+            itemId: date.item_id,
+            date: date.date,
+            itemType: date.item_type,
+            status: date.status,
+            durations: date.durations.map((duration) => ({
+              id: duration.id,
+              dateId: date.id,
+              timeFrom: duration.rental_time_from,
+              timeTo: duration.rental_time_to,
+              status: duration.status,
+            })),
           })),
-        })),
-        owner: {
-          id: item.owner_id,
-          fname: item.owner.first_name,
-          lname: item.owner.last_name,
-        },
-        college: item.owner.student ? item.owner.student.college : null,
-      };
-    });
+          owner: {
+            id: item.owner.user_id,
+            fname: item.owner.first_name,
+            lname: item.owner.last_name,
+          },
+          college: item.owner.student ? item.owner.student.college : null,
+        };
+      })
+    );
 
     if (user) {
       const userCollege = user.student ? user.student.college : null;
@@ -159,11 +199,8 @@ const getAllAvailable = async (req, res) => {
       return res.status(200).json(results.length ? results : []);
     }
 
-    // console.log(formattedItems);
-
     res.status(200).json(formattedItems);
   } catch (error) {
-    // console.error("Error fetching listings:", error);
     res.status(500).json({ error: error.message });
   }
 };

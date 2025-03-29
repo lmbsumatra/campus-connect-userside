@@ -1,6 +1,7 @@
 const { models } = require("../../models");
 const Fuse = require("fuse.js");
 const { sequelize } = require("../../models/index");
+const { Op } = require("sequelize");
 
 const getUserById = async (req, res) => {
   const loggedInUserId = req.user.userId;
@@ -56,7 +57,10 @@ const getUserById = async (req, res) => {
         [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
         [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
       ],
-      where: { reviewee_id: user.user_id },
+      where: {
+        reviewee_id: user.user_id,
+        review_type: { [Op.in]: ["owner", "renter"] },
+      },
       raw: true,
     });
 

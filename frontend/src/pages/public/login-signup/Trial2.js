@@ -61,7 +61,7 @@ const Trial2 = ({ onTabClick, onForgotPassword }) => {
           "You are now logged in!",
           { text: "OK" }
         );
-        navigate("/");
+        navigate(0);
       })
       .catch((error) => {
         ShowAlert(dispatch, "error", error);
@@ -75,7 +75,7 @@ const Trial2 = ({ onTabClick, onForgotPassword }) => {
       .unwrap()
       .then(() => {
         ShowAlert(dispatch, "success", "Login successful!");
-        navigate("/");
+        navigate(0);
       })
       .catch((error) => {
         ShowAlert(dispatch, "error", error);
