@@ -297,16 +297,17 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       console.log("Emitting notification");
       emitNotification(owner_id, notification.toJSON());
     }
-
-    console.log(item.owner.email, rental.renter.email);
-
     // For the Owner
+    console.log(item?.seller?.email, item?.owner?.email);
     await sendTransactionEmail({
-      email: item.owner.email,
+      email: transaction_type === "sell" ? item.seller.email : item.owner.email,
       itemName,
       transactionType: transaction_type,
       amount: totalAmountPHP,
-      userName: item.owner.first_name,
+      userName:
+        transaction_type === "sell"
+          ? item.seller.first_name
+          : item.owner.first_name,
       recipientType: "owner",
       status: "Requested",
     });

@@ -138,10 +138,13 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
     try {
       if (
         transaction.stripe_payment_intent_id &&
-        (transaction.owner_confirmed || transaction.renter_confirmed) &&
-        transaction.transaction_type === "sell"
+        transaction.transaction_type === "sell" &&
+        transaction.payment_status !== "Completed"
       ) {
-        console.log(transaction.stripe_payment_intent_id);
+        console.log(
+          transaction.stripe_payment_intent_id,
+          transaction.payment_status
+        );
         const paymentIntent = await stripe.paymentIntents.capture(
           transaction.stripe_payment_intent_id
         );
@@ -207,17 +210,23 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
           : "Handed Over"
         : "Completed";
       const confirmerType = isOwner ? "owner" : isRental ? "renter" : "buyer";
-      const recipientEmail = isOwner
-        ? transaction.renter.email // Email of the other party (Renter)
-        : isRental
-        ? transaction.owner.email // Email of the other party (Owner)
-        : transaction.buyer.email; // For sales, send to the buyer
+      const recipientEmail =
+        transaction.transaction_type === "rental"
+          ? isOwner
+            ? transaction.renter?.email
+            : transaction.owner?.email
+          : isOwner
+          ? transaction.buyer?.email
+          : transaction.owner?.email;
 
-      const recipientName = isOwner
-        ? `${transaction.renter.first_name} ${transaction.renter.last_name}`
-        : isRental
-        ? `${transaction.owner.first_name} ${transaction.owner.last_name}`
-        : `${transaction.buyer.first_name} ${transaction.buyer.last_name}`;
+      const recipientName =
+        transaction.transaction_type === "rental"
+          ? isOwner
+            ? `${transaction.renter?.first_name} ${transaction.renter?.last_name}`
+            : `${transaction.owner?.first_name} ${transaction.owner?.last_name}`
+          : isOwner
+          ? `${transaction.buyer?.first_name} ${transaction.buyer?.last_name}`
+          : `${transaction.owner?.first_name} ${transaction.owner?.last_name}`;
 
       await sendTransactionEmail({
         email: recipientEmail,
@@ -225,8 +234,15 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
         transactionType: isRental ? "rental" : "purchase",
         amount: transaction.total_amount,
         userName: recipientName,
-        recipientType: isOwner ? "renter" : "owner",
-        status: status,
+        recipientType:
+          transaction.transaction_type === "rental"
+            ? isOwner
+              ? "renter"
+              : "owner"
+            : isOwner
+            ? "buyer"
+            : "owner",
+        status: "Handed Over",
       });
     } catch (emailError) {
       console.error("Error sending handover/receipt email:", emailError);
