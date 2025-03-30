@@ -143,14 +143,9 @@ ul.tabs > li {
   transition: left 0.3s ease;
 }
 
-.sidebar-icon {
-  height: 24px;
-  width: auto;
-}
-
 .indication.active {
   background-color: var(--clr-primary);
-  border: 4px solid #C2C4FF;
+  border: 4px solid #c2c4ff;
 }
 
 .indication {
@@ -165,4 +160,29 @@ ul.tabs > li {
 .admin-header a {
   text-decoration: none;
   color: var(--clr-primary);
+}
+
+.sidebar-icon {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  transition: filter 0.3s ease;
+}
+
+/* Inactive state - orange */
+.tab:not(.active) .sidebar-icon {
+  filter: invert(56%) sepia(75%) saturate(1548%) hue-rotate(346deg)
+    brightness(99%) contrast(96%);
+}
+
+/* Active state - blue */
+.tab.active .sidebar-icon {
+  filter: invert(39%) sepia(59%) saturate(2939%) hue-rotate(211deg)
+    brightness(101%) contrast(101%);
+}
+
+/* Hover state */
+.tab:hover:not(.active) .sidebar-icon {
+  filter: invert(45%) sepia(75%) saturate(1948%) hue-rotate(346deg)
+    brightness(99%) contrast(96%);
 }

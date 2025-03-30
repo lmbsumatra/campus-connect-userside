@@ -68,60 +68,60 @@ const ReportDashboard = () => {
     );
   };
 
-  const handleDelete = async (reportId) => {
-    dispatch(
-      showNotification({
-        type: "warning",
-        title: "Delete Report?",
-        text: "Are you sure you want to delete this report? This action cannot be undone.",
-        customButton: {
-          text: "Yes, Delete",
-          action: async () => {
-            try {
-              const response = await fetch(
-                `${baseApi}/api/reports/${reportId}`,
-                {
-                  method: "DELETE",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${adminUser.token}`,
-                  },
-                }
-              );
+  // const handleDelete = async (reportId) => {
+  //   dispatch(
+  //     showNotification({
+  //       type: "warning",
+  //       title: "Delete Report?",
+  //       text: "Are you sure you want to delete this report? This action cannot be undone.",
+  //       customButton: {
+  //         text: "Yes, Delete",
+  //         action: async () => {
+  //           try {
+  //             const response = await fetch(
+  //               `${baseApi}/api/reports/${reportId}`,
+  //               {
+  //                 method: "DELETE",
+  //                 headers: {
+  //                   "Content-Type": "application/json",
+  //                   Authorization: `Bearer ${adminUser.token}`,
+  //                 },
+  //               }
+  //             );
 
-              if (response.ok) {
-                await ShowAlert(
-                  dispatch,
-                  "success",
-                  "Report Deleted",
-                  "Report deleted successfully."
-                );
-                setOriginalData((prevData) =>
-                  prevData.filter((report) => report.id !== reportId)
-                );
-              } else {
-                await ShowAlert(
-                  dispatch,
-                  "error",
-                  "Report Deletion Failed",
-                  "Failed to delete the report. Please try again."
-                );
-              }
-            } catch (error) {
-              console.error("Error deleting the report:", error);
-              await ShowAlert(
-                dispatch,
-                "error",
-                "Error",
-                "An error occurred while deleting the report."
-              );
-            }
-          },
-          showCancel: true, // Enables the cancel button
-        },
-      })
-    );
-  };
+  //             if (response.ok) {
+  //               await ShowAlert(
+  //                 dispatch,
+  //                 "success",
+  //                 "Report Deleted",
+  //                 "Report deleted successfully."
+  //               );
+  //               setOriginalData((prevData) =>
+  //                 prevData.filter((report) => report.id !== reportId)
+  //               );
+  //             } else {
+  //               await ShowAlert(
+  //                 dispatch,
+  //                 "error",
+  //                 "Report Deletion Failed",
+  //                 "Failed to delete the report. Please try again."
+  //               );
+  //             }
+  //           } catch (error) {
+  //             console.error("Error deleting the report:", error);
+  //             await ShowAlert(
+  //               dispatch,
+  //               "error",
+  //               "Error",
+  //               "An error occurred while deleting the report."
+  //             );
+  //           }
+  //         },
+  //         showCancel: true, // Enables the cancel button
+  //       },
+  //     })
+  //   );
+  // };
 
   const getStatusInfo = (status) => {
     const { label, className } = ReportStatus(status);
@@ -239,12 +239,12 @@ const ReportDashboard = () => {
         >
           View
         </button>
-        <button
+        {/* <button
           className="btn btn-action delete"
           onClick={() => handleDelete(report.id)}
         >
           Delete
-        </button>
+        </button> */}
       </div>,
     ];
   });
