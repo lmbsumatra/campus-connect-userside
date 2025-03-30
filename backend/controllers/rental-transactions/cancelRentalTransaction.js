@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const { models } = require("../../models");
 const { GCASH } = require("../../utils/constants");
+const sendTransactionEmail = require("./sendTransactionEmail.jsx");
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
@@ -152,6 +153,34 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     });
     if (emitNotification) {
       emitNotification(rental.renter_id, notification.toJSON());
+    }
+
+    // After creating the notification and before sending the response
+    try {
+      // Send email to the owner
+      await sendTransactionEmail({
+        email: rental.owner.email,
+        itemName: itemName,
+        transactionType: rental.transaction_type,
+        amount: rental.total_amount,
+        userName: `${rental.owner.first_name} ${rental.owner.last_name}`,
+        recipientType: "owner",
+        status: "Cancelled", // Adding status information for the email
+      });
+
+      // Send confirmation email to the renter/buyer as well
+      await sendTransactionEmail({
+        email: rental.renter.email,
+        itemName: itemName,
+        transactionType: rental.transaction_type,
+        amount: rental.total_amount,
+        userName: `${rental.renter.first_name} ${rental.renter.last_name}`,
+        recipientType: "renter",
+        status: "Cancelled", // Adding status information for the email
+      });
+    } catch (emailError) {
+      console.error("Error sending cancellation email:", emailError);
+      // Continue with the response even if email fails
     }
 
     res.json(rental);

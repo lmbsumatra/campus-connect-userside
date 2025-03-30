@@ -143,7 +143,7 @@ const ReviewModal = ({
               <h5>Rate Item</h5>
               <div className="d-flex mb-3">
                 <img
-                  src={item.tx.item.images[0] || [defaultImages]}
+                  src={item?.tx?.item?.images[0] || [defaultImages]}
                   alt="Item"
                   className="me-3"
                   style={{
@@ -157,8 +157,8 @@ const ReviewModal = ({
                   <p>
                     Item:{" "}
                     {isRental
-                      ? item.tx.item.listing_name
-                      : item.tx.item.item_for_sale_name || "No item name"}
+                      ? item?.tx?.item?.listing_name
+                      : item?.tx?.item?.item_for_sale_name || "No item name"}
                   </p>
                   {isRental && (
                     <>

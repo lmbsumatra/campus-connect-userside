@@ -84,7 +84,9 @@ const deleteListingById = async (req, res) => {
     res.status(204).send(); // Respond with no content, meaning deletion was successful
   } catch (error) {
     // console.error("Error deleting listing:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: error.message });
   }
 };
 

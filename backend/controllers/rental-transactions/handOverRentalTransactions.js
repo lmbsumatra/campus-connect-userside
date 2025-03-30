@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const { models } = require("../../models");
 const { GCASH } = require("../../utils/constants");
+const sendTransactionEmail = require("./sendTransactionEmail.jsx");
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
@@ -31,7 +32,7 @@ const convertToCAD = async (amount) => {
   try {
     return amount * 0.025;
   } catch (error) {
-    // console.error("Error fetching exchange rate:", error);
+    console.error("Error fetching exchange rate:", error);
     return amount; // Fallback to original amount if API fails
   }
 };
@@ -39,7 +40,7 @@ const convertToCAD = async (amount) => {
 const handOverRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
   const { userId } = req.body; // userId to identify who is confirming the handover
-  // console.log(id, req.body);
+  console.log(id, req.body);
 
   try {
     const transaction = await models.RentalTransaction.findByPk(id, {
@@ -140,7 +141,7 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
         (transaction.owner_confirmed || transaction.renter_confirmed) &&
         transaction.transaction_type === "sell"
       ) {
-        // console.log(transaction.stripe_payment_intent_id);
+        console.log(transaction.stripe_payment_intent_id);
         const paymentIntent = await stripe.paymentIntents.capture(
           transaction.stripe_payment_intent_id
         );
@@ -149,14 +150,14 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
           transaction.stripe_payment_intent_id
         );
 
-        // console.log({ charge: chargeId.latest_charge });
+        console.log({ charge: chargeId.latest_charge });
         await transaction.update({
           stripe_charge_id: chargeId.latest_charge || null,
           payment_status: "completed",
         });
       }
     } catch (stripeError) {
-      // console.error("Error capturing payment:", stripeError);
+      console.error("Error capturing payment:", stripeError);
       return res.status(500).json({
         error: "Payment capture failed.",
         details: stripeError.message,
@@ -195,6 +196,40 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
     // Emit notification using centralized emitter
     if (emitNotification) {
       emitNotification(counterpartyId, notification.toJSON());
+    }
+
+    try {
+      const isCompleted =
+        transaction.owner_confirmed && transaction.renter_confirmed;
+      const status = isRental
+        ? isCompleted
+          ? "Returned"
+          : "Handed Over"
+        : "Completed";
+      const confirmerType = isOwner ? "owner" : isRental ? "renter" : "buyer";
+      const recipientEmail = isOwner
+        ? transaction.renter.email // Email of the other party (Renter)
+        : isRental
+        ? transaction.owner.email // Email of the other party (Owner)
+        : transaction.buyer.email; // For sales, send to the buyer
+
+      const recipientName = isOwner
+        ? `${transaction.renter.first_name} ${transaction.renter.last_name}`
+        : isRental
+        ? `${transaction.owner.first_name} ${transaction.owner.last_name}`
+        : `${transaction.buyer.first_name} ${transaction.buyer.last_name}`;
+
+      await sendTransactionEmail({
+        email: recipientEmail,
+        itemName: itemName,
+        transactionType: isRental ? "rental" : "purchase",
+        amount: transaction.total_amount,
+        userName: recipientName,
+        recipientType: isOwner ? "renter" : "owner",
+        status: status,
+      });
+    } catch (emailError) {
+      console.error("Error sending handover/receipt email:", emailError);
     }
 
     // Return the updated transaction

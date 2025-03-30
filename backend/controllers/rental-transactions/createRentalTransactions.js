@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const { models } = require("../../models");
 const { GCASH } = require("../../utils/constants");
+const sendTransactionEmail = require("./sendTransactionEmail.jsx");
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
@@ -174,7 +175,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
           {
             as: "owner",
             model: models.User,
-            attributes: ["user_id", "email", "stripe_acct_id"],
+            attributes: ["user_id", "email", "stripe_acct_id", "first_name"],
           },
         ],
       });
@@ -186,7 +187,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
           {
             as: "seller",
             model: models.User,
-            attributes: ["user_id", "email", "stripe_acct_id"],
+            attributes: ["user_id", "email", "stripe_acct_id", "first_name"],
           },
         ],
       });
@@ -296,6 +297,31 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       console.log("Emitting notification");
       emitNotification(owner_id, notification.toJSON());
     }
+
+    console.log(item.owner.email, rental.renter.email);
+
+    // For the Owner
+    await sendTransactionEmail({
+      email: item.owner.email,
+      itemName,
+      transactionType: transaction_type,
+      amount: totalAmountPHP,
+      userName: item.owner.first_name,
+      recipientType: "owner",
+      status: "Requested",
+    });
+
+    // For the Buyer or Renter
+    await sendTransactionEmail({
+      email:
+        transaction_type === "sell" ? rental.buyer.email : rental.renter.email,
+      itemName,
+      transactionType: transaction_type,
+      amount: totalAmountPHP,
+      userName: renterName,
+      recipientType: "buyerOrRenter",
+      status: "Requested",
+    });
 
     // After creating the rental transaction, update the duration's status to 'requested'
     const duration = await models.Duration.findOne({
