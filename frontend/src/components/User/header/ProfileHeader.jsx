@@ -39,7 +39,7 @@ const ProfileHeader = ({
     transactions: rentalItems,
     error,
     loading,
-  } = useFetchRentalTransactionsByUserId(userId);
+  } = useSelector((state) => state.rentalTransactions);
   const dispatch = useDispatch();
   const { loadingFollow, successFollow, errorFollow } = useSelector(
     (state) => state.otherUser
@@ -134,19 +134,17 @@ const ProfileHeader = ({
     Seller: 0,
     Buyer: 0,
   };
+  console.log(rentalItems);
 
   if (rentalItems && rentalItems.length > 0) {
     rentalItems.forEach((transaction) => {
-      if (transaction.owner_id === userId) {
+      if (transaction.tx.owner_id === userId) {
         countTransactions.Owner++;
       }
-      if (transaction.renter_id === userId) {
+      if (transaction.tx.renter_id === userId) {
         countTransactions.Renter++;
       }
-      if (transaction.seller_id === userId) {
-        countTransactions.Seller++;
-      }
-      if (transaction.buyer_id === userId) {
+      if (transaction.tx.buyer_id === userId) {
         countTransactions.Buyer++;
       }
     });

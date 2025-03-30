@@ -22,6 +22,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
+      location: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+      },
       rate: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,

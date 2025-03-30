@@ -100,6 +100,22 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: "rental",
       },
+      tnx_date: {
+        type: DataTypes.DATEONLY,
+        allowNull: true,
+      },
+      tnx_time_from: {
+        type: DataTypes.TIME,
+        allowNull: true,
+      },
+      tnx_time_to: {
+        type: DataTypes.TIME,
+        allowNull: true,
+      },
+      amount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+      },
     },
     {
       sequelize,

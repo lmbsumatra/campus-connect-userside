@@ -118,6 +118,7 @@ const addListing = async (req, res) => {
         late_charges: listingData.lateCharges,
         security_deposit: listingData.securityDeposit,
         repair_replacement: listingData.repairReplacement,
+        location: listingData.location,
       },
       { transaction }
     );

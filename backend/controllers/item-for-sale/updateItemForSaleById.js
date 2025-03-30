@@ -265,6 +265,7 @@ const updateItemForSaleById = async (req, res) => {
         specifications: itemData.specs || existingItem.specifications,
         status: "pending",
         status_message: "Pending approval",
+        location: itemData.location,
       },
       { where: { id: itemId }, transaction }
     );

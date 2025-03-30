@@ -8,6 +8,7 @@ import axios from "axios";
 import "./checkoutModalStyles.css";
 import { Tooltip } from "@mui/material";
 import { baseApi, GCASH } from "../../../../utils/consonants.js";
+import RentalRateCalculator from "../../../public/common/RentalRateCalculator.jsx";
 
 const CheckoutModal = ({ show, onHide, items }) => {
   const dispatch = useDispatch();
@@ -20,7 +21,14 @@ const CheckoutModal = ({ show, onHide, items }) => {
   const [paymentMethod, setPaymentMethod] = useState(
     selectedItem?.paymentMode || null
   );
-  console.log(selectedItem);
+
+  const { total, rate, hrs } = RentalRateCalculator({
+    pricePerHour: selectedItem?.price,
+    timeFrom: selectedItem?.rentalTimeFrom,
+    timeTo: selectedItem?.rentalTimeTo,
+  });
+
+  console.log({ total, rate, hrs });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,10 +55,7 @@ const CheckoutModal = ({ show, onHide, items }) => {
         payment_mode: selectedItem?.paymentMode || paymentMethod,
         isFromCart: true,
         transaction_type: selectedItem.itemType === "buy" ? "sell" : "rental",
-        [selectedItem.itemType === "buy" ? "rate" : "price"]:
-          selectedItem.itemType === "buy"
-            ? selectedItem.price
-            : selectedItem.rate,
+        amount: selectedItem.itemType === "buy" ? selectedItem.price : total,
       };
 
       // Send rental details to backend
@@ -131,12 +136,42 @@ const CheckoutModal = ({ show, onHide, items }) => {
                   Owner: {selectedItem.owner.fname} {selectedItem.owner.lname}
                 </h5>
                 <div className="checkout-item">
-                  <div className="item-info">
+                  <div className="item-info d-flex align-items-center">
                     <span className="item-name">{selectedItem.name}</span>
                     <span className="item-type">{selectedItem.itemType}</span>
                   </div>
                   <div className="item-price">₱{selectedItem.price}</div>
                 </div>
+                {selectedItem.itemType === "rent" && (
+                  <>
+                    <div className="checkout-item">
+                      <div className="item-info">
+                        <span className="item-name">Duration</span>
+                      </div>
+                      <div className="item-price">x {hrs}</div>
+                    </div>
+                    <div className="checkout-item">
+                      <div className="item-info">
+                        <span className="item-name">Security Deposit</span>
+                      </div>
+                      <div className="item-price">
+                        + {selectedItem?.securityDeposit}
+                      </div>
+                    </div>
+                    <div className="checkout-item">
+                      <div className="item-info">
+                        <span className="item-name">Total</span>
+                      </div>
+                      <div className="item-price">
+                        ₱
+                        {(
+                          Number(total) +
+                          Number(selectedItem?.securityDeposit || 0)
+                        ).toFixed(2)}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 

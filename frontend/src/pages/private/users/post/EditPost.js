@@ -133,7 +133,7 @@ const EditPost = () => {
     withCredentials: true,
     transports: ["websocket", "polling"], // explicitly set both if needed
   });
-  
+
   const [category, setCategory] = useState("");
   const [showDateDurationPicker, setShowDateDurationPicker] = useState(false);
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
@@ -142,7 +142,8 @@ const EditPost = () => {
   const [removedImages, setRemovedImages] = useState([]);
   const [originalData, setOriginalData] = useState(null);
   const [showComparison, setShowComparison] = useState(false);
-  const [unavailableDates, setUnavailableDates] = useState([]);
+  const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
+    useSelector((state) => state.unavailableDates);
   const [removedDates, setRemovedDates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
@@ -242,7 +243,7 @@ const EditPost = () => {
 
         // Set the state for both selectedDatesDurations and unavailableDates
         setSelectedDatesDurations(newSelectedDatesDurations);
-        setUnavailableDates(unavailableDatesArray);
+        // setUnavailableDates(unavailableDatesArray);
       }
 
       // Set local images from post data
@@ -792,10 +793,13 @@ const EditPost = () => {
               show={showDateDurationPicker}
               onClose={() => setShowDateDurationPicker(false)}
               onSaveDatesDurations={handleSaveDatesDurations}
-              unavailableDates={[
-                ...formattedUnavailableDates, // Add the hardcoded unavailable dates
-                ...formattedUnavailableDates.map((item) => new Date(item.date)), // Add dynamically determined unavailable dates
-              ]}
+              unavailableDates={formattedUnavailableDates}
+              minDate={new Date()} // Prevents selecting past dates
+              maxDate={
+                unavailableDates?.endSemesterDates?.length > 0
+                  ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                  : null
+              }
               selectedDatesDurations={selectedDatesDurations}
             />
 
@@ -817,32 +821,12 @@ const EditPost = () => {
                 excludeDates={formattedUnavailableDates.map(
                   (item) => new Date(item.date)
                 )}
-                dayClassName={(date) => {
-                  const dateWithoutTime = new Date(
-                    date.getFullYear(),
-                    date.getMonth(),
-                    date.getDate()
-                  ); // Normalize to date without time
-                  const unavailableDateWithoutTime = unavailableDates.map(
-                    (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()) // Normalize to date without time
-                  );
-
-                  if (
-                    unavailableDateWithoutTime.some(
-                      (d) => d.getTime() === dateWithoutTime.getTime()
-                    )
-                  ) {
-                    return "bg-danger"; // Mark the unavailable dates with bg-danger
-                  } else if (
-                    selectedDatesDurations.some(
-                      (d) => date.getTime() === new Date(d.date).getTime()
-                    )
-                  ) {
-                    return "bg-blue"; // Mark the highlighted dates with bg-blue
-                  } else {
-                    return "bg-green"; // Mark other available dates with bg-green
-                  }
-                }}
+                minDate={new Date()} // Prevents selecting past dates
+                maxDate={
+                  unavailableDates?.endSemesterDates?.length > 0
+                    ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                    : null
+                }
               />
             </div>
 

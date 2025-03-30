@@ -257,6 +257,7 @@ const updateListingById = async (req, res) => {
         late_charges: listingData.lateCharges,
         security_deposit: listingData.securityDeposit,
         repair_replacement: listingData.repairReplacement,
+        location: listingData.location,
         listing_condition:
           listingData.itemCondition || existingListing.listing_condition,
         payment_mode: listingData.paymentMethod || existingListing.payment_mode,

@@ -403,6 +403,7 @@ const AddNewItem = () => {
         dates: itemDataState.availableDates.value,
         images: itemDataState.images.value,
         specs: itemDataState.specs.value,
+        location: itemDataState.location.value,
         ...(itemType === FOR_RENT && {
           lateCharges: itemDataState.lateCharges.value,
           securityDeposit: itemDataState.securityDeposit.value,
@@ -472,7 +473,7 @@ const AddNewItem = () => {
       ShowAlert(dispatch, "error", "Error", errorMessage);
     }
   };
-  
+
   const renderUserToolbar = () => {
     if (!user?.user) return null;
     return <UserToolbar user={user.user} isYou={true} />;
@@ -696,7 +697,7 @@ const AddNewItem = () => {
                 {config?.Stripe && (
                   <Tooltip
                     title={`${
-                      studentUser?.hasStripe === false
+                      user?.user?.hasStripe === false
                         ? "This is disabled. You must have stripe account first. Create one by going to /profile/dashboard."
                         : ""
                     }`}
@@ -712,9 +713,9 @@ const AddNewItem = () => {
                           updateField({ name: "paymentMethod", value: GCASH })
                         )
                       }
-                      disabled={studentUser?.hasStripe === true ? false : true}
+                      disabled={user?.user?.hasStripe === true ? false : true}
                     >
-                      Gcash
+                      Online Payment
                     </button>
                   </Tooltip>
                 )}
@@ -766,6 +767,17 @@ const AddNewItem = () => {
               "Used (good)",
               "Poor",
             ]}
+          />
+          <FormField
+            label="Location (for meetup / pick up)"
+            id="location"
+            value={itemDataState.location.value}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
+            error={itemDataState.location.error}
+            triggered={itemDataState.location.triggered}
+            placeholder="Add location"
+            type="text"
           />
 
           {itemType === FOR_RENT ? (

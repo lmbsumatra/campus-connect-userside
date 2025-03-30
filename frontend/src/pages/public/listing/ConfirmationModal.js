@@ -2,6 +2,7 @@ import { Button, Modal } from "react-bootstrap";
 import { defaultImages } from "../../../utils/consonants";
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import { formatDate } from "../../../utils/dateFormat";
+import RentalRateCalculator from "../common/RentalRateCalculator";
 
 const ConfirmationModal = ({
   show,
@@ -14,6 +15,13 @@ const ConfirmationModal = ({
   const selectedDateId = listing.availableDates.find(
     (rentalDate) => rentalDate.date === selectedDate
   )?.id;
+
+  const { total, rate, hrs } = RentalRateCalculator({
+    pricePerHour: listing.rate,
+    timeFrom: selectedDuration.timeFrom,
+    timeTo: selectedDuration.timeTo,
+  });
+  
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
@@ -35,7 +43,7 @@ const ConfirmationModal = ({
             </div>
             <div className="item-desc">
               <span className="value">{listing.name}</span>
-              <span className="value">{listing.rate}</span>
+              <span className="value">₱ {listing.rate}</span>
               <span className="label">
                 Item Condition:{" "}
                 <span className="value">{listing.itemCondition}</span>
@@ -61,6 +69,12 @@ const ConfirmationModal = ({
                 {" "}
                 {formatTimeTo12Hour(selectedDuration.timeFrom)} -{" "}
                 {formatTimeTo12Hour(selectedDuration.timeTo)}
+              </span>
+            </span>
+            <span className="label">
+              Total Rental Rate:{" "}
+              <span className="value">
+                ₱ {total} ({rate} x {hrs})
               </span>
             </span>
           </div>

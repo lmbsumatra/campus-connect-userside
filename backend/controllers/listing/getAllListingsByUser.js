@@ -57,6 +57,7 @@ const getAllListingsByUser = async (req, res) => {
         itemCondition: item.listing_condition,
         paymentMethod: item.payment_mode,
         specs: item.specifications,
+        location: item.location,
         availableDates: item.rental_dates.map((date) => ({
           id: date.id,
           itemId: date.item_id,

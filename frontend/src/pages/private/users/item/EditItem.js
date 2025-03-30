@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
@@ -75,9 +75,10 @@ const FormField = ({
   placeholder,
   type = "text",
   options = [],
+  item_type = FOR_RENT,
 }) => (
   <div className="field-container">
-    <div className="input-wrapper">
+    <div className="input-wrapper d-flex align-items-center">
       {label && <label className="label">{label}</label>}
 
       {type === "select" ? (
@@ -100,17 +101,25 @@ const FormField = ({
           ))}
         </select>
       ) : (
-        <input
-          id={id}
-          name={id}
-          className="input"
-          placeholder={placeholder}
-          required
-          type={type}
-          value={value}
-          onChange={(e) => onChange(id, e.target.value)}
-          onBlur={(e) => onBlur(id, e.target.value)}
-        />
+        <>
+          {" "}
+          <input
+            id={id}
+            name={id}
+            className="input"
+            placeholder={placeholder}
+            required
+            type={type}
+            value={value}
+            onChange={(e) => onChange(id, e.target.value)}
+            onBlur={(e) => onBlur(id, e.target.value)}
+          />
+          {id === "price" && item_type === FOR_RENT && (
+            <p className="no-wrap pt-2" style={{ whiteSpace: "nowrap" }}>
+              per hour
+            </p>
+          )}
+        </>
       )}
     </div>
     {triggered && error && <ValidationError message={error} />}
@@ -130,12 +139,14 @@ const EditItem = () => {
   const location = useLocation();
   const { id } = useParams();
   // console.log(id);
+  const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
+    useSelector((state) => state.unavailableDates);
 
   const socket = io(`${baseApi}`, {
     withCredentials: true,
     transports: ["websocket", "polling"], // explicitly set both if needed
   });
-  
+
   const [category, setCategory] = useState("");
 
   // getting item type
@@ -155,7 +166,6 @@ const EditItem = () => {
   const [removedImages, setRemovedImages] = useState([]);
   const [originalData, setOriginalData] = useState(null);
   const [showComparison, setShowComparison] = useState(false);
-  const [unavailableDates, setUnavailableDates] = useState([]);
   const [removedDates, setRemovedDates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
@@ -236,9 +246,12 @@ const EditItem = () => {
   ]);
 
   // console.log("Item Data:", itemData);
-
+  const dataInitialized = useRef(false);
   useEffect(() => {
-    if (!loading && itemData) {
+    if (!loading && itemData && !dataInitialized.current) {
+      // Use a ref to track if we've already initialized the data
+      dataInitialized.current = true;
+
       const initialData = {
         ...itemData,
         images: itemData.images,
@@ -250,8 +263,13 @@ const EditItem = () => {
       const newSelectedDatesDurations = [];
       const unavailableDates = [];
 
-      itemDataState.availableDates.value.forEach((dateItem) => {
-        if (dateItem.date) {
+      // Check the structure of the availableDates
+      const availableDatesArray = Array.isArray(itemData.availableDates)
+        ? itemData.availableDates
+        : [];
+
+      availableDatesArray.forEach((dateItem) => {
+        if (dateItem && dateItem.date) {
           // Filter dates where the status is not "available"
           const isAvailable = dateItem.status === "available";
 
@@ -264,10 +282,12 @@ const EditItem = () => {
           if (isAvailable) {
             newSelectedDatesDurations.push({
               date: new Date(dateItem.date),
-              durations: dateItem.durations.map((duration) => ({
-                timeFrom: duration.timeFrom,
-                timeTo: duration.timeTo,
-              })),
+              durations: Array.isArray(dateItem.durations)
+                ? dateItem.durations.map((duration) => ({
+                    timeFrom: duration.timeFrom,
+                    timeTo: duration.timeTo,
+                  }))
+                : [],
             });
           }
         }
@@ -275,9 +295,9 @@ const EditItem = () => {
 
       // Set the state for both selectedDatesDurations and unavailableDates
       setSelectedDatesDurations(newSelectedDatesDurations);
-      setUnavailableDates(unavailableDates);
+      // setUnavailableDates(unavailableDates);
     }
-  }, [loading, itemData, dispatch]);
+  }, [loading, itemData]); // Remove itemDataState from the dependency array
 
   useEffect(() => {
     if (itemDataState.category && itemDataState.category.value !== category) {
@@ -531,6 +551,7 @@ const EditItem = () => {
         dates: itemDataState.availableDates.value,
         toRemoveDates: removedDates,
         specs: itemDataState.specs.value,
+        location: itemDataState.location.value,
         ...(itemType === FOR_RENT && {
           lateCharges: itemDataState.lateCharges.value,
           securityDeposit: itemDataState.securityDeposit.value,
@@ -656,6 +677,7 @@ const EditItem = () => {
             triggered={itemDataState.price.triggered}
             placeholder="Add price"
             className="field-container item-price"
+            item_type={itemType}
           />
 
           {/* Action Buttons */}
@@ -707,11 +729,15 @@ const EditItem = () => {
               show={showDateDurationPicker}
               onClose={() => setShowDateDurationPicker(false)}
               onSaveDatesDurations={handleSaveDatesDurations}
-              unavailableDates={[
-                ...formattedUnavailableDates, // Add the hardcoded unavailable dates
-                ...formattedUnavailableDates.map((item) => new Date(item.date)), // Add dynamically determined unavailable dates
-              ]}
+              unavailableDates={formattedUnavailableDates}
+              minDate={new Date()} // Prevents selecting past dates
+              maxDate={
+                unavailableDates?.endSemesterDates?.length > 0
+                  ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                  : null
+              }
               selectedDatesDurations={selectedDatesDurations}
+             
             />
 
             <div className="date-picker">
@@ -732,32 +758,12 @@ const EditItem = () => {
                 excludeDates={formattedUnavailableDates.map(
                   (item) => new Date(item.date)
                 )}
-                dayClassName={(date) => {
-                  const dateWithoutTime = new Date(
-                    date.getFullYear(),
-                    date.getMonth(),
-                    date.getDate()
-                  ); // Normalize to date without time
-                  const unavailableDateWithoutTime = unavailableDates.map(
-                    (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()) // Normalize to date without time
-                  );
-
-                  if (
-                    unavailableDateWithoutTime.some(
-                      (d) => d.getTime() === dateWithoutTime.getTime()
-                    )
-                  ) {
-                    return "bg-danger"; // Mark the unavailable dates with bg-danger
-                  } else if (
-                    selectedDatesDurations.some(
-                      (d) => new Date(d.date).getTime() === date.getTime()
-                    )
-                  ) {
-                    return "bg-blue"; // Mark the highlighted dates with bg-blue
-                  } else {
-                    return "bg-green"; // Mark other available dates with bg-green
-                  }
-                }}
+                minDate={new Date()} // Prevents selecting past dates
+                maxDate={
+                  unavailableDates?.endSemesterDates?.length > 0
+                    ? new Date(unavailableDates?.endSemesterDates[0]?.date)
+                    : null
+                }
               />
             </div>
 
@@ -772,7 +778,7 @@ const EditItem = () => {
             <label className="label">Delivery Method</label>
             <div className="delivery-method">
               <Tooltip
-                title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                title=""
                 placement="bottom"
                 componentsProps={{
                   popper: {
@@ -833,44 +839,50 @@ const EditItem = () => {
           <div className="group-container payment-method ">
             <label className="label">Payment Method</label>
             <div className="delivery-method">
-              <Tooltip
-                title="Owner did not set delivery method, you decide whether to meetup or pickup."
-                placement="bottom"
-              >
-                <div className="action-btns">
-                  <button
-                    className={`value ${
-                      itemDataState.paymentMethod.value === GCASH
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({ name: "paymentMethod", value: GCASH })
-                      )
-                    }
-                  >
-                    Online Payment
-                  </button>
-                  <button
-                    className={`value ${
-                      itemDataState.paymentMethod.value === PAY_UPON_MEETUP
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      dispatch(
-                        updateField({
-                          name: "paymentMethod",
-                          value: PAY_UPON_MEETUP,
-                        })
-                      )
-                    }
-                  >
-                    Pay upon meetup
-                  </button>
-                </div>
-              </Tooltip>
+              {config?.Stripe && (
+                <Tooltip
+                  title={`${
+                    user?.user?.hasStripe === false
+                      ? "This is disabled. You must have stripe account first. Create one by going to /profile/dashboard."
+                      : ""
+                  }`}
+                >
+                  <div className="action-btns">
+                    <button
+                      className={`value ${
+                        itemDataState.paymentMethod.value === GCASH
+                          ? "selected"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        dispatch(
+                          updateField({ name: "paymentMethod", value: GCASH })
+                        )
+                      }
+                      disabled={user?.user?.hasStripe === true ? false : true}
+                    >
+                      Online Payment
+                    </button>
+                    <button
+                      className={`value ${
+                        itemDataState.paymentMethod.value === PAY_UPON_MEETUP
+                          ? "selected"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        dispatch(
+                          updateField({
+                            name: "paymentMethod",
+                            value: PAY_UPON_MEETUP,
+                          })
+                        )
+                      }
+                    >
+                      Pay upon meetup
+                    </button>
+                  </div>
+                </Tooltip>
+              )}
             </div>
           </div>
 
@@ -903,6 +915,18 @@ const EditItem = () => {
             ]}
           />
 
+          <FormField
+            label="Location (for meetup / pick up)"
+            id="location"
+            value={itemDataState.location.value}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
+            error={itemDataState.location.error}
+            triggered={itemDataState.location.triggered}
+            placeholder="Add location"
+            type="text"
+          />
+
           {itemType === FOR_RENT ? (
             <div className="group-container terms">
               <AddTerms
@@ -918,7 +942,7 @@ const EditItem = () => {
           )}
         </div>
       </div>
-      <UserToolbar user={user.user} isYou={true} />
+      <UserToolbar user={user?.user} isYou={true} />
       <AddItemDescAndSpecs
         specs={itemDataState.specs.value}
         desc={itemDataState.desc.value}

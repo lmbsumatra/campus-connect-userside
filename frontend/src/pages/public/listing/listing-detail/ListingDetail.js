@@ -48,6 +48,7 @@ import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithA
 import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
 import ConfirmationModal from "../ConfirmationModal.js";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
+import RentalRateCalculator from "../../common/RentalRateCalculator.jsx";
 
 // async function getUserFullName(userId) {
 //   console.log("Fetching user details for userId:", userId);
@@ -342,6 +343,12 @@ function ListingDetail() {
   const [stripePaymentDetails, setStripePaymentDetails] = useState(null);
 
   const confirmRental = async () => {
+    const { total } = RentalRateCalculator({
+      pricePerHour: approvedListingById.rate,
+      timeFrom: selectedDuration.timeFrom,
+      timeTo: selectedDuration.timeTo,
+    });
+
     try {
       const selectedDateId = approvedListingById.availableDates.find(
         (rentalDate) => rentalDate.date === selectedDate
@@ -356,6 +363,7 @@ function ListingDetail() {
         time_id: selectedDuration.id,
         payment_mode: approvedListingById.paymentMethod,
         transaction_type: "rental",
+        amount: total,
       };
 
       const response = await axios.post(

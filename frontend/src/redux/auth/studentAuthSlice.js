@@ -113,17 +113,14 @@ export const forgotPassword = createAsyncThunk(
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
 
     try {
-      const response = await fetch(
-        `${baseApi}/user/forgot-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-          signal: controller.signal,
-        }
-      );
+      const response = await fetch(`${baseApi}/user/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+        signal: controller.signal,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -153,17 +150,14 @@ export const resetPassword = createAsyncThunk(
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
 
     try {
-      const response = await fetch(
-        `${baseApi}/user/reset-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token, newPassword }),
-          signal: controller.signal,
-        }
-      );
+      const response = await fetch(`${baseApi}/user/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token, newPassword }),
+        signal: controller.signal,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -194,6 +188,7 @@ const studentAuthSlice = createSlice({
       state.studentUser = null;
       localStorage.removeItem("studentUser");
       state.error = null; // Clear errors on logout
+      console.log(state.studentUser);
     },
 
     saveUserData: (state, action) => {

@@ -80,6 +80,7 @@ const adminItemForSaleById = async (req, res) => {
       itemType: "For Sale",
       desc: item.description,
       specs: item.specifications,
+      location: item.location,
       availableDates: item.available_dates.map((date) => ({
         id: date.id,
         itemId: date.item_id,

@@ -25,6 +25,7 @@ export const fetchUser = createAsyncThunk(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      console.log(data);
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -65,19 +66,16 @@ export const updateUserAction = createAsyncThunk(
       return;
     }
     try {
-      const response = await fetch(
-        `${baseApi}/api/follow/follow-user`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            loggedInUserId,
-            otherUserId,
-          }),
-        }
-      );
+      const response = await fetch(`${baseApi}/api/follow/follow-user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          loggedInUserId,
+          otherUserId,
+        }),
+      });
 
       if (!response.ok) {
         console.error("Server error:", response.status, response.statusText);

@@ -55,6 +55,7 @@ const getListingById = async (req, res) => {
       desc: listing.description,
       specs: JSON.parse(listing.specifications),
       statusMessage: listing.status_message,
+      location: listing.location,
       availableDates: listing.rental_dates.map((date) => ({
         id: date.id,
         listingId: date.listing_id,

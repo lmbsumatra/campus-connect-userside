@@ -176,13 +176,13 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
           <div className="search-wrapper">
             <i
               className={`fas fa-search ${
-                isDarkTheme ? "dark-icon" : "light-icon"
+                isDarkTheme ? "light-icon" : "dark-icon"
               }`}
             ></i>
             <input
               ref={searchRef}
               type="text"
-              placeholder="       Search"
+              placeholder="Search"
               className={isDarkTheme ? "dark" : "light"}
               onChange={handleKeyword}
               onKeyDown={handleSearchKeyDown}

@@ -270,7 +270,7 @@ function ItemForSaleDetail() {
         payment_mode: approvedItemForSaleById.paymentMethod,
         isFromCart: false,
         transaction_type: "sell",
-        price: approvedItemForSaleById.price,
+        amount: approvedItemForSaleById.price,
       };
 
       const response = await axios.post(

@@ -96,6 +96,7 @@ const getStudentById = async (req, res) => {
         email: user.email,
         joinDate: user.createdAt,
         rating: averageRating,
+        hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
       },
       student: user.student
         ? {

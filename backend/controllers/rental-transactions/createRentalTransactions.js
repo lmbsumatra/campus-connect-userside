@@ -84,6 +84,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       delivery_method,
       payment_mode,
       isFromCart,
+      amount,
     } = req.body;
 
     const missingFields = [];
@@ -120,6 +121,30 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       time_id,
       transaction_type: transaction_type === "sell" ? "sell" : "rental",
     };
+
+    // Fetch date and time information from the database
+    const dateInfo = await models.Date.findByPk(date_id, {
+      attributes: ["date"],
+    });
+
+    const timeInfo = await models.Duration.findByPk(time_id, {
+      attributes: ["rental_time_from", "rental_time_to"],
+    });
+
+    if (!dateInfo || !timeInfo) {
+      const errorMsg = "Could not find date or time information";
+      console.error(errorMsg);
+      return res.status(404).json({ error: errorMsg });
+    }
+
+    console.log(
+      `Retrieved date: ${dateInfo.date}, time from: ${timeInfo.time_from}, time to: ${timeInfo.time_to}`
+    );
+
+    // Add date and time information to rentalData
+    rentalData.tnx_date = dateInfo.date;
+    rentalData.tnx_time_from = timeInfo.rental_time_from;
+    rentalData.tnx_time_to = timeInfo.rental_time_to;
 
     console.log("Rental data to be created:", JSON.stringify(rentalData));
 
@@ -197,9 +222,12 @@ const createRentalTransaction = async (req, res, emitNotification) => {
 
     const totalAmountPHP =
       transaction_type === "sell"
-        ? Number(item?.price)
-        : Number(item?.rate) + Number(item?.security_deposit);
+        ? Number(amount)
+        : Number(amount) + Number(item?.security_deposit);
     console.log(`Total amount in PHP: ${totalAmountPHP}`);
+
+    rental.amount = totalAmountPHP;
+    await rental.save();
 
     const totalAmountCAD = await convertToCAD(totalAmountPHP);
     console.log(`Total amount in CAD: ${totalAmountCAD}`);

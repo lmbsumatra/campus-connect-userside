@@ -90,8 +90,8 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     console.log(rental.transaction_type);
 
     if (
-      (rental.renter_id !== userId && rental.transaction_type === "rental ") ||
-      (rental.transaction_type && rental.buyer_id !== userId)
+      (rental.renter_id !== userId && rental.transaction_type === "rental") ||
+      (rental.transaction_type === "sell" && rental.buyer_id !== userId)
     ) {
       console.log("Unauthorized cancellation attempt by user:", userId);
       return res

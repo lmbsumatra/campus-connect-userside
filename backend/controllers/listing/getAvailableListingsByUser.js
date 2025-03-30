@@ -84,6 +84,7 @@ const getAvailableListingsByUser = async (req, res) => {
         repairReplacement: item.repair_replacement,
         paymentMethod: item.payment_mode,
         specs: item.specifications,
+        location: item.location,
         averageRating, // Adding average rating to the response
         availableDates: item.rental_dates.map((date) => ({
           id: date.id,

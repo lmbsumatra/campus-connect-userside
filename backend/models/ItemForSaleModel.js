@@ -22,6 +22,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
+      location: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+      },
       price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
@@ -74,6 +78,7 @@ module.exports = (sequelize) => {
         defaultValue: DataTypes.NOW,
         onUpdate: DataTypes.NOW,
       },
+      
     },
     {
       sequelize,

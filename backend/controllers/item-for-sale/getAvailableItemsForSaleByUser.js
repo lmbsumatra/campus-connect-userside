@@ -81,6 +81,7 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
             date: date.date,
             itemType: date.item_type,
             status: date.status,
+
             durations: date.durations.map((duration) => ({
               id: duration.id,
               dateId: duration.date_id,
@@ -108,6 +109,7 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
                 repairReplacement: item.repair_replacement,
                 paymentMethod: item.payment_mode,
                 specs: item.specifications,
+                location: item.location,
                 averageRating, // Adding average rating to the response
                 availableDates,
                 seller: {

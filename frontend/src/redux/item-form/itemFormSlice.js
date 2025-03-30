@@ -145,6 +145,15 @@ export const validateInput = (name, value, itemType) => {
         error = "";
       }
       break;
+    case "location":
+      if (value.trim() === "") {
+        hasError = true;
+        error = "Location cannot be empty.";
+      } else {
+        hasError = false;
+        error = "";
+      }
+      break;
     case "itemCondition":
       if (value.trim() === "") {
         hasError = true;
@@ -316,6 +325,7 @@ const initialState = {
   deliveryMethod: { value: "", triggered: false, hasError: false, error: "" },
   paymentMethod: { value: "", triggered: false, hasError: false, error: "" },
   itemCondition: { value: "", triggered: false, hasError: false, error: "" },
+  location: { value: "", triggered: false, hasError: false, error: "" },
   lateCharges: { value: "", triggered: false, hasError: false, error: "" },
   securityDeposit: { value: "", triggered: false, hasError: false, error: "" },
   repairReplacement: {

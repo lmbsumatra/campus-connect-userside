@@ -116,6 +116,7 @@ const getAvailableItemForSaleById = async (req, res) => {
       desc: item.description,
       specs: item.specifications,
       images: JSON.parse(item.images),
+      location: item.location,
       averageRating, // Including average rating in the response
       isFollowingBuyer,
       rentalDates: item.available_dates.map((date) => ({

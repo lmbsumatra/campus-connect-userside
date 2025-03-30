@@ -117,6 +117,7 @@ const getAllAvailable = async (req, res) => {
           condition: item.item_condition,
           averageRating,
           isFollowingBuyer,
+          location: item.location,
           availableDates: item.available_dates.map((date) => ({
             id: date.id,
             itemId: date.item_id,

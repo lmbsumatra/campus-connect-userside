@@ -82,6 +82,7 @@ const adminListingById = async (req, res) => {
       itemType: "For Rent",
       desc: listing.description,
       specs: listing.specifications,
+      location: listing.location,
       averageRating, // Including average rating in the response
       availableDates: listing.rental_dates.map((date) => ({
         id: date.id,

@@ -146,6 +146,7 @@ const getAllAvailable = async (req, res) => {
           lateCharges: item.late_charges,
           securityDeposit: item.security_deposit,
           repairReplacement: item.repair_replacement,
+          location: item.location,
           averageRating,
           isFollowingBuyer,
           availableDates: item.rental_dates.map((date) => ({

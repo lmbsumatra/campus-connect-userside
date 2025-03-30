@@ -124,6 +124,7 @@ const getAvailableListingById = async (req, res) => {
       desc: listing.description,
       specs: listing.specifications,
       images: JSON.parse(listing.images),
+      location: listing.location,
       averageRating, // Adding average rating to the response
       isFollowingRenter,
       availableDates: listing.rental_dates.map((date) => ({
