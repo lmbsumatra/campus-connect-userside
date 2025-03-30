@@ -190,7 +190,7 @@ const ViewTransaction = () => {
           </div>
         </div>
 
-        <div className="detail-item">
+        {/* <div className="detail-item">
           <div className="detail-label">Owner Confirmed</div>
           <div className="detail-value">
             <div className="indicator">
@@ -230,7 +230,7 @@ const ViewTransaction = () => {
               {transaction.is_allowed_to_proceed ? "Yes" : "No"}
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
