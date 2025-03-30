@@ -144,25 +144,16 @@ exports.getAvailablePostsByUser = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await models.Post.findAll({
-      attributes: [
-        "id",
-        "post_item_name",
-        "tags",
-        "user_id",
-        "category",
-        "created_at",
-        "status",
-      ],
       include: [
         {
           model: models.Date,
           as: "rental_dates",
-          required: false,  // This should be here for LEFT JOIN behavior
+          required: false, // This should be here for LEFT JOIN behavior
           include: [
             {
               model: models.Duration,
               as: "durations",
-              required: false,  // Optional inclusion of durations
+              required: false, // Optional inclusion of durations
             },
           ],
         },
@@ -173,7 +164,7 @@ exports.getAllPosts = async (req, res) => {
         },
       ],
     });
-
+    console.log("Fetched Posts:", posts);
     res.status(200).json(posts);
   } catch (error) {
     // console.error("Error fetching posts:", error);
@@ -198,7 +189,7 @@ exports.getAllPosts = async (req, res) => {
 //     // Create the post
 //     req.body.post.status = "pending";  // Set the post status to "pending" initially
 //     createdPost = await models.Post.create(req.body.post, { transaction });
-    
+
 //     // Handle rental dates and durations if provided
 //     const rentalDates = req.body.rental_dates || [];
 //     if (Array.isArray(rentalDates)) {
@@ -310,9 +301,8 @@ exports.getPostById = async (req, res) => {
           model: models.Date,
           as: "rental_dates",
           where: {
-            item_id: req.params.id, 
+            item_id: req.params.id,
             item_type: "post",
-            
           },
           required: false,
           include: [
@@ -348,7 +338,6 @@ exports.getPostById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // Update a post
 exports.updatePost = async (req, res) => {

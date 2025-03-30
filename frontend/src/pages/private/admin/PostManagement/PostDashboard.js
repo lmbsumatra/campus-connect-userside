@@ -12,6 +12,9 @@ import {
   PostStatusDistribution,
   PostsByCategory,
   PostsGrowth,
+  PostCategoryTrends,
+  PostStatusTrends,
+  UserActivityHeatmap,
 } from "../../../../components/Analytics/PostAnalyticsComponent";
 
 const PostDashboard = () => {
@@ -250,6 +253,9 @@ const PostDashboard = () => {
           <PostsGrowth posts={posts} />
           <PostStatusDistribution posts={posts} />
           <TopPostUsers posts={posts} />
+          <PostCategoryTrends posts={posts} />
+          <PostStatusTrends posts={posts} />
+          <UserActivityHeatmap posts={posts} />
         </div>
       </div>
     </div>

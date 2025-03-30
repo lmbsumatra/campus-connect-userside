@@ -197,16 +197,6 @@ const { models } = require("../models/index");
 exports.getAllListings = async (req, res) => {
   try {
     const listings = await models.Listing.findAll({
-      attributes: [
-        "id",
-        "listing_name",
-        "tags",
-        "rate",
-        "owner_id",
-        "category",
-        "created_at",
-        "status",
-      ],
       include: [
         {
           model: models.Date,

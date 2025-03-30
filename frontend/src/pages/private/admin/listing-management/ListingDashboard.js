@@ -10,8 +10,9 @@ import PaginationComponent from "../../../../components/Pagination/PaginationCom
 import {
   ListingsGrowth,
   ListingsByCategory,
-  ListingStatusDistribution,
+  ListingStatusTrends,
   TopUsersForListings,
+  ListingPriceDistribution,
 } from "../../../../components/Analytics/ListingAnalyticsComponent";
 
 const ListingDashboard = () => {
@@ -222,8 +223,9 @@ const ListingDashboard = () => {
         <div className="col-lg-4">
           <ListingsGrowth listings={listings} />
           <ListingsByCategory listings={listings} />
-          <ListingStatusDistribution listings={listings} />
+          <ListingStatusTrends listings={listings} />
           <TopUsersForListings listings={listings} />
+          <ListingPriceDistribution listings={listings} />
         </div>
       </div>
     </div>
