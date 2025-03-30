@@ -23,22 +23,8 @@
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-}
-
-.searchbar .search-icon {
-  position: absolute;
-  right: 200px;
-  top: 52px;
-  z-index: 1;
-}
-
-.user-dropdown {
-  height: auto;
-  width: auto;
-  background-color: rgb(30, 154, 249);
-  position: absolute;
-  right: 20px;
-  top: 100px;
+  flex-direction: row;
+  justify-content: flex-end;
 }
 
 .admin-info {
@@ -56,6 +42,7 @@
 .admin-name {
   font-size: 16px;
   font-weight: bold;
+  padding-right: 20px;
 }
 
 .date-time {
@@ -81,13 +68,63 @@
 }
 
 @media (max-width: 768px) {
+  .nav.nav-container {
+    padding: 0 12px;
+  }
+
   .admin-info {
     flex-direction: row;
     align-items: center;
+    padding: 0 12px;
+    justify-content: flex-start;
+    gap: 12px;
   }
 
-  .admin-name-container {
+  .admin-user-details {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    margin-left: 16px;
+  }
+
+  .admin-name {
+    font-size: 12px;
+  }
+
+  .date-time {
+    font-size: 11px;
+  }
+
+  .menu-toggle-btn {
+    margin-right: 0;
+  }
+
+  .admin-toolbar {
+    gap: 8px;
+    flex-direction: row;
+  }
+
+  .admin-toolbar > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 375px) {
+  .admin-info {
+    padding: 0 12px;
+  }
+
+  .admin-name {
+    font-size: 13px;
+  }
+
+  .date-time {
+    font-size: 10px;
+  }
+
+  .admin-user-details {
+    margin-left: 8px;
   }
 }

@@ -130,16 +130,16 @@ const AdminNavBar = ({ toggleSidebar }) => {
           </button>
         )}
         {adminUser ? (
-          <>
+          <div className="admin-user-details">
             <span className="admin-name">{`${adminUser.firstName} ${adminUser.lastName}`}</span>
             <span className="date-time">{getFormattedDateTime()}</span>
-          </>
+          </div>
         ) : (
           <span>Loading...</span>
         )}
       </div>
 
-      <div className="admin-toolbar d-flex">
+      <div className="admin-toolbar ">
         <div ref={notificationsRef} onClick={toggleNotifications}>
           <Notification
             showNotifications={openPopup === "notifications"}
