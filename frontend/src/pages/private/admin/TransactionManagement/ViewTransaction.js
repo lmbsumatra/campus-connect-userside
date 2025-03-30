@@ -32,88 +32,205 @@ const ViewTransaction = () => {
     fetchTransaction();
   }, [id]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!transaction) return <p>No transaction data found.</p>;
+  if (loading)
+    return (
+      <div
+        className="view-transaction-container"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "300px",
+        }}
+      >
+        <div className="loading-spinner">Loading...</div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="view-transaction-container">
+        <div className="error-message">
+          <h3>Error</h3>
+          <p>{error}</p>
+          <button className="btn btn-back" onClick={() => navigate(-1)}>
+            <span>←</span> Go Back
+          </button>
+        </div>
+      </div>
+    );
+
+  if (!transaction)
+    return (
+      <div className="view-transaction-container">
+        <div className="error-message">
+          <h3>No Data Found</h3>
+          <p>The requested transaction could not be found.</p>
+          <button className="btn btn-back" onClick={() => navigate(-1)}>
+            <span>←</span> Go Back
+          </button>
+        </div>
+      </div>
+    );
 
   const { label, className } = TransactionStatus(transaction.status);
 
+  // Format values properly
+  const userName =
+    transaction.buyer?.first_name || transaction.renter?.first_name;
+  const userLastName =
+    transaction.buyer?.last_name || transaction.renter?.last_name;
+  const ownerName =
+    transaction.seller?.first_name || transaction.owner?.first_name;
+  const ownerLastName =
+    transaction.seller?.last_name || transaction.owner?.last_name;
+  const amount = transaction.Listing?.rate || transaction.ItemForSale?.price;
+  const itemName =
+    transaction.Listing?.listing_name ||
+    transaction.ItemForSale?.item_for_sale_name;
+  const category =
+    transaction.Listing?.category || transaction.ItemForSale?.category;
+
   return (
     <div className="view-transaction-container">
-      <h2>Transaction Details</h2>
-      <button className="btn btn-back" onClick={() => navigate(-1)}>
-        Back
-      </button>
+      <div className="transaction-page-header">
+        <h2>Transaction Details</h2>
+        <button className="btn btn-back" onClick={() => navigate(-1)}>
+          <span>←</span> Back
+        </button>
+      </div>
+
+      <div className="transaction-meta">
+        <div className="meta-item">
+          <div className="meta-label">ID</div>
+          <div className="meta-value">{transaction.id}</div>
+        </div>
+        <div className="meta-item">
+          <div className="meta-label">Type</div>
+          <div className="meta-value">{transaction.transaction_type}</div>
+        </div>
+        <div className="meta-item">
+          <div className="meta-label">Status</div>
+          <div className="meta-value">
+            <span className={`badge ${className}`}>{label}</span>
+          </div>
+        </div>
+        <div className="meta-item">
+          <div className="meta-label">Date</div>
+          <div className="meta-value">{formatDate(transaction.createdAt)}</div>
+        </div>
+      </div>
+
       <div className="transaction-details">
-        <p>
-          <strong>Transaction ID:</strong> {transaction.id}
-        </p>
-        <p>
-          <strong>Type:</strong> {transaction.transaction_type}
-        </p>
-        <p>
-          <strong>Status:</strong>{" "}
-          <span className={`badge ${className}`}>{label}</span>
-        </p>
-        <p>
-          <strong>Buyer/Renter:</strong>{" "}
-          {transaction.buyer?.first_name || transaction.renter?.first_name}{" "}
-          {transaction.buyer?.last_name || transaction.renter?.last_name}
-        </p>
-        <p>
-          <strong>Seller/Owner:</strong>{" "}
-          {transaction.seller?.first_name || transaction.owner?.first_name}{" "}
-          {transaction.seller?.last_name || transaction.owner?.last_name}
-        </p>
-        <p>
-          <strong>Amount:</strong>{" "}
-          {transaction.Listing?.rate || transaction.ItemForSale?.price}
-        </p>
-        <p>
-          <strong>Date:</strong> {formatDate(transaction.createdAt)}
-        </p>
-        <p>
-          <strong>Delivery Method:</strong> {transaction.delivery_method}
-        </p>
-        <p>
-          <strong>Payment Status:</strong> {transaction.payment_status}
-        </p>
-        <p>
-          <strong>Payment Mode:</strong> {transaction.payment_mode}
-        </p>
-        <p>
-          <strong>Item Name:</strong>{" "}
-          {transaction.Listing?.listing_name ||
-            transaction.ItemForSale?.item_for_sale_name}
-        </p>
-        <p>
-          <strong>Category:</strong>{" "}
-          {transaction.Listing?.category || transaction.ItemForSale?.category}
-        </p>
-        <p>
-          <strong>Post Item Name:</strong>{" "}
-          {transaction.Post?.post_item_name || "N/A"}
-        </p>
-        <p>
-          <strong>Rental Date:</strong> {transaction.Date?.date}
-        </p>
-        <p>
-          <strong>Rental Time:</strong> {transaction.Duration?.rental_time_from}{" "}
-          - {transaction.Duration?.rental_time_to}
-        </p>
-        <p>
-          <strong>Owner Confirmed:</strong>{" "}
-          {transaction.owner_confirmed ? "Yes" : "No"}
-        </p>
-        <p>
-          <strong>Renter Confirmed:</strong>{" "}
-          {transaction.renter_confirmed ? "Yes" : "No"}
-        </p>
-        <p>
-          <strong>Allowed to Proceed:</strong>{" "}
-          {transaction.is_allowed_to_proceed ? "Yes" : "No"}
-        </p>
-        {/* Add more fields as needed */}
+        <div className="detail-item">
+          <div className="detail-label">Buyer/Renter</div>
+          <div className="detail-value">
+            {userName && userLastName ? `${userName} ${userLastName}` : "N/A"}
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Seller/Owner</div>
+          <div className="detail-value">
+            {ownerName && ownerLastName
+              ? `${ownerName} ${ownerLastName}`
+              : "N/A"}
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Amount</div>
+          <div className="detail-value">{amount ? `$${amount}` : "N/A"}</div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Payment Status</div>
+          <div className="detail-value">{transaction.payment_status}</div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Payment Mode</div>
+          <div className="detail-value">{transaction.payment_mode}</div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Delivery Method</div>
+          <div className="detail-value">{transaction.delivery_method}</div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Item Name</div>
+          <div className="detail-value">{itemName || "N/A"}</div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Category</div>
+          <div className="detail-value">{category || "N/A"}</div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Post Item Name</div>
+          <div className="detail-value">
+            {transaction.Post?.post_item_name || "N/A"}
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Rental Date</div>
+          <div className="detail-value">{transaction.Date?.date || "N/A"}</div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Rental Time</div>
+          <div className="detail-value">
+            {transaction.Duration?.rental_time_from &&
+            transaction.Duration?.rental_time_to
+              ? `${transaction.Duration.rental_time_from} - ${transaction.Duration.rental_time_to}`
+              : "N/A"}
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Owner Confirmed</div>
+          <div className="detail-value">
+            <div className="indicator">
+              <span
+                className={`indicator-dot ${
+                  transaction.owner_confirmed ? "yes" : "no"
+                }`}
+              ></span>
+              {transaction.owner_confirmed ? "Yes" : "No"}
+            </div>
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Renter Confirmed</div>
+          <div className="detail-value">
+            <div className="indicator">
+              <span
+                className={`indicator-dot ${
+                  transaction.renter_confirmed ? "yes" : "no"
+                }`}
+              ></span>
+              {transaction.renter_confirmed ? "Yes" : "No"}
+            </div>
+          </div>
+        </div>
+
+        <div className="detail-item">
+          <div className="detail-label">Allowed to Proceed</div>
+          <div className="detail-value">
+            <div className="indicator">
+              <span
+                className={`indicator-dot ${
+                  transaction.is_allowed_to_proceed ? "yes" : "no"
+                }`}
+              ></span>
+              {transaction.is_allowed_to_proceed ? "Yes" : "No"}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -166,7 +166,8 @@ const AdminTransactionDashboard = () => {
         {transaction.seller?.last_name || transaction.owner?.last_name}
       </>,
       transaction.Listing?.listing_name ||
-        transaction.ItemForSale?.item_for_sale_name,
+        transaction.ItemForSale?.item_for_sale_name ||
+        "N/A",
       // transaction.amount || "N/A",
       formatDate(transaction.createdAt),
       <span className={`badge ${className}`}>{label}</span>,

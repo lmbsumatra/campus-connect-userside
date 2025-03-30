@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import { ClipLoader } from "react-spinners";
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const { adminUser, refreshAdminToken } = useAuth(); // Get user and refresh function from AuthContext
@@ -53,7 +54,18 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
 
   // Show a loading message while checking the token
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <ClipLoader color="#007bff" size={50} />
+      </div>
+    );
   }
 
   return hasAccess ? children : <Navigate to="/admin-login" />;

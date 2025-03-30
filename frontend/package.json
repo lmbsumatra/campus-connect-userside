@@ -52,6 +52,7 @@
     "react-router-dom": "^6.25.1",
     "react-scripts": "5.0.1",
     "react-slick": "^0.30.2",
+    "react-spinners": "^0.15.0",
     "react-star-ratings": "^2.3.0",
     "react-swipeable": "^7.0.1",
     "react-textarea-autosize": "^8.5.6",

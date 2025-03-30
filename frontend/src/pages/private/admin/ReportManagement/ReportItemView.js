@@ -26,6 +26,14 @@ const ReportItemView = () => {
   const handleCloseModal = () => setShowModal(false);
   const dispatch = useDispatch();
 
+  // Entity type label mapping
+  const entityTypeLabels = {
+    post: "Post",
+    listing: "Listing",
+    sale: "Sale Item",
+    user: "User Profile",
+  };
+
   useEffect(() => {
     const fetchEntityDetails = async () => {
       try {
@@ -86,8 +94,8 @@ const ReportItemView = () => {
           reportStatus: selectedAction,
           entityAction: entityAction,
           statusMessage: statusMessage,
-          lastUpdated: new Date().toISOString(), // Add the current timestamp
-          reviewedBy: `${adminUser.firstName} ${adminUser.lastName}`, // Save the admin's full nam
+          lastUpdated: new Date().toISOString(),
+          reviewedBy: `${adminUser.firstName} ${adminUser.lastName}`,
         },
         {
           headers: {
@@ -98,10 +106,9 @@ const ReportItemView = () => {
       );
 
       if (response.status === 200) {
-        // Ensure request was successful
-        reportDetails.status = selectedAction; // Update UI
-        reportDetails.lastUpdated = new Date().toISOString(); // Update lastUpdated in UI
-        reportDetails.reviewedBy = `${adminUser.firstName} ${adminUser.lastName}`; // Update reviewedBy in UI
+        reportDetails.status = selectedAction;
+        reportDetails.lastUpdated = new Date().toISOString();
+        reportDetails.reviewedBy = `${adminUser.firstName} ${adminUser.lastName}`;
         ShowAlert(
           dispatch,
           "success",
@@ -158,10 +165,12 @@ const ReportItemView = () => {
 
   if (loading)
     return <div className="loading-container">Loading report details...</div>;
+
   if (error)
     return (
       <div className="error-container">
-        Error: {error}
+        <div>Error loading report details</div>
+        <p>{error}</p>
         <div className="mt-3">
           <button onClick={handleBack} className="btn btn-secondary">
             Back to Reports
@@ -180,41 +189,62 @@ const ReportItemView = () => {
       </div>
 
       <div className="entity-card">
-        <h3>Entity Details</h3>
+        <h3>
+          <span className="card-icon">📋</span>
+          {entityTypeLabels[entity_type] || "Entity"} Details
+        </h3>
         {renderEntityView()}
       </div>
 
       <div className="report-details">
-        <h3>Report Information</h3>
+        <h3>
+          <span className="card-icon">🚩</span>
+          Report Information
+        </h3>
         <p>
-          <strong>Reporter:</strong> {reportDetails?.reporter || "Anonymous"}
+          <strong>Reporter:</strong>
+          <span>{reportDetails?.reporter || "Anonymous"}</span>
         </p>
+
+        <div className="reason-box">
+          <div className="reason-title">Reported Reason:</div>
+          <div className="reason-text">
+            {reportDetails?.reason || "No reason specified"}
+          </div>
+        </div>
+
         <p>
-          <strong>Reason:</strong> {reportDetails?.reason || "Not specified"}
-        </p>
-        <p>
-          <strong>Status:</strong>{" "}
+          <strong>Current Status:</strong>
           <span className={getStatusBadgeClass(reportDetails?.status)}>
             {reportDetails?.status || "Pending"}
           </span>
         </p>
+
         <p>
-          <strong>Date Reported:</strong> {formatDate(reportDetails?.createdAt)}
+          <strong>Date Reported:</strong>
+          <span className="timestamp">
+            {formatDate(reportDetails?.createdAt)}
+          </span>
         </p>
+
         {reportDetails?.lastUpdated && (
           <p>
-            <strong>Last Updated:</strong>{" "}
-            {formatDate(reportDetails.lastUpdated)}
+            <strong>Last Updated:</strong>
+            <span className="timestamp">
+              {formatDate(reportDetails.lastUpdated)}
+            </span>
           </p>
         )}
+
         {reportDetails?.reviewedBy && (
           <p>
-            <strong>Reviewed By:</strong> {reportDetails.reviewedBy}
+            <strong>Reviewed By:</strong>
+            <span>{reportDetails.reviewedBy}</span>
           </p>
         )}
       </div>
 
-      <div className="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+      <div className="action-container">
         <button
           className="btn btn-primary btn-lg"
           onClick={handleOpenModal}
