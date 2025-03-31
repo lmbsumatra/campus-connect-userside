@@ -460,19 +460,65 @@ const EditPost = () => {
   };
 
   const handleSubmit = async () => {
-    if (isVerified !== "verified" || isEmailVerified !== true) {
+    // Ban check
+    if (isVerified === "banned") {
       ShowAlert(
         dispatch,
         "warning",
-        "Access Denied",
-        "You must be verified to proceed.",
-        {
-          text: "View Profile",
-          action: () => {
-            navigate("/profile/edit-profile");
-          },
-        }
+        "Account Banned",
+        "Your account is permanently banned. You cannot edit post.",
+        { text: "Ok" }
       );
+      return;
+    }
+
+    // Restricted status check (regardless of date)
+    if (isVerified === "restricted") {
+      // Try to get the restriction end date
+      let restrictionDate = null;
+      if (user?.student?.restricted_until) {
+        restrictionDate = new Date(user.student.restricted_until);
+      } else if (user?.student?.statusMsg) {
+        // Try to extract from statusMsg
+        const dateMatch = user.student.statusMsg.match(
+          /restricted until ([^\.]+)/i
+        );
+        if (dateMatch && dateMatch[1]) {
+          try {
+            restrictionDate = new Date(dateMatch[1].trim());
+          } catch (e) {
+            console.error("Failed to parse date from statusMsg:", e);
+          }
+        }
+      }
+
+      // Check if the restriction is still active
+      const isCurrentlyRestricted =
+        restrictionDate &&
+        !isNaN(restrictionDate.getTime()) &&
+        restrictionDate > new Date();
+
+      if (isCurrentlyRestricted) {
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Account Restricted",
+          `Your account is temporarily restricted until ${restrictionDate.toLocaleString()}. You cannot edit post at this time.`,
+          { text: "Ok" }
+        );
+      } else {
+        // Restriction expired but status still "restricted"
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Account Status Issue",
+          "Your account has a restriction status that needs attention. Please contact support or check your profile.",
+          {
+            text: "View Profile",
+            action: () => navigate("/profile/edit-profile"),
+          }
+        );
+      }
       return;
     }
 

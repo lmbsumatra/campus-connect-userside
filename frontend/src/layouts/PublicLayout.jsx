@@ -36,7 +36,13 @@ function PublicLayout() {
       {studentUser?.userId && !loadingFetchUser && (
         <>
           <TopBar isVerified={isVerified} user={user?.user} />
-          <PendingUserApproval isVerified={isApproved} user={user?.user} />
+          <PendingUserApproval
+            isVerified={isApproved}
+            user={{
+              student: user?.student,
+              ...user?.user,
+            }}
+          />
         </>
       )}
       {isDarkTheme && <TrialOnNavbar theme="dark" />}

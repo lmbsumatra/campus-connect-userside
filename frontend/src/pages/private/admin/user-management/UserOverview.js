@@ -49,7 +49,13 @@ const UserDashboard = () => {
   //   console.log(`Deleting user with ID: ${userId}`);
   // };
 
-  const filterableStatusOptions = ["pending", "verified", "banned", "flagged"];
+  const filterableStatusOptions = [
+    "pending",
+    "verified",
+    "flagged",
+    "banned",
+    "restricted",
+  ];
 
   const handleSortChange = (column, order) => {
     if (order === "default") {
@@ -60,10 +66,9 @@ const UserDashboard = () => {
   };
 
   const getStatusInfo = (status) => {
-    const { label, className } = StudentStatus(status);
-    return { label, className };
+    if (!status) return { label: "Unknown", className: "status-unknown" }; // Handle null/undefined status
+    return StudentStatus(status);
   };
-
   const handleFilterChange = (column, value) => {
     setFilterOptions({ ...filterOptions, [column]: value });
   };
@@ -237,6 +242,7 @@ const UserDashboard = () => {
               data={data}
               onSortChange={handleSortChange}
               onFilterChange={handleFilterChange}
+              statusOptions={filterableStatusOptions}
             />
           ) : (
             <CardComponent data={data} headers={headers} />

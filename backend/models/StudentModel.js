@@ -2,7 +2,15 @@ const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/database");
 const User = require("./UserModel");
 
-class Student extends Model {}
+class Student extends Model {
+  isRestricted() {
+    return (
+      this.status === "restricted" &&
+      this.restricted_until &&
+      new Date(this.restricted_until) > new Date()
+    );
+  }
+}
 Student.init(
   {
     id: {
@@ -44,12 +52,25 @@ Student.init(
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM("pending", "verified", "flagged", "banned"),
-      defaultValue: "pending", // Default status is 'pending'
+      type: DataTypes.ENUM(
+        "pending",
+        "verified",
+        "flagged",
+        "banned",
+        "restricted"
+      ),
+      defaultValue: "pending",
       allowNull: false,
     },
     status_message: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    restricted_until: {
+      // Keep this field
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: "Timestamp until which the user is temporarily restricted.",
     },
   },
   {

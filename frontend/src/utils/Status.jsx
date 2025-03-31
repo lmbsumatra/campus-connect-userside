@@ -27,6 +27,8 @@ export const StudentStatus = (status) => {
       return { label: "Pending", className: "bg-warning text-dark" }; // Changed text color
     case "flagged":
       return { label: "Flagged", className: "bg-primary text-white" };
+    case "restricted":
+      return { label: "Restricted", className: "bg-primary text-white" };
     default:
       return { label: "Unknown", className: "bg-light text-dark" };
   }

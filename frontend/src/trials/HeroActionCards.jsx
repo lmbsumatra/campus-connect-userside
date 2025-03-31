@@ -13,9 +13,10 @@ const HeroActionCards = ({ show, hide }) => {
   const studentUser = useSelector(selectStudentUser);
   const isVerified = user?.student?.status ?? false;
   const isEmailVerified = user?.user?.emailVerified ?? false;
+  const restrictedUntil = user?.student?.restricted_until;
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
 
   const addItem = (hide) => {
     // First check if user is logged in
@@ -29,8 +30,70 @@ const HeroActionCards = ({ show, hide }) => {
       });
       return;
     }
-    
-    // User is logged in, now check if verified
+
+    // Ban check
+    if (isVerified === "banned") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Account Banned",
+        "Your account is permanently banned. You cannot add item.",
+        { text: "Ok" }
+      );
+      return;
+    }
+
+    // Restricted status check (regardless of date)
+    if (isVerified === "restricted") {
+      // Try to get the restriction end date
+      let restrictionDate = null;
+      if (user?.student?.restricted_until) {
+        restrictionDate = new Date(user.student.restricted_until);
+      } else if (user?.student?.statusMsg) {
+        // Try to extract from statusMsg
+        const dateMatch = user.student.statusMsg.match(
+          /restricted until ([^\.]+)/i
+        );
+        if (dateMatch && dateMatch[1]) {
+          try {
+            restrictionDate = new Date(dateMatch[1].trim());
+          } catch (e) {
+            console.error("Failed to parse date from statusMsg:", e);
+          }
+        }
+      }
+
+      // Check if the restriction is still active
+      const isCurrentlyRestricted =
+        restrictionDate &&
+        !isNaN(restrictionDate.getTime()) &&
+        restrictionDate > new Date();
+
+      if (isCurrentlyRestricted) {
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Account Restricted",
+          `Your account is temporarily restricted until ${restrictionDate.toLocaleString()}. You cannot add items at this time.`,
+          { text: "Ok" }
+        );
+      } else {
+        // Restriction expired but status still "restricted"
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Account Status Issue",
+          "Your account has a restriction status that needs attention. Please contact support or check your profile.",
+          {
+            text: "View Profile",
+            action: () => navigate("/profile/edit-profile"),
+          }
+        );
+      }
+      return;
+    }
+
+    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -46,7 +109,7 @@ const HeroActionCards = ({ show, hide }) => {
       );
       return;
     }
-    
+
     // User is logged in and verified, proceed
     navigate("/profile/my-listings/add");
     hide();
@@ -64,8 +127,70 @@ const HeroActionCards = ({ show, hide }) => {
       });
       return;
     }
-    
-    // User is logged in, now check if verified
+
+    // Ban check
+    if (isVerified === "banned") {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Account Banned",
+        "Your account is permanently banned. You cannot create posts.",
+        { text: "Ok" }
+      );
+      return;
+    }
+
+    // Restricted status check (regardless of date)
+    if (isVerified === "restricted") {
+      // Try to get the restriction end date
+      let restrictionDate = null;
+      if (user?.student?.restricted_until) {
+        restrictionDate = new Date(user.student.restricted_until);
+      } else if (user?.student?.statusMsg) {
+        // Try to extract from statusMsg
+        const dateMatch = user.student.statusMsg.match(
+          /restricted until ([^\.]+)/i
+        );
+        if (dateMatch && dateMatch[1]) {
+          try {
+            restrictionDate = new Date(dateMatch[1].trim());
+          } catch (e) {
+            console.error("Failed to parse date from statusMsg:", e);
+          }
+        }
+      }
+
+      // Check if the restriction is still active
+      const isCurrentlyRestricted =
+        restrictionDate &&
+        !isNaN(restrictionDate.getTime()) &&
+        restrictionDate > new Date();
+
+      if (isCurrentlyRestricted) {
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Account Restricted",
+          `Your account is temporarily restricted until ${restrictionDate.toLocaleString()}. You cannot create posts at this time.`,
+          { text: "Ok" }
+        );
+      } else {
+        // Restriction expired but status still "restricted"
+        ShowAlert(
+          dispatch,
+          "warning",
+          "Account Status Issue",
+          "Your account has a restriction status that needs attention. Please contact support or check your profile.",
+          {
+            text: "View Profile",
+            action: () => navigate("/profile/edit-profile"),
+          }
+        );
+      }
+      return;
+    }
+
+    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -81,7 +206,7 @@ const HeroActionCards = ({ show, hide }) => {
       );
       return;
     }
-    
+
     // User is logged in and verified, proceed
     navigate("/profile/my-posts/new");
     hide();

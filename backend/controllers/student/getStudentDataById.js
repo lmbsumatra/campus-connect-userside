@@ -27,6 +27,7 @@ const getStudentById = async (req, res) => {
             "course",
             "status",
             "status_message",
+            "restricted_until",
           ],
         },
       ],
@@ -109,6 +110,7 @@ const getStudentById = async (req, res) => {
             status: user.student.status,
             statusMsg:
               user.student.status_message || "No status message available",
+            restrictedUntil: user.student.restricted_until,
           }
         : null, // If student is null, return null instead of an empty object
       action: action,

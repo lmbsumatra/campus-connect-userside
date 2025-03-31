@@ -36,3 +36,97 @@
 .top-bar-notification p {
   color: white;
 }
+
+/* frontend/src/components/topbar/topBarStyles.css */
+
+/* ... existing styles ... */
+
+.pending-topbar-notification.restricted {
+  background-color: #a95808;
+  /* Light yellow */
+  color: #664d03;
+  /* Dark yellow/brown text */
+  border-bottom: 1px solid #ffecb5;
+}
+
+.pending-topbar-notification.banned {
+  background-color: #f8d7da;
+  /* Light red */
+  color: #58151c;
+  /* Dark red text */
+  border-bottom: 1px solid #f1aeae;
+}
+
+.pending-topbar-notification.flagged {
+    background-color: rgb(187, 117, 42);
+  /* Same as restricted or choose another */
+  color: #664d03;
+  border-bottom: 1px solid #ffecb5;
+}
+
+.pending-topbar-notification.pending {
+  background-color: #cff4fc;
+  /* Light blue */
+  color: #055160;
+  border-bottom: 1px solid #b6effb;
+}
+
+.pending-topbar-notification.unknown {
+  background-color: #e2e3e5;
+  /* Light gray */
+  color: #41464b;
+  border-bottom: 1px solid #d3d6d8;
+}
+
+.pending-topbar-notification p {
+  margin: 0;
+  padding: 8px 15px;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+.pending-topbar-notification a {
+  color: #0d6efd;
+  /* Standard link color */
+  text-decoration: underline;
+}
+
+.pending-topbar-notification a:hover {
+  color: #0a58ca;
+}
+
+/* Styles for admin user status badge */
+.status-badge-admin {
+  font-size: 0.85em;
+  vertical-align: middle;
+  /* Align icon and text */
+}
+
+.status-badge-admin svg {
+  margin-right: 4px;
+  vertical-align: text-bottom;
+  /* Better alignment for icons */
+}
+
+/* Specific student status colors for badge (add these if missing) */
+.status-verified-student {
+  background-color: #198754;
+  color: white;
+}
+
+.status-flagged-student {
+  background-color: #ffc107;
+  color: black;
+}
+
+.status-banned-student {
+  background-color: #dc3545;
+  color: white;
+}
+
+.status-restricted-student {
+  background-color: #fd7e14;
+  color: white;
+}
+
+/* Orange for restricted */
