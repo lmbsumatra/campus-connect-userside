@@ -7,7 +7,14 @@ import {
   resolveReport,
   escalateReport,
 } from "../../redux/reports/RentalReportsSlice";
-import { FiPaperclip, FiSend, FiArrowLeft } from "react-icons/fi";
+import {
+  FiPaperclip,
+  FiSend,
+  FiArrowLeft,
+  FiAlertCircle,
+  FiCheckCircle,
+  FiXCircle,
+} from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { Form, Button, Alert, Spinner, Badge } from "react-bootstrap";
 import "./RentalReportDetails.css";
@@ -206,9 +213,36 @@ const RentalReportDetails = () => {
         return "resolved";
       case "escalated":
         return "escalated";
+      case "admin_review":
+        return "info";
+      case "admin_resolved":
+        return "success";
+      case "admin_dismissed":
+        return "warning";
       default:
         return "secondary";
     }
+  };
+
+  // Format status for display
+  const formatStatus = (status) => {
+    if (!status) return "";
+    return status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
+  // Format action taken for display
+  const formatActionTaken = (action) => {
+    if (!action || action === "none") return "No action taken";
+    return action.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
+  // Get icon for admin decision
+  const getAdminDecisionIcon = (status) => {
+    if (status === "admin_resolved")
+      return <FiCheckCircle className="text-success" size={24} />;
+    if (status === "admin_dismissed")
+      return <FiXCircle className="text-warning" size={24} />;
+    return <FiAlertCircle className="text-info" size={24} />;
   };
 
   if (status === "loading" || !reportDetails) {
@@ -240,6 +274,10 @@ const RentalReportDetails = () => {
       item.uploaded_by_id === reportDetails.reporter_id
   );
 
+  // Determine if there's an admin decision
+  const hasAdminDecision =
+    reportDetails.status && reportDetails.status.startsWith("admin_");
+
   return (
     <div className="report-details-wrapper">
       <button className="back-button" onClick={() => navigate(-1)}>
@@ -259,9 +297,41 @@ const RentalReportDetails = () => {
               reportDetails.status
             )}`}
           >
-            {reportDetails.status}
+            {formatStatus(reportDetails.status)}
           </span>
         </div>
+
+        {/* Admin Decision Panel - Enhanced Version */}
+        {hasAdminDecision && (
+          <div
+            className={`admin-decision-panel admin-${getStatusBadgeVariant(
+              reportDetails.status
+            )}`}
+          >
+            <div className="admin-decision-header">
+              <div className="admin-decision-icon">
+                {getAdminDecisionIcon(reportDetails.status)}
+              </div>
+              <h3>Admin Decision:</h3>
+            </div>
+
+            <div className="admin-decision-content">
+              {reportDetails.admin_resolution_notes && (
+                <div className="admin-resolution-notes">
+                  <h4>Resolution Notes:</h4>
+                  <p>{reportDetails.admin_resolution_notes}</p>
+                </div>
+              )}
+
+              {reportDetails.admin_action_taken && (
+                <div className="admin-action-taken">
+                  <h4>Action Taken:</h4>
+                  <p>{formatActionTaken(reportDetails.admin_action_taken)}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="report-content">
           <div className="description-section">
@@ -325,7 +395,8 @@ const RentalReportDetails = () => {
           {/* Conditional UI based on user role */}
           {isReportee &&
             reportDetails.status !== "resolved" &&
-            reportDetails.status !== "escalated" && (
+            reportDetails.status !== "escalated" &&
+            !reportDetails.status.includes("admin_") && (
               <div className="response-form-section">
                 <h3>Submit Your Response</h3>
                 {submitSuccess && (
@@ -416,34 +487,36 @@ const RentalReportDetails = () => {
               </div>
             )}
 
-          {isReporter && reportDetails.status !== "resolved" && (
-            <>
-              {reportDetails.status === "escalated" ? (
-                <Alert
-                  variant="info"
-                  className="mt-3"
-                  style={{ maxWidth: "560px" }}
-                >
-                  Your report has been submitted for admin review. We'll keep
-                  you posted.
-                </Alert>
-              ) : (
-                <div className="reporter-actions mt-3">
-                  <h4>Actions</h4>
-                  <Button
-                    variant="success"
-                    className="me-2"
-                    onClick={handleResolve}
+          {isReporter &&
+            reportDetails.status !== "resolved" &&
+            !reportDetails.status.includes("admin_") && (
+              <>
+                {reportDetails.status === "escalated" ? (
+                  <Alert
+                    variant="info"
+                    className="mt-3"
+                    style={{ maxWidth: "560px" }}
                   >
-                    Mark as Resolved
-                  </Button>
-                  <Button variant="danger" onClick={handleEscalate}>
-                    Escalate to Admin
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
+                    Your report has been submitted for admin review. We'll keep
+                    you posted.
+                  </Alert>
+                ) : (
+                  <div className="reporter-actions mt-3">
+                    <h4>Actions</h4>
+                    <Button
+                      variant="success"
+                      className="me-2"
+                      onClick={handleResolve}
+                    >
+                      Mark as Resolved
+                    </Button>
+                    <Button variant="danger" onClick={handleEscalate}>
+                      Escalate to Admin
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
         </div>
       </div>
     </div>

@@ -373,7 +373,7 @@ const TransactionReportItem = () => {
           reportDetails.status === "admin_dismissed") && (
           <div className="admin-resolution-section-admin response-item-admin mb-4">
             {" "}
-            <h3>Admin Resolution</h3>
+            {/* <h4>Admin Resolution</h4> */}
             <Row>
               {" "}
               <Col md={4} className="mb-2 mb-md-0">

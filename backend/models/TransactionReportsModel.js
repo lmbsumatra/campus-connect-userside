@@ -80,9 +80,7 @@ TransactionReport.init(
       type: DataTypes.ENUM(
         "none",
         "warning_issued",
-        "temp_ban_24h",
-        "temp_ban_48h",
-        "temp_ban_72h",
+        "temp_ban_24h", // Restricted for 24 hrs
         "perm_ban"
       ),
       allowNull: true,
@@ -115,7 +113,7 @@ TransactionReport.associate = (models) => {
     foreignKey: "resolved_by_admin_id",
     as: "resolvedByAdmin", // Use this alias in includes
   });
-  // Optional: Keep responder if needed for student responses
+  // Keep responder if needed for student responses
   // TransactionReport.belongsTo(models.User, {
   //   foreignKey: "response_by_id",
   //   as: "responder",

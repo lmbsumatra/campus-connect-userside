@@ -3,7 +3,6 @@ import axios from "axios";
 import { useAuth } from "../../../../context/AuthContext";
 import { baseApi } from "../../../../utils/consonants";
 import { Modal, Button, Form, Spinner } from "react-bootstrap";
-import { FiSend } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import ShowAlert from "../../../../utils/ShowAlert";
 import "./AdminActionModal.css";
@@ -17,9 +16,7 @@ const adminStatusOptions = [
 const adminActionOptions = [
   { value: "none", label: "No Action" },
   { value: "warning_issued", label: "Issue Warning" },
-  { value: "temp_ban_24h", label: "Temporary Ban (24h)" },
-  { value: "temp_ban_48h", label: "Temporary Ban (48h)" },
-  { value: "temp_ban_72h", label: "Temporary Ban (72h)" },
+  { value: "temp_ban_24h", label: "Restricted (24h)" },
   { value: "perm_ban", label: "Permanent Ban" },
 ];
 
@@ -198,10 +195,9 @@ const AdminActionModal = ({
             Cancel
           </Button>
           <Button
-            variant="primary"
             type="submit"
             form="adminActionForm"
-            className="submit-btn-admin"
+            className="submit-button-admin"
             disabled={actionLoading}
           >
             {actionLoading ? (
@@ -212,15 +208,12 @@ const AdminActionModal = ({
                   size="sm"
                   role="status"
                   aria-hidden="true"
-                  className="btn-spinner-admin me-2"
+                  className="button-spinner-admin me-2"
                 />
                 Submitting...
               </>
             ) : (
-              <>
-                <FiSend className="me-2" />
-                Submit Action
-              </>
+              <>Submit Action</>
             )}
           </Button>
         </Modal.Footer>

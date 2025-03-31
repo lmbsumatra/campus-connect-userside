@@ -5,7 +5,7 @@ const StudentNotification = require("../models/StudentNotificationModel");
 const Student = require("../models/StudentModel");
 
 const notificationController = {
-  // Existing admin notification methods
+  // Admin notification methods
   createNotification: async (req, res) => {
     try {
       const notification = await Notification.create(req.body);
@@ -16,13 +16,12 @@ const notificationController = {
     }
   },
 
-  // ----- New Student Notification Methods -----
+  // -----Student Notification Methods -----
 
   // Create a new student notification
   createStudentNotification: async (req, res) => {
     // console.log("createStudentNotification called with body:", req.body);
     try {
-      // Validate required fields
       const requiredFields = ["sender_id", "recipient_id", "type", "message"];
       const missingFields = requiredFields.filter((field) => !req.body[field]);
 
@@ -95,17 +94,6 @@ const notificationController = {
         ],
         order: [["createdAt", "DESC"]],
       });
-
-      // // console.log(
-      // //   "🔔 Fetched Notifications:",
-      // //   notifications.map((n) => ({
-      // //     id: n.id,
-      // //     message: n.message,
-      // //     rentalId: n.rental_id, // Debug rentalId presence
-      // //     isRead: n.is_read,
-      // //   }))
-      // // );
-
       res.json(notifications);
     } catch (error) {
       // console.error("❌ Error fetching notifications:", error);

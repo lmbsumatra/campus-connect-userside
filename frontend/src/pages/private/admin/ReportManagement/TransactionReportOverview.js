@@ -210,12 +210,11 @@ const TransactionReportOverview = () => {
             View
           </button>
         ) : (
-          // Optionally show a View button for non-actionable reports
           <button
             className="btn btn-action view"
             onClick={() =>
               navigate(`/admin/reports/transaction-details/${report.id}`)
-            } // Navigate to read-only detail view
+            }
           >
             View
           </button>
@@ -224,7 +223,6 @@ const TransactionReportOverview = () => {
     ];
   });
 
-  // Columns config for TableComponent, enabling filtering on Status and Type
   const columnsConfig = useMemo(
     () => [
       { header: "Report ID", sortable: true, filterable: false },
@@ -242,7 +240,7 @@ const TransactionReportOverview = () => {
         header: "Status",
         sortable: false,
         filterable: true,
-        filterOptions: statusFilterOptions.map((opt) => opt.value), // Pass values
+        filterOptions: statusFilterOptions.map((opt) => opt.value),
         filterLabels: statusFilterOptions.reduce((acc, opt) => {
           // Pass labels for display
           acc[opt.value] = opt.label;
@@ -256,7 +254,7 @@ const TransactionReportOverview = () => {
 
   return (
     <div className="admin-content-container">
-      <h1 className="admin-content-title">Transaction Report Management</h1>
+      <h3 className="admin-content-title">Transaction Report Management</h3>
       <SearchBarComponent
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
