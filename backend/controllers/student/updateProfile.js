@@ -48,12 +48,13 @@ const updateProfile = async (req, res) => {
     }
 
     // Update student information
-    if (req.body.year || req.body.college || req.body.course) {
+    if (req.body.year || req.body.college || req.body.course|| req.body.tup_id) {
       const studentUpdateData = {};
 
       if (req.body.year) studentUpdateData.year = req.body.year;
       if (req.body.college) studentUpdateData.college = req.body.college;
       if (req.body.course) studentUpdateData.course = req.body.course;
+      if (req.body.tup_id) studentUpdateData.tup_id = req.body.tup_id;
 
       await models.Student.update(studentUpdateData, {
         where: { user_id: userId },

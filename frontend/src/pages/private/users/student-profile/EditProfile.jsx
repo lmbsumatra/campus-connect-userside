@@ -90,6 +90,7 @@ function EditProfile() {
       "year",
       "college",
       "course",
+      "tup_id",
     ];
 
     const hasChanges = personalFields.some(
@@ -100,6 +101,7 @@ function EditProfile() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -141,6 +143,7 @@ function EditProfile() {
           mname: formData.middlename,
           college: formData.college,
           course: formData.course,
+          tup_id: formData.tup_id,
         }),
       });
       if (response.ok) {
@@ -457,15 +460,22 @@ function EditProfile() {
         <Row className="mb-3">
           <Col md={6}>
             <Form.Group controlId="formTupId">
-              <Form.Label className="fw-semibold">TUP ID</Form.Label>
-              <Form.Control
-                type="text"
-                name="tup_id"
-                value={formData.tup_id}
-                readOnly
-                disabled
-                className="form-control p-2"
-              />
+              <Tooltip
+                title={
+                  formData.status === "verified" && "This has been verified."
+                }
+              >
+                <Form.Label className="fw-semibold">TUP ID</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="tup_id"
+                  value={formData.tup_id}
+                  onChange={handleChange}
+                  readOnly={formData.status === "verified"}
+                  disabled={formData.status === "verified"}
+                  className="form-control p-2"
+                />
+              </Tooltip>
             </Form.Group>
           </Col>
           <Col md={6}>
