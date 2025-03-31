@@ -46,28 +46,29 @@ const Lend = () => {
           <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>
         )}
         {loadingAllApprovedPosts && <p>Loading borrowing posts...</p>}
-
-        <FilterToolbar
-          filters={filters}
-          setFilters={setFilters}
-          showPriceRange={false}
-          onFilterChange={handleFilterChange}
-          setShowAdvanceFilter={setShowAdvanceFilter}
-          showAdvancefilter={showAdvancefilter}
-          allApprovedPosts={allApprovedPosts}
-          setFilteredItems={setFilteredItems}
-        />
-
-        {showAdvancefilter && (
-          <FilterModal
-            showFilterModal={showAdvancefilter}
-            close={() => setShowAdvanceFilter(false)}
-            applyFilters={handleFilterChange}
+        <div className="filters-section">
+          <FilterToolbar
             filters={filters}
             setFilters={setFilters}
-            isPost={true}
+            showPriceRange={false}
+            onFilterChange={handleFilterChange}
+            setShowAdvanceFilter={setShowAdvanceFilter}
+            showAdvancefilter={showAdvancefilter}
+            allApprovedPosts={allApprovedPosts}
+            setFilteredItems={setFilteredItems}
           />
-        )}
+
+          {showAdvancefilter && (
+            <FilterModal
+              showFilterModal={showAdvancefilter}
+              close={() => setShowAdvanceFilter(false)}
+              applyFilters={handleFilterChange}
+              filters={filters}
+              setFilters={setFilters}
+              isPost={true}
+            />
+          )}
+        </div>
       </div>
 
       {/* Items Section */}

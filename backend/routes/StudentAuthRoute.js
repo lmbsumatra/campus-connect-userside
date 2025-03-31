@@ -43,6 +43,11 @@ router.post(
   upload,
   StudentController.updateVerificationDocx
 );
+router.put(
+  "/update-profile",
+  authenticateToken,
+  StudentController.updateProfile
+);
 
 router.post(
   "/create-onboarding-link",

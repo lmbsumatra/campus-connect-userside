@@ -12,6 +12,7 @@ const changeStudentStatus = require("./changeStudentStatus.js");
 const updateVerificationDocx = require("./updateVerificationDocx.js");
 const forgotPassword = require("./forgotPassword.js");
 const resetPassword = require("./resetPassword.js");
+const updateProfile = require("./updateProfile.js");
 
 const StudentController = {
   getStudentDataById,
@@ -28,6 +29,7 @@ const StudentController = {
   updateVerificationDocx,
   forgotPassword,
   resetPassword,
+  updateProfile
 };
 
 module.exports = StudentController;

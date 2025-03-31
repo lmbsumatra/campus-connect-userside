@@ -5,10 +5,12 @@ import { useAuth } from "../../../../context/AuthContext";
 import showPassword from "../../../../assets/images/icons/eye-open.svg";
 import hidePassword from "../../../../assets/images/icons/eye-closed.svg";
 import PasswordMeter from "../../../../components/common/PasswordMeter";
-import { Modal, Button, InputGroup, Form } from "react-bootstrap";
+import { Modal, InputGroup } from "react-bootstrap";
 import { Tooltip } from "@mui/material";
-import { toast } from "react-toastify";
-import { baseApi } from "../../../../utils/consonants";
+import { baseApi, collegesAndCourses } from "../../../../utils/consonants";
+import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import ShowAlert from "../../../../utils/ShowAlert";
 
 function EditProfile() {
   const [formData, setFormData] = useState({
@@ -28,6 +30,11 @@ function EditProfile() {
     status: "",
   });
 
+  // Store original data to compare for changes
+  const [originalData, setOriginalData] = useState({});
+  const [isPersonalDataChanged, setIsPersonalDataChanged] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [isModalOpen, setModalOpen] = useState(false);
   const { studentUser } = useAuth();
   const userId = studentUser.userId;
@@ -39,13 +46,16 @@ function EditProfile() {
     errorMessage: fetchErrorMessage,
   } = FetchUserInfo({ userId });
 
-  console.log({ user, student });
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorVerificationMessage, setVerificationErrorMessage] = useState("");
+  const [successVerificationMessage, setVerificationSuccessMessage] =
+    useState("");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (user && student) {
-      setFormData({
+      const userData = {
         surname: user.lname || "",
         firstname: user.fname || "",
         middlename: user.mname || "",
@@ -61,18 +71,48 @@ function EditProfile() {
         photoWithId: student.photoWithId || "",
         status: student.status || "",
         statusMsg: student.statusMsg || "",
-      });
+      };
+
+      setFormData(userData);
+      setOriginalData(userData); // Save original data for comparison
     }
     if (fetchErrorMessage) {
       setErrorMessage(fetchErrorMessage);
     }
   }, [user, student, fetchErrorMessage]);
 
+  // Check if personal data has changed
+  useEffect(() => {
+    const personalFields = [
+      "surname",
+      "firstname",
+      "middlename",
+      "year",
+      "college",
+      "course",
+    ];
+
+    const hasChanges = personalFields.some(
+      (field) => formData[field] !== originalData[field]
+    );
+    setIsPersonalDataChanged(hasChanges);
+  }, [formData, originalData]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
+    }));
+  };
+
+  // College dropdown change handler
+  const handleCollegeChange = (e) => {
+    const selectedCollege = e.target.value;
+    setFormData((prevData) => ({
+      ...prevData,
+      college: selectedCollege,
+      course: "", // Reset course when college changes
     }));
   };
 
@@ -86,6 +126,7 @@ function EditProfile() {
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       const response = await fetch(`${baseApi}/user/update-profile`, {
@@ -98,27 +139,17 @@ function EditProfile() {
           fname: formData.firstname,
           lname: formData.surname,
           mname: formData.middlename,
-          gender: formData.gender,
-          birthday: formData.birthday,
-          username: formData.username,
-        }),
-      });
-
-      const studentResponse = await fetch(`${baseApi}/student/update-profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          year: formData.year,
           college: formData.college,
           course: formData.course,
         }),
       });
-
-      if (response.ok && studentResponse.ok) {
+      if (response.ok) {
         setSuccessMessage("Profile updated successfully!");
+        ShowAlert(dispatch, "success", "Profile updated successfully!");
+        // Update original data to match current data
+        setOriginalData({ ...formData });
+        setIsPersonalDataChanged(false);
+
         setTimeout(() => {
           setSuccessMessage("");
         }, 3000);
@@ -127,15 +158,27 @@ function EditProfile() {
         setErrorMessage(
           errorData.message || "Failed to update profile. Please try again."
         );
+        ShowAlert(
+          dispatch,
+          "error",
+          "Failed to update profile. Please try again."
+        );
         setTimeout(() => {
           setErrorMessage("");
         }, 3000);
       }
     } catch (error) {
       setErrorMessage("An error occurred while updating your profile.");
+      ShowAlert(
+        dispatch,
+        "error",
+        "An error occurred while updating your profile."
+      );
       setTimeout(() => {
         setErrorMessage("");
       }, 3000);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -172,7 +215,6 @@ function EditProfile() {
         setTimeout(() => {
           setSuccessMessage("");
         }, 3000);
-        // setModalOpen(false);
       } else {
         const errorData = await response.json();
         setErrorMessage(
@@ -220,8 +262,6 @@ function EditProfile() {
     photoWithId: null,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleFileUpload = (e, type) => {
     if (formData.status !== "pending" && formData.status !== "flagged") return;
 
@@ -229,31 +269,26 @@ function EditProfile() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage(
-        `File size exceeds 5MB limit. Please select a smaller image.`
+      setVerificationErrorMessage(
+        "File size exceeds 5MB limit. Please select a smaller image."
       );
-      setTimeout(() => {
-        setErrorMessage("");
-      }, 3000);
+      setTimeout(() => setVerificationErrorMessage(""), 3000);
       return;
     }
 
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
-      setErrorMessage(`Only JPG and PNG files are accepted.`);
-      setTimeout(() => {
-        setErrorMessage("");
-      }, 3000);
+      setVerificationErrorMessage("Only JPG and PNG files are accepted.");
+      setTimeout(() => setVerificationErrorMessage(""), 3000);
       return;
     }
 
     const imageUrl = URL.createObjectURL(file);
 
-    setErrorMessage("");
-
+    // This ensures React recognizes the state change
     setFormData((prev) => ({
       ...prev,
-      [type === "scannedId" ? "scannedId" : "photoWithId"]: imageUrl,
+      [type]: imageUrl,
     }));
 
     setUploadedFiles((prev) => ({
@@ -265,9 +300,15 @@ function EditProfile() {
   const handleDocumentSubmission = async (e) => {
     e.preventDefault();
 
-    // Check if at least one file has been selected
     if (!uploadedFiles.scannedId && !uploadedFiles.photoWithId) {
-      setErrorMessage("Please select at least one document to update.");
+      setVerificationErrorMessage(
+        "Please select at least one document to update."
+      );
+      ShowAlert(
+        dispatch,
+        "error",
+        "Please select at least one document to update."
+      );
       setTimeout(() => {
         setErrorMessage("");
       }, 3000);
@@ -275,7 +316,7 @@ function EditProfile() {
     }
 
     setIsSubmitting(true);
-    setErrorMessage("");
+    setVerificationErrorMessage("");
 
     try {
       const formDataToSubmit = new FormData();
@@ -293,7 +334,7 @@ function EditProfile() {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Remove "Content-Type" header
           },
           body: formDataToSubmit,
         }
@@ -301,7 +342,12 @@ function EditProfile() {
 
       if (response.ok) {
         const data = await response.json();
-        setSuccessMessage(
+        setVerificationSuccessMessage(
+          "Documents submitted successfully. They will be reviewed shortly."
+        );
+        ShowAlert(
+          dispatch,
+          "success",
           "Documents submitted successfully. They will be reviewed shortly."
         );
 
@@ -310,37 +356,49 @@ function EditProfile() {
           status: data.status,
           statusMsg: data.statusMsg,
         }));
-
-        setUploadedFiles({
-          scannedId: null,
-          photoWithId: null,
-        });
+        setUploadedFiles({ scannedId: null, photoWithId: null });
+        ShowAlert(dispatch, "success", "Verification documents uploaded!");
 
         setTimeout(() => {
-          setSuccessMessage("");
+          setVerificationSuccessMessage("");
         }, 5000);
       } else {
         const errorData = await response.json();
-        setErrorMessage(
+        setVerificationErrorMessage(
           errorData.message || "Failed to update documents. Please try again."
         );
+        ShowAlert(
+          dispatch,
+          "error",
+          "Failed to update documents. Please try again."
+        );
         setTimeout(() => {
-          setErrorMessage("");
+          setVerificationErrorMessage("");
         }, 3000);
       }
     } catch (error) {
       console.error("Error updating documents:", error);
-      setErrorMessage("A network error occurred. Please try again later.");
+      setVerificationErrorMessage(
+        "A network error occurred. Please try again later."
+      );
+      ShowAlert(
+        dispatch,
+        "error",
+        "A network error occurred. Please try again later."
+      );
       setTimeout(() => {
-        setErrorMessage("");
+        setVerificationErrorMessage("");
       }, 3000);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Get college abbreviations for dropdown
+  const collegeOptions = Object.keys(collegesAndCourses);
+
   return (
-    <div className="rounded bg-white mt-2">
+    <Container className="rounded bg-white mt-2 p-4">
       {errorMessage && (
         <div className="alert alert-danger mb-3">{errorMessage}</div>
       )}
@@ -348,100 +406,207 @@ function EditProfile() {
         <div className="alert alert-success mb-3">{successMessage}</div>
       )}
 
-      <div className="edit-profile-form">
-        <form className="" onSubmit={handleProfileSubmit}>
-          <div className="form-section personal-details">
-            <h3 className="section-label">Edit Personal Details</h3>
-            <div className="details-grid">
-              {[
-                "surname",
-                "firstname",
-                "middlename",
-                "college",
-                "course",
-                "tup_id",
-              ].map((field) => (
-                <div className="form-group" key={field}>
-                  <label>
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                  </label>
-                  <input
-                    type="text"
-                    name={field}
-                    value={formData[field]}
-                    onChange={handleChange}
-                    placeholder="Example Input"
-                    disabled={field === "tup_id"}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* Personal Details Form */}
+      <Form onSubmit={handleProfileSubmit} className="form-section mb-4">
+        <h3 className="mb-4 fw-bold">Edit Personal Details</h3>
 
-          <div className="form-section account-details">
-            <h3 className="section-label">Account Details</h3>
-            <div className="details-grid">
-              <div className="form-group">
-                <label>Email</label>
-                <Tooltip title="Changing email is not available for now.">
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Example Input"
-                    disabled
-                  />
-                </Tooltip>
-              </div>
-              <div className="form-group">
-                <label>Change Password</label>
-                <button
+        {/* Name Fields - Three Columns */}
+        <Row className=" mb-3">
+          <Col md={4}>
+            <Form.Group controlId="formSurname">
+              <Form.Label className="fw-semibold">Surname</Form.Label>
+              <Form.Control
+                type="text"
+                name="surname"
+                value={formData.surname}
+                onChange={handleChange}
+                placeholder="Enter surname"
+                className="form-control p-2"
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group controlId="formFirstname">
+              <Form.Label className="fw-semibold">Firstname</Form.Label>
+              <Form.Control
+                type="text"
+                name="firstname"
+                value={formData.firstname}
+                onChange={handleChange}
+                placeholder="Enter firstname"
+                className="form-control p-2"
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group controlId="formMiddlename">
+              <Form.Label className="fw-semibold">Middlename</Form.Label>
+              <Form.Control
+                type="text"
+                name="middlename"
+                value={formData.middlename}
+                onChange={handleChange}
+                placeholder="Enter middlename"
+                className="form-control p-2"
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        {/* Other Fields */}
+        <Row className="mb-3">
+          <Col md={6}>
+            <Form.Group controlId="formTupId">
+              <Form.Label className="fw-semibold">TUP ID</Form.Label>
+              <Form.Control
+                type="text"
+                name="tup_id"
+                value={formData.tup_id}
+                readOnly
+                disabled
+                className="form-control p-2"
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="formCollege">
+              <Form.Label className="fw-semibold">College</Form.Label>
+              <Form.Select
+                name="college"
+                value={formData.college}
+                onChange={handleCollegeChange}
+                className="form-select p-2"
+              >
+                <option value="">Select College</option>
+                {collegeOptions.map((college) => (
+                  <option key={college} value={college}>
+                    {college}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-3">
+          <Col md={6}>
+            <Form.Group controlId="formCourse">
+              <Form.Label className="fw-semibold">Course</Form.Label>
+              <Form.Select
+                name="course"
+                value={formData.course}
+                onChange={handleChange}
+                className="form-select p-2"
+              >
+                <option value="">Select Course</option>
+                {formData.college &&
+                  Object.entries(
+                    collegesAndCourses[formData.college] || {}
+                  ).map(([code, courseName]) => (
+                    <option key={code} value={courseName}>
+                      {courseName}
+                    </option>
+                  ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <div className="text-end mt-4">
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={!isPersonalDataChanged || isSubmitting}
+            className="px-4"
+          >
+            {isSubmitting ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
+      </Form>
+
+      {/* Account Details Section */}
+      <div className="form-section mb-4 mt-5">
+        <h3 className="mb-4 fw-bold">Account Details</h3>
+        <Row className="">
+          <Col md={6} className="mb-3">
+            <Form.Group>
+              <Form.Label className="fw-semibold">Email</Form.Label>
+              <Tooltip title="Changing email is not available for now.">
+                <Form.Control
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Email"
+                  disabled
+                  className="form-control"
+                />
+              </Tooltip>
+            </Form.Group>
+          </Col>
+          <Col md={6} className="mb-3">
+            <Form.Group>
+              <Form.Label className="fw-semibold">Password</Form.Label>
+              <div>
+                <Button
                   type="button"
-                  className="btn btn-secondary"
+                  variant="outline-primary"
                   onClick={() => setModalOpen(true)}
+                  className="px-4"
                 >
                   Change Password
-                </button>
+                </Button>
               </div>
+            </Form.Group>
+          </Col>
+        </Row>
+      </div>
+
+      <form onSubmit={handleDocumentSubmission} className="mt-4">
+        <div className="form-section verification mb-5">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h3 className="section-label">Verification Documents</h3>
+            <div className="verification-status">
+              {formData.status === "pending" && (
+                <span className="badge bg-warning text-dark py-2 px-3">
+                  Pending Verification
+                </span>
+              )}
+              {formData.status === "verified" && (
+                <span className="badge bg-success py-2 px-3">Verified</span>
+              )}
+              {formData.status === "flagged" && (
+                <span className="badge bg-danger py-2 px-3">Flagged</span>
+              )}
             </div>
           </div>
-        </form>
 
-        <form onSubmit={handleDocumentSubmission} className="mt-4">
-          <div className="form-section verification mb-5">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h3 className="section-label">Verification Documents</h3>
-              <div className="verification-status">
-                {formData.status === "pending" && (
-                  <span className="badge bg-warning text-dark py-2 px-3">
-                    Pending Verification
-                  </span>
-                )}
-                {formData.status === "verified" && (
-                  <span className="badge bg-success py-2 px-3">Verified</span>
-                )}
-                {formData.status === "flagged" && (
-                  <span className="badge bg-danger py-2 px-3">Flagged</span>
-                )}
-              </div>
+          {formData.status && formData.statusMsg && (
+            <div
+              className={`alert ${
+                formData.status === "verified"
+                  ? "alert-success"
+                  : formData.status === "flagged"
+                  ? "alert-danger"
+                  : "alert-warning"
+              } mb-3`}
+            >
+              {formData.statusMsg}
             </div>
+          )}
 
-            {formData.status && formData.statusMsg && (
-              <div
-                className={`alert ${
-                  formData.status === "verified"
-                    ? "alert-success"
-                    : formData.status === "flagged"
-                    ? "alert-danger"
-                    : "alert-warning"
-                } mb-3`}
-              >
-                {formData.statusMsg}
-              </div>
-            )}
+          {errorVerificationMessage && (
+            <div className="alert alert-danger mb-3">
+              {errorVerificationMessage}
+            </div>
+          )}
+          {successVerificationMessage && (
+            <div className="alert alert-success mb-3">
+              {successVerificationMessage}
+            </div>
+          )}
 
-            {/* {formData.status === "flagged" && (
+          {/* {formData.status === "flagged" && (
             <div className="alert alert-danger mb-3">
               <small>
                 Your verification was flagged. Please upload new documents.
@@ -449,178 +614,177 @@ function EditProfile() {
             </div>
           )} */}
 
-            <div className="row verification-grid g-4">
-              <div className="col-md-6">
-                <div className="document-container">
-                  <div className="document-label d-flex justify-content-between">
-                    <span>Photo with ID</span>
-                    {(formData.status === "pending" ||
-                      formData.status === "flagged") && (
-                      <small className="text-primary">
-                        Click image to change
-                      </small>
-                    )}
-                  </div>
-                  <div
-                    className={`document-preview ${
-                      formData.status === "pending" ||
-                      formData.status === "flagged"
-                        ? "document-preview-editable"
-                        : ""
-                    }`}
-                    onMouseEnter={() =>
-                      (formData.status === "pending" ||
-                        formData.status === "flagged") &&
-                      setPhotoHover(true)
-                    }
-                    onMouseLeave={() => setPhotoHover(false)}
-                    onClick={() =>
-                      (formData.status === "pending" ||
-                        formData.status === "flagged") &&
-                      photoFileRef.current.click()
-                    }
-                  >
-                    {formData.photoWithId ? (
-                      <div className="position-relative">
-                        <img
-                          src={formData.photoWithId}
-                          alt="Photo with ID"
-                          className="img-fluid rounded"
-                        />
-                        {photoHover &&
-                          (formData.status === "pending" ||
-                            formData.status === "flagged") && (
-                            <div className="document-overlay d-flex align-items-center justify-content-center">
-                              <i className="bi bi-camera-fill me-2"></i>
-                              Update Photo
-                            </div>
-                          )}
-                      </div>
-                    ) : (
-                      <div className="empty-document d-flex flex-column align-items-center justify-content-center">
-                        <i className="bi bi-person-badge fs-1 mb-2"></i>
-                        <span>Upload a photo of yourself holding your ID</span>
-                        {(formData.status === "pending" ||
-                          formData.status === "flagged") && (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary mt-2"
-                            onClick={() => photoFileRef.current.click()}
-                          >
-                            Select Photo
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={photoFileRef}
-                    style={{ display: "none" }}
-                    onChange={(e) => handleFileUpload(e, "photoWithId")}
-                    disabled={
-                      formData.status !== "pending" &&
-                      formData.status !== "flagged"
-                    }
-                  />
+          <div className="row verification-grid g-4">
+            <div className="col-md-6">
+              <div className="document-container">
+                <div className="document-label d-flex justify-content-between">
+                  <span>Photo with ID</span>
+                  {(formData.status === "pending" ||
+                    formData.status === "flagged") && (
+                    <small className="text-primary">
+                      Click image to change
+                    </small>
+                  )}
                 </div>
-              </div>
-
-              <div className="col-md-6">
-                <div className="document-container">
-                  <div className="document-label d-flex justify-content-between">
-                    <span>Scanned ID</span>
-                    {(formData.status === "pending" ||
-                      formData.status === "flagged") && (
-                      <small className="text-primary">
-                        Click image to change
-                      </small>
-                    )}
-                  </div>
-                  <div
-                    className={`document-preview ${
-                      formData.status === "pending" ||
-                      formData.status === "flagged"
-                        ? "document-preview-editable"
-                        : ""
-                    }`}
-                    onMouseEnter={() =>
-                      (formData.status === "pending" ||
-                        formData.status === "flagged") &&
-                      setIdHover(true)
-                    }
-                    onMouseLeave={() => setIdHover(false)}
-                    onClick={() =>
-                      (formData.status === "pending" ||
-                        formData.status === "flagged") &&
-                      idFileRef.current.click()
-                    }
-                  >
-                    {formData.scannedId ? (
-                      <div className="position-relative">
-                        <img
-                          src={formData.scannedId}
-                          alt="Scanned ID"
-                          className="img-fluid rounded"
-                        />
-                        {idHover &&
-                          (formData.status === "pending" ||
-                            formData.status === "flagged") && (
-                            <div className="document-overlay d-flex align-items-center justify-content-center">
-                              <i className="bi bi-camera-fill me-2"></i>
-                              Update ID
-                            </div>
-                          )}
-                      </div>
-                    ) : (
-                      <div className="empty-document d-flex flex-column align-items-center justify-content-center">
-                        <i className="bi bi-card-image fs-1 mb-2"></i>
-                        <span>Upload a clear scan of your student ID</span>
-                        {(formData.status === "pending" ||
+                <div
+                  className={`document-preview ${
+                    formData.status === "pending" ||
+                    formData.status === "flagged"
+                      ? "document-preview-editable"
+                      : ""
+                  }`}
+                  onMouseEnter={() =>
+                    (formData.status === "pending" ||
+                      formData.status === "flagged") &&
+                    setPhotoHover(true)
+                  }
+                  onMouseLeave={() => setPhotoHover(false)}
+                  onClick={() =>
+                    (formData.status === "pending" ||
+                      formData.status === "flagged") &&
+                    photoFileRef.current.click()
+                  }
+                >
+                  {formData.photoWithId ? (
+                    <div className="position-relative">
+                      <img
+                        src={formData.photoWithId}
+                        alt="Photo with ID"
+                        className="img-fluid rounded"
+                      />
+                      {photoHover &&
+                        (formData.status === "pending" ||
                           formData.status === "flagged") && (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary mt-2"
-                            onClick={() => idFileRef.current.click()}
-                          >
-                            Select ID
-                          </button>
+                          <div className="document-overlay d-flex align-items-center justify-content-center">
+                            <i className="bi bi-camera-fill me-2"></i>
+                            Update Photo
+                          </div>
                         )}
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={idFileRef}
-                    style={{ display: "none" }}
-                    onChange={(e) => handleFileUpload(e, "scannedId")}
-                    disabled={
-                      formData.status !== "pending" &&
-                      formData.status !== "flagged"
-                    }
-                  />
+                    </div>
+                  ) : (
+                    <div className="empty-document d-flex flex-column align-items-center justify-content-center">
+                      <i className="bi bi-person-badge fs-1 mb-2"></i>
+                      <span>Upload a photo of yourself holding your ID</span>
+                      {(formData.status === "pending" ||
+                        formData.status === "flagged") && (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary mt-2"
+                          onClick={() => photoFileRef.current.click()}
+                        >
+                          Select Photo
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={photoFileRef}
+                  style={{ display: "none" }}
+                  onChange={(e) => handleFileUpload(e, "photoWithId")}
+                  disabled={
+                    formData.status !== "pending" &&
+                    formData.status !== "flagged"
+                  }
+                />
               </div>
             </div>
 
-            {(formData.status === "pending" ||
-              formData.status === "flagged") && (
-              <div className="text-center mt-4">
-                <button
-                  className="btn btn-primary px-4"
-                  type="submit"
-                  disabled={isSubmitting}
+            <div className="col-md-6">
+              <div className="document-container">
+                <div className="document-label d-flex justify-content-between">
+                  <span>Scanned ID</span>
+                  {(formData.status === "pending" ||
+                    formData.status === "flagged") && (
+                    <small className="text-primary">
+                      Click image to change
+                    </small>
+                  )}
+                </div>
+                <div
+                  className={`document-preview ${
+                    formData.status === "pending" ||
+                    formData.status === "flagged"
+                      ? "document-preview-editable"
+                      : ""
+                  }`}
+                  onMouseEnter={() =>
+                    (formData.status === "pending" ||
+                      formData.status === "flagged") &&
+                    setIdHover(true)
+                  }
+                  onMouseLeave={() => setIdHover(false)}
+                  onClick={() =>
+                    (formData.status === "pending" ||
+                      formData.status === "flagged") &&
+                    idFileRef.current.click()
+                  }
                 >
-                  {isSubmitting ? "Submitting..." : "Submit for Verification"}
-                </button>
+                  {formData.scannedId ? (
+                    <div className="position-relative">
+                      <img
+                        src={formData.scannedId}
+                        alt="Scanned ID"
+                        className="img-fluid rounded"
+                      />
+                      {idHover &&
+                        (formData.status === "pending" ||
+                          formData.status === "flagged") && (
+                          <div className="document-overlay d-flex align-items-center justify-content-center">
+                            <i className="bi bi-camera-fill me-2"></i>
+                            Update ID
+                          </div>
+                        )}
+                    </div>
+                  ) : (
+                    <div className="empty-document d-flex flex-column align-items-center justify-content-center">
+                      <i className="bi bi-card-image fs-1 mb-2"></i>
+                      <span>Upload a clear scan of your student ID</span>
+                      {(formData.status === "pending" ||
+                        formData.status === "flagged") && (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary mt-2"
+                          onClick={() => idFileRef.current.click()}
+                        >
+                          Select ID
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={idFileRef}
+                  style={{ display: "none" }}
+                  onChange={(e) => handleFileUpload(e, "scannedId")}
+                  disabled={
+                    formData.status !== "pending" &&
+                    formData.status !== "flagged"
+                  }
+                />
               </div>
-            )}
+            </div>
           </div>
-        </form>
-      </div>
 
+          {(formData.status === "pending" || formData.status === "flagged") && (
+            <div className="text-center mt-4">
+              <button
+                className="btn btn-primary px-4"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit for Verification"}
+              </button>
+            </div>
+          )}
+        </div>
+      </form>
+
+      {/* Password Change Modal */}
       <Modal
         show={isModalOpen}
         onHide={() => setModalOpen(false)}
@@ -630,7 +794,7 @@ function EditProfile() {
         <Modal.Header closeButton className="border-bottom-0">
           <Modal.Title className="fw-bold">Change Password</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="pt-0">
+        <Modal.Body className="py-2">
           {errorMessage && (
             <div className="alert alert-danger py-2">{errorMessage}</div>
           )}
@@ -654,64 +818,82 @@ function EditProfile() {
                 label: "Confirm New Password",
                 placeholder: "Confirm your new password",
               },
-            ].map((field) => (
-              <Form.Group className="mb-4" key={field.name}>
-                <Form.Label className="fw-semibold mb-1">
-                  {field.label}
-                </Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type={passwordVisibility[field.name] ? "text" : "password"}
-                    name={field.name}
-                    value={passwordData[field.name]}
-                    onChange={handlePasswordChange}
-                    placeholder={field.placeholder}
-                    required
-                    className=""
-                  />
-                  <Button
-                    variant="outline-secondary"
-                    onClick={() => togglePasswordVisibility(field.name)}
-                    className=""
-                  >
-                    {passwordVisibility[field.name] ? (
-                      <img
-                        src={showPassword}
-                        alt="Hide"
-                        className="password-icon"
-                      />
-                    ) : (
-                      <img
-                        src={hidePassword}
-                        alt="Show"
-                        className="password-icon"
-                      />
-                    )}
-                  </Button>
-                </InputGroup>
-                {field.name === "newPassword" && (
-                  <div className="mt-2">
-                    <PasswordMeter password={passwordData.newPassword} />
-                  </div>
-                )}
-              </Form.Group>
+            ].map((field, index) => (
+              <div key={field.name}>
+                <Form.Group className="mb-4">
+                  <Form.Label className="fw-semibold mb-1">
+                    {field.label}
+                  </Form.Label>
+                  <InputGroup className="d-flex gap-0 m-0">
+                    <Form.Control
+                      type={
+                        passwordVisibility[field.name] ? "text" : "password"
+                      }
+                      name={field.name}
+                      value={passwordData[field.name]}
+                      onChange={handlePasswordChange}
+                      placeholder={field.placeholder}
+                      required
+                      className="form-control"
+                    />
+                    <Button
+                      onClick={() => togglePasswordVisibility(field.name)}
+                      className="m-0 p-0 d-flex align-items-center justify-content-center no-hover no-shadow"
+                      style={{
+                        backgroundColor: "transparent",
+                        border: "1px solid rgb(218, 218, 218)",
+                        borderTopRightRadius: "0.36rem",
+                        borderBottomRightRadius: "0.36rem",
+                        borderLeft: "none", // Remove left border to blend with input
+                        boxShadow: "none", // Removes shadow
+                        transition: "none", // Disables animation on hover
+                      }}
+                    >
+                      {passwordVisibility[field.name] ? (
+                        <img
+                          src={showPassword}
+                          alt="Hide"
+                          className="password-icon"
+                        />
+                      ) : (
+                        <img
+                          src={hidePassword}
+                          alt="Show"
+                          className="password-icon"
+                        />
+                      )}
+                    </Button>
+                  </InputGroup>
+                  {field.name === "newPassword" && (
+                    <div className="mt-2">
+                      <PasswordMeter password={passwordData.newPassword} />
+                    </div>
+                  )}
+                </Form.Group>
+              </div>
             ))}
+
+            {/* Add a horizontal line before action buttons */}
             <div className="d-flex justify-content-end gap-3 mt-4">
               <Button
                 variant="light"
                 onClick={() => setModalOpen(false)}
-                className="px-4"
+                className="px-4 btn-light"
               >
                 Cancel
               </Button>
-              <Button variant="primary" type="submit" className="px-4">
+              <Button
+                variant="primary"
+                type="submit"
+                className="px-4 btn btn-primary"
+              >
                 Update Password
               </Button>
             </div>
           </Form>
         </Modal.Body>
       </Modal>
-    </div>
+    </Container>
   );
 }
 

@@ -12,6 +12,7 @@ const FilterToolbar = ({
   showAdvancefilter = false,
   allApprovedPosts = [],
   setFilteredItems = null,
+  isPost 
 }) => {
   const [activeTab, setActiveTab] = useState("relevance");
   const [showPopup, setShowPopup] = useState(null);
@@ -242,7 +243,9 @@ const FilterToolbar = ({
         .tabs-container {
           display: flex;
           background-color: rgba(28, 28, 28, 0.03);
-          padding: 4px;
+          padding: 8px 16px;
+          margin: 4px;
+          border-radius: 8px;
         }
         .tab-item {
           cursor: pointer;
