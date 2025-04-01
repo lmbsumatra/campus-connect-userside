@@ -265,11 +265,11 @@ module.exports = ({ emitNotification }) => {
           },
           {
             model: models.Listing,
-            attributes: ["id", "listing_name", "category", "rate"],
+            attributes: ["id", "listing_name", "category", "rate", "images", "location"],
           },
           {
             model: models.ItemForSale,
-            attributes: ["id", "item_for_sale_name", "price", "category"],
+            attributes: ["id", "item_for_sale_name", "price", "category", "images", "location"],
           },
           { model: models.Post, attributes: ["id", "post_item_name"] },
           { model: models.Date, attributes: ["id", "date"] },

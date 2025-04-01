@@ -92,7 +92,7 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
           },
         ]
       : []),
-    { name: "Completed", statuses: ["Returned"] }, // Added "Completed" status
+    { name: "To Complete", statuses: ["Returned"] }, // Added "Completed" status
     { name: "To Review", statuses: ["Completed"] },
     { name: "Cancelled", statuses: ["Cancelled", "Declined"] },
   ];

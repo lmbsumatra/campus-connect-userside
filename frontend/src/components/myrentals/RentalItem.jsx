@@ -39,7 +39,7 @@ function RentalItem({
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-  // console.log(item);
+  console.log(item);
   const handleConfirmPayment = () => {
     if (
       item.transactionType === "Rental" &&
@@ -167,7 +167,7 @@ function RentalItem({
     try {
       // Debug the complete item structure to see all properties
       console.log("Complete item structure:", JSON.stringify(item, null, 2));
-      
+
       // Debug the transaction structure
       console.log("Transaction item structure:", {
         item_id: item.id,
@@ -175,14 +175,14 @@ function RentalItem({
         tx: item.tx,
         userId: userId,
         renter_id: item.renter_id,
-        buyer_id: item.buyer_id
+        buyer_id: item.buyer_id,
       });
 
       // Safer extraction of IDs from possibly nested structures
       const safeGetId = (obj, ...paths) => {
         for (const path of paths) {
           let value = obj;
-          for (const key of path.split('.')) {
+          for (const key of path.split(".")) {
             value = value?.[key];
             if (value === undefined) break;
           }
@@ -193,46 +193,48 @@ function RentalItem({
 
       // Handle possibility of missing owner_id or transaction type
       let recipientId;
-      
+
       // Get owner ID from all possible locations
       const ownerId = safeGetId(
-        item, 
-        'owner_id', 
-        'tx.owner_id', 
-        'owner.id', 
-        'owner.user_id'
+        item,
+        "owner_id",
+        "tx.owner_id",
+        "owner.id",
+        "owner.user_id"
       );
-      
+
       // Get renter ID from all possible locations
       const renterId = safeGetId(
-        item, 
-        'renter_id', 
-        'tx.renter_id', 
-        'renter.id', 
-        'renter.user_id'
+        item,
+        "renter_id",
+        "tx.renter_id",
+        "renter.id",
+        "renter.user_id"
       );
-      
-      // Get buyer ID from all possible locations  
+
+      // Get buyer ID from all possible locations
       const buyerId = safeGetId(
-        item, 
-        'buyer_id', 
-        'tx.buyer_id', 
-        'buyer.id', 
-        'buyer.user_id'
+        item,
+        "buyer_id",
+        "tx.buyer_id",
+        "buyer.id",
+        "buyer.user_id"
       );
 
       console.log("Extracted IDs:", { ownerId, renterId, buyerId, userId });
 
       // Determine transaction type with fallbacks
-      const transactionType = safeGetId(item, 'tx.transaction_type', 'transactionType') || 
-                             (renterId ? 'rental' : 'sell');
-      
+      const transactionType =
+        safeGetId(item, "tx.transaction_type", "transactionType") ||
+        (renterId ? "rental" : "sell");
+
       // Determine recipient based on user role
       if (userId == ownerId) {
         // Current user is the owner
-        recipientId = transactionType === 'rental' || transactionType === 'rent' 
-                     ? renterId 
-                     : buyerId;
+        recipientId =
+          transactionType === "rental" || transactionType === "rent"
+            ? renterId
+            : buyerId;
       } else {
         // Current user is renter/buyer
         recipientId = ownerId;
@@ -240,16 +242,23 @@ function RentalItem({
 
       // If still undefined, try any non-userId participant
       if (!recipientId) {
-        const allParticipants = [ownerId, renterId, buyerId].filter(id => id && id != userId);
+        const allParticipants = [ownerId, renterId, buyerId].filter(
+          (id) => id && id != userId
+        );
         recipientId = allParticipants[0];
       }
 
       // Check if we have valid IDs
-      console.log("User IDs for conversation:", { senderId: userId, recipientId });
+      console.log("User IDs for conversation:", {
+        senderId: userId,
+        recipientId,
+      });
 
       if (!userId || !recipientId) {
         console.error("Missing required IDs:", { userId, recipientId });
-        alert("Cannot message: Missing recipient information. Please try again later.");
+        alert(
+          "Cannot message: Missing recipient information. Please try again later."
+        );
         return;
       }
 
@@ -259,15 +268,18 @@ function RentalItem({
 
       // Get item name from various possible sources
       const itemName = getItemName();
-      
+
       // Get item image
-      const itemImageUrl = item.item?.image_url || 
-                           item.Listing?.image_url || 
-                           item.tx?.image_url || 
-                           itemImage;
+      const itemImageUrl =
+        item.item?.image_url ||
+        item.Listing?.image_url ||
+        item.tx?.image_url ||
+        itemImage;
 
       // Format status for display
-      const formattedStatus = item.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const formattedStatus = item.status
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (l) => l.toUpperCase());
 
       console.log("Making API request to create conversation:", {
         senderId,
@@ -291,10 +303,12 @@ function RentalItem({
       const conversationData = response.data;
 
       // Determine transaction type for display text
-      const displayTransactionType = 
-        (transactionType === 'rental' || transactionType === 'rent') ? "Rental" : 
-        (transactionType === 'sell' || transactionType === 'purchase') ? "Purchase" : 
-        "Transaction";
+      const displayTransactionType =
+        transactionType === "rental" || transactionType === "rent"
+          ? "Rental"
+          : transactionType === "sell" || transactionType === "purchase"
+          ? "Purchase"
+          : "Transaction";
 
       // Navigate to messages with properly formatted product details
       navigate("/messages", {
@@ -309,16 +323,20 @@ function RentalItem({
             type: "rental-transaction", // Custom type for navigation
             status: `Type: ${displayTransactionType}
 Status: ${formattedStatus}
-Item: ${itemName}`
-          }
-        }
+Item: ${itemName}`,
+          },
+        },
       });
     } catch (error) {
       console.error("Error creating/getting conversation:", error);
       if (error.response) {
         console.error("Response data:", error.response.data);
         console.error("Response status:", error.response.status);
-        alert(`Error: ${error.response.data.error || 'Could not create conversation'}`);
+        alert(
+          `Error: ${
+            error.response.data.error || "Could not create conversation"
+          }`
+        );
       } else {
         alert("Could not connect to the message service");
       }
@@ -536,60 +554,90 @@ Item: ${itemName}`
     // Check all possible places where the item name could be stored
     if (item.Listing && item.Listing.listing_name) {
       return item.Listing.listing_name;
-    } 
-    
+    }
+
     if (item.item) {
       // Try different property names for rental items
       if (item.tx.transaction_type === "rental") {
-        return item.item.listing_name || item.item.name || item.item.title || '';
-      } 
+        return (
+          item.item.listing_name || item.item.name || item.item.title || ""
+        );
+      }
       // Try different property names for sale items
       else if (item.tx.transaction_type === "sell") {
-        return item.item.item_for_sale_name || item.item.name || item.item.title || '';
+        return (
+          item.item.item_for_sale_name ||
+          item.item.name ||
+          item.item.title ||
+          ""
+        );
       }
     }
-    
+
     // Check additional possible locations
     if (item.itemName) {
       return item.itemName;
     }
-    
+
     if (item.name) {
       return item.name;
     }
-    
+
     if (item.tx && item.tx.item_name) {
       return item.tx.item_name;
     }
-    
+
     return "Unknown Item";
   };
 
   return (
     <div className={`rental-item ${highlighted ? "highlighted" : ""}`}>
-      <img src={itemImage} alt={getItemName()} className="rental-item-image" />
+      <img src={item.tx.item.images[0] || itemImage} alt={getItemName()} className="rental-item-image" />
       <div className="rental-item-content">
         <h4>Item: {getItemName()}</h4>
-        {item.renter_id && item.renter && (
+        <div
+          style={{
+            color: "white",
+            backgroundColor: "teal",
+            padding: " 4px 10px",
+            borderRadius: "5px",
+            display: "inline-block", // Ensures it doesn't take full width
+            whiteSpace: "nowrap", // Ensures text doesn't wrap
+            width: "fit-content", // Adjust width based on the content's width
+          }}
+        >
+          Type: {item.transactionType || "rental"}
+        </div>
+
+        {item.tx.renter_id && item.tx.renter && (
           <p>
-            Renter: {item.renter.first_name} {item.renter.last_name}
+            Renter:{" "}
+            {item.tx.renter_id === userId
+              ? "You"
+              : `${item.tx.renter.first_name} ${item.tx.renter.last_name}`}
           </p>
         )}
-        {item.buyer_id && item.buyer && (
+        {item.tx.buyer_id && item.tx.buyer && (
           <p>
-            Buyer: {item.buyer.first_name} {item.buyer.last_name}
+            Buyer:{" "}
+            {item.tx.buyer_id === userId
+              ? "You"
+              : `${item.tx.buyer.first_name} ${item.tx.buyer.last_name}`}
           </p>
         )}
-        {item.owner_id && item.owner && (
+        {item.tx.owner_id && item.tx.owner && (
           <p>
-            Owner: {item.owner.first_name} {item.owner.last_name}
+            Owner:{" "}
+            {item.tx.owner_id === userId
+              ? "You"
+              : `${item.tx.owner.first_name} ${item.tx.owner.last_name}`}
           </p>
         )}
         {item.RentalDate && (
           <p>Request Date: {formatDate(item.RentalDate.date)}</p>
         )}
-        <p className="indx">Type: {item.transactionType || "rental"}</p>
-        <p>Status: {item.status}</p>
+
+        {/* <p>Status: {item.status}</p> */}
 
         <div className="action-buttons d-flex gap-2">
           {buttonConfig[item.status]?.map((button, index) =>

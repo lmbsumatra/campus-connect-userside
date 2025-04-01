@@ -20,7 +20,6 @@
   padding: 50px;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
-
 }
 
 /* Header Section */
@@ -137,23 +136,6 @@
   background-color: #4caf50;
 }
 
-/* Transaction Details */
-.transaction-details,
-.delivery-info,
-.owner-info {
-  margin-bottom: 24px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 24px;
-}
-
-.transaction-details h3,
-.delivery-info h3,
-.owner-info h3 {
-  font-size: 1.1rem;
-  margin-bottom: 16px;
-  color: #333;
-}
-
 .item-info {
   display: flex;
   flex-direction: column;
@@ -250,7 +232,7 @@
 }
 
 .star.filled {
-  color: #FFD700;
+  color: #ffd700;
 }
 
 .borrower-actions {
@@ -284,9 +266,7 @@
   max-width: 180px;
   text-align: center;
   margin-top: 8px;
-} 
-
-
+}
 
 .secondary {
   background-color: #e3f2fd;
@@ -313,7 +293,7 @@
   flex-direction: column;
   align-items: center;
   margin-top: 20px;
-} 
+}
 
 .report-btn {
   display: flex;
@@ -427,12 +407,6 @@
     font-size: 1.5rem;
   }
 
-  .transaction-details h3,
-  .delivery-info h3,
-  .owner-info h3 {
-    font-size: 1.2rem;
-  }
-
   .item-info img {
     width: 150px;
     height: 150px;
@@ -451,5 +425,392 @@
 @media (min-width: 1280px) {
   .progress-container {
     padding: 40px;
+  }
+}
+
+/* Add these styles to your RentProgress.css file */
+.transaction-details {
+  display: block;
+}
+
+.details-heading {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.75rem;
+  width: 100%;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.item-image-container {
+  flex-shrink: 0;
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.item-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.detail-row {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.25rem 0;
+  width: 100%;
+}
+
+.detail-label {
+  flex: 0 0 120px;
+  font-weight: 600;
+  color: #555;
+}
+
+.detail-value {
+  flex: 1;
+  color: #333;
+  word-break: break-word;
+}
+
+.time-period {
+  color: #666;
+  font-size: 0.9em;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.total-cost {
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  border-top: 1px dashed #eee;
+  padding-top: 0.5rem;
+}
+
+.total-cost .detail-label {
+  color: #333;
+}
+
+.total-cost .detail-value {
+  font-weight: bold;
+  color: #2c7be5;
+}
+
+/* Responsive styles - Tablets */
+@media (max-width: 768px) {
+  .transaction-details {
+    padding: 1.25rem;
+  }
+
+  .item-info {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .item-image-container {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 1rem;
+  }
+
+  .detail-label {
+    flex: 0 0 110px;
+  }
+}
+
+/* Medium small screens */
+@media (max-width: 576px) {
+  .transaction-details {
+    padding: 1rem;
+  }
+
+  .details-heading {
+    font-size: 1.1rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    border-bottom: 1px solid #f5f5f5;
+    padding-bottom: 0.5rem;
+  }
+
+  .detail-label {
+    flex: 0 0 100%;
+    margin-bottom: 0.25rem;
+  }
+
+  .time-period {
+    margin-left: 0;
+    margin-top: 0.25rem;
+    display: block;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .transaction-details {
+    padding: 0.75rem;
+    border-radius: 6px;
+  }
+
+  .details-heading {
+    font-size: 1rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .item-image-container {
+    height: 160px;
+  }
+
+  .detail-row {
+    font-size: 0.95rem;
+  }
+
+  .total-cost {
+    font-size: 1rem;
+  }
+}
+
+/* For landscape orientation on mobile */
+@media (max-height: 480px) and (orientation: landscape) {
+  .item-info {
+    flex-direction: row;
+  }
+
+  .item-image-container {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Common styles for info sections */
+.delivery-info,
+.borrower-info {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.section-heading {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.75rem;
+}
+
+.info-content {
+  width: 100%;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  flex: 0 0 140px;
+  font-weight: 600;
+  color: #555;
+}
+
+.info-value {
+  flex: 1;
+  color: #333;
+  word-break: break-word;
+}
+
+/* Borrower card styles */
+.borrower-card {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.borrower-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 1rem;
+  flex-shrink: 0;
+  border: 1px solid #eee;
+  background-color: #f0f0f0;
+}
+
+.borrower-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e0e0e0;
+  color: #555;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.borrower-details {
+  flex: 1;
+}
+
+.borrower-name {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.borrower-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.message-btn {
+  padding: 0.5rem 1rem;
+  background-color: #2c7be5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.message-btn:hover {
+  background-color: #1a68c7;
+}
+
+.info-message {
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #2c7be5;
+}
+
+.info-message.error {
+  border-left-color: #e63757;
+}
+
+/* Responsive styles - Tablets */
+@media (max-width: 768px) {
+  .delivery-info,
+  .borrower-info {
+    padding: 1.25rem;
+  }
+  
+  .info-label {
+    flex: 0 0 130px;
+  }
+}
+
+/* Medium small screens */
+@media (max-width: 576px) {
+  .delivery-info,
+  .borrower-info {
+    padding: 1rem;
+  }
+  
+  .section-heading {
+    font-size: 1.1rem;
+  }
+  
+  .info-row {
+    flex-direction: column;
+  }
+  
+  .info-label {
+    flex: 0 0 100%;
+    margin-bottom: 0.25rem;
+  }
+  
+  .borrower-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .borrower-avatar {
+    margin-right: 0;
+    margin-bottom: 0.75rem;
+  }
+  
+  .borrower-actions {
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .delivery-info,
+  .borrower-info {
+    padding: 0.75rem;
+    border-radius: 6px;
+  }
+  
+  .section-heading {
+    font-size: 1rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .borrower-name {
+    font-size: 1rem;
+  }
+  
+  .message-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* For landscape orientation on mobile */
+@media (max-height: 480px) and (orientation: landscape) {
+  .borrower-card {
+    flex-direction: row;
+    text-align: left;
+  }
+  
+  .borrower-avatar {
+    margin-right: 1rem;
+    margin-bottom: 0;
+  }
+  
+  .borrower-actions {
+    justify-content: flex-start;
   }
 }

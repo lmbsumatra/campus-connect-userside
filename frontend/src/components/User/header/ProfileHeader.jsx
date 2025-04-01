@@ -134,18 +134,28 @@ const ProfileHeader = ({
     Seller: 0,
     Buyer: 0,
   };
-  console.log(rentalItems);
+
+  const validStatuses = [
+    "Requested",
+    "Accepted",
+    "Declined",
+    "HandedOver",
+    "Returned",
+  ];
 
   if (rentalItems && rentalItems.length > 0) {
     rentalItems.forEach((transaction) => {
-      if (transaction.tx.owner_id === userId) {
-        countTransactions.Owner++;
-      }
-      if (transaction.tx.renter_id === userId) {
-        countTransactions.Renter++;
-      }
-      if (transaction.tx.buyer_id === userId) {
-        countTransactions.Buyer++;
+      if (validStatuses.includes(transaction.tx.status)) {
+        // Only proceed if the status is valid
+        if (transaction.tx.owner_id === userId) {
+          countTransactions.Owner++;
+        }
+        if (transaction.tx.renter_id === userId) {
+          countTransactions.Renter++;
+        }
+        if (transaction.tx.buyer_id === userId) {
+          countTransactions.Buyer++;
+        }
       }
     });
   }
