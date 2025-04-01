@@ -22,6 +22,8 @@ const FAB = ({ cartItems }) => {
 
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
+  console.log(user);
+
   // Add effect to ensure cart state is consistent with menu state
   useEffect(() => {
     if (!isMenuOpen && isCartOpen) {
@@ -94,6 +96,15 @@ const FAB = ({ cartItems }) => {
       return;
     }
 
+    if (!user || Object.keys(user).length === 0) {
+      ShowAlert(dispatch, "warning", "Action Required", "Please login first", {
+        text: "Login",
+        action: () =>
+          navigate("/", { state: { showLogin: true, authTab: "loginTab" } }),
+      });
+      return;
+    }
+
     // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
@@ -110,8 +121,6 @@ const FAB = ({ cartItems }) => {
       );
       return;
     }
-
-    handleActionWithAuthCheck("/profile/my-listings/add");
   };
 
   const addItem = () => {
@@ -177,6 +186,15 @@ const FAB = ({ cartItems }) => {
       return;
     }
 
+    if (!user || Object.keys(user).length === 0) {
+      ShowAlert(dispatch, "warning", "Action Required", "Please login first", {
+        text: "Login",
+        action: () =>
+          navigate("/", { state: { showLogin: true, authTab: "loginTab" } }),
+      });
+      return;
+    }
+
     // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
@@ -193,8 +211,6 @@ const FAB = ({ cartItems }) => {
       );
       return;
     }
-
-    handleActionWithAuthCheck("/profile/my-listings/add");
   };
 
   const toggleCart = () => {
