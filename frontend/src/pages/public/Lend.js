@@ -46,7 +46,7 @@ const Lend = () => {
           <p>Error loading borrowing posts: {errorAllApprovedPosts}</p>
         )}
         {loadingAllApprovedPosts && <p>Loading borrowing posts...</p>}
-        <div className="filters-section">
+        <div className="">
           <FilterToolbar
             filters={filters}
             setFilters={setFilters}

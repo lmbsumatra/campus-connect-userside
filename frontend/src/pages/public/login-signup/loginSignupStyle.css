@@ -9,7 +9,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 9;
 }
 
 .no-scroll {
@@ -140,6 +140,11 @@
   animation: gearRightToLeft 2s forwards;
 }
 
+
+.sm-d {
+  text-decoration: underline;
+  color: var(--clr-primary);
+}
 @keyframes gearLeftToRight {
   0% {
     transform: translateX(0%) translateY(-50%) rotate(0deg) scale(1);
@@ -188,7 +193,7 @@
   }
 
   .bg-gear.right-position {
-    transform: translateX(-50%) translateY(-230%);
+    transform: translateX(-50%) translateY(-200%);
   }
 
   @keyframes gearBottomToTop {
@@ -201,7 +206,7 @@
       z-index: 1;
     }
     100% {
-      transform: translateX(-50%) translateY(-230%) rotate(180deg) scale(1);
+      transform: translateX(-50%) translateY(-200%) rotate(180deg) scale(1);
       z-index: -1;
     }
   }
@@ -230,12 +235,12 @@
   }
 
   .bg-gear {
-    z-index: 9;
+    z-index: -1;
   }
 
   .bg-gear img {
     height: 400px;
-    z-index: 9;
+    z-index: -1;
   }
 
   .form-container.login-tab,
@@ -245,6 +250,25 @@
 
   .form-container.signup-tab {
     padding-top: 150px;
+  }
+
+  .sm-d.white {
+    text-decoration: underline;
+    color: white;
+  }
+  .sm-d.blue {
+    text-decoration: underline;
+    color: var(--clr-primary);
+  }
+
+  .tupid-input-wrapper .input-box{
+    background-color: pink;
+    height: 40px;
+    width: 40px;
+  }
+  .image-input-wrapper {
+    width: 100% !important;
+    height: auto;
   }
 }
 

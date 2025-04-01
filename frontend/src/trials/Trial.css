@@ -35,7 +35,7 @@
   background-color: #ebffe9;
 }
 
-.validation img.icon {
+.validation img.icon2 {
   height: 12px;
   width: auto;
 }
@@ -74,7 +74,7 @@ ul.list li {
   border-radius: 8px !important;
 }
 
-.input-wrapper2 img.icon {
+.input-wrapper2 img.icon2 {
   position: static; /* Remove absolute positioning */
   width: 24px;
   height: 24px;
@@ -115,7 +115,7 @@ img.password-toggle-icon {
   align-items: center;
 }
 
-.label img.icon {
+.label img.icon2 {
   height: 16px;
   width: auto;
 }

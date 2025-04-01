@@ -207,10 +207,16 @@ const Trial = ({ onTabClick }) => {
       <label htmlFor={name} className="label">
         {label}
         <Button
-          variant="link"
-          onClick={() => setShowIdPolicyModal(policyMessage)}
+          style={{
+            backgroundColor: "transparent",
+            boxShadow: "none",
+            cursor: "pointer",
+            padding: "0",
+            margin: "0",
+          }}
+          onClick={() => handleShowIdPolicyModal(policyMessage)}
         >
-          <img src={infoIcon} className="icon" alt="Information" />
+          <img src={infoIcon} className="icon2" alt="Information" />
         </Button>
       </label>
       <div className="image-input-wrapper">
@@ -250,7 +256,7 @@ const Trial = ({ onTabClick }) => {
       </div>
       {signupDataState[name].triggered && signupDataState[name].hasError && (
         <div className="validation error">
-          <img src={warningIcon} className="icon" alt={`Error on ${name}`} />
+          <img src={warningIcon} className="icon2" alt={`Error on ${name}`} />
           <span className="text">{signupDataState[name].error}</span>
         </div>
       )}
@@ -264,7 +270,7 @@ const Trial = ({ onTabClick }) => {
           name.slice(1).replace(/([A-Z])/g, " $1")}
       </label>
       <div className="input-wrapper2">
-        {icon && <img className="icon" src={icon} alt={`${name} icon`} />}
+        {icon && <img className="icon2" src={icon} alt={`${name} icon`} />}
         <input
           id={name}
           type={
@@ -304,7 +310,7 @@ const Trial = ({ onTabClick }) => {
             <div className="validation error">
               <img
                 src={warningIcon}
-                className="icon"
+                className="icon2"
                 alt={`Error on ${name}`}
               />
               <span className="text">{signupDataState[name]?.error}</span>
@@ -322,7 +328,7 @@ const Trial = ({ onTabClick }) => {
                     >
                       <img
                         src={validation.isValid ? successIcon : warningIcon}
-                        className="icon"
+                        className="icon2"
                         alt="Validation status"
                       />
                       <span
@@ -404,13 +410,13 @@ const Trial = ({ onTabClick }) => {
     <div className="form-wrapper">
       {showWarning && (
         <div className="validation error" ref={warningMessageRef}>
-          <img src={warningIcon} className="icon" />
+          <img src={warningIcon} className="icon2" />
           <span className="text">Please fill out completely!</span>
         </div>
       )}
       {step === 1 && (
         <div>
-          <h4>Personal Details</h4>
+          <h5>Personal Details</h5>
           {renderField("firstName", "text", userIcon, "Your First Name")}
           {renderField("middleName", "text", userIcon, "Your Middle Name")}
           {renderField("lastName", "text", userIcon, "Your Last Name")}
@@ -419,7 +425,7 @@ const Trial = ({ onTabClick }) => {
 
       {step === 2 && (
         <div>
-          <h4>School Details</h4>
+          <h5>School Details</h5>
           {/* Tup id Input */}
           <div className="field-container">
             <label htmlFor="tupId" className="label">
@@ -448,7 +454,7 @@ const Trial = ({ onTabClick }) => {
                 <div className="validation error">
                   <img
                     src={warningIcon}
-                    className="icon"
+                    className="icon2"
                     alt="Error on TUP ID"
                   />
                   <span className="text">{signupDataState.tupId.error}</span>
@@ -493,7 +499,7 @@ const Trial = ({ onTabClick }) => {
                 <div className="validation error">
                   <img
                     src={warningIcon}
-                    className="icon"
+                    className="icon2"
                     alt="Error on college"
                   />
                   <span className="text">{signupDataState.college.error}</span>
@@ -502,9 +508,9 @@ const Trial = ({ onTabClick }) => {
           </div>
 
           {signupDataState.college?.value && (
-            <div className="field-container">
+            <div className="">
               <label htmlFor="course" className="label">
-                Course
+                Program
               </label>
               <Dropdown
                 onSelect={(eventKey, event) => {
@@ -519,14 +525,32 @@ const Trial = ({ onTabClick }) => {
                   variant="success"
                   className="w-100"
                 >
-                  {signupDataState.course?.value || "Select your course"}
+                  <div
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: "auto",
+                      color: "white",
+                    }}
+                  >
+                    {signupDataState.course?.value || "Select your course"}
+                  </div>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                   {signupDataState.college?.value &&
                     Object.entries(
                       collegesAndCourses[signupDataState.college.value]
                     ).map(([code, name]) => (
-                      <Dropdown.Item key={code} eventKey={code}>
+                      <Dropdown.Item
+                        key={code}
+                        eventKey={code}
+                        style={{
+                          whiteSpace: "normal",
+                          wordBreak: "break-word",
+                          maxWidth: "auto",
+                        }}
+                      >
                         {name}
                       </Dropdown.Item>
                     ))}
@@ -537,7 +561,7 @@ const Trial = ({ onTabClick }) => {
                   <div className="validation error">
                     <img
                       src={warningIcon}
-                      className="icon"
+                      className="icon2"
                       alt="Error on course"
                     />
                     <span className="text">{signupDataState.course.error}</span>
@@ -561,7 +585,7 @@ const Trial = ({ onTabClick }) => {
 
       {step === 3 && (
         <div>
-          <h4>Account Details</h4>
+          <h5>Account Details</h5>
           {renderField("email", "email", emailIcon, "Your Email")}
           {renderField("password", "password", passwordIcon, "Your Password")}
           {renderField(
@@ -582,8 +606,7 @@ const Trial = ({ onTabClick }) => {
           </p>
         </div>
       )}
-
-      <div className="navigation-buttons">
+      <div className="d-flex flex-row gap-1 justify-content-between">
         <button
           className="btn btn-secondary"
           onClick={handlePrevStep}
@@ -591,11 +614,13 @@ const Trial = ({ onTabClick }) => {
         >
           Previous
         </button>
+
         {step < 4 && (
           <button className="btn btn-primary" onClick={handleNextStep}>
             Next
           </button>
         )}
+
         {step === 4 && (
           <button
             onClick={handleSubmit}
@@ -615,7 +640,7 @@ const Trial = ({ onTabClick }) => {
       <p>
         Already have an account?{" "}
         <a
-          className="link fw-bold"
+          className="link fw-bold sm-d blue"
           style={{ cursor: "pointer" }}
           onClick={() => onTabClick("loginTab")}
         >

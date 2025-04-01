@@ -278,6 +278,7 @@
   .listing-container .imgs-container {
     display: flex;
     flex-direction: column;
+   
   }
 
   .listing-container .imgs-container .img-slider img.item-img {
@@ -334,4 +335,11 @@
 
 .item-header .btn:hover {
   background-color: #b02a37; /* Darker red for hover effect */
+}
+
+
+@media (max-width: 600px) {
+  .listing-container .imgs-container {
+    height: 400px !important;
+  }
 }

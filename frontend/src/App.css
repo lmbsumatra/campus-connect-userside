@@ -3,6 +3,11 @@
   height: 20px;
   border: #ffffff solid 1px;
 }
+@media (max-width: 600px) {
+  .imgs-container {
+    height: 400px !important;
+  }
+}
 
 /* * * * * * * * * */
 /*       root      */
@@ -334,7 +339,6 @@ hr {
 .over-flow-hidden {
   overflow: hidden !important;
 }
-
 
 .swal2-container {
   z-index: 20000 !important;

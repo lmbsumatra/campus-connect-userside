@@ -4,7 +4,8 @@ body {
   font-family: "Karla", sans-serif !important;
 }
 
-.hero, .header-image {
+.hero,
+.header-image {
   max-width: 100%;
   max-height: 100%;
   overflow: hidden;
@@ -20,7 +21,7 @@ body {
   background-repeat: no-repeat;
   height: auto;
   overflow: hidden !important;
-  border-radius: 0 0 72px 72px ;
+  border-radius: 0 0 72px 72px;
 }
 
 /* Content Layout */
@@ -162,12 +163,27 @@ body {
   .header-container2 {
     width: 100%;
     text-align: center;
+    padding: 16px;
+  }
+
+  .headline {
+    font-size: 44px !important;
   }
 
   .items {
     right: 0;
     top: 50%;
     transform: translateY(-50%);
+  }
+
+  .header-image {
+    border-radius: 0 0 36px 36px;
+  }
+  .btn-container {
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+    justify-content: center;
   }
 }
 

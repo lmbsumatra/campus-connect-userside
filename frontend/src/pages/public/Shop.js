@@ -51,7 +51,7 @@ const Shop = () => {
   // Component JSX
   return (
     <div className="container-content page-container">
-      <div className="filters-section">
+      <div className="">
         <FilterToolbar
           filters={filters}
           setFilters={setFilters}

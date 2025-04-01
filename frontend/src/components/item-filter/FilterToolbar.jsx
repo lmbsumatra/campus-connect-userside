@@ -12,7 +12,7 @@ const FilterToolbar = ({
   showAdvancefilter = false,
   allApprovedPosts = [],
   setFilteredItems = null,
-  isPost 
+  isPost,
 }) => {
   const [activeTab, setActiveTab] = useState("relevance");
   const [showPopup, setShowPopup] = useState(null);
@@ -230,6 +230,9 @@ const FilterToolbar = ({
       )}
 
       <style jsx>{`
+        .filter-toolbar {
+          width: auto;
+        }
         button {
           all: unset;
           background: none;

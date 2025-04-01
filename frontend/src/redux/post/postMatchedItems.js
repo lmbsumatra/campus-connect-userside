@@ -12,10 +12,18 @@ const initialState = {
 export const fetchPostMatchedItems = createAsyncThunk(
   "post/fetchPostMatchedItems",
   async (id) => {
-    const response = await fetch(`${BASE_URL}${id}/matched-items`);
-    const data = await response.json(); // Parse JSON
-    // console.log("matched", data.matchedItems); // Log parsed data
-    return data.matchedItems; // Return parsed data
+    try {
+      const response = await fetch(`${BASE_URL}${id}/matched-items`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      // console.log("matched", data.matchedItems); // Log parsed data
+      return data.matchedItems;
+    } catch (error) {
+      // console.error("Error fetching matched items:", error);
+      throw error; // Re-throw error so that it can be handled by createAsyncThunk's rejection handling
+    }
   }
 );
 

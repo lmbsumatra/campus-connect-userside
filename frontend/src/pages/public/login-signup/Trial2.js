@@ -97,7 +97,7 @@ const Trial2 = ({ onTabClick, onForgotPassword }) => {
       {/* Email Input */}
       {errorManualLogin && (
         <div className="validation error">
-          <img src={warningIcon} className="icon" alt="Error on email" />
+          <img src={warningIcon} className="icon2" alt="Error on email" />
           <span className="text">{errorManualLogin}</span>
         </div>
       )}
@@ -106,7 +106,7 @@ const Trial2 = ({ onTabClick, onForgotPassword }) => {
           Email
         </label>
         <div className="input-wrapper2">
-          <img className="icon" src={emailIcon} alt="Email Icon" />
+          <img className="icon2" src={emailIcon} alt="Email Icon" />
           <input
             id="email"
             name="email"
@@ -125,7 +125,7 @@ const Trial2 = ({ onTabClick, onForgotPassword }) => {
         </div>
         {loginDataState.email.triggered && loginDataState.email.hasError && (
           <div className="validation error">
-            <img src={warningIcon} className="icon" alt="Error on email" />
+            <img src={warningIcon} className="icon2" alt="Error on email" />
             <span className="text">{loginDataState.email.error}</span>
           </div>
         )}
@@ -137,7 +137,7 @@ const Trial2 = ({ onTabClick, onForgotPassword }) => {
           Password
         </label>
         <div className="input-wrapper2">
-          <img className="icon" src={passwordIcon} alt="Password Icon" />
+          <img className="icon2" src={passwordIcon} alt="Password Icon" />
           <input
             id="password"
             className="input"
@@ -162,7 +162,7 @@ const Trial2 = ({ onTabClick, onForgotPassword }) => {
         {loginDataState.password.triggered &&
           loginDataState.password.hasError && (
             <div className="validation error">
-              <img src={warningIcon} className="icon" alt="Error on password" />
+              <img src={warningIcon} className="icon2" alt="Error on password" />
               <span className="text">{loginDataState.password.error}</span>
             </div>
           )}
@@ -179,13 +179,13 @@ const Trial2 = ({ onTabClick, onForgotPassword }) => {
 
       {/* Forgot Password Link */}
       <div className="forgot-password-link">
-        <button
+        <a
           type="button"
           onClick={onForgotPassword}
-          className="text-button"
+          className="text-decoration-underline fw-bold text-primary"
         >
           Forgot Password?
-        </button>
+        </a>
       </div>
       <div className="or-divider">
         <span>or</span>
@@ -202,7 +202,7 @@ const Trial2 = ({ onTabClick, onForgotPassword }) => {
       <p>
         Don't have an account?{" "}
         <a
-          className="link fw-bold"
+          className="link fw-bold sm-d white"
           style={{ cursor: "pointer" }}
           onClick={() => onTabClick("signupTab")}
         >

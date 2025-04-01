@@ -6,6 +6,7 @@ import item5 from "./item_5.png";
 import item6 from "./item_6.png";
 import item7 from "./item_7.png";
 import item8 from "./item_8.png";
+import "./new.css"
 export // Step Descriptions with 3D model paths
 const stepDescriptions = [
   {

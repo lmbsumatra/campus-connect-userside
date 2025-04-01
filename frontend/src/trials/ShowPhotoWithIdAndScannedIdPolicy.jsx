@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { Modal, Button } from "react-bootstrap";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -20,8 +21,10 @@ const ShowPhotoWithIdAndScannedIdPolicy = ({
     arrows: true,
   };
 
-  return (
-    <Modal show={show} onHide={onClose}>
+  if (!show) return null;
+
+  return ReactDOM.createPortal(
+    <Modal show={show} onHide={onClose} style={{ zIndex: 2000 }}>
       <Modal.Header closeButton>
         <Modal.Title>Why is this information collected?</Modal.Title>
       </Modal.Header>
@@ -57,7 +60,8 @@ const ShowPhotoWithIdAndScannedIdPolicy = ({
           Close
         </Button>
       </Modal.Footer>
-    </Modal>
+    </Modal>,
+    document.body // Render outside of the usual DOM hierarchy
   );
 };
 

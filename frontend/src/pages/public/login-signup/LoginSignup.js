@@ -161,7 +161,18 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
       <div className="custom-modal overlay">
         <div className="btn-container2">
           <button
-            className="btn btn-secondary"
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "#808080",
+              fontSize: "2rem",
+              padding: "0",
+              cursor: "pointer",
+              position: "absolute",
+              top: "0px",
+              right: "10px",
+              zIndex: "10",
+            }}
             onClick={() => {
               dispatch(
                 activeTab === TABS.LOGIN ? resetLoginForm() : resetSignupForm()
@@ -169,7 +180,7 @@ const LoginSignup = ({ initialTab, onClose, show }) => {
               onClose();
             }}
           >
-            Close
+            <i className="fa fa-times text-secondary"></i>
           </button>
         </div>
 

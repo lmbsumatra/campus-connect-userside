@@ -27,30 +27,29 @@ export const UserToolbar = ({ user, isYou }) => {
           )}
         </div>
       </div>
-      <div className="rating-label">
-        <div className="d-flex align-items-center my-1">
-          {user?.rating ? (
-            <>
-              <span className="price me-2 fs-5 fw-bold text-success">
-                {user.rating}
-              </span>
-              <div className="">
-                {"("}
-                <i
-                  className="bi-star-fill text-warning"
-                  style={{ fontSize: "1 rem" }}
-                />
-              </div>
-              {")"}
-            </>
-          ) : (
-            <span className="error-msg text-gray fs-5">
-              <i className="bi-star" style={{ fontSize: "1 rem" }} /> No ratings
-              yet
+
+      <div className="d-flex">
+        {user?.rating ? (
+          <div className="d-flex flex-row align-items-center">
+            <span className="fs-5 fw-bold text-success">{user?.rating}</span>
+            <span className="ms-1 text-warning">
+              <i
+                className="bi-star-fill text-warning"
+                style={{ fontSize: "1rem", verticalAlign: "middle" }} // Ensure star is inline with text
+              />
             </span>
-          )}
-        </div>
+          </div>
+        ) : (
+          <span className="error-msg text-gray align-items-center">
+            <i
+              className="bi-star"
+              style={{ fontSize: "1rem", verticalAlign: "middle" }}
+            />{" "}
+            No ratings yet
+          </span>
+        )}
       </div>
+
       <button className="btn btn-rectangle primary" disabled={isYou}>
         View Listings
       </button>

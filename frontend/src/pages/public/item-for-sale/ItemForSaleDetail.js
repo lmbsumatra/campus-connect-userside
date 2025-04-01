@@ -843,28 +843,30 @@ function ItemForSaleDetail() {
               <span className="error-msg">No available name.</span>
             )}
           </div>
-          <div className="d-flex align-items-center my-1">
-            {approvedItemForSaleById.averageRating ? (
-              <>
-                <span className="price me-2 fs-5 fw-bold text-success">
-                  {approvedItemForSaleById.averageRating.toFixed(2)}
-                </span>
-                <div className="">
-                  {"("}
-                  <i
-                    className="bi-star-fill text-warning"
-                    style={{ fontSize: "1 rem" }}
-                  />
+         
+          <div className="d-flex">
+              {approvedItemForSaleById.averageRating ? (
+                <div className="d-flex flex-row align-items-center">
+                  <span className="fs-5 fw-bold text-success">
+                    {approvedItemForSaleById.averageRating.toFixed(2)}
+                  </span>
+                  <span className="ms-1 text-warning">
+                    <i
+                      className="bi-star-fill text-warning"
+                      style={{ fontSize: "1rem", verticalAlign: "middle" }} // Ensure star is inline with text
+                    />
+                  </span>
                 </div>
-                {")"}
-              </>
-            ) : (
-              <span className="error-msg text-gray fs-5">
-                <i className="bi-star" style={{ fontSize: "1 rem" }} /> No
-                ratings yet
-              </span>
-            )}
-          </div>
+              ) : (
+                <span className="error-msg text-gray align-items-center">
+                  <i
+                    className="bi-star"
+                    style={{ fontSize: "1rem", verticalAlign: "middle" }}
+                  />{" "}
+                  No ratings yet
+                </span>
+              )}
+            </div>
 
           <div className="action-btns">
             <button
