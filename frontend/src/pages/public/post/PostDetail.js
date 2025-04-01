@@ -80,6 +80,7 @@ function PostDetail() {
   const loggedInUserId = studentUser?.userId || null;
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
   const [hasReported, setHasReported] = useState(false);
+  const [entityType, setEntityType] = useState("");
 
   const [offerPrice, setOfferPrice] = useState("");
 
@@ -600,8 +601,9 @@ function PostDetail() {
 
   const handleReportClick = () => {
     if (loggedInUserId) {
-      // Directly show the report modal if the user is logged in
+      const entityType = "post"; // You can change this based on which entity is being reported
       setShowReportModal(true);
+      setEntityType(entityType);
     } else {
       // If the user is not logged in, use the authentication check
       handleActionWithAuthCheck(
@@ -626,20 +628,17 @@ function PostDetail() {
   };
 
   const checkIfReported = async () => {
-    // try {
-    //   const response = await axios.get(
-    //     `${baseApi}/api/reports/check`,
-    //     {
-    //       params: {
-    //         reporter_id: loggedInUserId,
-    //         reported_entity_id: approvedPostById.id,
-    //       },
-    //     }
-    //   );
-    //   setHasReported(response.data.hasReported);
-    // } catch (error) {
-    //   console.error("Error checking report:", error);
-    // }
+    try {
+      const response = await axios.get(`${baseApi}/api/reports/check`, {
+        params: {
+          reporter_id: loggedInUserId,
+          reported_entity_id: approvedPostById.id,
+        },
+      });
+      setHasReported(response.data.hasReported);
+    } catch (error) {
+      console.error("Error checking report:", error);
+    }
   };
 
   return (
@@ -717,6 +716,7 @@ function PostDetail() {
               show={showReportModal}
               handleClose={() => setShowReportModal(false)} // Close the modal
               handleSubmit={handleReportSubmit} // Submit the report
+              entityType={entityType}
             />
           </div>
           <div className="item-title">

@@ -29,6 +29,7 @@ const UserProfileVisit = () => {
   const loggedInUserId = studentUser?.userId || null;
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
   const [hasReported, setHasReported] = useState(false);
+  const [entityType, setEntityType] = useState("");
 
   const { availableListingsByUser } = useSelector(
     (state) => state.availableListingsByUser
@@ -100,10 +101,7 @@ const UserProfileVisit = () => {
     };
 
     try {
-      const response = await axios.post(
-        `${baseApi}/api/reports`,
-        reportData
-      ); // API endpoint
+      const response = await axios.post(`${baseApi}/api/reports`, reportData); // API endpoint
       // console.log("Report submitted:", response.data);
 
       // Update hasReported state
@@ -138,8 +136,9 @@ const UserProfileVisit = () => {
 
   const handleReportClick = () => {
     if (loggedInUserId) {
-      // Directly show the report modal if the user is logged in
+      const entityType = "user"; // You can change this based on which entity is being reported
       setShowReportModal(true);
+      setEntityType(entityType);
     } else {
       // If the user is not logged in, use the authentication check
       handleActionWithAuthCheck(
@@ -165,15 +164,12 @@ const UserProfileVisit = () => {
 
   const checkIfReported = async () => {
     try {
-      const response = await axios.get(
-        `${baseApi}/api/reports/check`,
-        {
-          params: {
-            reporter_id: loggedInUserId,
-            reported_entity_id: id,
-          },
-        }
-      );
+      const response = await axios.get(`${baseApi}/api/reports/check`, {
+        params: {
+          reporter_id: loggedInUserId,
+          reported_entity_id: id,
+        },
+      });
       setHasReported(response.data.hasReported);
     } catch (error) {
       console.error("Error checking report:", error);
@@ -204,6 +200,7 @@ const UserProfileVisit = () => {
           show={showReportModal}
           handleClose={() => setShowReportModal(false)}
           handleSubmit={handleReportSubmit}
+          entityType={entityType}
         />
 
         <ProfileHeader userId={id} isProfileVisit={true} className="m-0 p-0" />

@@ -108,6 +108,7 @@ function ListingDetail() {
   const socket = useSocket();
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
   const [hasReported, setHasReported] = useState(false);
+  const [entityType, setEntityType] = useState("");
 
   const location = useLocation();
   const { item, warnSelectDateAndTime } = location.state || {};
@@ -753,8 +754,9 @@ function ListingDetail() {
 
   const handleReportClick = () => {
     if (loggedInUserId) {
-      // Directly show the report modal if the user is logged in
+      const entityType = "listing"; // You can change this based on which entity is being reported
       setShowReportModal(true);
+      setEntityType(entityType);
     } else {
       // If the user is not logged in, use the authentication check
       handleActionWithAuthCheck(
@@ -883,6 +885,7 @@ function ListingDetail() {
               show={showReportModal}
               handleClose={() => setShowReportModal(false)} // Close the modal
               handleSubmit={handleReportSubmit} // Submit the report
+              entityType={entityType}
             />
           </div>
 

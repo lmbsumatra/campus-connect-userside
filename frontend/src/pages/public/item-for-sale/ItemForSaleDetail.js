@@ -67,6 +67,7 @@ function ItemForSaleDetail() {
   const loggedInUserId = studentUser?.userId || null;
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
   const [hasReported, setHasReported] = useState(false);
+  const [entityType, setEntityType] = useState("");
 
   const handleDateClick = (dateId) => {
     const formatDate = (d) => d.toLocaleDateString("en-CA");
@@ -674,8 +675,9 @@ function ItemForSaleDetail() {
 
   const handleReportClick = () => {
     if (loggedInUserId) {
-      // Directly show the report modal if the user is logged in
+      const entityType = "sale"; // You can change this based on which entity is being reported
       setShowReportModal(true);
+      setEntityType(entityType);
     } else {
       // If the user is not logged in, use the authentication check
       handleActionWithAuthCheck(
@@ -824,6 +826,7 @@ function ItemForSaleDetail() {
               show={showReportModal}
               handleClose={() => setShowReportModal(false)} // Close the modal
               handleSubmit={handleReportSubmit} // Submit the report
+              entityType={entityType}
             />
           </div>
           <div className="item-title">
@@ -843,30 +846,30 @@ function ItemForSaleDetail() {
               <span className="error-msg">No available name.</span>
             )}
           </div>
-         
+
           <div className="d-flex">
-              {approvedItemForSaleById.averageRating ? (
-                <div className="d-flex flex-row align-items-center">
-                  <span className="fs-5 fw-bold text-success">
-                    {approvedItemForSaleById.averageRating.toFixed(2)}
-                  </span>
-                  <span className="ms-1 text-warning">
-                    <i
-                      className="bi-star-fill text-warning"
-                      style={{ fontSize: "1rem", verticalAlign: "middle" }} // Ensure star is inline with text
-                    />
-                  </span>
-                </div>
-              ) : (
-                <span className="error-msg text-gray align-items-center">
-                  <i
-                    className="bi-star"
-                    style={{ fontSize: "1rem", verticalAlign: "middle" }}
-                  />{" "}
-                  No ratings yet
+            {approvedItemForSaleById.averageRating ? (
+              <div className="d-flex flex-row align-items-center">
+                <span className="fs-5 fw-bold text-success">
+                  {approvedItemForSaleById.averageRating.toFixed(2)}
                 </span>
-              )}
-            </div>
+                <span className="ms-1 text-warning">
+                  <i
+                    className="bi-star-fill text-warning"
+                    style={{ fontSize: "1rem", verticalAlign: "middle" }} // Ensure star is inline with text
+                  />
+                </span>
+              </div>
+            ) : (
+              <span className="error-msg text-gray align-items-center">
+                <i
+                  className="bi-star"
+                  style={{ fontSize: "1rem", verticalAlign: "middle" }}
+                />{" "}
+                No ratings yet
+              </span>
+            )}
+          </div>
 
           <div className="action-btns">
             <button
