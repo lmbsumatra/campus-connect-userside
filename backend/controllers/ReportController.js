@@ -86,6 +86,7 @@ exports.getAllReports = async (req, res) => {
   }
 };
 
+const DISMISSAL_THRESHOLD = 5;
 // update report status and the entity status
 exports.updateReportStatus = async (req, res) => {
   try {
@@ -104,29 +105,26 @@ exports.updateReportStatus = async (req, res) => {
       return res.status(404).json({ message: "Report not found" });
     }
 
-    // Update report status, lastUpdated, and reviewedBy
+    // Update the current report
     report.status = reportStatus;
     report.lastUpdated = lastUpdated || new Date().toISOString(); // Use provided timestamp or current time
     report.reviewedBy = reviewedBy; // Save the admin's full name
     await report.save();
 
-    // Only update entity status if report is reviewed
+    // Handle entity status changes
     if (reportStatus === "reviewed" && entityAction) {
+      // Update the entity status (flagging, banning, etc.)
       if (report.entity_type === "user") {
-        // Find the associated Student record
         const student = await models.Student.findOne({
           where: { user_id: report.reported_entity_id },
         });
-
-        if (!student) {
-          return res.status(404).json({ error: "Student not found." });
+        if (student) {
+          student.status = entityAction;
+          student.status_message = statusMessage || "";
+          await student.save();
         }
-        // Update student status
-        student.status = entityAction; // Set status to "flagged" or "banned"
-        student.status_message = statusMessage || "";
-        await student.save();
       } else {
-        // Handle other entity types (posts, listings, sales, etc.)
+        // Handle other entity types (posts, listings, etc.)
         let entityModel;
         switch (report.entity_type) {
           case "listing":
@@ -145,7 +143,7 @@ exports.updateReportStatus = async (req, res) => {
         if (entityModel) {
           const entity = await entityModel.findByPk(report.reported_entity_id);
           if (entity) {
-            entity.status = "flagged";
+            entity.status = entityAction; // "flagged" or other action
             entity.status_message = statusMessage || "";
             await entity.save();
           } else {
@@ -158,7 +156,11 @@ exports.updateReportStatus = async (req, res) => {
 
       // Update all reports for the same entity to "resolved"
       await models.Report.update(
-        { status: "resolved" },
+        {
+          status: "reviewed",
+          lastUpdated: lastUpdated || new Date().toISOString(),
+          reviewedBy: reviewedBy,
+        },
         {
           where: {
             reported_entity_id: report.reported_entity_id,
@@ -167,6 +169,33 @@ exports.updateReportStatus = async (req, res) => {
           },
         }
       );
+    } else if (reportStatus === "dismissed") {
+      // Count how many times this entity has been dismissed
+      const dismissalCount = await models.Report.count({
+        where: {
+          reported_entity_id: report.reported_entity_id,
+          entity_type: report.entity_type,
+          status: "dismissed",
+        },
+      });
+
+      // If reached threshold, dismiss all pending reports
+      if (dismissalCount >= DISMISSAL_THRESHOLD) {
+        await models.Report.update(
+          {
+            status: "dismissed",
+            lastUpdated: lastUpdated || new Date().toISOString(),
+            reviewedBy: reviewedBy,
+          },
+          {
+            where: {
+              reported_entity_id: report.reported_entity_id,
+              entity_type: report.entity_type,
+              status: "pending",
+            },
+          }
+        );
+      }
     }
 
     res.status(200).json(report);
@@ -177,26 +206,26 @@ exports.updateReportStatus = async (req, res) => {
 };
 
 // Delete a report
-exports.deleteReport = async (req, res) => {
-  try {
-    const { id } = req.params;
+// exports.deleteReport = async (req, res) => {
+//   try {
+//     const { id } = req.params;
 
-    const report = await Report.findByPk(id);
-    if (!report) {
-      return res.status(404).json({ error: "Report not found." });
-    }
+//     const report = await Report.findByPk(id);
+//     if (!report) {
+//       return res.status(404).json({ error: "Report not found." });
+//     }
 
-    await report.destroy();
-    res.status(204).send();
-  } catch (error) {
-    // console.error("Error deleting report:", error);
-    res.status(500).json({ error: "Failed to delete report." });
-  }
-};
+//     await report.destroy();
+//     res.status(204).send();
+//   } catch (error) {
+//     // console.error("Error deleting report:", error);
+//     res.status(500).json({ error: "Failed to delete report." });
+//   }
+// };
 
 //Get the selected report Details
 exports.getReportDetails = async (req, res) => {
-  // console.log("Query Params:", req.query); // Debugging query params
+  //console.log("Query Params:", req.query); // Debugging query params
   const { entity_type, entity_id } = req.query;
   //  // console.log("Entity Type:", entity_type);
   //  // console.log("Entity ID:", entity_id);

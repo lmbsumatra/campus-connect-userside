@@ -16,12 +16,12 @@ router.patch(
   logAdminActivity,
   reportController.updateReportStatus
 ); // Update a report (e.g., status)
-router.delete(
-  "/:id",
-  authenticateToken,
-  logAdminActivity,
-  reportController.deleteReport
-); // Delete a report
+// router.delete(
+//   "/:id",
+//   authenticateToken,
+//   logAdminActivity,
+//   reportController.deleteReport
+// ); // Delete a report
 router.get("/check", reportController.checkReport);
 
 module.exports = router;

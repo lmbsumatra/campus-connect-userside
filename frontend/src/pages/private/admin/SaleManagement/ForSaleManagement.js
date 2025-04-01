@@ -12,6 +12,7 @@ import {
   ListingGrowth,
   ItemStatusDistribution,
   TopSellers,
+  RevenueTrends,
 } from "../../../../components/Analytics/SaleAnalyticsComponents";
 
 const ForSaleManagement = () => {
@@ -228,6 +229,7 @@ const ForSaleManagement = () => {
           <ListingGrowth items={items} />
           <ItemStatusDistribution items={items} />
           <TopSellers items={items} />
+          <RevenueTrends items={items} />
         </div>
       </div>
     </div>

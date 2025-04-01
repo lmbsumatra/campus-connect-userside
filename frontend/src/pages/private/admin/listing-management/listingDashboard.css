@@ -1,32 +1,39 @@
 .recent-listings-header {
-    background-color: #ffffff; 
-    border-radius: 8px; /* Rounded corners */
-  }
-  
-  /* Thumbnail Placeholder */
-  .thumbnail-placeholder {
-    width: 50px;
-    height: 50px;
-    background-color: #e0e0e0;
-  }
-  
-  /* Profile Picture Placeholder */
-  .profile-pic-placeholder {
-    width: 40px;
-    height: 40px;
-    background-color: #ccc;
-    border-radius: 50%;
-  }
-  
-  /* Remove vertical borders in the table */
-  .table-bordered td,
-  .table-bordered th {
-    border: none;
-    border-color: #ccc;
-  }
-  
-  .table-bordered {
-    border: none;
-    border: #ccc;
-  }
-  
+  background-color: #ffffff;
+  border-radius: 8px; /* Rounded corners */
+}
+
+/* Thumbnail Placeholder */
+.thumbnail-placeholder {
+  width: 50px;
+  height: 50px;
+  background-color: #e0e0e0;
+}
+
+/* Profile Picture Placeholder */
+.profile-pic-placeholder {
+  width: 40px;
+  height: 40px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+
+/* Remove vertical borders in the table */
+.table-bordered td,
+.table-bordered th {
+  border: none;
+  border-color: #ccc;
+}
+
+.table-bordered {
+  border: none;
+  border: #ccc;
+}
+
+.listing-thumbnail {
+  width: 50px; /* Adjust size as needed */
+  height: 50px;
+  object-fit: cover; /* Ensure the image fits well */
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}

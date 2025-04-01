@@ -182,10 +182,41 @@ const PostDashboard = () => {
     currentPage * postsPerPage
   );
 
+  const getThumbnail = (post) => {
+    let imagesArray = [];
+
+    if (typeof post.images === "string") {
+      try {
+        imagesArray = JSON.parse(post.images);
+      } catch (error) {
+        console.error("Error parsing images:", error);
+      }
+    } else if (Array.isArray(post.images)) {
+      imagesArray = post.images;
+    }
+
+    const imageUrl =
+      imagesArray.length > 0
+        ? imagesArray[0].trim()
+        : "https://via.placeholder.com/100";
+
+    return (
+      <img
+        src={imageUrl}
+        alt={post.post_item_name}
+        className="post-thumbnail"
+        // onError={(e) => {
+        //   console.error("❌ Image failed to load:", e.target.src);
+        //   e.target.src = "https://via.placeholder.com/100"; // Fallback image
+        // }}
+      />
+    );
+  };
+
   const data = displayedData.map((post) => {
     const { label, className } = getStatusInfo(post.status);
     return [
-      <div className="thumbnail-placeholder"></div>,
+      getThumbnail(post),
       post.post_item_name,
       post.category,
       <>

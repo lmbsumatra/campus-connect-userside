@@ -63,8 +63,8 @@ export const ReportStatus = (status) => {
   switch (status) {
     case "pending":
       return { label: "Pending", className: "bg-warning text-dark" };
-    case "under_review": // Added missing status
-      return { label: "Under Review", className: "bg-info text-white" };
+    case "reviewed": // Added missing status
+      return { label: "Reviewed", className: "bg-info text-white" };
     case "dismissed":
       return { label: "Dismissed", className: "bg-secondary text-white" };
     case "resolved":

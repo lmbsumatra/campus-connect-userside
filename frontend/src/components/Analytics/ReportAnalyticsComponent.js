@@ -26,7 +26,7 @@ ChartJS.register(
 export const ReportsByCategory = ({ reports }) => {
   const categoryData = reports.reduce((acc, report) => {
     // Use 'entity_type' as the category
-    const category = report.entity_type || "Unknown"; 
+    const category = report.entity_type || "Unknown";
     acc[category] = (acc[category] || 0) + 1;
     return acc;
   }, {});
@@ -144,7 +144,8 @@ export const TopReportUsers = ({ reports }) => {
         return reports.filter(
           (report) =>
             new Date(report.createdAt) >= now &&
-            new Date(report.createdAt) < new Date(now).setDate(now.getDate() + 1)
+            new Date(report.createdAt) <
+              new Date(now).setDate(now.getDate() + 1)
         );
       case "weekly":
         const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));

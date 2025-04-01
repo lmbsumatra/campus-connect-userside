@@ -58,6 +58,12 @@ const UserEntityView = ({ entityDetails }) => {
               src={profilePic}
               alt="Profile"
               className="entity-image profile-image"
+              style={{
+                width: "150px",
+                height: "150px",
+                objectFit: "cover",
+                borderRadius: "50%",
+              }}
             />
           </div>
         </div>

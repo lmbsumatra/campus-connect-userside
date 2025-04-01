@@ -167,10 +167,41 @@ const ListingDashboard = () => {
     currentPage * listingsPerPage
   );
 
+  const getThumbnail = (listing) => {
+    let imagesArray = [];
+
+    if (typeof listing.images === "string") {
+      try {
+        imagesArray = JSON.parse(listing.images);
+      } catch (error) {
+        console.error("Error parsing images:", error);
+      }
+    } else if (Array.isArray(listing.images)) {
+      imagesArray = listing.images;
+    }
+
+    const imageUrl =
+      imagesArray.length > 0
+        ? imagesArray[0].trim()
+        : "https://via.placeholder.com/100";
+
+    return (
+      <img
+        src={imageUrl}
+        alt={listing.listing_name}
+        className="listing-thumbnail"
+        // onError={(e) => {
+        //   console.error("❌ Image failed to load:", e.target.src);
+        //   e.target.src = "https://via.placeholder.com/100"; // Fallback image
+        // }}
+      />
+    );
+  };
+
   const data = displayedData.map((listing) => {
     const { label, className } = getStatusInfo(listing.status);
     return [
-      <div className="thumbnail-placeholder"></div>,
+      getThumbnail(listing),
       listing.listing_name,
       listing.category,
       <>

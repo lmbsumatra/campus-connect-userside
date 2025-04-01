@@ -62,6 +62,10 @@ const ReportDashboard = () => {
             reason: report.reason,
             status: report.status,
             createdAt: formatDate(report.createdAt),
+            lastUpdated: report.lastUpdated
+              ? formatDate(report.lastUpdated)
+              : null,
+            reviewedBy: report.reviewedBy || null,
           },
         },
       }

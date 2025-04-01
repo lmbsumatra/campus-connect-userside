@@ -248,10 +248,15 @@ const ReportItemView = () => {
         <button
           className="btn btn-primary btn-lg"
           onClick={handleOpenModal}
-          disabled={reportDetails?.status === "reviewed"}
+          disabled={
+            reportDetails?.status === "reviewed" ||
+            reportDetails?.status === "dismissed"
+          }
         >
           {reportDetails?.status === "reviewed"
             ? "Already Reviewed"
+            : reportDetails?.status === "dismissed"
+            ? "Dismissed"
             : "Take Action"}
         </button>
       </div>

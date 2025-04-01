@@ -31,12 +31,12 @@ Report.init(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM("pending", "under_review", "dismissed", "resolved"),
+      type: DataTypes.ENUM("pending", "reviewed", "dismissed", "resolved"),
       defaultValue: "pending",
     },
     is_dispute: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false, // True for disputes, false for general reports
+      defaultValue: false,
     },
     createdAt: {
       type: DataTypes.DATE,
