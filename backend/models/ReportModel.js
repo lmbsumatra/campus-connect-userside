@@ -99,6 +99,11 @@ Report.associate = (models) => {
     as: "reportedPost",
     constraints: false,
   });
+  Report.belongsTo(models.ItemForSale, {
+    foreignKey: "reported_entity_id",
+    as: "reportedSale",
+    constraints: false,
+  });
 };
 
 module.exports = Report;
