@@ -33,13 +33,39 @@ const getStudentById = async (req, res) => {
       ],
     });
 
-    // Debugging logs
-    // console.log("Fetched user:", JSON.stringify(user, null, 2));
-    // console.log("Raw student data:", user?.student || "No student data");
-    // console.log("Raw status_message:", user?.student?.status_message || "NULL or Undefined");
-
     if (!user) {
       return res.status(404).json({ error: "Student not found!" });
+    }
+
+    // Check if restriction has expired and update status if needed
+    if (
+      user.student &&
+      user.student.status === "restricted" &&
+      user.student.restricted_until
+    ) {
+      const now = new Date();
+      if (new Date(user.student.restricted_until) <= now) {
+        await user.student.update({
+          status: "verified",
+          status_message: `Restriction expired on ${now.toLocaleDateString()}. Account automatically reactivated.`,
+          restricted_until: null,
+        });
+
+        // Reload the student with updated status
+        await user.student.reload();
+
+        // // notify the user about status change
+        // if (req.emitNotification) {
+        //   const notification = await models.StudentNotification.create({
+        //     recipient_id: user.student.user_id,
+        //     type: "status_update",
+        //     message:
+        //       "Your account restriction has expired and your account has been reactivated.",
+        //   });
+
+        //   req.emitNotification(user.student.user_id, notification.toJSON());
+        // }
+      }
     }
 
     // Check the follow status with the logged-in user
@@ -118,7 +144,7 @@ const getStudentById = async (req, res) => {
 
     return res.status(200).json(formattedUser);
   } catch (error) {
-    // console.error("Error fetching student by ID:", error);
+    console.error("Error fetching student by ID:", error);
     res.status(500).json({ error: error.message });
   }
 };

@@ -5,7 +5,7 @@ const StudentNotification = require("../models/StudentNotificationModel");
 const Student = require("../models/StudentModel");
 
 const notificationController = {
-  // Admin notification methods
+  // ----- Admin notification methods -----
   createNotification: async (req, res) => {
     try {
       const notification = await Notification.create(req.body);
@@ -15,10 +15,44 @@ const notificationController = {
       res.status(500).json({ error: error.message });
     }
   },
+  getNotifications: async (req, res) => {
+    try {
+      const notifications = await Notification.findAll({
+        order: [["timestamp", "DESC"]],
+        limit: 50,
+      });
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  markAsRead: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const notification = await Notification.findByPk(id);
+      if (!notification) {
+        return res.status(404).json({ error: "Notification not found" });
+      }
+      notification.isRead = true;
+      await notification.save();
+      res.json(notification);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  markAllAsRead: async (req, res) => {
+    try {
+      await Notification.update({ isRead: true }, { where: { isRead: false } });
+      res.json({ message: "All notifications marked as read" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 
   // -----Student Notification Methods -----
 
-  // Create a new student notification
   createStudentNotification: async (req, res) => {
     // console.log("createStudentNotification called with body:", req.body);
     try {
@@ -72,7 +106,7 @@ const notificationController = {
           "type",
           "message",
           "is_read",
-          "rental_id", // Include rental_id in the response
+          "rental_id",
           "transaction_report_id",
           "createdAt",
           "listing_id",
@@ -86,7 +120,7 @@ const notificationController = {
             include: [
               {
                 model: Student,
-                as: "student", // Give it an alias for easy access
+                as: "student",
                 attributes: ["profile_pic"],
               },
             ],
@@ -132,7 +166,7 @@ const notificationController = {
     }
   },
 
-  // -------New message notification methods----------
+  // -------Student message notification methods----------
 
   createMessageNotification: async (req, res) => {
     try {
@@ -174,13 +208,12 @@ const notificationController = {
       // Ensure each notification includes the conversation_id
       const notificationsWithConversationId = notifications.map(
         (notification) => ({
-          ...notification.toJSON(), // Convert sequelize object to plain JSON
-          conversation_id: notification.conversation_id, // Ensure conversation_id is in response
+          ...notification.toJSON(),
+          conversation_id: notification.conversation_id,
         })
       );
 
-      // Send the final response with the updated notifications
-      res.json(notificationsWithConversationId); // Only send this once
+      res.json(notificationsWithConversationId);
     } catch (error) {
       // console.error("Error fetching notifications:", error);
       res.status(500).json({ error: error.message });
@@ -209,7 +242,6 @@ const notificationController = {
             : "No unread messages found",
       };
     } catch (error) {
-      // console.error("Error in markAllMessagesAsRead:", error);
       throw error;
     }
   },
@@ -238,7 +270,6 @@ const notificationController = {
     }
   },
 
-  // Add this method to mark all notifications in a conversation as read
   markConversationAsRead: async (req, res) => {
     try {
       const { conversationId, userId } = req.params;
@@ -247,43 +278,6 @@ const notificationController = {
         { where: { conversation_id: conversationId, recipient_id: userId } }
       );
       res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-  // Admin side notification
-  getNotifications: async (req, res) => {
-    try {
-      const notifications = await Notification.findAll({
-        order: [["timestamp", "DESC"]],
-        limit: 50,
-      });
-      res.json(notifications);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-  markAsRead: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const notification = await Notification.findByPk(id);
-      if (!notification) {
-        return res.status(404).json({ error: "Notification not found" });
-      }
-      notification.isRead = true;
-      await notification.save();
-      res.json(notification);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-  markAllAsRead: async (req, res) => {
-    try {
-      await Notification.update({ isRead: true }, { where: { isRead: false } });
-      res.json({ message: "All notifications marked as read" });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

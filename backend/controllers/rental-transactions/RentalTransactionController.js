@@ -265,11 +265,25 @@ module.exports = ({ emitNotification }) => {
           },
           {
             model: models.Listing,
-            attributes: ["id", "listing_name", "category", "rate", "images", "location"],
+            attributes: [
+              "id",
+              "listing_name",
+              "category",
+              "rate",
+              "images",
+              "location",
+            ],
           },
           {
             model: models.ItemForSale,
-            attributes: ["id", "item_for_sale_name", "price", "category", "images", "location"],
+            attributes: [
+              "id",
+              "item_for_sale_name",
+              "price",
+              "category",
+              "images",
+              "location",
+            ],
           },
           { model: models.Post, attributes: ["id", "post_item_name"] },
           { model: models.Date, attributes: ["id", "date"] },
@@ -744,7 +758,7 @@ module.exports = ({ emitNotification }) => {
         message = `${renterName} has confirmed return of ${itemName}. Please confirm receipt and complete transaction.`;
       }
 
-      console.log("Notification recipient:", recipientId, "Message:", message);
+      // console.log("Notification recipient:", recipientId, "Message:", message);
 
       const notification = await models.StudentNotification.create({
         sender_id: userId,
@@ -758,11 +772,11 @@ module.exports = ({ emitNotification }) => {
       console.log("Notification created:", notification);
 
       if (emitNotification) {
-        console.log("Emitting notification...");
+        // console.log("Emitting notification...");
         emitNotification(recipientId, notification.toJSON());
       }
 
-      console.log("Returning response...");
+      // console.log("Returning response...");
       res.json(rental);
     } catch (error) {
       console.error("Error in returnRentalTransaction:", error);

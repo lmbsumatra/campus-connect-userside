@@ -4,6 +4,7 @@ const { Op } = require("sequelize");
 
 /**
  * Finds students with expired 'restricted' status and updates them.
+ * This serves as a fallback mechanism for cases where users don't log in.
  */
 const expireRestrictionsTask = async () => {
   const now = new Date();
@@ -12,7 +13,7 @@ const expireRestrictionsTask = async () => {
     const [updatedCount] = await models.Student.update(
       {
         status: "verified", // Change status back to verified
-        status_message: `Restriction expired on ${now.toLocaleDateString()}. Account automatically reactivated.`, // Update status message
+        status_message: `Restriction expired on ${now.toLocaleDateString()}. Account automatically reactivated by system check.`, // Update status message
         restricted_until: null,
       },
       {
@@ -31,8 +32,6 @@ const expireRestrictionsTask = async () => {
       console.log(
         `[Cron - ExpireRestrictions] Successfully updated status for ${updatedCount} student(s) whose restrictions expired.`
       );
-    } else {
-      // console.log('[Cron - ExpireRestrictions] No expired restrictions found to update.');
     }
   } catch (error) {
     console.error(
@@ -43,7 +42,7 @@ const expireRestrictionsTask = async () => {
 };
 
 const scheduleExpireRestrictions = () => {
-  cron.schedule("*/5 * * * *", expireRestrictionsTask, {
+  cron.schedule("0 * * * *", expireRestrictionsTask, {
     scheduled: true,
     timezone: "Asia/Manila",
   });

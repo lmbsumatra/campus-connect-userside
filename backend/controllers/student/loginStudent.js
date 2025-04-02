@@ -47,6 +47,24 @@ const loginStudent = async (req, res) => {
     user.lastlogin = new Date();
     await user.save();
 
+    if (
+      user.student &&
+      user.student.status === "restricted" &&
+      user.student.restricted_until
+    ) {
+      const now = new Date();
+      if (new Date(user.student.restricted_until) <= now) {
+        await user.student.update({
+          status: "verified",
+          status_message: `Restriction expired on ${now.toLocaleDateString()}. Account automatically reactivated on login.`,
+          restricted_until: null,
+        });
+
+        // Reload to get updated values
+        await user.student.reload();
+      }
+    }
+
     // Generate JWT using TokenMaker
     let token;
     try {
@@ -67,6 +85,7 @@ const loginStudent = async (req, res) => {
       token,
       role: user.role,
       userId: user.user_id,
+      studentStatus: student.status,
       // hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
     });
   } catch (error) {

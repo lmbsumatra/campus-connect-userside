@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Bell from "../../../assets/images/icons/notif.svg";
-import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
 import { useSocket } from "../../../context/SocketContext";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
-import { formatDistanceToNow } from "date-fns";
 import {
   fetchNotifications,
   markAllRead,
@@ -18,496 +16,11 @@ import {
 } from "../../../redux/notif/notificationSlice";
 import { fetchRentalTransactions } from "../../../redux/transactions/rentalTransactionsSlice";
 import { baseApi } from "../../../utils/consonants";
-
-// Updated notification routes configuration including purchase-related routes
-const notificationRoutes = {
-  listing_status: "/profile/my-listings",
-  post_status: "/profile/my-posts",
-  "new-listing": (notification) => `/rent/${notification.listing_id}`,
-  "new-post": (notification) => `/posts/${notification.post_id}`,
-  item_status: "/profile/my-for-sale",
-  "new-item-for-sale": (notification) =>
-    `/buy/${notification.item_for_sale_id}`,
-  listing_reviewed: "/profile/reviews",
-  rental_request: "/profile/transactions/owner/requests",
-  rental_accepted: "/profile/transactions/renter/to receive",
-  rental_declined: "/profile/transactions/renter/cancelled",
-  rental_cancelled: "/profile/transactions/owner/cancelled",
-  handover_confirmed: (isRenter) =>
-    isRenter
-      ? "/profile/transactions/renter/to return"
-      : "/profile/transactions/owner/to hand over",
-  return_confirmed: (isOwner) =>
-    isOwner
-      ? "/profile/transactions/owner/completed"
-      : "/profile/transactions/renter/to receive",
-  rental_completed: (isOwner) =>
-    isOwner
-      ? "/profile/transactions/owner/to review"
-      : "/profile/transactions/renter/to review",
-  purchase_completed: (isOwner) =>
-    isOwner
-      ? "/profile/transactions/owner/to review"
-      : "/profile/transactions/buyer/to review",
-  purchase_receipt_confirmed: (isOwner) =>
-    isOwner
-      ? "/profile/transactions/owner/completed"
-      : "/profile/transactions/buyer/to receive",
-  purchase_request: "/profile/transactions/owner/requests",
-  purchase_accepted: "/profile/transactions/buyer/to receive",
-  purchase_declined: "/profile/transactions/buyer/cancelled",
-  purchase_cancelled: "/profile/transactions/owner/cancelled",
-  default: "/profile/transactions/owner/requests",
-};
-
-const determineRoute = (rental, type, isOwner, isRenter, notification) => {
-  if (
-    !rental &&
-    ![
-      "listing_status",
-      "post_status",
-      "new-listing",
-      "new-post",
-      "listing_reviewed",
-    ].includes(type)
-  ) {
-    console.warn("No rental data available for routing");
-    return notificationRoutes.default;
-  }
-
-  const route = notificationRoutes[type];
-
-  if (typeof route === "function") {
-    if (type === "new-listing" || type === "new-post") {
-      return route(notification);
-    } else if (type === "handover_confirmed") {
-      return route(isRenter);
-    } else if (
-      type === "return_confirmed" ||
-      type === "rental_completed" ||
-      type === "purchase_completed"
-    ) {
-      return route(isOwner);
-    }
-
-    return route(isOwner, isRenter, notification);
-  }
-
-  return route || notificationRoutes.default;
-};
-
-const NotificationMessage = ({ message, type }) => {
-  const getFormattedMessage = () => {
-    switch (type) {
-      case "rental_accepted": {
-        const match = message.match(
-          /(.*?)\shas accepted your rental request for\s(.*)\./
-        );
-        if (match) {
-          const [, sender, item] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">
-                has <span className="success-text">accepted</span> your rental
-                request for
-              </span>
-              <br />
-              <span className="item-name">{item}</span>
-            </>
-          );
-        }
-        return <span className="success-text">{message}</span>;
-      }
-      case "rental_declined": {
-        const match = message.match(
-          /(.*?)\shas declined your rental request for\s(.*)\./
-        );
-        if (match) {
-          const [, sender, item] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">
-                has <span className="error-text">declined</span> your rental
-                request for
-              </span>
-              <br />
-              <span className="item-name">{item}</span>
-            </>
-          );
-        }
-        return <span className="error-text">{message}</span>;
-      }
-      case "rental_cancelled": {
-        const match = message.match(
-          /(.*?)\shas cancelled the rental request for\s(.*)\./
-        );
-        if (match) {
-          const [, sender, item] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">
-                has <span className="error-text">cancelled</span> the rental
-                request for
-              </span>
-              <br />
-              <span className="item-name">{item}</span>
-            </>
-          );
-        }
-        return <span className="error-text">{message}</span>;
-      }
-      case "handover_confirmed": {
-        const match = message.match(
-          /(.*?)\shas confirmed (?:handover|receipt) of\s(.*?)\.\s?(.*)/
-        );
-        if (match) {
-          const [, sender, item, action] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">
-                has <span className="success-text">confirmed</span>{" "}
-                {action ? "handover of" : "receipt of"}
-              </span>
-              <br />
-              <span className="item-name">{item}</span>
-              {action && (
-                <>
-                  <br />
-                  <span className="action-text">{action}</span>
-                </>
-              )}
-            </>
-          );
-        }
-        return (
-          <>
-            <span className="highlight-text">{message}</span>
-            <br />
-            <span className="action-text">Tap to confirm.</span>
-          </>
-        );
-      }
-      case "return_confirmed": {
-        const match = message.match(
-          /(.*?)\shas confirmed (?:receiving|return of)\s(.*?)\.\s(.*)/
-        );
-        if (match) {
-          const [, sender, item, action] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">
-                has <span className="success-text">confirmed</span> return of
-              </span>
-              <br />
-              <span className="item-name">{item}</span>
-              <br />
-              <span className="action-text">{action}</span>
-            </>
-          );
-        }
-        return (
-          <>
-            <span className="highlight-text">{message}</span>
-            <br />
-            <span className="action-text">Tap to confirm.</span>
-          </>
-        );
-      }
-      case "rental_completed": {
-        const match = message.match(
-          /Rental transaction with\s(.*?)\shas been completed/
-        );
-        if (match) {
-          const [, sender] = match;
-          return (
-            <>
-              <span className="font-large success-text">
-                Rental Transaction Complete
-              </span>
-              <span className="default-text"> with</span>
-              <br />
-              <span className="item-name">{sender}</span>
-            </>
-          );
-        }
-        break;
-      }
-      case "rental_request": {
-        const match = message.match(/(.*?)\swants to rent\s(.*)/);
-        if (match) {
-          const [, sender, item] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">wants to rent</span>
-              <br />
-              <span className="item-name">{item}</span>
-            </>
-          );
-        }
-        return message;
-      }
-      case "purchase_request": {
-        const match = message.match(/(.*?)\swants to buy\s(.*)/);
-        if (match) {
-          const [, sender, item] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">wants to buy</span>
-              <br />
-              <span className="item-name">{item}</span>
-            </>
-          );
-        }
-        return message;
-      }
-      case "purchase_accepted": {
-        const match = message.match(
-          /(.*?)\shas accepted your purchase request for\s(.*)\./
-        );
-        if (match) {
-          const [, sender, item] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">
-                has <span className="success-text">accepted</span> your purchase
-                request for
-              </span>
-              <br />
-              <span className="item-name">{item}</span>
-            </>
-          );
-        }
-        return <span className="success-text">{message}</span>;
-      }
-      case "purchase_receipt_confirmed": {
-        const match = message.match(
-          /(.*?)\shas confirmed receipt of purchased item:\s(.*)/
-        );
-        if (match) {
-          const [, sender, item] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">
-                has <span className="success-text">confirmed</span> receipt of
-                purchased item:
-              </span>
-              <br />
-              <span className="item-name">{item}</span>
-            </>
-          );
-        }
-        return (
-          <>
-            <span className="highlight-text">{message}</span>
-            <br />
-            <span className="action-text">Tap to confirm.</span>
-          </>
-        );
-      }
-      case "purchase_declined": {
-        const match = message.match(
-          /(.*?)\shas declined your purchase request for\s(.*)\./
-        );
-        if (match) {
-          const [, sender, item] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">
-                has <span className="error-text">declined</span> your purchase
-                request for
-              </span>
-              <br />
-              <span className="item-name">{item}</span>
-            </>
-          );
-        }
-        return <span className="error-text">{message}</span>;
-      }
-      case "purchase_cancelled": {
-        const match = message.match(
-          /(.*?)\shas cancelled the purchase request for\s(.*)\./
-        );
-        if (match) {
-          const [, sender, item] = match;
-          return (
-            <>
-              <span className="font-large">{sender}</span>
-              <br />
-              <span className="default-text">
-                has <span className="error-text">cancelled</span> the purchase
-                request for
-              </span>
-              <br />
-              <span className="item-name">{item}</span>
-            </>
-          );
-        }
-        return <span className="error-text">{message}</span>;
-      }
-      case "purchase_completed": {
-        // Check for buyer's message format
-        let match = message.match(
-          /Purchase of\s(.*?)\sfrom\s(.*?)\shas been completed/
-        );
-
-        if (!match) {
-          // Check for seller's message format
-          match = message.match(
-            /Sale of\s(.*?)\sto\s(.*?)\shas been completed/
-          );
-        }
-
-        if (match) {
-          const [, item, sender] = match;
-          return (
-            <>
-              <span className="font-large success-text">
-                Purchase Transaction Complete
-              </span>
-              <br />
-              <span className="default-text">with {sender}</span>
-            </>
-          );
-        }
-        return message; // Fallback to showing the raw message
-      }
-      case "listing_status": {
-        return (
-          <>
-            <span className="font-medium success-text">{message}</span>
-            <br />
-            <span className="default-text">
-              It's now live and visible to all.
-            </span>
-          </>
-        );
-      }
-      case "item_status": {
-        if (message.includes("approved")) {
-          return (
-            <>
-              <span className="font-medium success-text">{message}</span>
-              <br />
-              <span className="default-text">
-                It's now live and visible to all.
-              </span>
-            </>
-          );
-        }
-      }
-      case "new-item-for-sale": {
-        return (
-          <>
-            <span className="font-large">New Item Available</span>
-            <br />
-            <span className="item-name">{message}</span>
-          </>
-        );
-      }
-      case "post_status": {
-        if (message.includes("approved")) {
-          return (
-            <>
-              <span className="font-medium success-text">{message}</span>
-              <br />
-              <span className="default-text">
-                It's now live and visible to all.
-              </span>
-            </>
-          );
-        } else if (
-          message.includes("declined") ||
-          message.includes("removed") ||
-          message.includes("flagged")
-        ) {
-          return (
-            <>
-              <span className="font-medium error-text">{message}</span>
-              <br />
-              <span className="default-text">
-                Check your post status for details.
-              </span>
-            </>
-          );
-        } else if (message.includes("reinstated")) {
-          return (
-            <>
-              <span className="font-medium success-text">{message}</span>
-              <br />
-              <span className="default-text">
-                Your post is now available again.
-              </span>
-            </>
-          );
-        }
-        return (
-          <>
-            <span className="font-medium">{message}</span>
-            <br />
-            <span className="default-text">
-              Check your post status for details.
-            </span>
-          </>
-        );
-      }
-      // New case for report-related notifications:
-      case "rental_report":
-      case "report_response": {
-        return (
-          <>
-            <span className="font-large">Report Notification</span>
-            <br />
-            <span className="default-text">{message}</span>
-          </>
-        );
-      }
-      case "new-listing": {
-        return (
-          <>
-            <span className="font-large">New Listing Available</span>
-            <br />
-            <span className="item-name">{message}</span>
-          </>
-        );
-      }
-      case "new-post": {
-        return (
-          <>
-            <span className="font-large">New Post Looking for:</span>
-            <br />
-            <span className="item-name">{message}</span>
-            <br />
-            <span className="action-text">Click to offer an item.</span>
-          </>
-        );
-      }
-      default:
-        return message;
-    }
-  };
-
-  return <div className="notification-message">{getFormattedMessage()}</div>;
-};
+import {
+  determineRoute,
+  notificationRoutes,
+} from "../../../utils/notificationRoutes";
+import NotificationItem from "./NotificationItem";
 
 const Notification = ({
   icon,
@@ -525,6 +38,7 @@ const Notification = ({
   const navigate = useNavigate();
   const [tempAlert, setTempAlert] = useState(null);
 
+  // Effect for fetching initial data and setting up socket listeners
   useEffect(() => {
     if (!studentUser?.userId || !socket) return;
 
@@ -532,246 +46,199 @@ const Notification = ({
       try {
         await dispatch(fetchNotifications(studentUser.userId)).unwrap();
 
-        // Only attempt to register if socket exists
         if (socket) {
           const userIdStr = studentUser.userId.toString();
-          socket.emit("registerUser", userIdStr);
+          socket.emit("registerUser", userIdStr); // Ensure user is registered for notifications
 
           const handler = (notification) => {
-            dispatch(fetchRentalTransactions(studentUser.userId));
+            // Optional: Refetch related data if needed
+            if (
+              notification.rental_id ||
+              notification.type?.includes("rental") ||
+              notification.type?.includes("purchase")
+            ) {
+              dispatch(fetchRentalTransactions(studentUser.userId));
+            }
+
+            // Temporary alert for specific types
             if (
               notification.type === "new-listing" ||
-              notification.type === "new-post"
+              notification.type === "new-post" ||
+              notification.type === "new-item-for-sale"
             ) {
+              let alertType = "item"; // Default
+              if (notification.type === "new-listing") alertType = "listing";
+              if (notification.type === "new-post") alertType = "post";
+
               setTempAlert(
-                `New ${
-                  notification.type === "new-listing" ? "listing" : "post"
-                } "${notification.message}" available!`
+                `New ${alertType} "${notification.message}" available!`
               );
-              setTimeout(() => setTempAlert(null), 5000);
+              setTimeout(() => setTempAlert(null), 5000); // Alert disappears after 5 seconds
             }
-            dispatch(addNotification(notification));
+
+            dispatch(addNotification(notification)); // Add notification to Redux state
           };
 
           socket.on("receiveNotification", handler);
-          return () => socket.off("receiveNotification", handler);
+
+          // Cleanup function to remove listener when component unmounts or dependencies change
+          return () => {
+            if (socket) {
+              // Check if socket still exists on cleanup
+              socket.off("receiveNotification", handler);
+            }
+          };
         }
       } catch (error) {
-        console.error("Failed to load notifications:", error);
+        console.error("Failed to load notifications or setup socket:", error);
       }
     };
 
     fetchAndSubscribe();
+
+    // Dependency array includes socket, studentUser, and dispatch
   }, [socket, studentUser, dispatch]);
 
+  // Callback for handling clicks on individual notifications
   const handleNotificationClick = useCallback(
     async (notif) => {
+      if (!studentUser?.userId) return; // Guard clause
+
       try {
-        // Mark the notification as read
-        await dispatch(markNotificationAsRead(notif.id)).unwrap();
-
-        // Handle listing_status notifications
-        if (notif.type === "listing_status") {
-          toggleNotifications();
-          navigate(notificationRoutes.listing_status);
-          return;
+        if (!notif.is_read) {
+          await dispatch(markNotificationAsRead(notif.id)).unwrap();
         }
 
-        // Handle post_status notifications
-        if (notif.type === "post_status") {
-          toggleNotifications();
-          // Check if post_id exists before navigating
-          if (notif.post_id) {
-            navigate(`/post/${notif.post_id}`);
+        // --- Navigation Logic ---
+        let route = null;
+        let navigationState = {};
+
+        // Handle routes that don't require rental_id lookup first
+        const nonRentalTypes = [
+          "listing_status",
+          "post_status",
+          "new-listing",
+          "new-post",
+          "item_status",
+          "new-item-for-sale",
+          "listing_reviewed",
+          "transaction_report",
+          "transaction_report_response",
+          "report_resolved",
+          "report_escalated",
+        ];
+
+        if (nonRentalTypes.includes(notif.type)) {
+          if (notif.type === "listing_status") {
+            route = notificationRoutes.listing_status;
+          } else if (notif.type === "post_status") {
+            route = notif.post_id
+              ? `/post/${notif.post_id}`
+              : notificationRoutes.post_status;
+          } else if (notif.type === "new-listing") {
+            route = `/rent/${notif.listing_id}`;
+          } else if (notif.type === "new-post") {
+            route = `/post/${notif.post_id}`;
+          } else if (notif.type === "item_status") {
+            route = notificationRoutes.item_status;
+          } else if (notif.type === "new-item-for-sale") {
+            route = `/buy/${notif.item_for_sale_id}`;
+          } else if (notif.type === "listing_reviewed") {
+            route = notificationRoutes.listing_reviewed;
+          } else if (notif.type.includes("report")) {
+            // Handle all report types
+            route = `/reports/${notif.transaction_report_id}`;
+            navigationState = { notificationType: notif.type };
+          }
+        } else if (notif.rental_id) {
+          // Fetch rental/transaction details for routing determination
+          const transactionRes = await axios.get(
+            `${baseApi}/rental-transaction/${notif.rental_id}`, // Assuming endpoint name hasn't changed
+            { headers: { Authorization: `Bearer ${studentUser.token}` } } // Add auth if needed
+          );
+          const transaction = transactionRes.data.rental; // Adjust based on actual API response structure
+
+          if (!transaction) {
+            console.error(
+              "❌ No transaction data received for notification:",
+              notif.id
+            );
+            route = notificationRoutes.default; // Fallback route
           } else {
-            // Fall back to the default route if post_id isn't available
-            navigate(notificationRoutes.post_status);
+            const isOwner = studentUser.userId === transaction.owner_id;
+            // Check transaction_type to differentiate between renter and buyer
+            const isRenter =
+              transaction.transaction_type === "rent" &&
+              studentUser.userId === transaction.renter_id;
+            const isBuyer =
+              transaction.transaction_type === "sell" &&
+              studentUser.userId === transaction.buyer_id;
+
+            // Determine the route using the utility function
+            route = determineRoute(
+              transaction,
+              notif.type,
+              isOwner,
+              isRenter || isBuyer,
+              notif
+            ); // Pass isRenter or isBuyer
+            navigationState = {
+              notificationType: notif.type,
+              highlight: transaction.id,
+            };
           }
-          return;
-        }
-
-        // Handle new_listing notifications
-        if (notif.type === "new-listing") {
-          toggleNotifications();
-          navigate(`/rent/${notif.listing_id}`);
-          return;
-        }
-
-        // Handle new_post notifications
-        if (notif.type === "new-post") {
-          toggleNotifications();
-          navigate(`/post/${notif.post_id}`);
-          return;
-        }
-
-        if (notif.type === "item_status") {
-          toggleNotifications();
-          navigate(notificationRoutes.item_status);
-          return;
-        }
-
-        if (notif.type === "new-item-for-sale") {
-          toggleNotifications();
-          navigate(`/buy/${notif.item_for_sale_id}`);
-          return;
-        }
-
-        // Handle listing_reviewed notifications
-        if (notif.type === "listing_reviewed") {
-          toggleNotifications();
-          navigate(notificationRoutes.listing_reviewed);
-          return;
-        }
-
-        // Handle report-related notifications
-        if (
-          notif.type === "transaction_report" ||
-          notif.type === "transaction_report_response" ||
-          notif.type === "report_resolved" ||
-          notif.type === "report_escalated"
-        ) {
-          toggleNotifications();
-          navigate(`/reports/${notif.transaction_report_id}`, {
-            state: { notificationType: notif.type },
-          });
-          return;
-        }
-
-        // Handle direct purchase notification types (without rental_id)
-        if (notif.type === "purchase_accepted" && !notif.rental_id) {
-          toggleNotifications();
-          navigate(notificationRoutes.purchase_accepted);
-          return;
-        }
-
-        if (notif.type === "purchase_declined" && !notif.rental_id) {
-          toggleNotifications();
-          navigate(notificationRoutes.purchase_declined);
-          return;
-        }
-
-        if (notif.type === "purchase_cancelled" && !notif.rental_id) {
-          toggleNotifications();
-          navigate(notificationRoutes.purchase_cancelled);
-          return;
-        }
-
-        if (notif.type === "purchase_request" && !notif.rental_id) {
-          toggleNotifications();
-          navigate(notificationRoutes.purchase_request);
-          return;
-        }
-
-        // Handle rental- and purchase-related notifications with rental_id
-        if (notif.rental_id) {
-          const rentalRes = await axios.get(
-            `${baseApi}/rental-transaction/${notif.rental_id}`
-          );
-          const rental = rentalRes.data.rental;
-          if (!rental) {
-            console.error("❌ No rental data received");
-            return;
+        } else {
+          // Handle cases where rental_id might be missing but expected (e.g., older direct purchase notifs)
+          // Or fallback if type isn't covered above
+          const directRoute = notificationRoutes[notif.type];
+          if (typeof directRoute === "string") {
+            route = directRoute;
+          } else {
+            console.warn(
+              `Unhandled notification type or missing ID: ${notif.type}, ID: ${notif.id}`
+            );
+            route = notificationRoutes.default; // Default fallback
           }
+        }
 
-          const isOwner = studentUser.userId === rental.owner_id;
-          const isRenter = studentUser.userId === rental.renter_id;
-
-          // Handle purchase-related notifications
-          if (notif.type === "purchase_accepted") {
-            toggleNotifications();
-            navigate(notificationRoutes.purchase_accepted, {
-              state: { notificationType: notif.type, highlight: rental.id },
-            });
-            return;
-          }
-
-          if (notif.type === "purchase_declined") {
-            toggleNotifications();
-            navigate(notificationRoutes.purchase_declined, {
-              state: { notificationType: notif.type, highlight: rental.id },
-            });
-            return;
-          }
-
-          if (notif.type === "purchase_cancelled") {
-            toggleNotifications();
-            navigate(notificationRoutes.purchase_cancelled, {
-              state: { notificationType: notif.type, highlight: rental.id },
-            });
-            return;
-          }
-
-          if (notif.type === "purchase_request") {
-            toggleNotifications();
-            navigate(notificationRoutes.purchase_request, {
-              state: { notificationType: notif.type, highlight: rental.id },
-            });
-            return;
-          }
-
-          // Handle rental-related notifications
-          const route = determineRoute(
-            rental,
-            notif.type,
-            isOwner,
-            isRenter,
-            notif
-          );
-
-          toggleNotifications();
-          navigate(route, {
-            state: { notificationType: notif.type, highlight: rental.id },
-          });
-          return;
+        // Close the notification dropdown and navigate
+        toggleNotifications();
+        if (route) {
+          navigate(route, { state: navigationState });
+        } else {
+          console.error("Could not determine route for notification:", notif);
         }
       } catch (error) {
-        console.error("Error handling notification:", error);
+        console.error("Error handling notification click:", error);
       }
     },
     [dispatch, navigate, studentUser, toggleNotifications]
   );
 
+  // Memoized list of rendered notification items
   const renderedNotifications = useMemo(() => {
     return notifications.length > 0 ? (
       notifications.map((notif) => (
-        <a
-          href="#"
+        <NotificationItem
           key={notif.id}
-          className={`notification-item ${notif.is_read ? "read" : "unread"}`}
-          onClick={(e) => {
-            e.preventDefault();
-            handleNotificationClick(notif);
-          }}
-        >
-          <img
-            src={notif?.sender?.student?.profile_pic || UserIcon}
-            className="notification-avatar"
-            alt="User Avatar"
-          />
-          <div className="notification-content">
-            <p>
-              <NotificationMessage message={notif.message} type={notif.type} />
-            </p>
-            <span className="time">
-              {notif.createdAt &&
-                formatDistanceToNow(new Date(notif.createdAt), {
-                  addSuffix: true,
-                })}
-            </span>
-          </div>
-        </a>
+          notif={notif}
+          onClick={handleNotificationClick}
+        />
       ))
     ) : (
-      <p>No new notifications</p>
+      <p className="no-notifications-message">No new notifications</p>
     );
   }, [notifications, handleNotificationClick]);
 
+  // Handler for marking all notifications as read
   const handleMarkAllAsRead = () => {
-    if (studentUser?.userId) {
+    if (studentUser?.userId && unreadCount > 0) {
+      // Only dispatch if there are unread notifications
       dispatch(markAllRead(studentUser.userId.toString()));
     }
   };
 
+  // Main component render
   return (
     <div className="notification-container" id="notif-popup">
       <a
@@ -781,11 +248,14 @@ const Notification = ({
           e.preventDefault();
           toggleNotifications();
         }}
-        data-count={unreadCount}
+        data-count={unreadCount > 0 ? unreadCount : null}
       >
         <img src={icon || Bell} alt="Notification Icon" />
       </a>
+      {/* Temporary alert popup */}
       {tempAlert && <div className="temp-alert">{tempAlert}</div>}
+
+      {/* Notification Dropdown */}
       {showNotifications && (
         <div className={`notifications-user ${isDarkTheme ? "dark-mode" : ""}`}>
           <div className="notifications-header">
@@ -795,11 +265,16 @@ const Notification = ({
                 Mark all as read
               </button>
             )}
-            <button className="close-btn" onClick={toggleNotifications}>
-              ×
+            <button
+              className="close-btn"
+              onClick={toggleNotifications}
+              aria-label="Close notifications"
+            >
+              &times;
             </button>
           </div>
-          <div className="notification-list" key={notifications.length}>
+          <div className="notification-list" role="list">
+            {" "}
             {renderedNotifications}
           </div>
         </div>

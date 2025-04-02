@@ -10,7 +10,27 @@ class Student extends Model {
       new Date(this.restricted_until) > new Date()
     );
   }
+
+  /**
+   * Checks if this student's restriction has expired and updates status if needed
+   * @returns {boolean} True if restriction was expired and status was updated
+   */
+  async checkAndUpdateRestriction() {
+    if (this.status === "restricted" && this.restricted_until) {
+      const now = new Date();
+      if (new Date(this.restricted_until) <= now) {
+        await this.update({
+          status: "verified",
+          status_message: `Restriction expired on ${now.toLocaleDateString()}. Account automatically reactivated.`,
+          restricted_until: null,
+        });
+        return true;
+      }
+    }
+    return false;
+  }
 }
+
 Student.init(
   {
     id: {
@@ -67,7 +87,6 @@ Student.init(
       allowNull: true,
     },
     restricted_until: {
-      // Keep this field
       type: DataTypes.DATE,
       allowNull: true,
       comment: "Timestamp until which the user is temporarily restricted.",

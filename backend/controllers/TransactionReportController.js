@@ -117,7 +117,7 @@ module.exports = ({ emitNotification }) => {
         sender_id: reporterId,
         recipient_id: reportedUserId,
         type: "transaction_report",
-        message: `A new ${normalizedType} report (ID: ${report.id}) has been filed regarding transaction #${transaction_id}. You were involved in this transaction.`,
+        message: `A new ${normalizedType} report has been filed against you regarding transaction #${transaction_id}.`,
         transaction_report_id: report.id,
         transaction_id: transaction_id, // Include transaction ID for context
       });
@@ -218,10 +218,10 @@ module.exports = ({ emitNotification }) => {
 
       // Create notification for the *other* party involved in the report
       const notification = await models.StudentNotification.create({
-        sender_id: responderUserId, // The user who added the response
-        recipient_id: recipientId, // The other user involved in the report
+        sender_id: responderUserId,
+        recipient_id: recipientId,
         type: "transaction_report_response",
-        message: `A new response has been added to the ${report.transaction_type} report (ID: ${report.id}).`,
+        message: `The person involved with the ${report.transaction_type} transaction you reported has reponded to your report (ID: ${report.id}).`,
         transaction_report_id: report.id,
       });
 
