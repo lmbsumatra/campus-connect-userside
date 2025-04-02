@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Bar, Pie, Doughnut, Line } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -264,7 +264,7 @@ export const ListingStatusTrends = ({ listings }) => {
 };
 
 export const TopUsersForListings = ({ listings }) => {
-  const [timeRange, setTimeRange] = useState("monthly");
+  const [timeRange, setTimeRange] = useState("all");
   const [topUsers, setTopUsers] = useState([]);
 
   useEffect(() => {
@@ -273,26 +273,20 @@ export const TopUsersForListings = ({ listings }) => {
     setTopUsers(userActivity);
   }, [timeRange, listings]);
 
-  // Filter listings by time range
+  // Filter listings based on time range
   const filterListingsByTimeRange = (listings, range) => {
-    const now = new Date();
-    let startDate;
+    if (range === "all") return listings;
 
-    switch (range) {
-      case "daily":
-        startDate = new Date(now.setHours(0, 0, 0, 0));
-        break;
-      case "weekly":
-        const dayOfWeek = now.getDay();
-        startDate = new Date(now.setDate(now.getDate() - dayOfWeek));
-        startDate.setHours(0, 0, 0, 0);
-        break;
-      case "monthly":
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        startDate.setHours(0, 0, 0, 0);
-        break;
-      default:
-        return listings;
+    const now = new Date();
+    let startDate = new Date();
+
+    if (range === "daily") {
+      startDate.setHours(0, 0, 0, 0);
+    } else if (range === "weekly") {
+      startDate.setDate(now.getDate() - now.getDay());
+      startDate.setHours(0, 0, 0, 0);
+    } else if (range === "monthly") {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     }
 
     return listings.filter(
@@ -300,7 +294,7 @@ export const TopUsersForListings = ({ listings }) => {
     );
   };
 
-  // Calculate top users with different listing statuses
+  // Compute top users based on listing statuses
   const calculateTopUsers = (filteredListings) => {
     const userCounts = {};
 
@@ -327,10 +321,11 @@ export const TopUsersForListings = ({ listings }) => {
     return Object.values(userCounts)
       .sort(
         (a, b) =>
+          b.approved - a.approved ||
           b.approved +
-          b.pending +
-          b.removed -
-          (a.approved + a.pending + a.removed)
+            b.pending +
+            b.removed -
+            (a.approved + a.pending + a.removed)
       )
       .slice(0, 5);
   };
@@ -364,10 +359,12 @@ export const TopUsersForListings = ({ listings }) => {
         onChange={(e) => setTimeRange(e.target.value)}
         className="form-select mb-3"
       >
+        <option value="all">All Time</option>
         <option value="daily">Daily</option>
         <option value="weekly">Weekly</option>
         <option value="monthly">Monthly</option>
       </select>
+
       <div style={{ height: "300px" }}>
         {topUsers.length > 0 ? (
           <Bar
@@ -406,7 +403,7 @@ export const ListingPriceDistribution = ({ listings }) => {
   const chartData = {
     labels: priceRange
       .slice(0, -1)
-      .map((value, i) => `${value}-${priceRange[i + 1]}`),
+      .map((value, i) => `₱${value}-${priceRange[i + 1]}`),
     datasets: [
       {
         label: "Number of Listings",

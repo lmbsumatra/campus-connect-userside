@@ -7,29 +7,31 @@ import { formatDate } from "../../../../utils/dateFormat";
 import { useNavigate } from "react-router-dom";
 import SearchBarComponent from "../../../../components/Search/SearchBarComponent";
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
-import { useDispatch } from "react-redux";
-import ShowAlert from "../../../../utils/ShowAlert";
-import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
+// import { useDispatch } from "react-redux";
+// import ShowAlert from "../../../../utils/ShowAlert";
+// import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
 
 import {
   ReportsByCategory,
-  ReportStatusDistribution,
-  ReportsGrowth,
-  TopReportUsers,
+  ReportStatusTrend,
+  ResolutionTimeAnalysis,
+  ReviewerEfficiency,
+  ReportTrends,
+  ReportsByReason,
 } from "../../../../components/Analytics/ReportAnalyticsComponent";
 import { ReportStatus } from "../../../../utils/Status";
-import { useAuth } from "../../../../context/AuthContext";
-import { baseApi } from "../../../../utils/consonants";
+//import { useAuth } from "../../../../context/AuthContext";
+//import { baseApi } from "../../../../utils/consonants";
 
 const ReportDashboard = () => {
-  const { adminUser } = useAuth();
+  //const { adminUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOptions, setSortOptions] = useState({});
   const [filterOptions, setFilterOptions] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [reportsPerPage] = useState(10);
   const [originalData, setOriginalData] = useState([]);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const headers = [
@@ -281,10 +283,12 @@ const ReportDashboard = () => {
           </div>
         </div>
         <div className="col-lg-4">
+          <ReportTrends reports={reports} />
           <ReportsByCategory reports={reports} />
-          <ReportStatusDistribution reports={reports} />
-          <ReportsGrowth reports={reports} />
-          <TopReportUsers reports={reports} />
+          <ReportStatusTrend reports={reports} />
+          <ResolutionTimeAnalysis reports={reports} />
+          <ReviewerEfficiency reports={reports} />
+          <ReportsByReason reports={reports} />
         </div>
       </div>
     </div>
