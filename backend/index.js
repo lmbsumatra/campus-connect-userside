@@ -33,6 +33,9 @@ const endSemesterCron = require("./cron-job/endSemester.js"); //for resetting st
 const {
   AllowToProceed,
 } = require("./cron-job/rental-transaction/AllowToProceed.js");
+const {
+  scheduleExpireRestrictions,
+} = require("./cron-job/ExpireRestrictions.js");
 
 // Load environment variables
 dotenv.config();
@@ -122,11 +125,16 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something went wrong!");
 });
 
-
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`App is running on port ${PORT}`);
 });
+try {
+  scheduleExpireRestrictions(); // Start the restriction expiry check
+  AllowToProceed();
+} catch (cronError) {
+  console.error(cronError);
+}
 
 app.use("/try", (req, res) => {
   res.send({ message: "hi" });

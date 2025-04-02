@@ -121,6 +121,7 @@ const FAB = ({ cartItems }) => {
       );
       return;
     }
+    handleActionWithAuthCheck("/profile/my-posts/new");
   };
 
   const addItem = () => {
@@ -211,6 +212,7 @@ const FAB = ({ cartItems }) => {
       );
       return;
     }
+    handleActionWithAuthCheck("/profile/my-listings/add");
   };
 
   const toggleCart = () => {

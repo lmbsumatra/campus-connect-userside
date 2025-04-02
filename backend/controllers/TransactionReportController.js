@@ -742,10 +742,12 @@ module.exports = ({ emitNotification }) => {
       const adminUserId = req.adminUser?.adminId;
       const { newStatus, resolutionNotes, actionTaken } = req.body;
 
-      // *** Validation (remains the same) ***
+      // *** Validation ***
       if (!adminUserId) {
-        /* ... validation error ... */ await dbTransaction.rollback();
-        return res.status(403).json(/*...*/);
+        await dbTransaction.rollback();
+        return res
+          .status(403)
+          .json({ error: "Forbidden: Admin privileges required." });
       }
       const validAdminStatuses = [
         "admin_review",
@@ -759,22 +761,32 @@ module.exports = ({ emitNotification }) => {
         "perm_ban",
       ];
       if (!newStatus || !validAdminStatuses.includes(newStatus)) {
-        /* ... validation error ... */ await dbTransaction.rollback();
-        return res.status(400).json(/*...*/);
+        await dbTransaction.rollback();
+        return res.status(400).json({
+          error: `Invalid status provided. Must be one of: ${validAdminStatuses.join(
+            ", "
+          )}`,
+        });
       }
       if (
         newStatus === "admin_resolved" &&
         (!actionTaken || !validActions.includes(actionTaken))
       ) {
-        /* ... validation error ... */ await dbTransaction.rollback();
-        return res.status(400).json(/*...*/);
+        await dbTransaction.rollback();
+        return res.status(400).json({
+          error: `Invalid or missing actionTaken for resolved status. Must be one of: ${validActions.join(
+            ", "
+          )}`,
+        });
       }
       if (
         (newStatus === "admin_resolved" || newStatus === "admin_dismissed") &&
         !resolutionNotes?.trim()
       ) {
-        /* ... validation error ... */ await dbTransaction.rollback();
-        return res.status(400).json(/*...*/);
+        await dbTransaction.rollback();
+        return res.status(400).json({
+          error: `Resolution notes are required when resolving or dismissing a report.`,
+        });
       }
 
       // Fetch Report within transaction
