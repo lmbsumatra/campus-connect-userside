@@ -14,27 +14,26 @@ const refreshAdminToken = async (req, res) => {
     const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
     const admin = await Admin.findOne({ where: { user_id: decoded.userId } });
 
-    if (!admin) {
-      return res.status(403).json({ message: "Admin not found." });
+    if (!admin || admin.refreshToken !== refreshToken) {
+      return res
+        .status(403)
+        .json({ message: "Invalid or expired refresh token." });
     }
-
-    // Verify the refresh token without checking against stored one
-    jwt.verify(refreshToken, JWT_REFRESH_SECRET);
 
     // Generate new tokens
     const newToken = jwt.sign(
       { userId: admin.user_id, role: decoded.role },
       JWT_SECRET,
-      { expiresIn: "30m" }
+      { expiresIn: "15m" }
     );
 
     const newRefreshToken = jwt.sign(
       { userId: admin.user_id, role: decoded.role },
       JWT_REFRESH_SECRET,
-      { expiresIn: "5d" }
+      { expiresIn: "3d" }
     );
 
-    // Update the refresh token in the database
+    // Store new refresh token in database
     admin.refreshToken = newRefreshToken;
     await admin.save();
 

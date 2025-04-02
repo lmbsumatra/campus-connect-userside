@@ -53,13 +53,13 @@ const loginAdmin = async (req, res) => {
     const token = jwt.sign(
       { userId: user.user_id, role: user.role },
       JWT_SECRET,
-      { expiresIn: "30m" }
+      { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
       { userId: user.user_id, role: user.role },
       JWT_REFRESH_SECRET,
-      { expiresIn: "5d" }
+      { expiresIn: "3d" }
     );
 
     // Store the new refresh token (overwriting the old one)

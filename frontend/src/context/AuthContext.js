@@ -58,16 +58,23 @@ export const AuthProvider = ({ children }) => {
   };
 
   // ✅ Fixed missing closing bracket for logoutAdmin
-  const logoutAdmin = useCallback(async () => {
-    if (!adminUser) return;
+  const logoutAdmin = useCallback(
+    async (forceLog = false) => {
+      if (!adminUser) return;
 
-    const lastLogoutTimestamp = localStorage.getItem("lastLogoutTimestamp");
-    const now = Date.now();
+      const lastLogoutTimestamp = localStorage.getItem("lastLogoutTimestamp");
+      const now = Date.now();
 
-    // Check if the last logout was within 4 seconds
-    if (lastLogoutTimestamp && now - lastLogoutTimestamp < 4000) {
-      console.warn("Logout event ignored: Cooldown active.");
-    } else {
+      // ✅ Allow forced logout logging even if within cooldown
+      if (
+        !forceLog &&
+        lastLogoutTimestamp &&
+        now - lastLogoutTimestamp < 5000
+      ) {
+        console.warn("Logout event ignored: Cooldown active.");
+        return;
+      }
+
       const logoutData = {
         admin_id: adminUser.userId,
         role: adminUser.role,
@@ -88,18 +95,19 @@ export const AuthProvider = ({ children }) => {
         if (!response.ok) {
           console.error("Failed to log logout event:", await response.text());
         } else {
-          // Update last logout timestamp on successful log
+          // ✅ Store timestamp of the last successful logout log
           localStorage.setItem("lastLogoutTimestamp", now);
         }
       } catch (error) {
         console.error("Error logging logout event:", error);
       }
-    }
 
-    // Proceed with logout even if logging fails
-    setAdminUser(null);
-    localStorage.removeItem("adminUser");
-  }, [adminUser]);
+      // ✅ Proceed with logout even if logging fails
+      setAdminUser(null);
+      localStorage.removeItem("adminUser");
+    },
+    [adminUser]
+  );
 
   // ✅ Fixed misplaced closing bracket for refreshAdminToken
   const refreshAdminToken = useCallback(async () => {
@@ -116,27 +124,31 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to refresh token");
+        throw new Error("Failed to refresh token");
       }
 
       const data = await response.json();
-      // console.log("New tokens received at:", new Date().toLocaleString());
-      // console.log("New Access Token:", data.token);
-      // console.log("New Refresh Token:", data.refreshToken);
-      // console.log("New tokens received:", data);
-
       const newUser = {
         ...storedAdminUser,
         token: data.token,
         refreshToken: data.refreshToken,
       };
+
       setAdminUser(newUser);
       localStorage.setItem("adminUser", JSON.stringify(newUser));
       return data.token;
     } catch (error) {
       console.error("Error refreshing token:", error);
-      logoutAdmin();
+
+      // ✅ Force log at least one logout entry
+      const lastLogoutTimestamp = localStorage.getItem("lastLogoutTimestamp");
+      const now = Date.now();
+
+      if (!lastLogoutTimestamp || now - lastLogoutTimestamp > 5000) {
+        localStorage.setItem("lastLogoutTimestamp", now);
+        logoutAdmin(true); // ✅ Force at least one logout log
+      }
+
       return null;
     }
   }, [logoutAdmin]); // ✅ Dependencies added properly
