@@ -12,6 +12,10 @@ import {
   FileText,
   Handshake,
   Flag,
+  UserCog,
+  FileCog,
+  FilePlus2,
+  RefreshCcw,
 } from "lucide-react";
 
 import useFetchAllUsersData from "../../../../../utils/FetchAllUsersData";
@@ -115,25 +119,30 @@ const AdminDashboard = () => {
 
     switch (activity.type) {
       case "New User":
-        route = `/admin/users`;
+      case "User Update":
+        route = `/admin/users/user-verification/${activity.userId}`;
         break;
       case "New Listing":
-        route = `/admin/listings`;
+      case "Listing Update":
+        route = `/admin/listings/listing-approval/${activity.listingId}`;
         break;
       case "New Post":
-        route = `/admin/posts`;
+      case "Post Update":
+        route = `/admin/posts/post-approval/${activity.postId}`;
         break;
-      case "New Transaction":
-        route = `/admin/transaction`;
+      case "New Sale Transaction":
+      case "New Rental Transaction":
+        route = `/admin/transactions/view/${activity.transactionId}`;
         break;
       case "New Report":
-        route = `/admin/reports`;
+        route = `/admin/reports/${activity.entity_type}/${activity.entity_id}`;
         break;
       case "New Sale":
-        route = `/admin/sales`;
+      case "Sale Update":
+        route = `/admin/sales/item-approval/${activity.saleId}`;
         break;
       default:
-        return;
+        route = "/admin/dashboard";
     }
 
     navigate(route);
@@ -193,9 +202,17 @@ const AdminDashboard = () => {
                     {activity.type === "New User" && (
                       <User size={20} color="#3498db" />
                     )}
+                    {activity.type === "User Update" && (
+                      <UserCog size={20} color="#3498db" />
+                    )}
+
                     {activity.type === "New Listing" && (
                       <FilePlus size={20} color="#f39c12" />
                     )}
+                    {activity.type === "Listing Update" && (
+                      <FilePlus2 size={20} color="#f39c12" />
+                    )}
+
                     {(activity.type === "New Rental Transaction" ||
                       activity.type === "New Sale Transaction") && (
                       <Handshake size={20} color="#27ae60" />
@@ -204,9 +221,17 @@ const AdminDashboard = () => {
                     {activity.type === "New Post" && (
                       <FileText size={20} color="#e74c3c" />
                     )}
+                    {activity.type === "Post Update" && (
+                      <FileCog size={20} color="#e74c3c" />
+                    )}
+
                     {activity.type === "New Sale" && (
                       <ShoppingCart size={20} color="#8e44ad" />
                     )}
+                    {activity.type === "Sale Update" && (
+                      <RefreshCcw size={20} color="#8e44ad" />
+                    )}
+
                     {activity.type === "New Report" && (
                       <Flag size={20} color="#c0392b" />
                     )}
