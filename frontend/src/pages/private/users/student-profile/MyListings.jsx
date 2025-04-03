@@ -13,8 +13,13 @@ import Toolbar from "../../../../components/toolbar/Toolbar";
 import { FOR_RENT } from "../../../../utils/consonants.js";
 import TimeoutComponent from "../../../../utils/TimeoutComponent.jsx";
 import LoadingItemCardSkeleton from "../../../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton.js";
+import PaginationComp from "../common/PaginationComp.jsx";
 
 function MyListings() {
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
+
   const [error, setError] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [viewType, setViewType] = useState("card");
@@ -42,6 +47,8 @@ function MyListings() {
   useEffect(() => {
     if (allListingsByUser) {
       setFilteredItems(allListingsByUser); // Initialize with all listings
+      // Reset to first page when filters change
+      setCurrentPage(1);
     }
   }, [allListingsByUser]);
   useEffect(() => {
@@ -131,6 +138,19 @@ function MyListings() {
     return <div>Loading...</div>;
   }
 
+  // Get current items for pagination
+  const indexOfLastItem = currentPage * itemsPerPage; // 1, 2, 3
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage; // 0, 1, 2
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Change page
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  // console.log(allApprovedListings, filters);
+  const showPagination =
+    !loadingAllListingsByUser && filteredItems.length > itemsPerPage;
+
   return (
     <div className="item-container">
       {error ? (
@@ -170,7 +190,7 @@ function MyListings() {
             >
               <ItemList
                 itemType={FOR_RENT}
-                items={filteredItems.filter((item) =>
+                items={currentItems.filter((item) =>
                   item.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )}
                 title="For Rent"
@@ -189,6 +209,19 @@ function MyListings() {
             </TimeoutComponent>
           </div>
         </>
+      )}
+      {/* Pagination */}
+      {showPagination && (
+        <div className="pagination-wrapper">
+          <PaginationComp
+            currentPage={currentPage}
+            totalItems={filteredItems.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            siblingCount={1}
+            className="mt-4"
+          />
+        </div>
       )}
     </div>
   );

@@ -12,8 +12,13 @@ import ShowAlert from "../../../../utils/ShowAlert";
 import { FOR_SALE } from "../../../../utils/consonants";
 import TimeoutComponent from "../../../../utils/TimeoutComponent";
 import LoadingItemCardSkeleton from "../../../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton";
+import PaginationComp from "../common/PaginationComp";
 
 function MyForSale() {
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
+
   const [error, setError] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [viewType, setViewType] = useState("card");
@@ -38,11 +43,13 @@ function MyForSale() {
     }
   }, [userId, dispatch]);
 
-   useEffect(() => {
-      if (allItemForSaleByUser) {
-        setFilteredItems(allItemForSaleByUser); // Initialize with all listings
-      }
-    }, [allItemForSaleByUser]);
+  useEffect(() => {
+    if (allItemForSaleByUser) {
+      setFilteredItems(allItemForSaleByUser); // Initialize with all listings
+      // Reset to first page when filters change
+      setCurrentPage(1);
+    }
+  }, [allItemForSaleByUser]);
 
   // Set the error if there is any error in fetching the ItemForSale
   useEffect(() => {
@@ -124,6 +131,19 @@ function MyForSale() {
     return <div>Loading...</div>;
   }
 
+  // Get current items for pagination
+  const indexOfLastItem = currentPage * itemsPerPage; // 1, 2, 3
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage; // 0, 1, 2
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Change page
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  // console.log(allApprovedListings, filters);
+  const showPagination =
+    !loadingAllItemForSaleByUser && filteredItems.length > itemsPerPage;
+
   return (
     <div className="item-container">
       {error ? (
@@ -162,7 +182,10 @@ function MyForSale() {
             >
               <ItemList
                 itemType={FOR_SALE}
-                items={filteredItems.filter((item) =>
+                // items={filteredItems.filter((item) =>
+                //   item.name.toLowerCase().includes(searchTerm.toLowerCase())
+                // )}
+                items={currentItems.filter((item) =>
                   item.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )}
                 title="For Sale"
@@ -181,6 +204,20 @@ function MyForSale() {
             </TimeoutComponent>
           </div>
         </>
+      )}
+
+      {/* Pagination */}
+      {showPagination && (
+        <div className="pagination-wrapper">
+          <PaginationComp
+            currentPage={currentPage}
+            totalItems={filteredItems.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            siblingCount={1}
+            className="mt-4"
+          />
+        </div>
       )}
     </div>
   );

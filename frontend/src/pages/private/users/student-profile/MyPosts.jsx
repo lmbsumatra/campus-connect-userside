@@ -10,8 +10,13 @@ import {
   deletePostById,
 } from "../../../../redux/post/allPostsByUserSlice";
 import ShowAlert from "../../../../utils/ShowAlert";
+import PaginationComp from "../common/PaginationComp";
 
 function MyPosts() {
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
+
   const [error, setError] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [viewType, setViewType] = useState("card");
@@ -33,6 +38,8 @@ function MyPosts() {
   useEffect(() => {
     if (allPostsByUser) {
       setFilteredItems(allPostsByUser);
+      // Reset to first page when filters change
+      setCurrentPage(1);
     }
   }, [allPostsByUser]);
 
@@ -90,6 +97,19 @@ function MyPosts() {
     }
   }, [selectedItems, dispatch, userId]);
 
+  // Get current items for pagination
+  const indexOfLastItem = currentPage * itemsPerPage; // 1, 2, 3
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage; // 0, 1, 2
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Change page
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  // console.log(allApprovedListings, filters);
+  const showPagination =
+    !loadingAllPostsByUser && filteredItems.length > itemsPerPage;
+
   return (
     <div className="item-container">
       {error ? (
@@ -114,7 +134,6 @@ function MyPosts() {
             onSearch={setSearchTerm}
             filterOptions={setFilteredItems}
             isPostPage={true}
-            
           />
 
           <div className="card-items-container">
@@ -129,7 +148,7 @@ function MyPosts() {
               }
             >
               <BorrowingPost
-                borrowingPosts={filteredItems}
+                borrowingPosts={currentItems}
                 title="Looking for..."
                 isProfileVisit={false}
                 onDelete={handleDelete}
@@ -143,11 +162,23 @@ function MyPosts() {
                 }}
                 viewType={viewType}
                 isYou={true}
-                
               />
             </TimeoutComponent>
           </div>
         </>
+      )}
+      {/* Pagination */}
+      {showPagination && (
+        <div className="pagination-wrapper">
+          <PaginationComp
+            currentPage={currentPage}
+            totalItems={filteredItems.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            siblingCount={1}
+            className="mt-4"
+          />
+        </div>
       )}
     </div>
   );

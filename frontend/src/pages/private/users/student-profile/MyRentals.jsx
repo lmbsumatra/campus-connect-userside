@@ -104,14 +104,15 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
   }));
 
   const filteredItems = rentalItems.filter((item) => {
-    // Handle both direct items and items with tx property
     const transaction = item.tx || item;
-    const itemStatus = transaction.status || item.status;
+    console.log(transaction);
+    const itemStatus = transaction.status || item.status || "";
     const itemTransactionType = (
       transaction.transaction_type ||
       item.transactionType ||
       ""
     ).toLowerCase();
+
     const itemOwnerId =
       transaction.owner_id || (transaction.owner && transaction.owner.user_id);
     const itemRenterId =
@@ -120,7 +121,14 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
     const itemBuyerId =
       transaction.buyer_id || (transaction.buyer && transaction.buyer.user_id);
 
-    // Check if user is involved in the transaction based on their role
+    console.log({
+      itemStatus,
+      itemTransactionType,
+      itemOwnerId,
+      itemRenterId,
+      itemBuyerId,
+    });
+
     if (
       (selectedOption === "owner" && itemOwnerId !== userId) ||
       (selectedOption === "renter" && itemRenterId !== userId) ||
@@ -128,22 +136,25 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
     )
       return false;
 
-    // Filter by transaction type if needed
     if (selectedOption === "buyer" && itemTransactionType !== "sell")
       return false;
     if (selectedOption === "renter" && itemTransactionType !== "rental")
       return false;
 
-    // Always show all items if "all" filter is selected
     if (activeFilter === "all") return true;
 
-    // Find the filter option that matches the current active filter
     const filterOption = formattedFilterOptions.find(
       (option) => option.nameForRoute === activeFilter
     );
 
-    // Apply status filter
-    return filterOption && filterOption.statuses.includes(itemStatus);
+    if (!filterOption) return false;
+
+    console.log(
+      `Filtering with option: ${filterOption.nameForRoute}, Allowed statuses: ${filterOption.statuses}`
+    );
+    console.log(`Item Status: ${itemStatus}`);
+
+    return filterOption.statuses.includes(itemStatus);
   });
 
   const countByStatus = () => {

@@ -121,7 +121,7 @@ const MyTransactions = () => {
     config?.Stripe && status?.restricted && status?.completionLink;
 
   return (
-    <div className="item-container">
+    <div className="item-container p-5">
       <h2 className="text-center">Dashboard</h2>
       <div className="card-items-container">
         {/* Stats container is always shown */}

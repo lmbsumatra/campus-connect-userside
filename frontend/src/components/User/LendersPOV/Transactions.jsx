@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./transactionStyles.css";
 import { formatDate } from "../../../utils/dateFormat";
+import { GCASH } from "../../../utils/consonants";
 
 const TransactionsTable = ({ transactions }) => {
   const navigate = useNavigate();
@@ -31,9 +32,9 @@ const TransactionsTable = ({ transactions }) => {
   const sortedTransactions = [...filteredTransactions].sort((a, b) => {
     if (!sortConfig.key) return 0;
     const order = sortConfig.direction === "asc" ? 1 : -1;
-    
+
     let aValue, bValue;
-    
+
     switch (sortConfig.key) {
       case "amount":
         aValue = parseFloat(a.totalAmount);
@@ -155,7 +156,11 @@ const TransactionsTable = ({ transactions }) => {
                   <td>{transaction.id}</td>
                   <td>{formatDate(transaction.createdAt)}</td>
                   <td>{transaction.transactionType}</td>
-                  <td>{transaction.paymentMethod}</td>
+                  <td>
+                    {transaction.paymentMethod === "GCASH"
+                      ? "ONLINE PAYMENT"
+                      : "PAYMENT UPON MEETUP"}
+                  </td>
                   <td>₱{transaction.totalAmount}</td>
                   <td>{transaction.itemName}</td>
                   <td>{transaction.status}</td>
@@ -163,8 +168,10 @@ const TransactionsTable = ({ transactions }) => {
                     <button
                       className="table-edit-btn"
                       onClick={() => {
-                        const routePrefix = transaction.transactionType === "Rental" ? 
-                          "/rent-progress/" : "/purchase-progress/";
+                        const routePrefix =
+                          transaction.transactionType === "Rental"
+                            ? "/rent-progress/"
+                            : "/purchase-progress/";
                         navigate(`${routePrefix}${transaction.id}`);
                       }}
                     >

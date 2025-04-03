@@ -254,7 +254,7 @@ const ItemCard = ({
 
             <Tooltip
               title={`${item.name} is for ${
-                item.itemType === "Rent" ? "rent" : "sale"
+                item.itemType === FOR_RENT ? "rent" : "sale"
               }.`}
               {...tooltipProps}
             >

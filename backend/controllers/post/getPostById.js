@@ -10,11 +10,14 @@ const getPostById = async (req, res) => {
           where: {
             item_type: "post",
           },
+          required: false,
           include: [
             {
               model: models.Duration,
               as: "durations",
+              required: false,
             },
+            
           ],
         },
         {
@@ -33,6 +36,8 @@ const getPostById = async (req, res) => {
       //     post_type: "item_for_sale", // Filter for item for sale only
       //   },
     });
+
+    // console.log({ post, id: req.params.postId });
 
     if (!post) {
       return res.status(404).json({ error: "Post not found" });

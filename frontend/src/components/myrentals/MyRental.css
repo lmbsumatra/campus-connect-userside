@@ -98,7 +98,7 @@
 }
 
 .rental-item-image {
-  height: auto;
+  height: 220px;
   width: 220px;
   object-fit: cover;
   border-radius: 6px;

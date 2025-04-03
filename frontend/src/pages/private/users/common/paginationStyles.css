@@ -1,0 +1,115 @@
+/* Pagination container styling */
+.pagination-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+}
+
+.page-item {
+  margin: 0 2px;
+}
+
+.page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 4px;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-item.active .page-link {
+  background-color: #4F46E5;
+  color: white;
+  border-color: #4F46E5;
+}
+
+.page-item.disabled .page-link {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-item:not(.disabled):not(.active) .page-link:hover {
+  background-color: #f1f5f9;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.ellipsis .page-link {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
+/* Mobile styles */
+@media (max-width: 640px) {
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+  
+  .page-link {
+    min-width: 32px;
+    height: 32px;
+    font-size: 13px;
+    padding: 0 4px;
+  }
+  
+  /* Hide some pagination elements on very small screens */
+  @media (max-width: 360px) {
+    .page-item.ellipsis {
+      display: none;
+    }
+    
+    .page-link {
+      min-width: 28px;
+      height: 28px;
+      font-size: 12px;
+    }
+    
+    /* Keep only previous, next, active page and immediate siblings */
+    .page-item:not(.active):not(:first-child):not(:last-child) {
+      display: none;
+    }
+    
+    .page-item.active,
+    .page-item:first-child,
+    .page-item:last-child,
+    .page-item.active + .page-item,
+    .page-item.active - .page-item {
+      display: block;
+    }
+  }
+}
+
+/* Additional touch-friendly adjustments */
+@media (hover: none) {
+  .page-link {
+    padding: 0 10px; /* Larger touch target */
+  }
+}

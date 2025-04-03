@@ -592,7 +592,11 @@ Item: ${itemName}`,
 
   return (
     <div className={`rental-item ${highlighted ? "highlighted" : ""}`}>
-      <img src={item.tx.item.images[0] || itemImage} alt={getItemName()} className="rental-item-image" />
+      <img
+        src={item?.tx?.item?.images?.[0] || itemImage}
+        alt={getItemName()}
+        className="rental-item-image"
+      />
       <div className="rental-item-content">
         <h4>Item: {getItemName()}</h4>
         <div

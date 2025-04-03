@@ -17,9 +17,13 @@ import FilterFunction from "../../components/item-filter/FilterFunction";
 import FilterModal from "../../components/item-filter/FilterModal";
 import ResetFilters from "../../components/item-filter/ResetFilters";
 import { defaultFilters } from "../../utils/consonants";
+import PaginationComp from "../private/users/common/PaginationComp";
 
 const Rent = () => {
   const location = useLocation();
+  // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(8);
 
   const dispatch = useDispatch();
 
@@ -43,14 +47,31 @@ const Rent = () => {
 
   useEffect(() => {
     setFilteredItems(allApprovedListings);
+      // Reset to first page when items change
+      setCurrentPage(1);
   }, [allApprovedListings]);
 
   const handleFilterChange = (filters) => {
     const updatedItems = FilterFunction(allApprovedListings, filters);
     setFilteredItems(updatedItems);
+    // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
+  // Get current items for pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Change page
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Scroll to top when page changes
+    // window.scrollTo(0, 0);
+  };
   // console.log(allApprovedListings, filters);
+  const showPagination = !loadingAllApprovedListings && filteredItems.length > itemsPerPage;
+
   return (
     <>
       <div className="container-content page-container">
@@ -90,7 +111,7 @@ const Rent = () => {
             }
           >
             {!loadingAllApprovedListings && (
-              <ItemCard items={filteredItems} title="Listings" />
+              <ItemCard items={currentItems} title="Listings" />
             )}
           </TimeoutComponent>
           {loadingAllApprovedListings && <p>Loading listings...</p>}
@@ -103,6 +124,19 @@ const Rent = () => {
               <p>Error loading listings: {errorAllApprovedListings}</p>
             )}
           </div>
+          {/* Pagination */}
+          {showPagination && (
+            <div className="pagination-wrapper">
+              <PaginationComp
+                currentPage={currentPage}
+                totalItems={filteredItems.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={handlePageChange}
+                siblingCount={1}
+                className="mt-4"
+              />
+            </div>
+          )}
         </div>
       </div>
     </>
