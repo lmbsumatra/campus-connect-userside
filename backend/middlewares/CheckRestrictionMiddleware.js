@@ -30,7 +30,7 @@ const checkRestrictions = async (req, res, next) => {
     if (student) {
       await student.update({
         status: "verified",
-        status_message: `Restriction expired on ${now.toLocaleDateString()}. Account automatically reactivated on login.`,
+        status_message: `Restriction expired on ${now.toLocaleDateString()}. Account reactivated`,
         restricted_until: null,
       });
 

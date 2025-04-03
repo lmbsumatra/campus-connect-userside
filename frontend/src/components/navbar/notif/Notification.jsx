@@ -126,6 +126,7 @@ const Notification = ({
           "transaction_report_response",
           "report_resolved",
           "report_escalated",
+          "admin_report_update",
         ];
 
         if (nonRentalTypes.includes(notif.type)) {
@@ -153,10 +154,10 @@ const Notification = ({
         } else if (notif.rental_id) {
           // Fetch rental/transaction details for routing determination
           const transactionRes = await axios.get(
-            `${baseApi}/rental-transaction/${notif.rental_id}`, // Assuming endpoint name hasn't changed
-            { headers: { Authorization: `Bearer ${studentUser.token}` } } // Add auth if needed
+            `${baseApi}/rental-transaction/${notif.rental_id}`,
+            { headers: { Authorization: `Bearer ${studentUser.token}` } }
           );
-          const transaction = transactionRes.data.rental; // Adjust based on actual API response structure
+          const transaction = transactionRes.data.rental;
 
           if (!transaction) {
             console.error(

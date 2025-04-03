@@ -879,9 +879,7 @@ module.exports = ({ emitNotification }) => {
               // restricted_until: null, // Ensure restriction is cleared if only warning
               status_message: `Warning issued. ${statusMessageBase}`,
             };
-            banNotificationMessage = `You have received a warning regarding transaction report #${
-              report.id
-            }. Reason: ${resolutionNotes || "Admin decision."}`;
+            banNotificationMessage = `You have received a warning regarding transaction report #${report.id}.`;
             break;
 
           case "none":

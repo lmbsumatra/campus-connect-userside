@@ -415,7 +415,8 @@ const NotificationMessage = ({ message, type }) => {
       case "transaction_report":
       case "transaction_report_response":
       case "report_resolved":
-      case "report_escalated": {
+      case "report_escalated":
+      case "admin_report_update": {
         return (
           <>
             <span className="font-large">Report Notification</span>

@@ -64,6 +64,7 @@ export const determineRoute = (
       "transaction_report_response",
       "report_resolved",
       "report_escalated",
+      "admin_report_update",
     ].includes(type)
   ) {
     console.warn(
