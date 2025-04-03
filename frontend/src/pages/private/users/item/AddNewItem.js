@@ -63,7 +63,7 @@ import { useSystemConfig } from "../../../../context/SystemConfigProvider.js";
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
-    <img src={warningIcon} className="icon" alt="Error indicator" />
+    <img src={warningIcon} className="warning-icon" alt="Error indicator" />
     <span className="text">{message}</span>
   </div>
 );
@@ -559,7 +559,7 @@ const AddNewItem = () => {
           </Tooltip>
           {itemDataState.images.triggered && itemDataState.images.hasError && (
             <div className="validation error d-block">
-              <img src={warningIcon} className="icon" alt="Error indicator" />
+              <img src={warningIcon} className="warning-icon" alt="Error indicator" />
               <span className="text">{itemDataState.images.error}</span>
             </div>
           )}
@@ -583,7 +583,7 @@ const AddNewItem = () => {
           {itemDataState.category.triggered &&
             itemDataState.category.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
                 <span className="text">{itemDataState.category.error}</span>
               </div>
             )}
@@ -635,7 +635,7 @@ const AddNewItem = () => {
             }}
           >
             <div className="action-btns">
-              <button className="btn btn-icon primary" disabled>
+              <button className="btn btn-warning-icon primary" disabled>
                 <img src={cartIcon} alt="Add to cart" />
               </button>
               <button className="btn btn-rectangle secondary" disabled>
@@ -652,7 +652,7 @@ const AddNewItem = () => {
           {itemDataState.availableDates.triggered &&
             itemDataState.availableDates.hasError && (
               <div className="validation error d-block">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
                 <span className="text">
                   {itemDataState.availableDates.error}
                 </span>
@@ -746,7 +746,7 @@ const AddNewItem = () => {
           {itemDataState.deliveryMethod.triggered &&
             itemDataState.deliveryMethod.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
                 <span className="text">
                   {itemDataState.deliveryMethod.error}
                 </span>
@@ -806,7 +806,7 @@ const AddNewItem = () => {
           {itemDataState.paymentMethod.triggered &&
             itemDataState.paymentMethod.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
                 <span className="text">
                   {itemDataState.paymentMethod.error}
                 </span>

@@ -35,7 +35,7 @@ const AddTerms = ({ values }) => {
       (itemDataState.lateCharges.triggered &&
         itemDataState.lateCharges.hasError) ? (
         <div className="validation error">
-          <img src={warningIcon} className="icon" alt="Error indicator" />
+          <img src={warningIcon} className="warning-icon" alt="Error indicator" />
           <span className="text">Terms and Condition have error/s</span>
         </div>
       ) : null}
@@ -73,7 +73,7 @@ const AddTerms = ({ values }) => {
                 <div className="validation error">
                   <img
                     src={warningIcon}
-                    className="icon"
+                    className="warning-icon"
                     alt="Error on late charges"
                   />
                   <span className="text">
@@ -119,7 +119,7 @@ const AddTerms = ({ values }) => {
                 <div className="validation error">
                   <img
                     src={warningIcon}
-                    className="icon"
+                    className="warning-icon"
                     alt="Error on security deposit"
                   />
                   <span className="text">
@@ -165,7 +165,7 @@ const AddTerms = ({ values }) => {
                 <div className="validation error">
                   <img
                     src={warningIcon}
-                    className="icon"
+                    className="warning-icon"
                     alt="Error on  repair and replacement"
                   />
                   <span className="text">

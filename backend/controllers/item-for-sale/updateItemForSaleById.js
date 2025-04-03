@@ -86,7 +86,12 @@ const addDatesAndDurations = async (itemId, dates) => {
 };
 
 // Helper function to remove dates and their associated durations
-const removeDatesAndDurations = async (itemId, removedDates) => {
+// Helper function to remove dates and their associated durations
+const removeDatesAndDurations = async (
+  itemId,
+  removedDates,
+  removedDurations
+) => {
   for (const removedDate of removedDates) {
     // Find the date record by itemId and date
     const dateRecord = await models.Date.findOne({
@@ -98,64 +103,61 @@ const removeDatesAndDurations = async (itemId, removedDates) => {
     });
 
     if (dateRecord) {
-      // console.log(
-      //   `Processing date ${removedDate} for removal for item ${itemId}`
-      // );
-
-      // Check if this date is linked to any rental transactions
-      const rentalTransactionForDate = await models.RentalTransaction.findOne({
-        where: { date_id: dateRecord.id },
-      });
-
-      if (rentalTransactionForDate) {
-        // console.log(
-        //   `Date ${removedDate} is linked to active rentals. Skipping deletion.`
-        // );
-        continue; // Skip this date
-      }
-
-      // Fetch associated durations
       const durations = await models.Duration.findAll({
         where: { date_id: dateRecord.id },
       });
 
       for (const duration of durations) {
-        // Check if this duration is linked to any rental transactions
         const rentalTransactionForDuration =
           await models.RentalTransaction.findOne({
             where: { time_id: duration.id },
           });
 
-        if (rentalTransactionForDuration) {
-          // console.log(
-          //   `Duration from ${duration.rental_time_from} to ${duration.rental_time_to} is linked to active rentals. Skipping deletion.`
-          // );
-          continue; // Skip this duration
+        if (!rentalTransactionForDuration) {
+          await duration.destroy();
         }
-
-        // If no active rentals, delete the duration
-        await duration.destroy();
-        // console.log(
-        //   `Removed duration from ${duration.rental_time_from} to ${duration.rental_time_to}`
-        // );
       }
 
-      // Check if all durations for the date are removed
       const remainingDurations = await models.Duration.findAll({
         where: { date_id: dateRecord.id },
       });
 
       if (remainingDurations.length === 0) {
-        // If no durations remain, delete the date
         await dateRecord.destroy();
-        // console.log(`Removed date ${removedDate}`);
-      } else {
-        // console.log(
-        //   `Date ${removedDate} has active durations linked to rentals. Skipping date deletion.`
-        // );
       }
-    } else {
-      // console.log(`No date record found for date ${removedDate}`);
+    }
+  }
+
+  // Handling removedDurations separately
+  for (const removedDuration of removedDurations) {
+    const dateRecord = await models.Date.findOne({
+      where: {
+        item_id: itemId,
+        date: removedDuration.date,
+        item_type: "item_for_sale",
+      },
+    });
+
+
+    if (dateRecord) {
+      const existingDuration = await models.Duration.findOne({
+        where: {
+          date_id: dateRecord.id,
+          rental_time_from: removedDuration.duration.timeFrom,
+          rental_time_to: removedDuration.duration.timeTo,
+        },
+      });
+
+      if (existingDuration) {
+        const rentalTransactionForDuration =
+          await models.RentalTransaction.findOne({
+            where: { time_id: existingDuration.id },
+          });
+
+        if (!rentalTransactionForDuration) {
+          await existingDuration.destroy();
+        }
+      }
     }
   }
 };
@@ -208,6 +210,10 @@ const updateItemForSaleById = async (req, res) => {
     // Extract removed dates if provided
     const removedDates = Array.isArray(itemData.toRemoveDates)
       ? itemData.toRemoveDates
+      : [];
+
+    const removedDurations = Array.isArray(itemData.toRemoveDurations)
+      ? itemData.toRemoveDurations
       : [];
     // console.log("Dates to remove:", removedDates); // Debug removed dates
 
@@ -271,9 +277,8 @@ const updateItemForSaleById = async (req, res) => {
     );
 
     // Remove the dates and durations if they exist in removedDates
-    if (removedDates.length > 0) {
-      // console.log("Removing dates and associated durations...");
-      await removeDatesAndDurations(itemId, removedDates);
+    if (removedDates.length > 0 || removedDurations.length > 0) {
+      await removeDatesAndDurations(itemId, removedDates, removedDurations);
     }
 
     // Add new dates and durations if they exist in itemData

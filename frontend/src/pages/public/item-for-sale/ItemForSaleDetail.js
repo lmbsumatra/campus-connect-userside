@@ -975,17 +975,23 @@ function ItemForSaleDetail() {
                 {selectedDate ? (
                   showDurations && showDurations.length > 0 ? (
                     <div className="duration-list">
-                      {showDurations.map((duration) => (
-                        <div key={duration.id} className="duration-item">
-                          <input
-                            type="checkbox"
-                            id={`duration-${duration.id}`}
-                            onChange={() => handleSelectDuration(duration)}
-                          />
-                          {formatTimeTo12Hour(duration.timeFrom)} -{" "}
-                          {formatTimeTo12Hour(duration.timeTo)}
-                        </div>
-                      ))}
+                      {showDurations
+                        .slice() // Create a copy to avoid mutating the original array
+                        .sort((a, b) => {
+                          // Convert timeFrom strings to comparable values (assuming they're in a format that can be compared)
+                          return a.timeFrom.localeCompare(b.timeFrom);
+                        })
+                        .map((duration) => (
+                          <div key={duration.id} className="duration-item">
+                            <input
+                              type="checkbox"
+                              id={`duration-${duration.id}`}
+                              onChange={() => handleSelectDuration(duration)}
+                            />
+                            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+                            {formatTimeTo12Hour(duration.timeTo)}
+                          </div>
+                        ))}
                     </div>
                   ) : (
                     <p className="no-duration-message">

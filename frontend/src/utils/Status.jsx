@@ -3,7 +3,7 @@ export const ItemStatus = (status) => {
     case "approved":
       return { label: "Approved", className: "bg-success text-white" };
     case "declined":
-      return { label: "Declined", className: "bg-warning text-dark" };
+      return { label: "Declined", className: "bg-danger text-white" };
     case "revoked":
       return { label: "Removal Revoked", className: "bg-info text-white" };
     case "pending":

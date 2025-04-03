@@ -48,7 +48,7 @@ import { addItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
-    <img src={warningIcon} className="icon" alt="Error indicator" />
+    <img src={warningIcon} className="warning-icon" alt="Error indicator" />
     <span className="text">{message}</span>
   </div>
 );
@@ -457,7 +457,7 @@ const AddNewPost = () => {
           </Tooltip>
           {postDataState.images.triggered && postDataState.images.hasError && (
             <div className="validation error d-block">
-              <img src={warningIcon} className="icon" alt="Error indicator" />
+              <img src={warningIcon} className="warning-icon" alt="Error indicator" />
               <span className="text">{postDataState.images.error}</span>
             </div>
           )}
@@ -483,7 +483,7 @@ const AddNewPost = () => {
           {postDataState.category.triggered &&
             postDataState.category.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
                 <span className="text">{postDataState.category.error}</span>
               </div>
             )}
@@ -522,7 +522,7 @@ const AddNewPost = () => {
           {postDataState.requestDates.triggered &&
             postDataState.requestDates.hasError && (
               <div className="validation error d-block">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
                 <span className="text">
                   {" "}
                   {postDataState.requestDates.error}

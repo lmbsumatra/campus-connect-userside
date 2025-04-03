@@ -59,7 +59,7 @@ import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSli
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
-    <img src={warningIcon} className="icon" alt="Error indicator" />
+    <img src={warningIcon} className="warning-icon" alt="Error indicator" />
     <span className="text">{message}</span>
   </div>
 );
@@ -167,6 +167,7 @@ const EditItem = () => {
   const [originalData, setOriginalData] = useState(null);
   const [showComparison, setShowComparison] = useState(false);
   const [removedDates, setRemovedDates] = useState([]);
+  const [removedDurations, setRemovedDurations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState(null);
@@ -431,7 +432,11 @@ const EditItem = () => {
     );
   };
 
-  const handleSaveDatesDurations = (datesDurations, removed) => {
+  const handleSaveDatesDurations = (
+    datesDurations,
+    removedDates,
+    removedDurations
+  ) => {
     // Format the datesDurations as required
     const serializedDates = datesDurations.map((dateObj) => ({
       date: formatDateFromSelectDate(dateObj.date),
@@ -439,19 +444,27 @@ const EditItem = () => {
     }));
 
     // Format the removed dates to 'yy-mm-dd'
-    const formattedRemovedDates = removed.map((removedDate) => {
-      return formatDateFromSelectDate(removedDate.date);
-    });
+    const formattedRemovedDates = removedDates.map((removedDate) =>
+      formatDateFromSelectDate(removedDate.date)
+    );
+
+    // Format the removed durations
+    const formattedRemovedDurations = removedDurations.map((durationObj) => ({
+      date: formatDateFromSelectDate(durationObj.date),
+      duration: durationObj.duration,
+    }));
 
     // Set the formatted removed dates
     setRemovedDates(formattedRemovedDates);
+    setRemovedDurations(formattedRemovedDurations);
 
     // Dispatch the action for the selected dates
     setSelectedDatesDurations(datesDurations);
     dispatch(updateAvailableDates(serializedDates));
 
-    // Log the formatted removed dates for debugging
-    // console.log(formattedRemovedDates);
+    // Log the formatted removed dates and durations for debugging
+    console.log("Formatted Removed Dates:", formattedRemovedDates);
+    console.log("Formatted Removed Durations:", formattedRemovedDurations);
   };
 
   const handleCategoryChange = (selectedCategory) => {
@@ -613,6 +626,7 @@ const EditItem = () => {
         tags: itemDataState.tags.value,
         dates: itemDataState.availableDates.value,
         toRemoveDates: removedDates,
+        toRemoveDurations: removedDurations,
         specs: itemDataState.specs.value,
         location: itemDataState.location.value,
         ...(itemType === FOR_RENT && {
@@ -710,7 +724,11 @@ const EditItem = () => {
           {itemDataState.category.triggered &&
             itemDataState.category.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">{itemDataState.category.error}</span>
               </div>
             )}
@@ -778,7 +796,11 @@ const EditItem = () => {
           {itemDataState.availableDates.triggered &&
             itemDataState.availableDates.hasError && (
               <div className="validation error d-block">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">
                   {" "}
                   {itemDataState.availableDates.error}
@@ -891,7 +913,11 @@ const EditItem = () => {
           {itemDataState.deliveryMethod.triggered &&
             itemDataState.deliveryMethod.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">
                   {itemDataState.deliveryMethod.error}
                 </span>
@@ -951,7 +977,11 @@ const EditItem = () => {
           {itemDataState.paymentMethod.triggered &&
             itemDataState.paymentMethod.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">
                   {itemDataState.paymentMethod.error}
                 </span>

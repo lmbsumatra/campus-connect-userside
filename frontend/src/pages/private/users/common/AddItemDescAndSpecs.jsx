@@ -131,7 +131,7 @@ const AddItemDescAndSpecs = ({
       </div>
       {triggered.specs && errors.specs && (
         <div className="validation error">
-          <img src={warningIcon} className="icon" alt="Error on specs" />
+          <img src={warningIcon} className="warning-icon" alt="Error on specs" />
           <span className="text">{errors.specs}</span>
         </div>
       )}
@@ -146,7 +146,7 @@ const AddItemDescAndSpecs = ({
       />
       {triggered.desc && errors.desc && (
         <div className="validation error">
-          <img src={warningIcon} className="icon" alt="Error on description" />
+          <img src={warningIcon} className="warning-icon" alt="Error on description" />
           <span className="text">{errors.desc}</span>
         </div>
       )}
@@ -184,7 +184,7 @@ const AddItemDescAndSpecs = ({
       </div>
       {triggered.tags && errors.tags && (
         <div className="validation error">
-          <img src={warningIcon} className="icon" alt="Error on tags" />
+          <img src={warningIcon} className="warning-icon" alt="Error on tags" />
           <span className="text">{errors.tags}</span>
         </div>
       )}

@@ -1034,17 +1034,23 @@ function ListingDetail() {
                 {selectedDate ? (
                   showDurations && showDurations.length > 0 ? (
                     <div className="duration-list">
-                      {showDurations.map((duration) => (
-                        <div key={duration.id} className="duration-item">
-                          <input
-                            type="checkbox"
-                            id={`duration-${duration.id}`}
-                            onChange={() => handleSelectDuration(duration)}
-                          />
-                          {formatTimeTo12Hour(duration.timeFrom)} -{" "}
-                          {formatTimeTo12Hour(duration.timeTo)}
-                        </div>
-                      ))}
+                      {showDurations
+                        .slice() // Create a copy to avoid mutating the original array
+                        .sort((a, b) => {
+                          // Convert timeFrom strings to comparable values (assuming they're in a format that can be compared)
+                          return a.timeFrom.localeCompare(b.timeFrom);
+                        })
+                        .map((duration) => (
+                          <div key={duration.id} className="duration-item">
+                            <input
+                              type="checkbox"
+                              id={`duration-${duration.id}`}
+                              onChange={() => handleSelectDuration(duration)}
+                            />
+                            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+                            {formatTimeTo12Hour(duration.timeTo)}
+                          </div>
+                        ))}
                     </div>
                   ) : (
                     <p className="no-duration-message">
@@ -1135,7 +1141,7 @@ function ListingDetail() {
 
             {approvedListingById.paymentMethod ? (
               <Tooltip
-                title="Delivery method has been preselected by owner."
+                title="Payment method has been preselected by owner."
                 placement="bottom"
                 componentsProps={{
                   popper: {
@@ -1159,7 +1165,7 @@ function ListingDetail() {
             ) : (
               <div className="delivery-method">
                 <Tooltip
-                  title="Owner did not set delivery method, you decide whether to meetup or pickup."
+                  title="Owner did not set payment method, you decide whether to meetup or pickup."
                   placement="bottom"
                 >
                   <div className="action-btns">

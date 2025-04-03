@@ -67,3 +67,8 @@ img.icon.more:hover {
   filter: brightness(100%);
   opacity: 100%;
 }
+
+.validation .warning-icon {
+  height: 16px !important;
+  width: auto !important;
+}

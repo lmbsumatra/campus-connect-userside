@@ -104,6 +104,7 @@ const addItemForSale = async (req, res) => {
         tags: itemData.tags,
         status: "pending",
         specifications: itemData.specs,
+        location: itemData.location,
       },
       { transaction }
     );

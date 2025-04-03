@@ -56,7 +56,7 @@ import {
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
-    <img src={warningIcon} className="icon" alt="Error indicator" />
+    <img src={warningIcon} className="warning-icon" alt="Error indicator" />
     <span className="text">{message}</span>
   </div>
 );
@@ -145,6 +145,7 @@ const EditPost = () => {
   const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
     useSelector((state) => state.unavailableDates);
   const [removedDates, setRemovedDates] = useState([]);
+  const [removedDurations, setRemovedDurations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState(null);
@@ -430,27 +431,39 @@ const EditPost = () => {
     );
   };
 
-  const handleSaveDatesDurations = (datesDurations, removed) => {
+  const handleSaveDatesDurations = (
+    datesDurations,
+    removedDates,
+    removedDurations
+  ) => {
     // Format the datesDurations as required
     const serializedDates = datesDurations.map((dateObj) => ({
       date: formatDateFromSelectDate(dateObj.date),
       durations: dateObj.durations,
-      status: "available",
     }));
 
     // Format the removed dates to 'yy-mm-dd'
-    const formattedRemovedDates = removed.map((removedDate) => {
-      return formatDateFromSelectDate(removedDate.date);
-    });
+    const formattedRemovedDates = removedDates.map((removedDate) =>
+      formatDateFromSelectDate(removedDate.date)
+    );
+
+    // Format the removed durations
+    const formattedRemovedDurations = removedDurations.map((durationObj) => ({
+      date: formatDateFromSelectDate(durationObj.date),
+      duration: durationObj.duration,
+    }));
 
     // Set the formatted removed dates
     setRemovedDates(formattedRemovedDates);
+    setRemovedDurations(formattedRemovedDurations);
 
-    // Set the selected dates and durations
+    // Dispatch the action for the selected dates
     setSelectedDatesDurations(datesDurations);
-
-    // Update the available dates in the form state
     dispatch(updateAvailableDates(serializedDates));
+
+    // Log the formatted removed dates and durations for debugging
+    console.log("Formatted Removed Dates:", formattedRemovedDates);
+    console.log("Formatted Removed Durations:", formattedRemovedDurations);
   };
 
   const handleCategoryChange = (selectedCategory) => {
@@ -635,6 +648,7 @@ const EditPost = () => {
         tags: postDataState.tags?.value || [],
         dates: postDataState.requestDates?.value || [],
         toRemoveDates: removedDates || [],
+        toRemoveDurations: removedDurations || [],
         specs: postDataState.specs?.value || {},
         itemType: postData?.itemType || "FOR_SALE", // Include itemType in the submission with default
       };
@@ -777,7 +791,11 @@ const EditPost = () => {
           {postDataState.category?.triggered &&
             postDataState.category?.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">{postDataState.category.error}</span>
               </div>
             )}
@@ -828,7 +846,11 @@ const EditPost = () => {
           {postDataState.requestDates?.triggered &&
             postDataState.requestDates?.hasError && (
               <div className="validation error d-block">
-                <img src={warningIcon} className="icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">{postDataState.requestDates.error}</span>
               </div>
             )}

@@ -137,6 +137,7 @@ const DateDurationPicker = ({
   const [endDate, setEndDate] = useState(null);
   const [weekdays, setWeekdays] = useState([]);
   const [removedDates, setRemovedDate] = useState([]);
+  const [removedDurations, setRemovedDurations] = useState([]);
 
   // Helper functions
   const isSelected = (date) =>
@@ -368,7 +369,7 @@ const DateDurationPicker = ({
   };
 
   const handleSaveAndClose = () => {
-    onSaveDatesDurations(dates, removedDates);
+    onSaveDatesDurations(dates, removedDates, removedDurations);
     onClose();
   };
 
@@ -381,6 +382,8 @@ const DateDurationPicker = ({
         }))
       );
     }
+    setRemovedDate([]);
+    setRemovedDurations([]);
   }, [show, selectedDatesDurations]);
 
   const removeDate = (dateToRemove) => {
@@ -391,6 +394,44 @@ const DateDurationPicker = ({
       // console.log("Removed Date:", dateFound); // Debug log
     } else {
       // console.log("Date not found:", dateToRemove.date); // Debug log
+    }
+  };
+
+  const removeDuration = (date, durationIndex) => {
+    // Ensure that date and durationIndex are valid
+    if (!date || durationIndex === undefined || durationIndex < 0) {
+      console.error("Invalid arguments passed to removeDuration.");
+      return;
+    }
+
+    // Find the date object in the dates array
+    const dateObj = dates.find((d) => d.date.getTime() === date.getTime());
+
+    if (
+      dateObj &&
+      dateObj.durations &&
+      dateObj.durations.length > durationIndex
+    ) {
+      // Store the removed duration with its date
+      const removedDuration = {
+        date: new Date(date),
+        duration: dateObj.durations[durationIndex],
+      };
+
+      // Add to removed durations array
+      setRemovedDurations((prev) => [...prev, removedDuration]);
+
+      // Map through the dates array and remove the specific duration
+      const updatedDates = dates.map((d) => {
+        if (d.date.getTime() === date.getTime()) {
+          const updatedDurations = [...d.durations];
+          updatedDurations.splice(durationIndex, 1); // Remove the duration at the specified index
+          return { ...d, durations: updatedDurations };
+        }
+        return d;
+      });
+
+      setDates(updatedDates); // Update the dates state
     }
   };
 
@@ -697,9 +738,36 @@ const DateDurationPicker = ({
                     <p>No durations added for this date.</p>
                   ) : (
                     dateItem.durations.map((period, index) => (
-                      <p key={index}>
-                        Start: {period.timeFrom} | End: {period.timeTo}
-                      </p>
+                      <div
+                        key={index}
+                        className="duration-item d-flex justify-content-start align-items-center gap-1"
+                      >
+                        <p className="mb-0">
+                          Start: {period.timeFrom} | End: {period.timeTo}
+                        </p>
+                        <button
+                          className="ml-2"
+                          style={{
+                            width: "20px",
+                            height: "20px",
+                            borderRadius: "50%",
+                            padding: "0",
+                            margin: "0",
+                            fontSize: "16px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#dc3545",
+                            color: "white",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => removeDuration(dateItem.date, index)}
+                          aria-label="Remove duration"
+                        >
+                          &times;
+                        </button>
+                      </div>
                     ))
                   )}
                   <div className="button-group">
