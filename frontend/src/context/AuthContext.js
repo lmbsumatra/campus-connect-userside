@@ -119,6 +119,7 @@ export const AuthProvider = ({ children }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${storedAdminUser.token}`,
         },
         body: JSON.stringify({ refreshToken: storedAdminUser.refreshToken }),
       });
@@ -128,6 +129,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
+      if (!data.token || !data.refreshToken) {
+        throw new Error("Invalid token data received");
+      }
+
       const newUser = {
         ...storedAdminUser,
         token: data.token,
@@ -156,14 +161,16 @@ export const AuthProvider = ({ children }) => {
   // Auto-refresh token on app start
   useEffect(() => {
     const autoRefreshToken = async () => {
-      if (!adminUser?.refreshToken) return; // Do nothing if there's no refresh token
+      if (!adminUser?.token || !adminUser?.refreshToken) return;
 
       try {
         const decodedToken = jwtDecode(adminUser.token);
         const currentTime = Date.now() / 1000;
+        const buffer = 30; // 30 seconds buffer
 
-        if (decodedToken.exp < currentTime) {
-          // console.log("Token expired on app start, attempting refresh...");
+        // Refresh if token is expired or about to expire
+        if (decodedToken.exp < currentTime + buffer) {
+          console.log("Token needs refresh, attempting...");
           const newToken = await refreshAdminToken();
 
           if (!newToken) {
@@ -172,12 +179,16 @@ export const AuthProvider = ({ children }) => {
           }
         }
       } catch (error) {
-        console.error("Error decoding token:", error);
+        console.error("Error in token check:", error);
         logoutAdmin();
       }
     };
 
-    autoRefreshToken();
+    // Check every minute
+    const interval = setInterval(autoRefreshToken, 60000);
+    autoRefreshToken(); // Run immediately on mount
+
+    return () => clearInterval(interval);
   }, [adminUser, logoutAdmin, refreshAdminToken]); // ✅ Now properly includes dependencies
 
   return (

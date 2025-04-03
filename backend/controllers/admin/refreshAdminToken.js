@@ -15,9 +15,7 @@ const refreshAdminToken = async (req, res) => {
     const admin = await Admin.findOne({ where: { user_id: decoded.userId } });
 
     if (!admin || admin.refreshToken !== refreshToken) {
-      return res
-        .status(403)
-        .json({ message: "Invalid or expired refresh token." });
+      return res.status(403).json({ message: "Invalid refresh token." });
     }
 
     // Generate new tokens
@@ -33,17 +31,20 @@ const refreshAdminToken = async (req, res) => {
       { expiresIn: "3d" }
     );
 
-    // Store new refresh token in database
+    // Update in database
     admin.refreshToken = newRefreshToken;
     await admin.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       token: newToken,
       refreshToken: newRefreshToken,
     });
   } catch (error) {
     console.error("Refresh token error:", error);
-    res.status(403).json({ message: "Invalid or expired refresh token." });
+    if (error.name === "TokenExpiredError") {
+      return res.status(403).json({ message: "Refresh token expired" });
+    }
+    return res.status(403).json({ message: "Invalid refresh token" });
   }
 };
 

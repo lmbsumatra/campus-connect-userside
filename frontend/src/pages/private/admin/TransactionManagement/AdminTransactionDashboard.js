@@ -8,8 +8,9 @@ import SearchBarComponent from "../../../../components/Search/SearchBarComponent
 import PaginationComponent from "../../../../components/Pagination/PaginationComponent";
 import {
   TransactionStatusDistribution,
-  TransactionsByType,
   TransactionsGrowth,
+  PaymentModeDistribution,
+  TransactionFunnelAnalysis,
 } from "../../../../components/Analytics/TransactionAnalyticsComponent";
 import { TransactionStatus } from "../../../../utils/Status";
 
@@ -210,8 +211,9 @@ const AdminTransactionDashboard = () => {
         </div>
         <div className="col-lg-4">
           <TransactionStatusDistribution transactions={transactions} />
-          <TransactionsByType transactions={transactions} />
           <TransactionsGrowth transactions={transactions} />
+          <PaymentModeDistribution transactions={transactions} />
+          <TransactionFunnelAnalysis transactions={transactions} />
         </div>
       </div>
     </div>
