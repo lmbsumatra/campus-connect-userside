@@ -55,24 +55,24 @@ function MyTransactionReports() {
     async (e, option, report) => {
       e.stopPropagation();
 
-      if (option === "delete") {
-        try {
-          ShowAlert(dispatch, "loading", "Deleting report...");
-          await dispatch(
-            deleteTransactionReport({ userId, reportId: report.id })
-          ).unwrap();
-          ShowAlert(dispatch, "success", "Report deleted successfully!");
-        } catch (error) {
-          console.error("Error deleting report:", error);
-          ShowAlert(
-            dispatch,
-            "error",
-            "Error",
-            error?.message || "Failed to delete report!"
-          );
-        }
-        return;
-      }
+      // if (option === "delete") {
+      //   try {
+      //     ShowAlert(dispatch, "loading", "Deleting report...");
+      //     await dispatch(
+      //       deleteTransactionReport({ userId, reportId: report.id })
+      //     ).unwrap();
+      //     ShowAlert(dispatch, "success", "Report deleted successfully!");
+      //   } catch (error) {
+      //     console.error("Error deleting report:", error);
+      //     ShowAlert(
+      //       dispatch,
+      //       "error",
+      //       "Error",
+      //       error?.message || "Failed to delete report!"
+      //     );
+      //   }
+      //   return;
+      // }
 
       if (option === "view") {
         navigate(`/reports/${report.id}`);
@@ -229,12 +229,6 @@ function MyTransactionReports() {
                     >
                       View
                     </button>
-                    <button
-                      onClick={(e) => handleReportAction(e, "delete", report)}
-                      className="action-button-report delete-button-report"
-                    >
-                      Delete
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -318,12 +312,12 @@ function MyTransactionReports() {
                 >
                   View
                 </button>
-                <button
+                {/* <button
                   className="action-button-report delete-button-report"
                   onClick={(e) => handleReportAction(e, "delete", report)}
                 >
                   Delete
-                </button>
+                </button> */}
               </div>
             </div>
           ))}

@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Bell from "../../../assets/images/icons/bell.png";
 import UserIcon from "../../../assets/images/icons/user-icon.svg";
 import "./style.css";
@@ -12,21 +13,53 @@ const Notification = ({
   notifications,
   setNotifications,
 }) => {
-  const handleNotificationClick = async (e, notificationId) => {
+  const navigate = useNavigate();
+
+  const handleNotificationClick = async (e, notification) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (notificationId) {
+    if (notification.id) {
       try {
-        await axios.put(`${baseApi}/api/notifications/${notificationId}/read`);
+        // Mark notification as read
+        await axios.put(`${baseApi}/api/notifications/${notification.id}/read`);
         setNotifications((prev) =>
           prev.map((notif) =>
-            notif.id === notificationId ? { ...notif, isRead: true } : notif
+            notif.id === notification.id ? { ...notif, isRead: true } : notif
           )
         );
+
+        // Handle navigation based on notification type
+        navigateBasedOnType(notification);
       } catch (error) {
         console.error("Error marking notification as read:", error);
       }
+    }
+  };
+
+  const navigateBasedOnType = (notification) => {
+    // Close notification panel
+    toggleNotifications();
+
+    // Handle navigation based on notification type
+    switch (notification.type) {
+      case "new-listing":
+        navigate("/admin/listings/listing-overview");
+        break;
+      case "new-post":
+        navigate("/admin/posts/post-overview");
+        break;
+      case "new-item-for-sale":
+        navigate("/admin/sales/sales-overview");
+        break;
+      case "escalated-report":
+        navigate("/admin/reports/transaction-reports");
+        break;
+      // You can add more cases as needed
+      default:
+        // Default navigation or stay on current page
+        console.log("No specific navigation for this notification type");
+        break;
     }
   };
 
@@ -59,6 +92,20 @@ const Notification = ({
             <strong>
               {notification.renter?.name || notification.ownerName}
             </strong>
+            <em>{notification.message}</em>
+          </>
+        );
+      case "new-listing":
+        return (
+          <>
+            <strong>{notification.ownerName}</strong>
+            <em>{notification.message}</em>
+          </>
+        );
+      case "escalated-report":
+        return (
+          <>
+            <strong>Report Escalated</strong>
             <em>{notification.message}</em>
           </>
         );
@@ -112,7 +159,7 @@ const Notification = ({
                   className={`notification-item ${
                     notification.isRead ? "read" : "unread"
                   }`}
-                  onClick={(e) => handleNotificationClick(e, notification.id)}
+                  onClick={(e) => handleNotificationClick(e, notification)}
                 >
                   <img
                     src={UserIcon}
