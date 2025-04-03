@@ -27,6 +27,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import styles
 import MyFollowings from "./MyFollowings.js";
 import Reviews from "./Reviews.jsx";
+import MyTransactionReports from "./Reports.jsx";
 
 const Profile = () => {
   const { studentUser } = useAuth();
@@ -139,6 +140,7 @@ const Profile = () => {
       "edit-profile": "Edit Profile",
       followings: "Followings",
       reviews: "Reviews",
+      reports: "Reports",
     };
 
     const currentPath = location.pathname;
@@ -192,6 +194,10 @@ const Profile = () => {
             <Route path="my-for-sale" element={<MyForSale />} />
             <Route path="followings" element={<MyFollowings />} />
             <Route path="reviews" element={<Reviews />} />
+            <Route
+              path="transaction-reports"
+              element={<MyTransactionReports />}
+            />
             <Route path="/" element={<Navigate to="my-listings" />} />
           </Routes>
         </div>

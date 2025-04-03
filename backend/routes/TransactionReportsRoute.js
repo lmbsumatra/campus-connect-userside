@@ -26,17 +26,22 @@ module.exports = (dependencies) => {
 
   // GET Single Report (Admin)
   router.get(
-    "/admin/:reportId", // Specific admin path
-    authenticateAdminToken, // Use only Admin Auth
-    controller.getTransactionReportById // Controller checks req.adminUser
+    "/admin/:reportId",
+    authenticateAdminToken,
+    controller.getTransactionReportById
   );
   // GET Single Report (Student)
   router.get(
-    "/student/:reportId", // Specific student path
-    authenticateStudentToken, // Use only Student Auth
-    controller.getTransactionReportById // Controller checks req.user involvement
+    "/student/:reportId",
+    authenticateStudentToken,
+    controller.getTransactionReportById
   );
 
+  router.get(
+    "/user/:userId",
+    authenticateStudentToken,
+    controller.getTransactionReportsByUser
+  );
   // POST Create Report (Student Action)
   router.post(
     "/",
@@ -56,7 +61,7 @@ module.exports = (dependencies) => {
   // PUT Mark as Resolved (Student - Reporter Only)
   router.put(
     "/:reportId/resolve",
-    authenticateStudentToken, // Student action
+    authenticateStudentToken,
     controller.markReportResolved
   );
 
@@ -68,7 +73,7 @@ module.exports = (dependencies) => {
   );
   // PUT Admin Action ---
   router.put(
-    "/:reportId/admin-action", // Specific endpoint for admin updates
+    "/:reportId/admin-action",
     authenticateAdminToken,
     controller.updateEscalatedReportStatusByAdmin
   );

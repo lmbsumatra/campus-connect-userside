@@ -40,6 +40,7 @@ import postByIdReducer from "../redux/post/postByIdSlice.js";
 import adminListingByIdReducer from "../redux/listing/adminListingByIdSlice.js";
 import adminPostByIdReducer from "../redux/post/adminPostByIdSlice.js";
 import adminItemForSaleByIdReducer from "../redux/item-for-sale/adminItemForSaleByIdSlice.js";
+import transactionReportsByUserReducer from "../redux/reports/TransactionReportsByUserSlice.js";
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -76,6 +77,7 @@ const appReducer = combineReducers({
   allPostsByUser: allPostsByUserReducer,
   postMatchedItems: postMatchedItemsReducer,
   rentalReports: rentalReportsReducer,
+  transactionReportsByUser: transactionReportsByUserReducer,
   systemConfig: systemConfigReducer,
   followings: followingsReducer,
   postById: postByIdReducer,

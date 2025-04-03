@@ -223,8 +223,10 @@
 }
 
 .action-text {
-    font-size: 0.9em;
+    font-size: 0.8em;
     opacity: 0.8;
+    color:#007bff;
+    font-style: italic;
 }
 
 /* @keyframes pulse {

@@ -752,10 +752,10 @@ module.exports = ({ emitNotification }) => {
 
       if (isOwner) {
         recipientId = rental.renter_id;
-        message = `${ownerName} has confirmed receiving ${itemName}. Please confirm complete transaction.`;
+        message = `${ownerName} has confirmed receiving ${itemName}. Confirm complete transaction.`;
       } else if (isRenter) {
         recipientId = rental.owner_id;
-        message = `${renterName} has confirmed return of ${itemName}. Please confirm receipt and complete transaction.`;
+        message = `${renterName} has confirmed return of ${itemName}. Confirm receipt and complete transaction.`;
       }
 
       // console.log("Notification recipient:", recipientId, "Message:", message);

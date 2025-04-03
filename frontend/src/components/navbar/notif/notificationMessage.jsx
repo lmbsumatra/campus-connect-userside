@@ -15,9 +15,8 @@ const NotificationMessage = ({ message, type }) => {
               <br />
               <span className="default-text">
                 has <span className="success-text">accepted</span> your rental
-                request for
+                request for {""}
               </span>
-              <br />
               <span className="item-name">{item}</span>
             </>
           );
@@ -89,7 +88,7 @@ const NotificationMessage = ({ message, type }) => {
                 action.trim() && ( // Check if action exists and isn't just whitespace
                   <>
                     <br />
-                    <span className="action-text">{action.trim()}</span>
+                    <span className="item-name">{action.trim()}</span>
                   </>
                 )}
             </>
@@ -106,7 +105,7 @@ const NotificationMessage = ({ message, type }) => {
       }
       case "return_confirmed": {
         const match = message.match(
-          /(.*?)\shas confirmed (?:receiving|return of)\s(.*?)\.?\s?(.*)/ // Made period optional
+          /(.*?)\shas confirmed (?:receiving|return of)\s(.*?)(?:\.|\s|$)(.*)/
         );
         if (match) {
           const [, sender, item, action] = match;
@@ -115,27 +114,27 @@ const NotificationMessage = ({ message, type }) => {
               <span className="font-large">{sender}</span>
               <br />
               <span className="default-text">
-                has <span className="success-text">confirmed</span> return of
+                has <span className="success-text">confirmed</span> return of{" "}
+                {""}
               </span>
-              <span className="item-name">{item}</span>
-              {action &&
-                action.trim() && ( // Check if action exists
-                  <>
-                    <br />
-                    <span className="action-text">{action.trim()}</span>
-                  </>
-                )}
+              <span className="item-name">{item.trim()}</span>
+              {action && action.trim() && (
+                <>
+                  <br />
+                  <span className="action-text date-text">{action.trim()}</span>
+                </>
+              )}
             </>
           );
         }
-        // Fallback for return confirmation
-        return (
-          <>
-            <span className="highlight-text">{message}</span>
-            <br />
-            <span className="action-text">Tap to confirm.</span>
-          </>
-        );
+        // // Fallback for return confirmation
+        // return (
+        //   <>
+        //     <span className="highlight-text">{message}</span>
+        //     <br />
+        //     <span className="action-text">Tap to confirm.</span>
+        //   </>
+        // );
       }
       case "rental_completed": {
         const match = message.match(
@@ -419,9 +418,11 @@ const NotificationMessage = ({ message, type }) => {
       case "admin_report_update": {
         return (
           <>
-            <span className="font-large">Report Notification</span>
+            <span className="font-large error-text">Report Notification</span>
             <br />
             <span className="default-text">{message}</span>
+            <br />
+            <span className="action-text">View details</span>
           </>
         );
       }

@@ -69,6 +69,18 @@ const ProfileSidebar = () => {
             Reviews
           </NavLink>
         </li>
+        <li>
+          <NavLink
+            to="transaction-reports"
+            className={({ isActive }) =>
+              isActive || isActiveLink("/profile/transaction-reports")
+                ? "active"
+                : ""
+            }
+          >
+            Reports
+          </NavLink>
+        </li>
       </ul>
     </div>
   );
