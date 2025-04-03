@@ -222,7 +222,7 @@ const matchedItems = async (req, res) => {
 
     const fuse = new Fuse(formattedItems, {
       keys: ["name"],
-      threshold: 0.3,
+      threshold: 0.5,
     });
 
     // console.log("here", typeof formattedPost.name, formattedPost.name);
