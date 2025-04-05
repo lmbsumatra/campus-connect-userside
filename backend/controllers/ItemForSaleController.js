@@ -152,16 +152,6 @@ const { models } = require("../models/index");
 exports.getAllItemForSale = async (req, res) => {
   try {
     const items = await models.ItemForSale.findAll({
-      attributes: [
-        "id",
-        "item_for_sale_name",
-        "tags",
-        "price",
-        "seller_id",
-        "created_at",
-        "status",
-        "category",
-      ],
       include: [
         {
           model: models.Date,
@@ -193,7 +183,6 @@ exports.getAllItemForSale = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // exports.createItemForSale = async (req, res) => {
 //   const transaction = await sequelize.transaction();
@@ -308,7 +297,6 @@ exports.getAllItemForSale = async (req, res) => {
 //     });
 //   }
 // };
-
 
 // Get a single post by ID with associated rental dates, durations, and renter info
 exports.getItemForSaleById = async (req, res) => {

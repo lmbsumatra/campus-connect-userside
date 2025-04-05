@@ -278,7 +278,7 @@ const PostDashboard = () => {
         </div>
 
         {/* Right Side: Widgets */}
-        <div className="col-lg-4">
+        <div className="col-lg-4 analytics-section">
           {/* Analytics Widgets */}
           <PostsByCategory posts={posts} />
           <PostsGrowth posts={posts} />

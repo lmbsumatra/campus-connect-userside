@@ -13,6 +13,12 @@ exports.createReport = async (req, res) => {
       return res.status(400).json({ error: "All fields are required." });
     }
 
+    if (reason.length > 100) {
+      return res
+        .status(400)
+        .json({ error: "Reason should not exceed 100 characters." });
+    }
+
     // Check if the user has already reported this item
     const existingReport = await Report.findOne({
       where: {

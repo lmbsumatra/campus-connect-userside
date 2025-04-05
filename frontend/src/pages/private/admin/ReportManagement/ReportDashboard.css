@@ -3,6 +3,11 @@
   border-radius: 8px; /* Rounded corners */
 }
 
+.analytics-section {
+  height: 1000px;
+  overflow-y: auto;
+}
+
 /* Thumbnail Placeholder */
 .thumbnail-placeholder {
   width: 50px;
@@ -37,16 +42,23 @@
 }
 
 .status-under-review {
-  background-color: #2196F3;
+  background-color: #2196f3;
   color: #fff;
 }
 
 .status-resolved {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: #fff;
 }
 
 .status-escalated {
   background-color: #f44336;
   color: #fff;
+}
+
+@media (max-width: 992px) {
+  .analytics-section {
+    height: auto;
+    overflow-y: visible;
+  }
 }

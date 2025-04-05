@@ -95,10 +95,14 @@ const ReportModal = ({ show, handleClose, handleSubmit, entityType }) => {
             <Form.Control
               as="textarea"
               rows={3}
+              maxLength={100}
               value={customReason}
               onChange={(e) => setCustomReason(e.target.value)}
-              placeholder="Enter the reason for reporting."
+              placeholder="Enter the reason for reporting (max 100 characters)."
             />
+            <small className="text-muted">
+              {customReason.length}/100 characters
+            </small>
           </Form.Group>
         )}
       </Modal.Body>

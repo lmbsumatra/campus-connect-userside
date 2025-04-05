@@ -282,7 +282,7 @@ const ReportDashboard = () => {
             />
           </div>
         </div>
-        <div className="col-lg-4">
+        <div className="col-lg-4  analytics-section">
           <ReportTrends reports={reports} />
           <ReportsByCategory reports={reports} />
           <ReportStatusTrend reports={reports} />

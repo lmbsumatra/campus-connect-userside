@@ -209,7 +209,7 @@ const AdminTransactionDashboard = () => {
             />
           </div>
         </div>
-        <div className="col-lg-4">
+        <div className="col-lg-4 analytics-section">
           <TransactionStatusDistribution transactions={transactions} />
           <TransactionsGrowth transactions={transactions} />
           <PaymentModeDistribution transactions={transactions} />

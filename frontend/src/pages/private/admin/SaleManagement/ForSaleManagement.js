@@ -177,10 +177,40 @@ const ForSaleManagement = () => {
     currentPage * itemsPerPage
   );
 
+  const getThumbnail = (item) => {
+    let imagesArray = [];
+
+    if (typeof item.images === "string") {
+      try {
+        imagesArray = JSON.parse(item.images);
+      } catch (error) {
+        console.error("Error parsing images:", error);
+      }
+    } else if (Array.isArray(item.images)) {
+      imagesArray = item.images;
+    }
+
+    const imageUrl =
+      imagesArray.length > 0 && typeof imagesArray[0] === "string"
+        ? imagesArray[0].trim()
+        : "https://via.placeholder.com/100";
+
+    return (
+      <img
+        src={imageUrl}
+        alt={item.item_for_sale_name}
+        className="items-thumbnail"
+        // onError={(e) => {
+        //   console.error("❌ Image failed to load:", e.target.src);
+        //   e.target.src = "https://via.placeholder.com/100";
+        // }}
+      />
+    );
+  };
   const data = displayedData.map((item) => {
     const { label, className } = getStatusInfo(item.status);
     return [
-      <div className="thumbnail-placeholder"></div>,
+      getThumbnail(item),
       item.item_for_sale_name,
       item.category,
       <>
@@ -223,7 +253,7 @@ const ForSaleManagement = () => {
             />
           </div>
         </div>
-        <div className="col-lg-4">
+        <div className="col-lg-4 analytics-section">
           {/* Analytics Widgets */}
           <ItemsByCategory items={items} />
           <ListingGrowth items={items} />

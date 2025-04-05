@@ -448,7 +448,7 @@ export const PaymentModeDistribution = ({ transactions }) => {
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 table-responsive">
         <h6>Payment Summary</h6>
         <table className="table table-bordered text-center">
           <thead>
@@ -519,7 +519,7 @@ export const TransactionFunnelAnalysis = ({ transactions }) => {
       <h5 className="mb-3 text-center">Transaction Funnel Analysis</h5>
 
       {/* Chart at the top */}
-      <div className="mb-4">
+      <div className="mb-4" style={{ height: "250px" }}>
         <Bar
           data={{
             labels: funnelWithRates.map((step) => step.name),
@@ -533,6 +533,20 @@ export const TransactionFunnelAnalysis = ({ transactions }) => {
           }}
           options={{
             responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  drawBorder: false,
+                },
+              },
+              x: {
+                grid: {
+                  display: false,
+                },
+              },
+            },
             plugins: {
               tooltip: {
                 callbacks: {
