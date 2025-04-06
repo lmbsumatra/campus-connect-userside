@@ -28,8 +28,6 @@ const CheckoutModal = ({ show, onHide, items }) => {
     timeTo: selectedItem?.rentalTimeTo,
   });
 
-  console.log({ total, rate, hrs });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsProcessing(true);

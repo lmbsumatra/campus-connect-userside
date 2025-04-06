@@ -22,6 +22,9 @@ const getAllItemForSaleByUser = async (req, res) => {
           where: {
             item_type: "item_for_sale",
             status: "available",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
           },
           include: [
             {

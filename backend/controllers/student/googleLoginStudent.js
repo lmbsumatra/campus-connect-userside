@@ -21,7 +21,16 @@ const googleLogin = async (req, res) => {
   try {
     const payload = await verify(token);
     const email = payload.email;
-    const user = await models.User.findOne({ where: { email } });
+    const user = await models.User.findOne({
+      where: { email },
+      include: [
+        {
+          model: models.Student,
+          as: "student",
+          required: true,
+        },
+      ],
+    });
     if (!user) {
       return res.status(404).json({ message: "Invalid email or password." });
     }
@@ -31,6 +40,28 @@ const googleLogin = async (req, res) => {
       return res
         .status(403)
         .json({ message: "Unauthorized: User is not a student" });
+    }
+
+    // Update last login time
+    user.lastlogin = new Date();
+    await user.save();
+
+    if (
+      user.student &&
+      user.student.status === "restricted" &&
+      user.student.restricted_until
+    ) {
+      const now = new Date();
+      if (new Date(user.student.restricted_until) <= now) {
+        await user.student.update({
+          status: "verified",
+          status_message: `Restriction expired on ${now.toLocaleDateString()}. Account automatically reactivated on login.`,
+          restricted_until: null,
+        });
+
+        // Reload to get updated values
+        await user.student.reload();
+      }
     }
 
     const jwtToken = TokenGenerator.generateToken({
@@ -43,7 +74,8 @@ const googleLogin = async (req, res) => {
       token: jwtToken,
       role: user.role,
       userId: user.user_id,
-      // hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
+      studentStatus: user.student.status,
+      hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
     });
   } catch (error) {
     // console.error("Google login error:", error);

@@ -22,8 +22,8 @@ import PaginationComp from "../private/users/common/PaginationComp";
 const Rent = () => {
   const location = useLocation();
   // Pagination state
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(8);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
 
   const dispatch = useDispatch();
 
@@ -47,8 +47,8 @@ const Rent = () => {
 
   useEffect(() => {
     setFilteredItems(allApprovedListings);
-      // Reset to first page when items change
-      setCurrentPage(1);
+    // Reset to first page when items change
+    setCurrentPage(1);
   }, [allApprovedListings]);
 
   const handleFilterChange = (filters) => {
@@ -61,7 +61,9 @@ const Rent = () => {
   // Get current items for pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = (
+    Array.isArray(filteredItems) ? filteredItems : []
+  ).slice(indexOfFirstItem, indexOfLastItem);
 
   // Change page
   const handlePageChange = (pageNumber) => {
@@ -70,7 +72,8 @@ const Rent = () => {
     // window.scrollTo(0, 0);
   };
   // console.log(allApprovedListings, filters);
-  const showPagination = !loadingAllApprovedListings && filteredItems.length > itemsPerPage;
+  const showPagination =
+    !loadingAllApprovedListings && filteredItems.length > itemsPerPage;
 
   return (
     <>

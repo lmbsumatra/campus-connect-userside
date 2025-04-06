@@ -22,6 +22,9 @@ const getAvailableListingsByUser = async (req, res) => {
           required: true,
           where: {
             item_type: "post",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
           },
           include: [
             {

@@ -29,7 +29,13 @@ const getAllAvailable = async (req, res) => {
           model: models.Date,
           as: "available_dates",
           required: true,
-          where: { item_type: "item_for_sale", status: "available" },
+          where: {
+            item_type: "item_for_sale",
+            status: "available",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
+          },
           include: [
             {
               model: models.Duration,
@@ -102,10 +108,30 @@ const getAllAvailable = async (req, res) => {
           isFollowingBuyer = !!transaction;
         }
 
+        let specsArray = [];
+        try {
+          const specsRaw = item.specifications;
+
+          let specsObject = {};
+
+          if (typeof specsRaw === "object" && specsRaw !== null) {
+            specsObject = specsRaw;
+          } else if (typeof specsRaw === "string" && specsRaw.trim()) {
+            specsObject = JSON.parse(specsRaw);
+          }
+
+          specsArray = Object.values(specsObject);
+        } catch (e) {
+          console.warn("❗ Failed to parse specifications:", e);
+          specsArray = [];
+        }
+
         return {
           id: item.id,
           name: item.item_for_sale_name,
           tags,
+          specs: item.specifications,
+          specsArray,
           price: item.price,
           createdAt: item.created_at,
           status: item.status,
@@ -140,20 +166,43 @@ const getAllAvailable = async (req, res) => {
       })
     );
 
-    // Get query parameter for search
-    const { q } = req.query;
+    const { q, preference } = req.query;
 
+    let filteredItems = formattedItems;
+    if (preference) {
+      if (preference === "new_items_for_sale") {
+        filteredItems = [...formattedItems].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+      }
+    }
     if (q) {
+      const normalizedQuery = q.toLowerCase();
+
+      const queryKeywords = normalizedQuery.split(" ");
+
+      const refinedKeywords = queryKeywords.filter(
+        (keyword) => keyword.trim() !== ""
+      );
+
       const fuse = new Fuse(formattedItems, {
-        keys: ["name", "category", "tags"],
-        threshold: 0.3,
+        keys: ["name", "desc", "category", "tags", "specsArray"],
+        threshold: 0.4,
+        includeScore: true,
+        includeMatches: true,
+        ignoreLocation: true,
+        minMatchCharLength: 2,
       });
 
-      const results = fuse.search(q).map((result) => result.item);
+      const results = fuse
+        .search(refinedKeywords.join(" "))
+        .map((result) => result.item);
+      console.log({ results });
+
       return res.status(200).json(results.length ? results : []);
     }
 
-    res.status(200).json(formattedItems);
+    res.status(200).json(filteredItems);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

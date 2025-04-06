@@ -32,6 +32,7 @@ function SectionTitle({ title, viewAllLink }) {
   );
 }
 
+// Enhanced ContentSection with empty fallback
 function ContentSection({
   error,
   loading,
@@ -39,13 +40,14 @@ function ContentSection({
   children,
   title,
   viewAllLink,
+  empty,
 }) {
   return (
     <div className="container-content content-section">
       {title && <SectionTitle title={title} viewAllLink={viewAllLink} />}
       {error && <p className="error-message">Error: {error}</p>}
       <TimeoutComponent timeoutDuration={1000} fallback={fallback}>
-        {!loading && children}
+        {!loading && (empty || children)}
       </TimeoutComponent>
     </div>
   );
@@ -61,9 +63,9 @@ function Home() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchAllApprovedPosts());
-    dispatch(fetchAllApprovedListings());
-    dispatch(fetchAllApprovedItemForSale());
+    dispatch(fetchAllApprovedPosts("new_posts"));
+    dispatch(fetchAllApprovedListings({ preferece: "top_items_for_rent" }));
+    dispatch(fetchAllApprovedItemForSale({ preference: "new_items_for_sale" }));
   }, [dispatch]);
 
   const {
@@ -82,13 +84,19 @@ function Home() {
     ...state.allApprovedItemForSale,
   }));
 
+  console.log(
+    allApprovedPosts, 
+    // allApprovedListings, 
+    // allApprovedItemForSale
+  );
+
   return (
     <div className="">
       <TrialOnHeroSection />
       <Subheader />
 
       <ContentSection
-        title="Listings"
+        title="📚 Most In-Demand Rentals This Semester"
         viewAllLink={`${baseUrl}/rent`}
         error={errorAllApprovedListings}
         loading={loadingAllApprovedListings}
@@ -97,14 +105,29 @@ function Home() {
             {renderSkeleton(LoadingItemCardSkeleton, 6)}
           </div>
         }
+        empty={
+          !loadingAllApprovedListings &&
+          Array.isArray(allApprovedListings) &&
+          allApprovedListings.length === 0 && (
+            <p className="empty-message">
+              No listings available at the moment.
+            </p>
+          )
+        }
       >
         <div className="card-wrapper">
-          <ItemCard items={allApprovedListings.slice(0, 6)} />
+          <ItemCard
+            items={
+              Array.isArray(allApprovedListings)
+                ? allApprovedListings.slice(0, 4)
+                : []
+            }
+          />
         </div>
       </ContentSection>
 
       <ContentSection
-        title="For Sale"
+        title="💡 Freshly Listed: Must-Have Student Items"
         viewAllLink={`${baseUrl}/shop`}
         error={errorAllApprovedItemForSale}
         loading={loadingAllApprovedItemForSale}
@@ -113,9 +136,22 @@ function Home() {
             {renderSkeleton(LoadingItemCardSkeleton, 6)}
           </div>
         }
+        empty={
+          !loadingAllApprovedItemForSale &&
+          Array.isArray(allApprovedItemForSale) &&
+          allApprovedItemForSale.length === 0 && (
+            <p className="empty-message">No items for sale at the moment.</p>
+          )
+        }
       >
         <div className="card-wrapper">
-          <ItemCard items={allApprovedItemForSale.slice(0, 6)} />
+          <ItemCard
+            items={
+              Array.isArray(allApprovedItemForSale)
+                ? allApprovedItemForSale.slice(0, 4)
+                : []
+            }
+          />
         </div>
       </ContentSection>
 
@@ -126,7 +162,7 @@ function Home() {
       </React.Suspense>
 
       <ContentSection
-        title="Looking for..."
+        title="📝 Recently Requested Items"
         viewAllLink={`${baseUrl}/lookingfor`}
         error={errorAllApprovedPosts}
         loading={loadingAllApprovedPosts}
@@ -135,9 +171,22 @@ function Home() {
             {renderSkeleton(LoadingPostCardSkeleton, 4)}
           </div>
         }
+        empty={
+          !loadingAllApprovedPosts &&
+          Array.isArray(allApprovedPosts) &&
+          allApprovedPosts.length === 0 && (
+            <p className="empty-message">No posts found.</p>
+          )
+        }
       >
         <div className="card-wrapper">
-          <PostCard borrowingPosts={allApprovedPosts.slice(0, 4)} />
+          <PostCard
+            borrowingPosts={
+              Array.isArray(allApprovedPosts)
+                ? allApprovedPosts.slice(0, 4)
+                : []
+            }
+          />
         </div>
       </ContentSection>
     </div>

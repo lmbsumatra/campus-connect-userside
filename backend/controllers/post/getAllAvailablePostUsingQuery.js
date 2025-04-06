@@ -10,7 +10,13 @@ const getAllAvailablePostUsingQuery = async (req, res) => {
         {
           model: models.Date,
           as: "rental_dates",
-          where: { status: "available", item_type: "post" },
+          where: {
+            status: "available",
+            item_type: "post",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
+          },
           include: [
             {
               model: models.Duration,

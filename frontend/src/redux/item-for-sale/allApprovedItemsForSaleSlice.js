@@ -11,7 +11,7 @@ const initialState = {
 
 export const fetchAllApprovedItemForSale = createAsyncThunk(
   "item-for-sale/allApprovedItemForSale",
-  async (keyword = "", { getState }) => {
+  async ({ keyword = "", preference = "" }, { getState }) => {
     const state = getState();
 
     const { studentUser } = state.studentAuth || {};
@@ -20,6 +20,7 @@ export const fetchAllApprovedItemForSale = createAsyncThunk(
     const params = new URLSearchParams();
 
     if (keyword) params.append("q", keyword);
+    if (preference) params.append("preference", preference);
     if (studentUser && studentUser.userId)
       params.append("userId", studentUser.userId); // Customization
 

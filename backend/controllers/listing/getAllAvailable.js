@@ -60,6 +60,9 @@ const getAllAvailable = async (req, res) => {
           where: {
             item_type: "listing",
             status: "available",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
           },
           include: [
             {
@@ -101,6 +104,23 @@ const getAllAvailable = async (req, res) => {
       order: [[sequelize.literal("no_of_rentals"), "DESC"]],
     });
 
+    const topRentedItemData = await models.RentalTransaction.findAll({
+      attributes: [
+        "item_id",
+        [sequelize.fn("COUNT", sequelize.col("item_id")), "rentCount"],
+      ],
+      where: {
+        transaction_type: "rental",
+        status: "Completed",
+      },
+      group: ["item_id"],
+      order: [[sequelize.fn("COUNT", sequelize.col("item_id")), "DESC"]],
+      limit: 10,
+      raw: true,
+    });
+
+    const topRentedItemIds = topRentedItemData.map((entry) => entry.item_id);
+
     const formattedItems = await Promise.all(
       items.map(async (item) => {
         const reviews = item.reviews || [];
@@ -130,15 +150,26 @@ const getAllAvailable = async (req, res) => {
           isFollowingBuyer = !!transaction;
         }
 
+        const specsString =
+          typeof item.specifications === "object"
+            ? JSON.stringify(item.specifications)
+            : item.specifications;
+        const specsObject = JSON.parse(specsString);
+        const specsArray = Object.values(specsObject);
+
         return {
           id: item.id,
+          isTopForRent: topRentedItemIds.includes(item.id),
           name: item.listing_name,
           tags: JSON.parse(item.tags),
+          specs: item.specifications,
+          specsArray,
           price: item.rate,
           createdAt: item.created_at,
           status: item.status,
           category: item.category,
           itemType: "For Rent",
+          desc: item.description,
           images: JSON.parse(item.images),
           deliveryMethod: item.delivery_mode,
           paymentMethod: item.payment_mode,
@@ -187,20 +218,42 @@ const getAllAvailable = async (req, res) => {
       });
     }
 
-    const { q } = req.query;
+    const { q, preference } = req.query;
+
+    let filteredItems = formattedItems;
+    if (preference) {
+      if (preference === "top_items_for_rent") {
+        filteredItems = formattedItems.filter((item) => item.isTopForRent);
+      }
+    }
 
     if (q) {
+      const normalizedQuery = q.toLowerCase();
+
+      const queryKeywords = normalizedQuery.split(" ");
+
+      const refinedKeywords = queryKeywords.filter(
+        (keyword) => keyword.trim() !== ""
+      );
+
       const fuse = new Fuse(formattedItems, {
-        keys: ["name", "desc", "category", "tags"],
-        threshold: 0.3,
+        keys: ["name", "desc", "category", "tags", "specsArray"],
+        threshold: 0.4,
+        includeScore: true,
+        includeMatches: true,
+        ignoreLocation: true,
+        minMatchCharLength: 2,
       });
 
-      const results = fuse.search(q).map((result) => result.item);
+      const results = fuse
+        .search(refinedKeywords.join(" "))
+        .map((result) => result.item);
+      console.log({ results });
 
       return res.status(200).json(results.length ? results : []);
     }
 
-    res.status(200).json(formattedItems);
+    res.status(200).json(filteredItems);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

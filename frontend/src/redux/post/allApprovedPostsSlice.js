@@ -10,11 +10,19 @@ const initialState = {
 
 export const fetchAllApprovedPosts = createAsyncThunk(
   "post/allApprovedPosts",
-  async (keyword = "") => {
-    const url = keyword
-      ? `${BASE_URL}?q=${encodeURIComponent(keyword)}`
-      : BASE_URL;
+  async ({ keyword = "", preference = "" }) => {
+    const params = new URLSearchParams();
+
+    if (keyword) params.append("q", keyword);
+    if (preference) params.append("preference", preference);
+
+    const url = `${BASE_URL}?${params.toString()}`;
     const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch approved posts");
+    }
+
     return response.json();
   }
 );

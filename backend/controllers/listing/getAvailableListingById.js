@@ -18,6 +18,9 @@ const getAvailableListingById = async (req, res) => {
           where: {
             status: "available", // Ensures only "available" rental dates are included
           },
+          date: {
+            [Op.gte]: new Date(), // today's date and future
+          },
           required: true,
           include: [
             {

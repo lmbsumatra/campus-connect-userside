@@ -14,7 +14,16 @@ const loginStudent = async (req, res) => {
 
   try {
     // Find user
-    const user = await models.User.findOne({ where: { email } });
+    const user = await models.User.findOne({
+      where: { email },
+      include: [
+        {
+          model: models.Student,
+          as: "student",
+          required: true,
+        },
+      ],
+    });
     // console.log(user);
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -32,7 +41,7 @@ const loginStudent = async (req, res) => {
     try {
       isMatch = await bcrypt.compare(password, user.password);
     } catch (error) {
-      // console.error("Error comparing passwords:", error);
+      console.error("Error comparing passwords:", error);
       return res.status(500).json({
         message: "Error verifying credentials",
         error: "Password comparison failed",
@@ -85,8 +94,8 @@ const loginStudent = async (req, res) => {
       token,
       role: user.role,
       userId: user.user_id,
-      studentStatus: student.status,
-      // hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
+      studentStatus: user.student.status,
+      hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
     });
   } catch (error) {
     // console.error("Login error:", error);

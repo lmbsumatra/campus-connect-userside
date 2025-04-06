@@ -8,13 +8,13 @@ import ItemCard from "../../components/item-card/ItemCard";
 import PostCard from "../../components/post-card/PostCard";
 import UserCard from "../../components/user-card/UserCard";
 import { fetchAllUsers } from "../../redux/user/allUsersSlice";
-import { Link } from "react-router-dom"; // For "View All" link
+import { Link } from "react-router-dom";
 import LoadingItemCardSkeleton from "../../components/loading-skeleton/loading-item-card-skeleton/LoadingItemCardSkeleton";
 import LoadingPostCardSkeleton from "../../components/loading-skeleton/loading-post-card-skeleton/LoadingPostCardSkeleton";
 import TimeoutComponent from "../../utils/TimeoutComponent";
-import "./homeStyles.css"; // Assuming CSS is added for any styling
+import "./homeStyles.css";
 
-// Centralized function for skeleton rendering
+// Skeleton loader component
 const SkeletonLoader = ({ type, count }) => {
   const SkeletonComponent =
     type === "item" ? LoadingItemCardSkeleton : LoadingPostCardSkeleton;
@@ -27,7 +27,7 @@ const SkeletonLoader = ({ type, count }) => {
   );
 };
 
-// Section Title component with View All link
+// Section Title
 function SectionTitle({ title, viewAllLink }) {
   return (
     <div className="section-header">
@@ -41,13 +41,20 @@ function SectionTitle({ title, viewAllLink }) {
   );
 }
 
+// Empty state message
+const EmptyState = ({ message }) => (
+  <div className="empty-state">
+    <p>{message}</p>
+  </div>
+);
+
 const SearchResults = () => {
   const { search } = useLocation();
   const dispatch = useDispatch();
   const searchParams = new URLSearchParams(search);
 
-  const keyword = searchParams.get("q")?.trim() || "N/A"; // Default to "N/A" if no keyword
-  const type = searchParams.get("type") || "all"; // Default to "all" if type is missing
+  const keyword = searchParams.get("q")?.trim() || "N/A";
+  const type = searchParams.get("type") || "all";
 
   useEffect(() => {
     dispatch(fetchAllApprovedPosts(keyword));
@@ -90,20 +97,28 @@ const SearchResults = () => {
           timeoutDuration={1000}
           fallback={<SkeletonLoader type="item" count={6} />}
         >
-          {!loadingAllUsers && <UserCard users={allUsers} />}
+          {!loadingAllUsers &&
+            (allUsers.length > 0 ? (
+              <UserCard users={allUsers} />
+            ) : (
+              <EmptyState message="No users found." />
+            ))}
         </TimeoutComponent>
       </div>
 
       {/* Listings Section */}
-      <div className="content-section  py-3">
+      <div className="content-section py-3">
         <SectionTitle title="Listings" viewAllLink={`/rent?q=${keyword}`} />
         <TimeoutComponent
           timeoutDuration={1000}
           fallback={<SkeletonLoader type="item" count={6} />}
         >
-          {!loadingAllApprovedListings && (
-            <ItemCard items={allApprovedListings.slice(0, 6)} />
-          )}
+          {!loadingAllApprovedListings &&
+            (allApprovedListings.length > 0 ? (
+              <ItemCard items={allApprovedListings.slice(0, 6)} />
+            ) : (
+              <EmptyState message="No listings found." />
+            ))}
         </TimeoutComponent>
       </div>
 
@@ -114,22 +129,28 @@ const SearchResults = () => {
           timeoutDuration={1000}
           fallback={<SkeletonLoader type="item" count={6} />}
         >
-          {!loadingAllApprovedItemForSale && (
-            <ItemCard items={allApprovedItemForSale.slice(0, 6)} />
-          )}
+          {!loadingAllApprovedItemForSale &&
+            (allApprovedItemForSale.length > 0 ? (
+              <ItemCard items={allApprovedItemForSale.slice(0, 6)} />
+            ) : (
+              <EmptyState message="No items for sale found." />
+            ))}
         </TimeoutComponent>
       </div>
 
       {/* Posts Section */}
-      <div className="content-section  py-3">
+      <div className="content-section py-3">
         <SectionTitle title="Lend" viewAllLink={`/lookingfor?q=${keyword}`} />
         <TimeoutComponent
           timeoutDuration={1000}
           fallback={<SkeletonLoader type="post" count={4} />}
         >
-          {!loadingAllApprovedPosts && (
-            <PostCard borrowingPosts={allApprovedPosts.slice(0, 4)} />
-          )}
+          {!loadingAllApprovedPosts &&
+            (allApprovedPosts.length > 0 ? (
+              <PostCard borrowingPosts={allApprovedPosts.slice(0, 4)} />
+            ) : (
+              <EmptyState message="No posts found." />
+            ))}
         </TimeoutComponent>
       </div>
     </div>

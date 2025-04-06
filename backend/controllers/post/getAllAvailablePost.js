@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { models } = require("../../models/index");
 const Fuse = require("fuse.js");
 
@@ -15,6 +16,9 @@ const getAllAvailablePost = async (req, res) => {
           where: {
             status: "available", // Ensures only "available" rental dates are included
             item_type: "post",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
           },
           required: true,
           include: [
@@ -52,50 +56,87 @@ const getAllAvailablePost = async (req, res) => {
     //   return res.status(404).json({ error: "No approved posts found" });
     // }
 
-    const formattedPosts = posts.map((post) => ({
-      id: post.id,
-      name: post.post_item_name,
-      tags: post.tags ? JSON.parse(post.tags) : [], // Safely parse or use default
-      createdAt: post.created_at,
-      status: post.status,
-      category: post.category,
-      itemType: post.post_type,
-      desc: post.description,
-      specs: post.specifications,
-      images: JSON.parse(post.images), // Safely parse or use default
-      rentalDates: post.rental_dates.map((date) => ({
-        id: date.id,
-        postId: date.post_id,
-        date: date.date,
-        status: date.status,
-        durations: date.durations.map((duration) => ({
-          id: duration.id,
-          dateId: duration.date_id,
-          timeFrom: duration.rental_time_from,
-          timeTo: duration.rental_time_to,
-          status: duration.status,
-        })),
-      })),
-      renter: {
-        id: post.renter?.user_id || null,
-        fname: post.renter?.first_name || "",
-        lname: post.renter?.last_name || "",
-        college: post.renter?.student?.college || "",
-      },
-      college: post.renter.student ? post.renter.student.college : null,
-    }));
+    const formattedPosts = posts.map((post) => {
+      const specsString =
+        typeof post.specifications === "object"
+          ? JSON.stringify(post.specifications)
+          : post.specifications;
 
-    // Get query parameter
-    const { q } = req.query;
+      let specsArray = [];
+
+      try {
+        const parsedSpecs = JSON.parse(specsString);
+        specsArray = Object.values(parsedSpecs).map((val) => String(val));
+      } catch (err) {
+        specsArray = [];
+      }
+
+      return {
+        id: post.id,
+        name: post.post_item_name,
+        tags: post.tags ? JSON.parse(post.tags) : [],
+        specs: post.specifications,
+        specsArray,
+        createdAt: post.created_at,
+        status: post.status,
+        category: post.category,
+        itemType: post.post_type,
+        desc: post.description,
+        images: JSON.parse(post.images),
+        rentalDates: post.rental_dates.map((date) => ({
+          id: date.id,
+          postId: date.post_id,
+          date: date.date,
+          status: date.status,
+          durations: date.durations.map((duration) => ({
+            id: duration.id,
+            dateId: duration.date_id,
+            timeFrom: duration.rental_time_from,
+            timeTo: duration.rental_time_to,
+            status: duration.status,
+          })),
+        })),
+        renter: {
+          id: post.renter?.user_id || null,
+          fname: post.renter?.first_name || "",
+          lname: post.renter?.last_name || "",
+          college: post.renter?.student?.college || "",
+        },
+        college: post.renter?.student?.college || null,
+      };
+    });
+
+    const { q, preference } = req.query;
 
     if (q) {
-      // Apply Fuse.js fuzzy search
+      let filteredPosts = [...formattedPosts];
+      const normalizedQuery = q.toLowerCase();
+
+      const queryKeywords = normalizedQuery.split(" ");
+
+      const refinedKeywords = queryKeywords.filter(
+        (keyword) => keyword.trim() !== ""
+      );
+
+      if (preference === "new_posts") {
+        filteredPosts.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+      }
+
       const fuse = new Fuse(formattedPosts, {
-        keys: ["name", "desc", "category", "tags"], // Search in these fields
-        threshold: 0.3, // Adjust for fuzziness (0 = strict, 1 = loose)
+        keys: ["name", "desc", "category", "tags", "specsArray"],
+        threshold: 0.4,
+        includeScore: true,
+        includeMatches: true,
+        ignoreLocation: true,
+        minMatchCharLength: 2,
       });
 
-      const results = fuse.search(q).map((result) => result.item);
+      const results = fuse
+        .search(refinedKeywords.join(" "))
+        .map((result) => result.item);
+      console.log({ results });
 
       return res.status(200).json(results.length ? results : []);
     }

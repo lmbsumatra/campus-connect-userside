@@ -19,10 +19,14 @@ const getAvailableListingsByUser = async (req, res) => {
         {
           model: models.Date,
           as: "rental_dates",
+
           required: true,
           where: {
             item_type: "listing",
             status: "available",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
           },
           include: [
             {

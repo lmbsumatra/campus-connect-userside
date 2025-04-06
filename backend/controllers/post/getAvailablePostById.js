@@ -17,6 +17,9 @@ const getAvailablePostById = async (req, res) => {
           where: {
             status: "available", // Ensures only "available" rental dates are included
             item_type: "post",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
           },
           required: true,
           include: [
