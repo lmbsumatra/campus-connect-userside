@@ -41,6 +41,7 @@ import adminListingByIdReducer from "../redux/listing/adminListingByIdSlice.js";
 import adminPostByIdReducer from "../redux/post/adminPostByIdSlice.js";
 import adminItemForSaleByIdReducer from "../redux/item-for-sale/adminItemForSaleByIdSlice.js";
 import transactionReportsByUserReducer from "../redux/reports/TransactionReportsByUserSlice.js";
+import organizationsReducer from "../redux/orgs/organizationsSlice.js";
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -84,6 +85,8 @@ const appReducer = combineReducers({
   adminListingById: adminListingByIdReducer,
   adminItemForSaleById: adminItemForSaleByIdReducer,
   adminPostById: adminPostByIdReducer,
+
+  organizations: organizationsReducer,
 });
 
 // Root reducer with reset functionality

@@ -16,6 +16,7 @@ import ListingDashboard from "../pages/private/admin/listing-management/ListingD
 import ListingOverview from "../pages/private/admin/listing-management/ListingOverview";
 import ListingApproval from "../pages/private/admin/listing-management/ListingApproval";
 import ItemForSaleApproval from "../pages/private/admin/SaleManagement/ItemSaleApproval";
+import OrgsManagement from "../pages/private/admin/SaleManagement/OrgsManagement";
 import ProtectedRoute from "../components/Protected Route/ProtectedRoute";
 import AdminSettings from "../pages/private/admin/settings/AdminSettings";
 import ViewTransaction from "../pages/private/admin/TransactionManagement/ViewTransaction";
@@ -75,6 +76,7 @@ const AdminRoutes = [
     <Route path="sales" element={<ForSaleManagement />} />
     <Route path="sales/sales-overview" element={<SaleOverview />} />
     <Route path="sales/item-approval/:id" element={<ItemForSaleApproval />} />
+    <Route path="sales/orgs-management" element={<OrgsManagement />} />
 
     {/* REPORT MANAGEMENT */}
     <Route path="reports" element={<Outlet />}>
