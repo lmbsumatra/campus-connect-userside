@@ -191,6 +191,32 @@ export const AuthProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [adminUser, logoutAdmin, refreshAdminToken]); // ✅ Now properly includes dependencies
 
+  useEffect(() => {
+    let timeout;
+
+    let activityDebounce;
+    const resetTimeout = () => {
+      clearTimeout(activityDebounce);
+      activityDebounce = setTimeout(() => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          console.warn("Session expired due to inactivity");
+          console.log("You have been logged out due to inactivity");
+          logoutAdmin(true);
+        }, 15 * 60 * 1000); // 15 mins
+      }, 200); // 200ms debounce
+    };
+    const events = ["mousemove", "keydown", "scroll", "click"];
+    events.forEach((e) => window.addEventListener(e, resetTimeout));
+
+    resetTimeout(); // Start the timer
+
+    return () => {
+      clearTimeout(timeout);
+      events.forEach((e) => window.removeEventListener(e, resetTimeout));
+    };
+  }, [logoutAdmin]);
+
   return (
     <AuthContext.Provider
       value={{

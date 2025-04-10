@@ -124,7 +124,7 @@
 
 .activities-table th,
 .activities-table td {
-  padding: 8px 16px;
+  padding: 8px 5px;
   text-align: left;
   max-width: 300px;
   word-break: break-all;
@@ -143,11 +143,31 @@
   background-color: #f9f9f9;
 }
 
-.activity-icon {
+/* .activity-icon {
   width: 24px;
   height: 24px;
   margin-right: 8px;
   vertical-align: middle;
+} */
+
+.activities-table th:first-child,
+.activities-table td:first-child {
+  width: 120px; /* Narrower width for ACTIVITY column */
+}
+
+.activities-table th:nth-child(2),
+.activities-table td:nth-child(2) {
+  width: 45%; /* Make DESCRIPTION take more space */
+}
+
+.activities-table th:nth-child(3),
+.activities-table td:nth-child(3) {
+  width: 120px; /* Fixed width for DATE */
+}
+
+.activities-table th:last-child,
+.activities-table td:last-child {
+  width: 120px; /* Fixed width for ACTION */
 }
 
 /* Button Styles */
@@ -407,11 +427,6 @@
 
 /* Additional responsive adjustments */
 @media (max-width: 576px) {
-  .leaderboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .time-interval-selector {
     width: 100%;
   }
@@ -543,6 +558,10 @@
 @media (min-width: 768px) {
   .leaderboard-container {
     flex-direction: row;
+  }
+  .leaderboard-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

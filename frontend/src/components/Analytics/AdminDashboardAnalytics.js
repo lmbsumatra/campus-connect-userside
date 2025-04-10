@@ -441,7 +441,6 @@ export const TopTransactionUsers = ({ transactions, users }) => {
               className={`leaderboard-item ${rankClass}`}
               title={item.name} // This adds a tooltip on hover
             >
-              {index < 3 && <Crown className="crown-icon" />}
               <div className="leaderboard-content">
                 <div className="leaderboard-rank">{index + 1}</div>
                 <div className="leaderboard-name">{item.name}</div>

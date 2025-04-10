@@ -83,7 +83,7 @@
 
 /* Cell styling */
 .data-cell {
-  padding: 15px;
+  padding: 12px 15px 8px;
   vertical-align: middle;
   border: none !important;
   font-size: 0.95rem;
@@ -93,6 +93,23 @@
 .cell-content {
   display: flex;
   align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  position: relative;
+  cursor: default;
+}
+
+.cell-content:hover {
+  white-space: normal;
+  overflow: visible;
+  z-index: 1;
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5%;
+  cursor: default;
 }
 
 /* Status badges */

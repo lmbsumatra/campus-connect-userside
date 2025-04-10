@@ -200,40 +200,80 @@ const AdminDashboard = () => {
                 <tr key={index}>
                   <td>
                     {activity.type === "New User" && (
-                      <User size={20} color="#3498db" />
+                      <User
+                        size={20}
+                        color="#3498db"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
                     {activity.type === "User Update" && (
-                      <UserCog size={20} color="#3498db" />
+                      <UserCog
+                        size={20}
+                        color="#3498db"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
 
                     {activity.type === "New Listing" && (
-                      <FilePlus size={20} color="#f39c12" />
+                      <FilePlus
+                        size={20}
+                        color="#f39c12"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
                     {activity.type === "Listing Update" && (
-                      <FilePlus2 size={20} color="#f39c12" />
+                      <FilePlus2
+                        size={20}
+                        color="#f39c12"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
 
                     {(activity.type === "New Rental Transaction" ||
                       activity.type === "New Sale Transaction") && (
-                      <Handshake size={20} color="#27ae60" />
+                      <Handshake
+                        size={20}
+                        color="#27ae60"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
 
                     {activity.type === "New Post" && (
-                      <FileText size={20} color="#e74c3c" />
+                      <FileText
+                        size={20}
+                        color="#e74c3c"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
                     {activity.type === "Post Update" && (
-                      <FileCog size={20} color="#e74c3c" />
+                      <FileCog
+                        size={20}
+                        color="#e74c3c"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
 
                     {activity.type === "New Sale" && (
-                      <ShoppingCart size={20} color="#8e44ad" />
+                      <ShoppingCart
+                        size={20}
+                        color="#8e44ad"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
                     {activity.type === "Sale Update" && (
-                      <RefreshCcw size={20} color="#8e44ad" />
+                      <RefreshCcw
+                        size={20}
+                        color="#8e44ad"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
 
                     {activity.type === "New Report" && (
-                      <Flag size={20} color="#c0392b" />
+                      <Flag
+                        size={20}
+                        color="#c0392b"
+                        style={{ marginRight: "8px" }}
+                      />
                     )}
                     {activity.type}
                   </td>
