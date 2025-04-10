@@ -236,29 +236,20 @@ const OrgsManagement = () => {
     });
   };
 
-  const handleSetRep = (org_id, user_id) => {
-    console.log({ org_id });
-    dispatch(setOrgRepresentative({ orgId: org_id, rep_id: user_id })).then(
-      () => {
-        const rep = getUserById(user_id);
-        const orgName =
-          organizations.find((org) => (org.orgId || org.org_id) === org_id)
-            ?.name || "Organization";
+  const handleSetRep = async (org_id, user_id) => {
+    await dispatch(setOrgRepresentative({ orgId: org_id, rep_id: user_id }));
+    const rep = getUserById(user_id);
+    const orgName =
+      organizations.find((org) => org.orgId === org_id)?.name || "Organization";
 
-        setAlertMessage(
-          `Representative set: ${rep?.first_name || ""} ${
-            rep?.last_name || ""
-          } for ${orgName}`
-        );
-        setShowAlert(true);
-
-        dispatch(updateSearchRepMap({ orgId: org_id, searchTerm: "" }));
-        setShowRepList((prev) => ({ ...prev, [org_id]: false }));
-
-        // Reset the focus handled flag for this org
-        focusHandledRef.current[org_id] = false;
-      }
+    setAlertMessage(
+      `Representative set: ${rep?.first_name || ""} ${
+        rep?.last_name || ""
+      } for ${orgName}`
     );
+    setShowAlert(true);
+    setShowRepList((prev) => ({ ...prev, [org_id]: false }));
+    dispatch(updateSearchRepMap({ orgId: org_id, searchTerm: "" }));
   };
 
   const handleRemoveRep = (org_id) => {
@@ -431,20 +422,15 @@ const OrgsManagement = () => {
           >
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
-                <ListGroup.Item
-                  key={user.user_id}
-                  className="rep-list-item"
-                  action
-                  onClick={() => handleSetRep(orgId, user.user_id)}
-                >
+                <ListGroup.Item key={user.user_id} className="rep-list-item">
                   <span className="rep-name">
                     {user.first_name} {user.last_name} (ID: {user.user_id})
                   </span>
                   <Button
                     variant="outline-success"
                     size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onMouseDown={(e) => {
+                      e.preventDefault();
                       handleSetRep(orgId, user.user_id);
                     }}
                   >
