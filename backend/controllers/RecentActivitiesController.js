@@ -261,7 +261,7 @@ exports.getAllRecentActivities = async (req, res) => {
           const listingOwnerName = report.reportedListing?.owner
             ? `${report.reportedListing.owner.first_name} ${report.reportedListing.owner.last_name}`
             : "Unknown Owner";
-          reportedEntityDetails = `Listing: ${report.reportedListing.listing_name} (ID: ${report.reported_entity_id}, Owner: ${listingOwnerName})`;
+          reportedEntityDetails = `Listing: ${report?.reportedListing?.listing_name} (ID: ${report.reported_entity_id}, Owner: ${listingOwnerName})`;
         } else if (report.entity_type === "post") {
           // If the reported entity is a post, get the renter's name
           const postRenterName = report.reportedPost?.renter

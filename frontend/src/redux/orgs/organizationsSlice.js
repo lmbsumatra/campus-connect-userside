@@ -87,8 +87,9 @@ export const fetchUsers = createAsyncThunk(
 export const addOrganization = createAsyncThunk(
   "organizations/addOrganization",
   async (orgData, { rejectWithValue }) => {
+    console.log(orgData)
     try {
-      return await fetchWithTimeout(`${baseApi}/api/orgs`, {
+      return await fetchWithTimeout(`${baseApi}/api/orgs/add`, {
         method: "POST",
         body: JSON.stringify(orgData),
       });
@@ -103,7 +104,8 @@ export const updateOrganization = createAsyncThunk(
   "organizations/updateOrganization",
   async (orgData, { rejectWithValue }) => {
     try {
-      return await fetchWithTimeout(`${baseApi}/api/orgs/${orgData.org_id}`, {
+      const orgId = orgData.org_id || orgData.orgId;
+      return await fetchWithTimeout(`${baseApi}/api/orgs/${orgId}`, {
         method: "PUT",
         body: JSON.stringify(orgData),
       });
@@ -131,10 +133,10 @@ export const toggleOrgStatus = createAsyncThunk(
 // PATCH /api/orgs/:id/representative
 export const setOrgRepresentative = createAsyncThunk(
   "organizations/setOrgRepresentative",
-  async ({ org_id, rep_id }, { rejectWithValue }) => {
+  async ({ orgId, rep_id }, { rejectWithValue }) => {
     try {
       return await fetchWithTimeout(
-        `${baseApi}/api/orgs/${org_id}/representative`,
+        `${baseApi}/api/orgs/${orgId}/representative`,
         {
           method: "PATCH",
           body: JSON.stringify({ rep_id }),
@@ -221,7 +223,9 @@ const organizationsSlice = createSlice({
       })
       .addCase(addOrganization.fulfilled, (state, action) => {
         state.loading = false;
-        state.organizations = [...state.organizations, action.payload];
+        // Check if response has org property or is the org itself
+        const newOrg = action.payload.org || action.payload;
+        state.organizations = [...state.organizations, newOrg];
         state.error = null;
       })
       .addCase(addOrganization.rejected, (state, action) => {
@@ -236,9 +240,15 @@ const organizationsSlice = createSlice({
       })
       .addCase(updateOrganization.fulfilled, (state, action) => {
         state.loading = false;
-        state.organizations = state.organizations.map((org) =>
-          org.orgId === action.payload.org.orgId ? action.payload : org
-        );
+        // Handle both possible response formats
+        const updatedOrg = action.payload.org || action.payload;
+        const orgId = updatedOrg.orgId || updatedOrg.org_id;
+        
+        state.organizations = state.organizations.map((org) => {
+          const existingOrgId = org.orgId || org.org_id;
+          return existingOrgId === orgId ? updatedOrg : org;
+        });
+        
         state.error = null;
       })
       .addCase(updateOrganization.rejected, (state, action) => {
@@ -253,22 +263,24 @@ const organizationsSlice = createSlice({
       })
       .addCase(toggleOrgStatus.fulfilled, (state, action) => {
         state.loading = false;
-
-        // Optimistically update the status in the state
-        state.organizations = state.organizations.map((org) =>
-          org.orgId === action.payload.org.orgId
-            ? {
-                ...org,
-                isVerified: action.payload.isVerified,
-                isActive: action.payload.isActive,
-              }
-            : org
-        );
-
+        
+        // Handle response with either nested org or direct response
+        const updatedOrg = action.payload.org || action.payload;
+        const orgId = updatedOrg.orgId || updatedOrg.org_id;
+        
+        state.organizations = state.organizations.map((org) => {
+          const existingOrgId = org.orgId || org.org_id;
+          if (existingOrgId === orgId) {
+            return {
+              ...org,
+              isActive: updatedOrg.isActive,
+              isVerified: updatedOrg.isVerified !== undefined ? updatedOrg.isVerified : org.isVerified
+            };
+          }
+          return org;
+        });
+        
         state.error = null;
-
-        // Optionally, dispatch a fetch to get fresh data from the server
-        // dispatch(fetchOrganizations());
       })
       .addCase(toggleOrgStatus.rejected, (state, action) => {
         state.loading = false;
@@ -282,22 +294,23 @@ const organizationsSlice = createSlice({
       })
       .addCase(setOrgRepresentative.fulfilled, (state, action) => {
         state.loading = false;
-
-        console.log(action.payload.org);
-
-        // Update the organization's representative in the state
-        state.organizations = state.organizations.map((org) =>
-          org.orgId === action.payload.org.orgId
-            ? {
-                ...org,
-                representative: {
-                  ...org.representative,
-                  id: action.payload.org.userId,
-                },
-              }
-            : org
-        );
-
+        
+        // Handle response with either nested org or direct response
+        const updatedOrg = action.payload.org || action.payload;
+        const orgId = updatedOrg.orgId || updatedOrg.org_id;
+        const repId = updatedOrg.representative?.id || updatedOrg.userId || null;
+        
+        state.organizations = state.organizations.map((org) => {
+          const existingOrgId = org.orgId || org.org_id;
+          if (existingOrgId === orgId) {
+            return {
+              ...org,
+              representative: repId ? { ...org.representative, id: repId } : null
+            };
+          }
+          return org;
+        });
+        
         state.error = null;
       })
       .addCase(setOrgRepresentative.rejected, (state, action) => {

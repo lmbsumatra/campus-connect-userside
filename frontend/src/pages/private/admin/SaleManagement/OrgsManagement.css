@@ -1,5 +1,14 @@
 /* OrgsManagement.css */
 
+.table-ellipsis {
+  max-width: 200px;       /* Set max width as needed */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;         /* Important: Needed inside a <td> */
+}
+
+
 .orgs-management {
     max-width: 100%;
     overflow-x: hidden;

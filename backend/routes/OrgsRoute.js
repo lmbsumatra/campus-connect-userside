@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get("/", OrgsController.getAllOrgs);
 router.post("/add", OrgsController.createOrg);
+router.put("/:orgId", OrgsController.editOrg);
 router.patch("/:orgId/status", OrgsController.updateOrgStatus);
 router.patch("/:orgId/representative", OrgsController.setOrgRepresentative);
 
