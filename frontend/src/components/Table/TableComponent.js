@@ -1,6 +1,7 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./TableComponent.css";
+import { categories } from "../../utils/consonants";
 
 const TableComponent = ({
   headers,
@@ -96,12 +97,11 @@ const TableComponent = ({
             onChange={(e) => onFilterChange(header, e.target.value)}
           >
             <option value="">All</option>
-            <option value="CAFA">CAFA</option>
-            <option value="CIE">CIE</option>
-            <option value="CIT">CIT</option>
-            <option value="CLA">CLA</option>
-            <option value="COE">COE</option>
-            <option value="COS">COS</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
           </select>
         );
       case "Type":

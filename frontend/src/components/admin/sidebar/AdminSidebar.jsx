@@ -171,7 +171,7 @@ const AdminSidebar = () => {
           <div
             className={`sub-tabs ${openTabs.includes("users") ? "show" : ""}`}
           >
-            <div
+            {/* <div
               className={`sub-tab ${
                 activeSubTab === "usersOverview" ? "active" : ""
               }`}
@@ -185,7 +185,7 @@ const AdminSidebar = () => {
                 }`}
               ></div>
               {(expandSidebar || isHovered) && <>Users Overview</>}
-            </div>
+            </div> */}
             {/* <div
               className={`sub-tab ${
                 activeSubTab === "usersVerification" ? "active" : ""
@@ -229,7 +229,7 @@ const AdminSidebar = () => {
               alt="Expand tab button"
             />
           </div>
-          <div
+          {/* <div
             className={`sub-tabs ${
               openTabs.includes("listings") ? "show" : ""
             }`}
@@ -252,7 +252,7 @@ const AdminSidebar = () => {
               ></div>
               {(expandSidebar || isHovered) && <>Listing Overview</>}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Posts Management Tab */}
@@ -276,7 +276,7 @@ const AdminSidebar = () => {
               alt="Expand tab button"
             />
           </div>
-          <div
+          {/* <div
             className={`sub-tabs ${openTabs.includes("posts") ? "show" : ""}`}
           >
             <div
@@ -294,7 +294,7 @@ const AdminSidebar = () => {
               ></div>
               {(expandSidebar || isHovered) && <>Posts Overview</>}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Sales tab */}
@@ -318,7 +318,7 @@ const AdminSidebar = () => {
               alt="Expand tab button"
             />
           </div>
-          <div
+          {/* <div
             className={`sub-tabs ${openTabs.includes("sales") ? "show" : ""}`}
           >
             <div
@@ -339,9 +339,10 @@ const AdminSidebar = () => {
               ></div>
               {(expandSidebar || isHovered) && <>Sales Overview</>}
             </div>
-          </div>
+          </div> */}
         </div>
 
+        {/* Reports Management Tab */}
         {/* Reports Management Tab */}
         <div>
           <div
@@ -366,7 +367,7 @@ const AdminSidebar = () => {
           <div
             className={`sub-tabs ${openTabs.includes("reports") ? "show" : ""}`}
           >
-            <div
+            {/* <div
               className={`sub-tab ${
                 activeSubTab === "reportsOverview" ? "active" : ""
               }`}
@@ -383,7 +384,7 @@ const AdminSidebar = () => {
                 }`}
               ></div>
               {(expandSidebar || isHovered) && <>Reports Overview</>}
-            </div>
+            </div> */}
             <div
               className={`sub-tab ${
                 activeSubTab === "transactionReports" ? "active" : ""
@@ -428,7 +429,7 @@ const AdminSidebar = () => {
               alt="Expand tab button"
             />
           </div>
-          <div
+          {/* <div
             className={`sub-tabs ${
               openTabs.includes("transactions") ? "show" : ""
             }`}
@@ -451,7 +452,7 @@ const AdminSidebar = () => {
               ></div>
               {(expandSidebar || isHovered) && <>Transactions Overview</>}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Logs Dashboard Tab */}
