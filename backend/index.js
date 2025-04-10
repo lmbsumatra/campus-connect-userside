@@ -25,6 +25,7 @@ const reportRoutes = require("./routes/ReportRoute");
 const adminTransactionRoutes = require("./routes/AdminTransactionRoute.js");
 const uploadRoutes = require("./routes/UploadRoute.js");
 const systemConfigRoutes = require("./routes/SystemConfigRoutes.js");
+const orgsRoutes = require("./routes/OrgsRoute.js");
 
 // Cron Jobs
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
@@ -105,6 +106,7 @@ app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/follow", followRoutes);
+app.use("/api/orgs", orgsRoutes);
 
 app.use("/api/posts", uploadRoutes);
 

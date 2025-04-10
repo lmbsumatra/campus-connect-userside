@@ -104,6 +104,10 @@ User.associate = (models) => {
     foreignKey: "admin_id",
     as: "logs",
   });
+  User.hasOne(models.Org, {
+    foreignKey: "user_id",
+    as: "org",
+  });
 
   
 };

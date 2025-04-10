@@ -3,6 +3,7 @@ import { baseApi } from "../../utils/consonants";
 
 const initialState = {
   organizations: [],
+  categories: [],
   users: [],
   loading: false,
   error: null,
@@ -10,210 +11,137 @@ const initialState = {
   searchRepMap: {},
 };
 
+// Helper function for API requests with timeout
+const fetchWithTimeout = async (url, options = {}) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("studentUser"))?.token
+        }`,
+        ...options.headers,
+      },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || `Failed with status ${response.status}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("Request timed out. Please try again.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
+// GET /api/orgs
 export const fetchOrganizations = createAsyncThunk(
   "organizations/fetchOrganizations",
   async (_, { rejectWithValue }) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-
     try {
-      const response = await fetch(`${baseApi}/organizations`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("studentUser"))?.token}`,
-        },
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to fetch organizations.");
-      }
-
-      const data = await response.json();
-      return data;
+      return await fetchWithTimeout(`${baseApi}/api/orgs`);
     } catch (error) {
-      if (error.name === "AbortError") {
-        return rejectWithValue("Request timed out. Please try again.");
-      }
       return rejectWithValue(error.message || "Unexpected error occurred.");
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 );
 
+// GET /api/orgs/categories
+export const fetchCategories = createAsyncThunk(
+  "organizations/fetchCategories",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await fetchWithTimeout(`${baseApi}/api/orgs/categories`);
+    } catch (error) {
+      return rejectWithValue(error.message || "Unexpected error occurred.");
+    }
+  }
+);
+
+// GET /api/users
 export const fetchUsers = createAsyncThunk(
   "organizations/fetchUsers",
   async (_, { rejectWithValue }) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-
     try {
-      const response = await fetch(`${baseApi}/users`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("studentUser"))?.token}`,
-        },
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to fetch users.");
-      }
-
-      const data = await response.json();
-      return data;
+      return await fetchWithTimeout(`${baseApi}/user`);
     } catch (error) {
-      if (error.name === "AbortError") {
-        return rejectWithValue("Request timed out. Please try again.");
-      }
-      return rejectWithValue(error.message || "Unexpected error occurred.");
-    } finally {
-      clearTimeout(timeoutId);
+      return rejectWithValue(error.message || "Failed to fetch users.");
     }
   }
 );
 
+// POST /api/orgs
 export const addOrganization = createAsyncThunk(
   "organizations/addOrganization",
   async (orgData, { rejectWithValue }) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-
     try {
-      const response = await fetch(`${baseApi}/organizations`, {
+      return await fetchWithTimeout(`${baseApi}/api/orgs`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("studentUser"))?.token}`,
-        },
         body: JSON.stringify(orgData),
-        signal: controller.signal,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to add organization.");
-      }
-
-      const data = await response.json();
-      return data;
     } catch (error) {
-      if (error.name === "AbortError") {
-        return rejectWithValue("Request timed out. Please try again.");
-      }
-      return rejectWithValue(error.message || "Unexpected error occurred.");
-    } finally {
-      clearTimeout(timeoutId);
+      return rejectWithValue(error.message || "Failed to add organization.");
     }
   }
 );
 
+// PUT /api/orgs/:id
 export const updateOrganization = createAsyncThunk(
   "organizations/updateOrganization",
   async (orgData, { rejectWithValue }) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-
     try {
-      const response = await fetch(`${baseApi}/organizations/${orgData.org_id}`, {
+      return await fetchWithTimeout(`${baseApi}/api/orgs/${orgData.org_id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("studentUser"))?.token}`,
-        },
         body: JSON.stringify(orgData),
-        signal: controller.signal,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update organization.");
-      }
-
-      const data = await response.json();
-      return data;
     } catch (error) {
-      if (error.name === "AbortError") {
-        return rejectWithValue("Request timed out. Please try again.");
-      }
-      return rejectWithValue(error.message || "Unexpected error occurred.");
-    } finally {
-      clearTimeout(timeoutId);
+      return rejectWithValue(error.message || "Failed to update organization.");
     }
   }
 );
 
-export const updateOrgStatus = createAsyncThunk(
-  "organizations/updateOrgStatus",
+// PATCH /api/orgs/:id/status
+export const toggleOrgStatus = createAsyncThunk(
+  "organizations/toggleOrgStatus",
   async ({ orgId, status }, { rejectWithValue }) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
     try {
-      const response = await fetch(`${baseApi}/organizations/${orgId}/status`, {
+      return await fetchWithTimeout(`${baseApi}/api/orgs/${orgId}/status`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("studentUser"))?.token}`,
-        },
         body: JSON.stringify({ status }),
-        signal: controller.signal,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update organization status.");
-      }
-
-      const data = await response.json();
-      return { orgId, status: data.status };
     } catch (error) {
-      if (error.name === "AbortError") {
-        return rejectWithValue("Request timed out. Please try again.");
-      }
-      return rejectWithValue(error.message || "Unexpected error occurred.");
-    } finally {
-      clearTimeout(timeoutId);
+      return rejectWithValue(error.message || "Failed to update status.");
     }
   }
 );
 
-export const assignRepresentative = createAsyncThunk(
-  "organizations/assignRepresentative",
-  async ({ orgId, userId }, { rejectWithValue }) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
+// PATCH /api/orgs/:id/representative
+export const setOrgRepresentative = createAsyncThunk(
+  "organizations/setOrgRepresentative",
+  async ({ org_id, rep_id }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${baseApi}/organizations/${orgId}/representative`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("studentUser"))?.token}`,
-        },
-        body: JSON.stringify({ rep_id: userId }),
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to assign representative.");
-      }
-
-      const data = await response.json();
-      return { orgId, repId: data.rep_id };
+      return await fetchWithTimeout(
+        `${baseApi}/api/orgs/${org_id}/representative`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ rep_id }),
+        }
+      );
     } catch (error) {
-      if (error.name === "AbortError") {
-        return rejectWithValue("Request timed out. Please try again.");
-      }
-      return rejectWithValue(error.message || "Unexpected error occurred.");
-    } finally {
-      clearTimeout(timeoutId);
+      return rejectWithValue(error.message || "Failed to set representative.");
     }
   }
 );
@@ -232,7 +160,7 @@ const organizationsSlice = createSlice({
       const { orgId, searchTerm } = action.payload;
       state.searchRepMap = {
         ...state.searchRepMap,
-        [orgId]: searchTerm
+        [orgId]: searchTerm,
       };
     },
     clearError: (state) => {
@@ -241,6 +169,7 @@ const organizationsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch Organizations
       .addCase(fetchOrganizations.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -254,7 +183,23 @@ const organizationsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
+
+      // Fetch Categories
+      .addCase(fetchCategories.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.loading = false;
+        state.categories = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchCategories.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Fetch Users
       .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -268,29 +213,31 @@ const organizationsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
+
+      // Add Organization
       .addCase(addOrganization.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(addOrganization.fulfilled, (state, action) => {
         state.loading = false;
-        state.organizations.push(action.payload);
+        state.organizations = [...state.organizations, action.payload];
         state.error = null;
       })
       .addCase(addOrganization.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      
+
+      // Update Organization
       .addCase(updateOrganization.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateOrganization.fulfilled, (state, action) => {
         state.loading = false;
-        state.organizations = state.organizations.map(org => 
-          org.org_id === action.payload.org_id ? action.payload : org
+        state.organizations = state.organizations.map((org) =>
+          org.orgId === action.payload.org.orgId ? action.payload : org
         );
         state.error = null;
       })
@@ -298,47 +245,71 @@ const organizationsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
-      .addCase(updateOrgStatus.pending, (state) => {
+
+      // Toggle Organization Status
+      .addCase(toggleOrgStatus.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateOrgStatus.fulfilled, (state, action) => {
+      .addCase(toggleOrgStatus.fulfilled, (state, action) => {
         state.loading = false;
-        state.organizations = state.organizations.map(org => 
-          org.org_id === action.payload.orgId ? 
-          { ...org, status: action.payload.status } : org
+
+        // Optimistically update the status in the state
+        state.organizations = state.organizations.map((org) =>
+          org.orgId === action.payload.org.orgId
+            ? {
+                ...org,
+                isVerified: action.payload.isVerified,
+                isActive: action.payload.isActive,
+              }
+            : org
         );
+
         state.error = null;
+
+        // Optionally, dispatch a fetch to get fresh data from the server
+        // dispatch(fetchOrganizations());
       })
-      .addCase(updateOrgStatus.rejected, (state, action) => {
+      .addCase(toggleOrgStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      
-      .addCase(assignRepresentative.pending, (state) => {
+
+      // Set Organization Representative
+      .addCase(setOrgRepresentative.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(assignRepresentative.fulfilled, (state, action) => {
+      .addCase(setOrgRepresentative.fulfilled, (state, action) => {
         state.loading = false;
-        state.organizations = state.organizations.map(org => 
-          org.org_id === action.payload.orgId ? 
-          { ...org, rep_id: action.payload.repId } : org
+
+        console.log(action.payload.org);
+
+        // Update the organization's representative in the state
+        state.organizations = state.organizations.map((org) =>
+          org.orgId === action.payload.org.orgId
+            ? {
+                ...org,
+                representative: {
+                  ...org.representative,
+                  id: action.payload.org.userId,
+                },
+              }
+            : org
         );
-        if (state.searchRepMap[action.payload.orgId]) {
-          state.searchRepMap[action.payload.orgId] = "";
-        }
+
         state.error = null;
       })
-      .addCase(assignRepresentative.rejected, (state, action) => {
+      .addCase(setOrgRepresentative.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   },
 });
 
+// Export selectors and actions
 export const selectOrganizations = (state) => state.organizations.organizations;
+export const selectCategories = (state) => state.organizations.categories;
 export const selectUsers = (state) => state.organizations.users;
 export const selectLoading = (state) => state.organizations.loading;
 export const selectError = (state) => state.organizations.error;

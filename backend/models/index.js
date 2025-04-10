@@ -31,6 +31,8 @@ const SystemConfig = require("./SystemConfigModel");
 const AuditLog = require("./AuditLogModel");
 const BlockedUser = require("./BlockedUserModel");
 const DeletedConversation = require("./DeletedConversationModel");
+const Org = require("./OrganizationModel");
+const OrgCategory = require("./OrgCategoriesModel");
 
 const models = {
   Listing,
@@ -62,6 +64,8 @@ const models = {
   AuditLog,
   BlockedUser,
   DeletedConversation,
+  Org,
+  OrgCategory,
 };
 
 Object.values(models).forEach((model) => {

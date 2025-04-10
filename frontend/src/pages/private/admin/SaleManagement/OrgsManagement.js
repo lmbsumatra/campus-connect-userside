@@ -1,116 +1,264 @@
-import React, { useState } from "react";
-import { Button, Modal, Form, Table, ListGroup, InputGroup, Badge } from "react-bootstrap";
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Button,
+  Modal,
+  Form,
+  Table,
+  ListGroup,
+  InputGroup,
+  Badge,
+  Alert,
+  Spinner,
+} from "react-bootstrap";
+import "./OrgsManagement.css";
 
-const exampleOrgs = [
-  { org_id: 1, org_name: "COLLEGE OF ARCHITECTURE AND FINE ARTS", status: "active", rep_id: 1, description: "A college for architecture and fine arts." },
-  { org_id: 2, org_name: "ASSOCIATION OF STUDENTS IN INDUSTRIAL ARTS", status: "inactive", rep_id: null, description: "Industrial arts student association." },
- 
-];
-
-const exampleUsers = [
-  { user_id: 1, first_name: "John", last_name: "Doe" },
-  { user_id: 2, first_name: "Jane", last_name: "Smith" },
-  { user_id: 3, first_name: "Mike", last_name: "Johnson" },
-  { user_id: 4, first_name: "Alice", last_name: "Williams" },
-
-];
+import {
+  fetchOrganizations,
+  fetchCategories,
+  fetchUsers,
+  addOrganization,
+  updateOrganization,
+  toggleOrgStatus,
+  setOrgRepresentative,
+  setCurrentOrg,
+  clearCurrentOrg,
+  updateSearchRepMap,
+  clearError,
+  selectOrganizations,
+  selectCategories,
+  selectUsers,
+  selectLoading,
+  selectError,
+  selectCurrentOrg,
+  selectSearchRepMap,
+} from "../../../../redux/orgs/organizationsSlice";
 
 const OrgsManagement = () => {
-  const [orgs, setOrgs] = useState(exampleOrgs);
-  const [users] = useState(exampleUsers);
+  // Redux hooks
+  const dispatch = useDispatch();
+  const organizations = useSelector(selectOrganizations);
+  const categoriesFromRedux = useSelector(selectCategories);
+  const users = useSelector(selectUsers);
+  const loading = useSelector(selectLoading);
+  const error = useSelector(selectError);
+  const currentOrgFromRedux = useSelector(selectCurrentOrg);
+  const searchRepMapFromRedux = useSelector(selectSearchRepMap);
+
+  // Local state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [currentOrg, setCurrentOrg] = useState({
+  const [showRepList, setShowRepList] = useState({});
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [editableOrg, setEditableOrg] = useState({
     org_name: "",
     description: "",
-    status: "active",
-    rep_id: null
+    category: "",
+    isActive: "active",
+    rep_id: null,
   });
-  const [searchRepMap, setSearchRepMap] = useState({});
-  const [showRepList, setShowRepList] = useState({});
+
+  // Refs for handling clicks outside of components
+  const repListRefs = useRef({});
+  const searchInputRefs = useRef({});
+
+  // Fetch data on component mount
+  useEffect(() => {
+    dispatch(fetchOrganizations());
+    dispatch(fetchCategories());
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
+  // Clear any errors when unmounting
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+      dispatch(clearCurrentOrg());
+    };
+  }, [dispatch]);
+
+  // Handle errors from Redux
+  useEffect(() => {
+    if (error) {
+      setAlertMessage(error);
+      setShowAlert(true);
+    }
+  }, [error]);
+
+  // Function to handle clicks outside of the rep list
+  useEffect(() => {
+    function handleClickOutside(event) {
+      for (const orgId in showRepList) {
+        if (
+          showRepList[orgId] &&
+          repListRefs.current[orgId] &&
+          !repListRefs.current[orgId].contains(event.target) &&
+          (!searchInputRefs.current[orgId] ||
+            !searchInputRefs.current[orgId].contains(event.target))
+        ) {
+          setShowRepList((prev) => ({ ...prev, [orgId]: false }));
+        }
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showRepList]);
+
+  // Process categories from Redux
+  const processCategories = () => {
+    if (!categoriesFromRedux || !Array.isArray(categoriesFromRedux)) {
+      return ["all"];
+    }
+
+    if (
+      categoriesFromRedux.length > 0 &&
+      typeof categoriesFromRedux[0] === "object"
+    ) {
+      return [
+        "all",
+        ...categoriesFromRedux.map((cat) =>
+          typeof cat.name === "string"
+            ? cat.name
+            : typeof cat.category === "string"
+            ? cat.category
+            : JSON.stringify(cat)
+        ),
+      ];
+    }
+
+    return ["all", ...categoriesFromRedux];
+  };
+
+  // Get unique categories from organizations as fallback
+  const getCategoriesFromOrgs = () => {
+    const uniqueCategories = [
+      ...new Set(organizations.map((org) => org.category)),
+    ];
+    return ["all", ...uniqueCategories.sort()];
+  };
+
+  // Get categories for rendering
+  const getCategories = () => {
+    const processedCategories = processCategories();
+    return processedCategories.length > 1
+      ? processedCategories
+      : getCategoriesFromOrgs();
+  };
+
+  // Filter organizations by category
+  const getFilteredOrgs = () => {
+    if (activeCategory === "all") {
+      return organizations;
+    }
+    return organizations.filter((org) => org.category.name === activeCategory);
+  };
 
   const getUserById = (userId) => {
     if (!userId) return null;
-    return users.find(user => user.user_id === userId);
+    return users.find((user) => user.user_id === userId);
   };
 
   const getFilteredUsers = (orgId) => {
-    const searchTerm = searchRepMap[orgId] || "";
-    return users.filter(
-      (user) =>
-        `${user.first_name} ${user.last_name}`
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        user.user_id.toString().includes(searchTerm)
-    );
+    const searchTerm = searchRepMapFromRedux[orgId] || "";
+    return users.filter((user) => {
+      const userIdString = user.id ? user.id.toString() : ""; // Safely convert user.id to string
+      return (
+        `${user.name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        userIdString.includes(searchTerm) // Use the safely converted string
+      );
+    });
   };
 
-  const toggleStatus = (org_id) => {
-    setOrgs((prevOrgs) =>
-      prevOrgs.map((org) =>
-        org.org_id === org_id
-          ? { ...org, status: org.status === "active" ? "inactive" : "active" }
-          : org
-      )
-    );
+  const handleToggleStatus = (org) => {
+    const newStatus = org.isActive ? "active" : "inactive";
+    dispatch(
+      toggleOrgStatus({
+        orgId: org.orgId,
+        isActive: newStatus,
+      })
+    ).then(() => {
+      setAlertMessage(
+        `Organization "${org.name}" status changed to ${newStatus}`
+      );
+      setShowAlert(true);
+    });
   };
 
-  const setRep = (org_id, user_id) => {
-    setOrgs((prevOrgs) =>
-      prevOrgs.map((org) =>
-        org.org_id === org_id ? { ...org, rep_id: user_id } : org
-      )
-    );
-    
-    setSearchRepMap(prev => ({ ...prev, [org_id]: "" }));
-    setShowRepList(prev => ({ ...prev, [org_id]: false }));
+  const handleSetRep = (org_id, user_id) => {
+    dispatch(setOrgRepresentative({ org_id, rep_id: user_id })).then(() => {
+      const rep = getUserById(user_id);
+      const orgName = organizations.find((org) => org.orgId === org_id)?.name;
+      setAlertMessage(
+        `Representative set: ${rep.first_name} ${rep.last_name} for ${orgName}`
+      );
+      setShowAlert(true);
+
+      dispatch(updateSearchRepMap({ orgId: org_id, searchTerm: "" }));
+      setShowRepList((prev) => ({ ...prev, [org_id]: false }));
+    });
+  };
+
+  const handleRemoveRep = (org_id) => {
+    dispatch(setOrgRepresentative({ org_id, rep_id: null })).then(() => {
+      const orgName = organizations.find((org) => org.orgId === org_id)?.name;
+      setAlertMessage(`Representative removed from ${orgName}`);
+      setShowAlert(true);
+    });
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCurrentOrg((prev) => ({
+    setEditableOrg((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const addOrg = () => {
-    const newOrgData = {
-      org_id: orgs.length + 1, 
-      ...currentOrg,
-    };
-    setOrgs((prevOrgs) => [...prevOrgs, newOrgData]);
-    setShowAddModal(false);
-    resetFormState();
+  const handleAddOrg = () => {
+    dispatch(addOrganization(editableOrg)).then(() => {
+      setShowAddModal(false);
+      resetFormState();
+      setAlertMessage(
+        `Organization "${editableOrg.org_name}" added successfully`
+      );
+      setShowAlert(true);
+    });
   };
 
-  const updateOrg = () => {
-    setOrgs((prevOrgs) =>
-      prevOrgs.map((org) =>
-        org.org_id === currentOrg.org_id ? { ...currentOrg } : org
-      )
-    );
-    setShowEditModal(false);
-    resetFormState();
+  const handleUpdateOrg = () => {
+    dispatch(updateOrganization(editableOrg)).then(() => {
+      setShowEditModal(false);
+      resetFormState();
+      setAlertMessage(
+        `Organization "${editableOrg.org_name}" updated successfully`
+      );
+      setShowAlert(true);
+    });
   };
 
   const openEditModal = (org) => {
-    setCurrentOrg({ ...org });
+    setEditableOrg({ ...org });
     setShowEditModal(true);
   };
 
   const resetFormState = () => {
-    setCurrentOrg({
+    setEditableOrg({
       org_name: "",
       description: "",
-      status: "active",
-      rep_id: null
+      category: "",
+      isActive: "active",
+      rep_id: null,
     });
   };
 
   const handleRepSearch = (orgId, value) => {
-    setSearchRepMap(prev => ({ ...prev, [orgId]: value }));
-    setShowRepList(prev => ({ ...prev, [orgId]: true }));
+    dispatch(updateSearchRepMap({ orgId, searchTerm: value }));
+    setShowRepList((prev) => ({ ...prev, [orgId]: true }));
   };
 
   const formatRepName = (repId) => {
@@ -118,89 +266,208 @@ const OrgsManagement = () => {
     return rep ? `${rep.first_name} ${rep.last_name}` : "None";
   };
 
-  return (
-    <div className="container-fluid">
-      <h2 className="my-4">Organizations Management</h2>
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Organization Name</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Representative</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orgs.map((org) => (
-            <tr key={org.org_id}>
-              <td>{org.org_name}</td>
-              <td>{org.description}</td>
-              <td>
-                <Button 
-                  variant={org.status === "active" ? "success" : "danger"} 
+  const RepSelector = ({ orgId, currentRepId, inModal = false }) => {
+    const rep = getUserById(currentRepId);
+
+    return (
+      <div className="position-relative rep-selector">
+        {rep ? (
+          <div className="current-rep mb-2">
+            <Badge
+              bg="info"
+              className="rep-badge d-flex align-items-center gap-2 justify-content-between"
+            >
+              <span>
+                {rep.first_name} {rep.last_name}
+              </span>
+              <Button
+                variant="link"
+                size="sm"
+                className="remove-rep-btn p-0 m-0"
+                onClick={() => handleRemoveRep(orgId)}
+              >
+                ×
+              </Button>
+            </Badge>
+          </div>
+        ) : (
+          <>
+            <div className="no-rep mb-2">
+              <Badge bg="secondary">No Representative</Badge>
+            </div>
+            <InputGroup size="sm">
+            <Form.Control
+  placeholder="Search for representative"
+  value={searchRepMapFromRedux[orgId] || ""}
+  onChange={(e) => handleRepSearch(orgId, e.target.value)}
+  onFocus={() =>
+    setShowRepList((prev) => ({ ...prev, [orgId]: true }))
+  }
+  ref={(el) => {
+    searchInputRefs.current[orgId] = el;
+    if (el) el.focus();  // Manually ensure focus on input
+  }}
+  style={{ zIndex: 999 }} // Ensuring it's clickable if there are overlapping elements
+/>
+
+            </InputGroup>
+          </>
+        )}
+
+        {showRepList[orgId] && (
+          <ListGroup
+            className="position-absolute w-100 shadow-sm rep-list-container"
+            ref={(el) => (repListRefs.current[orgId] = el)}
+          >
+            {getFilteredUsers(orgId).map((user) => (
+              <ListGroup.Item
+                key={user.user_id}
+                className="rep-list-item"
+                action
+              >
+                <span className="rep-name">
+                  {user.first_name} {user.last_name} (ID: {user.user_id})
+                </span>
+                <Button
+                  variant="outline-success"
                   size="sm"
-                  onClick={() => toggleStatus(org.org_id)}
+                  onClick={() => handleSetRep(orgId, user.user_id)}
                 >
-                  {org.status.toUpperCase()}
+                  ✓
                 </Button>
-              </td>
-              <td>
-                <div className="position-relative">
-                  <p>{formatRepName(org.rep_id)}</p>
-                  <InputGroup size="sm">
-                    <Form.Control
-                      placeholder="Search by name or ID"
-                      value={searchRepMap[org.org_id] || ""}
-                      onChange={(e) => handleRepSearch(org.org_id, e.target.value)}
-                      onFocus={() => setShowRepList(prev => ({ ...prev, [org.org_id]: true }))}
+              </ListGroup.Item>
+            ))}
+            {getFilteredUsers(orgId).length === 0 && (
+              <ListGroup.Item>No users found</ListGroup.Item>
+            )}
+          </ListGroup>
+        )}
+      </div>
+    );
+  };
+
+  // Create safe category array for dropdowns
+  const getCategoryOptions = () => {
+    const categories = getCategories().filter((cat) => cat !== "all");
+    return categories.map((category) => {
+      const categoryValue =
+        typeof category === "object"
+          ? category.name || category.category || JSON.stringify(category)
+          : category;
+
+      return (
+        <option key={categoryValue} value={categoryValue}>
+          {categoryValue}
+        </option>
+      );
+    });
+  };
+
+  return (
+    <div className="orgs-management">
+      <h2 className="my-4">Organizations Management</h2>
+
+      {showAlert && (
+        <Alert
+          variant="success"
+          onClose={() => setShowAlert(false)}
+          dismissible
+        >
+          {alertMessage}
+        </Alert>
+      )}
+
+      {/* Category filter */}
+      <div className="category-filter mb-4">
+        <Form.Group>
+          <Form.Label>Filter by Category</Form.Label>
+          <Form.Select
+            value={activeCategory}
+            onChange={(e) => setActiveCategory(e.target.value)}
+          >
+            {getCategories().map((category) => {
+              const categoryValue =
+                typeof category === "object"
+                  ? category.name || category.category || String(category)
+                  : category;
+              const displayText =
+                categoryValue === "all" ? "All Categories" : categoryValue;
+              return (
+                <option key={categoryValue} value={categoryValue}>
+                  {displayText}
+                </option>
+              );
+            })}
+          </Form.Select>
+        </Form.Group>
+      </div>
+
+      {loading ? (
+        <div className="text-center my-5">
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      ) : (
+        <div className="table-responsive">
+          <Table striped bordered hover className="mb-4">
+            <thead>
+              <tr>
+                <th>Organization Name</th>
+                <th>Category</th>
+                {/* <th>Description</th> */}
+                <th>Status</th>
+                <th>Representative</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getFilteredOrgs().map((org) => (
+                <tr key={org.org_id}>
+                  <td>{org.name}</td>
+                  <td>{org.category?.name || "N/A"}</td>
+
+                  {/* <td>{org.description}</td> */}
+                  <td>
+                    <Button
+                      variant={org.isActive ? "success" : "danger"}
+                      size="sm"
+                      onClick={() => handleToggleStatus(org)}
+                    >
+                      {org.isActive ? "Active" : "Inactive"}
+                    </Button>
+                  </td>
+                  <td className="rep-column">
+                    <RepSelector
+                      orgId={org.orgId}
+                      currentRepId={org.representative?.id}
                     />
-                  </InputGroup>
-                  
-                  {showRepList[org.org_id] && (
-                    <ListGroup className="position-absolute w-100 shadow-sm" style={{ zIndex: 1000 }}>
-                      {getFilteredUsers(org.org_id).map((user) => (
-                        <ListGroup.Item 
-                          key={user.user_id} 
-                          className="d-flex justify-content-between align-items-center"
-                          action
-                        >
-                          {user.first_name} {user.last_name} (ID: {user.user_id})
-                          <Button 
-                            variant="outline-success" 
-                            size="sm"
-                            onClick={() => setRep(org.org_id, user.user_id)}
-                          >
-                            ✓
-                          </Button>
-                        </ListGroup.Item>
-                      ))}
-                      {getFilteredUsers(org.org_id).length === 0 && (
-                        <ListGroup.Item>No users found</ListGroup.Item>
-                      )}
-                    </ListGroup>
-                  )}
-                </div>
-              </td>
-              <td>
-                <Button 
-                  variant="primary" 
-                  size="sm" 
-                  onClick={() => openEditModal(org)}
-                >
-                  Edit
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+                  </td>
+                  <td>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => openEditModal(org)}
+                    >
+                      Edit
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      )}
 
       <Button variant="success" onClick={() => setShowAddModal(true)}>
         Add Organization
       </Button>
 
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+      <Modal
+        show={showAddModal}
+        onHide={() => setShowAddModal(false)}
+        size="lg"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Add New Organization</Modal.Title>
         </Modal.Header>
@@ -212,9 +479,20 @@ const OrgsManagement = () => {
                 type="text"
                 placeholder="Enter organization name"
                 name="org_name"
-                value={currentOrg.org_name}
+                value={editableOrg.org_name}
                 onChange={handleInputChange}
               />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="orgCategory">
+              <Form.Label>Category</Form.Label>
+              <Form.Select
+                name="category"
+                value={editableOrg.category}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Category</option>
+                {getCategoryOptions()}
+              </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3" controlId="orgDescription">
               <Form.Label>Description</Form.Label>
@@ -223,7 +501,7 @@ const OrgsManagement = () => {
                 rows={3}
                 placeholder="Enter description"
                 name="description"
-                value={currentOrg.description}
+                value={editableOrg.description}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -231,12 +509,21 @@ const OrgsManagement = () => {
               <Form.Label>Status</Form.Label>
               <Form.Select
                 name="status"
-                value={currentOrg.status}
+                value={editableOrg.isActive}
                 onChange={handleInputChange}
               >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="orgRep">
+              <Form.Label>Representative</Form.Label>
+              {/* Use 0 as temporary ID for new org */}
+              <RepSelector
+                orgId={0}
+                currentRepId={editableOrg.rep_id}
+                inModal={true}
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -244,13 +531,21 @@ const OrgsManagement = () => {
           <Button variant="secondary" onClick={() => setShowAddModal(false)}>
             Cancel
           </Button>
-          <Button variant="success" onClick={addOrg}>
-            Add Organization
+          <Button variant="success" onClick={handleAddOrg} disabled={loading}>
+            {loading ? (
+              <Spinner animation="border" size="sm" />
+            ) : (
+              "Add Organization"
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+      <Modal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        size="lg"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Edit Organization</Modal.Title>
         </Modal.Header>
@@ -262,9 +557,20 @@ const OrgsManagement = () => {
                 type="text"
                 placeholder="Enter organization name"
                 name="org_name"
-                value={currentOrg.org_name}
+                value={editableOrg.org_name}
                 onChange={handleInputChange}
               />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="editOrgCategory">
+              <Form.Label>Category</Form.Label>
+              <Form.Select
+                name="category"
+                value={editableOrg.category}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Category</option>
+                {getCategoryOptions()}
+              </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3" controlId="editOrgDescription">
               <Form.Label>Description</Form.Label>
@@ -273,7 +579,7 @@ const OrgsManagement = () => {
                 rows={3}
                 placeholder="Enter description"
                 name="description"
-                value={currentOrg.description}
+                value={editableOrg.description}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -281,7 +587,7 @@ const OrgsManagement = () => {
               <Form.Label>Status</Form.Label>
               <Form.Select
                 name="status"
-                value={currentOrg.status}
+                value={editableOrg.isActive}
                 onChange={handleInputChange}
               >
                 <option value="active">Active</option>
@@ -289,17 +595,14 @@ const OrgsManagement = () => {
               </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3" controlId="editOrgRep">
-              <Form.Label>Current Representative</Form.Label>
-              <p>
-                {currentOrg.rep_id ? (
-                  <Badge bg="info">{formatRepName(currentOrg.rep_id)}</Badge>
-                ) : (
-                  "None assigned"
-                )}
-              </p>
-              <Form.Text className="text-muted">
-                Representatives can be changed from the main table view.
-              </Form.Text>
+              <Form.Label>Representative</Form.Label>
+              {editableOrg.org_id && (
+                <RepSelector
+                  orgId={editableOrg.org_id}
+                  currentRepId={editableOrg.rep_id}
+                  inModal={true}
+                />
+              )}
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -307,8 +610,16 @@ const OrgsManagement = () => {
           <Button variant="secondary" onClick={() => setShowEditModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={updateOrg}>
-            Save Changes
+          <Button
+            variant="primary"
+            onClick={handleUpdateOrg}
+            disabled={loading}
+          >
+            {loading ? (
+              <Spinner animation="border" size="sm" />
+            ) : (
+              "Save Changes"
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
