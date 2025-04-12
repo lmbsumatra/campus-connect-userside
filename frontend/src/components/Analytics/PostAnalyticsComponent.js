@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Bar, Pie, Doughnut, Line, Bubble } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -25,65 +25,179 @@ ChartJS.register(
 );
 
 export const PostsByCategory = ({ posts }) => {
-  // Aggregate posts by category
-  const categoryData = posts.reduce((acc, post) => {
+  const [timeRange, setTimeRange] = useState("all");
+
+  const filteredPosts = useMemo(() => {
+    const now = new Date();
+    switch (timeRange) {
+      case "day":
+        return posts.filter(
+          (post) =>
+            new Date(post.createdAt) > new Date(now.setDate(now.getDate() - 1))
+        );
+      case "week":
+        return posts.filter(
+          (post) =>
+            new Date(post.createdAt) > new Date(now.setDate(now.getDate() - 7))
+        );
+      case "month":
+        return posts.filter(
+          (post) =>
+            new Date(post.createdAt) >
+            new Date(now.setMonth(now.getMonth() - 1))
+        );
+      default:
+        return posts;
+    }
+  }, [posts, timeRange]);
+
+  // Process posts to get total and approved counts per category
+  const categoryData = filteredPosts.reduce((acc, post) => {
     const category = post.category || "Unknown";
-    acc[category] = (acc[category] || 0) + 1;
+    acc[category] = acc[category] || { total: 0, approved: 0 };
+    acc[category].total++;
+    if (post.status === "approved") {
+      acc[category].approved++;
+    }
     return acc;
   }, {});
 
-  // Sort categories by the number of posts (descending order)
+  // Convert to an array and sort by total posts
   const sortedCategories = Object.entries(categoryData)
-    .sort((a, b) => b[1] - a[1])
-    .reduce((acc, [category, count]) => {
-      acc[category] = count;
-      return acc;
-    }, {});
+    .map(([category, counts]) => ({ category, ...counts }))
+    .sort((a, b) => b.total - a.total);
 
-  // Define colors (more added for variety)
-  const colors = [
-    "#FF6384",
-    "#36A2EB",
-    "#FFCE56",
-    "#4BC0C0",
-    "#9966FF",
-    "#FF9F40",
-    "#C9CBCF",
-    "#8A2BE2",
-    "#20B2AA",
-    "#FFD700",
-  ];
+  // Calculate totals
+  const totalPosts = sortedCategories.reduce(
+    (sum, item) => sum + item.total,
+    0
+  );
+  const totalApproved = sortedCategories.reduce(
+    (sum, item) => sum + item.approved,
+    0
+  );
 
-  // Chart Data
+  // Chart data
   const chartData = {
-    labels: Object.keys(sortedCategories),
+    labels: sortedCategories.map((item) => `${item.category} (${item.total})`),
     datasets: [
       {
-        data: Object.values(sortedCategories),
-        backgroundColor: colors.slice(0, Object.keys(sortedCategories).length), // Assign colors dynamically
+        label: "Total Posts",
+        data: sortedCategories.map((item) => item.total),
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+      {
+        label: "Approved Posts",
+        data: sortedCategories.map((item) => item.approved),
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
       },
     ],
   };
 
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const label = context.dataset.label || "";
+            const value = context.raw;
+            const percentage = ((value / totalPosts) * 100).toFixed(2);
+            return `${label}: ${value} (${percentage}%)`;
+          },
+        },
+      },
+      legend: {
+        position: "bottom",
+      },
+    },
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+      },
+    },
+  };
+
+  // Get time range label for empty state messages
+  const getTimeRangeLabel = () => {
+    switch (timeRange) {
+      case "day":
+        return "the last 24 hours";
+      case "week":
+        return "the last week";
+      case "month":
+        return "the last month";
+      default:
+        return "any time";
+    }
+  };
+
+  // Check if there are posts but none in the filtered time range
+  const hasPostsButNoneInRange = posts.length > 0 && filteredPosts.length === 0;
+
   return (
     <div className="p-3 bg-white rounded shadow-sm mb-2">
-      <h5>Posts by Category</h5>
-      {posts.length > 0 ? (
-        <div style={{ height: "300px" }}>
-          <Pie
-            data={chartData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: { display: true, position: "bottom" },
-              },
-            }}
-          />
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+        <h5 className="mb-2 mb-md-0">Posts by Category</h5>
+        <select
+          value={timeRange}
+          onChange={(e) => setTimeRange(e.target.value)}
+          className="form-select form-select-sm w-auto"
+        >
+          <option value="all">All Time</option>
+          <option value="month">Last Month</option>
+          <option value="week">Last Week</option>
+          <option value="day">Last 24h</option>
+        </select>
+      </div>
+
+      <div className="text-center mb-2">
+        <p className="mb-0">
+          Total: {totalPosts} | Approved: {totalApproved} (
+          {totalPosts > 0 ? Math.round((totalApproved / totalPosts) * 100) : 0}
+          %)
+        </p>
+      </div>
+
+      <div className="d-flex justify-content-center">
+        <div style={{ position: "relative", width: "100%", height: "300px" }}>
+          {filteredPosts.length > 0 ? (
+            <Bar data={chartData} options={options} />
+          ) : hasPostsButNoneInRange ? (
+            <div className="text-center h-100 d-flex flex-column justify-content-center">
+              <p className="text-muted mb-2">
+                <i className="bi bi-calendar-x fs-4"></i>
+              </p>
+              <p className="text-muted">
+                No posts created in {getTimeRangeLabel()}.
+              </p>
+              <p className="text-muted small">
+                You have {posts.length} post{posts.length !== 1 ? "s" : ""}{" "}
+                total.
+              </p>
+            </div>
+          ) : (
+            <div className="text-center h-100 d-flex flex-column justify-content-center">
+              <p className="text-muted mb-2">
+                <i className="bi bi-file-earmark-text fs-4"></i>
+              </p>
+              <p className="text-muted">No posts available yet.</p>
+              <p className="text-muted small">
+                Create your first post to see analytics.
+              </p>
+            </div>
+          )}
         </div>
-      ) : (
-        <p className="text-muted">No post data available.</p>
-      )}
+      </div>
     </div>
   );
 };
@@ -153,14 +267,16 @@ export const PostsGrowth = ({ posts }) => {
 };
 
 export const PostStatusDistribution = ({ posts }) => {
-  // Aggregate post statuses
   const statusData = posts.reduce((acc, post) => {
     const status = post.status || "Unknown";
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
 
-  // Define dynamic color mapping
+  // Total transactions
+  const total = posts.length;
+
+  // Assign colors dynamically for better readability
   const statusColors = {
     approved: "#28a745", // Green
     pending: "#ffc107", // Yellow
@@ -171,39 +287,58 @@ export const PostStatusDistribution = ({ posts }) => {
     unknown: "#17a2b8", // Blue (fallback)
   };
 
-  const labels = Object.keys(statusData);
-  const dataValues = Object.values(statusData);
-  const backgroundColors = labels.map(
-    (status) => statusColors[status] || "#17a2b8" // Default to blue if not mapped
+  // Convert data into an array with percentages
+  const statusPercentages = Object.entries(statusData).map(
+    ([status, count]) => ({
+      status,
+      count,
+      percentage: ((count / total) * 100).toFixed(1),
+    })
   );
 
-  // Chart Data
   const chartData = {
-    labels,
+    labels: Object.keys(statusData),
     datasets: [
       {
-        data: dataValues,
-        backgroundColor: backgroundColors,
+        data: Object.values(statusData),
+        backgroundColor: Object.keys(statusData).map(
+          (status) => statusColors[status] || "#8a2be2"
+        ), // Assign colors dynamically
+        borderWidth: 2,
       },
     ],
   };
 
   return (
-    <div className="p-3 bg-white rounded shadow-sm mb-2">
-      <h5>Post Status Distribution</h5>
-      {labels.length > 0 ? (
-        <div style={{ height: "300px" }}>
+    <div className="p-4 bg-white rounded shadow mb-3">
+      <h5 className="mb-3 text-center">Post Status Distribution</h5>
+      <p className="text-muted text-center">
+        Total Post: <strong>{total}</strong>
+      </p>
+
+      <div className="d-flex justify-content-center">
+        <div style={{ width: "300px" }}>
           <Doughnut
             data={chartData}
             options={{
               responsive: true,
               maintainAspectRatio: false,
               plugins: {
-                legend: { position: "right" },
+                legend: {
+                  display: true,
+                  position: "bottom",
+                  labels: {
+                    boxWidth: 12,
+                    padding: 10,
+                  },
+                },
                 tooltip: {
                   callbacks: {
-                    label: (tooltipItem) => {
-                      return `${tooltipItem.label}: ${tooltipItem.raw} posts`;
+                    label: function (context) {
+                      const percentage = statusPercentages.find(
+                        (item) => item.status === context.label
+                      )?.percentage;
+                      return `${context.label}: ${context.raw} (${percentage}%)`;
                     },
                   },
                 },
@@ -211,9 +346,40 @@ export const PostStatusDistribution = ({ posts }) => {
             }}
           />
         </div>
-      ) : (
-        <p className="text-muted">No post data available.</p>
-      )}
+      </div>
+
+      <div className="mt-4">
+        <h6>Status Summary</h6>
+        <table className="table table-bordered text-center">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Count</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {statusPercentages.map(({ status, count, percentage }) => (
+              <tr key={status}>
+                <td>
+                  <span
+                    className="badge"
+                    style={{
+                      backgroundColor: statusColors[status] || "#8a2be2",
+                      color: "#fff",
+                      padding: "6px 10px",
+                    }}
+                  >
+                    {status}
+                  </span>
+                </td>
+                <td>{count}</td>
+                <td>{percentage}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

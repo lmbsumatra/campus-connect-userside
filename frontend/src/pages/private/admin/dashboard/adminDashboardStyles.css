@@ -143,13 +143,6 @@
   background-color: #f9f9f9;
 }
 
-/* .activity-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
-  vertical-align: middle;
-} */
-
 .activities-table th:first-child,
 .activities-table td:first-child {
   width: 120px; /* Narrower width for ACTIVITY column */
@@ -555,7 +548,7 @@
   flex-direction: column;
 }
 
-@media (min-width: 768px) {
+/* @media (min-width: 768px) {
   .leaderboard-container {
     flex-direction: row;
   }
@@ -563,7 +556,7 @@
     flex-direction: column;
     align-items: flex-start;
   }
-}
+} */
 
 .leaderboard-section {
   flex: 1;
@@ -639,6 +632,31 @@
   color: #555;
   flex-shrink: 0; /* Prevent count from shrinking */
   white-space: nowrap; /* Prevent line breaks */
+}
+
+.leaderboard-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.leaderboard-controls select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background-color: white;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.empty-state {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  margin: 10px 0;
 }
 
 .rank-1 {

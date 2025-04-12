@@ -13,8 +13,9 @@ import {
   Pie,
   Cell,
   CartesianGrid,
+  Doughnut,
 } from "recharts";
-import { ShoppingCart, Handshake, Crown } from "lucide-react";
+import { ShoppingCart, Handshake, Flag, Crown } from "lucide-react";
 
 export const GrowthData = ({ users, listings, posts, sales }) => {
   const [timeInterval, setTimeInterval] = useState("monthly");
@@ -459,7 +460,7 @@ export const TopTransactionUsers = ({ transactions, users }) => {
   return (
     <div className="transaction-leaderboard">
       <div className="leaderboard-header">
-        <h3>Transaction Leaderboard</h3>
+        <h3> Leaderboard</h3>
         <div className="time-interval-selector">
           <select
             value={timeInterval}
@@ -477,6 +478,187 @@ export const TopTransactionUsers = ({ transactions, users }) => {
         {renderLeaderboard("Top Owners", topOwners)}
         {renderLeaderboard("Top Buyers/Renters", topBuyers)}
       </div>
+    </div>
+  );
+};
+
+export const TopUsers = ({ transactions, users, reports }) => {
+  const [timeInterval, setTimeInterval] = useState("all");
+  const [leaderboardType, setLeaderboardType] = useState("owners");
+
+  // Filter data based on time interval
+  const filterByTime = (data, dateField = "createdAt") => {
+    const now = new Date();
+    return data.filter((item) => {
+      const itemDate = new Date(item[dateField] || item.created_at);
+
+      switch (timeInterval) {
+        case "daily":
+          return itemDate.toDateString() === now.toDateString();
+        case "weekly":
+          const weekStart = new Date(now);
+          weekStart.setDate(now.getDate() - now.getDay());
+          return itemDate >= weekStart;
+        case "monthly":
+          return (
+            itemDate.getMonth() === now.getMonth() &&
+            itemDate.getFullYear() === now.getFullYear()
+          );
+        case "yearly":
+          return itemDate.getFullYear() === now.getFullYear();
+        default:
+          return true;
+      }
+    });
+  };
+
+  // Process different leaderboard types
+  const getLeaderboardData = () => {
+    switch (leaderboardType) {
+      case "owners":
+        const filteredTransactions = filterByTime(
+          transactions.filter((t) => t.status === "Completed")
+        );
+        const ownerCounts = {};
+        filteredTransactions.forEach((t) => {
+          if (t.owner_id)
+            ownerCounts[t.owner_id] = (ownerCounts[t.owner_id] || 0) + 1;
+        });
+        return mapToLeaderboardItems(
+          ownerCounts,
+          users,
+          "Owner",
+          "transactions"
+        );
+
+      case "buyers":
+        const filteredBuyerTransactions = filterByTime(
+          transactions.filter((t) => t.status === "Completed")
+        );
+        const buyerCounts = {};
+        filteredBuyerTransactions.forEach((t) => {
+          const buyerId = t.renter_id || t.buyer_id;
+          if (buyerId) buyerCounts[buyerId] = (buyerCounts[buyerId] || 0) + 1;
+        });
+        return mapToLeaderboardItems(
+          buyerCounts,
+          users,
+          "Buyer/Renter",
+          "transactions"
+        );
+
+      case "reporters":
+        const filteredReports = filterByTime(reports, "createdAt");
+        const reporterCounts = {};
+        filteredReports.forEach((r) => {
+          if (r.reporter_id)
+            reporterCounts[r.reporter_id] =
+              (reporterCounts[r.reporter_id] || 0) + 1;
+        });
+        return mapToLeaderboardItems(
+          reporterCounts,
+          users,
+          "Reporter",
+          "reports"
+        );
+
+      default:
+        return [];
+    }
+  };
+
+  const mapToLeaderboardItems = (counts, users, type, metricName) => {
+    return Object.entries(counts)
+      .map(([userId, count]) => {
+        const user = users.find((u) => u.user_id === parseInt(userId));
+        return {
+          user,
+          count,
+          type,
+          name: user ? `${user.first_name} ${user.last_name}` : "Unknown User",
+          metricName,
+        };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+  };
+
+  const leaderboardData = getLeaderboardData();
+
+  const getIconForType = (type) => {
+    switch (type) {
+      case "Reporter":
+        return <Flag size={16} />;
+      default:
+        return <ShoppingCart size={16} />;
+    }
+  };
+
+  const renderLeaderboard = () => (
+    <div className="leaderboard-section">
+      <h4>
+        {leaderboardType === "owners"
+          ? "Top Owners"
+          : leaderboardType === "buyers"
+          ? "Top Buyers/Renters"
+          : "Top Reporters"}
+      </h4>
+      <div className="leaderboard-grid">
+        {leaderboardData.length === 0 ? (
+          <div className="empty-state">No data available for this period</div>
+        ) : (
+          leaderboardData.map((item, index) => {
+            const rankClass = index < 3 ? `rank-${index + 1}` : "";
+            return (
+              <div
+                key={`${item.type}-${index}`}
+                className={`leaderboard-item ${rankClass}`}
+                title={item.name}
+              >
+                <div className="leaderboard-content">
+                  <div className="leaderboard-rank">{index + 1}</div>
+                  <div className="leaderboard-name">{item.name}</div>
+                  <div className="leaderboard-count">
+                    {getIconForType(item.type)}
+                    <span>
+                      {item.count} {item.metricName}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="user-leaderboard">
+      <div className="leaderboard-header">
+        <h3>User Leaderboard</h3>
+        <div className="leaderboard-controls">
+          <select
+            value={timeInterval}
+            onChange={(e) => setTimeInterval(e.target.value)}
+          >
+            <option value="all">All Time</option>
+            <option value="yearly">Yearly</option>
+            <option value="monthly">Monthly</option>
+            <option value="weekly">Weekly</option>
+            <option value="daily">Daily</option>
+          </select>
+          <select
+            value={leaderboardType}
+            onChange={(e) => setLeaderboardType(e.target.value)}
+          >
+            <option value="owners">Top Owners</option>
+            <option value="buyers">Top Buyers/Renters</option>
+            <option value="reporters">Top Reporters</option>
+          </select>
+        </div>
+      </div>
+      {renderLeaderboard()}
     </div>
   );
 };

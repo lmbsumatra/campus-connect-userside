@@ -1,5 +1,5 @@
 // src/components/Analytics/SaleAnalyticsComponent.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Line, Bar, Pie, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -29,72 +29,177 @@ ChartJS.register(
 
 // Items by Category Widget
 export const ItemsByCategory = ({ items }) => {
-  const categoryData = items.reduce((acc, item) => {
+  const [timeRange, setTimeRange] = useState("all");
+
+  const filteredItems = useMemo(() => {
+    const now = new Date();
+    switch (timeRange) {
+      case "day":
+        return items.filter(
+          (item) =>
+            new Date(item.createdAt) > new Date(now.setDate(now.getDate() - 1))
+        );
+      case "week":
+        return items.filter(
+          (item) =>
+            new Date(item.createdAt) > new Date(now.setDate(now.getDate() - 7))
+        );
+      case "month":
+        return items.filter(
+          (item) =>
+            new Date(item.createdAt) >
+            new Date(now.setMonth(now.getMonth() - 1))
+        );
+      default:
+        return items;
+    }
+  }, [items, timeRange]);
+
+  // Process items to get total and approved counts per category
+  const categoryData = filteredItems.reduce((acc, item) => {
     const category = item.category || "Unknown";
-    acc[category] = (acc[category] || 0) + 1;
+    acc[category] = acc[category] || { total: 0, approved: 0 };
+    acc[category].total++;
+    if (item.status === "approved") {
+      acc[category].approved++;
+    }
     return acc;
   }, {});
 
-  const totalItems = Object.values(categoryData).reduce(
-    (sum, count) => sum + count,
+  // Convert to an array and sort by total items
+  const sortedCategories = Object.entries(categoryData)
+    .map(([category, counts]) => ({ category, ...counts }))
+    .sort((a, b) => b.total - a.total);
+
+  // Calculate totals
+  const totalItems = sortedCategories.reduce(
+    (sum, item) => sum + item.total,
+    0
+  );
+  const totalApproved = sortedCategories.reduce(
+    (sum, item) => sum + item.approved,
     0
   );
 
+  // Chart data
   const chartData = {
-    labels: Object.keys(categoryData).map(
-      (category) => `${category} (${categoryData[category]})`
-    ), // Category with count
+    labels: sortedCategories.map((item) => `${item.category} (${item.total})`),
     datasets: [
       {
-        data: Object.values(categoryData),
-        backgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-          "#8BC34A",
-          "#E91E63",
-          "#3F51B5",
-          "#009688",
-          "#795548",
-          "#607D8B",
-        ], // Enhanced color palette
+        label: "Total Items",
+        data: sortedCategories.map((item) => item.total),
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+      {
+        label: "Approved Items",
+        data: sortedCategories.map((item) => item.approved),
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
       },
     ],
   };
 
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       tooltip: {
         callbacks: {
-          label: function (tooltipItem) {
-            const value = tooltipItem.raw;
+          label: function (context) {
+            const label = context.dataset.label || "";
+            const value = context.raw;
             const percentage = ((value / totalItems) * 100).toFixed(2);
-            return `${value} Listings (${percentage}%)`;
+            return `${label}: ${value} (${percentage}%)`;
           },
         },
       },
       legend: {
-        position: "right",
-        align: "start",
-        labels: {
-          padding: 20,
-        },
+        position: "bottom",
+      },
+    },
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
       },
     },
   };
 
+  // Get time range label for empty state messages
+  const getTimeRangeLabel = () => {
+    switch (timeRange) {
+      case "day":
+        return "the last 24 hours";
+      case "week":
+        return "the last week";
+      case "month":
+        return "the last month";
+      default:
+        return "any time";
+    }
+  };
+
+  // Check if there are items but none in the filtered time range
+  const hasItemsButNoneInRange = items.length > 0 && filteredItems.length === 0;
+
   return (
-    <div className="p-3 bg-white rounded shadow-sm mb-2 d-flex flex-column align-items-center">
-      <h5 className="text-center">Items by Category</h5>
-      <p className="text-center">Total Listings: {totalItems}</p>
-      <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-        <div style={{ width: "60%" }}>
-          {" "}
-          {/* Adjusts centering */}
-          <Pie data={chartData} options={options} />
+    <div className="p-3 bg-white rounded shadow-sm mb-2">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+        <h5 className="mb-2 mb-md-0">Items by Category</h5>
+        <select
+          value={timeRange}
+          onChange={(e) => setTimeRange(e.target.value)}
+          className="form-select form-select-sm w-auto"
+        >
+          <option value="all">All Time</option>
+          <option value="month">Last Month</option>
+          <option value="week">Last Week</option>
+          <option value="day">Last 24h</option>
+        </select>
+      </div>
+
+      <div className="text-center mb-2">
+        <p className="mb-0">
+          Total: {totalItems} | Approved: {totalApproved} (
+          {totalItems > 0 ? Math.round((totalApproved / totalItems) * 100) : 0}
+          %)
+        </p>
+      </div>
+
+      <div className="d-flex justify-content-center">
+        <div style={{ position: "relative", width: "100%", height: "300px" }}>
+          {filteredItems.length > 0 ? (
+            <Bar data={chartData} options={options} />
+          ) : hasItemsButNoneInRange ? (
+            <div className="text-center h-100 d-flex flex-column justify-content-center">
+              <p className="text-muted mb-2">
+                <i className="bi bi-calendar-x fs-4"></i>
+              </p>
+              <p className="text-muted">
+                No items created in {getTimeRangeLabel()}.
+              </p>
+              <p className="text-muted small">
+                You have {items.length} item{items.length !== 1 ? "s" : ""}{" "}
+                total.
+              </p>
+            </div>
+          ) : (
+            <div className="text-center h-100 d-flex flex-column justify-content-center">
+              <p className="text-muted mb-2">
+                <i className="bi bi-box-seam fs-4"></i>
+              </p>
+              <p className="text-muted">No items available yet.</p>
+              <p className="text-muted small">
+                Add your first item to see analytics.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -195,69 +300,112 @@ export const ItemStatusDistribution = ({ items }) => {
     return acc;
   }, {});
 
-  const totalItems = Object.values(statusData).reduce(
-    (sum, count) => sum + count,
-    0
+  // Total transactions
+  const total = items.length;
+
+  // Assign colors dynamically for better readability
+  const statusColors = {
+    approved: "#28a745", // Green
+    pending: "#ffc107", // Yellow
+    declined: "#fd7e14", // Orange
+    revoked: "#ff5733", // Red-Orange
+    removed: "#dc3545", // Red
+    flagged: "#6f42c1", // Purple
+    unknown: "#17a2b8", // Blue (fallback)
+  };
+
+  // Convert data into an array with percentages
+  const statusPercentages = Object.entries(statusData).map(
+    ([status, count]) => ({
+      status,
+      count,
+      percentage: ((count / total) * 100).toFixed(1),
+    })
   );
 
   const chartData = {
-    labels: Object.keys(statusData).map(
-      (status) =>
-        `${status} (${((statusData[status] / totalItems) * 100).toFixed(1)}%)`
-    ),
+    labels: Object.keys(statusData),
     datasets: [
       {
         data: Object.values(statusData),
-        backgroundColor: Object.keys(statusData).map((status) => {
-          const colors = {
-            approved: "#28a745", // Green
-            pending: "#ffc107", // Yellow
-            declined: "#dc3545", // Red
-            removed: "#6c757d", // Gray
-            revoked: "#6610f2", // Purple
-          };
-          return colors[status] || "#17a2b8"; // Default to Blue
-        }),
+        backgroundColor: Object.keys(statusData).map(
+          (status) => statusColors[status] || "#8a2be2"
+        ), // Assign colors dynamically
+        borderWidth: 2,
       },
     ],
   };
 
   return (
-    <div className="p-3 bg-white rounded shadow-sm mb-2">
-      <h5>Item Status Distribution</h5>
-      <p className="text-muted">Total Listings: {totalItems}</p>
-      <div
-        style={{
-          height: "300px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-        }}
-      >
-        <Doughnut
-          data={chartData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: "right",
-                labels: {
-                  boxWidth: 15,
+    <div className="p-4 bg-white rounded shadow mb-3">
+      <h5 className="mb-3 text-center">Item Status Distribution</h5>
+      <p className="text-muted text-center">
+        Total Item: <strong>{total}</strong>
+      </p>
+
+      <div className="d-flex justify-content-center">
+        <div style={{ width: "300px" }}>
+          <Doughnut
+            data={chartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: true,
+                  position: "bottom",
+                  labels: {
+                    boxWidth: 12,
+                    padding: 10,
+                  },
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      const percentage = statusPercentages.find(
+                        (item) => item.status === context.label
+                      )?.percentage;
+                      return `${context.label}: ${context.raw} (${percentage}%)`;
+                    },
+                  },
                 },
               },
-            },
-            layout: {
-              padding: {
-                top: 20,
-                bottom: 20,
-                left: 20,
-                right: 20,
-              },
-            },
-          }}
-        />
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <h6>Status Summary</h6>
+        <table className="table table-bordered text-center">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Count</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {statusPercentages.map(({ status, count, percentage }) => (
+              <tr key={status}>
+                <td>
+                  <span
+                    className="badge"
+                    style={{
+                      backgroundColor: statusColors[status] || "#8a2be2",
+                      color: "#fff",
+                      padding: "6px 10px",
+                    }}
+                  >
+                    {status}
+                  </span>
+                </td>
+                <td>{count}</td>
+                <td>{percentage}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

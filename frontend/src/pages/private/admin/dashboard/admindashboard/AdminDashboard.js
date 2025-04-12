@@ -31,6 +31,7 @@ import {
   TotalRegisteredUser,
   CompletedTransactionsAndPopularCategories,
   TopTransactionUsers,
+  TopUsers,
 } from "../../../../../components/Analytics/AdminDashboardAnalytics";
 
 const AdminDashboard = () => {
@@ -312,8 +313,15 @@ const AdminDashboard = () => {
             listings={listings}
           />
         </div>
-        <div className="chart-card">
+        {/* <div className="chart-card">
           <TopTransactionUsers transactions={transactions} users={users} />
+        </div> */}
+        <div className="chart-card">
+          <TopUsers
+            transactions={transactions}
+            users={users}
+            reports={reports}
+          />
         </div>
       </div>
     </div>

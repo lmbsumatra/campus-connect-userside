@@ -35,11 +35,10 @@ const ReportDashboard = () => {
   const navigate = useNavigate();
 
   const headers = [
-    "Report ID",
-    "Reason",
     "Reporter",
-    "Reported ID",
-    "Entity",
+    "Reported Name",
+    "Reason",
+    "Entity Type",
     "Date Added",
     "Status",
     "Action",
@@ -179,7 +178,9 @@ const ReportDashboard = () => {
             .includes(normalizedSearchQuery) ||
           report.entity_type.toLowerCase().includes(normalizedSearchQuery) ||
           normalizedReason.includes(normalizedSearchQuery) ||
-          normalizedDateAdded.includes(normalizedSearchQuery)
+          normalizedDateAdded.includes(normalizedSearchQuery) ||
+          (report.entity_name &&
+            report.entity_name.toLowerCase().includes(normalizedSearchQuery))
         );
       });
     }
@@ -187,6 +188,14 @@ const ReportDashboard = () => {
     if (filterOptions["Status"]) {
       filteredData = filteredData.filter(
         (report) => report.status === filterOptions["Status"]
+      );
+    }
+    if (
+      filterOptions["Entity Type"] &&
+      filterOptions["Entity Type"] !== "all"
+    ) {
+      filteredData = filteredData.filter(
+        (report) => report.entity_type === filterOptions["Entity Type"]
       );
     }
 
@@ -229,13 +238,12 @@ const ReportDashboard = () => {
   const data = displayedData.map((report) => {
     const { label, className } = getStatusInfo(report.status);
     return [
-      report.id,
-      report.reason,
       <>
         {report.reporter.first_name} {report.reporter.last_name}
       </>,
-      report.reported_entity_id,
-      report.entity_type,
+      report.entity_name,
+      report.reason,
+      report.entity_type.charAt(0).toUpperCase() + report.entity_type.slice(1),
       formatDate(report.createdAt),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">

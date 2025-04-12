@@ -6,6 +6,8 @@ import { Modal, Button } from "react-bootstrap";
 import { useAuth } from "../../../../../context/AuthContext";
 import "./userVerification.css";
 import { baseApi } from "../../../../../utils/consonants";
+import { useDispatch } from "react-redux";
+import ShowAlert from "../../../../../utils/ShowAlert";
 
 const UserVerification = () => {
   const { adminUser } = useAuth();
@@ -15,6 +17,7 @@ const UserVerification = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("verified");
   const [statusMessage, setStatusMessage] = useState("");
+  const dispatch = useDispatch();
 
   // Update selectedStatus when student data loads
   useEffect(() => {
@@ -33,7 +36,10 @@ const UserVerification = () => {
       ["flagged", "banned", "restricted"].includes(selectedStatus) &&
       !statusMessage.trim()
     ) {
-      alert(
+      await ShowAlert(
+        dispatch,
+        "warning",
+        "Action Required",
         `Please provide a reason/feedback for setting the status to ${selectedStatus}.`
       );
       return;
@@ -58,12 +64,26 @@ const UserVerification = () => {
         throw new Error(errorData.message || "Failed to update student status");
       }
 
-      alert("Student status updated successfully!");
+      await ShowAlert(
+        dispatch,
+        "success",
+        "Status Updated",
+        "Student status updated successfully!",
+        {
+          text: "Refresh Page",
+          action: () => window.location.reload(),
+        }
+      );
       setShowModal(false);
       window.location.reload();
     } catch (error) {
       console.error("Error updating student status:", error);
-      alert(`Failed to update student status: ${error.message}`);
+      await ShowAlert(
+        dispatch,
+        "error",
+        "Update Failed",
+        `Failed to update student status: ${error.message}`
+      );
     }
   };
 
@@ -174,6 +194,10 @@ const UserVerification = () => {
                 <div className="profile-item">
                   <span className="profile-label">College</span>
                   <span className="profile-value">{student.college}</span>
+                </div>
+                <div className="profile-item">
+                  <span className="profile-label">Course</span>
+                  <span className="profile-value">{student.course}</span>
                 </div>
                 {student.statusMessage && (
                   <div className="profile-item">

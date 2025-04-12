@@ -81,15 +81,93 @@ exports.getAllReports = async (req, res) => {
         {
           model: models.User,
           as: "reporter",
-          attributes: ["user_id", "first_name", "last_name"],
+          attributes: ["first_name", "last_name"],
         },
       ],
     });
-    res.status(200).json(reports);
+
+    if (!reports.length) {
+      return res.json([]); // no reports, no problem
+    }
+
+    const entityRefs = [
+      ...new Set(
+        reports.map((r) => `${r.entity_type}_${r.reported_entity_id}`)
+      ),
+    ];
+
+    const names = await getBulkEntityNames(entityRefs);
+
+    const reportsWithNames = reports.map((report) => ({
+      ...report.toJSON(),
+      entity_name:
+        names[`${report.entity_type}_${report.reported_entity_id}`] ||
+        report.reported_entity_id,
+    }));
+
+    res.json(reportsWithNames);
   } catch (error) {
-    // console.error("Error fetching reports:", error);
-    res.status(500).json({ error: "Failed to fetch reports." });
+    //console.error("Failed to fetch reports:", error);
+    res.status(500).json({ error: "Failed to fetch reports" });
   }
+};
+
+const getBulkEntityNames = async (entityRefs) => {
+  const result = {};
+
+  // Group by entity type
+  const grouped = entityRefs.reduce((acc, ref) => {
+    const [type, id] = ref.split("_");
+    if (!acc[type]) acc[type] = [];
+    acc[type].push(id);
+    return acc;
+  }, {});
+
+  // Listings
+  if (grouped.listing) {
+    const listings = await models.Listing.findAll({
+      where: { id: grouped.listing },
+      attributes: ["id", "listing_name"],
+    });
+    listings.forEach((l) => {
+      result[`listing_${l.id}`] = l.listing_name;
+    });
+  }
+
+  // Posts
+  if (grouped.post) {
+    const posts = await models.Post.findAll({
+      where: { id: grouped.post },
+      attributes: ["id", "post_item_name"],
+    });
+    posts.forEach((p) => {
+      result[`post_${p.id}`] = p.post_item_name;
+    });
+  }
+
+  // Users
+  if (grouped.user) {
+    const users = await models.User.findAll({
+      where: { user_id: grouped.user },
+      attributes: ["user_id", "first_name", "last_name"],
+    });
+    users.forEach((u) => {
+      result[`user_${u.user_id}`] = `${u.first_name} ${u.last_name}`;
+    });
+  }
+
+  // Sales
+  if (grouped.sale) {
+    const sales = await models.ItemForSale.findAll({
+      where: { id: grouped.sale },
+      attributes: ["id", "item_for_sale_name"],
+    });
+    sales.forEach((s) => {
+      result[`sale_${s.id}`] = s.item_for_sale_name;
+    });
+  }
+
+  return result;
 };
 
 const DISMISSAL_THRESHOLD = 5;

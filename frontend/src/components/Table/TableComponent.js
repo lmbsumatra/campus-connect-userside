@@ -1,7 +1,7 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./TableComponent.css";
-import { categories } from "../../utils/consonants";
+import { categories, COLLEGES } from "../../utils/consonants";
 
 const TableComponent = ({
   headers,
@@ -90,6 +90,19 @@ const TableComponent = ({
           </select>
         );
       case "College":
+        return (
+          <select
+            className="form-select form-select-sm control-select"
+            onChange={(e) => onFilterChange(header, e.target.value)}
+          >
+            <option value="">All</option>
+            {COLLEGES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        );
       case "Category":
         return (
           <select
@@ -113,6 +126,20 @@ const TableComponent = ({
             <option value="all">All</option>
             <option value="rental">Rental</option>
             <option value="sell">Sell</option>
+          </select>
+        );
+
+      case "Entity Type":
+        return (
+          <select
+            className="form-select form-select-sm control-select"
+            onChange={(e) => onFilterChange(header, e.target.value)}
+          >
+            <option value="all">All Types</option>
+            <option value="user">User</option>
+            <option value="listing">Listing</option>
+            <option value="post">Post</option>
+            <option value="sale">Sale</option>
           </select>
         );
       case "Date Added":

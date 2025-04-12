@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -143,8 +143,36 @@ export const ListingsGrowth = ({ listings }) => {
 };
 
 export const ListingsByCategory = ({ listings }) => {
+  const [timeRange, setTimeRange] = useState("all");
+
+  const filteredListings = useMemo(() => {
+    const now = new Date();
+    switch (timeRange) {
+      case "day":
+        return listings.filter(
+          (listing) =>
+            new Date(listing.createdAt) >
+            new Date(now.setDate(now.getDate() - 1))
+        );
+      case "week":
+        return listings.filter(
+          (listing) =>
+            new Date(listing.createdAt) >
+            new Date(now.setDate(now.getDate() - 7))
+        );
+      case "month":
+        return listings.filter(
+          (listing) =>
+            new Date(listing.createdAt) >
+            new Date(now.setMonth(now.getMonth() - 1))
+        );
+      default:
+        return listings;
+    }
+  }, [listings, timeRange]);
+
   // Process listings to get total and approved counts per category
-  const categoryData = listings.reduce((acc, listing) => {
+  const categoryData = filteredListings.reduce((acc, listing) => {
     const category = listing.category || "Unknown";
     acc[category] = acc[category] || { total: 0, approved: 0 };
     acc[category].total++;
@@ -157,39 +185,145 @@ export const ListingsByCategory = ({ listings }) => {
   // Convert to an array and sort by total listings
   const sortedCategories = Object.entries(categoryData)
     .map(([category, counts]) => ({ category, ...counts }))
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 5); // Get top 5 categories
+    .sort((a, b) => b.total - a.total);
 
-  // Extract data for chart
+  // Calculate totals
+  const totalListings = sortedCategories.reduce(
+    (sum, item) => sum + item.total,
+    0
+  );
+  const totalApproved = sortedCategories.reduce(
+    (sum, item) => sum + item.approved,
+    0
+  );
+
+  // Chart data
   const chartData = {
-    labels: sortedCategories.map((item) => item.category),
+    labels: sortedCategories.map((item) => `${item.category} (${item.total})`),
     datasets: [
       {
         label: "Total Listings",
         data: sortedCategories.map((item) => item.total),
         backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
       },
       {
         label: "Approved Listings",
         data: sortedCategories.map((item) => item.approved),
         backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
       },
     ],
   };
 
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const label = context.dataset.label || "";
+            const value = context.raw;
+            const percentage = ((value / totalListings) * 100).toFixed(2);
+            return `${label}: ${value} (${percentage}%)`;
+          },
+        },
+      },
+      legend: {
+        position: "bottom",
+      },
+    },
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+      },
+    },
+  };
+
+  // Get time range label for empty state messages
+  const getTimeRangeLabel = () => {
+    switch (timeRange) {
+      case "day":
+        return "the last 24 hours";
+      case "week":
+        return "the last week";
+      case "month":
+        return "the last month";
+      default:
+        return "any time";
+    }
+  };
+
+  // Check if there are listings but none in the filtered time range
+  const hasListingsButNoneInRange =
+    listings.length > 0 && filteredListings.length === 0;
+
   return (
     <div className="p-3 bg-white rounded shadow-sm mb-2">
-      <h5>Top 5 Categories - Listings Breakdown</h5>
-      <div style={{ height: "300px" }}>
-        <Bar
-          data={chartData}
-          options={{ responsive: true, maintainAspectRatio: false }}
-        />
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+        <h5 className="mb-2 mb-md-0">Listings by Category</h5>
+        <select
+          value={timeRange}
+          onChange={(e) => setTimeRange(e.target.value)}
+          className="form-select form-select-sm w-auto"
+        >
+          <option value="all">All Time</option>
+          <option value="month">Last Month</option>
+          <option value="week">Last Week</option>
+          <option value="day">Last 24h</option>
+        </select>
+      </div>
+
+      <div className="text-center mb-2">
+        <p className="mb-0">
+          Total: {totalListings} | Approved: {totalApproved} (
+          {totalListings > 0
+            ? Math.round((totalApproved / totalListings) * 100)
+            : 0}
+          %)
+        </p>
+      </div>
+
+      <div className="d-flex justify-content-center">
+        <div style={{ position: "relative", width: "100%", height: "300px" }}>
+          {filteredListings.length > 0 ? (
+            <Bar data={chartData} options={options} />
+          ) : hasListingsButNoneInRange ? (
+            <div className="text-center h-100 d-flex flex-column justify-content-center">
+              <p className="text-muted mb-2">
+                <i className="bi bi-calendar-x fs-4"></i>
+              </p>
+              <p className="text-muted">
+                No listings created in {getTimeRangeLabel()}.
+              </p>
+              <p className="text-muted small">
+                You have {listings.length} listing
+                {listings.length !== 1 ? "s" : ""} total.
+              </p>
+            </div>
+          ) : (
+            <div className="text-center h-100 d-flex flex-column justify-content-center">
+              <p className="text-muted mb-2">
+                <i className="bi bi-box-seam fs-4"></i>
+              </p>
+              <p className="text-muted">No listings available yet.</p>
+              <p className="text-muted small">
+                Add your first listing to see analytics.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
-
 export const ListingStatusTrends = ({ listings }) => {
   const [timeRange, setTimeRange] = useState("weekly");
 

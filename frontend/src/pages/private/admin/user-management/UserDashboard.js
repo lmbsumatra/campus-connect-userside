@@ -95,11 +95,13 @@ const UserDashboard = () => {
         const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
         const college = user.student?.college.toLowerCase() || "";
         const normalizedDateAdded = formatDate(user.createdAt).toLowerCase();
+        const normalizedDateUpdated = formatDate(user.updatedAt).toLowerCase();
 
         return (
           fullName.includes(normalizedSearchQuery) ||
           college.includes(normalizedSearchQuery) ||
-          normalizedDateAdded.includes(normalizedSearchQuery)
+          normalizedDateAdded.includes(normalizedSearchQuery) ||
+          normalizedDateUpdated.includes(normalizedSearchQuery)
         );
       });
     }

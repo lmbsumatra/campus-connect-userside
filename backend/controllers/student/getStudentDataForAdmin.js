@@ -23,7 +23,6 @@ const getStudentDataForAdmin = async (req, res) => {
       return res.status(404).json({ error: "Student not found!" });
     }
 
-   
     const formattedUser = {
       user: {
         fname: user.first_name,
@@ -36,13 +35,14 @@ const getStudentDataForAdmin = async (req, res) => {
         joinDate: user.createdAt,
       },
       student: {
-        id: user.student.id,  // Use the primary key ID
+        id: user.student.id, // Use the primary key ID
         tupId: user.student.tup_id,
         college: user.student.college,
         scannedId: user.student.scanned_id,
         photoWithId: user.student.photo_with_id,
         profilePic: user.student.profile_pic,
         status: user.student.status,
+        course: user.student.course,
       },
     };
 
