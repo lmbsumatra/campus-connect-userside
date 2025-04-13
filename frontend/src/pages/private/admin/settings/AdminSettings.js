@@ -10,6 +10,8 @@ import AdminUnavailableDates from "./AdminUnavailableDates";
 import AdminResetStatus from "./AdminResetStatus";
 import AdminViewSystemConfig from "./AdminViewSystemConfig";
 import { baseApi } from "../../../../utils/consonants";
+import ShowAlert from "../../../../utils/ShowAlert";
+import { useDispatch } from "react-redux";
 
 const AdminSettings = ({ tab, onClose }) => {
   const navigate = useNavigate();
@@ -28,6 +30,7 @@ const AdminSettings = ({ tab, onClose }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showManageEndSemesterDates, setShowManageEndSemesterDates] =
     useState(false);
+  const dispatch = useDispatch();
 
   const [showSystemConfig, setShowSystemConfig] = useState(false);
 
@@ -152,7 +155,12 @@ const AdminSettings = ({ tab, onClose }) => {
 
       if (response.ok) {
         const data = await response.json();
-        alert("Registered Successfully");
+        await ShowAlert(
+          dispatch,
+          "success",
+          "Success",
+          "Registered Successfully"
+        );
 
         // Reset the form and close the modal
         resetForm();
@@ -160,14 +168,22 @@ const AdminSettings = ({ tab, onClose }) => {
       } else {
         const errorData = await response.json();
         console.error("Registration failed:", errorData);
-        setErrorMessage(
+        await ShowAlert(
+          dispatch,
+          "error",
+          "Registration Failed",
           errorData.message || "Registration failed. Please try again."
         );
         errorRef.current.scrollIntoView({ behavior: "smooth" });
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      setErrorMessage("An unexpected error occurred. Please try again later.");
+      await ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "An unexpected error occurred. Please try again later."
+      );
       errorRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };

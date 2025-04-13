@@ -180,6 +180,7 @@ const AdminUnavailableDates = ({ onClose }) => {
                 <li>Reporting entity (user, listing, post, and sale)</li>
                 <li>Creating a Post</li>
                 <li>Adding listing</li>
+                <li>Adding Sale Item</li>
               </ul>
             </div>
           )}

@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchAdminListingById } from "../../../../redux/listing/adminListingByIdSlice";
 import ActionModal from "../common/ActionModal";
 import { baseApi } from "../../../../utils/consonants";
+import ShowAlert from "../../../../utils/ShowAlert";
 
 const ListingApproval = () => {
   const [showModal, setShowModal] = useState(false);
@@ -42,27 +43,29 @@ const ListingApproval = () => {
 
   const handleStatusChange = async (selectedAction, reason) => {
     try {
-      const response = await fetch(
-        `${baseApi}/listings/${id}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminUser?.token}`,
-          },
-          body: JSON.stringify({
-            status: selectedAction,
-            reason: reason,
-          }),
-        }
-      );
+      const response = await fetch(`${baseApi}/listings/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminUser?.token}`,
+        },
+        body: JSON.stringify({
+          status: selectedAction,
+          reason: reason,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to update listing status");
       }
 
       // Show success alert
-      alert(`Listing status updated to ${selectedAction} successfully!`);
+      await ShowAlert(
+        dispatch,
+        "success",
+        "Status Updated",
+        `Listing status updated to ${selectedAction} successfully!`
+      );
 
       // Update local state
       setStatus(selectedAction);
@@ -72,7 +75,12 @@ const ListingApproval = () => {
       dispatch(fetchAdminListingById({ id }));
     } catch (error) {
       // console.error("Error updating status:", error);
-      alert("Failed to update listing status.");
+      await ShowAlert(
+        dispatch,
+        "error",
+        "Update Failed",
+        error.message || "Failed to update listing status."
+      );
     } finally {
       handleCloseModal();
     }

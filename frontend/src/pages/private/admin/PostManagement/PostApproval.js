@@ -10,6 +10,7 @@ import { useAuth } from "../../../../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminPostById } from "../../../../redux/post/adminPostByIdSlice";
 import { baseApi } from "../../../../utils/consonants";
+import ShowAlert from "../../../../utils/ShowAlert";
 
 const PostApproval = () => {
   const [showModal, setShowModal] = useState(false);
@@ -59,10 +60,22 @@ const PostApproval = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+      await ShowAlert(
+        dispatch,
+        "success",
+        "Status Updated",
+        `Post status successfully changed to ${selectedAction}`
+      );
 
       setStatus(selectedAction);
     } catch (error) {
       console.error("Error updating status:", error);
+      await ShowAlert(
+        dispatch,
+        "error",
+        "Update Failed",
+        error.message || "Failed to update post status"
+      );
     } finally {
       handleCloseModal();
     }
@@ -90,8 +103,8 @@ const PostApproval = () => {
           Action
         </button>
       </div>
-     {/* Action Modal */}
-     <ActionModal
+      {/* Action Modal */}
+      <ActionModal
         show={showModal}
         onHide={handleCloseModal}
         title="Update Post Status"

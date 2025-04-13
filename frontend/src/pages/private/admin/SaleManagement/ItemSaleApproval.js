@@ -9,6 +9,7 @@ import ItemForSalePreview from "./ItemForSalePreview";
 import { useAuth } from "../../../../context/AuthContext";
 import { fetchAdminItemForSaleById } from "../../../../redux/item-for-sale/adminItemForSaleByIdSlice";
 import { baseApi } from "../../../../utils/consonants";
+import ShowAlert from "../../../../utils/ShowAlert";
 
 const ItemSaleApproval = () => {
   const [showModal, setShowModal] = useState(false);
@@ -45,23 +46,25 @@ const ItemSaleApproval = () => {
 
   const handleStatusChange = async (selectedAction, reason) => {
     try {
-      const response = await fetch(
-        `${baseApi}/item-for-sale/${id}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminUser?.token}`,
-          },
-          body: JSON.stringify({ status: selectedAction, reason }),
-        }
-      );
+      const response = await fetch(`${baseApi}/item-for-sale/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminUser?.token}`,
+        },
+        body: JSON.stringify({ status: selectedAction, reason }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to update item status");
       }
 
-      alert(`Item status updated to ${selectedAction} successfully!`);
+      await ShowAlert(
+        dispatch,
+        "success",
+        "Status Updated",
+        `Item status updated to ${selectedAction} successfully!`
+      );
 
       setStatus(selectedAction);
       setStatusMessage(reason);
@@ -69,7 +72,12 @@ const ItemSaleApproval = () => {
       // Refetch data to update UI
       dispatch(fetchAdminItemForSaleById({ id }));
     } catch (error) {
-      alert("Failed to update item status.");
+      await ShowAlert(
+        dispatch,
+        "error",
+        "Update Failed",
+        error.message || "Failed to update item status"
+      );
     } finally {
       handleCloseModal();
     }

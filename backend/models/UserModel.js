@@ -70,9 +70,7 @@ const User = sequelize.define(
       allowNull: true, // Allow null initially
     },
   },
-  { sequelize, modelName: "User", 
-    tableName: "users" 
-  }
+  { sequelize, modelName: "User", tableName: "users" }
 );
 
 User.associate = (models) => {
@@ -104,12 +102,16 @@ User.associate = (models) => {
     foreignKey: "admin_id",
     as: "logs",
   });
+
+  User.hasOne(models.Admin, {
+    foreignKey: "user_id",
+    as: "admin",
+  });
+
   User.hasOne(models.Org, {
     foreignKey: "user_id",
     as: "org",
   });
-
-  
 };
 
 module.exports = User;

@@ -49,9 +49,18 @@ export const AuthProvider = ({ children }) => {
     role,
     userId,
     firstName,
-    lastName
+    lastName,
+    permissionLevel
   ) => {
-    const newUser = { role, token, refreshToken, userId, firstName, lastName };
+    const newUser = {
+      role,
+      token,
+      refreshToken,
+      userId,
+      firstName,
+      lastName,
+      permissionLevel,
+    };
     setAdminUser(newUser);
     localStorage.setItem("adminUser", JSON.stringify(newUser));
     // console.log("Admin logged in:", newUser);
@@ -158,6 +167,47 @@ export const AuthProvider = ({ children }) => {
     }
   }, [logoutAdmin]); // ✅ Dependencies added properly
 
+  const checkPermissionStatus = useCallback(async () => {
+    if (!adminUser?.token || adminUser.role === "superadmin") return;
+
+    try {
+      const response = await fetch(`${baseApi}/admin/check-permission`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${adminUser.token}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to check permission status.");
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.permissionLevel === "DeniedAccess") {
+        alert(
+          "Your access has been revoked by the superadmin. You will be logged out."
+        );
+        logoutAdmin(true);
+      }
+    } catch (error) {
+      console.error("Permission check failed:", error);
+    }
+  }, [adminUser, logoutAdmin]);
+
+  useEffect(() => {
+    if (!adminUser?.token) return;
+
+    const interval = setInterval(() => {
+      checkPermissionStatus();
+    }, 60000); // Check every 60 seconds
+
+    checkPermissionStatus(); // Immediate check on mount
+
+    return () => clearInterval(interval);
+  }, [adminUser, checkPermissionStatus]);
+
   // Auto-refresh token on app start
   useEffect(() => {
     const autoRefreshToken = async () => {
@@ -208,7 +258,7 @@ export const AuthProvider = ({ children }) => {
           console.log("You have been logged out due to inactivity");
           isLoggedOut = true; // Prevent multiple logouts
           logoutAdmin(true);
-        }, 15 * 60 * 1000);
+        }, 5 * 60 * 1000);
       }, 200);
     };
 

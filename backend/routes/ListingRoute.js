@@ -6,6 +6,8 @@ const { upload_item } = require("../config/multer");
 const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 const updateListingStatus = require("../controllers/listing/updateListingStatus");
 const { authenticateToken } = require("../middlewares/AdminAuthMiddleware");
+const checkPermission = require("../middlewares/CheckPermission");
+const logAdminActivity = require("../middlewares/auditMiddleware");
 
 /* * * * * * * * * displayed for all users :: available * * * * * * * * * * * * * */
 // lahat ng available na listing (approved, with available date and corresponding time)
@@ -45,6 +47,12 @@ router.patch("/:id", ListingController.updateStatus);
 router.get("/admin/get/:id", ListingController2.adminListingById);
 
 // New route for updating listing status and emitting notifications
-router.patch("/:id/status", authenticateToken, updateListingStatus);
+router.patch(
+  "/:id/status",
+  authenticateToken,
+  checkPermission("ReadWrite"),
+  logAdminActivity,
+  updateListingStatus
+);
 
 module.exports = router;

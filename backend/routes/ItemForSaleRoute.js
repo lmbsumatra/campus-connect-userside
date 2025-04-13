@@ -5,6 +5,9 @@ const ItemForSaleController2 = require("../controllers/item-for-sale/ItemForSale
 const updateItemForSaleStatus = require("../controllers/item-for-sale/updateItemForSaleStatus.js");
 const { upload_item } = require("../config/multer");
 const { authenticateToken } = require("../middlewares/AdminAuthMiddleware");
+const checkPermission = require("../middlewares/CheckPermission.js");
+const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
+const logAdminActivity = require("../middlewares/auditMiddleware");
 
 router.get("/available", ItemForSaleController2.getAllAvailable);
 // isang item for sale na available (approved, with available date and corresponding time)
@@ -33,7 +36,12 @@ router.patch("/:id", ItemForSaleController.updateStatus);
 router.get("/admin/get/:id", ItemForSaleController2.adminItemForSaleById);
 
 // crud for user
-router.post("/add", upload_item, ItemForSaleController2.addItemForSale);
+router.post(
+  "/add",
+  checkUnavailableDate,
+  upload_item,
+  ItemForSaleController2.addItemForSale
+);
 router.get(
   "/users/:userId/get/:itemForSaleId",
   upload_item,
@@ -45,7 +53,13 @@ router.patch(
   ItemForSaleController2.updateItemForSaleById
 );
 router.put("/:id", ItemForSaleController.updateItemForSale);
-router.patch("/:id/status", authenticateToken, updateItemForSaleStatus);
+router.patch(
+  "/:id/status",
+  authenticateToken,
+  checkPermission("ReadWrite"),
+  logAdminActivity,
+  updateItemForSaleStatus
+);
 router.delete(
   "/:users/:userId/delete/:itemForSaleId",
   ItemForSaleController2.deleteItemForSaleById

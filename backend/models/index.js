@@ -33,6 +33,7 @@ const BlockedUser = require("./BlockedUserModel");
 const DeletedConversation = require("./DeletedConversationModel");
 const Org = require("./OrganizationModel");
 const OrgCategory = require("./OrgCategoriesModel");
+const Admin = require("./AdminModel");
 
 const models = {
   Listing,
@@ -40,6 +41,7 @@ const models = {
   Cart,
   Student,
   User,
+  Admin,
   Date,
   Duration,
   ItemForSale,

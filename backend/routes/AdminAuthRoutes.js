@@ -8,6 +8,7 @@ const StudentController = require("../controllers/student/StudentController");
 const AdminController = require("../controllers/admin/AdminController");
 const logAdminActivity = require("../middlewares/auditMiddleware");
 const { upload_prof } = require("../config/multer"); // Configure storage options if necessary
+const checkPermission = require("../middlewares/CheckPermission");
 
 // Making admins account.
 router.post(
@@ -69,6 +70,7 @@ router.put(
   "/change-status",
   authenticateToken,
   logAdminActivity,
+  checkPermission("ReadWrite"),
   StudentController.changeStudentStatus
 );
 
@@ -84,5 +86,18 @@ router.post(
 router.post("/audit-logout", AdminController.logAdminLogout);
 
 router.get("/report", AdminController.reportGeneration);
+
+router.post(
+  "/update-permission",
+  authenticateToken,
+  logAdminActivity,
+  AdminController.updatePermissionLevel
+);
+
+router.get(
+  "/check-permission",
+  authenticateToken,
+  AdminController.checkPermissionLevel
+);
 
 module.exports = router;

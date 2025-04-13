@@ -45,6 +45,13 @@ const loginAdmin = async (req, res) => {
     const admin = await Admin.findOne({ where: { user_id: user.user_id } });
     if (!admin) return res.status(403).json({ message: "Unauthorized access" });
 
+    // Check if the user has the appropriate permission level
+    if (user.role === "admin" && admin.permissionLevel === "DeniedAccess") {
+      return res
+        .status(403)
+        .json({ message: "Access Denied. Insufficient permissions." });
+    }
+
     // Update last login time
     user.lastlogin = new Date();
     await user.save();
@@ -83,6 +90,7 @@ const loginAdmin = async (req, res) => {
       userId: user.user_id,
       first_name: user.first_name,
       last_name: user.last_name,
+      permissionLevel: admin.permissionLevel,
     });
   } catch (error) {
     console.error("Login error:", error);

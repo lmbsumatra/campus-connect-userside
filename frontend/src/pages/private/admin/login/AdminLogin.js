@@ -62,10 +62,27 @@ const AdminLogin = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const { token, refreshToken, role, userId, first_name, last_name } =
-          data;
-        loginAdmin(token, refreshToken, role, userId, first_name, last_name);
+        const {
+          token,
+          refreshToken,
+          role,
+          userId,
+          first_name,
+          last_name,
+          permissionLevel,
+        } = data;
+        loginAdmin(
+          token,
+          refreshToken,
+          role,
+          userId,
+          first_name,
+          last_name,
+          permissionLevel
+        );
         navigate("/admin/dashboard");
+      } else if (response.status === 403) {
+        setErrorMessage("You do not have permission to access this portal.");
       } else {
         setErrorMessage("Invalid email or password. Please try again.");
       }

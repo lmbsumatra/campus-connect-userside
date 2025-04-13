@@ -13,6 +13,8 @@ const refreshAdminToken = require("./refreshAdminToken");
 const allUnavailableDates = require("./allUnavailableDates");
 const logAdminLogout = require("./logAdminLogout");
 const reportGeneration = require("./reportGeneration");
+const updatePermissionLevel = require("./updatePermissionLevel");
+const checkPermissionLevel = require("./checkPermissionLevel");
 
 const AdminController = {
   addEndSemesterDate,
@@ -29,7 +31,9 @@ const AdminController = {
   refreshAdminToken,
   allUnavailableDates,
   logAdminLogout,
-  reportGeneration
+  reportGeneration,
+  updatePermissionLevel,
+  checkPermissionLevel,
 };
 
 module.exports = AdminController;

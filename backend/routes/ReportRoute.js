@@ -4,6 +4,7 @@ const reportController = require("../controllers/ReportController");
 const checkUnavailableDate = require("../middlewares/CheckUnavailableDate");
 const logAdminActivity = require("../middlewares/auditMiddleware");
 const { authenticateToken } = require("../middlewares/AdminAuthMiddleware");
+const checkPermission = require("../middlewares/CheckPermission");
 
 // Routes for reports
 
@@ -14,8 +15,10 @@ router.patch(
   "/:id",
   authenticateToken,
   logAdminActivity,
+  checkPermission("ReadWrite"),
   reportController.updateReportStatus
-); // Update a report (e.g., status)
+);
+// Update a report (e.g., status)
 // router.delete(
 //   "/:id",
 //   authenticateToken,

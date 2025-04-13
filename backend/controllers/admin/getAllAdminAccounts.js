@@ -1,5 +1,6 @@
 // Get all admin and superadmin accounts
 const User = require("../../models/UserModel");
+const Admin = require("../../models/AdminModel");
 const { Op } = require("sequelize");
 
 const getAllAdminAccounts = async (req, res) => {
@@ -19,11 +20,18 @@ const getAllAdminAccounts = async (req, res) => {
         "role",
         "createdAt",
       ],
+      include: [
+        {
+          model: Admin,
+          as: "admin",
+          attributes: ["permissionLevel"],
+        },
+      ],
     });
 
     res.status(200).json(users);
   } catch (error) {
-    // console.error("Error fetching admin accounts:", error);
+    console.error("Error fetching admin accounts:", error);
     res
       .status(500)
       .json({ message: "Error fetching admin accounts", error: error.message });

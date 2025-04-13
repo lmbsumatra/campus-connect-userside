@@ -26,6 +26,10 @@ Admin.init(
       type: DataTypes.STRING, // Store the refresh token here
       allowNull: true,
     },
+    permissionLevel: {
+      type: DataTypes.ENUM("ReadOnly", "ReadWrite", "DeniedAccess"),
+      allowNull: true,
+    },
   },
   {
     sequelize,
