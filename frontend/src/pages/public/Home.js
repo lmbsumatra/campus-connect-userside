@@ -64,7 +64,7 @@ function Home() {
 
   useEffect(() => {
     dispatch(fetchAllApprovedPosts("new_posts"));
-    dispatch(fetchAllApprovedListings({ preferece: "top_items_for_rent" }));
+    dispatch(fetchAllApprovedListings({ preference: "top_items_for_rent" }));
     dispatch(fetchAllApprovedItemForSale({ preference: "new_items_for_sale" }));
   }, [dispatch]);
 

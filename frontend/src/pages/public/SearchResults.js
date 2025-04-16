@@ -57,9 +57,9 @@ const SearchResults = () => {
   const type = searchParams.get("type") || "all";
 
   useEffect(() => {
-    dispatch(fetchAllApprovedPosts(keyword));
-    dispatch(fetchAllApprovedListings(keyword));
-    dispatch(fetchAllApprovedItemForSale(keyword));
+    dispatch(fetchAllApprovedPosts({keyword}));
+    dispatch(fetchAllApprovedListings({keyword}));
+    dispatch(fetchAllApprovedItemForSale({keyword}));
     dispatch(fetchAllUsers(keyword));
   }, [dispatch, keyword]);
 
