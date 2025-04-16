@@ -10,9 +10,8 @@ const ConfirmationModal = ({
   confirm,
   selectedDate,
   selectedDuration,
+  quantity,
 }) => {
-  console.log(itemforsale, selectedDate);
-
   const selectedDateId = itemforsale.rentalDates.find(
     (rentalDate) => rentalDate.date === selectedDate
   )?.id;
@@ -40,7 +39,12 @@ const ConfirmationModal = ({
               <span className="value">{itemforsale.name}</span>
               <span className="value">{itemforsale.rate}</span>
               <span className="label">
-                Item Condition:{" "}
+                Quantity:
+                <span className="value">{quantity || "1"}</span>
+              </span>
+
+              <span className="label">
+                Item Condition:
                 <span className="value">{itemforsale.itemCondition}</span>
               </span>
             </div>
@@ -59,7 +63,7 @@ const ConfirmationModal = ({
               Date: <span className="value">{formatDate(selectedDate)}</span>
             </span>
             <span className="label">
-              Duration:
+              Pickup Time:
               <span className="value">
                 {" "}
                 {formatTimeTo12Hour(selectedDuration.timeFrom)} -{" "}
@@ -67,20 +71,7 @@ const ConfirmationModal = ({
               </span>
             </span>
           </div>
-          {/* <div className="terms-condition">
-            <span className="label">
-              Late Charges:{" "}
-              <span className="value">{itemforsale.lateCharges}</span>
-            </span>
-            <span className="label">
-              Security Deposit:{" "}
-              <span className="value">{itemforsale.securityDeposit}</span>
-            </span>
-            <span className="label">
-              Repair and Replacement:{" "}
-              <span className="value">{itemforsale.repairReplacement}</span>
-            </span>
-          </div> */}
+
           <span>
             By confirming your rental, you agree to the platform's Policies,
             Terms and Conditions, and the terms with the other party ("Owner")

@@ -62,7 +62,7 @@ const ItemBadges = ({ values }) => {
           }}
         >
           {values?.category ? (
-            <span>{values?.category}</span>
+            <span className="p-1">{values?.category}</span>
           ) : (
             <span className="error-msg"></span>
           )}

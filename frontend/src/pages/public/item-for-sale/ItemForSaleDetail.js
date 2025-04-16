@@ -10,6 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 import cartIcon from "../../../assets/images/pdp/cart.svg";
 import forRentIcon from "../../../assets/images/card/rent.svg";
 import targetIcon from "../../../assets/images/card/target.svg";
+import gearIcon from "../../../assets/images/card/gear.svg";
 import forSaleIcon from "../../../assets/images/card/buy.svg";
 import "./itemForSaleDetailStyles.css";
 
@@ -40,6 +41,7 @@ import ViewToolbar from "../common/ViewToolbar";
 import ConfirmationModal from "./ConfirmationModal";
 import store from "../../../store/store";
 import { fetchUnavailableDates } from "../../../redux/dates/unavaibleDatesSlice";
+import QuantityControl from "./QuantityControl";
 
 function ItemForSaleDetail() {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
@@ -58,6 +60,7 @@ function ItemForSaleDetail() {
     loadingApprovedItemForSaleById,
     errorApprovedItemForSaleById,
   } = useSelector((state) => state.approvedItemForSaleById);
+  const [quantity, setQuantity] = useState(1);
 
   const studentUser = useSelector(selectStudentUser);
   const isYou = approvedItemForSaleById?.seller?.id === studentUser?.userId;
@@ -176,7 +179,16 @@ function ItemForSaleDetail() {
     if (selectedDate && selectedDuration) {
       setShowModal(true);
     } else {
-      alert("Please select a date and duration before offering.");
+      if (!selectedDate || !selectedDuration || !quantity) {
+        dispatch(
+          showNotification({
+            type: "error",
+            title: "Error",
+            text: "Please select a date, duration, and quantity before buying.",
+          })
+        );
+        return;
+      }
     }
   };
 
@@ -278,12 +290,12 @@ function ItemForSaleDetail() {
       })
     );
 
-    if (!selectedDate || !selectedDuration) {
+    if (!selectedDate || !selectedDuration || !quantity) {
       dispatch(
         showNotification({
           type: "error",
           title: "Error",
-          text: "Please select a date and duration before adding to cart.",
+          text: "Please select a date, duration, and quantity before adding to cart.",
         })
       );
       return;
@@ -315,8 +327,9 @@ function ItemForSaleDetail() {
           dateId: selectedDateId,
           durationId: selectedDurationId,
           itemId: item.id,
-          price: item.price,
+          price: item.price * quantity,
           name: item.name,
+          quantity: quantity || 0,
         })
       ).then(() => {
         dispatch(fetchCart());
@@ -395,6 +408,7 @@ function ItemForSaleDetail() {
         isFromCart: false,
         transaction_type: "sell",
         amount: approvedItemForSaleById.price,
+        quantity: quantity || 1,
       };
 
       const response = await axios.post(
@@ -446,6 +460,20 @@ function ItemForSaleDetail() {
       dispatch(fetchApprovedItemForSaleById(id));
     }
   }, [id, dispatch]);
+
+  const checkIfReported = async () => {
+    try {
+      const response = await axios.get(`${baseApi}/api/reports/check`, {
+        params: {
+          reporter_id: loggedInUserId,
+          reported_entity_id: approvedItemForSaleById.id,
+        },
+      });
+      setHasReported(response.data.hasReported);
+    } catch (error) {
+      console.error("Error checking report:", error);
+    }
+  };
 
   useEffect(() => {
     if (loggedInUserId) {
@@ -701,20 +729,6 @@ function ItemForSaleDetail() {
     }
   };
 
-  const checkIfReported = async () => {
-    try {
-      const response = await axios.get(`${baseApi}/api/reports/check`, {
-        params: {
-          reporter_id: loggedInUserId,
-          reported_entity_id: approvedItemForSaleById.id,
-        },
-      });
-      setHasReported(response.data.hasReported);
-    } catch (error) {
-      console.error("Error checking report:", error);
-    }
-  };
-
   return (
     <div className="container-content itemforsale-detail">
       {isYou && <ViewToolbar />}
@@ -785,6 +799,31 @@ function ItemForSaleDetail() {
               />
             </Tooltip>
           )}
+
+          {approvedItemForSaleById.hasRepresentative && (
+            <Tooltip
+              title={`This item is sold by ${approvedItemForSaleById?.organization?.name} organization.`}
+              componentsProps={{
+                popper: {
+                  modifiers: [
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, 0],
+                      },
+                    },
+                  ],
+                },
+              }}
+            >
+              <img
+                src={gearIcon}
+                alt={`This item is sold by ${approvedItemForSaleById?.organization?.name} organization`}
+                className="rented-indx"
+              />
+            </Tooltip>
+          )}
+
           <ImageSlider
             images={
               approvedItemForSaleById.images &&
@@ -895,6 +934,14 @@ function ItemForSaleDetail() {
             </button>
           </div>
           <hr />
+
+          <QuantityControl
+            quantity={quantity}
+            setQuantity={setQuantity}
+            min={1}
+            max={approvedItemForSaleById?.quantity || 10}
+          />
+
           <div className="rental-dates-durations">
             <div className="date-picker">
               <span>
@@ -1168,6 +1215,7 @@ function ItemForSaleDetail() {
           confirm={(e) => confirmRental(e)}
           selectedDate={selectedDate}
           selectedDuration={selectedDuration}
+          quantity={quantity}
         />
       )}
     </div>

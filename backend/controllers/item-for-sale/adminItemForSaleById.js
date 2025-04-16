@@ -85,6 +85,7 @@ const adminItemForSaleById = async (req, res) => {
       itemCondition: item.item_condition,
       paymentMethod: item.payment_mode,
       status: item.status,
+      stock: item.stock,
       category: item.category,
       itemType: "For Sale",
       desc: item.description,

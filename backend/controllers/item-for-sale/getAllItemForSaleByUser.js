@@ -63,6 +63,7 @@ const getAllItemForSaleByUser = async (req, res) => {
           category: item.category,
           itemType: "For Sale",
           location: item.location,
+          stock: item.current_stock,
           images,
           availableDates: item.available_dates.map((date) => ({
             id: date.id,

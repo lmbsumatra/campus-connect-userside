@@ -23,7 +23,6 @@ const RepSelector = ({
   searchInputRefs = [],
   setShowRepList,
   setShowAlert,
-  setAlertMessage,
   organizations = [],
   focusHandledRef,
 }) => {
@@ -58,9 +57,6 @@ const RepSelector = ({
         organizations.find((org) => (org.orgId || org.org_id) === org_id)
           ?.name || "Organization";
 
-      setAlertMessage(`Representative removed from ${orgName}`);
-      setShowAlert(true);
-
       focusHandledRef.current[org_id] = false;
     });
   };
@@ -77,12 +73,6 @@ const RepSelector = ({
     const orgName =
       organizations.find((org) => org.orgId === org_id)?.name || "Organization";
 
-    setAlertMessage(
-      `Representative set: ${rep?.first_name || ""} ${
-        rep?.last_name || ""
-      } for ${orgName}`
-    );
-    setShowAlert(true);
     setShowRepList((prev) => ({ ...prev, [org_id]: false }));
     dispatch(updateSearchRepMap({ orgId: org_id, searchTerm: "" }));
   };

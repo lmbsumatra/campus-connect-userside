@@ -64,10 +64,12 @@ module.exports = (sequelize) => {
           "expired"
         ),
       },
+      quantity: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
-    { sequelize, modelName: "cart", 
-      tableName: "cart", 
-      timestamps: false }
+    { sequelize, modelName: "cart", tableName: "cart", timestamps: false }
   );
 
   Cart.associate = (models) => {

@@ -48,16 +48,19 @@ const OrgsManagement = () => {
     category: "",
     isActive: true,
     rep_id: null,
-    logo_file: null,    // To store the file object
-    logo_url: null,     // To store existing logo URL
-    logo_name: null,    // To store the filename
-    remove_logo: false  // Flag to indicate if logo should be removed
+    logo_file: null, // To store the file object
+    logo_url: null, // To store existing logo URL
+    logo_name: null, // To store the filename
+    logo: null,
+    remove_logo: false, // Flag to indicate if logo should be removed
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({
     key: "org_name",
     direction: "asc",
   });
+
+  console.log(editableOrg);
 
   const repListRefs = useRef({});
   const searchInputRefs = useRef({});
@@ -232,29 +235,34 @@ const OrgsManagement = () => {
     const orgId = org.orgId || org.org_id;
     const orgName = org.name || org.org_name;
     const newStatus = org.isActive ? "inactive" : "active";
-    
+
     dispatch(
       toggleOrgStatus({
         orgId: orgId,
         isActive: newStatus,
       })
-    ).then(() => {
-      displayAlert(
-        `Organization "${orgName}" status changed to ${newStatus}`,
-        newStatus === "active" ? "success" : "warning"
-      );
-    }).catch((err) => {
-      displayAlert(`Failed to update status: ${err.message}`, "danger");
-    });
+    )
+      .then(() => {
+        displayAlert(
+          `Organization "${orgName}" status changed to ${newStatus}`,
+          newStatus === "active" ? "success" : "warning"
+        );
+      })
+      .catch((err) => {
+        displayAlert(`Failed to update status: ${err.message}`, "danger");
+      });
   };
 
   const handleAddOrg = () => {
-    console.log(editableOrg)
+    console.log(editableOrg);
     dispatch(addOrganization(editableOrg))
       .then(() => {
         setShowAddModal(false);
         resetFormState();
-        displayAlert(`Organization "${editableOrg.org_name}" added successfully`, "success");
+        displayAlert(
+          `Organization "${editableOrg.org_name}" added successfully`,
+          "success"
+        );
       })
       .catch((err) => {
         displayAlert(`Failed to add organization: ${err.message}`, "danger");
@@ -262,12 +270,14 @@ const OrgsManagement = () => {
   };
 
   const handleUpdateOrg = () => {
-    console.log(editableOrg)
     dispatch(updateOrganization(editableOrg))
       .then(() => {
         setShowEditModal(false);
         resetFormState();
-        displayAlert(`Organization "${editableOrg.org_name}" updated successfully`, "success");
+        displayAlert(
+          `Organization "${editableOrg.org_name}" updated successfully`,
+          "success"
+        );
       })
       .catch((err) => {
         displayAlert(`Failed to update organization: ${err.message}`, "danger");
@@ -282,6 +292,7 @@ const OrgsManagement = () => {
       category: org.category?.name || org.category || "",
       isActive: org.isActive ? "active" : "inactive",
       rep_id: org.representative?.id || org.rep_id,
+      logo: org.logo || null
     };
     setEditableOrg(orgToEdit);
     setShowEditModal(true);
@@ -292,6 +303,7 @@ const OrgsManagement = () => {
       org_name: "",
       description: "",
       category: "",
+      logo: "",
       isActive: "active",
       rep_id: null,
     });
@@ -367,6 +379,7 @@ const OrgsManagement = () => {
           <Table striped bordered hover className="mb-4">
             <thead>
               <tr>
+                <th>Logo</th>
                 <th onClick={() => handleSort("org_name")}>
                   Organization Name{" "}
                   {sortConfig.key === "org_name"
@@ -427,6 +440,43 @@ const OrgsManagement = () => {
             <tbody>
               {paginatedOrgs.map((org) => (
                 <tr key={org.orgId || org.org_id}>
+                  <td>
+                    <img
+                      src={org.logo}
+                      alt="Organization Logo"
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        display: org.logo ? "block" : "none",
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = "none"; // Hide the broken image
+                        const fallback = e.target.nextSibling; // Get the next sibling div (the fallback)
+                        if (fallback) fallback.style.display = "flex"; // Show the fallback
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        backgroundColor: "#ccc",
+                        display: org.logo ? "none" : "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
+                        fontWeight: "bold",
+                        fontSize: "16px",
+                      }}
+                    >
+                      {org?.org_name
+                        ? org.org_name.charAt(0).toUpperCase()
+                        : "?"}
+                    </div>
+                  </td>
+
                   <td>
                     <Tooltip title={org.name}>
                       <span className="table-ellipsis">

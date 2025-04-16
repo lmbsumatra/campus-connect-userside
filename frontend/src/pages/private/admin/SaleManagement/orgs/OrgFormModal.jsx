@@ -42,12 +42,12 @@ const OrgFormModal = ({
     }
 
     // Set logo preview if org has existing logo
-    if (editableOrg.logo_url) {
-      setLogoPreview(editableOrg.logo_url);
+    if (editableOrg.logo) {
+      setLogoPreview(editableOrg.logo);
     } else {
       setLogoPreview(null);
     }
-  }, [editableOrg.rep_id, editableOrg.logo_url, users]);
+  }, [editableOrg.rep_id, editableOrg.logo, users]);
 
   const validateForm = () => {
     const errors = {};
@@ -94,17 +94,9 @@ const OrgFormModal = ({
     if (!file) return;
 
     // Check file type
-    const validTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/svg+xml",
-    ];
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
     if (!validTypes.includes(file.type)) {
-      displayAlert(
-        "Please select a valid image file (JPEG, PNG, GIF, SVG)",
-        "danger"
-      );
+      displayAlert("Please select a valid image file (JPEG, PNG, GIF, SVG)", "danger");
       return;
     }
 
@@ -127,6 +119,7 @@ const OrgFormModal = ({
       logo_file: file,
       logo_name: file.name,
       remove_logo: false, // Reset remove flag if it was set
+      logo: null, // Clear the existing logo URL if there was one
     }));
   };
 
@@ -134,10 +127,10 @@ const OrgFormModal = ({
     setLogoPreview(null);
     setEditableOrg((prev) => ({
       ...prev,
+      remove_logo: true,
       logo_file: null,
       logo_name: null,
-      logo_url: null,
-      remove_logo: true, // Add flag to indicate logo should be removed
+      logo: null,
     }));
 
     // Reset file input
@@ -172,12 +165,21 @@ const OrgFormModal = ({
     onClose();
   };
 
+  const handleDelete = async () => {
+    try {
+      await dispatch(deleteOrganization(editableOrg.org_id)).unwrap();
+      displayAlert(`Organization "${editableOrg.org_name}" deleted successfully`, "success");
+      handleClose();
+    } catch (err) {
+      console.error("Failed to delete organization:", err);
+      displayAlert(`Failed to delete organization: ${err.message}`, "danger");
+    }
+  };
+
   return (
     <Modal show={show} onHide={handleClose} backdrop="static" size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>
-          {mode === "add" ? "Add" : "Edit"} Organization
-        </Modal.Title>
+        <Modal.Title>{mode === "add" ? "Add" : "Edit"} Organization</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
@@ -191,20 +193,12 @@ const OrgFormModal = ({
                     src={logoPreview}
                     alt="Organization Logo Preview"
                     thumbnail
-                    style={{ maxHeight: "150px", maxWidth: "300px" }}
+                    style={{ height: "100px", width: "100px" }}
                   />
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    className="position-absolute top-0 end-0"
-                    onClick={removeLogo}
-                  >
-                    ✕
-                  </Button>
                 </div>
               ) : (
                 <div
-                  className="d-flex justify-content-center align-items-center border rounded p-5 mb-3 w-100 cursor-pointer"
+                  className="d-flex justify-content-center align-items-center border rounded p-5 mb-3 w-100"
                   style={{
                     height: "150px",
                     backgroundColor: "#f8f9fa",
@@ -228,21 +222,17 @@ const OrgFormModal = ({
                   accept="image/*"
                   onChange={handleLogoUpload}
                   ref={fileInputRef}
-                  className="d-none" // Hide the actual file input
+                  className="d-none"
                 />
+
                 {logoPreview && (
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={removeLogo}
-                  >
+                  <Button variant="outline-danger" size="sm" onClick={removeLogo}>
                     Remove
                   </Button>
                 )}
               </div>
               <Form.Text className="text-muted mt-2">
-                Recommended size: 300x150px. Max file size: 2MB. Supported
-                formats: JPEG, PNG, GIF, SVG
+                Recommended size: 300x150px. Max file size: 2MB. Supported formats: JPEG, PNG, GIF, SVG
               </Form.Text>
             </div>
           </Form.Group>
@@ -329,22 +319,16 @@ const OrgFormModal = ({
                 displayAlert={displayAlert}
                 organizations={organizations}
                 focusHandledRef={focusHandledRef}
+                setEditableOrg={setEditableOrg} // Pass setEditableOrg to update parent state
               />
             </div>
           </Form.Group>
-          <Button
-            variant="danger"
-            onClick={async () => {
-              try {
-                await dispatch(deleteOrganization(editableOrg.org_id)).unwrap();
-                handleClose();
-              } catch (err) {
-                console.error("Failed to delete organization:", err);
-              }
-            }}
-          >
-            Delete
-          </Button>
+
+          {mode === "edit" && (
+            <Button variant="danger" onClick={handleDelete}>
+              Delete
+            </Button>
+          )}
         </Form>
       </Modal.Body>
       <Modal.Footer>

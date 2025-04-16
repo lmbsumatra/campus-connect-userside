@@ -10,5 +10,10 @@ router.delete(
   authenticateToken,
   CartController.removeCartItem
 );
+router.put(
+  "/update-qty/:cartItemId",
+  authenticateToken,
+  CartController.updateCartQuantity
+);
 
 module.exports = router;

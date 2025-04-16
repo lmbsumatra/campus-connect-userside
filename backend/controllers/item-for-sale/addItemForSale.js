@@ -10,6 +10,7 @@ const validateItemData = (itemData) => {
     "itemCondition",
     "paymentMethod",
     "price",
+    "stock",
   ];
   const missingFields = requiredFields.filter((field) => !itemData[field]);
 
@@ -81,6 +82,10 @@ const addItemForSale = async (req, res) => {
       throw new Error("Item for sale data is missing");
     }
 
+    if (isNaN(itemData.stock) || Number(itemData.stock) < 1) {
+      throw new Error("Stock must be a positive number.");
+    }
+
     // Validate the item data and images
     validateItemData(itemData);
     const imageUrls = validateImages(req.files.upload_images); // Using local file paths
@@ -98,6 +103,8 @@ const addItemForSale = async (req, res) => {
         item_for_sale_name: itemData.itemName,
         item_condition: itemData.itemCondition,
         payment_mode: itemData.paymentMethod,
+        stock: itemData.stock,
+        current_stock: itemData.stock,
         price: itemData.price,
         images: JSON.stringify(imageUrls),
         description: itemData.desc,

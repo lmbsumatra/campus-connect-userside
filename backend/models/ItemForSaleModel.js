@@ -69,6 +69,15 @@ module.exports = (sequelize) => {
       images: {
         type: DataTypes.TEXT,
       },
+      stock: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      current_stock: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
@@ -78,7 +87,6 @@ module.exports = (sequelize) => {
         defaultValue: DataTypes.NOW,
         onUpdate: DataTypes.NOW,
       },
-      
     },
     {
       sequelize,

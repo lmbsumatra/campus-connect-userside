@@ -51,6 +51,7 @@ const getItemForSaleById = async (req, res) => {
       itemCondition: item.item_condition,
       paymentMethod: item.payment_mode,
       statusMessage: item.status_message,
+      stock: item.stock,
       status: item.status,
       category: item.category,
       itemType: "For Sale",

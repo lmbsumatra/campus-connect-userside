@@ -634,6 +634,9 @@ const EditItem = () => {
           securityDeposit: itemDataState.securityDeposit.value,
           repairReplacement: itemDataState.repairReplacement.value,
         }),
+        ...(itemType === FOR_SALE && {
+          stock: itemDataState.stock.value,
+        }),
       };
 
       formData.append(
@@ -760,6 +763,21 @@ const EditItem = () => {
             className="field-container item-price"
             item_type={itemType}
           />
+
+          {itemDataState?.itemType?.value === FOR_SALE && (
+            <FormField
+              label="Stock"
+              id="stock"
+              value={itemDataState.stock.value}
+              onChange={handleFieldChange}
+              onBlur={handleFieldBlur}
+              error={itemDataState.stock.error}
+              triggered={itemDataState.stock.triggered}
+              placeholder="Enter stock quantity"
+              className="field-container item-stock"
+              type="number"
+            />
+          )}
 
           {/* Action Buttons */}
           <Tooltip

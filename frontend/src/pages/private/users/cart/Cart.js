@@ -13,11 +13,13 @@ import {
   selectCartError,
   selectCartSuccessMessage,
   clearSuccessMessage,
+  updateCartItemQty,
 } from "../../../../redux/cart/cartSlice";
 import { Modal, Button } from "react-bootstrap";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
 import { defaultImages } from "../../../../utils/consonants";
 import CheckoutModal from "./CheckoutModal";
+import QuantityControl from "../../../public/item-for-sale/QuantityControl";
 
 const Cart = ({ isOpen, onClose }) => {
   const { cartItems, loading, error, successMessage } = useSelector(
@@ -25,6 +27,7 @@ const Cart = ({ isOpen, onClose }) => {
   );
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [quantities, setQuantities] = useState({});
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
@@ -43,7 +46,6 @@ const Cart = ({ isOpen, onClose }) => {
     setSelectAll(false); // Reset "Select All"
   }, [cartItems]);
 
-  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (cartRef.current && !cartRef.current.contains(event.target)) {
@@ -180,6 +182,27 @@ const Cart = ({ isOpen, onClose }) => {
     // Optionally, you might want to close the cart when opening checkout
     // onClose();
   };
+  useEffect(() => {
+    setQuantities((prev) => {
+      const newQuantities = { ...prev };
+      cartItems.forEach((item) => {
+        if (!(item.id in newQuantities)) {
+          newQuantities[item.id] = item.quantity || 1;
+        }
+      });
+      return newQuantities;
+    });
+  }, [cartItems]);
+
+  console.log({ cartItems });
+
+  const handleQuantityChange = async (itemId, newQuantity) => {
+    await dispatch(updateCartItemQty({ itemId, quantity: newQuantity }));
+    setQuantities((prev) => ({
+      ...prev,
+      [itemId]: newQuantity,
+    }));
+  };
 
   const renderItems = () => {
     if (!cartItems || cartItems.length === 0) {
@@ -218,24 +241,7 @@ const Cart = ({ isOpen, onClose }) => {
                 onChange={() => toggleSelectItem(item.id)}
               />
               <img
-                src={
-                  Array.isArray(item.image) && item.image.length > 0
-                    ? item.image[0]
-                    : item.image && item.image.trim() !== ""
-                    ? (function () {
-                        try {
-                          const parsedImage = JSON.parse(item.image);
-                          return Array.isArray(parsedImage) &&
-                            parsedImage.length > 0 &&
-                            parsedImage[0].trim() !== ""
-                            ? parsedImage[0]
-                            : defaultImages;
-                        } catch (e) {
-                          return defaultImages;
-                        }
-                      })()
-                    : defaultImages
-                }
+                src={item.image || defaultImages}
                 alt={`Image of ${item.name}`}
                 className="item-image"
               />
@@ -248,6 +254,17 @@ const Cart = ({ isOpen, onClose }) => {
                   />
                 </div>
                 <p className="price">₱{item.price}</p>
+                {item.itemType === "buy" && (
+                  <QuantityControl
+                    quantity={quantities[item.id]}
+                    setQuantity={(newQty) =>
+                      handleQuantityChange(item.id, newQty)
+                    }
+                    min={1}
+                    max={item?.stock || 10}
+                  />
+                )}
+
                 <button
                   className="btn btn-danger"
                   onClick={() => handleRemoveClick(item)}

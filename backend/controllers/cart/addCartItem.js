@@ -2,14 +2,21 @@ const { models } = require("../../models/index");
 
 const addCartItem = async (req, res) => {
   const user_id = req.user.userId;
-  // console.log("Authenticated User:", req.user);
-  // console.log("Request received to add item to cart:", req.body);
-
   try {
-    const { ownerId, itemId, itemType, dateId, durationId, price } = req.body;
+    const { ownerId, itemId, itemType, dateId, durationId, price, quantity } =
+      req.body;
+
+    console.log("Request Body:", req.body);  // Log the incoming request body
 
     // Validate required fields
-    if (!ownerId || !itemId || !itemType || !dateId || !durationId) {
+    if (
+      !ownerId ||
+      !itemId ||
+      !itemType ||
+      !dateId ||
+      !durationId ||
+      (itemType === "buy" && !quantity)
+    ) {
       const missingFields = [
         !ownerId && "ownerId",
         !itemId && "itemId",
@@ -44,6 +51,7 @@ const addCartItem = async (req, res) => {
       duration: durationId,
       price,
       status: "pending",
+      quantity: quantity || 1,
     });
 
     let itemDetails;
@@ -57,13 +65,21 @@ const addCartItem = async (req, res) => {
         attributes: ["item_for_sale_name", "specifications"],
       });
       itemName = itemDetails ? itemDetails.dataValues.item_for_sale_name : "";
+      console.log("Fetched Buy Item Details:", itemDetails);  // Log buy item details
     } else if (itemType === "rent") {
+      // Fetch listing item for rent
       itemDetails = await models.Listing.findOne({
         where: { id: itemId },
-        // attributes: ["listing_name", "specifications"],
       });
-      // console.log(itemType, itemId, itemDetails);
+
+      console.log("Fetching Rent Item for ID:", itemId); // Log when fetching rent item
+      if (!itemDetails) {
+        console.log("Rent item not found for ID:", itemId);  // Log error if item not found
+        return res.status(400).json({ message: "Item not found for rent." });
+      }
+
       itemName = itemDetails ? itemDetails.dataValues.listing_name : "";
+      console.log("Fetched Rent Item Details:", itemDetails); // Log fetched item details
     }
 
     specsData =
@@ -72,6 +88,7 @@ const addCartItem = async (req, res) => {
       itemDetails.dataValues.specifications
         ? JSON.parse(itemDetails.dataValues.specifications)
         : {};
+    console.log("Item Specifications:", specsData); // Log the item specifications
 
     const addedCartItem = {
       ...newCartItem.dataValues,
@@ -98,14 +115,10 @@ const addCartItem = async (req, res) => {
       },
     };
 
-    // console.log(formattedItem);
-    // Return success response
+    console.log("Formatted Item:", formattedItem);  // Log the final formatted item before sending the response
     return res.status(201).json(formattedItem);
   } catch (error) {
-    // Log the full error for debugging
-    // console.error("Error adding item to cart:", error);
-
-    // Return detailed error response
+    console.error("Error Adding Cart Item:", error);  // Log the error in case of failure
     return res.status(500).json({
       message: "Failed to add item to cart",
       error: error.message,

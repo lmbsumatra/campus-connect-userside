@@ -53,9 +53,7 @@ import warningIcon from "../../../../assets/images/input-icons/warning.svg";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "./addNewItemStyles.css";
-import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import { io } from "socket.io-client";
 import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import { addItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
@@ -472,6 +470,9 @@ const AddNewItem = () => {
           securityDeposit: itemDataState.securityDeposit.value,
           repairReplacement: itemDataState.repairReplacement.value,
         }),
+        ...(itemType === FOR_SALE && {
+          stock: itemDataState.stock.value,
+        }),
       };
 
       formData.append(
@@ -615,7 +616,7 @@ const AddNewItem = () => {
           />
 
           <FormField
-            label={<span className="price">$</span>}
+            label={<span className="price">₱</span>}
             id="price"
             value={itemDataState.price.value}
             onChange={handleFieldChange}
@@ -625,6 +626,21 @@ const AddNewItem = () => {
             placeholder="Add price"
             className="field-container item-price"
           />
+
+          {itemDataState?.itemType?.value === FOR_SALE && (
+            <FormField
+              label="Stock"
+              id="stock"
+              value={itemDataState.stock.value}
+              onChange={handleFieldChange}
+              onBlur={handleFieldBlur}
+              error={itemDataState.stock.error}
+              triggered={itemDataState.stock.triggered}
+              placeholder="Enter stock quantity"
+              className="field-container item-stock"
+              type="number"
+            />
+          )}
 
           {/* Action Buttons */}
           <Tooltip

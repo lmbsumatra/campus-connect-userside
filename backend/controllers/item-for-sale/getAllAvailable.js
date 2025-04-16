@@ -141,6 +141,7 @@ const getAllAvailable = async (req, res) => {
           itemType: "For Sale",
           images,
           deliveryMethod: item.delivery_mode,
+          stock: item.current_stock,
           paymentMethod: item.payment_mode,
           condition: item.item_condition,
           location: item.location,

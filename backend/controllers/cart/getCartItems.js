@@ -49,6 +49,7 @@ const getCartItems = async (req, res) => {
             "specifications",
             "images",
             "payment_mode",
+            "current_stock"
           ],
         });
         // Handle the image and item name
@@ -67,6 +68,7 @@ const getCartItems = async (req, res) => {
         }
 
         item_name = item ? item.dataValues.item_for_sale_name : "";
+        stock = item ? item.dataValues.current_stock : "";
         if (item) {
           payment_mode = item.dataValues.payment_mode; // ✅ Add this to assign payment_mode
         }
@@ -114,6 +116,7 @@ const getCartItems = async (req, res) => {
         payment_mode,
         late_charges,
         security_deposit,
+        stock,
       });
     }
 
@@ -146,6 +149,8 @@ const getCartItems = async (req, res) => {
         fname: cartItem.owner.first_name,
         lname: cartItem.owner.last_name,
       },
+      quantity: cartItem.quantity,
+      stock: cartItem.stock
     }));
 
     return res.status(200).json(formattedCart);

@@ -105,6 +105,18 @@ export const validateInput = (name, value, itemType) => {
         error = "";
       }
       break;
+    case "stock":
+      if (value.trim() === "") {
+        hasError = true;
+        error = "Stock cannot be empty.";
+      } else if (!/^\d+$/.test(value)) {
+        hasError = true;
+        error = "Stock should be a whole number.";
+      } else {
+        hasError = false;
+        error = "";
+      }
+      break;
 
     case "availableDates":
       const dateValidation = validateAvailableDates(value);
@@ -316,6 +328,7 @@ const initialState = {
   itemName: { value: "", triggered: false, hasError: false, error: "" },
   itemType: { value: "", triggered: false, hasError: false, error: "" },
   price: { value: "", triggered: false, hasError: false, error: "" },
+  stock: { value: "", triggered: false, hasError: false, error: "" },
   availableDates: {
     value: [],
     triggered: false,

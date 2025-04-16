@@ -14,6 +14,33 @@ const initialState = {
   warningCartMessage: null,
 };
 
+export const updateCartItemQty = createAsyncThunk(
+  "cart/updateCartItemQty",
+  async ({ itemId, quantity }, { getState, rejectWithValue }) => {
+    const { studentUser } = getState().studentAuth;
+    if (!studentUser?.token) {
+      return rejectWithValue("No token found");
+    }
+
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/update-qty/${itemId}`,
+        { quantity },
+        {
+          headers: {
+            Authorization: `Bearer ${studentUser.token}`,
+          },
+        }
+      );
+      return response.data; // should return updated item
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to update quantity."
+      );
+    }
+  }
+);
+
 export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { getState, rejectWithValue }) => {
@@ -204,6 +231,46 @@ const cartSlice = createSlice({
         state.errorCartMessage = action.payload || "Failed to remove item.";
         // Clear the success message only if action fails
         state.successCartMessage = null;
+      })
+      .addCase(updateCartItemQty.pending, (state) => {
+        state.loadingCart = true;
+        state.errorCartMessage = null;
+      })
+      .addCase(updateCartItemQty.fulfilled, (state, action) => {
+        const updatedItem = action.payload;
+      
+        // Log the state items and the updated item
+        state.cartItems.forEach((item, i) => {
+          console.log(`Item ${i}:`, item.id);  // Log each item ID
+        });
+      
+        console.log("Updated Item ID:", updatedItem.updatedItem.id);  // Log updated item's ID
+        console.log("Updated Item Data:", updatedItem.updatedItem);  // Log full updated item
+      
+        // Use findIndex to get the index based on the correct ID comparison
+        const index = state.cartItems.findIndex(
+          (item) => Number(item.id) === Number(updatedItem.updatedItem.id) // Ensure the IDs are both numbers
+        );
+      
+        console.log("Index found:", index);  // Log index to check what is returned
+        console.log("Item at found index:", state.cartItems[index]);  // Log item found at the index
+      
+        if (index !== -1) {
+          // Update the quantity and price if index is valid
+          state.cartItems[index].quantity = updatedItem.updatedItem.quantity;
+          state.cartItems[index].price = updatedItem.updatedItem.price.toFixed(2); // Recalculate the price
+      
+          console.log(
+            "Updated item:", state.cartItems[index],
+            "Updated price:", updatedItem.updatedItem.price.toFixed(2)
+          );
+        } else {
+          console.log("Item not found in the cart.");
+        }
+      })
+      .addCase(updateCartItemQty.rejected, (state, action) => {
+        state.loadingCart = false;
+        state.errorCartMessage = action.payload || "Failed to update quantity.";
       });
   },
 });

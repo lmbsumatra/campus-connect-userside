@@ -16,7 +16,7 @@
     align-items: center;
     border-radius: 50px;
     border: 1px solid var(--clr-secondary);
-    padding: 4px 8px;
+    padding: 5px 8px !important;
     white-space: nowrap;
     background-color: white;
   }
@@ -28,4 +28,5 @@
   .category-badge span {
     color: var(--clr-secondary);
     font-weight: 600;
+    font-size: 14px;
   }

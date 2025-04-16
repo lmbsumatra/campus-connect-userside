@@ -138,7 +138,6 @@ const removeDatesAndDurations = async (
       },
     });
 
-
     if (dateRecord) {
       const existingDuration = await models.Duration.findOne({
         where: {
@@ -224,6 +223,18 @@ const updateItemForSaleById = async (req, res) => {
       throw new Error("Item not found");
     }
 
+    const newStock = itemData.stock ?? existingItem.stock;
+    const oldStock = existingItem.stock;
+    const stockDifference = newStock - oldStock;
+
+    // Update current_stock based on the difference
+    let updatedCurrentStock = existingItem.current_stock + stockDifference;
+
+    // Prevent going below 0
+    if (updatedCurrentStock < 0) {
+      updatedCurrentStock = 0;
+    }
+
     // console.log(`Found existing item with ID ${existingItem.id}`);
 
     // If images are to be removed, process the removal
@@ -268,6 +279,8 @@ const updateItemForSaleById = async (req, res) => {
         delivery_mode: itemData.deliveryMethod || existingItem.delivery_mode,
         price: itemData.price || existingItem.price,
         tags: itemData.tags || existingItem.tags,
+        stock: newStock,
+        current_stock: updatedCurrentStock,
         specifications: itemData.specs || existingItem.specifications,
         status: "pending",
         status_message: "Pending approval",

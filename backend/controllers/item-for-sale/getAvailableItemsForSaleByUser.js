@@ -75,7 +75,8 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
           const parsedImages = item.images ? JSON.parse(item.images) : [];
           const reviews = item.reviews || [];
           const averageRating = reviews.length
-            ? reviews.reduce((sum, review) => sum + review.rate, 0) / reviews.length
+            ? reviews.reduce((sum, review) => sum + review.rate, 0) /
+              reviews.length
             : null;
 
           const availableDates = item.available_dates.map((date) => ({
@@ -114,6 +115,7 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
                 location: item.location,
                 averageRating,
                 availableDates,
+                stock: item.current_stock,
                 seller: {
                   id: item.seller.user_id,
                   fname: item.seller.first_name,

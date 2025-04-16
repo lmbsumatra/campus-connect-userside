@@ -7,8 +7,6 @@ const editOrg = async (req, res) => {
     req.body;
   let logoUrl = null;
 
-  console.log(req.file.path)
-
   console.log({
     orgId,
     org_name,
@@ -106,7 +104,7 @@ const editOrg = async (req, res) => {
       createdAt: updated.created_at,
       updatedAt: updated.updated_at,
       userId: updated.user_id,
-      logoUrl: updated.logo, // Include logo URL in response
+      logo: updated.logo, // Include logo URL in response
       category: updated.category
         ? {
             id: updated.category.id,
