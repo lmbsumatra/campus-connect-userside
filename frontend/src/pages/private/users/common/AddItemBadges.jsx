@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import "./addItemBadgesStyles.css";
 import { categories, FOR_RENT, FOR_SALE } from "../../../../utils/consonants";
+import { useDispatch } from "react-redux";
+import ShowAlert from "../../../../utils/ShowAlert";
 
 const FOR_TYPES = ["For Rent", "For Sale"];
 const TO_TYPES = ["To Rent", "To Buy"];
@@ -12,9 +14,11 @@ const AddItemBadges = ({
   onItemTypeChange,
   isPost,
   isEditPage,
+  isRepresentative = false,
 }) => {
   const itemTypes = isPost ? TO_TYPES : FOR_TYPES;
   const itemType = values?.itemType || itemTypes[0];
+  const dispatch = useDispatch();
 
   const getCollegeBadgeUrl = (college) => {
     if (college !== undefined && college !== null) {
@@ -29,6 +33,14 @@ const AddItemBadges = ({
   };
 
   const handleToggleChange = () => {
+    if (isRepresentative === false) {
+      return ShowAlert(
+        dispatch,
+        "warning",
+        "Sorry",
+        "Sorry you have to be representative of an org to sell."
+      );
+    }
     if (isEditPage) return;
     const currentIndex = itemTypes.indexOf(itemType);
     const newItemType = itemTypes[(currentIndex + 1) % itemTypes.length]; // Toggle between two values

@@ -1,18 +1,17 @@
 const { models } = require("../../models");
-const Fuse = require("fuse.js");
 const { sequelize } = require("../../models/index");
 const { Op } = require("sequelize");
 
 const getUserById = async (req, res) => {
   const loggedInUserId = req.user.userId;
-  const userId = req.params.id; // Get the userId from the request params
+  const userId = req.params.id;
 
   try {
-    // Find the specific user based on userId
+    // Fetch the user with student info
     const user = await models.User.findOne({
       where: {
         user_id: userId,
-        role: "student", // Ensure the user is a student
+        role: "student",
       },
       include: [
         {
@@ -27,20 +26,27 @@ const getUserById = async (req, res) => {
       return res.status(404).json({ error: "User not found!" });
     }
 
-    // Check the follow status with the logged-in user
+    // Fetch org where this user is a representative
+    const org = await models.Org.findOne({
+      where: { user_id: userId },
+      include: [
+        { model: models.OrgCategory, as: "category" },
+        { model: models.User, as: "representative" },
+      ],
+    });
+
+    const isRepresentative = !!org;
+
+    // Follow/followed-by logic
     const isFollowing = await models.Follow.findOne({
       where: { followee_id: user.user_id, follower_id: loggedInUserId },
     });
 
     const isFollowedBy = await models.Follow.findOne({
-      where: {
-        followee_id: loggedInUserId,
-        follower_id: user.user_id,
-      },
+      where: { followee_id: loggedInUserId, follower_id: user.user_id },
     });
 
     let action = "Follow";
-
     if (loggedInUserId === user.user_id) {
       action = "You";
     } else if (isFollowedBy && isFollowing) {
@@ -51,7 +57,7 @@ const getUserById = async (req, res) => {
       action = "Following";
     }
 
-    // Get the average rating for this user from all reviews where they were the reviewee
+    // Get average rating
     const userRating = await models.ReviewAndRate.findOne({
       attributes: [
         [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
@@ -64,7 +70,6 @@ const getUserById = async (req, res) => {
       raw: true,
     });
 
-    // Format the rating to one decimal place if it exists
     const averageRating = userRating?.averageRating
       ? parseFloat(userRating.averageRating).toFixed(1)
       : "0.0";
@@ -84,6 +89,32 @@ const getUserById = async (req, res) => {
         joinDate: user.createdAt,
         rating: averageRating,
         ratingCount: totalReviews,
+        isRepresentative: isRepresentative,
+        organization: org
+          ? {
+              id: org.org_id,
+              name: org.name,
+              description: org.description,
+              logo: org.logo,
+              isVerified: org.is_verified,
+              isActive: org.is_active,
+              createdAt: org.created_at,
+              updatedAt: org.updated_at,
+              category: org.category
+                ? {
+                    id: org.category.id,
+                    name: org.category.name,
+                  }
+                : null,
+              representative: org.representative
+                ? {
+                    id: org.representative.user_id,
+                    email: org.representative.email,
+                    name: `${org.representative.first_name} ${org.representative.last_name}`,
+                  }
+                : null,
+            }
+          : null,
       },
       student: {
         id: user.student.tup_id,
@@ -91,13 +122,14 @@ const getUserById = async (req, res) => {
         scannedId: user.student.scanned_id,
         photoWithId: user.student.photo_with_id,
         profilePic: user.student.profile_pic,
+        course: user.student.course,
       },
       action: action,
     };
 
     return res.status(200).json(formattedUser);
   } catch (error) {
-    // console.log("Error fetching user by ID: ", error);
+    console.error("Error fetching user by ID:", error);
     res.status(500).json({ error: error.message });
   }
 };

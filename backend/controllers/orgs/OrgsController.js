@@ -1,4 +1,5 @@
 const createOrg = require("./createOrg");
+const deleteOrg = require("./deleteOrg");
 const editOrg = require("./editOrg");
 const getAllOrgs = require("./getAllOrgs");
 const setOrgRepresentative = require("./setOrgRepresentative");
@@ -10,6 +11,7 @@ const OrgsController = {
   getAllOrgs,
   updateOrgStatus,
   setOrgRepresentative,
+  deleteOrg,
 };
 
 module.exports = OrgsController;

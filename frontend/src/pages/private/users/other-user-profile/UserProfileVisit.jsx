@@ -18,6 +18,7 @@ import "./UserProfileVisit.css";
 import useHandleActionWithAuthCheck from "../../../../utils/useHandleActionWithAuthCheck.jsx";
 import handleUnavailableDateError from "../../../../utils/handleUnavailableDateError.js";
 import { baseApi } from "../../../../utils/consonants.js";
+import { fetchOtherUser } from "../../../../redux/user/otherUserSlice.js";
 
 const UserProfileVisit = () => {
   const navigate = useNavigate();
@@ -30,6 +31,15 @@ const UserProfileVisit = () => {
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
   const [hasReported, setHasReported] = useState(false);
   const [entityType, setEntityType] = useState("");
+  const { user } = useSelector((state) => state.otherUser);
+
+  const shouldFetch = !user || String(user.user?.id) !== String(id);
+  console.log(user);
+  useEffect(() => {
+    if (shouldFetch) {
+      dispatch(fetchOtherUser(id));
+    }
+  }, [shouldFetch, dispatch, id]);
 
   const { availableListingsByUser } = useSelector(
     (state) => state.availableListingsByUser
@@ -251,6 +261,40 @@ const UserProfileVisit = () => {
 
             {activeTab === "for-sale" && (
               <>
+                {/* Show rep card if the user is a representative */}
+                {user?.user?.isRepresentative && user?.user?.organization && (
+                  <div className="rep-card bg-light rounded p-3 mb-3 border shadow-sm">
+                    <h6 className="mb-2">
+                      🔰 {user.user.fname} {user.user.lname} is a representative
+                      of:
+                    </h6>
+                    <div className="d-flex align-items-center gap-3">
+                      {user.user.organization.logo && (
+                        <img
+                          src={`${baseApi}/${user.user.organization.logo}`}
+                          alt="Organization Logo"
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      )}
+                      <div>
+                        <strong>{user.user.organization.name}</strong>
+                        <p className="mb-0 text-muted">
+                          {user.user.organization.description}
+                        </p>
+                        <small className="text-secondary">
+                          Category: {user.user.organization.category?.name}
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* The rest of the items for sale */}
                 {loadingAvailableItemsForSaleByUser ? (
                   <p>Loading items...</p>
                 ) : errorAvailableItemsForSaleByUser ? (

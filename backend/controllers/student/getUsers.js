@@ -26,16 +26,35 @@ const getUsers = async (req, res) => {
 
     const formattedUsers = await Promise.all(
       users.map(async (user) => {
-        const isFollowing = await models.Follow.findOne({
-          where: { followee_id: user.user_id, follower_id: loggedInUserId },
-        });
-
-        const isFollowedBy = await models.Follow.findOne({
-          where: {
-            followee_id: loggedInUserId,
-            follower_id: user.user_id,
-          },
-        });
+        const [isFollowing, isFollowedBy, org, userRating] = await Promise.all([
+          models.Follow.findOne({
+            where: { followee_id: user.user_id, follower_id: loggedInUserId },
+          }),
+          models.Follow.findOne({
+            where: {
+              followee_id: loggedInUserId,
+              follower_id: user.user_id,
+            },
+          }),
+          models.Org.findOne({
+            where: { user_id: user.user_id },
+            include: [
+              { model: models.OrgCategory, as: "category" },
+              { model: models.User, as: "representative" },
+            ],
+          }),
+          models.ReviewAndRate.findOne({
+            attributes: [
+              [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
+              [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
+            ],
+            where: {
+              reviewee_id: user.user_id,
+              review_type: { [Op.in]: ["owner", "renter"] },
+            },
+            raw: true,
+          }),
+        ]);
 
         let action = "Follow";
         if (loggedInUserId === user.user_id) {
@@ -48,20 +67,6 @@ const getUsers = async (req, res) => {
           action = "Following";
         }
 
-        // Get the average rating for this user from all reviews where they were the reviewee
-        const userRating = await models.ReviewAndRate.findOne({
-          attributes: [
-            [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
-            [sequelize.fn("COUNT", sequelize.col("id")), "totalReviews"],
-          ],
-          where: {
-            reviewee_id: user.user_id,
-            review_type: { [Op.in]: ["owner", "renter"] },
-          },
-          raw: true,
-        });
-
-        // Format the rating to one decimal place if it exists
         const averageRating = userRating?.averageRating
           ? parseFloat(userRating.averageRating).toFixed(1)
           : "0.0";
@@ -76,9 +81,36 @@ const getUsers = async (req, res) => {
           college: user.student.college,
           profilePic: user.student.profile_pic,
           rating: averageRating,
+          course: user.student.course,
           ratingCount: totalReviews,
           mutuals: "to be added",
           action: action,
+          isRepresentative: !!org,
+          organization: org
+            ? {
+                id: org.org_id,
+                name: org.name,
+                description: org.description,
+                logo: org.logo,
+                isVerified: org.is_verified,
+                isActive: org.is_active,
+                createdAt: org.created_at,
+                updatedAt: org.updated_at,
+                category: org.category
+                  ? {
+                      id: org.category.id,
+                      name: org.category.name,
+                    }
+                  : null,
+                representative: org.representative
+                  ? {
+                      id: org.representative.user_id,
+                      email: org.representative.email,
+                      name: `${org.representative.first_name} ${org.representative.last_name}`,
+                    }
+                  : null,
+              }
+            : null,
         };
       })
     );
@@ -94,7 +126,7 @@ const getUsers = async (req, res) => {
 
     return res.status(200).json(formattedUsers);
   } catch (error) {
-    // console.log("Error fetching users: ", error);
+    console.error("Error fetching users: ", error);
     res.status(500).json({ error: error.message });
   }
 };

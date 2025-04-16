@@ -28,6 +28,7 @@ import "react-toastify/dist/ReactToastify.css"; // Import styles
 import MyFollowings from "./MyFollowings.js";
 import Reviews from "./Reviews.jsx";
 import MyTransactionReports from "./Reports.jsx";
+import StudentProtectedRoute from "../../../../components/Protected Route/StudentProtectedRoute.js";
 
 const Profile = () => {
   const { studentUser } = useAuth();
@@ -191,7 +192,18 @@ const Profile = () => {
             <Route path="dashboard" element={<MyTransactions />} />
             <Route path="my-listings" element={<MyListings />} />
             <Route path="my-posts" element={<MyPosts />} />
-            <Route path="my-for-sale" element={<MyForSale />} />
+            <Route
+              path="my-for-sale"
+              element={
+                <StudentProtectedRoute
+                  allowedRoles={["student"]}
+                  requireRepresentative={true}
+                >
+                  <MyForSale />
+                </StudentProtectedRoute>
+              }
+            />
+
             <Route path="followings" element={<MyFollowings />} />
             <Route path="reviews" element={<Reviews />} />
             <Route

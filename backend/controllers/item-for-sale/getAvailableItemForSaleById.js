@@ -1,7 +1,6 @@
 const { Op } = require("sequelize");
 const { models, sequelize } = require("../../models/index");
 
-// Get a single approved item by ID with associated rental dates, durations, and renter info
 const getAvailableItemForSaleById = async (req, res) => {
   const userId = req.query.userId || "";
 
@@ -18,9 +17,7 @@ const getAvailableItemForSaleById = async (req, res) => {
           where: {
             item_type: "item_for_sale",
             status: "available",
-            date: {
-              [Op.gte]: new Date(), // today's date and future
-            },
+            date: { [Op.gte]: new Date() },
           },
           required: true,
           include: [
@@ -49,7 +46,7 @@ const getAvailableItemForSaleById = async (req, res) => {
           as: "reviews",
           where: { review_type: "item" },
           attributes: ["rate"],
-          required: false, // Allow items with no reviews to be fetched
+          required: false,
         },
       ],
     });
@@ -58,7 +55,6 @@ const getAvailableItemForSaleById = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    // Calculate average rating
     const reviews = item.reviews || [];
     const averageRating = reviews.length
       ? reviews.reduce((sum, review) => sum + review.rate, 0) / reviews.length
@@ -76,7 +72,6 @@ const getAvailableItemForSaleById = async (req, res) => {
       raw: true,
     });
 
-    // Format the rating to one decimal place if it exists
     const averageOwnerRating = userRating?.averageRating
       ? parseFloat(userRating.averageRating).toFixed(1)
       : "0.0";
@@ -84,7 +79,6 @@ const getAvailableItemForSaleById = async (req, res) => {
     let isFollowingBuyer = false;
 
     if (userId) {
-      // Only run this section if user is logged in
       const followings = await models.Follow.findAll({
         where: { follower_id: userId },
         attributes: ["followee_id"],
@@ -103,11 +97,19 @@ const getAvailableItemForSaleById = async (req, res) => {
       isFollowingBuyer = !!transaction;
     }
 
-    // Format the response
+    // Fetch org data if this user is a representative
+    const org = await models.Org.findOne({
+      where: { user_id: item.seller.user_id },
+      include: [
+        { model: models.OrgCategory, as: "category" },
+        { model: models.User, as: "representative" },
+      ],
+    });
+
     const formattedItem = {
       id: item.id,
       name: item.item_for_sale_name,
-      tags: JSON.parse(item.tags),
+      tags: JSON.parse(item.tags || "[]"),
       price: item.price,
       createdAt: item.created_at,
       deliveryMethod: item.delivery_mode,
@@ -118,9 +120,9 @@ const getAvailableItemForSaleById = async (req, res) => {
       itemType: "For Sale",
       desc: item.description,
       specs: item.specifications,
-      images: JSON.parse(item.images),
+      images: JSON.parse(item.images || "[]"),
       location: item.location,
-      averageRating, // Including average rating in the response
+      averageRating,
       isFollowingBuyer,
       rentalDates: item.available_dates.map((date) => ({
         id: date.id,
@@ -143,6 +145,32 @@ const getAvailableItemForSaleById = async (req, res) => {
         rating: averageOwnerRating,
         profilePic: item.seller.student.profile_pic,
       },
+      hasRepresentative: !!org,
+      organization: org
+        ? {
+            id: org.org_id,
+            name: org.name,
+            description: org.description,
+            logo: org.logo,
+            isVerified: org.is_verified,
+            isActive: org.is_active,
+            createdAt: org.created_at,
+            updatedAt: org.updated_at,
+            category: org.category
+              ? {
+                  id: org.category.id,
+                  name: org.category.name,
+                }
+              : null,
+            representative: org.representative
+              ? {
+                  id: org.representative.user_id,
+                  email: org.representative.email,
+                  name: `${org.representative.first_name} ${org.representative.last_name}`,
+                }
+              : null,
+          }
+        : null,
     };
 
     res.status(200).json(formattedItem);

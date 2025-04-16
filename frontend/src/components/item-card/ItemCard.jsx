@@ -43,6 +43,7 @@ const ItemCard = ({
 }) => {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
+  const isRepresentative = user?.user?.isRepresentative || false;
   const isEmailVerified = user?.user?.emailVerified ?? false;
 
   const dispatch = useDispatch();
@@ -88,39 +89,15 @@ const ItemCard = ({
     }
   };
 
-  const handleActionBtnClick = (e, item) => {
-    let warnSelectDateAndTime = "Please select date and duation first!";
-    e.stopPropagation();
-    if (item.itemType === "For Rent")
-      if (item.owner && isYou) {
-        navigate(`/profile/my-listings/edit/${item.id}`, {
-          state: {
-            warnSelectDateAndTime,
-          },
-        });
-      } else {
-        navigate(`/rent/${item.id}`);
-      }
-    else if (item.itemType === "For Sale") {
-      if (item.seller && isYou) {
-        navigate(`/profile/my-for-sale/edit/${item.id}`, {
-          state: {
-            item,
-            warnSelectDateAndTime: "Please select date and duation first!",
-          },
-        });
-      } else {
-        navigate(`/shop/${item.id}`);
-      }
-    }
-  };
-
-  const handleDropdownToggle = (e, index) => {
-    e.stopPropagation();
-    setActiveDropdown((prevState) => (prevState === index ? null : index));
-  };
-
   const handleAddItemClick = () => {
+    if (isRepresentative === false) {
+      return ShowAlert(
+        dispatch,
+        "warning",
+        "Sorry",
+        "Sorry you have to be representative of an org to sell."
+      );
+    }
     // Ban check
     if (isVerified === "banned") {
       ShowAlert(

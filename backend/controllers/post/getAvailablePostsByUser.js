@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { models } = require("../../models");
 
 const getAvailableListingsByUser = async (req, res) => {

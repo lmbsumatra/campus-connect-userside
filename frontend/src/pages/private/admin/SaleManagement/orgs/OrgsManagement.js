@@ -1,17 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Tooltip } from "@mui/material";
-import {
-  Button,
-  Modal,
-  Form,
-  Table,
-  ListGroup,
-  InputGroup,
-  Badge,
-  Alert,
-  Spinner,
-} from "react-bootstrap";
+import { Button, Form, Table, Alert, Spinner } from "react-bootstrap";
 import "./OrgsManagement.css";
 
 import {
@@ -21,20 +11,17 @@ import {
   addOrganization,
   updateOrganization,
   toggleOrgStatus,
-  setOrgRepresentative,
-  setCurrentOrg,
   clearCurrentOrg,
-  updateSearchRepMap,
   clearError,
   selectOrganizations,
   selectCategories,
   selectUsers,
   selectLoading,
   selectError,
-  selectCurrentOrg,
-  selectSearchRepMap,
-} from "../../../../redux/orgs/organizationsSlice";
+} from "../../../../../redux/orgs/organizationsSlice";
 import OrgFormModal from "./OrgFormModal";
+import RepSelector from "./RepSelector";
+import PaginationComponent from "../../../../../components/Pagination/PaginationComponent";
 
 const OrgsManagement = () => {
   // Redux hooks
@@ -44,8 +31,6 @@ const OrgsManagement = () => {
   const users = useSelector(selectUsers);
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
-  const currentOrgFromRedux = useSelector(selectCurrentOrg);
-  const searchRepMapFromRedux = useSelector(selectSearchRepMap);
 
   // Local state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -53,13 +38,20 @@ const OrgsManagement = () => {
   const [showRepList, setShowRepList] = useState({});
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [alertVariant, setAlertVariant] = useState("success");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const [editableOrg, setEditableOrg] = useState({
     org_name: "",
     description: "",
     category: "",
     isActive: true,
     rep_id: null,
+    logo_file: null,    // To store the file object
+    logo_url: null,     // To store existing logo URL
+    logo_name: null,    // To store the filename
+    remove_logo: false  // Flag to indicate if logo should be removed
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({
@@ -67,7 +59,6 @@ const OrgsManagement = () => {
     direction: "asc",
   });
 
-  // Refs for handling clicks outside of components
   const repListRefs = useRef({});
   const searchInputRefs = useRef({});
   const focusHandledRef = useRef({});
@@ -83,14 +74,12 @@ const OrgsManagement = () => {
     return () => clearTimeout(timeoutId);
   }, [loading, dispatch]);
 
-  // Fetch data on component mount
   useEffect(() => {
     dispatch(fetchOrganizations());
     dispatch(fetchCategories());
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  // Clear any errors when unmounting
   useEffect(() => {
     return () => {
       dispatch(clearError());
@@ -98,16 +87,14 @@ const OrgsManagement = () => {
     };
   }, [dispatch]);
 
-  // Handle errors from Redux
   useEffect(() => {
     if (error) {
       setAlertMessage(error);
+      setAlertVariant("danger");
       setShowAlert(true);
     }
   }, [error]);
 
-  // Function to handle clicks outside of the rep list
-  // Modify the useEffect for handling clicks outside
   useEffect(() => {
     function handleClickOutside(event) {
       for (const orgId in showRepList) {
@@ -118,9 +105,7 @@ const OrgsManagement = () => {
           (!searchInputRefs.current[orgId] ||
             !searchInputRefs.current[orgId].contains(event.target))
         ) {
-          // Only close if we're not clicking in the input itself
           setShowRepList((prev) => ({ ...prev, [orgId]: false }));
-          // Reset focus handling flag when closing
           focusHandledRef.current[orgId] = false;
         }
       }
@@ -132,7 +117,16 @@ const OrgsManagement = () => {
     };
   }, [showRepList]);
 
-  // Process categories from Redux
+  const getUserById = (userId) => {
+    if (!userId) return null;
+    return users.find((user) => user.user_id === userId);
+  };
+
+  const formatRepName = (repId) => {
+    const rep = getUserById(repId);
+    return rep ? `${rep.first_name} ${rep.last_name}` : "None";
+  };
+
   const processCategories = () => {
     if (!categoriesFromRedux || !Array.isArray(categoriesFromRedux)) {
       return ["all"];
@@ -157,7 +151,6 @@ const OrgsManagement = () => {
     return ["all", ...categoriesFromRedux];
   };
 
-  // Get unique categories from organizations as fallback
   const getCategoriesFromOrgs = () => {
     const uniqueCategories = [
       ...new Set(organizations.map((org) => org.category)),
@@ -165,7 +158,6 @@ const OrgsManagement = () => {
     return ["all", ...uniqueCategories.sort()];
   };
 
-  // Get categories for rendering
   const getCategories = () => {
     const processedCategories = processCategories();
     return processedCategories.length > 1
@@ -173,19 +165,15 @@ const OrgsManagement = () => {
       : getCategoriesFromOrgs();
   };
 
-  // Filter organizations by category
-  // Filter organizations by category and search term
   const getFilteredOrgs = () => {
     let filteredOrgs = organizations;
 
-    // Filter by category
     if (activeCategory !== "all") {
       filteredOrgs = filteredOrgs.filter(
         (org) => org.category.name === activeCategory
       );
     }
 
-    // Filter by search term (organization name)
     if (searchTerm) {
       filteredOrgs = filteredOrgs.filter((org) =>
         (org.name || org.org_name)
@@ -197,273 +185,7 @@ const OrgsManagement = () => {
     return filteredOrgs;
   };
 
-  const getUserById = (userId) => {
-    if (!userId) return null;
-    return users.find((user) => user.user_id === userId);
-  };
-
-  const getFilteredUsers = (orgId) => {
-    const searchTerm = searchRepMapFromRedux[orgId] || "";
-    return users.filter((user) => {
-      const userNameLower = `${user.first_name || ""} ${
-        user.last_name || ""
-      }`.toLowerCase();
-      const userIdString = String(user.user_id || "");
-      return (
-        userNameLower.includes(searchTerm.toLowerCase()) ||
-        userIdString.includes(searchTerm)
-      );
-    });
-  };
-
-  const handleToggleStatus = (org) => {
-    // Get the correct orgId
-    const orgId = org.orgId || org.org_id;
-
-    const newStatus = org.isActive ? "inactive" : "active";
-    dispatch(
-      toggleOrgStatus({
-        orgId: orgId,
-        isActive: newStatus,
-      })
-    ).then(() => {
-      setAlertMessage(
-        `Organization "${
-          org.name || org.org_name
-        }" status changed to ${newStatus}`
-      );
-      setShowAlert(true);
-    });
-  };
-
-  const handleSetRep = async (org_id, user_id) => {
-    await dispatch(setOrgRepresentative({ orgId: org_id, rep_id: user_id }));
-    const rep = getUserById(user_id);
-    const orgName =
-      organizations.find((org) => org.orgId === org_id)?.name || "Organization";
-
-    setAlertMessage(
-      `Representative set: ${rep?.first_name || ""} ${
-        rep?.last_name || ""
-      } for ${orgName}`
-    );
-    setShowAlert(true);
-    setShowRepList((prev) => ({ ...prev, [org_id]: false }));
-    dispatch(updateSearchRepMap({ orgId: org_id, searchTerm: "" }));
-  };
-
-  const handleRemoveRep = (org_id) => {
-    dispatch(setOrgRepresentative({ orgId: org_id, rep_id: null })).then(() => {
-      const orgName =
-        organizations.find((org) => (org.orgId || org.org_id) === org_id)
-          ?.name || "Organization";
-
-      setAlertMessage(`Representative removed from ${orgName}`);
-      setShowAlert(true);
-
-      // Reset the focus handled flag for this org
-      focusHandledRef.current[org_id] = false;
-    });
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditableOrg((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleAddOrg = () => {
-    dispatch(addOrganization(editableOrg)).then(() => {
-      setShowAddModal(false);
-      resetFormState();
-      setAlertMessage(
-        `Organization "${editableOrg.org_name}" added successfully`
-      );
-      setShowAlert(true);
-    });
-  };
-
-  const handleUpdateOrg = () => {
-    dispatch(updateOrganization(editableOrg)).then(() => {
-      setShowEditModal(false);
-      resetFormState();
-      setAlertMessage(
-        `Organization "${editableOrg.org_name}" updated successfully`
-      );
-      setShowAlert(true);
-    });
-  };
-
-  const openEditModal = (org) => {
-    const orgToEdit = {
-      org_id: org.orgId || org.org_id,
-      org_name: org.name || org.org_name,
-      description: org.description || "",
-      category: org.category?.name || org.category || "",
-      isActive: org.isActive ? "active" : "inactive",
-      rep_id: org.representative?.id || org.rep_id,
-    };
-    setEditableOrg(orgToEdit);
-    setShowEditModal(true);
-  };
-
-  const resetFormState = () => {
-    setEditableOrg({
-      org_name: "",
-      description: "",
-      category: "",
-      isActive: "active",
-      rep_id: null,
-    });
-  };
-
-  const handleRepSearch = (orgId, value) => {
-    // Prevent unnecessary dispatches if the value hasn't changed
-    if (searchRepMapFromRedux[orgId] !== value) {
-      dispatch(updateSearchRepMap({ orgId, searchTerm: value }));
-    }
-  };
-
-  const toggleRepList = (orgId, show) => {
-    if (showRepList[orgId] !== show) {
-      setShowRepList((prev) => ({ ...prev, [orgId]: show }));
-    }
-  };
-
-  const formatRepName = (repId) => {
-    const rep = getUserById(repId);
-    return rep ? `${rep.first_name} ${rep.last_name}` : "None";
-  };
-
-  const RepSelector = ({ orgId, currentRepId, inModal = false }) => {
-    const rep = getUserById(currentRepId);
-    const initialSearchValue = searchRepMapFromRedux[orgId] || "";
-    const [localSearch, setLocalSearch] = useState(initialSearchValue);
-
-    useEffect(() => {
-      if (
-        showRepList[orgId] &&
-        searchInputRefs.current[orgId] &&
-        !focusHandledRef.current[orgId]
-      ) {
-        searchInputRefs.current[orgId].focus();
-        focusHandledRef.current[orgId] = true;
-      }
-    }, [showRepList[orgId], orgId]);
-
-    useEffect(() => {
-      setLocalSearch(initialSearchValue);
-    }, [initialSearchValue, showRepList[orgId]]);
-
-    const filteredUsers = users.filter((user) => {
-      const userNameLower = `${user.first_name || ""} ${
-        user.last_name || ""
-      }`.toLowerCase();
-      const userIdString = String(user.user_id || "");
-      return (
-        userNameLower.includes(localSearch.toLowerCase()) ||
-        userIdString.includes(localSearch)
-      );
-    });
-
-    return (
-      <div className="position-relative rep-selector">
-        {rep ? (
-          <div className="current-rep mb-2">
-            <Badge
-              bg="info"
-              className="rep-badge d-flex align-items-center gap-2 justify-content-between"
-            >
-              <span>
-                {rep.first_name} {rep.last_name}
-              </span>
-              <Button
-                variant="link"
-                size="sm"
-                className="remove-rep-btn p-0 m-0"
-                onClick={() => handleRemoveRep(orgId)}
-              >
-                ×
-              </Button>
-            </Badge>
-          </div>
-        ) : (
-          <>
-            <div className="no-rep mb-2">
-              <Badge bg="secondary">No Representative</Badge>
-            </div>
-            <InputGroup size="sm">
-              <Form.Control
-                placeholder="Search for representative"
-                value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
-                onFocus={() => toggleRepList(orgId, true)}
-                onBlur={() => {
-                  dispatch(
-                    updateSearchRepMap({ orgId, searchTerm: localSearch })
-                  );
-                }}
-                ref={(el) => {
-                  searchInputRefs.current[orgId] = el;
-                }}
-                aria-label="Search representatives"
-              />
-            </InputGroup>
-          </>
-        )}
-
-        {showRepList[orgId] && (
-          <ListGroup
-            className="position-absolute w-100 shadow-sm rep-list-container"
-            ref={(el) => (repListRefs.current[orgId] = el)}
-            style={{ zIndex: 1000 }}
-          >
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <ListGroup.Item key={user.user_id} className="rep-list-item">
-                  <span className="rep-name">
-                    {user.first_name} {user.last_name} (ID: {user.user_id})
-                  </span>
-                  <Button
-                    variant="outline-success"
-                    size="sm"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      handleSetRep(orgId, user.user_id);
-                    }}
-                  >
-                    ✓
-                  </Button>
-                </ListGroup.Item>
-              ))
-            ) : (
-              <ListGroup.Item>No users found</ListGroup.Item>
-            )}
-          </ListGroup>
-        )}
-      </div>
-    );
-  };
-
-  const getCategoryOptions = () => {
-    const categories = getCategories().filter((cat) => cat !== "all");
-    return categories.map((category) => {
-      const categoryValue =
-        typeof category === "object"
-          ? category.name || category.category || JSON.stringify(category)
-          : category;
-
-      return (
-        <option key={categoryValue} value={categoryValue}>
-          {categoryValue}
-        </option>
-      );
-    });
-  };
-
-  // Sorting function
+  const filteredOrgs = getFilteredOrgs();
   const sortedOrgs = (orgs) => {
     const { key, direction } = sortConfig;
 
@@ -491,6 +213,105 @@ const OrgsManagement = () => {
       return 0;
     });
   };
+  const sortedFilteredOrgs = sortedOrgs(filteredOrgs);
+
+  const totalPages = Math.ceil(sortedFilteredOrgs.length / itemsPerPage);
+  const paginatedOrgs = sortedFilteredOrgs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Helper function to display alerts with appropriate variants
+  const displayAlert = (message, variant = "success") => {
+    setAlertMessage(message);
+    setAlertVariant(variant);
+    setShowAlert(true);
+  };
+
+  const handleToggleStatus = (org) => {
+    const orgId = org.orgId || org.org_id;
+    const orgName = org.name || org.org_name;
+    const newStatus = org.isActive ? "inactive" : "active";
+    
+    dispatch(
+      toggleOrgStatus({
+        orgId: orgId,
+        isActive: newStatus,
+      })
+    ).then(() => {
+      displayAlert(
+        `Organization "${orgName}" status changed to ${newStatus}`,
+        newStatus === "active" ? "success" : "warning"
+      );
+    }).catch((err) => {
+      displayAlert(`Failed to update status: ${err.message}`, "danger");
+    });
+  };
+
+  const handleAddOrg = () => {
+    console.log(editableOrg)
+    dispatch(addOrganization(editableOrg))
+      .then(() => {
+        setShowAddModal(false);
+        resetFormState();
+        displayAlert(`Organization "${editableOrg.org_name}" added successfully`, "success");
+      })
+      .catch((err) => {
+        displayAlert(`Failed to add organization: ${err.message}`, "danger");
+      });
+  };
+
+  const handleUpdateOrg = () => {
+    console.log(editableOrg)
+    dispatch(updateOrganization(editableOrg))
+      .then(() => {
+        setShowEditModal(false);
+        resetFormState();
+        displayAlert(`Organization "${editableOrg.org_name}" updated successfully`, "success");
+      })
+      .catch((err) => {
+        displayAlert(`Failed to update organization: ${err.message}`, "danger");
+      });
+  };
+
+  const openEditModal = (org) => {
+    const orgToEdit = {
+      org_id: org.orgId || org.org_id,
+      org_name: org.name || org.org_name,
+      description: org.description || "",
+      category: org.category?.name || org.category || "",
+      isActive: org.isActive ? "active" : "inactive",
+      rep_id: org.representative?.id || org.rep_id,
+    };
+    setEditableOrg(orgToEdit);
+    setShowEditModal(true);
+  };
+
+  const resetFormState = () => {
+    setEditableOrg({
+      org_name: "",
+      description: "",
+      category: "",
+      isActive: "active",
+      rep_id: null,
+    });
+  };
+
+  const getCategoryOptions = () => {
+    const categories = getCategories().filter((cat) => cat !== "all");
+    return categories.map((category) => {
+      const categoryValue =
+        typeof category === "object"
+          ? category.name || category.category || JSON.stringify(category)
+          : category;
+
+      return (
+        <option key={categoryValue} value={categoryValue}>
+          {categoryValue}
+        </option>
+      );
+    });
+  };
 
   const handleSort = (key) => {
     let direction = "asc";
@@ -504,13 +325,17 @@ const OrgsManagement = () => {
     setSearchTerm(e.target.value);
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div className="mx-5 my-3 orgs-management">
       <h2 className="my-4">Organizations Management</h2>
 
       {showAlert && (
         <Alert
-          variant="success"
+          variant={alertVariant}
           onClose={() => setShowAlert(false)}
           dismissible
         >
@@ -600,7 +425,7 @@ const OrgsManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {sortedOrgs(getFilteredOrgs()).map((org) => (
+              {paginatedOrgs.map((org) => (
                 <tr key={org.orgId || org.org_id}>
                   <td>
                     <Tooltip title={org.name}>
@@ -629,6 +454,26 @@ const OrgsManagement = () => {
                     <RepSelector
                       orgId={org.orgId || org.org_id}
                       currentRepId={org.representative?.id || org.rep_id}
+                      users={users.filter(
+                        (user) =>
+                          !organizations.some(
+                            (o) =>
+                              (o.representative?.id || o.rep_id) ===
+                                user.user_id &&
+                              (o.orgId || o.org_id) !==
+                                (org.orgId || org.org_id)
+                          )
+                      )}
+                      repListRefs={repListRefs}
+                      showRepList={showRepList}
+                      searchInputRefs={searchInputRefs}
+                      setShowRepList={setShowRepList}
+                      setShowAlert={setShowAlert}
+                      setAlertMessage={setAlertMessage}
+                      setAlertVariant={setAlertVariant}
+                      displayAlert={displayAlert}
+                      organizations={organizations}
+                      focusHandledRef={focusHandledRef}
                     />
                   </td>
                   <td>
@@ -647,6 +492,12 @@ const OrgsManagement = () => {
         </div>
       )}
 
+      <PaginationComponent
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+
       <Button variant="success" onClick={() => setShowAddModal(true)}>
         Add Organization
       </Button>
@@ -659,6 +510,17 @@ const OrgsManagement = () => {
         setEditableOrg={setEditableOrg}
         categories={getCategoryOptions()}
         mode="add"
+        users={users}
+        organizations={organizations}
+        showRepList={showRepList}
+        setShowRepList={setShowRepList}
+        repListRefs={repListRefs}
+        searchInputRefs={searchInputRefs}
+        setShowAlert={setShowAlert}
+        setAlertMessage={setAlertMessage}
+        setAlertVariant={setAlertVariant}
+        displayAlert={displayAlert}
+        focusHandledRef={focusHandledRef}
       />
 
       <OrgFormModal
@@ -669,6 +531,17 @@ const OrgsManagement = () => {
         setEditableOrg={setEditableOrg}
         categories={getCategoryOptions()}
         mode="edit"
+        users={users}
+        organizations={organizations}
+        showRepList={showRepList}
+        setShowRepList={setShowRepList}
+        repListRefs={repListRefs}
+        searchInputRefs={searchInputRefs}
+        setShowAlert={setShowAlert}
+        setAlertMessage={setAlertMessage}
+        setAlertVariant={setAlertVariant}
+        displayAlert={displayAlert}
+        focusHandledRef={focusHandledRef}
       />
     </div>
   );

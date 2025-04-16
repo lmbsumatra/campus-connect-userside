@@ -53,7 +53,7 @@ const StudentProtectedRoutes = [
   <Route
     path="/profile/my-for-sale/edit/:id"
     element={
-      <StudentProtectedRoute allowedRoles="student">
+      <StudentProtectedRoute allowedRoles="student" requireRepresentative={true}>
         <EditItem />
       </StudentProtectedRoute>
     }

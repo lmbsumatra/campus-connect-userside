@@ -25,22 +25,26 @@ const getItemForSaleById = async (req, res) => {
           ],
         },
       ],
-      where: {
-        // Assuming you have a column 'item_type' in your Item model
-        item_type: "item_for_sale", // Filter for item for sale only
-      },
     });
 
     if (!item) {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    // Format the response to flatten fields like item_name, price, etc.
+    // Fetch org data if this seller is a representative
+    const org = await models.Org.findOne({
+      where: { user_id: item.seller.user_id },
+      include: [
+        { model: models.OrgCategory, as: "category" },
+        { model: models.User, as: "representative" },
+      ],
+    });
+
     const formattedItem = {
       id: item.id,
       itemName: item.item_for_sale_name,
-      images: JSON.parse(item.images),
-      tags: JSON.parse(item.tags),
+      images: JSON.parse(item.images || "[]"),
+      tags: JSON.parse(item.tags || "[]"),
       price: item.price,
       createdAt: item.created_at,
       deliveryMethod: item.delivery_mode,
@@ -51,7 +55,7 @@ const getItemForSaleById = async (req, res) => {
       category: item.category,
       itemType: "For Sale",
       desc: item.description,
-      specs: JSON.parse(item.specifications),
+      specs: JSON.parse(item.specifications || "{}"),
       location: item.location,
       availableDates: item.available_dates.map((date) => ({
         id: date.id,
@@ -73,11 +77,36 @@ const getItemForSaleById = async (req, res) => {
         college: item.seller.student.college,
         profilePic: item.seller.student.profile_pic,
       },
+      hasRepresentative: !!org,
+      organization: org
+        ? {
+            id: org.org_id,
+            name: org.name,
+            description: org.description,
+            logo: org.logo,
+            isVerified: org.is_verified,
+            isActive: org.is_active,
+            createdAt: org.created_at,
+            updatedAt: org.updated_at,
+            category: org.category
+              ? {
+                  id: org.category.id,
+                  name: org.category.name,
+                }
+              : null,
+            representative: org.representative
+              ? {
+                  id: org.representative.user_id,
+                  email: org.representative.email,
+                  name: `${org.representative.first_name} ${org.representative.last_name}`,
+                }
+              : null,
+          }
+        : null,
     };
 
     res.status(200).json(formattedItem);
   } catch (error) {
-    // console.error("Error fetching post:", error);
     res.status(500).json({ error: error.message });
   }
 };

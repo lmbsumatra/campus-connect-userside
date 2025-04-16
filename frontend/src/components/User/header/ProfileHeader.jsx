@@ -369,11 +369,13 @@ const ProfileHeader = ({
               <div className="profile-info d-flex">
                 <div className="d-block">
                   <span className="label">College</span>
+                  <span className="label">Course</span>
                   <span className="label">Rating</span>
                   <span className="label">Joined</span>
                 </div>
                 <div className="d-block">
                   <span className="value">{user.student.college || "N/A"}</span>
+                  <span className="value">{user.student.course || "N/A"}</span>
                   <span className="value">{user.user.rating || "N/A"}</span>
                   <span className="value">
                     {formatDate(user.user.joinDate) || "N/A"}

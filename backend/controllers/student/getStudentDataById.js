@@ -3,15 +3,14 @@ const { models } = require("../../models");
 const { sequelize } = require("../../models/index");
 
 const getStudentById = async (req, res) => {
-  const loggedInUserId = req.user.userId;
-  const studentId = req.params.id; // Get the studentId from the request params
+  const loggedInUserId = req.params.id;
+  const studentId = req.params.id;
 
   try {
-    // Find the specific student based on studentId
     const user = await models.User.findOne({
       where: {
         user_id: studentId,
-        role: "student", // Ensure the user is a student
+        role: "student",
       },
       include: [
         {
@@ -37,7 +36,18 @@ const getStudentById = async (req, res) => {
       return res.status(404).json({ error: "Student not found!" });
     }
 
-    // Check if restriction has expired and update status if needed
+    // ✅ Check if this user is a representative of any organization
+    const org = await models.Org.findOne({
+      where: { user_id: user.user_id },
+      include: [
+        { model: models.OrgCategory, as: "category" },
+        { model: models.User, as: "representative" },
+      ],
+    });
+
+    const isRepresentative = !!org;
+
+    // ⏳ Handle restriction expiry
     if (
       user.student &&
       user.student.status === "restricted" &&
@@ -51,24 +61,12 @@ const getStudentById = async (req, res) => {
           restricted_until: null,
         });
 
-        // Reload the student with updated status
         await user.student.reload();
-
-        // // notify the user about status change
-        // if (req.emitNotification) {
-        //   const notification = await models.StudentNotification.create({
-        //     recipient_id: user.student.user_id,
-        //     type: "status_update",
-        //     message:
-        //       "Your account restriction has expired and your account has been reactivated.",
-        //   });
-
-        //   req.emitNotification(user.student.user_id, notification.toJSON());
-        // }
+        // Optional: emit notification
       }
     }
 
-    // Check the follow status with the logged-in user
+    // 🔄 Follow status logic
     const isFollowing = await models.Follow.findOne({
       where: { followee_id: user.user_id, follower_id: loggedInUserId },
     });
@@ -80,7 +78,13 @@ const getStudentById = async (req, res) => {
       },
     });
 
-    // Get the average rating for this user from all reviews where they were the reviewee
+    let action = "Follow";
+    if (loggedInUserId === user.user_id) action = "You";
+    else if (isFollowedBy && isFollowing) action = "Following";
+    else if (isFollowedBy) action = "Follow back";
+    else if (isFollowing) action = "Following";
+
+    // 🌟 Ratings
     const userRating = await models.ReviewAndRate.findOne({
       attributes: [
         [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
@@ -93,24 +97,10 @@ const getStudentById = async (req, res) => {
       raw: true,
     });
 
-    // Format the rating to one decimal place if it exists
     const averageRating = userRating?.averageRating
       ? parseFloat(userRating.averageRating).toFixed(1)
       : "0.0";
-
     const totalReviews = userRating?.totalReviews || 0;
-
-    let action = "Follow";
-
-    if (loggedInUserId === user.user_id) {
-      action = "You";
-    } else if (isFollowedBy && isFollowing) {
-      action = "Following";
-    } else if (isFollowedBy) {
-      action = "Follow back";
-    } else if (isFollowing) {
-      action = "Following";
-    }
 
     const formattedUser = {
       user: {
@@ -123,12 +113,33 @@ const getStudentById = async (req, res) => {
         email: user.email,
         joinDate: user.createdAt,
         rating: averageRating,
+        ratingCount: totalReviews,
         hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
+        isRepresentative,
+        organization: org
+          ? {
+              id: org.org_id,
+              name: org.name,
+              description: org.description,
+              logo: org.logo,
+              isVerified: org.is_verified,
+              isActive: org.is_active,
+              category: org.category_id
+                ? {
+                    id: org.category.id,
+                    name: org.category.name,
+                  }
+                : null,
+              createdAt: org.created_at,
+              updatedAt: org.updated_at,
+            }
+          : null,
       },
       student: user.student
         ? {
             id: user.student.tup_id,
             college: user.student.college,
+            course: user.student.course,
             scannedId: user.student.scanned_id,
             photoWithId: user.student.photo_with_id,
             profilePic: user.student.profile_pic,
@@ -138,7 +149,7 @@ const getStudentById = async (req, res) => {
               user.student.status_message || "No status message available",
             restrictedUntil: user.student.restricted_until,
           }
-        : null, // If student is null, return null instead of an empty object
+        : null,
       action: action,
     };
 

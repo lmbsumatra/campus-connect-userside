@@ -1,16 +1,14 @@
+const { Op } = require("sequelize");
 const { models } = require("../../models");
 
 const getAvailableItemsForSaleByUser = async (req, res) => {
   try {
-    // Extract userId from route parameters
     const { userId } = req.params;
 
-    // Validate userId
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
     }
 
-    // Fetch items from the database
     const items = await models.ItemForSale.findAll({
       where: {
         status: "approved",
@@ -25,7 +23,7 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
             item_type: "item_for_sale",
             status: "available",
             date: {
-              [Op.gte]: new Date(), // today's date and future
+              [Op.gte]: new Date(),
             },
           },
           include: [
@@ -40,18 +38,14 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
         {
           model: models.User,
           as: "seller",
-          attributes: ["first_name", "last_name"],
-          where: {
-            email_verified: true,
-          },
+          attributes: ["user_id", "first_name", "last_name"],
+          where: { email_verified: true },
           include: [
             {
               model: models.Student,
               as: "student",
-              attributes: ["college"],
-              where: {
-                status: "verified",
-              },
+              attributes: ["college", "profile_pic"],
+              where: { status: "verified" },
             },
           ],
         },
@@ -65,7 +59,15 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
       ],
     });
 
-    // Format the items for response
+    // Fetch organization info once (not per item)
+    const org = await models.Org.findOne({
+      where: { user_id: userId },
+      include: [
+        { model: models.OrgCategory, as: "category" },
+        { model: models.User, as: "representative" },
+      ],
+    });
+
     const formattedItems = items
       .map((item) => {
         try {
@@ -73,18 +75,15 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
           const parsedImages = item.images ? JSON.parse(item.images) : [];
           const reviews = item.reviews || [];
           const averageRating = reviews.length
-            ? reviews.reduce((sum, review) => sum + review.rate, 0) /
-              reviews.length
+            ? reviews.reduce((sum, review) => sum + review.rate, 0) / reviews.length
             : null;
 
-          // Construct availableDates properly
           const availableDates = item.available_dates.map((date) => ({
             id: date.id,
             itemId: date.item_id,
             date: date.date,
             itemType: date.item_type,
             status: date.status,
-
             durations: date.durations.map((duration) => ({
               id: duration.id,
               dateId: duration.date_id,
@@ -113,20 +112,48 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
                 paymentMethod: item.payment_mode,
                 specs: item.specifications,
                 location: item.location,
-                averageRating, // Adding average rating to the response
+                averageRating,
                 availableDates,
                 seller: {
-                  id: item.seller_id,
+                  id: item.seller.user_id,
                   fname: item.seller.first_name,
                   lname: item.seller.last_name,
+                  college: item.seller.student.college,
+                  profilePic: item.seller.student.profile_pic,
                 },
+                hasRepresentative: !!org,
+                organization: org
+                  ? {
+                      id: org.org_id,
+                      name: org.name,
+                      description: org.description,
+                      logo: org.logo,
+                      isVerified: org.is_verified,
+                      isActive: org.is_active,
+                      createdAt: org.created_at,
+                      updatedAt: org.updated_at,
+                      category: org.category
+                        ? {
+                            id: org.category.id,
+                            name: org.category.name,
+                          }
+                        : null,
+                      representative: org.representative
+                        ? {
+                            id: org.representative.user_id,
+                            email: org.representative.email,
+                            name: `${org.representative.first_name} ${org.representative.last_name}`,
+                          }
+                        : null,
+                    }
+                  : null,
               }
             : null;
         } catch (error) {
           return null;
         }
       })
-      .filter(Boolean); // Remove items that are null (i.e., no dates)
+      .filter(Boolean);
 
     res.status(200).json(formattedItems);
   } catch (error) {

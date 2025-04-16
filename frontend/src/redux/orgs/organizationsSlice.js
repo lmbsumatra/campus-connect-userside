@@ -29,14 +29,16 @@ const fetchWithTimeout = async (url, options = {}) => {
       signal: controller.signal,
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.message || `Failed with status ${response.status}`
-      );
+      // Extract error message from response
+      const errorMessage =
+        data.error || data.message || `Failed with status ${response.status}`;
+      throw new Error(errorMessage);
     }
 
-    return await response.json();
+    return data;
   } catch (error) {
     if (error.name === "AbortError") {
       throw new Error("Request timed out. Please try again.");
@@ -87,11 +89,34 @@ export const fetchUsers = createAsyncThunk(
 export const addOrganization = createAsyncThunk(
   "organizations/addOrganization",
   async (orgData, { rejectWithValue }) => {
-    console.log(orgData)
     try {
-      return await fetchWithTimeout(`${baseApi}/api/orgs/add`, {
+      // Validate required fields before sending to API
+      if (!orgData.org_name || !orgData.org_name.trim()) {
+        return rejectWithValue("Organization name is required");
+      }
+
+      if (!orgData.category || !orgData.category.trim()) {
+        return rejectWithValue("Category is required");
+      }
+
+      console.log("Sending organization data:", orgData);
+
+      // Create FormData object for file upload
+      const formData = new FormData();
+      formData.append("org_name", orgData.org_name);
+      formData.append("description", orgData.description || "");
+      formData.append("category", orgData.category);
+      formData.append("isActive", orgData.isActive || "active");
+
+      // Append logo file if present
+      if (orgData.logo_file) {
+        formData.append("logo_file", orgData.logo_file);
+      }
+
+      // Send the request with FormData
+      return await fetch(`${baseApi}/api/orgs/add`, {
         method: "POST",
-        body: JSON.stringify(orgData),
+        body: formData, // Send the FormData with logo file
       });
     } catch (error) {
       return rejectWithValue(error.message || "Failed to add organization.");
@@ -104,10 +129,33 @@ export const updateOrganization = createAsyncThunk(
   "organizations/updateOrganization",
   async (orgData, { rejectWithValue }) => {
     try {
+      // Validate required fields
+      if (!orgData.org_name || !orgData.org_name.trim()) {
+        return rejectWithValue("Organization name is required");
+      }
+
+      if (!orgData.category || !orgData.category.trim()) {
+        return rejectWithValue("Category is required");
+      }
+
       const orgId = orgData.org_id || orgData.orgId;
-      return await fetchWithTimeout(`${baseApi}/api/orgs/${orgId}`, {
+
+      // Create FormData object for file upload (same as addOrganization)
+      const formData = new FormData();
+      formData.append("org_name", orgData.org_name);
+      formData.append("description", orgData.description || "");
+      formData.append("category", orgData.category);
+      formData.append("isActive", orgData.isActive || "active");
+
+      // Append logo file if present
+      if (orgData.logo_file) {
+        formData.append("logo_file", orgData.logo_file);
+      }
+
+      // Send the request with FormData
+      return await fetch(`${baseApi}/api/orgs/${orgId}`, {
         method: "PUT",
-        body: JSON.stringify(orgData),
+        body: formData, // Send the FormData with logo file
       });
     } catch (error) {
       return rejectWithValue(error.message || "Failed to update organization.");
@@ -118,11 +166,11 @@ export const updateOrganization = createAsyncThunk(
 // PATCH /api/orgs/:id/status
 export const toggleOrgStatus = createAsyncThunk(
   "organizations/toggleOrgStatus",
-  async ({ orgId, status }, { rejectWithValue }) => {
+  async ({ orgId, isActive }, { rejectWithValue }) => {
     try {
       return await fetchWithTimeout(`${baseApi}/api/orgs/${orgId}/status`, {
         method: "PATCH",
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status: isActive }),
       });
     } catch (error) {
       return rejectWithValue(error.message || "Failed to update status.");
@@ -144,6 +192,20 @@ export const setOrgRepresentative = createAsyncThunk(
       );
     } catch (error) {
       return rejectWithValue(error.message || "Failed to set representative.");
+    }
+  }
+);
+
+// DELETE /api/orgs/:id
+export const deleteOrganization = createAsyncThunk(
+  "organizations/deleteOrganization",
+  async (orgId, { rejectWithValue }) => {
+    try {
+      return await fetchWithTimeout(`${baseApi}/api/orgs/${orgId}`, {
+        method: "DELETE",
+      });
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to delete organization.");
     }
   }
 );
@@ -243,12 +305,12 @@ const organizationsSlice = createSlice({
         // Handle both possible response formats
         const updatedOrg = action.payload.org || action.payload;
         const orgId = updatedOrg.orgId || updatedOrg.org_id;
-        
+
         state.organizations = state.organizations.map((org) => {
           const existingOrgId = org.orgId || org.org_id;
           return existingOrgId === orgId ? updatedOrg : org;
         });
-        
+
         state.error = null;
       })
       .addCase(updateOrganization.rejected, (state, action) => {
@@ -263,23 +325,26 @@ const organizationsSlice = createSlice({
       })
       .addCase(toggleOrgStatus.fulfilled, (state, action) => {
         state.loading = false;
-        
+
         // Handle response with either nested org or direct response
         const updatedOrg = action.payload.org || action.payload;
         const orgId = updatedOrg.orgId || updatedOrg.org_id;
-        
+
         state.organizations = state.organizations.map((org) => {
           const existingOrgId = org.orgId || org.org_id;
           if (existingOrgId === orgId) {
             return {
               ...org,
               isActive: updatedOrg.isActive,
-              isVerified: updatedOrg.isVerified !== undefined ? updatedOrg.isVerified : org.isVerified
+              isVerified:
+                updatedOrg.isVerified !== undefined
+                  ? updatedOrg.isVerified
+                  : org.isVerified,
             };
           }
           return org;
         });
-        
+
         state.error = null;
       })
       .addCase(toggleOrgStatus.rejected, (state, action) => {
@@ -294,26 +359,48 @@ const organizationsSlice = createSlice({
       })
       .addCase(setOrgRepresentative.fulfilled, (state, action) => {
         state.loading = false;
-        
+
         // Handle response with either nested org or direct response
         const updatedOrg = action.payload.org || action.payload;
         const orgId = updatedOrg.orgId || updatedOrg.org_id;
-        const repId = updatedOrg.representative?.id || updatedOrg.userId || null;
-        
+        const repId =
+          updatedOrg.representative?.id || updatedOrg.userId || null;
+
         state.organizations = state.organizations.map((org) => {
           const existingOrgId = org.orgId || org.org_id;
           if (existingOrgId === orgId) {
             return {
               ...org,
-              representative: repId ? { ...org.representative, id: repId } : null
+              representative: repId
+                ? { ...org.representative, id: repId }
+                : null,
             };
           }
           return org;
         });
-        
+
         state.error = null;
       })
       .addCase(setOrgRepresentative.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Delete Organization
+      .addCase(deleteOrganization.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteOrganization.fulfilled, (state, action) => {
+        state.loading = false;
+
+        const deletedOrgId = action.payload.orgId || action.orgId;
+        state.organizations = state.organizations.filter((org) => {
+          const orgId = org.orgId || org.org_id;
+          return Number(orgId) !== Number(deletedOrgId);
+        });
+        state.error = null;
+      })
+      .addCase(deleteOrganization.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

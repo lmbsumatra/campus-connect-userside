@@ -5,6 +5,7 @@ const { Op } = require("sequelize");
 
 const getAllAvailable = async (req, res) => {
   const userId = req.query.userId || "";
+
   try {
     const items = await models.ItemForSale.findAll({
       attributes: [
@@ -20,10 +21,10 @@ const getAllAvailable = async (req, res) => {
         "item_condition",
         "delivery_mode",
         "payment_mode",
+        "specifications",
+        "location",
       ],
-      where: {
-        status: "approved",
-      },
+      where: { status: "approved" },
       include: [
         {
           model: models.Date,
@@ -32,9 +33,7 @@ const getAllAvailable = async (req, res) => {
           where: {
             item_type: "item_for_sale",
             status: "available",
-            date: {
-              [Op.gte]: new Date(), // today's date and future
-            },
+            date: { [Op.gte]: new Date() },
           },
           include: [
             {
@@ -48,7 +47,7 @@ const getAllAvailable = async (req, res) => {
         {
           model: models.User,
           as: "seller",
-          attributes: ["first_name", "last_name"],
+          attributes: ["user_id", "first_name", "last_name", "email_verified"],
           where: { email_verified: true },
           include: [
             {
@@ -69,62 +68,65 @@ const getAllAvailable = async (req, res) => {
       ],
     });
 
+    // If user is logged in, pre-fetch all followings
+    let followingIds = [];
+    if (userId) {
+      const followings = await models.Follow.findAll({
+        where: { follower_id: userId },
+        attributes: ["followee_id"],
+        raw: true,
+      });
+      followingIds = followings.map((f) => f.followee_id);
+    }
+
     const formattedItems = await Promise.all(
       items.map(async (item) => {
         let tags = [];
         let images = [];
-        const reviews = item.reviews || [];
-        const averageRating = reviews.length
-          ? reviews.reduce((sum, review) => sum + review.rate, 0) /
-            reviews.length
+        let specsArray = [];
+        let specsRaw = item.specifications;
+
+        try {
+          tags = JSON.parse(item.tags || "[]");
+          images = JSON.parse(item.images || "[]");
+
+          if (typeof specsRaw === "string") {
+            specsRaw = JSON.parse(specsRaw);
+          }
+          specsArray =
+            specsRaw && typeof specsRaw === "object"
+              ? Object.values(specsRaw)
+              : [];
+        } catch (e) {
+          specsArray = [];
+        }
+
+        const averageRating = item.reviews?.length
+          ? (
+              item.reviews.reduce((sum, review) => sum + review.rate, 0) /
+              item.reviews.length
+            ).toFixed(1)
           : null;
 
-        try {
-          tags = JSON.parse(item.tags);
-        } catch (error) {}
-
-        try {
-          images = JSON.parse(item.images);
-        } catch (error) {}
-
         let isFollowingBuyer = false;
-
-        if (userId) {
-          const followings = await models.Follow.findAll({
-            where: { follower_id: userId },
-            attributes: ["followee_id"],
-            raw: true,
-          });
-
-          const followingIds = followings.map((follow) => follow.followee_id);
-
+        if (userId && followingIds.includes(item.seller_id)) {
           const transaction = await models.RentalTransaction.findOne({
             where: {
               buyer_id: { [Op.in]: followingIds },
               item_id: item.id,
             },
           });
-
           isFollowingBuyer = !!transaction;
         }
 
-        let specsArray = [];
-        try {
-          const specsRaw = item.specifications;
-
-          let specsObject = {};
-
-          if (typeof specsRaw === "object" && specsRaw !== null) {
-            specsObject = specsRaw;
-          } else if (typeof specsRaw === "string" && specsRaw.trim()) {
-            specsObject = JSON.parse(specsRaw);
-          }
-
-          specsArray = Object.values(specsObject);
-        } catch (e) {
-          console.warn("❗ Failed to parse specifications:", e);
-          specsArray = [];
-        }
+        // Fetch organization (if seller is a representative)
+        const org = await models.Org.findOne({
+          where: { user_id: item.seller_id },
+          include: [
+            { model: models.OrgCategory, as: "category" },
+            { model: models.User, as: "representative" },
+          ],
+        });
 
         return {
           id: item.id,
@@ -141,9 +143,13 @@ const getAllAvailable = async (req, res) => {
           deliveryMethod: item.delivery_mode,
           paymentMethod: item.payment_mode,
           condition: item.item_condition,
+          location: item.location,
           averageRating,
           isFollowingBuyer,
-          location: item.location,
+          sellerId: item.seller_id,
+          sellerFname: item.seller.first_name,
+          sellerLname: item.seller.last_name,
+          college: item.seller.student?.college || null,
           availableDates: item.available_dates.map((date) => ({
             id: date.id,
             itemId: date.item_id,
@@ -158,52 +164,74 @@ const getAllAvailable = async (req, res) => {
               status: duration.status,
             })),
           })),
-          sellerId: item.seller_id,
-          sellerFname: item.seller.first_name,
-          sellerLname: item.seller.last_name,
-          college: item.seller.student ? item.seller.student.college : null,
+          hasRepresentative: !!org,
+          organization: org
+            ? {
+                id: org.org_id,
+                name: org.name,
+                description: org.description,
+                logo: org.logo,
+                isVerified: org.is_verified,
+                isActive: org.is_active,
+                createdAt: org.created_at,
+                updatedAt: org.updated_at,
+                category: org.category
+                  ? {
+                      id: org.category.id,
+                      name: org.category.name,
+                    }
+                  : null,
+                representative: org.representative
+                  ? {
+                      id: org.representative.user_id,
+                      email: org.representative.email,
+                      name: `${org.representative.first_name} ${org.representative.last_name}`,
+                    }
+                  : null,
+              }
+            : null,
         };
       })
     );
 
     const { q, preference } = req.query;
 
-    let filteredItems = formattedItems;
-    if (preference) {
-      if (preference === "new_items_for_sale") {
-        filteredItems = [...formattedItems].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-      }
-    }
-    if (q) {
-      const normalizedQuery = q.toLowerCase();
+    let filteredItems = [...formattedItems];
 
-      const queryKeywords = normalizedQuery.split(" ");
-
-      const refinedKeywords = queryKeywords.filter(
-        (keyword) => keyword.trim() !== ""
+    // Filter by new
+    if (preference === "new_items_for_sale") {
+      filteredItems.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
+    }
 
-      const fuse = new Fuse(formattedItems, {
-        keys: ["name", "desc", "category", "tags", "specsArray"],
+    // Search
+    if (q) {
+      const fuse = new Fuse(filteredItems, {
+        keys: ["name", "category", "tags", "specsArray"],
         threshold: 0.4,
-        includeScore: true,
-        includeMatches: true,
         ignoreLocation: true,
-        minMatchCharLength: 2,
+        includeScore: true,
       });
 
-      const results = fuse
-        .search(refinedKeywords.join(" "))
-        .map((result) => result.item);
-      console.log({ results });
+      const keywordResults = fuse.search(q);
+      const seen = new Set();
+      const results = [];
 
-      return res.status(200).json(results.length ? results : []);
+      for (const result of keywordResults) {
+        const itemId = result.item.id;
+        if (!seen.has(itemId)) {
+          seen.add(itemId);
+          results.push(result.item);
+        }
+      }
+
+      return res.status(200).json(results);
     }
 
-    res.status(200).json(filteredItems);
+    return res.status(200).json(filteredItems);
   } catch (error) {
+    console.error("getAllAvailable error:", error);
     res.status(500).json({ error: error.message });
   }
 };

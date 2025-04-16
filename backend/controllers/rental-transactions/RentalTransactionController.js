@@ -1033,7 +1033,7 @@ module.exports = ({ emitNotification }) => {
           : "rental_declined";
       const action = rental.transaction_type === "sell" ? "purchase" : "rental";
 
-      console.log("Creating notification for the renter");
+      // console.log("Creating notification for the renter");
       const notification = await models.StudentNotification.create({
         sender_id: userId,
         recipient_id:
@@ -1047,7 +1047,7 @@ module.exports = ({ emitNotification }) => {
       });
 
       if (emitNotification) {
-        console.log("Emitting notification to renter");
+        // console.log("Emitting notification to renter");
         emitNotification(
           rental.transaction_type === "sell"
             ? rental.buyer_id
@@ -1057,7 +1057,7 @@ module.exports = ({ emitNotification }) => {
       }
 
       try {
-        console.log("Sending decline email to renter");
+        // console.log("Sending decline email to renter");
         await sendTransactionEmail({
           email:
             rental.transaction_type === "sell"
@@ -1073,7 +1073,7 @@ module.exports = ({ emitNotification }) => {
         console.error("Error sending decline email:", emailError);
       }
 
-      console.log("Sending response with rental information");
+      // console.log("Sending response with rental information");
       res.json(rental);
     } catch (error) {
       console.error("Error processing decline request:", error);

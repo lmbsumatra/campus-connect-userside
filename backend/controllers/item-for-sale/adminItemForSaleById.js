@@ -65,6 +65,15 @@ const adminItemForSaleById = async (req, res) => {
       ? parseFloat(userRating.averageRating).toFixed(1)
       : "0.0";
 
+    // Fetch the organization associated with the seller (if any)
+    const org = await models.Org.findOne({
+      where: { user_id: item.seller.user_id },
+      include: [
+        { model: models.OrgCategory, as: "category" },
+        { model: models.User, as: "representative" },
+      ],
+    });
+
     const formattedItem = {
       id: item.id,
       itemName: item.item_for_sale_name,
@@ -110,6 +119,32 @@ const adminItemForSaleById = async (req, res) => {
         reviewerId: review.reviewer_id,
       })),
       averageRating,
+      // Include organization info if exists
+      organization: org
+        ? {
+            id: org.org_id,
+            name: org.name,
+            description: org.description,
+            logo: org.logo,
+            isVerified: org.is_verified,
+            isActive: org.is_active,
+            createdAt: org.created_at,
+            updatedAt: org.updated_at,
+            category: org.category
+              ? {
+                  id: org.category.id,
+                  name: org.category.name,
+                }
+              : null,
+            representative: org.representative
+              ? {
+                  id: org.representative.user_id,
+                  name: `${org.representative.first_name} ${org.representative.last_name}`,
+                  email: org.representative.email,
+                }
+              : null,
+          }
+        : null,
     };
 
     res.status(200).json(formattedItem);

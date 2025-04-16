@@ -1,8 +1,26 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "./profileSidebarStyles.css";
+import { useDispatch, useSelector } from "react-redux";
+import ShowAlert from "../../../utils/ShowAlert";
 
 const ProfileSidebar = () => {
   const location = useLocation();
+  const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isRepresentative = user?.user?.isRepresentative || false;
+
+  const checkAccess = () => {
+    if (isRepresentative === false) {
+      return ShowAlert(
+        dispatch,
+        "warning",
+        "Sorry",
+        "Sorry you have to be representative of an org to sell."
+      );
+    }
+    navigate(`/profile/my-for-sale`);
+  };
 
   const isActiveLink = (path) => location.pathname.startsWith(path);
 
@@ -45,6 +63,10 @@ const ProfileSidebar = () => {
             className={({ isActive }) =>
               isActive || isActiveLink("/profile/my-for-sale") ? "active" : ""
             }
+            onClick={(e) => {
+              e.preventDefault();
+              checkAccess();
+            }}
           >
             My For Sale
           </NavLink>

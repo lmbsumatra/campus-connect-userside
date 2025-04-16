@@ -16,7 +16,7 @@ import ListingDashboard from "../pages/private/admin/listing-management/ListingD
 import ListingOverview from "../pages/private/admin/listing-management/ListingOverview";
 import ListingApproval from "../pages/private/admin/listing-management/ListingApproval";
 import ItemForSaleApproval from "../pages/private/admin/SaleManagement/ItemSaleApproval";
-import OrgsManagement from "../pages/private/admin/SaleManagement/OrgsManagement";
+import OrgsManagement from "../pages/private/admin/SaleManagement/orgs/OrgsManagement";
 import ProtectedRoute from "../components/Protected Route/ProtectedRoute";
 import AdminSettings from "../pages/private/admin/settings/AdminSettings";
 import ViewTransaction from "../pages/private/admin/TransactionManagement/ViewTransaction";

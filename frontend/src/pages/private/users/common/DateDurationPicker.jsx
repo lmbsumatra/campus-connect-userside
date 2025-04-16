@@ -374,17 +374,26 @@ const DateDurationPicker = ({
   };
 
   useEffect(() => {
+    // Check if dates or removed states need to be updated
     if (show && selectedDatesDurations.length > 0) {
-      setDates(
-        selectedDatesDurations.map((dateItem) => ({
-          date: new Date(dateItem.date),
-          durations: dateItem.durations,
-        }))
-      );
+      const newDates = selectedDatesDurations.map((dateItem) => ({
+        date: new Date(dateItem.date),
+        durations: dateItem.durations,
+      }));
+  
+      // Only set dates if they have changed
+      if (JSON.stringify(dates) !== JSON.stringify(newDates)) {
+        setDates(newDates);
+      }
     }
-    setRemovedDate([]);
-    setRemovedDurations([]);
+  
+    // Reset removedDate and removedDurations only if necessary
+    if ( removedDurations.length > 0) {
+      setRemovedDate([]);
+      setRemovedDurations([]);
+    }
   }, [show, selectedDatesDurations]);
+  
 
   const removeDate = (dateToRemove) => {
     const dateFound = dates.find((d) => d.date === dateToRemove.date);

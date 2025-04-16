@@ -559,7 +559,11 @@ const AddNewItem = () => {
           </Tooltip>
           {itemDataState.images.triggered && itemDataState.images.hasError && (
             <div className="validation error d-block">
-              <img src={warningIcon} className="warning-icon" alt="Error indicator" />
+              <img
+                src={warningIcon}
+                className="warning-icon"
+                alt="Error indicator"
+              />
               <span className="text">{itemDataState.images.error}</span>
             </div>
           )}
@@ -579,11 +583,16 @@ const AddNewItem = () => {
             }}
             onItemTypeChange={handleItemTypeChange}
             onCategoryChange={handleCategoryChange}
+            isRepresentative={user.user.isRepresentative}
           />
           {itemDataState.category.triggered &&
             itemDataState.category.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">{itemDataState.category.error}</span>
               </div>
             )}
@@ -652,7 +661,11 @@ const AddNewItem = () => {
           {itemDataState.availableDates.triggered &&
             itemDataState.availableDates.hasError && (
               <div className="validation error d-block">
-                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">
                   {itemDataState.availableDates.error}
                 </span>
@@ -746,7 +759,11 @@ const AddNewItem = () => {
           {itemDataState.deliveryMethod.triggered &&
             itemDataState.deliveryMethod.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">
                   {itemDataState.deliveryMethod.error}
                 </span>
@@ -806,7 +823,11 @@ const AddNewItem = () => {
           {itemDataState.paymentMethod.triggered &&
             itemDataState.paymentMethod.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">
                   {itemDataState.paymentMethod.error}
                 </span>
