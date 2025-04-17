@@ -1,16 +1,20 @@
 const { Op, Sequelize } = require("sequelize");
 const { models } = require("../../../models");
 
-const reviewStats = async () => {
+const reviewStats = async ({ month, year }) => {
   try {
-    const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
+    const selectedMonth = parseInt(month) - 1; // 0-indexed
+    const selectedYear = parseInt(year);
+
+    const startOfCurrentMonth = new Date(selectedYear, selectedMonth, 1);
+    const endOfCurrentMonth = new Date(selectedYear, selectedMonth + 1, 0);
+
+    const startOfPastMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfPastMonth = new Date(selectedYear, selectedMonth, 0);
 
     // Total Reviews
     const totalReviewsCurrentMonth = await models.ReviewAndRate.count({
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } }
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } }
     });
 
     const totalReviewsPastMonth = await models.ReviewAndRate.count({
@@ -20,7 +24,7 @@ const reviewStats = async () => {
     // Average Rating
     const averageRatingCurrentMonth = await models.ReviewAndRate.findOne({
       attributes: [[Sequelize.fn("AVG", Sequelize.col("rate")), "avgRating"]],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       raw: true,
     });
 
@@ -33,7 +37,7 @@ const reviewStats = async () => {
     // Rating Distribution
     const ratingDistributionCurrentMonth = await models.ReviewAndRate.findAll({
       attributes: ["rate", [Sequelize.fn("COUNT", "rate"), "count"]],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["rate"],
       raw: true,
     });

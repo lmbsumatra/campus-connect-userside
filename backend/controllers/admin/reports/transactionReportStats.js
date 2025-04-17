@@ -1,16 +1,20 @@
 const { Op, Sequelize } = require("sequelize");
 const { models } = require("../../../models");
 
-const transactionReportStats = async () => {
+const transactionReportStats = async ({ month, year }) => {
   try {
-    const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
+    const selectedMonth = parseInt(month) - 1; // 0-indexed
+    const selectedYear = parseInt(year);
+
+    const startOfCurrentMonth = new Date(selectedYear, selectedMonth, 1);
+    const endOfCurrentMonth = new Date(selectedYear, selectedMonth + 1, 0);
+
+    const startOfPastMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfPastMonth = new Date(selectedYear, selectedMonth, 0);
 
     // Total transaction reports
     const totalReportsCurrentMonth = await models.TransactionReport.count({
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } }
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } }
     });
 
     const totalReportsPastMonth = await models.TransactionReport.count({
@@ -23,7 +27,7 @@ const transactionReportStats = async () => {
         "transaction_type",
         [Sequelize.fn("COUNT", Sequelize.col("transaction_type")), "count"],
       ],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["transaction_type"],
       raw: true,
     });
@@ -44,7 +48,7 @@ const transactionReportStats = async () => {
         "status",
         [Sequelize.fn("COUNT", Sequelize.col("status")), "count"],
       ],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["status"],
       raw: true,
     });
@@ -65,7 +69,7 @@ const transactionReportStats = async () => {
         "reported_id",
         [Sequelize.fn("COUNT", Sequelize.col("reported_id")), "count"],
       ],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["reported_id"],
       order: [[Sequelize.literal("count"), "DESC"]],
       limit: 5,
@@ -95,7 +99,7 @@ const transactionReportStats = async () => {
           "avg_resolution_time_hours",
         ],
       ],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       raw: true,
     });
 
@@ -116,7 +120,7 @@ const transactionReportStats = async () => {
     // Response rate percentage
     const totalRespondedReportsCurrentMonth = await models.TransactionReport.count({
       where: {
-        createdAt: { [Op.gte]: startOfCurrentMonth },
+        createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], },
         response_description: { [Op.not]: null },
       },
     });

@@ -1,17 +1,27 @@
 const { Op } = require("sequelize");
 const { models } = require("../../../models");
 
-const conversationStats = async () => {
+const conversationStats = async ({ month, year }) => {
   try {
-    const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
+    const selectedMonth = parseInt(month) - 1; // 0-indexed
+    const selectedYear = parseInt(year);
 
-    // Total Conversations
-    const totalConversations = await models.Conversation.count();
+    const startOfCurrentMonth = new Date(selectedYear, selectedMonth, 1);
+    const endOfCurrentMonth = new Date(selectedYear, selectedMonth + 1, 0);
 
-    // Active Conversations (last 7 days)
+    const startOfPastMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfPastMonth = new Date(selectedYear, selectedMonth, 0);
+
+    // Total Conversations in selected month
+    const totalConversations = await models.Conversation.count({
+      where: {
+        createdAt: {
+          [Op.between]: [startOfCurrentMonth, endOfCurrentMonth],
+        },
+      },
+    });
+
+    // Active Conversations (updated in the last 7 days)
     const activeConversations = await models.Conversation.count({
       where: {
         updatedAt: {
@@ -20,28 +30,32 @@ const conversationStats = async () => {
       },
     });
 
-    // Conversations for Current Month
-    const totalConversationsCurrentMonth = await models.Conversation.count({
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
-    });
+    // Conversations in selected month
+    const totalConversationsCurrentMonth = totalConversations;
 
-    // Conversations for Past Month
+    // Conversations in past month
     const totalConversationsPastMonth = await models.Conversation.count({
       where: {
-        createdAt: { [Op.between]: [startOfPastMonth, endOfPastMonth] },
+        createdAt: {
+          [Op.between]: [startOfPastMonth, endOfPastMonth],
+        },
       },
     });
 
-    // Fetch All Conversation Data
-    const conversationData = await models.Conversation.findAll();
+    // Fetch conversations for average member calculation (only in current month)
+    const conversationData = await models.Conversation.findAll({
+      where: {
+        createdAt: {
+          [Op.between]: [startOfCurrentMonth, endOfCurrentMonth],
+        },
+      },
+    });
 
-    // Calculate total members
     const totalMembers = conversationData.reduce(
-      (sum, conv) => sum + conv.members.length,
+      (sum, conv) => sum + (conv.members?.length || 0),
       0
     );
 
-    // Calculate average members per conversation
     const avgMembersPerConversation =
       totalConversations > 0 ? totalMembers / totalConversations : 0;
 

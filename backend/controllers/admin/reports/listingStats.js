@@ -1,29 +1,33 @@
 const { models, sequelize } = require("../../../models");
 const { Op } = require("sequelize");
 
-const listingStats = async () => {
+const listingStats = async ({ month, year }) => {
   try {
-    const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
+    const selectedMonth = parseInt(month) - 1; // 0-indexed
+    const selectedYear = parseInt(year);
 
-    // Total Listings
+    const startOfCurrentMonth = new Date(selectedYear, selectedMonth, 1);
+    const endOfCurrentMonth = new Date(selectedYear, selectedMonth + 1, 0);
+
+    const startOfPastMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfPastMonth = new Date(selectedYear, selectedMonth, 0);
+
+    // Total Listings in selected month
     const totalListingsCurrentMonth = await models.Listing.count({
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } }
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } }
     });
 
     const totalListingsPastMonth = await models.Listing.count({
       where: { created_at: { [Op.between]: [startOfPastMonth, endOfPastMonth] } }
     });
 
-    // Status Counts
+    // Status Counts in selected month
     const statusCountsCurrentMonth = await models.Listing.findAll({
       attributes: [
         "status",
         [sequelize.fn("COUNT", sequelize.col("status")), "count"],
       ],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["status"],
       raw: true,
     });
@@ -38,10 +42,10 @@ const listingStats = async () => {
       raw: true,
     });
 
-    // Average Rate
+    // Average Rate in selected month
     const avgRateCurrentMonth = await models.Listing.findOne({
       attributes: [[sequelize.fn("AVG", sequelize.col("rate")), "avgRate"]],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       raw: true,
     });
 
@@ -51,13 +55,13 @@ const listingStats = async () => {
       raw: true,
     });
 
-    // Category Counts
+    // Category Counts in selected month
     const categoryCountsCurrentMonth = await models.Listing.findAll({
       attributes: [
         "category",
         [sequelize.fn("COUNT", sequelize.col("category")), "count"],
       ],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["category"],
       raw: true,
     });
@@ -72,13 +76,13 @@ const listingStats = async () => {
       raw: true,
     });
 
-    // Payment Mode Counts
+    // Payment Mode Counts in selected month
     const paymentModeCountsCurrentMonth = await models.Listing.findAll({
       attributes: [
         "payment_mode",
         [sequelize.fn("COUNT", sequelize.col("payment_mode")), "count"],
       ],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["payment_mode"],
       raw: true,
     });

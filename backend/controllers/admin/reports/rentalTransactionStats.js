@@ -1,16 +1,20 @@
 const { Op, Sequelize } = require("sequelize");
 const { models, sequelize } = require("../../../models");
 
-const rentalTransactionStats = async () => {
+const rentalTransactionStats = async ({ month, year }) => {
   try {
-    const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
+    const selectedMonth = parseInt(month) - 1; // 0-indexed
+    const selectedYear = parseInt(year);
+
+    const startOfCurrentMonth = new Date(selectedYear, selectedMonth, 1);
+    const endOfCurrentMonth = new Date(selectedYear, selectedMonth + 1, 0);
+
+    const startOfPastMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfPastMonth = new Date(selectedYear, selectedMonth, 0);
 
     // Total Transactions
     const totalTransactionsCurrentMonth = await models.RentalTransaction.count({
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } }
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } }
     });
 
     const totalTransactionsPastMonth = await models.RentalTransaction.count({
@@ -20,7 +24,7 @@ const rentalTransactionStats = async () => {
     // Transaction Type Counts
     const transactionTypeCountsCurrentMonth = await models.RentalTransaction.findAll({
       attributes: ["transaction_type", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["transaction_type"],
       raw: true,
     });
@@ -35,7 +39,7 @@ const rentalTransactionStats = async () => {
     // Transaction Status Counts
     const transactionStatusCountsCurrentMonth = await models.RentalTransaction.findAll({
       attributes: ["status", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["status"],
       raw: true,
     });
@@ -50,7 +54,7 @@ const rentalTransactionStats = async () => {
     // Payment Status Counts
     const paymentStatusCountsCurrentMonth = await models.RentalTransaction.findAll({
       attributes: ["payment_status", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["payment_status"],
       raw: true,
     });
@@ -65,7 +69,7 @@ const rentalTransactionStats = async () => {
     // Delivery Method Counts
     const deliveryMethodCountsCurrentMonth = await models.RentalTransaction.findAll({
       attributes: ["delivery_method", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["delivery_method"],
       raw: true,
     });

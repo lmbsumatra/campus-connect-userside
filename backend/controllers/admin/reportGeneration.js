@@ -1,5 +1,5 @@
 const getAuditStats = require("./reports/auditStats");
-const getCartStats = require("./reports/cartStats");
+// const getCartStats = require("./reports/cartStats");
 const getConversationStats = require("./reports/conversationStats");
 const getFollowStats = require("./reports/followStats");
 const getItemForSaleStats = require("./reports/itemForSaleStats");
@@ -14,9 +14,13 @@ const getUsersStats = require("./reports/userStats");
 
 const reportGeneration = async (req, res) => {
   try {
+    const { month, year } = req.body;
+
+    console.log({ month, year });
+
     const [
       auditStats,
-      cartStats,
+      // cartStats,
       conversationStats,
       followStats,
       itemForSaleStats,
@@ -29,24 +33,24 @@ const reportGeneration = async (req, res) => {
       transactionReportStats,
       usersStats,
     ] = await Promise.all([
-      getAuditStats(),
-      getCartStats(),
-      getConversationStats(),
-      getFollowStats(),
-      getItemForSaleStats(),
-      getListingStats(),
-      getPostStats(),
-      getRentalTransactionStats(),
-      getReportStats(),
-      getReviewStats(),
-      getStudentStats(),
-      getTransactionReportStats(),
-      getUsersStats(),
+      getAuditStats({ month, year }),
+      // getCartStats({ month, year }),
+      getConversationStats({ month, year }),
+      getFollowStats({ month, year }),
+      getItemForSaleStats({ month, year }),
+      getListingStats({ month, year }),
+      getPostStats({ month, year }),
+      getRentalTransactionStats({ month, year }),
+      getReportStats({ month, year }),
+      getReviewStats({ month, year }),
+      getStudentStats({ month, year }),
+      getTransactionReportStats({ month, year }),
+      getUsersStats({ month, year }),
     ]);
 
     res.json({
       auditStats,
-      cartStats,
+      // cartStats,
       conversationStats,
       followStats,
       itemForSaleStats,
@@ -60,6 +64,7 @@ const reportGeneration = async (req, res) => {
       usersStats,
     });
   } catch (error) {
+    console.error("Report Generation Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

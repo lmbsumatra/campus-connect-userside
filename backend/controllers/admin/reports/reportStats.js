@@ -1,16 +1,20 @@
 const { Op, Sequelize } = require("sequelize");
 const { models } = require("../../../models");
 
-const reportStats = async () => {
+const reportStats = async ({ month, year }) => {
   try {
-    const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
+    const selectedMonth = parseInt(month) - 1; // 0-indexed
+    const selectedYear = parseInt(year);
+
+    const startOfCurrentMonth = new Date(selectedYear, selectedMonth, 1);
+    const endOfCurrentMonth = new Date(selectedYear, selectedMonth + 1, 0);
+
+    const startOfPastMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfPastMonth = new Date(selectedYear, selectedMonth, 0);
 
     // Total Reports
     const totalReportsCurrentMonth = await models.Report.count({
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } }
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } }
     });
 
     const totalReportsPastMonth = await models.Report.count({
@@ -23,7 +27,7 @@ const reportStats = async () => {
         "entity_type",
         [Sequelize.fn("COUNT", "*"), "count"],
       ],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["entity_type"],
       raw: true,
     });
@@ -44,7 +48,7 @@ const reportStats = async () => {
         "status",
         [Sequelize.fn("COUNT", "*"), "count"],
       ],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["status"],
       raw: true,
     });
@@ -63,7 +67,7 @@ const reportStats = async () => {
     const disputesCountCurrentMonth = await models.Report.count({
       where: { 
         is_dispute: true,
-        createdAt: { [Op.gte]: startOfCurrentMonth }
+        createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], }
       },
     });
 

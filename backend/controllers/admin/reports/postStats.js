@@ -1,16 +1,20 @@
 const { Op } = require("sequelize");
 const { models, sequelize } = require("../../../models");
 
-const postStats = async () => {
+const postStats = async ({ month, year }) => {
   try {
-    const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
+    const selectedMonth = parseInt(month) - 1; // 0-indexed
+    const selectedYear = parseInt(year);
+
+    const startOfCurrentMonth = new Date(selectedYear, selectedMonth, 1);
+    const endOfCurrentMonth = new Date(selectedYear, selectedMonth + 1, 0);
+
+    const startOfPastMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfPastMonth = new Date(selectedYear, selectedMonth, 0);
 
     // Total Posts
     const totalPostsCurrentMonth = await models.Post.count({
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } }
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } }
     });
 
     const totalPostsPastMonth = await models.Post.count({
@@ -23,7 +27,7 @@ const postStats = async () => {
         "category",
         [sequelize.fn("COUNT", "*"), "count"]
       ],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["category"],
       raw: true,
     });
@@ -41,7 +45,7 @@ const postStats = async () => {
     // Posts By Status
     const postsByStatusCurrentMonth = await models.Post.findAll({
       attributes: ["status", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["status"],
       raw: true,
     });
@@ -56,7 +60,7 @@ const postStats = async () => {
     // Posts By Type
     const postsByTypeCurrentMonth = await models.Post.findAll({
       attributes: ["post_type", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["post_type"],
       raw: true,
     });
@@ -71,7 +75,7 @@ const postStats = async () => {
     // Posts By User
     const postsByUserCurrentMonth = await models.Post.findAll({
       attributes: ["user_id", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { created_at: { [Op.gte]: startOfCurrentMonth } },
+      where: { created_at: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["user_id"],
       raw: true,
     });

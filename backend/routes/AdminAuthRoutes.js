@@ -85,7 +85,7 @@ router.post(
 
 router.post("/audit-logout", AdminController.logAdminLogout);
 
-router.get("/report", AdminController.reportGeneration);
+router.post("/report", AdminController.reportGeneration);
 
 router.post(
   "/update-permission",

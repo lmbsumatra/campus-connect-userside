@@ -1,17 +1,21 @@
-const { models, sequelize} = require("../../../models");
+const { models, sequelize } = require("../../../models");
 const { Op } = require("sequelize");
 
-const studentStats = async () => {
+const studentStats = async ({ month, year }) => {
   try {
-    const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfPastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of the previous month
+    const selectedMonth = parseInt(month) - 1; // 0-indexed
+    const selectedYear = parseInt(year);
+
+    const startOfCurrentMonth = new Date(selectedYear, selectedMonth, 1);
+    const endOfCurrentMonth = new Date(selectedYear, selectedMonth + 1, 0);
+
+    const startOfPastMonth = new Date(selectedYear, selectedMonth - 1, 1);
+    const endOfPastMonth = new Date(selectedYear, selectedMonth, 0);
 
     // Number of Students per College
     const studentsPerCollegeCurrentMonth = await models.Student.findAll({
       attributes: ["college", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["college"],
       raw: true,
     });
@@ -26,7 +30,7 @@ const studentStats = async () => {
     // Number of Students per Course
     const studentsPerCourseCurrentMonth = await models.Student.findAll({
       attributes: ["course", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["course"],
       raw: true,
     });
@@ -41,7 +45,7 @@ const studentStats = async () => {
     // Verification Status Distribution
     const studentStatusDistributionCurrentMonth = await models.Student.findAll({
       attributes: ["status", [sequelize.fn("COUNT", "*"), "count"]],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["status"],
       raw: true,
     });
@@ -59,7 +63,7 @@ const studentStats = async () => {
         [sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), "%Y-%m-%d"), "day"],
         [sequelize.fn("COUNT", "*"), "count"],
       ],
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
+      where: { createdAt: {  [Op.between]: [startOfCurrentMonth, endOfCurrentMonth], } },
       group: ["day"],
       order: [["day", "ASC"]],
       raw: true,
