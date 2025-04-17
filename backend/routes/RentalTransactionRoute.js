@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const rentalTransactionController = require("../controllers/rental-transactions/RentalTransactionController");
+const { uploadTransactionEvidence } = require("../config/multer");
 
 module.exports = function (rentalTransactionController) {
   // Attach io to the controller methods that need it
@@ -17,6 +18,7 @@ module.exports = function (rentalTransactionController) {
     completeRentalTransaction,
     cancelRentalTransaction,
     declineRentalTransaction,
+    uploadEvidenceImage,
   } = rentalTransactionController; // Pass io to the controller
 
   // Routes that don't need io
@@ -26,6 +28,7 @@ module.exports = function (rentalTransactionController) {
   router.put("/:id", updateRentalTransaction);
   router.delete("/:id", deleteRentalTransaction);
   router.get("/user/:userId", getTransactionsByUserId);
+  router.post("/upload-evidence", uploadTransactionEvidence, uploadEvidenceImage);
 
   // Routes that need io
   router.post("/user/:id/accept", acceptRentalTransaction);

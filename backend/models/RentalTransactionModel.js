@@ -116,6 +116,18 @@ module.exports = (sequelize) => {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: true,
       },
+      handover_proof: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      return_proof: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      sale_completion_proof: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       sequelize,

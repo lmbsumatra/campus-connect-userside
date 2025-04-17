@@ -15,6 +15,7 @@ import socket from "../../hooks/socket";
 import { Tooltip } from "@mui/material";
 import PaymentConfirmationModal from "./PaymentConfirmationModal";
 import { baseApi } from "../../utils/consonants";
+import ShowAlert from "../../utils/ShowAlert";
 
 function RentalItem({
   item,
@@ -31,6 +32,7 @@ function RentalItem({
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [modalRole, setModalRole] = useState("");
   const dispatch = useDispatch();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -39,26 +41,26 @@ function RentalItem({
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-  console.log(item);
-  const handleConfirmPayment = () => {
-    if (
-      item.transactionType === "Rental" &&
-      item.tx.status === "HandedOver" &&
-      (item.tx.owner.user_id === userId || item.tx.renter.user_id === userId)
-    ) {
-      // console.log("rent");
-      // setIsPaymentModalOpen(false);
-      handleStatusUpdate("return");
-    } else if (
-      item.transactionType === "Purchase" &&
-      item.tx.status === "Accepted" &&
-      (item.tx.owner.user_id === userId || item.tx.buyer.user_id === userId)
-    ) {
-      // console.log("buy");
-      // setIsPaymentModalOpen(false);
-      handleStatusUpdate("hand-over");
-    }
-  };
+  // console.log(item);
+  // const handleConfirmPayment = () => {
+  //   if (
+  //     item.transactionType === "Rental" &&
+  //     item.tx.status === "HandedOver" &&
+  //     (item.tx.owner.user_id === userId || item.tx.renter.user_id === userId)
+  //   ) {
+  //     // console.log("rent");
+  //     // setIsPaymentModalOpen(false);
+  //     handleStatusUpdate("return");
+  //   } else if (
+  //     item.transactionType === "Purchase" &&
+  //     item.tx.status === "Accepted" &&
+  //     (item.tx.owner.user_id === userId || item.tx.buyer.user_id === userId)
+  //   ) {
+  //     // console.log("buy");
+  //     // setIsPaymentModalOpen(false);
+  //     handleStatusUpdate("hand-over");
+  //   }
+  // };
 
   const handleStatusUpdate = async (action) => {
     try {
@@ -391,9 +393,11 @@ Item: ${itemName}`,
               : "Confirm Hand Over",
 
           onClick: () => {
-            if (item.transactionType === "Purchase") {
+            // Always use payment modal for owners to handle evidence uploads
+            if (item.tx.owner_id === userId) {
               setIsPaymentModalOpen(true);
             } else {
+              // For renters/buyers, no evidence upload needed
               handleStatusUpdate("hand-over");
             }
 
@@ -406,7 +410,6 @@ Item: ${itemName}`,
             );
           },
           primary: true,
-          //  item.tx.is_allowed_to_proceed === false
           disabled:
             item.is_allowed_to_proceed === false ||
             (item.tx.owner_id === userId
@@ -590,6 +593,121 @@ Item: ${itemName}`,
     return "Unknown Item";
   };
 
+
+
+  const handleConfirmPayment = async (evidenceImage) => {
+    setIsSubmitting(true);
+  
+    try {
+      let actionType = null;
+  
+      if (
+        item.transactionType === "Rental" &&
+        item.tx.status === "HandedOver" &&
+        (item.tx.owner.user_id === userId || item.tx.renter.user_id === userId)
+      ) {
+        // Rental return
+        if (evidenceImage && item.tx.owner.user_id === userId) {
+          await uploadEvidenceImage(
+            evidenceImage,
+            item.id,
+            "rental-return-evidence"
+          );
+        }
+        actionType = "return";
+      } else if (
+        item.transactionType === "Purchase" &&
+        item.tx.status === "Accepted" &&
+        (item.tx.owner.user_id === userId || item.tx.buyer.user_id === userId)
+      ) {
+        // Purchase handover
+        if (evidenceImage && item.tx.owner.user_id === userId) {
+          await uploadEvidenceImage(
+            evidenceImage,
+            item.id,
+            "purchase-handover-evidence"
+          );
+        }
+        actionType = "hand-over";
+      } else if (
+        item.transactionType === "Rental" &&
+        item.tx.status === "Accepted" &&
+        item.tx.owner.user_id === userId
+      ) {
+        // Rental handover
+        if (evidenceImage) {
+          await uploadEvidenceImage(
+            evidenceImage,
+            item.id,
+            "rental-handover-evidence"
+          );
+        }
+        actionType = "hand-over";
+      }
+  
+      if (actionType) {
+        handleStatusUpdate(actionType);
+  
+        await ShowAlert(
+          dispatch,
+          "success",
+          "Success",
+          `Transaction status successfully updated.`
+        );
+      } else {
+        await ShowAlert(
+          dispatch,
+          "warning",
+          "No Action Taken",
+          "The current transaction state doesn't allow confirmation."
+        );
+      }
+    } catch (error) {
+      console.error("Error processing payment confirmation:", error);
+      await ShowAlert(
+        dispatch,
+        "error",
+        "Failed",
+        "An error occurred while processing. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+
+  // Add a new function to handle evidence upload
+  const uploadEvidenceImage = async (
+    imageFile,
+    transactionId,
+    evidenceType
+  ) => {
+    try {
+      // Create FormData object to send the file
+      const formData = new FormData();
+      formData.append("transaction_evidence", imageFile);
+      formData.append("transactionId", transactionId);
+      formData.append("evidenceType", evidenceType);
+      formData.append("userId", userId);
+
+      // Make API call to upload the evidence
+      const response = await axios.post(
+        `${baseApi}/rental-transaction/upload-evidence`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading evidence:", error);
+      throw error;
+    }
+  };
+
   return (
     <div className={`rental-item ${highlighted ? "highlighted" : ""}`}>
       <img
@@ -697,6 +815,8 @@ Item: ${itemName}`,
         role={modalRole}
         paymentMode={item.paymentMethod}
         transactionType={item.transactionType}
+        status={item.status}
+        onClick={(e) => e.stopPropagation()} 
       />
     </div>
   );

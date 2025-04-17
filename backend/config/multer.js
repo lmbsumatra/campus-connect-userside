@@ -51,6 +51,8 @@ const upload_message_images = multer({ storage: storage }).array(
 );
 
 const uploadEvidence = multer({ storage: storage }).array("evidence", 5);
+const uploadTransactionEvidence = multer({ storage: storage }).single("transaction_evidence");
+
 
 const upload_org_logo = multer({ storage: storage }).single("logo_file");
 
@@ -97,4 +99,5 @@ module.exports = {
   upload_message_images,
   uploadEvidence,
   upload_org_logo,
+  uploadTransactionEvidence,
 };

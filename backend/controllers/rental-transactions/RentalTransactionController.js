@@ -6,6 +6,7 @@ const { cancelRentalTransaction } = require("./cancelRentalTransaction");
 const { getTransactionsByUserId } = require("./getTransactionsByUserId");
 const { completeRentalTransaction } = require("./completeRentalTransation");
 const sendTransactionEmail = require("./sendTransactionEmail.jsx");
+const { uploadEvidenceImage } = require("./uploadEvidenceImage.js");
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
@@ -1099,5 +1100,7 @@ module.exports = ({ emitNotification }) => {
     declineRentalTransaction,
     cancelRentalTransaction: (req, res) =>
       cancelRentalTransaction(req, res, emitNotification),
+    uploadEvidenceImage: (req, res) =>
+      uploadEvidenceImage(req, res, emitNotification),
   };
 };

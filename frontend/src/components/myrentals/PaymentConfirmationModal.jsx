@@ -1,5 +1,5 @@
-import React from "react";
-import { Button, Modal } from "react-bootstrap";
+import React, { useState, useRef } from "react";
+import { Button, Modal, Form } from "react-bootstrap";
 
 const PaymentConfirmationModal = ({
   isOpen,
@@ -8,13 +8,80 @@ const PaymentConfirmationModal = ({
   role,
   paymentMode,
   transactionType,
+  status,
 }) => {
+  const [evidenceImage, setEvidenceImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
+
+  const fileInputRef = useRef(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setUploadError("File size exceeds 5MB limit");
+        return;
+      }
+      if (!file.type.match("image.*")) {
+        setUploadError("Please select an image file");
+        return;
+      }
+
+      setEvidenceImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      setUploadError(null);
+    }
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const evidenceRequired = shouldRequireEvidence();
+    if (evidenceRequired && !evidenceImage) {
+      setUploadError("Please upload evidence image to proceed");
+      return;
+    }
+
+    onConfirm(evidenceImage);
+  };
+
+  const shouldRequireEvidence = () => {
+    if (
+      transactionType === "Purchase" &&
+      status === "Accepted" &&
+      role === "owner"
+    ) {
+      return true;
+    } else if (transactionType === "Rental") {
+      if (status === "Accepted" && role === "owner") return true;
+      if (status === "HandedOver" && role === "owner") return true;
+    }
+    return false;
+  };
+
+  const getEvidenceInstructions = () => {
+    if (
+      transactionType === "Purchase" &&
+      status === "Accepted" &&
+      role === "owner"
+    ) {
+      return "Please upload a photo showing the item has been handed over to the buyer.";
+    } else if (transactionType === "Rental") {
+      if (status === "Accepted" && role === "owner") {
+        return "Please upload a photo showing the item has been handed over to the renter.";
+      } else if (status === "HandedOver" && role === "owner") {
+        return "Please upload a photo showing the item has been returned by the renter.";
+      }
+    }
+    return "";
+  };
 
   const getModalTitle = () => {
     if (transactionType === "Purchase") {
       return role === "buyer" ? "Confirm Purchase" : "Confirm Sale";
     } else {
-      // Rental
       return role === "renter"
         ? "Confirm Rental Payment"
         : "Confirm Rental Receipt";
@@ -26,11 +93,12 @@ const PaymentConfirmationModal = ({
     const isPurchase = transactionType === "Purchase";
     const transactionName = isPurchase ? "purchase" : "rental";
 
-    // Payment method specific instructions
     const gcashInstructions = {
       owner: "Please check your account for pending payouts. ",
-      buyer: "Please ensure that you have sent the payment via Online Payment. ",
-      renter: "Please ensure that you have sent the payment via Online Payment. ",
+      buyer:
+        "Please ensure that you have sent the payment via Online Payment. ",
+      renter:
+        "Please ensure that you have sent the payment via Online Payment. ",
     };
 
     const meetupInstructions = {
@@ -87,13 +155,74 @@ const PaymentConfirmationModal = ({
       onHide={onClose}
       backdrop="static"
       keyboard={false}
-      center
+      centered
+      onClick={(e) => e.stopPropagation()}
     >
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h2>{getModalTitle()}</h2>
-        <p>{getModalText()}</p>
-        <div className="">
+      <Modal.Header closeButton>
+        <Modal.Title>{getModalTitle()}</Modal.Title>
+      </Modal.Header>
+
+      <Form onSubmit={handleFormSubmit}>
+        <Modal.Body>
+          <p>{getModalText()}</p>
+
+          {shouldRequireEvidence() && (
+            <div className="evidence-upload-section mt-3">
+              <Form.Group>
+                <Form.Label>
+                  <strong>Evidence Required</strong>
+                </Form.Label>
+                <p className="text-muted small">{getEvidenceInstructions()}</p>
+
+                {/* Hidden file input */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
+                />
+
+                {/* Clickable container */}
+                <div
+                  className="evidence-preview-container"
+                  onClick={() =>
+                    fileInputRef.current && fileInputRef.current.click()
+                  }
+                  style={{
+                    border: "2px dashed #ccc",
+                    borderRadius: "10px",
+                    padding: "1rem",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    backgroundColor: "#f9f9f9",
+                  }}
+                >
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt="Evidence preview"
+                      // className="img-thumbnail"
+                      style={{ maxHeight: "200px" }}
+                    />
+                  ) : (
+                    <span className="text-muted">
+                      Click here to upload evidence image
+                    </span>
+                  )}
+                </div>
+
+                {uploadError && (
+                  <p className="text-danger small mt-2">{uploadError}</p>
+                )}
+              </Form.Group>
+            </div>
+          )}
+        </Modal.Body>
+
+        <Modal.Footer>
           <Button
+            variant="secondary"
             onClick={(e) => {
               e.stopPropagation();
               onClose();
@@ -101,16 +230,11 @@ const PaymentConfirmationModal = ({
           >
             Cancel
           </Button>
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              onConfirm();
-            }}
-          >
+          <Button variant="primary" type="submit">
             {getButtonText()}
           </Button>
-        </div>
-      </div>
+        </Modal.Footer>
+      </Form>
     </Modal>
   );
 };

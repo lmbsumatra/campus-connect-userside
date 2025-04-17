@@ -49,7 +49,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
   const { userId } = req.body;
 
-  console.log("Canceling rental transaction:", { id, userId });
+  console.log("Canceling rental transaction:???????????", { id, userId });
 
   try {
     const rental = await models.RentalTransaction.findByPk(id, {

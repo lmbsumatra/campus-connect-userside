@@ -293,7 +293,10 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
                 <div
                   id={`rental-${itemId}`}
                   key={itemId}
-                  onClick={() => openRentProgress(itemId)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openRentProgress(itemId);
+                  }}
                 >
                   <RentalItem
                     item={item}
