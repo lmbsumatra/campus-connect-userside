@@ -18,6 +18,8 @@ import { defaultImages } from "../../utils/consonants";
 import { ItemStatus } from "../../utils/Status";
 import { useDispatch, useSelector } from "react-redux";
 import ShowAlert from "../../utils/ShowAlert";
+import { checkSlotLimit } from "../item-card/checkSlotLimit";
+import { useAuth } from "../../context/AuthContext";
 
 const tooltipProps = {
   componentsProps: {
@@ -54,6 +56,9 @@ const PostCard = ({
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const navigate = useNavigate();
+  const { studentUser } = useAuth();
+  const userId = studentUser.userId;
+  const token = studentUser.token;
 
   const handleCardClick = (e, item) => {
     // console.log(item);
@@ -64,12 +69,6 @@ const PostCard = ({
       } else {
         navigate(`/post/${item.id}`);
       }
-  };
-  const handleMouseEnter = (index) => setSelectedIndex(index);
-  const handleMouseLeave = () => setSelectedIndex(null);
-  const handleMoreClick = (index, e) => {
-    e.stopPropagation();
-    setShowOptions(showOptions === index ? null : index);
   };
 
   useEffect(() => {
@@ -102,7 +101,7 @@ const PostCard = ({
     setActiveDropdown(activeDropdown === index ? null : index);
   };
 
-  const handleAddItemClick = () => {
+  const handleAddItemClick = async () => {
     // Ban check
     if (isVerified === "banned") {
       ShowAlert(
@@ -181,6 +180,16 @@ const PostCard = ({
       );
       return;
     }
+
+    const canPost = await checkSlotLimit({
+      dispatch,
+      navigate,
+      user,
+      listingType: "postLookingForItem",
+      token,
+    });
+
+    if (!canPost) return;
     navigate(`/profile/my-posts/new`);
   };
 

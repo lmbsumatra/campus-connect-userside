@@ -27,7 +27,28 @@ const getStudentById = async (req, res) => {
             "status",
             "status_message",
             "restricted_until",
+            "item_slot",
+            "listing_slot",
+            "post_slot",
           ],
+        },
+        {
+          model: models.ItemForSale,
+          as: "items",
+          required: true,
+          attributes: ["id"], 
+        },
+        {
+          model: models.Listing,
+          as: "listings",
+          required: true,
+          attributes: ["id"],
+        },
+        {
+          model: models.Post,
+          as: "posts",
+          required: true,
+          attributes: ["id"],
         },
       ],
     });
@@ -36,7 +57,6 @@ const getStudentById = async (req, res) => {
       return res.status(404).json({ error: "Student not found!" });
     }
 
-    // ✅ Check if this user is a representative of any organization
     const org = await models.Org.findOne({
       where: { user_id: user.user_id },
       include: [
@@ -47,7 +67,6 @@ const getStudentById = async (req, res) => {
 
     const isRepresentative = !!org;
 
-    // ⏳ Handle restriction expiry
     if (
       user.student &&
       user.student.status === "restricted" &&
@@ -62,11 +81,9 @@ const getStudentById = async (req, res) => {
         });
 
         await user.student.reload();
-        // Optional: emit notification
       }
     }
 
-    // 🔄 Follow status logic
     const isFollowing = await models.Follow.findOne({
       where: { followee_id: user.user_id, follower_id: loggedInUserId },
     });
@@ -84,7 +101,6 @@ const getStudentById = async (req, res) => {
     else if (isFollowedBy) action = "Follow back";
     else if (isFollowing) action = "Following";
 
-    // 🌟 Ratings
     const userRating = await models.ReviewAndRate.findOne({
       attributes: [
         [sequelize.fn("AVG", sequelize.col("rate")), "averageRating"],
@@ -101,6 +117,12 @@ const getStudentById = async (req, res) => {
       ? parseFloat(userRating.averageRating).toFixed(1)
       : "0.0";
     const totalReviews = userRating?.totalReviews || 0;
+
+    const counts = {
+      itemForSale: user?.items?.length || 0,
+      listingForRent: user?.listings?.length || 0,
+      postLookingForItem: user?.posts?.length || 0,
+    };
 
     const formattedUser = {
       user: {
@@ -143,14 +165,17 @@ const getStudentById = async (req, res) => {
             scannedId: user.student.scanned_id,
             photoWithId: user.student.photo_with_id,
             profilePic: user.student.profile_pic,
-            course: user.student.course,
             status: user.student.status,
             statusMsg:
               user.student.status_message || "No status message available",
             restrictedUntil: user.student.restricted_until,
+            itemSlot: user.student.item_slot,
+            listingSlot: user.student.listing_slot,
+            postSlot: user.student.post_slot,
           }
         : null,
       action: action,
+      counts,
     };
 
     return res.status(200).json(formattedUser);

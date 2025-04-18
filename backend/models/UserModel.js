@@ -112,6 +112,16 @@ User.associate = (models) => {
     foreignKey: "user_id",
     as: "org",
   });
+
+  User.hasMany(models.ItemForSale, {
+    foreignKey: "seller_id",
+    as: "items",
+  });
+
+  User.hasMany(models.Post, {
+    foreignKey: "user_id",
+    as: "posts",
+  });
 };
 
 module.exports = User;

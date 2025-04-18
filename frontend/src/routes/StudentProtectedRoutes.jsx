@@ -14,6 +14,7 @@ import CancelPayment from "../pages/private/users/cancel-payment/CancelPayment.j
 import RentalReportDetails from "../components/report/RentalReportDetails.js";
 import PaymentPage from "../pages/public/PaymentPage.js";
 import EditPost from "../pages/private/users/post/EditPost.js";
+import BuySlotPage from "../pages/public/BuySlotPage.js";
 
 const StudentProtectedRoutes = [
   <Route
@@ -97,6 +98,14 @@ const StudentProtectedRoutes = [
     element={
       <StudentProtectedRoute allowedRoles="student">
         <UserProfileVisit />
+      </StudentProtectedRoute>
+    }
+  />,
+  <Route
+    path="/buy-slot"
+    element={
+      <StudentProtectedRoute allowedRoles="student">
+        <BuySlotPage />
       </StudentProtectedRoute>
     }
   />,

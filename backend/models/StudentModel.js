@@ -91,6 +91,21 @@ Student.init(
       allowNull: true,
       comment: "Timestamp until which the user is temporarily restricted.",
     },
+    post_slot: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 3,
+    },
+    item_slot: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 3,
+    },
+    listing_slot: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 3,
+    },
   },
   {
     sequelize,

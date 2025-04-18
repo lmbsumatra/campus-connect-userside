@@ -10,13 +10,15 @@ import forSaleIcon from "../../assets/images/card/buy.svg";
 import editIcon from "../../assets/images/table/edit.svg";
 import deleteIcon from "../../assets/images/table/delete.svg";
 import { ItemStatus } from "../../utils/Status";
-import { defaultImages, FOR_RENT } from "../../utils/consonants";
+import { defaultImages, FOR_RENT, FOR_SALE } from "../../utils/consonants";
 import targetIcon from "../../assets/images/card/target.svg";
 
 // Import custom hook
 import useSortItems from "../../pages/private/users/student-profile/useSortItems";
 import { useDispatch, useSelector } from "react-redux";
 import ShowAlert from "../../utils/ShowAlert";
+import { checkSlotLimit } from "./checkSlotLimit";
+import { useAuth } from "../../context/AuthContext";
 
 const tooltipProps = {
   componentsProps: {
@@ -50,6 +52,9 @@ const ItemCard = ({
   const [activeDropdown, setActiveDropdown] = useState(null);
   const dropdownRefs = useRef({});
   const navigate = useNavigate();
+  const { studentUser } = useAuth();
+  const userId = studentUser.userId;
+  const token = studentUser.token;
 
   // Use the custom sorting hook
   const { sortedItems, sortConfig, handleSort } = useSortItems(
@@ -89,8 +94,8 @@ const ItemCard = ({
     }
   };
 
-  const handleAddItemClick = () => {
-    if (isRepresentative === false) {
+  const handleAddItemClick = async () => {
+    if (isRepresentative === false && itemType === "For Sale") {
       return ShowAlert(
         dispatch,
         "warning",
@@ -176,6 +181,23 @@ const ItemCard = ({
       );
       return;
     }
+
+    const canPost = await checkSlotLimit({
+      dispatch,
+      navigate,
+      user,
+      token,
+      listingType:
+        itemType === FOR_RENT
+          ? "listingForRent"
+          : itemType === FOR_SALE
+          ? "itemForSale"
+          : "postLookingForItem",
+    });
+
+    console.log(canPost);
+
+    if (!canPost) return;
 
     navigate(`/profile/my-listings/add`);
   };
