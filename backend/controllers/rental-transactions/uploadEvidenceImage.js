@@ -12,7 +12,7 @@ const uploadEvidenceImage = async (req, res, emitNotification) => {
 
   const { transactionId, evidenceType, userId } = req.body;
 
-  console.log(req.body, req.file.path);
+  // console.log(req.body, req.file.path);
 
   try {
     // Find the transaction
@@ -57,7 +57,7 @@ const uploadEvidenceImage = async (req, res, emitNotification) => {
 
     // Update the appropriate column in the transaction with the file path
     transaction[evidenceColumn] = filePath;
-    console.log(transaction, transaction.evidenceColumn);
+    // console.log(transaction, transaction.evidenceColumn);
 
     // Attempt to save the updated transaction
     try {

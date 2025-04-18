@@ -123,7 +123,7 @@ const AdminSidebar = () => {
     >
       <div className="admin-header">
         <a href="/admin/dashboard">
-          <img src={ccLogo} alt="Campus Connect Logo" />
+          <img src={ccLogo} alt="RenTUPeers Logo" />
           {(expandSidebar || isHovered) && "Admin"}
         </a>
       </div>

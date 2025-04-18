@@ -89,10 +89,10 @@ const ResetPasswordPage = () => {
             <div className="logo-container">
               <img
                 src={CCLOGO}
-                alt="Campus Connect Logo"
+                alt="RenTUPeers Logo"
                 className="auth-logo"
               />
-              <h1>Campus Connect</h1>
+              <h1>RenTUPeers</h1>
             </div>
             <h2>Invalid Reset Link</h2>
           </div>
@@ -119,10 +119,10 @@ const ResetPasswordPage = () => {
           <div className="logo-container">
             <img
               src="/path-to-your-logo.png"
-              alt="Campus Connect Logo"
+              alt="RenTUPeers Logo"
               className="auth-logo"
             />
-            <h1>Campus Connect</h1>
+            <h1>RenTUPeers</h1>
           </div>
           <h2>Create New Password</h2>
         </div>

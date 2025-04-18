@@ -248,7 +248,7 @@ const getAllAvailable = async (req, res) => {
       const results = fuse
         .search(refinedKeywords.join(" "))
         .map((result) => result.item);
-      console.log({ results });
+      // console.log({ results });
 
       return res.status(200).json(results.length ? results : []);
     }

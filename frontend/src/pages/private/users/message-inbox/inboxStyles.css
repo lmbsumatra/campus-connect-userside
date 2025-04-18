@@ -389,7 +389,7 @@
 .input-group {
   display: flex;
   width: 100%;
-  gap: 8px;
+  /* gap: 8px; */
 }
 
 .message-input {
@@ -819,3 +819,41 @@
   pointer-events: none;
 }
 
+/* chat box resposnive nesss */
+
+
+@media (max-width: 768px) {
+  .message-page {
+    flex-direction: column;
+  }
+
+  .message-content {
+    flex-direction: column;
+  }
+
+  .inbox {
+    width: 100%;
+    max-width: none;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    height: 50vh;
+  }
+
+  .chat-box {
+    width: 100%;
+    border-left: none;
+    height: 50vh;
+  }
+}
+
+.chat-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-left: 1px solid #ddd;
+  overflow: hidden; /* Replace this */
+  /* Add this */
+  max-height: 100vh;
+  overflow-y: auto;
+}

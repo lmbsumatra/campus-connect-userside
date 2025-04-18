@@ -16,7 +16,7 @@ const reportGeneration = async (req, res) => {
   try {
     const { month, year } = req.body;
 
-    console.log({ month, year });
+    // console.log({ month, year });
 
     const [
       auditStats,

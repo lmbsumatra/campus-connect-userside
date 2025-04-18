@@ -115,7 +115,7 @@ const NavBar2 = () => {
             {/* Logo */}
             <a className="nav-logo" href="/home">
               <img src={ccLogo} alt="Logo" />
-              <span className="logo-text hide">Campus Connect</span>
+              <span className="logo-text hide">RenTUPeers</span>
             </a>
 
             {/* Search Bar */}

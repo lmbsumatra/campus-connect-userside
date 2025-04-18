@@ -915,7 +915,7 @@ module.exports = ({ emitNotification }) => {
 
         switch (actionTaken) {
           case "perm_ban":
-            console.log(`Applying PERM_BAN to user ${report.reported_id}`);
+            // console.log(`Applying PERM_BAN to user ${report.reported_id}`);
             studentUpdateData = {
               status: "banned", // Set status to 'banned'
               restricted_until: null, // Clear restriction date
@@ -927,7 +927,7 @@ module.exports = ({ emitNotification }) => {
             break;
 
           case "temp_ban_24h":
-            console.log(`Applying TEMP_BAN_24H to user ${report.reported_id}`);
+            // console.log(`Applying TEMP_BAN_24H to user ${report.reported_id}`);
             const restrictionEndTime = new Date(
               Date.now() + 24 * 60 * 60 * 1000
             );
@@ -942,7 +942,7 @@ module.exports = ({ emitNotification }) => {
             break;
 
           case "warning_issued":
-            console.log(`Issuing WARNING to user ${report.reported_id}`);
+            // console.log(`Issuing WARNING to user ${report.reported_id}`);
             studentUpdateData = {
               // status: 'flagged', // Optionally set to 'flagged' for warnings? Or keep 'verified'? Depends on policy.
               // restricted_until: null, // Ensure restriction is cleared if only warning
@@ -952,7 +952,7 @@ module.exports = ({ emitNotification }) => {
             break;
 
           case "none":
-            console.log(`Taking NO ACTION against user ${report.reported_id}`);
+            // console.log(`Taking NO ACTION against user ${report.reported_id}`);
             studentUpdateData = {
               // status: 'verified', // Potentially revert status if resolving positively and user was restricted/flagged?
               // restricted_until: null, // Clear restriction
@@ -967,7 +967,7 @@ module.exports = ({ emitNotification }) => {
         }
 
         if (Object.keys(studentUpdateData).length > 0) {
-          console.log("Updating student:", studentUpdateData);
+          // console.log("Updating student:", studentUpdateData);
           await student.update(studentUpdateData, {
             transaction: dbTransaction,
           });

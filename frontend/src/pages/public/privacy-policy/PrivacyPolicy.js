@@ -9,15 +9,15 @@ const PrivacyPolicy = () => {
         <div className="privacy-policy-wrapper">
           <div className="intro">
             <p>
-              This privacy policy describes the policy of Campus Connect
+              This privacy policy describes the policy of RenTUPeers
               regarding the collection, use, storage, sharing and protection of
               your personal information (“Privacy Policy”). This Privacy Policy
-              applies to the Campus Connect website (“Website”) and all related
+              applies to the RenTUPeers website (“Website”) and all related
               websites, applications, services and tools where reference is made
               to this policy (“Services”).{" "}
               <p>
                 By using the Website and related Services, you give explicit
-                consent to Campus Connect for the collection, use, disclosure
+                consent to RenTUPeers for the collection, use, disclosure
                 and retention of your personal information by us, as Campus
                 Connect described in this Privacy Policy and our Terms and
                 Conditions.{" "}
@@ -83,7 +83,7 @@ const PrivacyPolicy = () => {
                 <Accordion.Header>Intellectual Property</Accordion.Header>
                 <Accordion.Body>
                   All content on our website, including text, graphics, logos,
-                  images, and software, is the property of Campus Connect and is
+                  images, and software, is the property of RenTUPeers and is
                   protected by copyright and other intellectual property laws.
                   You may not use, reproduce, or distribute any of our content
                   without our prior written consent. <br /> <br />
@@ -130,7 +130,7 @@ const PrivacyPolicy = () => {
               <Accordion.Item eventKey="4">
                 <Accordion.Header>Changes to Privacy Policy</Accordion.Header>
                 <Accordion.Body>
-                  Campus Connect may change this Privacy Policy from time to
+                  RenTUPeers may change this Privacy Policy from time to
                   time. The amended Privacy Policy will be effective immediately
                   after it is first posted on our Website. Your continued use of
                   the platform will constitute acceptance of the new Terms.

@@ -8,22 +8,22 @@ const stripe = require("stripe")(
 
 // Helper function to get user names
 const getUserNames = async (userId) => {
-  console.log(`Fetching user names for userId: ${userId}`);
+  // console.log(`Fetching user names for userId: ${userId}`);
   const user = await models.User.findByPk(userId, {
     attributes: ["first_name", "last_name"],
   });
   const userName = user
     ? `${user.first_name} ${user.last_name}`
     : "Unknown User";
-  console.log(`Retrieved user name: ${userName}`);
+  // console.log(`Retrieved user name: ${userName}`);
   return userName;
 };
 
 //Helper function to get item name based on transaction type
 const getItemName = async (itemId, transactionType) => {
-  console.log(
-    `Fetching item name for itemId: ${itemId}, transaction type: ${transactionType}`
-  );
+  // console.log(
+  //   `Fetching item name for itemId: ${itemId}, transaction type: ${transactionType}`
+  // );
   let item;
   if (transactionType === "sell") {
     item = await models.ItemForSale.findByPk(itemId, {
@@ -39,15 +39,15 @@ const getItemName = async (itemId, transactionType) => {
       ? item.item_for_sale_name
       : item.listing_name
     : "Unknown Item";
-  console.log(`Retrieved item name: ${itemName}`);
+  // console.log(`Retrieved item name: ${itemName}`);
   return itemName;
 };
 
 const convertToCAD = async (amount) => {
-  console.log(`Converting amount to CAD: ${amount}`);
+  // console.log(`Converting amount to CAD: ${amount}`);
   try {
     const convertedAmount = amount * 0.025;
-    console.log(`Converted amount: ${convertedAmount}`);
+    // console.log(`Converted amount: ${convertedAmount}`);
     return convertedAmount;
   } catch (error) {
     console.error("Error converting to CAD:", error);
@@ -57,20 +57,20 @@ const convertToCAD = async (amount) => {
 
 // Helper function to determine notification details
 const getNotificationDetails = (transactionType) => {
-  console.log(
-    `Getting notification details for transaction type: ${transactionType}`
-  );
+  // console.log(
+  //   `Getting notification details for transaction type: ${transactionType}`
+  // );
   const details = {
     type: transactionType === "sell" ? "purchase_request" : "rental_request",
     action: transactionType === "sell" ? "buy" : "rent",
   };
-  console.log(`Notification details: ${JSON.stringify(details)}`);
+  // console.log(`Notification details: ${JSON.stringify(details)}`);
   return details;
 };
 
 const createRentalTransaction = async (req, res, emitNotification) => {
-  console.log("Starting createRentalTransaction");
-  console.log("Request body:", JSON.stringify(req.body));
+  // console.log("Starting createRentalTransaction");
+  // console.log("Request body:", JSON.stringify(req.body));
 
   try {
     const {
@@ -137,22 +137,22 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: errorMsg });
     }
 
-    console.log(
-      `Retrieved date: ${dateInfo.date}, time from: ${timeInfo.time_from}, time to: ${timeInfo.time_to}`
-    );
+    // console.log(
+    //   `Retrieved date: ${dateInfo.date}, time from: ${timeInfo.time_from}, time to: ${timeInfo.time_to}`
+    // );
 
     // Add date and time information to rentalData
     rentalData.tnx_date = dateInfo.date;
     rentalData.tnx_time_from = timeInfo.rental_time_from;
     rentalData.tnx_time_to = timeInfo.rental_time_to;
 
-    console.log("Rental data to be created:", JSON.stringify(rentalData));
+    // console.log("Rental data to be created:", JSON.stringify(rentalData));
 
     if (isFromCart) {
       rentalData.from_cart = true;
 
       try {
-        console.log("Attempting to remove item from cart");
+        // console.log("Attempting to remove item from cart");
         const destroyResult = await models.Cart.destroy({
           where: {
             user_id: transaction_type === "sell" ? buyer_id : renter_id,
@@ -161,14 +161,14 @@ const createRentalTransaction = async (req, res, emitNotification) => {
             duration: time_id,
           },
         });
-        console.log(`Items removed from cart: ${destroyResult}`);
+        // console.log(`Items removed from cart: ${destroyResult}`);
       } catch (cartError) {
         console.error("Error removing item from cart:", cartError);
       }
     }
 
     let rental = await models.RentalTransaction.create(rentalData);
-    console.log("Rental transaction created with ID:", rental.id);
+    // console.log("Rental transaction created with ID:", rental.id);
 
     rental = await models.RentalTransaction.findOne({
       where: { id: rental.id },
@@ -186,10 +186,10 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       ],
     });
 
-    console.log(
-      "Retrieved rental transaction details:",
-      JSON.stringify(rental)
-    );
+    // console.log(
+    //   "Retrieved rental transaction details:",
+    //   JSON.stringify(rental)
+    // );
 
     let item;
     if (transaction_type === "rental") {
@@ -218,28 +218,28 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       });
     }
 
-    console.log("Retrieved item details:", JSON.stringify(item));
+    // console.log("Retrieved item details:", JSON.stringify(item));
 
     const totalAmountPHP =
       transaction_type === "sell"
         ? Number(amount)
         : Number(amount) + Number(item?.security_deposit);
-    console.log(`Total amount in PHP: ${totalAmountPHP}`);
+    // console.log(`Total amount in PHP: ${totalAmountPHP}`);
 
     rental.amount = totalAmountPHP;
     await rental.save();
 
     const totalAmountCAD = await convertToCAD(totalAmountPHP);
-    console.log(`Total amount in CAD: ${totalAmountCAD}`);
+    // console.log(`Total amount in CAD: ${totalAmountCAD}`);
 
     const applicationFeeAmount = totalAmountCAD * 0.1;
-    console.log(`Application fee amount: ${applicationFeeAmount}`);
+    // console.log(`Application fee amount: ${applicationFeeAmount}`);
 
     let result = { id: rental.id };
 
     if (payment_mode === GCASH) {
       try {
-        console.log("Creating Stripe PaymentIntent");
+        // console.log("Creating Stripe PaymentIntent");
         const paymentIntent = await stripe.paymentIntents.create({
           amount: Math.round(totalAmountCAD * 100),
           currency: "cad",
@@ -277,13 +277,13 @@ const createRentalTransaction = async (req, res, emitNotification) => {
           application_fee_amount: Math.floor(applicationFeeAmount * 100),
         });
 
-        console.log(
-          "Stripe PaymentIntent created:",
-          JSON.stringify(paymentIntent)
-        );
+        // console.log(
+        //   "Stripe PaymentIntent created:",
+        //   JSON.stringify(paymentIntent)
+        // );
 
         await rental.update({ stripe_payment_intent_id: paymentIntent.id });
-        console.log("Updated rental transaction with Stripe PaymentIntent ID");
+        // console.log("Updated rental transaction with Stripe PaymentIntent ID");
 
         result = {
           id: rental.id,
@@ -308,7 +308,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     const { type: notificationType, action } =
       getNotificationDetails(transaction_type);
     const message = `${renterName} wants to ${action} ${itemName}.`;
-    console.log(`Notification message: ${message}`);
+    // console.log(`Notification message: ${message}`);
 
     const notification = await models.StudentNotification.create({
       sender_id: transaction_type === "sell" ? buyer_id : renter_id,
@@ -319,14 +319,14 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       rental_id: rental.id,
     });
 
-    console.log("Notification created:", JSON.stringify(notification));
+    // console.log("Notification created:", JSON.stringify(notification));
 
     if (emitNotification) {
-      console.log("Emitting notification");
+      // console.log("Emitting notification");
       emitNotification(owner_id, notification.toJSON());
     }
     // For the Owner
-    console.log(item?.seller?.email, item?.owner?.email);
+    // console.log(item?.seller?.email, item?.owner?.email);
     await sendTransactionEmail({
       email: transaction_type === "sell" ? item.seller.email : item.owner.email,
       itemName,
@@ -360,13 +360,13 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       },
     });
 
-    console.log("Retrieved duration details:", JSON.stringify(duration));
+    // console.log("Retrieved duration details:", JSON.stringify(duration));
 
     if (duration) {
       await duration.update({ status: "requested" });
-      console.log(
-        `Updated duration status to 'requested' for duration ID: ${time_id}`
-      );
+      // console.log(
+      //   `Updated duration status to 'requested' for duration ID: ${time_id}`
+      // );
 
       const allDurationsRented = await models.Duration.count({
         where: {
@@ -381,17 +381,17 @@ const createRentalTransaction = async (req, res, emitNotification) => {
         },
       });
 
-      console.log(
-        `Rented durations: ${allDurationsRented}, Total durations: ${totalDurationsForDate}`
-      );
+      // console.log(
+      //   `Rented durations: ${allDurationsRented}, Total durations: ${totalDurationsForDate}`
+      // );
 
       if (allDurationsRented === totalDurationsForDate) {
         const rentalDate = await models.Date.findByPk(date_id);
         if (rentalDate) {
           await rentalDate.update({ status: "rented" });
-          console.log(
-            `Updated date status to 'rented' for date ID: ${date_id}`
-          );
+          // console.log(
+          //   `Updated date status to 'rented' for date ID: ${date_id}`
+          // );
         } else {
           console.error("Rental date not found for id:", date_id);
         }
@@ -410,17 +410,17 @@ const createRentalTransaction = async (req, res, emitNotification) => {
         },
       });
 
-      console.log(
-        `Rented dates: ${allDatesRented}, Total dates: ${totalDatesForItem}`
-      );
+      // console.log(
+      //   `Rented dates: ${allDatesRented}, Total dates: ${totalDatesForItem}`
+      // );
 
       if (allDatesRented === totalDatesForItem) {
         const item = await models.Listing.findByPk(item_id);
         if (item) {
           await item.update({ status: "unavailable" });
-          console.log(
-            `Updated item status to 'unavailable' for item ID: ${item_id}`
-          );
+          // console.log(
+          //   `Updated item status to 'unavailable' for item ID: ${item_id}`
+          // );
         } else {
           console.error("Item not found for id:", item_id);
         }
@@ -431,7 +431,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: errorMsg });
     }
 
-    console.log("Rental transaction creation completed successfully");
+    // console.log("Rental transaction creation completed successfully");
     return res.status(200).json(result);
   } catch (error) {
     console.error("Error creating rental transaction:", error);

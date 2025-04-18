@@ -18,7 +18,7 @@ const Footer = () => {
     <div className="container-content footer-container">
       <div className="footer">
         <div className="footer-flag">
-          <img src={Logo} alt="Campus Connect Logo" className="footer-logo" />
+          <img src={Logo} alt="RenTUPeers Logo" className="footer-logo" />
           <h5 className="footer-title">RenTUPeers</h5>
         </div>
 
@@ -83,7 +83,7 @@ const Footer = () => {
 
       <hr className="footer-divider" />
       <div className="footer-bottom">
-        <span>©2024 Campus Connect. All Rights Reserved</span>
+        <span>©2024 RenTUPeers. All Rights Reserved</span>
       </div>
     </div>
   );

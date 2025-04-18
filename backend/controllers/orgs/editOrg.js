@@ -7,14 +7,14 @@ const editOrg = async (req, res) => {
     req.body;
   let logoUrl = null;
 
-  console.log({
-    orgId,
-    org_name,
-    description,
-    category,
-    isActive,
-    remove_logo,
-  });
+  // console.log({
+  //   orgId,
+  //   org_name,
+  //   description,
+  //   category,
+  //   isActive,
+  //   remove_logo,
+  // });
 
   // Convert isActive to boolean if it's a string
   if (typeof isActive === "string") {
@@ -120,7 +120,7 @@ const editOrg = async (req, res) => {
         : null,
     };
 
-    console.log(updatedOrg);
+    // console.log(updatedOrg);
 
     res.status(200).json(updatedOrg);
   } catch (err) {

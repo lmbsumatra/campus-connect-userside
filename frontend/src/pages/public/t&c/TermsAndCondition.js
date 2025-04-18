@@ -131,11 +131,11 @@ const TermsAndCondition = () => {
 
           <div className="content">
             <div ref={section0Ref}>
-              <h3>Welcome to Campus Connect!</h3>
+              <h3>Welcome to RenTUPeers!</h3>
               <p>
                 Please carefully read these Terms and Conditions, as they will
                 explain your legal rights and obligations. By accessing the
-                Campus Connect website, whether as a visitor or a user, you
+                RenTUPeers website, whether as a visitor or a user, you
                 agree to abide by these Terms and Conditions ("Terms"), our
                 Privacy Policy, and the applicable laws, rules, and regulations
                 of the University (“TUP Student Handbook”, “TUP Policies”) and
@@ -157,7 +157,7 @@ const TermsAndCondition = () => {
                 <li className="section-title">Introduction </li>
                 <ul>
                   <li>
-                    1.1. Campus Connect (“Campus Connect”, “platform”, “we”,
+                    1.1. RenTUPeers (“RenTUPeers”, “platform”, “we”,
                     “our”, “us”) is a peer-to-peer (“P2P”) website mainly for
                     renting of school-related materials (“item”) operated
                     exclusively for the undergraduate students enrolled in the

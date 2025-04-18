@@ -34,9 +34,9 @@ const checkRestrictions = async (req, res, next) => {
         restricted_until: null,
       });
 
-      console.log(
-        `User ${userId} restriction expired - status updated to verified upon authentication.`
-      );
+      // console.log(
+      //   `User ${userId} restriction expired - status updated to verified upon authentication.`
+      // );
 
       // Optionally notify the user their restriction has been lifted
       // if (req.emitNotification) {

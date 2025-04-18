@@ -29,9 +29,9 @@ const expireRestrictionsTask = async () => {
     );
 
     if (updatedCount > 0) {
-      console.log(
-        `[Cron - ExpireRestrictions] Successfully updated status for ${updatedCount} student(s) whose restrictions expired.`
-      );
+      // console.log(
+      //   `[Cron - ExpireRestrictions] Successfully updated status for ${updatedCount} student(s) whose restrictions expired.`
+      // );
     }
   } catch (error) {
     console.error(

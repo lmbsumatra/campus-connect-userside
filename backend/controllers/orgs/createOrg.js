@@ -5,7 +5,7 @@ const createOrg = async (req, res) => {
   let { org_name, description, category, isActive, rep_id } = req.body;
   let logoUrl = null;
 
-  console.log({ org_name, description, category, isActive, rep_id });
+  // console.log({ org_name, description, category, isActive, rep_id });
 
   if (typeof isActive === "string") {
     isActive =
@@ -47,7 +47,7 @@ const createOrg = async (req, res) => {
       logo: logoUrl, // Add the logo URL
     };
 
-    console.log(orgData);
+    // console.log(orgData);
 
     // Create the organization with the correct category_id
     const createdOrg = await models.Org.create(orgData);

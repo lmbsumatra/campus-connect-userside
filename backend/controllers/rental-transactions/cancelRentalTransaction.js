@@ -14,9 +14,9 @@ const getUserNames = async (userId) => {
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
 const getItemName = async (itemId, transactionType) => {
-  console.log(
-    `Fetching item name for itemId: ${itemId}, transaction type: ${transactionType}`
-  );
+  // console.log(
+  //   `Fetching item name for itemId: ${itemId}, transaction type: ${transactionType}`
+  // );
   let item;
   if (transactionType === "sell") {
     item = await models.ItemForSale.findByPk(itemId, {
@@ -32,7 +32,7 @@ const getItemName = async (itemId, transactionType) => {
       ? item.item_for_sale_name
       : item.listing_name
     : "Unknown Item";
-  console.log(`Retrieved item name: ${itemName}`);
+  // console.log(`Retrieved item name: ${itemName}`);
   return itemName;
 };
 
@@ -49,7 +49,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
   const { userId } = req.body;
 
-  console.log("Canceling rental transaction:???????????", { id, userId });
+  // console.log("Canceling rental transaction:???????????", { id, userId });
 
   try {
     const rental = await models.RentalTransaction.findByPk(id, {
@@ -83,24 +83,24 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     });
 
     if (!rental) {
-      console.log("Rental transaction not found:", id);
+      // console.log("Rental transaction not found:", id);
       return res.status(404).json({ error: "Rental transaction not found." });
     }
 
-    console.log(rental.transaction_type);
+    // console.log(rental.transaction_type);
 
     if (
       (rental.renter_id !== userId && rental.transaction_type === "rental") ||
       (rental.transaction_type === "sell" && rental.buyer_id !== userId)
     ) {
-      console.log("Unauthorized cancellation attempt by user:", userId);
+      // console.log("Unauthorized cancellation attempt by user:", userId);
       return res
         .status(403)
         .json({ error: "Only the renter can cancel this transaction." });
     }
 
     if (rental.status !== "Requested") {
-      console.log("Invalid rental status for cancellation:", rental.status);
+      // console.log("Invalid rental status for cancellation:", rental.status);
       return res
         .status(400)
         .json({ error: "Only Requested rentals can be cancelled." });
@@ -115,10 +115,10 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     // Cancel payment if applicable
     if (rental.stripe_payment_intent_id) {
       try {
-        console.log(
-          "Attempting to cancel payment intent:",
-          rental.stripe_payment_intent_id
-        );
+        // console.log(
+        //   "Attempting to cancel payment intent:",
+        //   rental.stripe_payment_intent_id
+        // );
         await stripe.paymentIntents.cancel(rental.stripe_payment_intent_id);
         rental.payment_status = "Cancelled";
       } catch (stripeError) {
@@ -168,11 +168,11 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
         }
       }
     } else {
-      console.log(
-        "Rental duration not found for cancellation:",
-        date_id,
-        time_id
-      );
+      // console.log(
+      //   "Rental duration not found for cancellation:",
+      //   date_id,
+      //   time_id
+      // );
       return res.status(404).json({ error: "Rental duration not found." });
     }
 
@@ -192,7 +192,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
       is_read: false,
       rental_id: rental.id,
     });
-    console.log("Created notification for owner:", notification);
+    // console.log("Created notification for owner:", notification);
 
     if (emitNotification) {
       emitNotification(
@@ -203,7 +203,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
 
     // After creating the notification and before sending the response
     try {
-      console.log("Sending cancellation email to owner:", rental.owner.email);
+      // console.log("Sending cancellation email to owner:", rental.owner.email);
       await sendTransactionEmail({
         email: rental.owner.email,
         itemName: itemName,
@@ -214,12 +214,12 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
         status: "Cancelled", // Adding status information for the email
       });
 
-      console.log(
-        "Sending cancellation email to renter:",
-        rental.transaction_type === "sell"
-          ? rental.buyer.email
-          : rental.renter.email
-      );
+      // console.log(
+      //   "Sending cancellation email to renter:",
+      //   rental.transaction_type === "sell"
+      //     ? rental.buyer.email
+      //     : rental.renter.email
+      // );
       await sendTransactionEmail({
         email:
           rental.transaction_type === "sell"

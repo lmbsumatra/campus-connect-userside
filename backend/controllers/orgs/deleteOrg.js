@@ -4,7 +4,7 @@ const { rollbackUpload } = require("../../config/multer");
 const deleteOrg = async (req, res) => {
   const { orgId } = req.params;
 
-  console.log(orgId);
+  // console.log(orgId);
 
   try {
     // Find the organization by ID

@@ -2061,9 +2061,9 @@ const MessagePage = () => {
                 </div>
               )}
               
-              <div className="input-group">
+              <div className="input-group d-flex flex-row g-0 p-0 m-0">
                 <button
-                  className="btn btn-light attach-btn"
+                  className="btn btn-light attach-btn g-0 p-0 m-0"
                   onClick={() => fileInputRef.current.click()}
                   disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
                 >
@@ -2080,7 +2080,7 @@ const MessagePage = () => {
                 
                 <input
                   type="text"
-                  className="form-control flex-grow-1"
+                  className="form-control flex-grow-1 g-0 m-0 py-2"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(newMessage, activeChat.otherUser.user_id)}
@@ -2091,7 +2091,7 @@ const MessagePage = () => {
                 />
 
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary g-0 p-0 m-0"
                   onClick={() => handleSendMessage(newMessage, activeChat.otherUser.user_id)}
                   disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
                 >

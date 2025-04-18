@@ -103,13 +103,13 @@ const registerStudent = async (req, res) => {
     const mailOptions = {
       from: "jione.capstone@gmail.com",
       to: email,
-      subject: "Verify Your Email - Campus Connect",
+      subject: "Verify Your Email - RenTUPeers",
       html: `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Verify Your Email - Campus Connect</title>
+    <title>Verify Your Email - RenTUPeers</title>
     <style>
       .container-content.email {
         padding: 40px;
@@ -250,15 +250,15 @@ const registerStudent = async (req, res) => {
   <body>
     <div class="container-content email">
       <div class="logo-section">
-        <img src="https://res.cloudinary.com/campusconnectcl/image/upload/v1735845626/cc/eazvmzm29uqxkk6vski3.png" alt="Campus Connect Logo" />
-        <span class="logo-text">Campus Connect</span>
+        <img src="https://res.cloudinary.com/campusconnectcl/image/upload/v1735845626/cc/eazvmzm29uqxkk6vski3.png" alt="RenTUPeers Logo" />
+        <span class="logo-text">RenTUPeers</span>
       </div>
       
       <hr class="divider" />
       
       <h1 class="header">Verify your email address</h1>
       
-      <h6 class="welcome-text">Welcome to Campus Connect!</h6>
+      <h6 class="welcome-text">Welcome to RenTUPeers!</h6>
       <p class="description">
         Click the button below to verify your email address and make your account active.
       </p>

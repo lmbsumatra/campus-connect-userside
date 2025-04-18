@@ -164,7 +164,7 @@ exports.getAllPosts = async (req, res) => {
         },
       ],
     });
-    console.log("Fetched Posts:", posts);
+    // console.log("Fetched Posts:", posts);
     res.status(200).json(posts);
   } catch (error) {
     // console.error("Error fetching posts:", error);

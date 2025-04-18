@@ -33,13 +33,13 @@ const forgotPassword = async (req, res) => {
     const mailOptions = {
       from: "jione.capstone@gmail.com",
       to: email,
-      subject: "Password Reset - Campus Connect",
+      subject: "Password Reset - RenTUPeers",
       html: `<!DOCTYPE html>
       <html lang="en">
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Reset Your Password - Campus Connect</title>
+          <title>Reset Your Password - RenTUPeers</title>
           <style>
             .container-content.email {
               padding: 40px;
@@ -180,8 +180,8 @@ const forgotPassword = async (req, res) => {
         <body>
           <div class="container-content email">
             <div class="logo-section">
-              <img src="https://res.cloudinary.com/campusconnectcl/image/upload/v1735845626/cc/eazvmzm29uqxkk6vski3.png" alt="Campus Connect Logo" />
-              <span class="logo-text">Campus Connect</span>
+              <img src="https://res.cloudinary.com/campusconnectcl/image/upload/v1735845626/cc/eazvmzm29uqxkk6vski3.png" alt="RenTUPeers Logo" />
+              <span class="logo-text">RenTUPeers</span>
             </div>
             
             <hr class="divider" />
@@ -189,7 +189,7 @@ const forgotPassword = async (req, res) => {
             <h1 class="header">Reset Your Password</h1>
             
             <p class="description">
-              We received a request to reset your password for your Campus Connect account. Click the button below to create a new password.
+              We received a request to reset your password for your RenTUPeers account. Click the button below to create a new password.
             </p>
             
             <a class="reset-button" href="https://rentupeers.shop/reset-password/${resetToken}" target="_blank">

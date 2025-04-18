@@ -6,7 +6,7 @@ const addCartItem = async (req, res) => {
     const { ownerId, itemId, itemType, dateId, durationId, price, quantity } =
       req.body;
 
-    console.log("Request Body:", req.body);  // Log the incoming request body
+    // console.log("Request Body:", req.body);  // Log the incoming request body
 
     // Validate required fields
     if (
@@ -65,21 +65,21 @@ const addCartItem = async (req, res) => {
         attributes: ["item_for_sale_name", "specifications"],
       });
       itemName = itemDetails ? itemDetails.dataValues.item_for_sale_name : "";
-      console.log("Fetched Buy Item Details:", itemDetails);  // Log buy item details
+      // console.log("Fetched Buy Item Details:", itemDetails);  // Log buy item details
     } else if (itemType === "rent") {
       // Fetch listing item for rent
       itemDetails = await models.Listing.findOne({
         where: { id: itemId },
       });
 
-      console.log("Fetching Rent Item for ID:", itemId); // Log when fetching rent item
+      // console.log("Fetching Rent Item for ID:", itemId); // Log when fetching rent item
       if (!itemDetails) {
-        console.log("Rent item not found for ID:", itemId);  // Log error if item not found
+        // console.log("Rent item not found for ID:", itemId);  // Log error if item not found
         return res.status(400).json({ message: "Item not found for rent." });
       }
 
       itemName = itemDetails ? itemDetails.dataValues.listing_name : "";
-      console.log("Fetched Rent Item Details:", itemDetails); // Log fetched item details
+      // console.log("Fetched Rent Item Details:", itemDetails); // Log fetched item details
     }
 
     specsData =
@@ -88,7 +88,7 @@ const addCartItem = async (req, res) => {
       itemDetails.dataValues.specifications
         ? JSON.parse(itemDetails.dataValues.specifications)
         : {};
-    console.log("Item Specifications:", specsData); // Log the item specifications
+    // console.log("Item Specifications:", specsData); // Log the item specifications
 
     const addedCartItem = {
       ...newCartItem.dataValues,
@@ -115,7 +115,7 @@ const addCartItem = async (req, res) => {
       },
     };
 
-    console.log("Formatted Item:", formattedItem);  // Log the final formatted item before sending the response
+    // console.log("Formatted Item:", formattedItem);  // Log the final formatted item before sending the response
     return res.status(201).json(formattedItem);
   } catch (error) {
     console.error("Error Adding Cart Item:", error);  // Log the error in case of failure

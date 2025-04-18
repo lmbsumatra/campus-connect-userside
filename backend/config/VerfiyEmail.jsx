@@ -6,13 +6,13 @@ const VerifyEmail = () => {
     <div className="container-content email">
       <div>
         {/* <img src={logo} /> */}
-        <span>Campus Connect</span>
+        <span>RenTUPeers</span>
       </div>
       <div>
         <h1>Verify you email address.</h1>
       </div>
       <div>
-        <h6>Welcome to Campus Connect!</h6>
+        <h6>Welcome to RenTUPeers!</h6>
         <p>
           Click the button below to verify your email address and make your
           account active.

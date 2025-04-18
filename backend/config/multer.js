@@ -15,7 +15,7 @@ const storage = new CloudinaryStorage({
     const publicId = `${req.user_id || "anonymous"}_${
       file.fieldname
     }_${Date.now()}`;
-    console.log("Generating Cloudinary public_id:", publicId);
+    // console.log("Generating Cloudinary public_id:", publicId);
     return {
       folder: folder,
       public_id: publicId,
@@ -57,7 +57,7 @@ const uploadTransactionEvidence = multer({ storage: storage }).single("transacti
 const upload_org_logo = multer({ storage: storage }).single("logo_file");
 
 const rollbackUpload = async (imageUrls) => {
-  console.log("Received image URLs:", imageUrls);
+  // console.log("Received image URLs:", imageUrls);
 
   try {
     const publicIds = imageUrls.map((url) => {
@@ -69,21 +69,21 @@ const rollbackUpload = async (imageUrls) => {
       throw new Error("Invalid Cloudinary URL");
     });
 
-    console.log("Extracted public_ids:", publicIds);
+    // console.log("Extracted public_ids:", publicIds);
 
     await Promise.all(
       publicIds.map(async (publicId) => {
         try {
-          console.log(`Attempting to delete public_id: ${publicId}`);
+          // console.log(`Attempting to delete public_id: ${publicId}`);
           const result = await cloudinary.uploader.destroy(publicId);
-          console.log(`Deleted public_id: ${publicId}`, result);
+          // console.log(`Deleted public_id: ${publicId}`, result);
         } catch (error) {
           console.error(`Error deleting public_id: ${publicId}`, error);
         }
       })
     );
 
-    console.log("All image deletions attempted.");
+    // console.log("All image deletions attempted.");
   } catch (error) {
     console.error("Error during Cloudinary rollback:", error);
   }
