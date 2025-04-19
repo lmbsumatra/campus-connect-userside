@@ -109,6 +109,34 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       return res.status(400).json({ error: errorMsg });
     }
 
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0); // Start of today
+
+    const endDate = new Date();
+    endDate.setHours(23, 59, 59, 999); // End of today
+
+    // Check for existing transaction with the same item, date, and time
+    const existingTransaction = await models.RentalTransaction.findOne({
+      where: {
+        item_id,
+        renter_id,
+        transaction_type: transaction_type === "sell" ? "sell" : "rental",
+        status: {
+          [Op.notIn]: ["cancelled", "declined", "completed"],
+        },
+        createdAt: {
+          [Op.between]: [startDate, endDate], // created in the last 24 hours
+        },
+      },
+    });
+
+    if (existingTransaction) {
+      const errorMsg =
+        "A transaction already exists.";
+      console.error(errorMsg);
+      return res.status(409).json({ message: errorMsg });
+    }
+
     // Create the rental transaction
     const rentalData = {
       owner_id,

@@ -496,6 +496,8 @@ function ListingDetail() {
         rentalDetails
       );
 
+      console.log(response.data.message)
+
       if (approvedListingById.paymentMethod === GCASH) {
         if (!response.data.clientSecret || !response.data.paymentIntentId) {
           ShowAlert(dispatch, "error", "Error", "Failed to setup payment.");
@@ -531,7 +533,7 @@ function ListingDetail() {
       }
     } catch (error) {
       console.error("Error in confirmRental:", error);
-      ShowAlert(dispatch, "error", "Error", "Failed to confirm rental.");
+      ShowAlert(dispatch, "error", "Failed", error.response.data.message);
     }
   };
 
