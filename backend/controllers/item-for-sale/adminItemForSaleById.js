@@ -121,6 +121,7 @@ const adminItemForSaleById = async (req, res) => {
       })),
       averageRating,
       // Include organization info if exists
+      hasRepresentative: !!org && !!org.representative,
       organization: org
         ? {
             id: org.org_id,

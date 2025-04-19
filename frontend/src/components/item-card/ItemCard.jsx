@@ -3,8 +3,7 @@ import "./itemCardStyles.css";
 import { useNavigate } from "react-router-dom";
 import item1 from "../../assets/images/item/item_1.jpg";
 import Tooltip from "@mui/material/Tooltip";
-import cartIcon from "../../assets/images/card/cart.svg";
-import moreIcon from "../../assets/images/card/more.svg";
+import gearIcon from "../../assets/images/card/gear.svg";
 import forRentIcon from "../../assets/images/card/rent.svg";
 import forSaleIcon from "../../assets/images/card/buy.svg";
 import editIcon from "../../assets/images/table/edit.svg";
@@ -54,8 +53,8 @@ const ItemCard = ({
   const dropdownRefs = useRef({});
   const navigate = useNavigate();
   const { studentUser } = useAuth();
-  const userId = studentUser.userId;
-  const token = studentUser.token;
+  const userId = studentUser?.userId;
+  const token = studentUser?.token;
   const { config } = useSystemConfig();
 
   // Use the custom sorting hook
@@ -198,7 +197,6 @@ const ItemCard = ({
           : "postLookingForItem",
     });
 
-
     if (!canPost) return;
 
     navigate(`/profile/my-listings/add`);
@@ -298,6 +296,30 @@ const ItemCard = ({
                   />
                 </Tooltip>
               ))}
+
+            {item.hasRepresentative && (
+              <Tooltip
+                title={`This item is sold by ${item?.organization?.name} organization.`}
+                componentsProps={{
+                  popper: {
+                    modifiers: [
+                      {
+                        name: "offset",
+                        options: {
+                          offset: [0, 0],
+                        },
+                      },
+                    ],
+                  },
+                }}
+              >
+                <img
+                  src={item?.organization?.logo || gearIcon}
+                  alt={`This item is sold by ${item?.organization?.name} organization`}
+                  className="rented-indx"
+                />
+              </Tooltip>
+            )}
           </div>
 
           <div className="description">

@@ -4,10 +4,15 @@ import { useNavigate } from "react-router-dom";
 import createPostIcon from "../../../assets/images/fab/POSTS.svg";
 import addItemIcon from "../../../assets/images/fab/RENTALS.svg";
 import cartIcon from "../../../assets/images/fab/cart.svg";
+import forRentIcon from "../../../assets/images/card/rent.svg";
+import forSaleIcon from "../../../assets/images/card/buy.svg";
 import Cart from "../../../pages/private/users/cart/Cart";
 import useHandleActionWithAuthCheck from "../../../utils/useHandleActionWithAuthCheck";
 import ShowAlert from "../../../utils/ShowAlert";
 import { useDispatch, useSelector } from "react-redux";
+import { FOR_RENT, FOR_SALE } from "../../../utils/consonants";
+import { checkSlotLimit } from "../../../components/item-card/checkSlotLimit";
+import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
 
 const FAB = ({ cartItems }) => {
   const navigate = useNavigate();
@@ -15,14 +20,16 @@ const FAB = ({ cartItems }) => {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
   const isEmailVerified = user?.user?.emailVerified ?? false;
+   const studentUser = useSelector(selectStudentUser);
+  const token = studentUser?.token | "";
+  const { config } = useSelector((state) => state.systemConfig);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [showTypeSelectionPopup, setShowTypeSelectionPopup] = useState(false);
 
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
-
-  console.log(user);
 
   // Add effect to ensure cart state is consistent with menu state
   useEffect(() => {
@@ -33,7 +40,7 @@ const FAB = ({ cartItems }) => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  const createPost = () => {
+  const createPost = async () => {
     // Ban check
     if (isVerified === "banned") {
       ShowAlert(
@@ -121,7 +128,76 @@ const FAB = ({ cartItems }) => {
       );
       return;
     }
-    handleActionWithAuthCheck("/profile/my-posts/new");
+
+    // Check slot availability
+    try {
+      const hasAvailableSlots = await checkSlotLimit({
+        dispatch,
+        navigate,
+        user,
+        token,
+        config,
+        listingType: "postLookingForItem", // Assuming you want to check for post slots
+      });
+
+      if (hasAvailableSlots) {
+        // If slots are available, navigate to the post creation page
+        navigate("/profile/my-posts/new");
+      } else {
+        // If no slots are available, show an alert (handled by checkSlotLimit)
+      }
+    } catch (error) {
+      console.error("Error checking slot availability:", error);
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Failed to check available slots. Please try again later."
+      );
+    }
+
+    // handleActionWithAuthCheck("/profile/my-posts/new");
+  };
+
+  const handleTypeSelection = async (itemType) => {
+    // Check slot availability for the selected item type
+    try {
+      const hasAvailableSlots = await checkSlotLimit({
+        dispatch,
+        navigate,
+        user,
+        token,
+        config,
+        listingType:
+          itemType === FOR_RENT
+            ? "listingForRent"
+            : itemType === FOR_SALE
+            ? "itemForSale"
+            : "postLookingForItem",
+      });
+
+      if (hasAvailableSlots) {
+        setShowTypeSelectionPopup(false);
+        // If slots are available, navigate to the add item page with the selected type
+        navigate("/profile/my-listings/add", {
+          state: { itemType: itemType },
+        });
+      } else {
+        // If no slots are available, the alert is already shown by checkSlotLimit
+        // Just close the popup
+        setShowTypeSelectionPopup(false);
+       
+      }
+    } catch (error) {
+      console.error("Error checking slot availability:", error);
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Failed to check available slots. Please try again later."
+      );
+      setShowTypeSelectionPopup(false);
+    }
   };
 
   const addItem = () => {
@@ -212,11 +288,39 @@ const FAB = ({ cartItems }) => {
       );
       return;
     }
-    handleActionWithAuthCheck("/profile/my-listings/add");
+
+    setShowTypeSelectionPopup(true);
   };
 
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
+  };
+
+  // Component for the item type selection popup
+  const TypeSelectionPopup = ({ onSelect, onClose }) => {
+    return (
+      <div className="type-selection-overlay">
+        <div className="type-selection-popup">
+          <h3>What would you like to add?</h3>
+
+          <div className="type-options">
+            <button className="type-option" onClick={() => onSelect(FOR_RENT)}>
+              <img src={forRentIcon} alt="For Rent" />
+              <span>Item for Rent</span>
+            </button>
+
+            <button className="type-option" onClick={() => onSelect(FOR_SALE)}>
+              <img src={forSaleIcon} alt="For Sale" />
+              <span>Item for Sale</span>
+            </button>
+          </div>
+
+          <button className="close-button" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -249,6 +353,14 @@ const FAB = ({ cartItems }) => {
           +
         </button>
       </div>
+
+      {/* Item Type Selection Popup */}
+      {showTypeSelectionPopup && (
+        <TypeSelectionPopup
+          onSelect={handleTypeSelection}
+          onClose={() => setShowTypeSelectionPopup(false)}
+        />
+      )}
 
       {/* Always render the Cart for non-mobile */}
       <Cart

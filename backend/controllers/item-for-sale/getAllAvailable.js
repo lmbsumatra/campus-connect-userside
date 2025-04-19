@@ -65,10 +65,26 @@ const getAllAvailable = async (req, res) => {
           where: { review_type: "item" },
           attributes: ["rate"],
         },
+        {
+          model: models.Org,
+          as: "organization",
+          user_id: sequelize.col("ItemForSale.seller_id"),
+          where: { is_active: true, is_verified: true },
+          include: [
+            { model: models.OrgCategory, as: "category" },
+            { model: models.User, as: "representative" },
+          ],
+        },
       ],
     });
 
-    // If user is logged in, pre-fetch all followings
+    // Filter out items that do not belong to an org or have no representative
+    const filteredItems = items.filter((item) => {
+      const org = item.organization;
+      return org && org.representative; // Ensure org exists and has a representative
+    });
+
+    // Handle followings and filtering based on preference or search query
     let followingIds = [];
     if (userId) {
       const followings = await models.Follow.findAll({
@@ -80,7 +96,7 @@ const getAllAvailable = async (req, res) => {
     }
 
     const formattedItems = await Promise.all(
-      items.map(async (item) => {
+      filteredItems.map(async (item) => {
         let tags = [];
         let images = [];
         let specsArray = [];
@@ -119,14 +135,7 @@ const getAllAvailable = async (req, res) => {
           isFollowingBuyer = !!transaction;
         }
 
-        // Fetch organization (if seller is a representative)
-        const org = await models.Org.findOne({
-          where: { user_id: item.seller_id },
-          include: [
-            { model: models.OrgCategory, as: "category" },
-            { model: models.User, as: "representative" },
-          ],
-        });
+        const org = item.organization;
 
         return {
           id: item.id,
@@ -165,7 +174,7 @@ const getAllAvailable = async (req, res) => {
               status: duration.status,
             })),
           })),
-          hasRepresentative: !!org,
+          hasRepresentative: !!org && !!org.representative,
           organization: org
             ? {
                 id: org.org_id,
@@ -197,18 +206,16 @@ const getAllAvailable = async (req, res) => {
 
     const { q, preference } = req.query;
 
-    let filteredItems = [...formattedItems];
+    let finalItems = [...formattedItems];
 
     // Filter by new
     if (preference === "new_items_for_sale") {
-      filteredItems.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
+      finalItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     // Search
     if (q) {
-      const fuse = new Fuse(filteredItems, {
+      const fuse = new Fuse(finalItems, {
         keys: ["name", "category", "tags", "specsArray"],
         threshold: 0.4,
         ignoreLocation: true,
@@ -230,7 +237,7 @@ const getAllAvailable = async (req, res) => {
       return res.status(200).json(results);
     }
 
-    return res.status(200).json(filteredItems);
+    return res.status(200).json(finalItems);
   } catch (error) {
     console.error("getAllAvailable error:", error);
     res.status(500).json({ error: error.message });

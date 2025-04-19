@@ -817,7 +817,7 @@ function ItemForSaleDetail() {
               }}
             >
               <img
-                src={gearIcon}
+                src={approvedItemForSaleById?.organization?.logo || gearIcon}
                 alt={`This item is sold by ${approvedItemForSaleById?.organization?.name} organization`}
                 className="rented-indx"
               />

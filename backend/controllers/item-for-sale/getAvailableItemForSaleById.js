@@ -99,12 +99,21 @@ const getAvailableItemForSaleById = async (req, res) => {
 
     // Fetch org data if this user is a representative
     const org = await models.Org.findOne({
-      where: { user_id: item.seller.user_id },
+      where: {
+        user_id: item.seller.user_id,
+        is_active: true, // Ensure the organization is active
+        is_verified: true, // Ensure the organization is verified
+      },
       include: [
         { model: models.OrgCategory, as: "category" },
         { model: models.User, as: "representative" },
       ],
     });
+
+    if (!org || !org.is_active || !org.is_verified) {
+      return res.status(404).json({ error: "Item's organization is not active or verified" });
+    }
+
 
     const formattedItem = {
       id: item.id,

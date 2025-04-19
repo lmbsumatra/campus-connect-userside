@@ -58,6 +58,7 @@ import BreadCrumb from "../../../../components/breadcrumb/BreadCrumb.jsx";
 import { addItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
 import { useSystemConfig } from "../../../../context/SystemConfigProvider.js";
+import { checkSlotLimit } from "../../../../components/item-card/checkSlotLimit.jsx";
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
@@ -125,6 +126,7 @@ const AddNewItem = () => {
   const studentUser = useSelector(selectStudentUser);
   const isVerified = user?.student?.status ?? false;
   const isEmailVerified = user?.user?.emailVerified ?? false;
+  const [isSlotChecked, setIsSlotChecked] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -148,8 +150,8 @@ const AddNewItem = () => {
   const [selectedDatesDurations, setSelectedDatesDurations] = useState([]);
   const [selectedDisplayDate, setSelectedDisplayDate] = useState(null);
   const [localImages, setLocalImages] = useState([]);
-  const { config, loading } = useSystemConfig();
-  // console.log(config?.Stripe);
+  const token = studentUser?.token;
+  const { config } = useSystemConfig();
 
   const handleGenerateData = () => {
     dispatch(generateSampleData());
@@ -389,6 +391,22 @@ const AddNewItem = () => {
       );
       return;
     }
+
+    const canPost = await checkSlotLimit({
+      dispatch,
+      navigate,
+      user,
+      token,
+      config,
+      listingType:
+        itemType === FOR_RENT
+          ? "listingForRent"
+          : itemType === FOR_SALE
+          ? "itemForSale"
+          : "postLookingForItem",
+    });
+
+    if (!canPost) return;
     try {
       let hasErrors = false;
       const errors = {};

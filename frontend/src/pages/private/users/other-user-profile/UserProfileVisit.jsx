@@ -9,6 +9,7 @@ import { fetchAvailablePostsByUser } from "../../../../redux/post/availablePosts
 import { fetchAvailableItemsForSaleByUser } from "../../../../redux/item-for-sale/availableItemsForSaleByUser.js";
 import { fetchUserReviews } from "../../../../redux/transactions/userReview.js"; // Import review thunk
 import ReviewCard from "./ReviewCard.jsx"; // Import the new ReviewCard component
+import gearIcon from "../../../../assets/images/card/gear.svg";
 
 import axios from "axios";
 import ReportModal from "../../../../components/report/ReportModal";
@@ -234,12 +235,13 @@ const UserProfileVisit = () => {
               </div>
             </div>
 
-            {activeTab === "listings" && (
-              <>
-                <p>Listings content...</p>
+            {activeTab === "listings" ? (
+              availableListingsByUser.length > 0 ? (
                 <ItemCard items={availableListingsByUser} />
-              </>
-            )}
+              ) : (
+                <p>No listings available</p>
+              )
+            ) : null}
 
             {activeTab === "posts" && (
               <>
@@ -271,7 +273,7 @@ const UserProfileVisit = () => {
                     <div className="d-flex align-items-center gap-3">
                       {user.user.organization.logo && (
                         <img
-                          src={`${baseApi}/${user.user.organization.logo}`}
+                          src={user.user.organization.logo || gearIcon}
                           alt="Organization Logo"
                           style={{
                             width: "60px",
@@ -298,7 +300,7 @@ const UserProfileVisit = () => {
                 {loadingAvailableItemsForSaleByUser ? (
                   <p>Loading items...</p>
                 ) : errorAvailableItemsForSaleByUser ? (
-                  <p>Error loading items: {errorAvailableItemsForSaleByUser}</p>
+                  <p>No items available</p>
                 ) : (
                   <ItemCard
                     items={

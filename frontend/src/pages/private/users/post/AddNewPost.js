@@ -45,6 +45,8 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
 import { addItemBreadcrumbs } from "../../../../utils/Breadcrumbs.js";
+import { checkSlotLimit } from "../../../../components/item-card/checkSlotLimit.jsx";
+import { useSystemConfig } from "../../../../context/SystemConfigProvider.js";
 
 const ValidationError = ({ message }) => (
   <div className="validation error">
@@ -110,6 +112,8 @@ const AddNewPost = () => {
   const [localImages, setLocalImages] = useState([]);
   const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
     useSelector((state) => state.unavailableDates);
+  const token = studentUser?.token;
+  const { config } = useSystemConfig();
 
   const handleItemTypeChange = (newType) => {
     setItemType(newType);
@@ -266,6 +270,16 @@ const AddNewPost = () => {
   };
 
   const handleSubmit = async () => {
+    const canPost = await checkSlotLimit({
+      dispatch,
+      navigate,
+      user,
+      token,
+      config,
+      listingType: "postLookingForItem",
+    });
+
+    if (!canPost) return;
     // Ban check
     if (isVerified === "banned") {
       ShowAlert(
@@ -457,7 +471,11 @@ const AddNewPost = () => {
           </Tooltip>
           {postDataState.images.triggered && postDataState.images.hasError && (
             <div className="validation error d-block">
-              <img src={warningIcon} className="warning-icon" alt="Error indicator" />
+              <img
+                src={warningIcon}
+                className="warning-icon"
+                alt="Error indicator"
+              />
               <span className="text">{postDataState.images.error}</span>
             </div>
           )}
@@ -483,7 +501,11 @@ const AddNewPost = () => {
           {postDataState.category.triggered &&
             postDataState.category.hasError && (
               <div className="validation error">
-                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">{postDataState.category.error}</span>
               </div>
             )}
@@ -522,7 +544,11 @@ const AddNewPost = () => {
           {postDataState.requestDates.triggered &&
             postDataState.requestDates.hasError && (
               <div className="validation error d-block">
-                <img src={warningIcon} className="warning-icon" alt="Error indicator" />
+                <img
+                  src={warningIcon}
+                  className="warning-icon"
+                  alt="Error indicator"
+                />
                 <span className="text">
                   {" "}
                   {postDataState.requestDates.error}

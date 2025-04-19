@@ -68,6 +68,12 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
       ],
     });
 
+    if (!org || !org.is_active || !org.is_verified) {
+      return res
+        .status(404)
+        .json({ error: "Organization is not active or verified" });
+    }
+
     const formattedItems = items
       .map((item) => {
         try {

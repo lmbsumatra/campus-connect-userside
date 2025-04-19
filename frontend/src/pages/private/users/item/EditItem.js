@@ -14,6 +14,7 @@ import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/L
 import ShowAlert from "../../../../utils/ShowAlert.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat.js";
 import { useSystemConfig } from "../../../../context/SystemConfigProvider.js";
+import gearIcon from "../../../../assets/images/card/gear.svg";
 import {
   FOR_RENT,
   PAY_UPON_MEETUP,
@@ -703,6 +704,29 @@ const EditItem = () => {
               className="item-type"
             />
           </Tooltip>
+          {itemData.hasRepresentative && (
+            <Tooltip
+              title={`This item is sold by ${itemData?.organization?.name} organization.`}
+              componentsProps={{
+                popper: {
+                  modifiers: [
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, 0],
+                      },
+                    },
+                  ],
+                },
+              }}
+            >
+              <img
+                src={itemData?.organization?.logo || gearIcon}
+                alt={`This item is sold by ${itemData?.organization?.name} organization`}
+                className="rented-indx"
+              />
+            </Tooltip>
+          )}
           {itemDataState.images.triggered && itemDataState.images.hasError && (
             <ValidationError message={itemDataState.images.error} />
           )}

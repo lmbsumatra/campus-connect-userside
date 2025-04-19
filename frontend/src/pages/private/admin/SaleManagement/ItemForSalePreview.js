@@ -25,11 +25,7 @@ import {
   PICK_UP,
   TO_BUY,
 } from "../../../../utils/consonants.js";
-import { addCartItem } from "../../../../redux/cart/cartSlice.js";
-import {
-  clearNotification,
-  showNotification,
-} from "../../../../redux/alert-popup/alertPopupSlice.js";
+import gearIcon from "../../../../assets/images/card/gear.svg";
 import LoadingItemDetailSkeleton from "../../../../components/loading-skeleton/LoadingItemDetailSkeleton.js";
 import UserToolbar from "../common/UserToolbar.jsx";
 import ItemDescAndSpecs from "../common/ItemDescAndSpecs.jsx";
@@ -175,6 +171,29 @@ function ItemForSalePreview({ selectedItem, loading, error, isAdmin = false }) {
               className="item-type"
             />
           </Tooltip>
+          {selectedItem.hasRepresentative && (
+            <Tooltip
+              title={`This item is sold by ${selectedItem?.organization?.name} organization.`}
+              componentsProps={{
+                popper: {
+                  modifiers: [
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, 0],
+                      },
+                    },
+                  ],
+                },
+              }}
+            >
+              <img
+                src={selectedItem?.organization?.logo || gearIcon}
+                alt={`This item is sold by ${selectedItem?.organization?.name} organization`}
+                className="rented-indx"
+              />
+            </Tooltip>
+          )}
           <ImageSlider
             images={
               selectedItem.images && selectedItem.images.length

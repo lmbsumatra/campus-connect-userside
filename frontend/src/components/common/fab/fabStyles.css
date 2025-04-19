@@ -149,3 +149,104 @@
 .bg-fuschia {
   background-color: var(--clr-tertiary);
 }
+
+/* Add these styles to your fabStyles.css file */
+
+.type-selection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.type-selection-popup {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.type-selection-popup h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.type-options {
+  display: flex;
+  justify-content: space-around;
+  margin: 24px 0;
+}
+
+.type-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 45%;
+}
+
+.type-option:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.type-option img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.type-option span {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.close-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #e0e0e0;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .type-selection-popup {
+    width: 85%;
+    padding: 20px;
+  }
+  
+  .type-option {
+    padding: 12px;
+  }
+  
+  .type-option img {
+    width: 40px;
+    height: 40px;
+  }
+}

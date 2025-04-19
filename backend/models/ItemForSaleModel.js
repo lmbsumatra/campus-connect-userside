@@ -110,6 +110,11 @@ module.exports = (sequelize) => {
       foreignKey: "item_id",
       as: "reviews",
     });
+    ItemForSale.belongsTo(models.Org, {
+      foreignKey: "seller_id",
+      as: "organization",
+      targetKey: "user_id", // Assuming `user_id` is the key that links the seller to the org
+    });
   };
 
   return ItemForSale;
