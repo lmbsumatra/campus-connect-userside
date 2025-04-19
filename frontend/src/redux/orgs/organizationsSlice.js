@@ -107,6 +107,7 @@ export const addOrganization = createAsyncThunk(
       formData.append("description", orgData.description || "");
       formData.append("category", orgData.category);
       formData.append("isActive", orgData.isActive || "active");
+      formData.append("rep_id", orgData.rep_id);
 
       // Append logo file if present
       if (orgData.logo_file) {
@@ -146,6 +147,7 @@ export const updateOrganization = createAsyncThunk(
       formData.append("description", orgData.description || "");
       formData.append("category", orgData.category);
       formData.append("isActive", orgData.isActive || "active");
+      formData.append("rep_id", orgData.rep_id);
 
       // Append logo file if present
       if (orgData.logo_file) {

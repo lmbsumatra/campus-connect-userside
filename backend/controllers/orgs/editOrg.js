@@ -7,6 +7,15 @@ const editOrg = async (req, res) => {
     req.body;
   let logoUrl = null;
 
+  console.log({
+    org_name,
+    description,
+    category,
+    isActive,
+    rep_id,
+    remove_logo,
+  });
+
   // console.log({
   //   orgId,
   //   org_name,

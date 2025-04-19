@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ShowAlert from "../../utils/ShowAlert";
 import { checkSlotLimit } from "../item-card/checkSlotLimit";
 import { useAuth } from "../../context/AuthContext";
+import { useSystemConfig } from "../../context/SystemConfigProvider";
 
 const tooltipProps = {
   componentsProps: {
@@ -60,6 +61,9 @@ const PostCard = ({
   const userId = studentUser.userId;
   const token = studentUser.token;
 
+  
+  const { config } = useSystemConfig(); //   config?.Stripe 
+  
   const handleCardClick = (e, item) => {
     // console.log(item);
     e.stopPropagation();
@@ -187,9 +191,11 @@ const PostCard = ({
       user,
       listingType: "postLookingForItem",
       token,
+      config
     });
 
     if (!canPost) return;
+    
     navigate(`/profile/my-posts/new`);
   };
 

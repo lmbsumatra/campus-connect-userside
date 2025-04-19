@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Modal, Button, Form, Image } from "react-bootstrap";
-import RepSelector from "./RepSelector";
+import {
+  Modal,
+  Button,
+  Form,
+  Image,
+  ListGroup,
+  InputGroup,
+  Badge,
+} from "react-bootstrap";
 import { deleteOrganization } from "../../../../../redux/orgs/organizationsSlice";
 import { useDispatch } from "react-redux";
 
@@ -14,50 +21,53 @@ const OrgFormModal = ({
   categories,
   users,
   organizations,
-  showRepList,
-  setShowRepList,
-  repListRefs,
-  searchInputRefs,
   displayAlert,
-  focusHandledRef,
 }) => {
   const [validated, setValidated] = useState(false);
   const [formErrors, setFormErrors] = useState({});
-  const [repName, setRepName] = useState("");
   const [logoPreview, setLogoPreview] = useState(null);
+  const [showRepList, setShowRepList] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const fileInputRef = useRef(null);
+  const repListRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (editableOrg.rep_id) {
-      const rep = users.find((user) => user.user_id === editableOrg.rep_id);
-      if (rep) {
-        setRepName(`${rep.first_name} ${rep.last_name}`);
-      } else {
-        setRepName("None");
-      }
-    } else {
-      setRepName("None");
-    }
-
-    // Set logo preview if org has existing logo
     if (editableOrg.logo) {
       setLogoPreview(editableOrg.logo);
     } else {
       setLogoPreview(null);
     }
-  }, [editableOrg.rep_id, editableOrg.logo, users]);
+  }, [editableOrg.logo]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        showRepList &&
+        repListRef.current &&
+        !repListRef.current.contains(event.target) &&
+        (!searchInputRef.current ||
+          !searchInputRef.current.contains(event.target))
+      ) {
+        setShowRepList(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showRepList]);
 
   const validateForm = () => {
     const errors = {};
 
-    // Check organization name
     if (!editableOrg.org_name || !editableOrg.org_name.trim()) {
       errors.org_name = "Organization name is required";
     }
 
-    // Check category
     if (!editableOrg.category || !editableOrg.category.trim()) {
       errors.category = "Category is required";
     }
@@ -73,7 +83,6 @@ const OrgFormModal = ({
       [name]: value,
     }));
 
-    // Clear specific error when field is changed
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
@@ -82,7 +91,6 @@ const OrgFormModal = ({
     }
   };
 
-  // Function to trigger the file input click
   const triggerFileInput = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -93,33 +101,37 @@ const OrgFormModal = ({
     const file = e.target.files[0];
     if (!file) return;
 
-    // Check file type
-    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
+    const validTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/svg+xml",
+    ];
     if (!validTypes.includes(file.type)) {
-      displayAlert("Please select a valid image file (JPEG, PNG, GIF, SVG)", "danger");
+      displayAlert(
+        "Please select a valid image file (JPEG, PNG, GIF, SVG)",
+        "danger"
+      );
       return;
     }
 
-    // Check file size (limit to 2MB)
     if (file.size > 2 * 1024 * 1024) {
       displayAlert("Image size should be less than 2MB", "danger");
       return;
     }
 
-    // Create preview
     const reader = new FileReader();
     reader.onload = (e) => {
       setLogoPreview(e.target.result);
     };
     reader.readAsDataURL(file);
 
-    // Update form state
     setEditableOrg((prev) => ({
       ...prev,
       logo_file: file,
       logo_name: file.name,
-      remove_logo: false, // Reset remove flag if it was set
-      logo: null, // Clear the existing logo URL if there was one
+      remove_logo: false, 
+      logo: null, 
     }));
   };
 
@@ -133,7 +145,6 @@ const OrgFormModal = ({
       logo: null,
     }));
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -142,12 +153,9 @@ const OrgFormModal = ({
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Custom validation
     if (!validateForm()) {
-      // Show validation errors
       setValidated(true);
 
-      // Display first error message
       const firstError = Object.values(formErrors)[0];
       if (firstError) {
         displayAlert(firstError, "danger");
@@ -162,13 +170,18 @@ const OrgFormModal = ({
   const handleClose = () => {
     setValidated(false);
     setFormErrors({});
+    setSearchTerm("");
+    setShowRepList(false);
     onClose();
   };
 
   const handleDelete = async () => {
     try {
       await dispatch(deleteOrganization(editableOrg.org_id)).unwrap();
-      displayAlert(`Organization "${editableOrg.org_name}" deleted successfully`, "success");
+      displayAlert(
+        `Organization "${editableOrg.org_name}" deleted successfully`,
+        "success"
+      );
       handleClose();
     } catch (err) {
       console.error("Failed to delete organization:", err);
@@ -176,10 +189,59 @@ const OrgFormModal = ({
     }
   };
 
+  const getAvailableUsers = () => {
+    return users.filter(
+      (user) =>
+        !organizations.some(
+          (o) =>
+            (o.representative?.id || o.rep_id) === user.user_id &&
+            (o.orgId || o.org_id) !== editableOrg.org_id
+        )
+    );
+  };
+
+  const filteredUsers = getAvailableUsers().filter((user) => {
+    const userNameLower = `${user.first_name || ""} ${
+      user.last_name || ""
+    }`.toLowerCase();
+    const userIdString = String(user.user_id || "");
+    return (
+      userNameLower.includes(searchTerm.toLowerCase()) ||
+      userIdString.includes(searchTerm)
+    );
+  });
+
+  const getCurrentRep = () => {
+    if (!editableOrg.rep_id) return null;
+    return users.find((user) => user.user_id === editableOrg.rep_id);
+  };
+
+  const currentRep = getCurrentRep();
+
+  const handleSetRep = (userId) => {
+    setEditableOrg((prev) => ({
+      ...prev,
+      rep_id: userId,
+    }));
+    setShowRepList(false);
+    setSearchTerm("");
+    editableOrg.rep_id = userId;
+
+  };
+
+  const handleRemoveRep = () => {
+    setEditableOrg((prev) => ({
+      ...prev,
+      rep_id: null,
+    }));
+  };
+
   return (
     <Modal show={show} onHide={handleClose} backdrop="static" size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>{mode === "add" ? "Add" : "Edit"} Organization</Modal.Title>
+        <Modal.Title>
+          {mode === "add" ? "Add" : "Edit"} Organization
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
@@ -226,13 +288,18 @@ const OrgFormModal = ({
                 />
 
                 {logoPreview && (
-                  <Button variant="outline-danger" size="sm" onClick={removeLogo}>
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={removeLogo}
+                  >
                     Remove
                   </Button>
                 )}
               </div>
               <Form.Text className="text-muted mt-2">
-                Recommended size: 300x150px. Max file size: 2MB. Supported formats: JPEG, PNG, GIF, SVG
+                Recommended size: 300x150px. Max file size: 2MB. Supported
+                formats: JPEG, PNG, GIF, SVG
               </Form.Text>
             </div>
           </Form.Group>
@@ -300,33 +367,87 @@ const OrgFormModal = ({
 
           <Form.Group className="mb-3">
             <Form.Label>Representative</Form.Label>
-            <div>
-              <RepSelector
-                orgId={editableOrg.org_id || "temp_new_org"}
-                currentRepId={editableOrg.rep_id}
-                users={users.filter(
-                  (user) =>
-                    !organizations.some(
-                      (o) =>
-                        (o.representative?.id || o.rep_id) === user.user_id &&
-                        (o.orgId || o.org_id) !== editableOrg.org_id
-                    )
-                )}
-                repListRefs={repListRefs}
-                showRepList={showRepList}
-                searchInputRefs={searchInputRefs}
-                setShowRepList={setShowRepList}
-                displayAlert={displayAlert}
-                organizations={organizations}
-                focusHandledRef={focusHandledRef}
-                setEditableOrg={setEditableOrg} // Pass setEditableOrg to update parent state
-              />
+            <div className="position-relative">
+              {currentRep ? (
+                <div className="current-rep mb-2">
+                  <Badge
+                    bg="info"
+                    className="rep-badge d-flex align-items-center gap-2 justify-content-between"
+                  >
+                    <span>
+                      {currentRep.first_name} {currentRep.last_name}
+                    </span>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="remove-rep-btn p-0 m-0"
+                      onClick={handleRemoveRep}
+                    >
+                      ×
+                    </Button>
+                  </Badge>
+                </div>
+              ) : (
+                <>
+                  <div className="no-rep mb-2">
+                    <Badge bg="secondary">No Representative</Badge>
+                  </div>
+                  <InputGroup size="sm">
+                    <Form.Control
+                      placeholder="Search for representative"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onFocus={() => setShowRepList(true)}
+                      ref={searchInputRef}
+                      aria-label="Search representatives"
+                    />
+                  </InputGroup>
+                </>
+              )}
+
+              {showRepList && (
+                <ListGroup
+                  className="position-absolute w-100 shadow-sm rep-list-container"
+                  ref={repListRef}
+                  style={{
+                    zIndex: 1000,
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                  }}
+                >
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
+                      <ListGroup.Item
+                        key={user.user_id}
+                        className="rep-list-item d-flex justify-content-between align-items-center"
+                      >
+                        <span className="rep-name">
+                          {user.first_name} {user.last_name} (ID: {user.user_id}
+                          )
+                        </span>
+                        <Button
+                          variant="outline-success"
+                          size="sm"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSetRep(user.user_id);
+                          }}
+                        >
+                          Select
+                        </Button>
+                      </ListGroup.Item>
+                    ))
+                  ) : (
+                    <ListGroup.Item>No users found</ListGroup.Item>
+                  )}
+                </ListGroup>
+              )}
             </div>
           </Form.Group>
 
           {mode === "edit" && (
-            <Button variant="danger" onClick={handleDelete}>
-              Delete
+            <Button variant="danger" onClick={handleDelete} className="mt-3">
+              Delete Organization
             </Button>
           )}
         </Form>

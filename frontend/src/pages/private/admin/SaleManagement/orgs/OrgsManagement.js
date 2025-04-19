@@ -24,7 +24,6 @@ import RepSelector from "./RepSelector";
 import PaginationComponent from "../../../../../components/Pagination/PaginationComponent";
 
 const OrgsManagement = () => {
-  // Redux hooks
   const dispatch = useDispatch();
   const organizations = useSelector(selectOrganizations);
   const categoriesFromRedux = useSelector(selectCategories);
@@ -32,7 +31,6 @@ const OrgsManagement = () => {
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
 
-  // Local state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRepList, setShowRepList] = useState({});
@@ -48,19 +46,17 @@ const OrgsManagement = () => {
     category: "",
     isActive: true,
     rep_id: null,
-    logo_file: null, // To store the file object
-    logo_url: null, // To store existing logo URL
-    logo_name: null, // To store the filename
+    logo_file: null,
+    logo_url: null,
+    logo_name: null,
     logo: null,
-    remove_logo: false, // Flag to indicate if logo should be removed
+    remove_logo: false,
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({
     key: "org_name",
     direction: "asc",
   });
-
-  console.log(editableOrg);
 
   const repListRefs = useRef({});
   const searchInputRefs = useRef({});
@@ -71,7 +67,6 @@ const OrgsManagement = () => {
     if (loading) {
       timeoutId = setTimeout(() => {
         dispatch(clearError());
-        console.log("Loading timeout triggered - forcing reset");
       }, 10000);
     }
     return () => clearTimeout(timeoutId);
@@ -224,7 +219,6 @@ const OrgsManagement = () => {
     currentPage * itemsPerPage
   );
 
-  // Helper function to display alerts with appropriate variants
   const displayAlert = (message, variant = "success") => {
     setAlertMessage(message);
     setAlertVariant(variant);
@@ -254,7 +248,6 @@ const OrgsManagement = () => {
   };
 
   const handleAddOrg = () => {
-    console.log(editableOrg);
     dispatch(addOrganization(editableOrg))
       .then(() => {
         setShowAddModal(false);
@@ -291,8 +284,8 @@ const OrgsManagement = () => {
       description: org.description || "",
       category: org.category?.name || org.category || "",
       isActive: org.isActive ? "active" : "inactive",
-      rep_id: org.representative?.id || org.rep_id,
-      logo: org.logo || null
+      rep_id: org.representative?.id || null,
+      logo: org.logo || null,
     };
     setEditableOrg(orgToEdit);
     setShowEditModal(true);
@@ -452,9 +445,9 @@ const OrgsManagement = () => {
                         display: org.logo ? "block" : "none",
                       }}
                       onError={(e) => {
-                        e.target.style.display = "none"; // Hide the broken image
-                        const fallback = e.target.nextSibling; // Get the next sibling div (the fallback)
-                        if (fallback) fallback.style.display = "flex"; // Show the fallback
+                        e.target.style.display = "none";
+                        const fallback = e.target.nextSibling; 
+                        if (fallback) fallback.style.display = "flex"; 
                       }}
                     />
                     <div

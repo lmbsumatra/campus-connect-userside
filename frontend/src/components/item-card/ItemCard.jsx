@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ShowAlert from "../../utils/ShowAlert";
 import { checkSlotLimit } from "./checkSlotLimit";
 import { useAuth } from "../../context/AuthContext";
+import { useSystemConfig } from "../../context/SystemConfigProvider";
 
 const tooltipProps = {
   componentsProps: {
@@ -55,6 +56,7 @@ const ItemCard = ({
   const { studentUser } = useAuth();
   const userId = studentUser.userId;
   const token = studentUser.token;
+  const { config } = useSystemConfig();
 
   // Use the custom sorting hook
   const { sortedItems, sortConfig, handleSort } = useSortItems(
@@ -187,6 +189,7 @@ const ItemCard = ({
       navigate,
       user,
       token,
+      config,
       listingType:
         itemType === FOR_RENT
           ? "listingForRent"
@@ -195,7 +198,6 @@ const ItemCard = ({
           : "postLookingForItem",
     });
 
-    console.log(canPost);
 
     if (!canPost) return;
 
