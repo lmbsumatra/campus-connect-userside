@@ -94,19 +94,17 @@ const RepSelector = ({
         <div className="current-rep mb-2">
           <Badge
             bg="info"
-            className="rep-badge d-flex align-items-center gap-2 justify-content-between"
+            className="rep-badge d-flex align-items-center gap-1 justify-content-between"
           >
             <span>
               {rep.first_name} {rep.last_name}
             </span>
-            <Button
-              variant="link"
-              size="sm"
+            <button
               className="remove-rep-btn p-0 m-0"
               onClick={() => handleRemoveRep(orgId)}
             >
               ×
-            </Button>
+            </button>
           </Badge>
         </div>
       ) : (

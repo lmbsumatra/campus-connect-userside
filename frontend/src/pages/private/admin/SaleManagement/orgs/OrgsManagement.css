@@ -1,97 +1,106 @@
 /* OrgsManagement.css */
 
 .table-ellipsis {
-  max-width: 200px;       /* Set max width as needed */
+  max-width: 200px; /* Set max width as needed */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: block;         /* Important: Needed inside a <td> */
+  display: block; /* Important: Needed inside a <td> */
 }
 
-
 .orgs-management {
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-  
-  .table-responsive {
-    overflow-x: auto;
-  }
-  
-  .rep-column {
-    min-width: 250px;
-    width: 250px;
-  }
-  
-  .rep-selector {
-    width: 100%;
-  }
-  
-  .rep-list-container {
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1050;
-  }
-  
-  .rep-list-item {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 1rem;
-  }
-  
-  .rep-name {
-    flex: 1;
-    white-space: normal;
-    word-break: break-word;
-    margin-right: 0.5rem;
-  }
-  
-  .table td {
-    vertical-align: middle;
-  }
-  
-  /* Alert styling */
-  .alert {
-    margin-bottom: 1rem;
-  }
-  
-  /* Rep badge styling */
-  .rep-badge {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    padding: 0.5rem;
-  }
-  
-  .remove-rep-btn {
-    color: white;
-    padding: 0 0.25rem;
-    margin-left: 0.5rem;
-    line-height: 1;
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
-  }
-  
-  .remove-rep-btn:hover,
-  .remove-rep-btn:focus {
-    color: #f8d7da;
-    text-decoration: none;
-  }
-  
-  .current-rep,
-  .no-rep {
-    margin-bottom: 0.5rem;
-  }
-  
-  /* Category filter styling */
-  .category-filter {
-    max-width: 400px;
-  }
-  
-  /* Category badge styling */
-  .category-badge {
-    font-size: 12px;
-    padding: 0.35rem 0.5rem;
-  }
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.rep-column {
+  min-width: 250px;
+  width: 250px;
+}
+
+.rep-selector {
+  width: 100%;
+}
+
+.rep-list-container {
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1050;
+}
+
+.rep-list-item {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+}
+
+.rep-name {
+  flex: 1;
+  white-space: normal;
+  word-break: break-word;
+  margin-right: 0.5rem;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+/* Alert styling */
+.alert {
+  margin-bottom: 1rem;
+}
+
+/* Rep badge styling */
+.rep-badge {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  padding: 2px;
+}
+
+.remove-rep-btn {
+  color: white;
+  height: 20px; /* Set a fixed height */
+  width: 20px;  /* Set a fixed width to make it circular */
+  padding: 0;
+  margin: 0;
+  font-size: 14px; /* Adjusted font size to fit inside the circle */
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 50%; /* Makes it circular */
+  background-color: red;
+  display: flex;  /* Use flex to center the content */
+  align-items: center;  /* Center the content vertically */
+  justify-content: center;  /* Center the content horizontally */
+  line-height: 1;  /* Ensure text inside is vertically centered */
+  text-align: center;  /* Ensure text inside is horizontally centered */
+  border: none;
+}
+
+.remove-rep-btn:hover,
+.remove-rep-btn:focus {
+  color: #f8d7da;
+  text-decoration: none;
+  background-color: red;
+}
+
+.current-rep,
+.no-rep {
+  margin-bottom: 0.5rem;
+}
+
+/* Category filter styling */
+.category-filter {
+  max-width: 400px;
+}
+
+/* Category badge styling */
+.category-badge {
+  font-size: 12px;
+  padding: 0.35rem 0.5rem;
+}

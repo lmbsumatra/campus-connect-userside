@@ -130,8 +130,8 @@ const OrgFormModal = ({
       ...prev,
       logo_file: file,
       logo_name: file.name,
-      remove_logo: false, 
-      logo: null, 
+      remove_logo: false,
+      logo: null,
     }));
   };
 
@@ -226,7 +226,6 @@ const OrgFormModal = ({
     setShowRepList(false);
     setSearchTerm("");
     editableOrg.rep_id = userId;
-
   };
 
   const handleRemoveRep = () => {
@@ -377,14 +376,12 @@ const OrgFormModal = ({
                     <span>
                       {currentRep.first_name} {currentRep.last_name}
                     </span>
-                    <Button
-                      variant="link"
-                      size="sm"
+                    <button
                       className="remove-rep-btn p-0 m-0"
                       onClick={handleRemoveRep}
                     >
                       ×
-                    </Button>
+                    </button>
                   </Badge>
                 </div>
               ) : (

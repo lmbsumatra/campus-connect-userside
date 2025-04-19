@@ -26,9 +26,25 @@ const AdminSidebar = () => {
   const location = useLocation();
 
   useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setExpandSidebar(true);
+      } else {
+        setExpandSidebar(false); 
+      }
+    };
+
+    handleResize(); 
+
+    window.addEventListener("resize", handleResize); 
+    return () => {
+      window.removeEventListener("resize", handleResize); 
+    };
+  }, []);
+
+  useEffect(() => {
     const path = location.pathname;
 
-    // Default to dashboard
     setActiveTab("dashboard");
     setActiveSubTab(null);
 
@@ -58,7 +74,7 @@ const AdminSidebar = () => {
       }
     } else if (path.includes("/admin/sales")) {
       setActiveTab("sales");
-      setActiveSubTab("salesOverview");
+      setActiveSubTab("orgsManagement");
     } else if (path.includes("/admin/reports")) {
       setActiveTab("reports");
 
@@ -318,28 +334,28 @@ const AdminSidebar = () => {
               alt="Expand tab button"
             />
           </div>
-          {/* <div
+          <div
             className={`sub-tabs ${openTabs.includes("sales") ? "show" : ""}`}
           >
             <div
               className={`sub-tab ${
-                activeSubTab === "salesOverview" ? "active" : ""
+                activeSubTab === "orgsManagement" ? "active" : ""
               }`}
               onClick={() =>
                 handleActiveTab([
-                  "salesOverview",
-                  "/admin/sales/sales-overview",
+                  "orgsManagement",
+                  "/admin/sales/orgs-management",
                 ])
               }
             >
               <div
                 className={`indication ${
-                  activeSubTab === "salesOverview" ? "active" : ""
+                  activeSubTab === "orgsManagement" ? "active" : ""
                 }`}
               ></div>
-              {(expandSidebar || isHovered) && <>Sales Overview</>}
+              {(expandSidebar || isHovered) && <>Orgs Management</>}
             </div>
-          </div> */}
+          </div>
         </div>
 
         {/* Reports Management Tab */}

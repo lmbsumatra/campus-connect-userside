@@ -335,7 +335,10 @@ const OrgsManagement = () => {
   };
 
   return (
-    <div className="mx-5 my-3 orgs-management">
+    <div
+      className="mx-4 my-3 px-2 orgs-management"
+      style={{ borderRadius: "8px", background: "white" }}
+    >
       <h2 className="my-4">Organizations Management</h2>
 
       {showAlert && (
@@ -368,7 +371,10 @@ const OrgsManagement = () => {
           </Spinner>
         </div>
       ) : (
-        <div className="table-responsive">
+        <div
+          className="table-responsive"
+          style={{ borderRadius: "8px", background: "white" }}
+        >
           <Table striped bordered hover className="mb-4">
             <thead>
               <tr>
@@ -446,8 +452,8 @@ const OrgsManagement = () => {
                       }}
                       onError={(e) => {
                         e.target.style.display = "none";
-                        const fallback = e.target.nextSibling; 
-                        if (fallback) fallback.style.display = "flex"; 
+                        const fallback = e.target.nextSibling;
+                        if (fallback) fallback.style.display = "flex";
                       }}
                     />
                     <div

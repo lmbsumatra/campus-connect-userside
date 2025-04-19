@@ -115,10 +115,11 @@ export const addOrganization = createAsyncThunk(
       }
 
       // Send the request with FormData
-      return await fetch(`${baseApi}/api/orgs/add`, {
+      const res = await fetch(`${baseApi}/api/orgs/add`, {
         method: "POST",
         body: formData, // Send the FormData with logo file
       });
+      return res.json();
     } catch (error) {
       return rejectWithValue(error.message || "Failed to add organization.");
     }
@@ -155,10 +156,11 @@ export const updateOrganization = createAsyncThunk(
       }
 
       // Send the request with FormData
-      return await fetch(`${baseApi}/api/orgs/${orgId}`, {
+      const res = await fetch(`${baseApi}/api/orgs/${orgId}`, {
         method: "PUT",
         body: formData, // Send the FormData with logo file
       });
+      return res.json();
     } catch (error) {
       return rejectWithValue(error.message || "Failed to update organization.");
     }

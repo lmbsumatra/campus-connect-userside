@@ -69,7 +69,7 @@ const createOrg = async (req, res) => {
       createdAt: org.created_at,
       updatedAt: org.updated_at,
       userId: org.user_id,
-      logoUrl: org.logo, // Include logo URL in response
+      logo: org.logo, // Include logo URL in response
       category: categoryRecord
         ? {
             id: categoryRecord.id,
