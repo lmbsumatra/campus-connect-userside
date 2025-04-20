@@ -382,13 +382,19 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                   </span>
                 </div>
 
-                {transaction.rental?.Listing?.location && (
+                {(transaction.rental?.Listing?.location ||
+                  transaction.rental?.ItemForSale?.location) && (
                   <div className="info-row">
                     <span className="info-label">
-                      {transaction.rental?.delivery_method} Location:
+                      {transaction.rental?.delivery_method
+                        ?.charAt(0)
+                        .toUpperCase() +
+                        transaction.rental?.delivery_method?.slice(1)}{" "}
+                      Location:
                     </span>
                     <span className="info-value">
-                      {transaction.rental?.Listing?.location}
+                      {transaction.rental?.Listing?.location ||
+                        transaction.rental?.ItemForSale?.location}
                     </span>
                   </div>
                 )}
@@ -545,6 +551,68 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                 )}
               </div>
             </div>
+
+            {(transaction.rental?.handover_proof ||
+              transaction.rental?.return_proof ||
+              transaction.rental?.sale_completion_proof) && (
+              <div className="transaction-proof-section mt-4">
+                <h3 className="details-heading">Submitted Proofs</h3>
+
+                {transaction.rental?.handover_proof && (
+                  <div
+                    className="proof-preview"
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "flex-start",
+                    }}
+                  >
+                    <span className="text-gray">Handover Proof:</span>
+                    <img
+                      src={transaction.rental.handover_proof}
+                      alt="Handover Proof"
+                      className="proof-image"
+                    />
+                  </div>
+                )}
+
+                {transaction.rental?.return_proof && (
+                  <div
+                    className="proof-preview "
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "flex-start",
+                    }}
+                  >
+                    <span className="text-gray">Return Proof:</span>
+                    <img
+                      src={transaction.rental.return_proof}
+                      alt="Return Proof"
+                      className="proof-image"
+                    />
+                  </div>
+                )}
+
+                {transaction.rental?.sale_completion_proof && (
+                  <div
+                    className="proof-preview"
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "flex-start",
+                    }}
+                  >
+                    <span className="text-gray">Sale Completion Proof:</span>
+                    <img
+                      src={transaction.rental.sale_completion_proof}
+                      alt="Sale Completion Proof"
+                      className="proof-image"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="actions-container">
               <button
