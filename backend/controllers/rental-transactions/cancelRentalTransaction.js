@@ -96,7 +96,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     if (rental.stripe_payment_intent_id) {
       try {
         await stripe.paymentIntents.cancel(rental.stripe_payment_intent_id);
-        rental.payment_status = "Cancelled";
+        // rental.payment_status = "Cancelled";
       } catch (stripeError) {
         console.error("Error canceling payment intent:", stripeError);
         return res.status(500).json({

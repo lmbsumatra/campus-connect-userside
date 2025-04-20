@@ -41,7 +41,7 @@ const convertToCAD = async (amount) => {
     return convertedAmount;
   } catch (error) {
     console.error("Error converting to CAD:", error);
-    return amount; 
+    return amount;
   }
 };
 
@@ -92,31 +92,31 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     }
 
     const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0); 
+    startDate.setHours(0, 0, 0, 0);
 
     const endDate = new Date();
-    endDate.setHours(23, 59, 59, 999); 
+    endDate.setHours(23, 59, 59, 999);
 
-    const existingTransaction = await models.RentalTransaction.findOne({
-      where: {
-        item_id,
-        [transaction_type === "sell" ? "buyer_id" : "renter_id"]:
-          transaction_type === "sell" ? buyer_id : renter_id, 
-        transaction_type: transaction_type === "sell" ? "sell" : "rental",
-        status: {
-          [Op.notIn]: ["cancelled", "declined", "completed"],
-        },
-        createdAt: {
-          [Op.between]: [startDate, endDate],
-        },
-      },
-    });
+    // const existingTransaction = await models.RentalTransaction.findOne({
+    //   where: {
+    //     item_id,
+    //     [transaction_type === "sell" ? "buyer_id" : "renter_id"]:
+    //       transaction_type === "sell" ? buyer_id : renter_id,
+    //     transaction_type: transaction_type === "sell" ? "sell" : "rental",
+    //     status: {
+    //       [Op.notIn]: ["cancelled", "declined", "completed"],
+    //     },
+    //     createdAt: {
+    //       [Op.between]: [startDate, endDate],
+    //     },
+    //   },
+    // });
 
-    if (existingTransaction) {
-      const errorMsg = "A transaction already exists.";
-      console.error(errorMsg);
-      return res.status(409).json({ message: errorMsg });
-    }
+    // if (existingTransaction) {
+    //   const errorMsg = "A transaction already exists.";
+    //   console.error(errorMsg);
+    //   return res.status(409).json({ message: errorMsg });
+    // }
 
     const rentalData = {
       owner_id,
@@ -148,7 +148,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     rentalData.tnx_date = dateInfo.date;
     rentalData.tnx_time_from = timeInfo.rental_time_from;
     rentalData.tnx_time_to = timeInfo.rental_time_to;
-
 
     if (isFromCart) {
       rentalData.from_cart = true;
@@ -184,7 +183,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
         },
       ],
     });
-
 
     let item;
     if (transaction_type === "rental") {
@@ -247,6 +245,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
             allow_redirects: "always",
           },
           metadata: {
+            deposit: item?.security_deposit,
             transactionId: rental.id,
             itemId: item_id,
             userId:
@@ -266,7 +265,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
           },
           application_fee_amount: Math.floor(applicationFeeAmount * 100),
         });
-
 
         await rental.update({ stripe_payment_intent_id: paymentIntent.id });
 
@@ -302,7 +300,6 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       rental_id: rental.id,
     });
 
-
     if (emitNotification) {
       emitNotification(owner_id, notification.toJSON());
     }
@@ -337,57 +334,58 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       },
     });
 
-    if (duration) {
-      await duration.update({ status: "requested" });
+    if (transaction_type === "rental") {
+      if (duration) {
+        await duration.update({ status: "requested" });
 
-      const allDurationsRented = await models.Duration.count({
-        where: {
-          date_id: date_id,
-          status: { [Op.ne]: "available" },
-        },
-      });
+        const allDurationsRented = await models.Duration.count({
+          where: {
+            date_id: date_id,
+            status: { [Op.ne]: "available" },
+          },
+        });
 
-      const totalDurationsForDate = await models.Duration.count({
-        where: {
-          date_id: date_id,
-        },
-      });
+        const totalDurationsForDate = await models.Duration.count({
+          where: {
+            date_id: date_id,
+          },
+        });
 
-      if (allDurationsRented === totalDurationsForDate) {
-        const rentalDate = await models.Date.findByPk(date_id);
-        if (rentalDate) {
-          await rentalDate.update({ status: "rented" });
-        } else {
-          console.error("Rental date not found for id:", date_id);
+        if (allDurationsRented === totalDurationsForDate) {
+          const rentalDate = await models.Date.findByPk(date_id);
+          if (rentalDate) {
+            await rentalDate.update({ status: "rented" });
+          } else {
+            console.error("Rental date not found for id:", date_id);
+          }
         }
-      }
 
-      const allDatesRented = await models.Date.count({
-        where: {
-          item_id: item_id,
-          status: "rented",
-        },
-      });
+        const allDatesRented = await models.Date.count({
+          where: {
+            item_id: item_id,
+            status: "rented",
+          },
+        });
 
-      const totalDatesForItem = await models.Date.count({
-        where: {
-          item_id: item_id,
-        },
-      });
+        const totalDatesForItem = await models.Date.count({
+          where: {
+            item_id: item_id,
+          },
+        });
 
-
-      if (allDatesRented === totalDatesForItem) {
-        const item = await models.Listing.findByPk(item_id);
-        if (item) {
-          await item.update({ status: "unavailable" });
-        } else {
-          console.error("Item not found for id:", item_id);
+        if (allDatesRented === totalDatesForItem) {
+          const item = await models.Listing.findByPk(item_id);
+          if (item) {
+            await item.update({ status: "unavailable" });
+          } else {
+            console.error("Item not found for id:", item_id);
+          }
         }
+      } else {
+        const errorMsg = "The specified rental duration was not found.";
+        console.error(errorMsg);
+        return res.status(404).json({ error: errorMsg });
       }
-    } else {
-      const errorMsg = "The specified rental duration was not found.";
-      console.error(errorMsg);
-      return res.status(404).json({ error: errorMsg });
     }
 
     return res.status(200).json(result);

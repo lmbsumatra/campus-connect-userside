@@ -105,7 +105,7 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
 
   const filteredItems = rentalItems.filter((item) => {
     const transaction = item.tx || item;
-    console.log(transaction);
+    // console.log(transaction);
     const itemStatus = transaction.status || item.status || "";
     const itemTransactionType = (
       transaction.transaction_type ||
@@ -121,13 +121,13 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
     const itemBuyerId =
       transaction.buyer_id || (transaction.buyer && transaction.buyer.user_id);
 
-    console.log({
-      itemStatus,
-      itemTransactionType,
-      itemOwnerId,
-      itemRenterId,
-      itemBuyerId,
-    });
+    // console.log({
+    //   itemStatus,
+    //   itemTransactionType,
+    //   itemOwnerId,
+    //   itemRenterId,
+    //   itemBuyerId,
+    // });
 
     if (
       (selectedOption === "owner" && itemOwnerId !== userId) ||
@@ -149,10 +149,10 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
 
     if (!filterOption) return false;
 
-    console.log(
-      `Filtering with option: ${filterOption.nameForRoute}, Allowed statuses: ${filterOption.statuses}`
-    );
-    console.log(`Item Status: ${itemStatus}`);
+    // console.log(
+    //   `Filtering with option: ${filterOption.nameForRoute}, Allowed statuses: ${filterOption.statuses}`
+    // );
+    // console.log(`Item Status: ${itemStatus}`);
 
     return filterOption.statuses.includes(itemStatus);
   });

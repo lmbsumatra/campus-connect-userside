@@ -117,9 +117,13 @@ const PaymentConfirmationModal = ({
           isGcash ? "via Online Payment" : "upon meetup"
         }? ${instructions}`;
       case "owner":
-        return isGcash
-          ? `After confirming this ${transactionName}, the payment will be processed through Stripe and sent to your account.`
-          : `Have you received the ${transactionName} payment upon meetup? Confirming this means you acknowledge receiving it.`;
+        if (isGcash) {
+          return status === "HandedOver"
+            ? `The payment for this ${transactionName} will be processed through Stripe and will be sent to your account after confirming. If the renter has been consistently late, you may collect applicable late charges.`
+            : `Once confirmed, the payment for this ${transactionName} will be processed through Stripe.`;
+        } else {
+          return `Have you received the ${transactionName} payment upon meetup? Confirming this means you acknowledge receiving it.`;
+        }
 
       case "buyer":
         return `Are you sure you want to complete this ${transactionName} ${

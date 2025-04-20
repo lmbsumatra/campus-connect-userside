@@ -349,6 +349,18 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                         <span className="detail-label">Security Deposit:</span>
                         <span className="detail-value">
                           {transaction.rental?.Listing?.security_deposit} php
+                          (Refunded after transation)
+                        </span>
+                      </div>
+                    )}
+
+                  {isRentalTransaction &&
+                    transaction.rental?.Listing?.late_charges && (
+                      <div className="detail-row">
+                        <span className="detail-label">Late Charges:</span>
+                        <span className="detail-value">
+                          {transaction.rental?.Listing?.late_charges} php
+                          (Collected after transaction when applicable)
                         </span>
                       </div>
                     )}
@@ -365,7 +377,7 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                   <div className="detail-row total-cost">
                     <span className="detail-label">Total Cost:</span>
                     <span className="detail-value">
-                      {transaction.rental?.amount || calculateTotalCost()} php
+                      {transaction.rental?.amount || calculateTotalCost()} php (Late charges not included)
                     </span>
                   </div>
                 </div>

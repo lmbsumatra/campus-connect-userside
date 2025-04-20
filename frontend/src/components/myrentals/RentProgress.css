@@ -477,6 +477,8 @@
   flex-wrap: wrap;
   padding: 0.25rem 0;
   width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .detail-label {
@@ -550,6 +552,8 @@
     flex-direction: column;
     border-bottom: 1px solid #f5f5f5;
     padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
   }
 
   .detail-label {
@@ -582,6 +586,8 @@
 
   .detail-row {
     font-size: 0.95rem;
+    display: flex;
+    align-items: center;
   }
 
   .total-cost {

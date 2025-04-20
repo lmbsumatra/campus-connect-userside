@@ -489,6 +489,7 @@ function ListingDetail() {
         payment_mode: approvedListingById.paymentMethod,
         transaction_type: "rental",
         amount: total,
+        quantity: 1,
       };
 
       const response = await axios.post(

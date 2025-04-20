@@ -118,6 +118,8 @@ module.exports = ({ emitNotification }) => {
               "rate",
               "images",
               "location",
+              "security_deposit",
+              "late_charges",
             ],
           },
           {
@@ -192,7 +194,7 @@ module.exports = ({ emitNotification }) => {
     deleteRentalTransaction,
     getAllRentalTransactions,
     getRentalTransactionById,
-// 333333333333333333333333333333333333333333333333333333
+    // 333333333333333333333333333333333333333333333333333333
     createRentalTransaction: (req, res) =>
       createRentalTransaction(req, res, emitNotification),
     getTransactionsByUserId: (req, res) =>

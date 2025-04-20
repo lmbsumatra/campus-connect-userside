@@ -21,7 +21,10 @@ const ConfirmationModal = ({
     timeFrom: selectedDuration.timeFrom,
     timeTo: selectedDuration.timeTo,
   });
-  
+
+  const securityDeposit = parseFloat(listing.securityDeposit) || 0;
+  const grandTotal = (parseFloat(total) || 0) + securityDeposit;
+
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
@@ -72,9 +75,15 @@ const ConfirmationModal = ({
               </span>
             </span>
             <span className="label">
+              Security Deposit:{" "}
+              <span className="value">
+                {listing.securityDeposit} (Refunded on return of item.)
+              </span>
+            </span>
+            <span className="label">
               Total Rental Rate:{" "}
               <span className="value">
-                ₱ {total} ({rate} x {hrs})
+                ₱ {grandTotal} ({rate} x {hrs} + {listing.securityDeposit})
               </span>
             </span>
           </div>
@@ -82,10 +91,7 @@ const ConfirmationModal = ({
             <span className="label">
               Late Charges: <span className="value">{listing.lateCharges}</span>
             </span>
-            <span className="label">
-              Security Deposit:{" "}
-              <span className="value">{listing.securityDeposit}</span>
-            </span>
+
             <span className="label">
               Repair and Replacement:{" "}
               <span className="value">{listing.repairReplacement}</span>

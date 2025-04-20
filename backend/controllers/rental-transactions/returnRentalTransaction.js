@@ -6,7 +6,6 @@ const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
 
-// Helper function to get user names
 const getUserNames = async (userId) => {
   const user = await models.User.findByPk(userId, {
     attributes: ["first_name", "last_name"],
@@ -30,20 +29,17 @@ const getItemName = async (itemId, transactionType) => {
 
 const convertToCAD = async (amount) => {
   try {
-    return amount * 0.025;
+    const convertedAmount = amount * 0.025;
+    return convertedAmount;
   } catch (error) {
-    console.error("Error fetching exchange rate:", error);
-    return amount; // Fallback to original amount if API fails
+    console.error("Error converting to CAD:", error);
+    return amount;
   }
 };
 
-const returnRentalTransaction = async (req, res,emitNotification) => {
-  // console.log("returnRentalTransaction called");
+const returnRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
   const { userId } = req.body;
-
-  // console.log("Request Params:", id);
-  // console.log("Request Body:", userId);
 
   try {
     const rental = await models.RentalTransaction.findByPk(id, {
@@ -71,45 +67,26 @@ const returnRentalTransaction = async (req, res,emitNotification) => {
       ],
     });
 
-    // console.log("Rental fetched:", rental);
-
     if (!rental) {
-      // console.log("Rental transaction not found");
       return res.status(404).json({ error: "Rental transaction not found." });
     }
-
-    // console.log("Rental status:", rental.status);
 
     const isOwner = rental.owner_id === userId;
     const isRenter = rental.renter_id === userId;
 
-    // console.log("Is Owner:", isOwner, "Is Renter:", isRenter);
-
     if (!isOwner && !isRenter) {
-      // console.log("Unauthorized action");
       return res.status(403).json({ error: "Unauthorized action." });
     }
 
     if (rental.status !== "HandedOver") {
-      // console.log("Rental status is not 'HandedOver'");
       return res
         .status(400)
         .json({ error: "Only handed over rentals can be returned." });
     }
 
-    // console.log("Fetching user names...");
     const ownerName = await getUserNames(rental.owner_id);
     const renterName = await getUserNames(rental.renter_id);
-    const itemName = await getRentalItemName(rental.item_id);
-
-    // console.log(
-    //   "Owner Name:",
-    //   ownerName,
-    //   "Renter Name:",
-    //   renterName,
-    //   "Item Name:",
-    //   itemName
-    // );
+    const itemName = await getItemName(rental.item_id, rental.transaction_type);
 
     if (isOwner) {
       rental.owner_confirmed = true;
@@ -117,18 +94,8 @@ const returnRentalTransaction = async (req, res,emitNotification) => {
       rental.renter_confirmed = true;
     }
 
-    // console.log(
-    //   "Owner Confirmed:",
-    //   rental.owner_confirmed,
-    //   "Renter Confirmed:",
-    //   rental.renter_confirmed
-    // );
-
-    if (rental.owner_confirmed || rental.renter_confirmed) {
+    if (rental.owner_confirmed) {
       rental.status = "Returned";
-      rental.owner_confirmed = false;
-      rental.renter_confirmed = false;
-
       try {
         const recipientEmail = isOwner
           ? rental.renter.email
@@ -141,7 +108,7 @@ const returnRentalTransaction = async (req, res,emitNotification) => {
           email: recipientEmail,
           itemName,
           transactionType: "rental",
-          amount: rental.total_amount,
+          amount: rental.amount,
           userName: recipientName,
           recipientType: isOwner ? "renter" : "owner",
           status: "Returned",
@@ -151,44 +118,59 @@ const returnRentalTransaction = async (req, res,emitNotification) => {
       }
     }
 
-    try {
-      // console.log("Checking for payment capture conditions...");
+    if (rental.owner_confirmed) {
       if (
         rental.stripe_payment_intent_id &&
-        rental.payment_status !== "completed" &&
-        (rental.owner_confirmed || rental.renter_confirmed) &&
+        rental.payment_status !== "Completed" &&
         rental.transaction_type === "rental"
       ) {
-        // console.log(
-        //   "Capturing payment for intent:",
-        //   rental.stripe_payment_intent_id
-        // );
+        try {
+          const paymentIntent = await stripe.paymentIntents.capture(
+            rental.stripe_payment_intent_id
+          );
 
-        const paymentIntent = await stripe.paymentIntents.capture(
-          rental.stripe_payment_intent_id
-        );
-        // console.log("Payment intent captured:", paymentIntent);
+          const chargeId = await stripe.paymentIntents.retrieve(
+            rental.stripe_payment_intent_id
+          );
 
-        const chargeId = await stripe.paymentIntents.retrieve(
-          rental.stripe_payment_intent_id
-        );
-        // console.log("Charge ID retrieved:", chargeId.latest_charge);
-
-        await rental.update({
-          stripe_charge_id: chargeId.latest_charge || null,
-          payment_status: "completed",
-        });
+          await rental.update({
+            stripe_charge_id: chargeId.latest_charge || null,
+            payment_status: "Completed",
+          });
+        } catch (stripeError) {
+          console.error("Error capturing payment:", stripeError);
+          return res.status(500).json({
+            error: "Payment capture failed.",
+            details: stripeError.message,
+          });
+        }
       }
-    } catch (stripeError) {
-      console.error("Error capturing payment:", stripeError);
-      return res.status(500).json({
-        error: "Payment capture failed.",
-        details: stripeError.message,
-      });
+
+      try {
+        const intent = await stripe.paymentIntents.retrieve(
+          rental.stripe_payment_intent_id
+        );
+
+        const depositAmount = parseFloat(intent.metadata?.deposit || "0");
+
+        if (depositAmount > 0) {
+          const cadDeposit = await convertToCAD(depositAmount);
+          const refund = await stripe.refunds.create({
+            payment_intent: rental.stripe_payment_intent_id,
+            amount: Math.round(cadDeposit * 100), // cents
+            reason: "requested_by_customer",
+          });
+        }
+      } catch (refundError) {
+        console.error("Error refunding security deposit:", refundError.message);
+      }
+
+      rental.status = "Returned";
+      rental.owner_confirmed = false;
+      rental.renter_confirmed = false;
     }
 
     await rental.save();
-    // console.log("Rental saved:", rental);
 
     let recipientId;
     let message;
@@ -201,8 +183,6 @@ const returnRentalTransaction = async (req, res,emitNotification) => {
       message = `${renterName} has confirmed return of ${itemName}. Confirm receipt and complete transaction.`;
     }
 
-    // console.log("Notification recipient:", recipientId, "Message:", message);
-
     const notification = await models.StudentNotification.create({
       sender_id: userId,
       recipient_id: recipientId,
@@ -212,14 +192,10 @@ const returnRentalTransaction = async (req, res,emitNotification) => {
       rental_id: rental.id,
     });
 
-    // console.log("Notification created:", notification);
-
     if (emitNotification) {
-      // console.log("Emitting notification...");
       emitNotification(recipientId, notification.toJSON());
     }
 
-    // console.log("Returning response...");
     res.json(rental);
   } catch (error) {
     console.error("Error in returnRentalTransaction:", error);

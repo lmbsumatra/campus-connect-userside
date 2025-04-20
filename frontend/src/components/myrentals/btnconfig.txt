@@ -1,0 +1,535 @@
+ // Define button configurations based on status and transaction type
+  const buttonConfig = useMemo(
+    () => ({
+      Requested: [
+        ...(item.tx.owner_id === userId
+          ? [
+              {
+                label: "Accept",
+                onClick: () => handleStatusUpdate("accept"),
+                primary: true,
+              },
+              {
+                label: "Decline",
+                onClick: () => handleStatusUpdate("decline"),
+                primary: true,
+              },
+            ]
+          : []),
+        ...(item.tx.renter_id === userId || item.tx.buyer_id === userId
+          ? [
+              {
+                label: "Cancel",
+                onClick: () => handleStatusUpdate("cancel"),
+                primary: true,
+              },
+            ]
+          : []),
+        {
+          label: "Message",
+          onClick: handleMessageClick,
+          primary: false,
+        },
+      ],
+      Accepted: [
+        {
+          label:
+            item.tx.owner_id === userId && item.tx.owner_confirmed
+              ? "Handed Over"
+              : (item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
+                item.tx.renter_confirmed
+              ? "Received"
+              : item.tx.owner_id === userId
+              ? "Confirm Hand Over"
+              : item.tx.renter_id === userId || item.tx.buyer_id === userId
+              ? "Confirm Item Receive"
+              : "Confirm Hand Over",
+
+          onClick: () => {
+            // Always use payment modal for owners to handle evidence uploads
+            if (item.tx.owner_id === userId) {
+              setIsPaymentModalOpen(true);
+            } else {
+              // For renters/buyers, no evidence upload needed
+              handleStatusUpdate("hand-over");
+            }
+
+            setModalRole(
+              item.tx.owner_id === userId
+                ? "owner"
+                : item.tx.transaction_type === "rental"
+                ? "renter"
+                : "buyer"
+            );
+          },
+          primary: true,
+          disabled:
+            item.is_allowed_to_proceed === false ||
+            (item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed),
+          disabledReason: (
+            item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed
+          )
+            ? "Wait for the other party"
+            : "Not yet allowed to proceed",
+        },
+        {
+          label: "Message",
+          onClick: handleMessageClick,
+          primary: false,
+        },
+      ],
+      HandedOver: [
+        {
+          label:
+            item.tx.owner_id === userId && item.tx.owner_confirmed
+              ? "Received"
+              : (item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
+                item.tx.renter_confirmed
+              ? item.tx.transaction_type === "rental" // <== Enforce return only for rentals
+                ? "Returned"
+                : "Confirm Return"
+              : item.tx.owner_id === userId
+              ? "Confirm Receive"
+              : item.tx.renter_id === userId || item.tx.buyer_id === userId
+              ? item.tx.transaction_type === "rental"
+                ? "Confirm Return"
+                : "Confirm Completion"
+              : "Confirm Return",
+          onClick: () => {
+            setModalRole(
+              item.tx.owner_id === userId
+                ? "owner"
+                : item.tx.transaction_type === "rental"
+                ? "renter"
+                : "buyer"
+            );
+            if (item.transactionType === "Sell") {
+            } else if (item.transactionType === "Rental") {
+              setIsPaymentModalOpen(true);
+            }
+          },
+          primary: true,
+          //  item.tx.is_allowed_to_proceed === false
+          disabled:
+            item.is_allowed_to_proceed === false ||
+            (item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed),
+          //  item.tx.is_allowed_to_proceed === false
+          disabledReason:
+            item.is_allowed_to_proceed === false
+              ? "Not yet allowed to proceed"
+              : "Wait for the other party",
+        },
+        {
+          label: "Message",
+          onClick: handleMessageClick,
+          primary: false,
+        },
+      ],
+      Returned: [
+        {
+          label:
+            (item.tx.owner_id === userId && item.tx.owner_confirmed) ||
+            ((item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
+              item.tx.renter_confirmed)
+              ? "Completed"
+              : "Confirm Completion",
+          onClick: () => {
+            handleStatusUpdate("completed");
+          },
+          primary: true,
+          //  item.tx.is_allowed_to_proceed === false
+          disabled:
+            item.is_allowed_to_proceed === false ||
+            (item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed),
+          //  item.tx.is_allowed_to_proceed === false
+          disabledReason:
+            item.is_allowed_to_proceed === false
+              ? "Not yet allowed to proceed"
+              : "Wait for the other party",
+        },
+        {
+          label: "Message",
+          onClick: handleMessageClick,
+          primary: false,
+        },
+      ],
+      Completed: [
+        {
+          label:
+            (item.tx.owner_id === userId && item.tx.owner_confirmed) ||
+            ((item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
+              item.tx.renter_confirmed)
+              ? "Reviewed"
+              : "Review",
+          onClick: handleOpenModal,
+          primary: true,
+          disabled:
+            item.is_allowed_to_proceed === false ||
+            (item.tx.owner_id === userId
+              ? item.tx.owner_confirmed
+              : item.tx.renter_confirmed),
+          disabledReason:
+            item.is_allowed_to_proceed === false
+              ? "Not yet allowed to proceed"
+              : "Wait for the other party",
+        },
+      ],
+      Reviewed: [],
+      Cancelled: [],
+      Declined: [],
+    }),
+    [userId, item]
+  );
+
+
+// 
+const buttonConfig = useMemo(
+  () => ({
+    Requested: [
+      ...(item.tx.owner_id === userId
+        ? [
+            {
+              label: "Accept",
+              onClick: () => handleStatusUpdate("accept"),
+              primary: true,
+            },
+            {
+              label: "Decline",
+              onClick: () => handleStatusUpdate("decline"),
+              primary: true,
+            },
+          ]
+        : []),
+      ...(item.tx.renter_id === userId || item.tx.buyer_id === userId
+        ? [
+            {
+              label: "Cancel",
+              onClick: () => handleStatusUpdate("cancel"),
+              primary: true,
+            },
+          ]
+        : []),
+      {
+        label: "Message",
+        onClick: handleMessageClick,
+        primary: false,
+      },
+    ],
+    Accepted: [
+      ...(item.tx.renter_id === userId || item.tx.buyer_id === userId
+        ? [
+            {
+              label: "Cancel",
+              onClick: () => handleStatusUpdate("cancel"),
+              primary: true,
+              disabled: false,
+            },
+            {
+              label: "View Details",
+              onClick: () => handleViewDetails(),
+              primary: false,
+            },
+          ]
+        : []),
+
+      ...(item.tx.owner_id === userId
+        ? [
+            {
+              label: "Confirm Hand Over",
+              onClick: () => {
+                setIsPaymentModalOpen(true);
+                setModalRole("owner");
+              },
+              primary: true,
+              disabled: false,
+            },
+          ]
+        : []),
+      {
+        label: "Message",
+        onClick: handleMessageClick,
+        primary: false,
+      },
+    ],
+
+    HandedOver: [
+      ...(item.tx.renter_id === userId || item.tx.buyer_id === userId
+        ? [
+            {
+              label: "Item Received",
+              onClick: () => {},
+              primary: false,
+              disabled: true,
+            },
+          ]
+        : []),
+
+      ...(item.tx.owner_id === userId
+        ? [
+            {
+              label: "Confirm Return",
+              onClick: () => {
+                if (item.transactionType === "Rental") {
+                  setIsPaymentModalOpen(true);
+                  setModalRole("owner");
+                } else {
+                  handleStatusUpdate("returned");
+                }
+              },
+              primary: true,
+              disabled: !item.is_allowed_to_proceed,
+              disabledReason: !item.is_allowed_to_proceed
+                ? "Not yet allowed to proceed"
+                : null,
+            },
+          ]
+        : []),
+      {
+        label: "Message",
+        onClick: handleMessageClick,
+        primary: false,
+      },
+    ],
+    Returned: [
+      ...(item.tx.renter_id === userId || item.tx.buyer_id === userId
+        ? [
+            {
+              label: "Item Returned",
+              onClick: () => {},
+              primary: false,
+              disabled: true,
+            },
+          ]
+        : []),
+
+      ...(item.tx.owner_id === userId
+        ? [
+            {
+              label: "Confirm Completion",
+              onClick: () => {
+                handleStatusUpdate("completed");
+              },
+              primary: true,
+              disabled: !item.is_allowed_to_proceed,
+              disabledReason: !item.is_allowed_to_proceed
+                ? "Not yet allowed to proceed"
+                : null,
+            },
+          ]
+        : []),
+      {
+        label: "Message",
+        onClick: handleMessageClick,
+        primary: false,
+      },
+    ],
+    Completed: [
+      {
+        label: "Leave Review",
+        onClick: handleOpenModal,
+        primary: true,
+        disabled: !item.is_allowed_to_proceed,
+        disabledReason: !item.is_allowed_to_proceed
+          ? "Not yet allowed to proceed"
+          : null,
+      },
+    ],
+    Reviewed: [
+      {
+        label: "Transaction Complete",
+        onClick: () => {},
+        primary: false,
+        disabled: true,
+      },
+    ],
+    Cancelled: [
+      {
+        label: "Transaction Cancelled",
+        onClick: () => {},
+        primary: false,
+        disabled: true,
+      },
+    ],
+    Declined: [
+      {
+        label: "Transaction Declined",
+        onClick: () => {},
+        primary: false,
+        disabled: true,
+      },
+    ],
+  }),
+  [userId, item]
+);
+
+const cron = require("node-cron");
+const { models, Sequelize } = require("../../models");
+const { initializeSocket } = require("../../socket");
+const http = require("http");
+const express = require("express");
+const { Op } = require("sequelize");
+const app = express();
+const server = http.createServer(app);
+
+const { io } = require("socket.io-client");
+
+// Create the socket connection outside the cron job
+const socket = io("https://api.rentupeers.shop/", {
+  withCredentials: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+});
+
+// Handle socket connection events
+socket.on("connect", () => {
+  // console.log("Cron job socket connected to server", socket.id);
+});
+
+socket.on("connect_error", (error) => {
+  // console.error("Socket connection error:", error);
+});
+
+socket.on("disconnect", (reason) => {
+  // console.log("Socket disconnected:", reason);
+});
+
+const AllowToProceed = () => {
+  cron.schedule("* * * * *", async () => {
+    // console.log("Running cron job to update rental status...");
+
+    try {
+      const now = new Date();
+      const currentDate = now.toISOString().split("T")[0]; // Get YYYY-MM-DD
+      const currentTime = now.getTime(); // Current time in milliseconds
+
+      // Get all active rental transactions
+      const rentals = await models.RentalTransaction.findAll({
+        where: {
+          status: {
+            [Op.notIn]: ["Cancelled", "Declined", "Reviewed"], // Exclude final states
+          },
+        },
+        include: [
+          {
+            model: models.Date,
+            where: { date: currentDate },
+            include: [
+              {
+                model: models.Duration,
+                as: "durations",
+              },
+            ],
+          },
+        ],
+      });
+
+      for (const rental of rentals) {
+        if (!rental.Date || !rental.Date.durations) {
+          continue;
+        }
+
+        const rentalDate = rental.Date.date;
+        const rentalDurations = rental.Date.durations;
+
+        for (const duration of rentalDurations) {
+          const startTime = new Date(
+            `${rentalDate}T${duration.rental_time_from}`
+          ).getTime();
+          const endTime = new Date(
+            `${rentalDate}T${duration.rental_time_to}`
+          ).getTime();
+
+          // Now that startTime and endTime exist, calculate ALLOWED_TIME_WINDOW
+          const ALLOWED_TIME_WINDOW = Math.max(
+            15 * 60 * 1000,
+            endTime - startTime
+          );
+
+          let nextStatus = null;
+
+          switch (rental.status) {
+            case "Requested":
+              if (currentTime >= startTime - ALLOWED_TIME_WINDOW) {
+                nextStatus = "Cancelled"; // Auto-cancel if not accepted within time window
+              }
+              break;
+
+            case "Accepted":
+              // Allow to proceed as soon as the owner has accepted
+              await rental.update({ is_allowed_to_proceed: true });
+              
+              if (currentTime > startTime + ALLOWED_TIME_WINDOW) {
+                nextStatus = "HandedOver"; // Auto-hand over if too late
+              }
+              break;
+
+            case "HandedOver":
+              // Auto-allow the owner to confirm return
+              if (currentTime >= endTime - ALLOWED_TIME_WINDOW) {
+                await rental.update({ is_allowed_to_proceed: true });
+              }
+              
+              if (currentTime > endTime + ALLOWED_TIME_WINDOW) {
+                nextStatus = "Returned"; // Auto-mark as returned if too late
+              }
+              break;
+
+            case "Returned":
+              // Auto-allow the owner to confirm completion
+              await rental.update({ is_allowed_to_proceed: true });
+              
+              if (currentTime > endTime + ALLOWED_TIME_WINDOW) {
+                nextStatus = "Completed"; // Auto-complete for short rentals
+              }
+              break;
+
+            case "Completed":
+              // Allow review immediately after completion
+              await rental.update({ is_allowed_to_proceed: true });
+              
+              // Auto-transition to reviewed after a reasonable time window
+              if (currentTime > endTime + 2 * ALLOWED_TIME_WINDOW) {
+                nextStatus = "Reviewed"; // Final step
+              }
+              break;
+          }
+
+          if (nextStatus) {
+            await rental.update({
+              status: nextStatus,
+              is_allowed_to_proceed: false,
+              owner_confirmed: false,
+              // We keep renter_confirmed but don't use it for flow control
+              renter_confirmed: false,
+            });
+
+            // Emit transaction update
+            socket.emit("update-status", {
+              rentalId: rental.id,
+              renter: rental.renter_id,
+              owner: rental.owner_id,
+              status: nextStatus,
+            });
+
+            // console.log(
+            //   `Rental ID ${rental.id} automatically updated to ${nextStatus}.`
+            // );
+          }
+        }
+      }
+    } catch (error) {
+      // console.error("Error updating rental statuses:", error);
+    }
+  });
+};
+
+module.exports = { AllowToProceed };

@@ -378,6 +378,18 @@ Item: ${itemName}`,
         },
       ],
       Accepted: [
+        ...(item.tx.renter_id === userId || item.tx.buyer_id === userId
+          ? [
+              {
+                label: "Waiting for Owner's Confirmation",
+                onClick: () => {},
+                primary: true,
+                disabled: true,
+                disabledReason: "Please wait until the owner confirms.",
+              },
+            ]
+          : []),
+
         ...(item.tx.owner_id === userId
           ? [
               {
@@ -404,7 +416,20 @@ Item: ${itemName}`,
           primary: false,
         },
       ],
+
       HandedOver: [
+        ...(item.tx.renter_id === userId || item.tx.buyer_id === userId
+          ? [
+              {
+                label: "Waiting for Owner's Confirmation",
+                onClick: () => {},
+                primary: true,
+                disabled: true,
+                disabledReason: "Please wait until the owner confirms.",
+              },
+            ]
+          : []),
+
         ...(item.tx.owner_id === userId
           ? [
               {
@@ -435,6 +460,18 @@ Item: ${itemName}`,
         },
       ],
       Returned: [
+        ...(item.tx.renter_id === userId || item.tx.buyer_id === userId
+          ? [
+              {
+                label: "Waiting for Owner's Confirmation",
+                onClick: () => {},
+                primary: true,
+                disabled: true,
+                disabledReason: "Please wait until the owner confirms.",
+              },
+            ]
+          : []),
+
         ...(item.tx.owner_id === userId
           ? [
               {

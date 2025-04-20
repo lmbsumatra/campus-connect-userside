@@ -145,7 +145,7 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
 
         await transaction.update({
           stripe_charge_id: chargeId.latest_charge || null,
-          payment_status: "completed",
+          payment_status: "Completed",
         });
       }
 
