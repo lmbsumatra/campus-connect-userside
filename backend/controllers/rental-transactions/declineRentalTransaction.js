@@ -6,7 +6,6 @@ const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
 
-// Helper function to get user names
 const getUserNames = async (userId) => {
   const user = await models.User.findByPk(userId, {
     attributes: ["first_name", "last_name"],
@@ -28,24 +27,11 @@ const getItemName = async (itemId, transactionType) => {
   }
 };
 
-const convertToCAD = async (amount) => {
-  try {
-    return amount * 0.025;
-  } catch (error) {
-    console.error("Error fetching exchange rate:", error);
-    return amount; // Fallback to original amount if API fails
-  }
-};
 
 const declineRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
   const { userId } = req.body;
-
-  // console.log("Received request to decline rental transaction");
-  // console.log(`Transaction ID: ${id}, User ID: ${userId}`);
-
   try {
-    // console.log("Fetching rental transaction from the database");
     const rental = await models.RentalTransaction.findByPk(id, {
       include: [
         {
@@ -77,41 +63,30 @@ const declineRentalTransaction = async (req, res, emitNotification) => {
     });
 
     if (!rental) {
-      // console.log("Rental transaction not found");
       return res.status(404).json({ error: "Rental transaction not found." });
     }
 
-    // console.log("Checking if the user is the owner of the transaction");
     if (rental.owner_id !== userId) {
-      // console.log("User is not the owner of this transaction");
       return res
         .status(403)
         .json({ error: "Only the owner can decline this transaction." });
     }
 
-    // console.log("Checking rental status");
     if (rental.status !== "Requested") {
-      // console.log('Rental status is not "Requested"');
       return res
         .status(400)
         .json({ error: "Only Requested rentals can be declined." });
     }
 
-    // console.log("Fetching owner and renter names");
     const ownerName = await getUserNames(rental.owner_id);
     const otherName = await getUserNames(
       rental.transaction_type === "sell" ? rental.buyer_id : rental.renter_id
     );
-    const itemName = await getRentalItemName(
+    const itemName = await getItemName(
       rental.item_id,
       rental.transaction_type
     );
 
-    // console.log(
-    //   `Owner Name: ${ownerName}, Other Name: ${otherName}, Item Name: ${itemName}`
-    // );
-
-    // console.log('Changing rental status to "Declined"');
     rental.status = "Declined";
     await rental.save();
 
@@ -121,7 +96,6 @@ const declineRentalTransaction = async (req, res, emitNotification) => {
         : "rental_declined";
     const action = rental.transaction_type === "sell" ? "purchase" : "rental";
 
-    // console.log("Creating notification for the renter");
     const notification = await models.StudentNotification.create({
       sender_id: userId,
       recipient_id:
@@ -133,7 +107,6 @@ const declineRentalTransaction = async (req, res, emitNotification) => {
     });
 
     if (emitNotification) {
-      // console.log("Emitting notification to renter");
       emitNotification(
         rental.transaction_type === "sell" ? rental.buyer_id : rental.renter_id,
         notification.toJSON()
@@ -141,7 +114,6 @@ const declineRentalTransaction = async (req, res, emitNotification) => {
     }
 
     try {
-      // console.log("Sending decline email to renter");
       await sendTransactionEmail({
         email:
           rental.transaction_type === "sell"
@@ -152,12 +124,12 @@ const declineRentalTransaction = async (req, res, emitNotification) => {
         userName: otherName,
         recipientType: "renter",
         status: "Declined",
+        amount: rental.amount,
       });
     } catch (emailError) {
       console.error("Error sending decline email:", emailError);
     }
 
-    // console.log("Sending response with rental information");
     res.json(rental);
   } catch (error) {
     console.error("Error processing decline request:", error);

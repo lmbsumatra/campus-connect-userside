@@ -19,7 +19,7 @@ const ConfirmationModal = ({
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Confirm rent transaction</Modal.Title>
+        <Modal.Title>Confirm Purchase</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="confirmation-modal">
@@ -37,7 +37,7 @@ const ConfirmationModal = ({
             </div>
             <div className="item-desc">
               <span className="value">{itemforsale.name}</span>
-              <span className="value">{itemforsale.rate}</span>
+              <span className="value">₱ {itemforsale.price}</span>
               <span className="label">
                 Quantity:
                 <span className="value">{quantity || "1"}</span>
@@ -51,12 +51,23 @@ const ConfirmationModal = ({
           </div>
           <div className="rental-desc">
             <span className="label">
+              Total:{" "}
+              <span className="value">
+                ₱ {itemforsale.price * quantity} ({itemforsale.price} x{" "}
+                {quantity})
+              </span>
+            </span>
+            <span className="label">
               Delivery Method:{" "}
               <span className="value">{itemforsale.deliveryMethod}</span>{" "}
             </span>
             <span className="label">
               Payment Method:{" "}
-              <span className="value">{itemforsale.paymentMethod}</span>
+              <span className="value">
+                {itemforsale.paymentMethod === "gcash"
+                  ? "Online Payment"
+                  : "Pay upon meetup"}
+              </span>
             </span>
 
             <span className="label">
@@ -69,6 +80,9 @@ const ConfirmationModal = ({
                 {formatTimeTo12Hour(selectedDuration.timeFrom)} -{" "}
                 {formatTimeTo12Hour(selectedDuration.timeTo)}
               </span>
+            </span>
+            <span className="label">
+              Location will be revealed after owner accepted the request.
             </span>
           </div>
 

@@ -10,6 +10,15 @@ const sendTransactionEmail = async ({
   status,
 }) => {
   let subject, message;
+  console.log(
+    email,
+    itemName,
+    transactionType,
+    amount,
+    userName,
+    recipientType,
+    status
+  );
 
   switch (status) {
     case "Requested":
@@ -139,8 +148,8 @@ const sendTransactionEmail = async ({
             border: 1px solid #e2e8f0;
           }
           .header {
-            background-color: #2b6cb0;
-            color: #ffffff;
+            background-color: #edf2f7;
+            color: #3182ce;
             padding: 20px 30px;
             display: flex;
             align-items: center;
@@ -148,6 +157,7 @@ const sendTransactionEmail = async ({
           }
           .header img {
             height: 40px;
+            margin-right: 16px;
           }
           .header-title {
             font-size: 20px;
@@ -199,7 +209,7 @@ const sendTransactionEmail = async ({
         <div class="email-wrapper">
           <div class="header">
             <img src="https://res.cloudinary.com/campusconnectcl/image/upload/v1735845626/cc/eazvmzm29uqxkk6vski3.png" alt="RenTUPeers Logo" />
-            <div class="header-title">{"  "}RenTUPeers</div>
+            <div class="header-title"> RenTUPeers</div>
           </div>
           <div class="content">
             <h1>${subject}</h1>

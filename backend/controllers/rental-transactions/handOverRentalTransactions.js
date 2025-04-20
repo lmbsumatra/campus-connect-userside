@@ -6,7 +6,6 @@ const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
 
-// Helper function to get user names
 const getUserNames = async (userId) => {
   const user = await models.User.findByPk(userId, {
     attributes: ["first_name", "last_name"],
@@ -33,14 +32,13 @@ const convertToCAD = async (amount) => {
     return amount * 0.025;
   } catch (error) {
     console.error("Error fetching exchange rate:", error);
-    return amount; // Fallback to original amount if API fails
+    return amount; 
   }
 };
 
 const handOverRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
-  const { userId } = req.body; // userId to identify who is confirming the handover
-  // console.log(id, req.body);
+  const { userId } = req.body; 
 
   try {
     const transaction = await models.RentalTransaction.findByPk(id, {
@@ -79,16 +77,15 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
     const isRental = transaction.transaction_type === "rental";
     const isPurchase = transaction.transaction_type === "sell";
 
-    // Check if the user is authorized to confirm handover
+  
     const isOwner = transaction.owner_id === userId;
     const isRenter = isRental && transaction.renter_id === userId;
     const isBuyer = isPurchase && transaction.buyer_id === userId;
 
-    if (!isOwner && !isRenter && !isBuyer) {
+    if (!isOwner) {
       return res.status(403).json({ error: "Unauthorized action." });
     }
 
-    // Check if transaction status is 'Accepted'
     if (transaction.status !== "Accepted") {
       return res
         .status(400)
@@ -116,35 +113,28 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
       counterpartyRole = isOwner ? "buyer" : "owner";
     }
 
-    // Update the confirmation status
     if (isOwner) {
       transaction.owner_confirmed = true;
-    } else if (isRenter || isBuyer) {
-      transaction.renter_confirmed = true; // Use same field for both renter and buyer
+      transaction.renter_confirmed = true; 
     }
 
-    // Check if both parties have confirmed
-    if (transaction.owner_confirmed && transaction.renter_confirmed) {
+    if (transaction.owner_confirmed) {
       if (isRental) {
         transaction.status = "HandedOver";
       } else if (isPurchase) {
-        transaction.status = "Returned"; // For purchases, complete the transaction
+        transaction.status = "Returned"; 
       }
       transaction.owner_confirmed = false;
       transaction.renter_confirmed = false;
     }
 
-    // Capture payment upon handover
     try {
       if (
         transaction.stripe_payment_intent_id &&
         transaction.transaction_type === "sell" &&
         transaction.payment_status !== "Completed"
       ) {
-        // console.log(
-        //   transaction.stripe_payment_intent_id,
-        //   transaction.payment_status
-        // );
+     
         const paymentIntent = await stripe.paymentIntents.capture(
           transaction.stripe_payment_intent_id
         );
@@ -153,12 +143,12 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
           transaction.stripe_payment_intent_id
         );
 
-        // console.log({ charge: chargeId.latest_charge });
         await transaction.update({
           stripe_charge_id: chargeId.latest_charge || null,
           payment_status: "completed",
         });
       }
+
     } catch (stripeError) {
       console.error("Error capturing payment:", stripeError);
       return res.status(500).json({
@@ -169,7 +159,6 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
 
     await transaction.save();
 
-    // Create notification with different messages for rental vs purchase
     let message;
     const currentUserName = isOwner
       ? ownerName
@@ -196,7 +185,6 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
       rental_id: transaction.id,
     });
 
-    // Emit notification using centralized emitter
     if (emitNotification) {
       emitNotification(counterpartyId, notification.toJSON());
     }
@@ -232,7 +220,7 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
         email: recipientEmail,
         itemName: itemName,
         transactionType: isRental ? "rental" : "purchase",
-        amount: transaction.total_amount,
+        amount: transaction.amount,
         userName: recipientName,
         recipientType:
           transaction.transaction_type === "rental"
@@ -248,7 +236,6 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
       console.error("Error sending handover/receipt email:", emailError);
     }
 
-    // Return the updated transaction
     res.json(transaction);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -345,7 +345,6 @@ Item: ${itemName}`,
     }
   };
 
-  // Define button configurations based on status and transaction type
   const buttonConfig = useMemo(
     () => ({
       Requested: [
@@ -379,50 +378,26 @@ Item: ${itemName}`,
         },
       ],
       Accepted: [
-        {
-          label:
-            item.tx.owner_id === userId && item.tx.owner_confirmed
-              ? "Handed Over"
-              : (item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
-                item.tx.renter_confirmed
-              ? "Received"
-              : item.tx.owner_id === userId
-              ? "Confirm Hand Over"
-              : item.tx.renter_id === userId || item.tx.buyer_id === userId
-              ? "Confirm Item Receive"
-              : "Confirm Hand Over",
-
-          onClick: () => {
-            // Always use payment modal for owners to handle evidence uploads
-            if (item.tx.owner_id === userId) {
-              setIsPaymentModalOpen(true);
-            } else {
-              // For renters/buyers, no evidence upload needed
-              handleStatusUpdate("hand-over");
-            }
-
-            setModalRole(
-              item.tx.owner_id === userId
-                ? "owner"
-                : item.tx.transaction_type === "rental"
-                ? "renter"
-                : "buyer"
-            );
-          },
-          primary: true,
-          disabled:
-            item.is_allowed_to_proceed === false ||
-            (item.tx.owner_id === userId
-              ? item.tx.owner_confirmed
-              : item.tx.renter_confirmed),
-          disabledReason: (
-            item.tx.owner_id === userId
-              ? item.tx.owner_confirmed
-              : item.tx.renter_confirmed
-          )
-            ? "Wait for the other party"
-            : "Not yet allowed to proceed",
-        },
+        ...(item.tx.owner_id === userId
+          ? [
+              {
+                label: item.tx.owner_confirmed
+                  ? "Handed Over"
+                  : "Confirm Hand Over",
+                onClick: () => {
+                  setIsPaymentModalOpen(true);
+                  setModalRole("owner");
+                },
+                primary: true,
+                disabled:
+                  item.is_allowed_to_proceed === false ||
+                  item.tx.owner_confirmed,
+                disabledReason: item.tx.owner_confirmed
+                  ? "Wait for the other party"
+                  : "Not yet allowed to proceed",
+              },
+            ]
+          : []),
         {
           label: "Message",
           onClick: handleMessageClick,
@@ -430,48 +405,29 @@ Item: ${itemName}`,
         },
       ],
       HandedOver: [
-        {
-          label:
-            item.tx.owner_id === userId && item.tx.owner_confirmed
-              ? "Received"
-              : (item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
-                item.tx.renter_confirmed
-              ? item.tx.transaction_type === "rental" // <== Enforce return only for rentals
-                ? "Returned"
-                : "Confirm Return"
-              : item.tx.owner_id === userId
-              ? "Confirm Receive"
-              : item.tx.renter_id === userId || item.tx.buyer_id === userId
-              ? item.tx.transaction_type === "rental"
-                ? "Confirm Return"
-                : "Confirm Completion"
-              : "Confirm Return",
-          onClick: () => {
-            setModalRole(
-              item.tx.owner_id === userId
-                ? "owner"
-                : item.tx.transaction_type === "rental"
-                ? "renter"
-                : "buyer"
-            );
-            if (item.transactionType === "Sell") {
-            } else if (item.transactionType === "Rental") {
-              setIsPaymentModalOpen(true);
-            }
-          },
-          primary: true,
-          //  item.tx.is_allowed_to_proceed === false
-          disabled:
-            item.is_allowed_to_proceed === false ||
-            (item.tx.owner_id === userId
-              ? item.tx.owner_confirmed
-              : item.tx.renter_confirmed),
-          //  item.tx.is_allowed_to_proceed === false
-          disabledReason:
-            item.is_allowed_to_proceed === false
-              ? "Not yet allowed to proceed"
-              : "Wait for the other party",
-        },
+        ...(item.tx.owner_id === userId
+          ? [
+              {
+                label: item.tx.owner_confirmed ? "Received" : "Confirm Receipt",
+                onClick: () => {
+                  if (item.transactionType === "Rental") {
+                    setIsPaymentModalOpen(true);
+                    setModalRole("owner");
+                  } else {
+                    handleStatusUpdate("completed");
+                  }
+                },
+                primary: true,
+                disabled:
+                  item.is_allowed_to_proceed === false ||
+                  item.tx.owner_confirmed,
+                disabledReason:
+                  item.is_allowed_to_proceed === false
+                    ? "Not yet allowed to proceed"
+                    : "Wait for the other party",
+              },
+            ]
+          : []),
         {
           label: "Message",
           onClick: handleMessageClick,
@@ -479,29 +435,26 @@ Item: ${itemName}`,
         },
       ],
       Returned: [
-        {
-          label:
-            (item.tx.owner_id === userId && item.tx.owner_confirmed) ||
-            ((item.tx.renter_id === userId || item.tx.buyer_id === userId) &&
-              item.tx.renter_confirmed)
-              ? "Completed"
-              : "Confirm Completion",
-          onClick: () => {
-            handleStatusUpdate("completed");
-          },
-          primary: true,
-          //  item.tx.is_allowed_to_proceed === false
-          disabled:
-            item.is_allowed_to_proceed === false ||
-            (item.tx.owner_id === userId
-              ? item.tx.owner_confirmed
-              : item.tx.renter_confirmed),
-          //  item.tx.is_allowed_to_proceed === false
-          disabledReason:
-            item.is_allowed_to_proceed === false
-              ? "Not yet allowed to proceed"
-              : "Wait for the other party",
-        },
+        ...(item.tx.owner_id === userId
+          ? [
+              {
+                label: item.tx.owner_confirmed
+                  ? "Completed"
+                  : "Confirm Completion",
+                onClick: () => {
+                  handleStatusUpdate("completed");
+                },
+                primary: true,
+                disabled:
+                  item.is_allowed_to_proceed === false ||
+                  item.tx.owner_confirmed,
+                disabledReason:
+                  item.is_allowed_to_proceed === false
+                    ? "Not yet allowed to proceed"
+                    : "Wait for the other party",
+              },
+            ]
+          : []),
         {
           label: "Message",
           onClick: handleMessageClick,
@@ -593,14 +546,12 @@ Item: ${itemName}`,
     return "Unknown Item";
   };
 
-
-
   const handleConfirmPayment = async (evidenceImage) => {
     setIsSubmitting(true);
-  
+
     try {
       let actionType = null;
-  
+
       if (
         item.transactionType === "Rental" &&
         item.tx.status === "HandedOver" &&
@@ -644,10 +595,10 @@ Item: ${itemName}`,
         }
         actionType = "hand-over";
       }
-  
+
       if (actionType) {
         handleStatusUpdate(actionType);
-  
+
         await ShowAlert(
           dispatch,
           "success",
@@ -674,7 +625,6 @@ Item: ${itemName}`,
       setIsSubmitting(false);
     }
   };
-  
 
   // Add a new function to handle evidence upload
   const uploadEvidenceImage = async (
@@ -816,7 +766,7 @@ Item: ${itemName}`,
         paymentMode={item.paymentMethod}
         transactionType={item.transactionType}
         status={item.status}
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       />
     </div>
   );

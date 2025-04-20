@@ -407,7 +407,7 @@ function ItemForSaleDetail() {
         payment_mode: approvedItemForSaleById.paymentMethod,
         isFromCart: false,
         transaction_type: "sell",
-        amount: approvedItemForSaleById.price,
+        amount: approvedItemForSaleById.price * quantity,
         quantity: quantity || 1,
       };
 
@@ -939,7 +939,7 @@ function ItemForSaleDetail() {
             quantity={quantity}
             setQuantity={setQuantity}
             min={1}
-            max={approvedItemForSaleById?.quantity || 10}
+            max={approvedItemForSaleById?.stock || 0}
           />
 
           <div className="rental-dates-durations">
@@ -1028,17 +1028,29 @@ function ItemForSaleDetail() {
                           // Convert timeFrom strings to comparable values (assuming they're in a format that can be compared)
                           return a.timeFrom.localeCompare(b.timeFrom);
                         })
-                        .map((duration) => (
-                          <div key={duration.id} className="duration-item">
-                            <input
-                              type="checkbox"
-                              id={`duration-${duration.id}`}
-                              onChange={() => handleSelectDuration(duration)}
-                            />
-                            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
-                            {formatTimeTo12Hour(duration.timeTo)}
-                          </div>
-                        ))}
+                        .map((duration) => {
+                          // Check if the duration time is in the past
+                          const currentTime = new Date();
+                          const durationStart = new Date(duration.timeFrom);
+                          const durationEnd = new Date(duration.timeTo);
+
+                          // If the duration has passed, skip rendering it
+                          if (durationEnd < currentTime) {
+                            return null; // Do not render this duration
+                          }
+
+                          return (
+                            <div key={duration.id} className="duration-item">
+                              <input
+                                type="checkbox"
+                                id={`duration-${duration.id}`}
+                                onChange={() => handleSelectDuration(duration)}
+                              />
+                              {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+                              {formatTimeTo12Hour(duration.timeTo)}
+                            </div>
+                          );
+                        })}
                     </div>
                   ) : (
                     <p className="no-duration-message">

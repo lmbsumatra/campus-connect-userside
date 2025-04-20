@@ -73,7 +73,7 @@ export const validateInput = (name, value, itemType) => {
   let error = "";
   switch (name) {
     case "category":
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Category cannot be empty.";
       } else {
@@ -83,7 +83,7 @@ export const validateInput = (name, value, itemType) => {
       break;
 
     case "itemName":
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Item name cannot be empty.";
       } else {
@@ -93,7 +93,7 @@ export const validateInput = (name, value, itemType) => {
       break;
 
     case "price":
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Price cannot be empty.";
       } else if (!/^(?:\d{1,10}|\d{1,10}\.\d{1,2})$/.test(value)) {
@@ -106,7 +106,7 @@ export const validateInput = (name, value, itemType) => {
       }
       break;
     case "stock":
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Stock cannot be empty.";
       } else if (!/^\d+$/.test(value)) {
@@ -130,7 +130,7 @@ export const validateInput = (name, value, itemType) => {
       break;
 
     case "deliveryMethod":
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Delivery method cannot be empty.";
       } else if (value !== PICK_UP && value !== MEET_UP) {
@@ -145,7 +145,7 @@ export const validateInput = (name, value, itemType) => {
       break;
 
     case "paymentMethod":
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Payment method cannot be empty.";
       } else if (value !== PAY_UPON_MEETUP && value !== GCASH) {
@@ -158,7 +158,7 @@ export const validateInput = (name, value, itemType) => {
       }
       break;
     case "location":
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Location cannot be empty.";
       } else {
@@ -167,7 +167,7 @@ export const validateInput = (name, value, itemType) => {
       }
       break;
     case "itemCondition":
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Item condition cannot be empty.";
       } else {
@@ -178,7 +178,7 @@ export const validateInput = (name, value, itemType) => {
 
     case "lateCharges":
       if (itemType === FOR_SALE) break;
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error =
           "Late charges cannot be empty. Set as 0(zero) if you don't want to add.";
@@ -194,7 +194,7 @@ export const validateInput = (name, value, itemType) => {
 
     case "securityDeposit":
       if (itemType === FOR_SALE) break;
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error =
           "Security deposit cannot be empty. Set as 0(zero) if you don't want to add.";
@@ -210,7 +210,7 @@ export const validateInput = (name, value, itemType) => {
 
     case "repairReplacement":
       if (itemType === FOR_SALE) break;
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Repair and replacement condition is required.";
       } else {
@@ -219,7 +219,7 @@ export const validateInput = (name, value, itemType) => {
       }
       break;
     case "desc":
-      if (value.trim() === "") {
+      if (String(value).trim() === "") {
         hasError = true;
         error = "Item description is required.";
       } else {
@@ -259,7 +259,7 @@ export const validateInput = (name, value, itemType) => {
         const [key, specValue] = entries[entries.length - 1] || [null, null];
 
         // Validate key and specValue
-        if (!key || !specValue || !key.trim() || !specValue.trim()) {
+        if (!key || !specValue || !key.trim()) {
           hasError = true;
           error = "Both key and value are required.";
         } else if (key.length > 50) {

@@ -1,12 +1,11 @@
 const { Op } = require("sequelize");
 const { models } = require("../../models");
-const { GCASH } = require("../../utils/constants"); // Make sure STRIPE is added to constants
+const { GCASH } = require("../../utils/constants"); 
 const sendTransactionEmail = require("./sendTransactionEmail.jsx");
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
 
-// Helper function to get user names
 const getUserNames = async (userId) => {
   const user = await models.User.findByPk(userId, {
     attributes: ["first_name", "last_name"],
@@ -14,25 +13,24 @@ const getUserNames = async (userId) => {
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
 
-const getRentalItemName = async (itemId) => {
-  const item = await models.Listing.findByPk(itemId, {
-    attributes: ["listing_name"],
-  });
-  return item ? item.listing_name : "Unknown Item";
-};
-
-const convertToCAD = async (amount) => {
-  try {
-    return amount * 0.025;
-  } catch (error) {
-    // console.error("Error fetching exchange rate:", error);
-    return amount; // Fallback to original amount if API fails
+const getItemName = async (itemId, transactionType) => {
+  if (transactionType === "sell") {
+    const item = await models.ItemForSale.findByPk(itemId, {
+      attributes: ["item_for_sale_name"],
+    });
+    return item ? item.item_for_sale_name : "Unknown Item";
+  } else {
+    const item = await models.Listing.findByPk(itemId, {
+      attributes: ["listing_name"],
+    });
+    return item ? item.listing_name : "Unknown Item";
   }
 };
 
 const completeRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
   const { userId } = req.body;
+
 
   try {
     const transaction = await models.RentalTransaction.findByPk(id, {
@@ -90,7 +88,7 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
         .json({ error: "Only returned rentals can be completed." });
     }
 
-    if (isPurchase && transaction.status !== "Handed Over") {
+    if (isPurchase && transaction.status !== "Returned") {
       return res
         .status(400)
         .json({ error: "Only handed over purchases can be completed." });
@@ -109,9 +107,26 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
       counterpartyId = isOwner ? transaction.buyer_id : transaction.owner_id;
     }
 
-    if (isOwner) transaction.owner_confirmed = true;
+    if (isOwner) {
+      transaction.owner_confirmed = true;
+
+      if (isRental) {
+        transaction.renter_confirmed = true;
+      } else if (isPurchase) {
+        transaction.buyer_confirmed = true;
+      }
+    }
+
     if (isRenter) transaction.renter_confirmed = true;
-    if (isBuyer) transaction.buyer_confirmed = true; // Added this flag for purchases
+    if (isBuyer) transaction.buyer_confirmed = true;
+
+    if (transaction.owner_confirmed) {
+      if (isRental) {
+        transaction.renter_confirmed = true;
+      } else if (isPurchase) {
+        transaction.buyer_confirmed = true;
+      }
+    }
 
     if (
       transaction.owner_confirmed &&
@@ -120,7 +135,7 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
       transaction.status = "Completed";
       transaction.owner_confirmed = false;
       transaction.renter_confirmed = false;
-      transaction.buyer_confirmed = false; // Reset the buyer confirmation flag
+      transaction.buyer_confirmed = false; 
 
       if (isRental && transaction.Duration) {
         await models.Duration.update(
@@ -166,28 +181,33 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
         );
       }
 
-      const itemName =
-        transaction.Listing?.listing_name ||
-        transaction.Post?.post_item_name ||
-        "item";
-      const userName = isOwner
-        ? ownerName
-        : isRental
-        ? counterpartyName
-        : counterpartyName;
-      const recipientEmail = isOwner
-        ? transaction.owner.email
-        : isRental
-        ? transaction.renter.email
-        : transaction.buyer.email;
+      const itemName = await getItemName(
+        transaction.item_id,
+        transaction.transaction_type
+      );
 
       await sendTransactionEmail({
-        email: recipientEmail,
+        email: transaction.owner.email,
         itemName,
         transactionType: transaction.transaction_type,
-        amount: transaction.total_amount,
-        userName,
+        amount: transaction.amount,
+        userName: ownerName, 
         status: "Completed",
+        recipientType: "renter",
+      });
+
+      const counterpartyEmail = isRental
+        ? transaction.renter?.email
+        : transaction.buyer?.email;
+
+      await sendTransactionEmail({
+        email: counterpartyEmail,
+        itemName,
+        transactionType: transaction.transaction_type,
+        amount: transaction.amount,
+        userName: counterpartyName,
+        status: "Completed",
+        recipientType: "owner",
       });
 
       const notifications = [
