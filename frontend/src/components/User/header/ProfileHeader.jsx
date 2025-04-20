@@ -360,27 +360,31 @@ const ProfileHeader = ({
           </div>
         </div>
 
-        <div>
+        <div className="">
           {user?.user ? (
             <>
               <h4 className="text-white">
                 {user.user.fname} {user.user.lname || "User Name"}
               </h4>
-              <div className="profile-info d-flex">
-                <div className="d-block">
-                  <span className="label">College</span>
-                  <span className="label">Course</span>
-                  <span className="label">Rating</span>
-                  <span className="label">Joined</span>
-                </div>
-                <div className="d-block">
-                  <span className="value">{user.student.college || "N/A"}</span>
-                  <span className="value">{user.student.course || "N/A"}</span>
-                  <span className="value">{user.user.rating || "N/A"}</span>
-                  <span className="value">
+              <div className="profile-info">
+                <span className="label123">
+                  College:{" "}
+                  <span className="value123">{user.student.college || "N/A"}</span>
+                </span>
+                <span className="label123">
+                  Course:{" "}
+                  <span className="value123">{user.student.course || "N/A"}</span>
+                </span>
+                <span className="label123">
+                  Rating:{" "}
+                  <span className="value123">{user.user.rating || "N/A"}</span>
+                </span>
+                <span className="label123">
+                  Joined:{" "}
+                  <span className="value123">
                     {formatDate(user.user.joinDate) || "N/A"}
                   </span>
-                </div>
+                </span>
               </div>
             </>
           ) : (
@@ -416,7 +420,7 @@ const ProfileHeader = ({
               </button>
             </div>
           ) : (
-            <div className="action-btns">
+            <div className="btn-container">
               <button
                 className="btn btn-rectangle secondary white my-2"
                 onClick={handleEditButton}

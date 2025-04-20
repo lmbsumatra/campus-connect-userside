@@ -7,7 +7,7 @@
 }
 
 .header-container .profile-banner {
-  height: 200px;
+  height: 208px;
   background: var(--clr-main);
   position: relative;
   border-radius: 8px;
@@ -64,10 +64,6 @@
   object-fit: cover;
 }
 
-.header-container .profile-details > div {
-  text-align: center;
-}
-
 .header-container .profile-details .profile-label {
   font-weight: bold;
   color: white;
@@ -94,14 +90,13 @@
 }
 
 .header-container .profile-info {
-  gap: 36px;
+  gap: 0px;
 }
 .header-container.profile-header2 .label,
 .header-container.profile-header2 .value {
-  display: block;
+  display: flex;
   color: white;
-  line-height: 1.2;
-  margin-bottom: 8px;
+  gap: 0;
 }
 
 .header-container.profile-header2 .value {
@@ -171,6 +166,21 @@
   background-color: var(--clr-secondary);
 }
 
+.profile-info {
+  display: block;
+}
+
+.profile-info .label123 {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 4px;
+}
+
+.profile-info .label123,
+.profile-info .value123 {
+  margin: 0 !important;
+}
+
 /* For small devices (phones, 425px and below) */
 @media (max-width: 425px) {
   .header-container .profile-banner {
@@ -188,7 +198,6 @@
 
   .header-container .profile-info {
     gap: 15px;
-    text-align: center;
     margin-top: 10px;
   }
 
@@ -205,9 +214,8 @@
 /* For very small devices (phones less than 375px) */
 @media (max-width: 374px) {
   .header-container .profile-banner {
-    padding: 15px 10px;
+    padding: 50px 15px 10px 15px;
   }
-
 
   .header-container .profile-info h1 {
     font-size: 1.2rem;
@@ -217,4 +225,50 @@
     margin: 4px;
     font-size: 0.9rem;
   }
+}
+
+/* For medium devices (tablets: 768px to 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .header-container .profile-banner {
+    height: auto;
+    flex-direction: row;
+    float: left;
+    padding: 20px 15px;
+  }
+
+  /* You can add additional medium-device-specific styling here */
+}
+
+/* For small-to-medium devices (between phones and tablets: 426px to 767px) */
+@media (min-width: 426px) and (max-width: 767px) {
+  .header-container .profile-banner {
+    height: auto;
+    flex-direction: column;
+    float: left;
+    padding: 50px 15px 10px 15px;
+  }
+
+  .header-container .profile-photo {
+    width: 160px;
+    height: 160px;
+  }
+
+  .header-container .profile-info {
+    gap: 20px;
+    margin-top: 15px;
+  }
+
+  .header-container .profile-details {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-container .profile-details > div {
+    margin-bottom: 12px;
+  }
+}
+
+.header-container .btn-container {
+  margin: 0 !important;
+  padding: 0 !important;
 }
