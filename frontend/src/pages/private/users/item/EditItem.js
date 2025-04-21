@@ -568,6 +568,13 @@ const EditItem = () => {
           ) {
             return;
           }
+
+          if (itemType === FOR_RENT && key === "stock") {
+            const stockValue = itemDataState[key].value;
+            if (stockValue === "" || stockValue == null) {
+              return;
+            }
+          }
           const field = itemDataState[key];
           const { hasError, error } = validateInput(key, field.value);
 
@@ -586,6 +593,7 @@ const EditItem = () => {
       });
 
       if (hasErrors) {
+        console.log(errors);
         ShowAlert(
           dispatch,
           "error",
