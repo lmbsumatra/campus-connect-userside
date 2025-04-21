@@ -38,7 +38,7 @@ export const defaultImages = [
   `https://res.cloudinary.com/campusconnectcl/image/upload/v1735920030/cc/upjauojvyedsriwhdcks.svg`,
 ];
 
-export const REACT_APP_API_URL = "https://api.rentupeers.shop/";
+export const REACT_APP_API_URL = "https://api.rentupeers.shop";
 export const baseApi = REACT_APP_API_URL || "https://api.rentupeers.shop";
 export const baseUrl = "https://rentupeers.shop";
 
