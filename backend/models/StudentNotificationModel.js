@@ -4,6 +4,7 @@ const Student = require("./StudentModel");
 const User = require("./UserModel");
 const Listing = require("./ListingModel")(sequelize);
 const Post = require("./PostModel")(sequelize);
+const ItemForSale = require("./ItemForSaleModel")(sequelize);
 
 const StudentNotification = sequelize.define(
   "StudentNotification",
@@ -54,7 +55,16 @@ const StudentNotification = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: Post, // Make sure Post is properly imported/defined
+        model: Post,
+        key: "id",
+      },
+      onDelete: "CASCADE",
+    },
+    item_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: ItemForSale,
         key: "id",
       },
       onDelete: "CASCADE",
@@ -76,6 +86,12 @@ StudentNotification.belongsTo(Listing, {
 StudentNotification.belongsTo(Post, {
   foreignKey: "post_id",
   as: "post",
+});
+
+// Define association with ItemForSale
+StudentNotification.belongsTo(ItemForSale, {
+  foreignKey: "item_id",
+  as: "item",
 });
 
 StudentNotification.belongsTo(User, {

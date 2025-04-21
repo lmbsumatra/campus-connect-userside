@@ -143,7 +143,7 @@ const Notification = ({
           } else if (notif.type === "item_status") {
             route = notificationRoutes.item_status;
           } else if (notif.type === "new-item-for-sale") {
-            route = `/buy/${notif.item_for_sale_id}`;
+            route = `/shop/${notif.item_for_sale_id}`;
           } else if (notif.type === "listing_reviewed") {
             route = notificationRoutes.listing_reviewed;
           } else if (notif.type.includes("report")) {

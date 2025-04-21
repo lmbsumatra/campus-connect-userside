@@ -111,6 +111,7 @@ const notificationController = {
           "createdAt",
           "listing_id",
           "post_id",
+          "item_id",
         ],
         include: [
           {
