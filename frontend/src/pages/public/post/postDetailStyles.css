@@ -464,17 +464,48 @@
 }
 
 /* Item Condition Input Styles */
-.item-condition .input-wrapper {
+.item-condition .input-wrapper,
+.location .input-wrapper,
+.stock .input-wrapper {
   display: flex;
   align-items: center;
 }
 
-.item-condition .input {
+.item-condition .input,
+.location .input,
+.stock .input {
   flex: 1;
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: white;
+}
+
+.stock .input {
+  width: 100%;
+  appearance: textfield;
+}
+
+.stock .input::-webkit-inner-spin-button,
+.stock .input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.item-condition select.input {
+  width: 100%;
+  appearance: menulist; /* Show dropdown arrow */
+  cursor: pointer;
+}
+
+/* Fix dropdown appearance in different browsers */
+.item-condition select.input::-ms-expand {
+  display: block;
+}
+
+.location .input::placeholder {
+  color: #888;
+  font-style: italic;
 }
 
 /* Additional styles for rent/sale posts */
@@ -557,4 +588,59 @@
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   background-color: white;
+}
+
+/* Confirmation Modal Styles */
+.confirmation-modal {
+  padding: 10px;
+}
+
+.confirmation-modal .item-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.confirmation-modal .item-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.confirmation-modal .note {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  border-left: 3px solid #007bff;
+  font-size: 0.9em;
+}
+
+.confirmation-modal .note p {
+  margin-bottom: 0;
+}
+
+/* Restriction Overlay */
+.restriction-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.restriction-message {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  max-width: 80%;
+  color: #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

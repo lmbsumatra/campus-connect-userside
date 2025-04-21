@@ -413,6 +413,8 @@ const MessagePage = () => {
             deliveryMethod: product.deliveryMethod || null,
             paymentMethod: product.paymentMethod || null,
             itemCondition: product.itemCondition || null,
+            location: product.location || null,
+            stock: product.stock || null, // Add stock for sale items
             terms: product.terms || null,
             // Include date and time IDs if they exist
             date_id: product.date_id || null,
@@ -632,6 +634,8 @@ const MessagePage = () => {
             payment_mode: currentOffer.productDetails.paymentMethod || "payUponMeetup",
             transaction_type: isRentalOffer ? "rental" : "sell",
             price: currentOffer.productDetails.offerPrice || 0,
+            location: currentOffer.productDetails.location || "", // Add location field
+            stock: isRentalOffer ? null : (currentOffer.productDetails.stock || 1), // Add stock for sale transactions
             sender_id: userId // Add sender_id for notification
           };
 
@@ -1942,6 +1946,18 @@ const MessagePage = () => {
                                 </p>
                               )}
                               
+                              {message.productDetails?.location && (
+                                <p className="mb-1">
+                                  <strong>Location:</strong> {message.productDetails.location}
+                                </p>
+                              )}
+                              
+                              {message.productDetails?.stock && !message.productDetails?.terms && (
+                                <p className="mb-1">
+                                  <strong>Stock:</strong> {message.productDetails.stock}
+                                </p>
+                              )}
+                              
                               {/* Display terms if available and if product is for rent */}
                               {message.productDetails?.terms && Object.values(message.productDetails.terms).some(term => term) && (
                                 <div className="terms-details mt-2">
@@ -2176,6 +2192,22 @@ const MessagePage = () => {
                     Payment Method:{" "}
                     <span className="value">
                       {currentOffer.productDetails.paymentMethod === "gcash" ? "Online Payment" : "Pay upon meetup"}
+                    </span>
+                  </span>
+                )}
+                {currentOffer.productDetails?.location && (
+                  <span className="label">
+                    Location:{" "}
+                    <span className="value">
+                      {currentOffer.productDetails.location}
+                    </span>
+                  </span>
+                )}
+                {currentOffer.productDetails?.stock && !currentOffer.productDetails?.terms && (
+                  <span className="label">
+                    Stock:{" "}
+                    <span className="value">
+                      {currentOffer.productDetails.stock}
                     </span>
                   </span>
                 )}

@@ -94,6 +94,8 @@ function PostDetail() {
   const [deliveryMethod, setDeliveryMethod] = useState(MEET_UP);
   const [paymentMethod, setPaymentMethod] = useState(PAY_UPON_MEETUP);
   const [itemCondition, setItemCondition] = useState("");
+  const [location, setLocation] = useState(""); // Add location for meetup/pickup
+  const [stock, setStock] = useState(1); // Add stock field for FOR_SALE items
   const [termsValues, setTermsValues] = useState({
     lateCharges: "",
     securityDeposit: "",
@@ -145,6 +147,18 @@ function PostDetail() {
         "warning",
         "Account Banned",
         "Your account is permanently banned. You cannot make offers.",
+        { text: "Ok" }
+      );
+      return;
+    }
+
+    // Check if user is representative or part of an organization for sale items
+    if (approvedPostById.itemType === TO_BUY && !user?.user?.isRepresentative) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Not Eligible",
+        "Only representatives or organization members can sell items.",
         { text: "Ok" }
       );
       return;
@@ -217,21 +231,69 @@ function PostDetail() {
       return;
     }
 
+    // Validate stock for sale items
+    if (approvedPostById.itemType === TO_BUY && (!stock || stock < 1)) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Invalid Stock",
+        "Please enter a valid stock quantity greater than zero."
+      );
+      return;
+    }
+
     if (!selectedDate || !selectedDuration) {
-      alert("Please select a date and duration before offering.");
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Missing Selection",
+        "Please select a date and duration before offering."
+      );
       return;
     }
 
     // Validate price is positive and not empty
     if (!offerPrice || parseFloat(offerPrice) <= 0) {
-      alert("Please enter a valid price greater than zero.");
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Invalid Price",
+        "Please enter a valid price greater than zero."
+      );
+      return;
+    }
+
+    // Validate item condition
+    if (!itemCondition) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Missing Item Condition",
+        "Please select an item condition."
+      );
+      return;
+    }
+
+    // Validate location
+    if (!location) {
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Missing Location",
+        "Please enter a location for meetup/pickup."
+      );
       return;
     }
 
     // Validate image is uploaded
     if (!offerImage) {
       setImageError(true);
-      alert("Please upload an item image.");
+      ShowAlert(
+        dispatch,
+        "warning",
+        "Image Required",
+        "Please upload an item image."
+      );
       return;
     }
 
@@ -450,6 +512,7 @@ function PostDetail() {
         name: approvedPostById.name,
         image: imageUrl,
         price: offerPrice,
+        offerPrice: offerPrice, // Add offerPrice field explicitly for transaction creation
         title: "Offer",
         status: `Date: ${new Date(
           selectedDate
@@ -462,7 +525,10 @@ function PostDetail() {
         deliveryMethod: deliveryMethod,
         paymentMethod: paymentMethod,
         itemCondition: itemCondition,
+        location: location, // Add location field
         terms: approvedPostById.itemType === TO_RENT ? termsValues : null,
+        // Add stock for sale items
+        stock: approvedPostById.itemType === TO_BUY ? stock : null,
         // Add date_id and time_id for transaction creation
         date_id: selectedDateId,
         time_id: selectedDuration.id,
@@ -493,6 +559,7 @@ function PostDetail() {
     if (id) {
       dispatch(fetchApprovedPostById(id));
       dispatch(fetchPostMatchedItems(id));
+      dispatch(fetchUnavailableDates());
     }
   }, [id, dispatch]);
 
@@ -647,7 +714,15 @@ function PostDetail() {
       <div
         className="post-container"
         data-item-type={approvedPostById.itemType}
+        style={{ position: "relative" }}
       >
+        {approvedPostById.itemType === TO_BUY && !user?.user?.isRepresentative && (
+          <div className="restriction-overlay">
+            <div className="restriction-message">
+              Not eligible to sell an item. Only representatives or organization members can sell.
+            </div>
+          </div>
+        )}
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
@@ -948,12 +1023,53 @@ function PostDetail() {
             <div className="group-container item-condition">
               <label className="label">Item Condition</label>
               <div className="input-wrapper">
-                <input
+                <select
                   className="input"
-                  placeholder="Add item condition"
-                  type="text"
                   value={itemCondition}
                   onChange={(e) => setItemCondition(e.target.value)}
+                >
+                  <option value="" disabled>Select item condition</option>
+                  {CONDITIONS.map((condition) => (
+                    <option key={condition} value={condition}>
+                      {condition}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Stock Field - Only for Sale items */}
+            {approvedPostById.itemType === TO_BUY && (
+              <div className="group-container stock">
+                <label className="label">Stock</label>
+                <div className="input-wrapper">
+                  <input
+                    className="input"
+                    placeholder="Enter stock quantity"
+                    type="number"
+                    min="1"
+                    value={stock}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      if (!isNaN(value) && value > 0) {
+                        setStock(value);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Location Field */}
+            <div className="group-container location">
+              <label className="label">Location (for meetup / pick up)</label>
+              <div className="input-wrapper">
+                <input
+                  className="input"
+                  placeholder="Add location"
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                 />
               </div>
             </div>
@@ -1061,85 +1177,106 @@ function PostDetail() {
       {/* Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Offer</Modal.Title>
+          <Modal.Title>{approvedPostById.itemType === TO_RENT ? "Confirm Rental Offer" : "Confirm Sale Offer"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            <strong>Date:</strong> {new Date(selectedDate).toDateString()}
-          </p>
-          <p>
-            <strong>Duration:</strong>
-            {selectedDuration
-              ? selectedDuration.timeFrom && selectedDuration.timeTo
-                ? `${selectedDuration.timeFrom} - ${selectedDuration.timeTo}`
-                : "Invalid duration"
-              : "No duration selected"}
-          </p>
-          <p>
-            <strong>
-              {approvedPostById.itemType === TO_RENT ? "Rental Fee" : "Price"}:
-            </strong>{" "}
-            ₱{offerPrice}
-          </p>
-          <p>
-            <strong>Delivery Method:</strong>{" "}
-            {deliveryMethod === MEET_UP ? "Meet up" : "Pick up"}
-          </p>
-          <p>
-            <strong>Payment Method:</strong>{" "}
-            {paymentMethod === GCASH ? "Gcash" : "Pay upon meetup"}
-          </p>
-          <p>
-            <strong>Item Condition:</strong> {itemCondition || "Not specified"}
-          </p>
-
-          {/* Terms and Conditions in Modal - only for rental posts */}
-          {approvedPostById.itemType === TO_RENT &&
-            (termsValues.lateCharges ||
-              termsValues.securityDeposit ||
-              termsValues.repairReplacement) && (
-              <div className="terms-summary">
-                <strong>Terms and Conditions:</strong>
-                <ul>
-                  {termsValues.lateCharges && (
-                    <li>
-                      <strong>Late Charges:</strong> {termsValues.lateCharges}
-                    </li>
-                  )}
-                  {termsValues.securityDeposit && (
-                    <li>
-                      <strong>Security Deposit:</strong>{" "}
-                      {termsValues.securityDeposit}
-                    </li>
-                  )}
-                  {termsValues.repairReplacement && (
-                    <li>
-                      <strong>Repair and Replacement:</strong>{" "}
-                      {termsValues.repairReplacement}
-                    </li>
-                  )}
-                </ul>
+          <div className="confirmation-modal">
+            <div className="item-card">
+              <div className="item-desc">
+                <p>
+                  <strong>Date:</strong> {new Date(selectedDate).toDateString()}
+                </p>
+                <p>
+                  <strong>Duration:</strong>
+                  {selectedDuration
+                    ? selectedDuration.timeFrom && selectedDuration.timeTo
+                      ? `${selectedDuration.timeFrom} - ${selectedDuration.timeTo}`
+                      : "Invalid duration"
+                    : "No duration selected"}
+                </p>
+                <p>
+                  <strong>
+                    {approvedPostById.itemType === TO_RENT ? "Rental Fee" : "Price"}:
+                  </strong>{" "}
+                  ₱{offerPrice}
+                </p>
+                {approvedPostById.itemType === TO_BUY && (
+                  <p>
+                    <strong>Stock:</strong> {stock}
+                  </p>
+                )}
+                <p>
+                  <strong>Delivery Method:</strong>{" "}
+                  {deliveryMethod === MEET_UP ? "Meet up" : "Pick up"}
+                </p>
+                <p>
+                  <strong>Payment Method:</strong>{" "}
+                  {paymentMethod === GCASH ? "Online Payment" : "Pay upon meetup"}
+                </p>
+                <p>
+                  <strong>Item Condition:</strong> {itemCondition || "Not specified"}
+                </p>
+                <p>
+                  <strong>Location:</strong> {location || "Not specified"}
+                </p>
               </div>
-            )}
 
-          {imagePreview && (
-            <div className="mt-3">
-              <strong>Item Image:</strong>
-              <img
-                src={imagePreview}
-                alt="Offer preview"
-                style={{ width: "150px", display: "block" }}
-                className="mt-2"
-              />
+              {/* Terms and Conditions in Modal - only for rental posts */}
+              {approvedPostById.itemType === TO_RENT &&
+                (termsValues.lateCharges ||
+                  termsValues.securityDeposit ||
+                  termsValues.repairReplacement) && (
+                  <div className="terms-summary">
+                    <strong>Terms and Conditions:</strong>
+                    <ul>
+                      {termsValues.lateCharges && (
+                        <li>
+                          <strong>Late Charges:</strong> {termsValues.lateCharges}
+                        </li>
+                      )}
+                      {termsValues.securityDeposit && (
+                        <li>
+                          <strong>Security Deposit:</strong>{" "}
+                          {termsValues.securityDeposit}
+                        </li>
+                      )}
+                      {termsValues.repairReplacement && (
+                        <li>
+                          <strong>Repair and Replacement:</strong>{" "}
+                          {termsValues.repairReplacement}
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+              {imagePreview && (
+                <div className="mt-3">
+                  <strong>Item Image:</strong>
+                  <img
+                    src={imagePreview}
+                    alt="Offer preview"
+                    style={{ width: "150px", display: "block" }}
+                    className="mt-2"
+                  />
+                </div>
+              )}
             </div>
-          )}
+            
+            <div className="note mt-3">
+              <p>
+                By sending this {approvedPostById.itemType === TO_RENT ? "rental" : "sale"} offer, you agree to the platform's Policies and Terms.
+                The recipient can accept your offer, initiating a transaction with the details above.
+              </p>
+            </div>
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
           <Button variant="primary" onClick={handleConfirmOffer}>
-            Confirm
+            Send {approvedPostById.itemType === TO_RENT ? "Offer" : "Sale Offer"}
           </Button>
         </Modal.Footer>
       </Modal>
