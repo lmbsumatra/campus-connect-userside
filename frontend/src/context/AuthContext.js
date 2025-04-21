@@ -258,7 +258,7 @@ export const AuthProvider = ({ children }) => {
           console.log("You have been logged out due to inactivity");
           isLoggedOut = true; // Prevent multiple logouts
           logoutAdmin(true);
-        }, 5 * 60 * 1000);
+        }, 15 * 60 * 1000);
       }, 200);
     };
 
