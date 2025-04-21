@@ -33,7 +33,7 @@ const AddItemBadges = ({
   };
 
   const handleToggleChange = () => {
-    if (isRepresentative === false) {
+    if (!isPost && isRepresentative === false) {
       return ShowAlert(
         dispatch,
         "warning",

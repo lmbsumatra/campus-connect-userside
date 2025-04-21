@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = process.env.JWT_SECRET;
+require("dotenv").config();
+const JWT_SECRET = process.env.JWT_SECRET || "why do you build me up123";
 
 const authenticateToken = (req, res, next) => {
   // Extract token from Authorization header
