@@ -37,7 +37,7 @@ const RentalRateCalculator = ({ pricePerHour, timeFrom, timeTo }) => {
   const hours = getHoursDifference(timeFrom, timeTo);
   const totalRate = pricePerHour * hours;
 
-  console.log(hours, totalRate, pricePerHour);
+  // console.log(hours, totalRate, pricePerHour);
 
   return {
     total: totalRate.toFixed(2),

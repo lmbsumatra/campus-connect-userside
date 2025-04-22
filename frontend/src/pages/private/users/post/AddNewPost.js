@@ -135,7 +135,7 @@ const AddNewPost = () => {
   );
 
   useEffect(() => {
-    console.log("unavailableDates before processing:", unavailableDates);
+    // console.log("unavailableDates before processing:", unavailableDates);
 
     if (
       unavailableDates.unavailableDates &&
@@ -147,10 +147,10 @@ const AddNewPost = () => {
         reason: item.description,
       }));
 
-      console.log("Formatted unavailable dates:", formatted);
+      // console.log("Formatted unavailable dates:", formatted);
       setFormattedUnavailableDates(formatted);
     } else {
-      console.log("No valid unavailableDates found.");
+      // console.log("No valid unavailableDates found.");
       setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);
@@ -424,7 +424,7 @@ const AddNewPost = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log("Server Response:", response.data);
+      // console.log("Server Response:", response.data);
 
       /* if (socket) {
         socket.emit("new-listing-notification", {

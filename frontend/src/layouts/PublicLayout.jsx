@@ -29,6 +29,8 @@ function PublicLayout() {
   //   return "loading";
   // }
 
+  console.log({ user }, studentUser.userId);
+
   const isDarkTheme = !["/", "/home", "/discover"].includes(location.pathname);
 
   return (

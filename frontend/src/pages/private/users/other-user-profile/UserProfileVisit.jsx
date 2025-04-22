@@ -35,7 +35,7 @@ const UserProfileVisit = () => {
   const { user } = useSelector((state) => state.otherUser);
 
   const shouldFetch = !user || String(user.user?.id) !== String(id);
-  console.log(user);
+  // console.log(user);
   useEffect(() => {
     if (shouldFetch) {
       dispatch(fetchOtherUser(id));

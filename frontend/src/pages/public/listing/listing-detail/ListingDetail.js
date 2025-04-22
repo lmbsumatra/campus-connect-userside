@@ -139,7 +139,7 @@ function ListingDetail() {
   );
 
   useEffect(() => {
-    console.log("unavailableDates before processing:", unavailableDates);
+    // console.log("unavailableDates before processing:", unavailableDates);
 
     if (
       unavailableDates.unavailableDates &&
@@ -151,10 +151,10 @@ function ListingDetail() {
         reason: item.description,
       }));
 
-      console.log("Formatted unavailable dates:", formatted);
+      // console.log("Formatted unavailable dates:", formatted);
       setFormattedUnavailableDates(formatted);
     } else {
-      console.log("No valid unavailableDates found.");
+      // console.log("No valid unavailableDates found.");
       setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);
@@ -497,7 +497,7 @@ function ListingDetail() {
         rentalDetails
       );
 
-      console.log(response.data.message)
+      // console.log(response.data.message)
 
       if (approvedListingById.paymentMethod === GCASH) {
         if (!response.data.clientSecret || !response.data.paymentIntentId) {

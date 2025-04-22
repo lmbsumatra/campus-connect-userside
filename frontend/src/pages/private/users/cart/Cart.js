@@ -194,7 +194,7 @@ const Cart = ({ isOpen, onClose }) => {
     });
   }, [cartItems]);
 
-  console.log({ cartItems });
+  // console.log({ cartItems });
 
   const handleQuantityChange = async (itemId, newQuantity) => {
     await dispatch(updateCartItemQty({ itemId, quantity: newQuantity }));

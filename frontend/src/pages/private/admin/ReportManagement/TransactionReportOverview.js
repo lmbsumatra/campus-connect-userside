@@ -88,7 +88,7 @@ const TransactionReportOverview = () => {
   // Memoize filtered and sorted data
   const processedData = useMemo(() => {
     // Ensure allReports is an array before trying to iterate
-    console.log("Processing reports, value of allReports:", allReports);
+    // console.log("Processing reports, value of allReports:", allReports);
     const reportsToProcess = Array.isArray(allReports) ? allReports : [];
 
     // Now use the safeguarded array

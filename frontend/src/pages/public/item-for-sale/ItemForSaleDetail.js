@@ -371,7 +371,7 @@ function ItemForSaleDetail() {
   );
 
   useEffect(() => {
-    console.log("unavailableDates before processing:", unavailableDates);
+    // console.log("unavailableDates before processing:", unavailableDates);
 
     if (
       unavailableDates.unavailableDates &&
@@ -383,10 +383,10 @@ function ItemForSaleDetail() {
         reason: item.description,
       }));
 
-      console.log("Formatted unavailable dates:", formatted);
+      // console.log("Formatted unavailable dates:", formatted);
       setFormattedUnavailableDates(formatted);
     } else {
-      console.log("No valid unavailableDates found.");
+      // console.log("No valid unavailableDates found.");
       setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);

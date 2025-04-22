@@ -53,7 +53,7 @@ const HeroActionCards = ({ show, hide }) => {
 
   const [showTypeSelection, setShowTypeSelection] = useState(false);
   const token = studentUser?.token || "";
-  console.log(token);
+  // console.log(token);
   const { config } = useSelector((state) => state.systemConfig);
 
   const handleTypeSelection = async (itemType) => {

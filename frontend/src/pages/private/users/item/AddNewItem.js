@@ -136,7 +136,7 @@ const AddNewItem = () => {
   const { loadingUnavailableDates, unavailableDates, errorUnavailableDates } =
     useSelector((state) => state.unavailableDates);
 
-  console.log(unavailableDates);
+  // console.log(unavailableDates);
 
   const { userId } = useSelector(selectStudentUser);
   // comment ko lang to, insufficient resources
@@ -167,7 +167,7 @@ const AddNewItem = () => {
   );
 
   useEffect(() => {
-    console.log("unavailableDates before processing:", unavailableDates);
+    // console.log("unavailableDates before processing:", unavailableDates);
 
     if (
       unavailableDates.unavailableDates &&
@@ -179,10 +179,10 @@ const AddNewItem = () => {
         reason: item.description,
       }));
 
-      console.log("Formatted unavailable dates:", formatted);
+      // console.log("Formatted unavailable dates:", formatted);
       setFormattedUnavailableDates(formatted);
     } else {
-      console.log("No valid unavailableDates found.");
+      // console.log("No valid unavailableDates found.");
       setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);

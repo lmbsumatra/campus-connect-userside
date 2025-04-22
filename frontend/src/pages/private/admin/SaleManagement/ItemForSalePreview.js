@@ -138,7 +138,7 @@ function ItemForSalePreview({ selectedItem, loading, error, isAdmin = false }) {
     return <LoadingItemDetailSkeleton />;
   }
 
-  console.log(selectedItem);
+  // console.log(selectedItem);
 
   return (
     <div className="container-content-admin listing-detail">

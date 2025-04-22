@@ -39,7 +39,7 @@ export const googleLogin = createAsyncThunk(
 
       if (data.token && data.role && data.userId) {
         localStorage.setItem("studentUser", JSON.stringify(data));
-        console.log(data);
+        // console.log(data);
         return data; // Return successful login data
       } else {
         throw new Error("Invalid response data from server.");
@@ -188,7 +188,7 @@ const studentAuthSlice = createSlice({
       state.studentUser = null;
       localStorage.removeItem("studentUser");
       state.error = null; // Clear errors on logout
-      console.log(state.studentUser);
+      // console.log(state.studentUser);
     },
 
     saveUserData: (state, action) => {

@@ -6,6 +6,8 @@ const getStudentById = async (req, res) => {
   const loggedInUserId = req.params.id;
   const studentId = req.params.id;
 
+  console.log({ loggedInUserId, studentId });
+
   try {
     const user = await models.User.findOne({
       where: {
@@ -35,23 +37,21 @@ const getStudentById = async (req, res) => {
         {
           model: models.ItemForSale,
           as: "items",
-          required: true,
-          attributes: ["id"], 
+          attributes: ["id"],
         },
         {
           model: models.Listing,
           as: "listings",
-          required: true,
           attributes: ["id"],
         },
         {
           model: models.Post,
           as: "posts",
-          required: true,
           attributes: ["id"],
         },
       ],
     });
+
 
     if (!user) {
       return res.status(404).json({ error: "Student not found!" });

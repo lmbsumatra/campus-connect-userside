@@ -464,8 +464,8 @@ const EditItem = () => {
     dispatch(updateAvailableDates(serializedDates));
 
     // Log the formatted removed dates and durations for debugging
-    console.log("Formatted Removed Dates:", formattedRemovedDates);
-    console.log("Formatted Removed Durations:", formattedRemovedDurations);
+    // console.log("Formatted Removed Dates:", formattedRemovedDates);
+    // console.log("Formatted Removed Durations:", formattedRemovedDurations);
   };
 
   const handleCategoryChange = (selectedCategory) => {
@@ -593,7 +593,7 @@ const EditItem = () => {
       });
 
       if (hasErrors) {
-        console.log(errors);
+        // console.log(errors);
         ShowAlert(
           dispatch,
           "error",

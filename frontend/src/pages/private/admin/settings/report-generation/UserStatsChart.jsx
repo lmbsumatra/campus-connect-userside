@@ -8,7 +8,7 @@ const UserStatsChart = ({ data, setChartImage }) => {
     if (chartRef.current) {
       html2canvas(chartRef.current, { scale: 2 }).then((canvas) => {
         const imageData = canvas.toDataURL("image/png");
-        console.log("Captured Chart Image (base64):", imageData.substring(0, 100)); // Log first 100 chars
+        // console.log("Captured Chart Image (base64):", imageData.substring(0, 100)); // Log first 100 chars
         setChartImage(imageData);
       });
     }

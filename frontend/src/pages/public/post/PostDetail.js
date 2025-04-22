@@ -439,7 +439,7 @@ function PostDetail() {
   );
 
   useEffect(() => {
-    console.log("unavailableDates before processing:", unavailableDates);
+    // console.log("unavailableDates before processing:", unavailableDates);
 
     if (
       unavailableDates.unavailableDates &&
@@ -451,10 +451,10 @@ function PostDetail() {
         reason: item.description,
       }));
 
-      console.log("Formatted unavailable dates:", formatted);
+      // console.log("Formatted unavailable dates:", formatted);
       setFormattedUnavailableDates(formatted);
     } else {
-      console.log("No valid unavailableDates found.");
+      // console.log("No valid unavailableDates found.");
       setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);
