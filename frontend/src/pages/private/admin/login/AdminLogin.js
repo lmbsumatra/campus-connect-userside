@@ -136,7 +136,10 @@ const AdminLogin = () => {
             <label htmlFor="password" className="form-label">
               Password
             </label>
-            <div className="input-group">
+            <div
+              className="input-group"
+              style={{ display: "flex", alignItems: "center" }}
+            >
               <span className="input-group-text">
                 <i className="bi bi-lock"></i>
               </span>
@@ -154,7 +157,8 @@ const AdminLogin = () => {
                 required
               />
               <button
-                className="btn btn-outline-secondary admin-password-toggle"
+                className="btn btn-outline-secondary admin-password-toggle m-0 p-0 g-0"
+                style={{ top: "-1px" }}
                 type="button"
                 onClick={togglePasswordVisibility}
                 tabIndex="-1"
