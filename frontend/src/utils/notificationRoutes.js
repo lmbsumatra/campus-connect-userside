@@ -1,5 +1,5 @@
 export const notificationRoutes = {
-  listing_status: "/profile/my-listings",
+  listing_status: (notification) => `/rent/${notification.listing_id}`,
   post_status: "/profile/my-posts",
   "new-listing": (notification) => `/rent/${notification.listing_id}`,
   "new-post": (notification) => `/posts/${notification.post_id}`,
@@ -45,6 +45,10 @@ export const determineRoute = (
   isRenter,
   notification
 ) => {
+  if (type === "listing_status" && notification && notification.listing_id) {
+    return `/rent/${notification.listing_id}`;
+  }
+
   if (
     !rental &&
     ![
@@ -52,14 +56,14 @@ export const determineRoute = (
       "post_status",
       "new-listing",
       "new-post",
-      "item_status", // Added item_status here as it doesn't need rental
-      "new-item-for-sale", // Added new-item-for-sale here
+      "item_status",
+      "new-item-for-sale",
       "listing_reviewed",
-      "purchase_accepted", // Added direct purchase routes
+      "purchase_accepted",
       "purchase_declined",
       "purchase_cancelled",
       "purchase_request",
-      // Report routes also don't strictly need rental data for the route itself
+
       "transaction_report",
       "transaction_report_response",
       "report_resolved",
@@ -75,13 +79,15 @@ export const determineRoute = (
     if (typeof directRoute === "string") return directRoute;
     if (
       typeof directRoute === "function" &&
+      notification && // Make sure notification exists
       (type === "new-listing" ||
         type === "new-post" ||
-        type === "new-item-for-sale")
+        type === "new-item-for-sale" ||
+        type === "listing_status")
     ) {
       return directRoute(notification);
     }
-    // Fallback if no direct route or rental data
+
     return notificationRoutes.default;
   }
 
@@ -91,7 +97,8 @@ export const determineRoute = (
     if (
       type === "new-listing" ||
       type === "new-post" ||
-      type === "new-item-for-sale"
+      type === "new-item-for-sale" ||
+      type === "listing_status" // Added listing_status here
     ) {
       return route(notification);
     } else if (type === "handover_confirmed") {
@@ -100,13 +107,11 @@ export const determineRoute = (
       type === "return_confirmed" ||
       type === "rental_completed" ||
       type === "purchase_completed" ||
-      type === "purchase_receipt_confirmed" // Added purchase receipt confirm
+      type === "purchase_receipt_confirmed"
     ) {
       return route(isOwner);
     }
-    // Default function case (might need adjustment based on specific functions)
-    // This assumes other function routes might need isOwner/isRenter/notification
-    // Ensure functions in notificationRoutes are defined to handle these parameters if needed
+
     return route(isOwner, isRenter, notification);
   }
 

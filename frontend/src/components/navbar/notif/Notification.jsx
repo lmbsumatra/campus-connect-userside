@@ -131,7 +131,7 @@ const Notification = ({
 
         if (nonRentalTypes.includes(notif.type)) {
           if (notif.type === "listing_status") {
-            route = notificationRoutes.listing_status;
+            route = notificationRoutes.listing_status(notif);
           } else if (notif.type === "post_status") {
             route = notif.post_id
               ? `/post/${notif.post_id}`
