@@ -4,8 +4,7 @@ export const notificationRoutes = {
   "new-listing": (notification) => `/rent/${notification.listing_id}`,
   "new-post": (notification) => `/posts/${notification.post_id}`,
   item_status: "/profile/my-for-sale",
-  "new-item-for-sale": (notification) =>
-    `/shop/${notification.item_for_sale_id}`,
+  "new-item-for-sale": (notification) => `/shop/${notification.item_id}`,
   listing_reviewed: "/profile/reviews",
   rental_request: "/profile/transactions/owner/requests",
   rental_accepted: "/profile/transactions/renter/to receive",

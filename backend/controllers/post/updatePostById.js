@@ -278,6 +278,45 @@ const updatePostById = async (req, res) => {
     } else {
       // console.log("No new dates or durations provided.");
     }
+    // Fetch owner details
+    const owner = await models.User.findOne({
+      where: { user_id: existingItem.user_id },
+      attributes: ["user_id", "first_name", "last_name"],
+    });
+
+    const ownerName = owner
+      ? `${owner.first_name} ${owner.last_name}`
+      : "Unknown";
+
+    // Create notification in database
+    const adminNotificationData = {
+      type: "new-post",
+      title: "Updated Post awaiting approval",
+      message: ` updated a post: "${existingItem.post_item_name}"`,
+      ownerName,
+      ownerId: owner.user_id,
+      itemId: existingItem.id,
+      itemType: "new-post",
+      timestamp: new Date(),
+      isRead: false,
+    };
+
+    const adminNotification = await models.Notification.create(
+      adminNotificationData,
+      {
+        transaction,
+      }
+    );
+
+    if (req.notifyAdmins) {
+      req.notifyAdmins({
+        ...adminNotification.toJSON(),
+        owner: {
+          id: owner.user_id,
+          name: ownerName,
+        },
+      });
+    }
 
     // Commit the transaction
     await transaction.commit();

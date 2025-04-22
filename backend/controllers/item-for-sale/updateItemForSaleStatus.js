@@ -43,7 +43,7 @@ const updateItemForSaleStatus = async (req, res) => {
         type: "item_status",
         message: messages[status] || "Your item status was updated",
         is_read: false,
-        item_for_sale_id: item.id,
+        item_id: item.id,
       },
       { transaction }
     );
@@ -65,7 +65,7 @@ const updateItemForSaleStatus = async (req, res) => {
           recipient_id: student.user_id,
           type: "new-item-for-sale",
           message: `"${item.item_for_sale_name}" is now available for purchase!`,
-          item_for_sale_id: item.id,
+          item_id: item.id,
           is_read: false,
         })),
         { transaction }
