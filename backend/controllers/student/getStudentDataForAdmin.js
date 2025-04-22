@@ -38,7 +38,10 @@ const getStudentDataForAdmin = async (req, res) => {
         mname: user.middle_name,
         lname: user.last_name,
         role: user.role,
-        
+        listing_slot: user.student.listing_slot,
+        post_slot: user.student.post_slot,
+        item_slot: user.student.item_slot,
+
         emailVerified: user.email_verified,
         stripeAcctId: user.stripe_acct_id,
         email: user.email,

@@ -15,6 +15,7 @@ const logAdminLogout = require("./logAdminLogout");
 const reportGeneration = require("./reportGeneration");
 const updatePermissionLevel = require("./updatePermissionLevel");
 const checkPermissionLevel = require("./checkPermissionLevel");
+const updateStudentSlots = require("./updateStudentSlots");
 
 const AdminController = {
   addEndSemesterDate,
@@ -34,6 +35,7 @@ const AdminController = {
   reportGeneration,
   updatePermissionLevel,
   checkPermissionLevel,
+  updateStudentSlots,
 };
 
 module.exports = AdminController;

@@ -100,4 +100,10 @@ router.get(
   AdminController.checkPermissionLevel
 );
 
+router.put(
+  "/update-student-slots",
+  authenticateToken,
+  AdminController.updateStudentSlots
+);
+
 module.exports = router;
