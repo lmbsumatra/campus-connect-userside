@@ -58,8 +58,8 @@ const PostCard = ({
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const navigate = useNavigate();
   const { studentUser } = useAuth();
-  const userId = studentUser.userId;
-  const token = studentUser.token;
+  const userId = studentUser?.userId;
+  const token = studentUser?.token;
 
   
   const { config } = useSystemConfig(); //   config?.Stripe 

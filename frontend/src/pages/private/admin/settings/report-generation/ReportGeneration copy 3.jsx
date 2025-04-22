@@ -4,6 +4,7 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import axios from "axios";
 import { pdf } from "@react-pdf/renderer";
 import { InputGroup, FormSelect, FormControl, Button } from "react-bootstrap";
+import { baseApi } from "../../../../../utils/consonants";
 
 // Create styles (enhanced for more sections)
 const styles = StyleSheet.create({
@@ -1072,7 +1073,7 @@ const MonthlyReportGenerator = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post("http://localhost:3001/admin/report", {
+      const response = await axios.post(`${baseApi}/admin/report`, {
         month,
         year,
       });

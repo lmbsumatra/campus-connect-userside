@@ -13,6 +13,7 @@ import {
   Spinner,
   Badge,
 } from "react-bootstrap";
+import { baseApi } from "../../../../../utils/consonants";
 
 // Enhanced styles with a more professional color scheme and improved layout
 const styles = StyleSheet.create({
@@ -1364,7 +1365,7 @@ const MonthlyReportGenerator = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post("http://localhost:3001/admin/report", {
+      const response = await axios.post(`${baseApi}/admin/report`, {
         month,
         year,
       });
