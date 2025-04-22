@@ -109,7 +109,7 @@ const AdminViewAccounts = () => {
                     <td>
                       {account.role === "superadmin"
                         ? "Full Access"
-                        : account.admin?.permissionLevel || "None"}
+                        : account.admin?.permissionLevel || "Not Set"}
                     </td>
                     {adminUser?.role === "superadmin" && (
                       <td>
