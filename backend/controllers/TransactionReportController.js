@@ -44,26 +44,34 @@ module.exports = ({ emitNotification }) => {
             ? transaction.Listing?.owner_id
             : transaction.renter_id;
       } else {
-        // 'sell' type
-        // Determine seller and buyer IDs
         const buyerId = transaction.buyer_id;
-        // Prefer seller_id if explicitly set, otherwise fallback to owner_id (associated via ItemForSale)
+
         const sellerId = transaction.seller_id || transaction.owner_id;
 
         // console.log(`Sell Tx: Buyer=${buyerId}, Seller=${sellerId}, Reporter=${reporterId}`);
 
-        // Reportee is the other party in the transaction
         if (reporterId === buyerId) {
           reportedUserId = sellerId;
         } else if (reporterId === sellerId) {
           reportedUserId = buyerId;
         } else {
-          // Edge case: If the reporter is neither buyer nor seller (e.g., admin initiating?), handle appropriately.
-          // For now, assume reporter must be one of the parties.
           return res
             .status(400)
             .json({ error: "Reporter is not part of this sale transaction." });
         }
+      }
+
+      const existingReport = await models.TransactionReport.findOne({
+        where: {
+          reporter_id: reporterId,
+          rental_transaction_id: transaction_id,
+        },
+      });
+
+      if (existingReport) {
+        return res
+          .status(400)
+          .json({ error: "You've already reported this transaction" });
       }
 
       // console.log("Transaction:", JSON.stringify(transaction, null, 2));
@@ -89,11 +97,7 @@ module.exports = ({ emitNotification }) => {
         report_description: reason,
         status: "open",
         transaction_type: normalizedType,
-        // Correctly link based on the type if your model structure demands it
-        rental_transaction_id: transaction_id, // Assuming rental_transaction_id covers both rental and sell
-        // Or potentially use separate keys like:
-        // ...(normalizedType === 'rental' ? { rental_transaction_id: transaction_id } : {}),
-        // ...(normalizedType === 'sell' ? { sale_transaction_id: transaction_id } : {}), // If you add sale_transaction_id
+        rental_transaction_id: transaction_id,
       };
 
       const report = await models.TransactionReport.create(reportData);
@@ -105,7 +109,7 @@ module.exports = ({ emitNotification }) => {
           files.map((file) =>
             models.TransactionEvidence.create({
               transaction_report_id: report.id,
-              file_path: file.path, // Ensure multer saves the path correctly
+              file_path: file.path,
               uploaded_by_id: reporterId,
             })
           )
@@ -154,12 +158,11 @@ module.exports = ({ emitNotification }) => {
     try {
       const { reportId } = req.params;
       const { response: responseText } = req.body;
-      const files = req.files || []; // Ensure files is an array
-      const responderUserId = req.user.userId; // Use the authenticated user's ID
+      const files = req.files || [];
+      const responderUserId = req.user.userId;
 
       const report = await models.TransactionReport.findByPk(reportId, {
         include: [
-          // Include associated users to determine roles
           { model: models.User, as: "reporter", attributes: ["user_id"] },
           { model: models.User, as: "reported", attributes: ["user_id"] },
         ],
@@ -182,6 +185,19 @@ module.exports = ({ emitNotification }) => {
         return res.status(400).json({
           error: `Cannot add response. Report is already ${report.status}.`,
         });
+      }
+
+      const existingResponse = await models.TransactionReportResponse.findOne({
+        where: {
+          transaction_report_id: report.id,
+          user_id: responderUserId,
+        },
+      });
+
+      if (existingResponse) {
+        return res
+          .status(400)
+          .json({ error: "You've already responded to this report" });
       }
 
       const newResponse = await models.TransactionReportResponse.create({
@@ -1103,8 +1119,8 @@ module.exports = ({ emitNotification }) => {
     getEscalatedTransactionReports,
     getTransactionReportById,
     getTransactionReportsByUser,
-    markReportResolved, // Student action
-    escalateReport, // Student action
-    updateEscalatedReportStatusByAdmin, // Admin action
+    markReportResolved,
+    escalateReport,
+    updateEscalatedReportStatusByAdmin,
   };
 };

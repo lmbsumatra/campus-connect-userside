@@ -4,22 +4,36 @@ import "./RentProgress.css";
 import item1 from "../../assets/images/item/item_1.jpg";
 import { useAuth } from "../../context/AuthContext";
 import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import ReportModal from "../../components/report/ReportModalRental";
 import { baseApi } from "../../utils/consonants";
 import { formatDate } from "../../utils/dateFormat";
 import { formatTimeTo12Hour } from "../../utils/timeFormat";
 import useGoBack from "../backNav.jsx";
+import { useDispatch } from "react-redux";
+import { submitTransactionReport } from "../../redux/reports/RentalReportsSlice";
+import AlreadyReportedModal from "./ReportedModal.jsx";
 
 function RentProgress() {
   const goBack = useGoBack();
   const [transaction, setTransaction] = useState(null);
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
   const { studentUser } = useAuth();
   const userId = studentUser ? studentUser.userId : null;
   const { id } = useParams();
   const [showReportModal, setShowReportModal] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
+  const [hasExistingReport, setHasExistingReport] = useState(false);
+  const [existingReportId, setExistingReportId] = useState(null);
+  const [showAlreadyReportedModal, setShowAlreadyReportedModal] =
+    useState(false);
+
+  // Get reports from Redux store
+  const { transactionReportsByUser } = useSelector(
+    (state) => state.transactionReportsByUser
+  );
 
   // Fetch transaction data every 5 seconds.
   useEffect(() => {
@@ -41,12 +55,34 @@ function RentProgress() {
     return () => clearInterval(interval);
   }, [id]);
 
+  // Check for existing reports when data loads
+  useEffect(() => {
+    if (transaction?.rental?.id && transactionReportsByUser) {
+      const existing = transactionReportsByUser.find(
+        (report) => report.rental_transaction_id === transaction.rental.id
+      );
+      setHasExistingReport(!!existing);
+      setExistingReportId(existing?.id);
+    }
+  }, [transaction, transactionReportsByUser]);
+
   // Log the fetched status only when transaction is available.
   useEffect(() => {
     if (transaction && transaction.rental) {
       console.log("Fetched status:", transaction);
     }
   }, [transaction]);
+
+  useEffect(() => {
+    if (studentUser && studentUser.token) {
+      console.log(
+        "Auth token available:",
+        studentUser.token.substring(0, 10) + "..."
+      );
+    } else {
+      console.log("No auth token available in context");
+    }
+  }, [studentUser]);
 
   const getUserType = () => {
     if (!transaction || !transaction.rental) return null;
@@ -74,8 +110,13 @@ function RentProgress() {
     transaction?.rental?.transaction_type === "rental";
   const isSaleTransaction = transaction?.rental?.transaction_type === "sell";
 
+  // Modified report click handler
   const handleReportClick = () => {
-    setShowReportModal(true);
+    if (hasExistingReport) {
+      setShowAlreadyReportedModal(true);
+    } else {
+      setShowReportModal(true);
+    }
   };
 
   const handleSendMessage = () => {
@@ -161,32 +202,39 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
 
   // Called when the report modal form is submitted.
   const handleRentalReportSubmit = async (reportData) => {
-    try {
-      const formData = new FormData();
-      formData.append("reporter_id", reportData.reporter_id);
-      formData.append("reported_entity_id", reportData.reported_entity_id);
-      formData.append("entity_type", reportData.entity_type);
-      formData.append("reason", reportData.reason);
-      formData.append("is_dispute", reportData.is_dispute);
+    const { reason, evidence } = reportData;
+    const transactionId = transaction.rental?.id;
+    const transactionType = transaction.rental?.transaction_type;
 
-      if (reportData.evidence && reportData.evidence.length > 0) {
-        reportData.evidence.forEach((evidence, index) => {
-          formData.append(`files`, evidence.file);
-          formData.append(`file_types[${index}]`, evidence.file_type);
-          formData.append(`uploaded_by[${index}]`, evidence.uploaded_by);
-        });
-      }
-
-      await axios.post(`${baseApi}/api/reports`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      alert("Report submitted successfully!");
-      setShowReportModal(false);
-    } catch (error) {
-      console.error("Error submitting report:", error);
-      alert("Failed to submit report. Please try again.");
+    // Check if token exists
+    if (!studentUser || !studentUser.token) {
+      console.error("No authentication token available");
+      alert(
+        "You need to be logged in to submit a report. Please log in and try again."
+      );
+      return;
     }
+
+    console.log("Using token:", studentUser.token.substring(0, 10) + "...");
+
+    dispatch(
+      submitTransactionReport({
+        transactionId,
+        transactionType,
+        reason,
+        files: evidence.map((e) => e.file),
+        token: studentUser.token,
+      })
+    )
+      .unwrap()
+      .then(() => {
+        alert("Report submitted successfully!");
+        setShowReportModal(false);
+      })
+      .catch((error) => {
+        console.error("Submission error:", error);
+        alert(error.error || "Failed to submit report.");
+      });
   };
 
   if (error) {
@@ -377,7 +425,8 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                   <div className="detail-row total-cost">
                     <span className="detail-label">Total Cost:</span>
                     <span className="detail-value">
-                      {transaction.rental?.amount || calculateTotalCost()} php (Late charges not included)
+                      {transaction.rental?.amount || calculateTotalCost()} php
+                      (Late charges not included)
                     </span>
                   </div>
                 </div>
@@ -663,6 +712,16 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
           entityId={transaction.rental?.id}
           currentUserId={userId}
           transactionType={transaction.rental?.transaction_type}
+        />
+
+        <AlreadyReportedModal
+          show={showAlreadyReportedModal}
+          onClose={() => setShowAlreadyReportedModal(false)}
+          onViewDetails={(reportId) => {
+            navigate(`/reports/${reportId}`);
+            setShowAlreadyReportedModal(false);
+          }}
+          reportId={existingReportId}
         />
       </div>
     </>

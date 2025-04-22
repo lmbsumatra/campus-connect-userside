@@ -9,28 +9,42 @@ const BASE_URL = `${baseApi}/api/transaction-reports`;
 export const submitTransactionReport = createAsyncThunk(
   "reports/submitTransaction",
   async (
-    { transactionId, transactionType, reason, files },
+    { transactionId, transactionType, reason, files, token },
     { rejectWithValue }
   ) => {
     try {
+      console.log(
+        "Submitting report with token:",
+        token ? "Token exists" : "Token is missing"
+      );
+
       const formData = new FormData();
       formData.append("transaction_id", transactionId);
       formData.append("transaction_type", transactionType);
       formData.append("reason", reason);
       files.forEach((file) => formData.append("evidence", file));
 
-      const response = await axios.post(`${BASE_URL}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      // Make sure the full URL is correct (not just BASE_URL)
+      const fullUrl = `${BASE_URL}`;
+      console.log("Submitting to URL:", fullUrl);
+
+      // Make sure Authorization header is correctly formatted
+      const response = await axios.post(fullUrl, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       return response.data;
     } catch (error) {
+      console.error("API Error:", error.response?.status, error.response?.data);
       return rejectWithValue(
         error.response ? error.response.data : error.message
       );
     }
   }
 );
-
 // Thunk to submit a report response
 export const submitReportResponse = createAsyncThunk(
   "reports/submitResponse",

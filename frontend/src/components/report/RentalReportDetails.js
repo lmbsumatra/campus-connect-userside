@@ -53,6 +53,11 @@ const RentalReportDetails = () => {
   const isReportee =
     reportDetails && currentUserId === reportDetails.reported_id;
 
+  // Add response check
+  const hasResponded = reportDetails?.responses?.some(
+    (response) => response.user_id === currentUserId
+  );
+
   useEffect(() => {
     if (token) {
       dispatch(fetchReportDetails({ reportId, token }));
@@ -394,6 +399,7 @@ const RentalReportDetails = () => {
 
           {/* Conditional UI based on user role */}
           {isReportee &&
+            !hasResponded &&
             reportDetails.status !== "resolved" &&
             reportDetails.status !== "escalated" &&
             !reportDetails.status.includes("admin_") && (
