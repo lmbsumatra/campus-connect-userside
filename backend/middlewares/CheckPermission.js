@@ -21,6 +21,10 @@ const checkPermission = (requiredPermission) => {
       return res.status(403).json({ message: "Admin account not found." });
     }
 
+    if (!adminData.permissionLevel) {
+      return res.status(403).json({ message: "Access Denied." });
+    }
+
     if (adminData.permissionLevel === "DeniedAccess") {
       return res.status(403).json({ message: "Access Denied." });
     }
