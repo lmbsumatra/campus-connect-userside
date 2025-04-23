@@ -11,7 +11,7 @@
   width: 250px;
   padding: 10px;
 }
-.nav-item{
+.nav-item {
   position: relative;
 }
 .admin-menu .triangle {
@@ -36,18 +36,17 @@
   }
 }
 
-
 .user-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-
 }
 .dropdown-header {
-  display: flex;
+  display: flex !important;
   align-items: center;
   padding: 15px;
   border-bottom: 1px solid var(--clr-light);
+  gap: 5px;
 }
 
 .profile-img {
@@ -111,38 +110,101 @@
 /* Media query for small devices */
 @media (max-width: 600px) {
   .admin-menu {
-    top: 0; /* Position at the top */
-    right: 0; /* Align to the right */
-    width: 100vw; /* Full width */
-    height: 100vh; /* Full height */
-    border-radius: 0; /* Remove rounded corners */
-    padding: 0; /* Remove padding */
-    box-shadow: none; /* Remove shadow */
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    width: 250px;
+    height: auto;
+    max-height: 80vh;
+    border-radius: 10px;
+    padding: 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    z-index: 1001;
+    overflow: hidden;
   }
 
   .admin-menu .triangle {
-    display: none; /* Hide triangle on small screens */
+    display: block;
+    position: absolute;
+    top: -10px;
+    right: 20px;
   }
 
+  /* Center profile section */
   .dropdown-header {
-    padding: 20px; /* Adjust padding */
-    border-bottom: none; /* Remove border */
-    background: var(--clr-primary); /* Change background */
-    color: var(--clr-white); /* Change text color */
-    text-align: center; /* Center text */
+    position: relative;
+    padding: 15px 10px;
+    background: var(--clr-primary);
+    color: var(--clr-white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .profile-img {
+    width: 50px;
+    height: 50px;
+    margin: 0 0 10px 0;
+    border-radius: 50%;
+  }
+
+  .profile-info {
+    width: 100%;
+    text-align: center;
   }
 
   .profile-info h5 {
-    font-size: 24px; /* Increase size */
+    font-size: 16px;
+    color: var(--clr-white);
+    margin: 0;
   }
 
+  .close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+  }
+
+  /* Center logout button */
   .dropdown-content {
-    flex-direction: column; /* Stack items */
-    width: 100%; /* Full width */
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .dropdown-btn {
-    justify-content: center; /* Center items */
-    padding: 15px; /* Adjust padding */
+    padding: 12px 20px;
+    margin: 0;
+    width: 80%;
+    border-radius: 50px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+  }
+
+  .dropdown-btn .icon {
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  .dropdown-btn h6 {
+    font-size: 14px;
+    margin: 0;
+    color: var(--clr-secondary);
   }
 }

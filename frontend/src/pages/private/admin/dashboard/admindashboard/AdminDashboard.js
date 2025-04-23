@@ -137,7 +137,20 @@ const AdminDashboard = () => {
         break;
       case "New Report":
         route = `/admin/reports/${activity.entity_type}/${activity.entity_id}`;
-        break;
+        navigate(route, {
+          state: {
+            reportDetails: {
+              id: activity.id,
+              reporter: activity.reporter,
+              reason: activity.reason,
+              status: activity.status,
+              createdAt: activity.createdAt,
+              lastUpdated: activity.lastUpdated,
+              reviewedBy: activity.reviewedBy,
+            },
+          },
+        });
+        return;
       case "New Sale":
       case "Sale Update":
         route = `/admin/sales/item-approval/${activity.saleId}`;
@@ -282,8 +295,23 @@ const AdminDashboard = () => {
                   <td>{new Date(activity.date).toLocaleDateString()}</td>
                   <td>
                     <button
-                      className="view-btn"
+                      className={`view-btn ${
+                        activity.type === "New Report" &&
+                        activity.isEntityDeleted
+                          ? "deleted-entity"
+                          : ""
+                      }`}
                       onClick={() => handleViewActivity(activity)}
+                      disabled={
+                        activity.type === "New Report" &&
+                        activity.isEntityDeleted
+                      }
+                      title={
+                        activity.type === "New Report" &&
+                        activity.isEntityDeleted
+                          ? "Report kept for records - the original entity has been deleted"
+                          : "Manage this report"
+                      }
                     >
                       Manage
                     </button>
