@@ -119,6 +119,33 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
     navigate(`/${formattedTab}`);
   };
 
+  const clearSearch = () => {
+    setKeyword("");
+    setShowPopUpSearchBarResults(false);
+
+    // Clear query parameter from URL
+    const currentPath = location.pathname;
+    const hasQueryParam = location.search.includes("q=");
+
+    if (hasQueryParam) {
+      // Keep only non-search related query params if they exist
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.delete("q");
+
+      // If there are other query params, keep them
+      const remainingParams = searchParams.toString();
+      const newPath = remainingParams
+        ? `${currentPath}?${remainingParams}`
+        : currentPath;
+
+      navigate(newPath, { replace: true });
+    }
+
+    if (searchRef.current) {
+      searchRef.current.focus();
+    }
+  };
+
   const togglePopup = (popup) => {
     setOpenPopup((prev) => (prev === popup ? null : popup));
   };
@@ -191,6 +218,15 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
               onFocus={handleSearchFocus}
               onBlur={() => setIsSearchFocused(false)}
             />
+            {keyword && (
+              <button
+                className={`clear-search-btn ${isDarkTheme ? "dark" : "light"}`}
+                onClick={clearSearch}
+                aria-label="Clear search"
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            )}{" "}
           </div>
         </div>
 

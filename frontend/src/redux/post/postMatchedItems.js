@@ -18,7 +18,7 @@ export const fetchPostMatchedItems = createAsyncThunk(
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      // console.log("matched", data.matchedItems); // Log parsed data
+      console.log("matched", data.matchedItems); // Log parsed data
       return data.matchedItems;
     } catch (error) {
       // console.error("Error fetching matched items:", error);

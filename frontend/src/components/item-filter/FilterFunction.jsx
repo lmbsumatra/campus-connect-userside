@@ -1,91 +1,142 @@
-const FilterFunction = (items, filters, usePriceRange = true) => {
+const FilterFunction = (items = [], filters = {}, usePriceRange = true) => {
+  if (!Array.isArray(items)) return [];
+
   let filteredItems = [...items];
 
-  if (!filters) return items;
+  if (!filters || typeof filters !== "object") return filteredItems;
 
-  if (filters.category && filters.category !== "") {
+  const {
+    category,
+    deliveryMethod,
+    paymentMethod,
+    condition,
+    college,
+    priceRange,
+    sort,
+    sortBy,
+    lateCharges,
+    securityDeposit,
+    repairReplacement,
+    dateAvailable,
+    status,
+  } = filters;
+
+  if (category?.trim()) {
+    filteredItems = filteredItems.filter((item) => item?.category === category);
+  }
+
+  if (deliveryMethod?.trim()) {
     filteredItems = filteredItems.filter(
-      (item) => item.category === filters.category
+      (item) => item?.deliveryMethod === deliveryMethod
     );
   }
 
-  if (filters.deliveryMethod && filters.deliveryMethod !== "") {
+  if (paymentMethod?.trim()) {
     filteredItems = filteredItems.filter(
-      (item) => item.deliveryMethod === filters.deliveryMethod
+      (item) => item?.paymentMethod === paymentMethod
     );
   }
 
-  if (filters.paymentMethod && filters.paymentMethod !== "") {
-    filteredItems = filteredItems.filter(
-      (item) => item.paymentMethod === filters.paymentMethod
-    );
-  }
-
-  if (
-    filters.condition &&
-    Array.isArray(filters.condition) &&
-    filters.condition.length > 0
-  ) {
+  if (Array.isArray(condition) && condition.length > 0) {
     filteredItems = filteredItems.filter((item) =>
-      filters.condition.includes(item.condition)
+      condition.includes(item?.condition)
     );
   }
 
-  if (
-    filters.college &&
-    Array.isArray(filters.college) &&
-    filters.college.length > 0
-  ) {
+  if (Array.isArray(college) && college.length > 0) {
     filteredItems = filteredItems.filter((item) =>
-      filters.college.includes(item.college)
+      college.includes(item?.college)
     );
   }
 
   if (
     usePriceRange &&
-    filters.priceRange &&
-    Array.isArray(filters.priceRange) &&
-    filters.priceRange.length === 2
+    Array.isArray(priceRange) &&
+    priceRange.length === 2 &&
+    typeof priceRange[0] === "number" &&
+    typeof priceRange[1] === "number"
   ) {
-    const [minPrice, maxPrice] = filters.priceRange;
-    filteredItems = filteredItems.filter(
-      (item) => item.price >= minPrice && item.price <= maxPrice
-    );
-  }
-
-  if (filters.sortBy === "price_asc") {
-    filteredItems = [...filteredItems].sort((a, b) => a.price - b.price);
-  } else if (filters.sortBy === "price_desc") {
-    filteredItems = [...filteredItems].sort((a, b) => b.price - a.price);
-  }
-
-  if (filters.lateCharges) {
-    filteredItems = filteredItems.filter((item) => item.lateCharges > 0);
-  }
-
-  if (filters.securityDeposit) {
-    filteredItems = filteredItems.filter((item) => item.securityDeposit > 0);
-  }
-
-  if (filters.repairReplacement) {
-    filteredItems = filteredItems.filter(
-      (item) => item.repairReplacement !== (null || undefined || "")
-    );
-  }
-
-  if (filters.dateAvailable && filters.dateAvailable !== "") {
-    filteredItems = filteredItems.filter((item) =>
-      item.availableDates.some(
-        (dateObj) => dateObj.date === filters.dateAvailable
-      )
-    );
-  }
-
-  if (filters.status && filters.status !== "") {
+    const [minPrice, maxPrice] = priceRange;
     filteredItems = filteredItems.filter((item) => {
-      return item.status === filters.status;
+      const price = item?.price ?? 0;
+      return price >= minPrice && price <= maxPrice;
     });
   }
+
+  switch (sort) {
+    case "priceAsc":
+      filteredItems.sort((a, b) => (a?.price ?? 0) - (b?.price ?? 0));
+      break;
+    case "priceDesc":
+      filteredItems.sort((a, b) => (b?.price ?? 0) - (a?.price ?? 0));
+      break;
+    case "nameAsc":
+      filteredItems.sort((a, b) =>
+        (a?.name ?? "").localeCompare(b?.name ?? "")
+      );
+      break;
+    case "nameDesc":
+      filteredItems.sort((a, b) =>
+        (b?.name ?? "").localeCompare(a?.name ?? "")
+      );
+      break;
+    case "ratingAsc":
+      filteredItems.sort((a, b) =>
+        (a?.averageRating ?? "").localeCompare(b?.averageRating ?? "")
+      );
+      break;
+    case "ratingDesc":
+      filteredItems.sort((a, b) =>
+        (b?.averageRating ?? "").localeCompare(a?.averageRating ?? "")
+      );
+      break;
+    case "dateAsc":
+      filteredItems.sort((a, b) =>
+        (a?.createdAt ?? "").localeCompare(b?.createdAt ?? "")
+      );
+      break;
+    case "dateDesc":
+      filteredItems.sort((a, b) =>
+        (b?.createdAt ?? "").localeCompare(a?.createdAt ?? "")
+      );
+      break;
+    default:
+      break;
+  }
+
+  if (sortBy === "price_asc") {
+    filteredItems.sort((a, b) => (a?.price ?? 0) - (b?.price ?? 0));
+  } else if (sortBy === "price_desc") {
+    filteredItems.sort((a, b) => (b?.price ?? 0) - (a?.price ?? 0));
+  }
+
+  if (lateCharges) {
+    filteredItems = filteredItems.filter((item) => item?.lateCharges > 0);
+  }
+
+  if (securityDeposit) {
+    filteredItems = filteredItems.filter((item) => item?.securityDeposit > 0);
+  }
+
+  if (repairReplacement) {
+    filteredItems = filteredItems.filter(
+      (item) =>
+        item?.repairReplacement !== null &&
+        item?.repairReplacement !== undefined &&
+        item?.repairReplacement !== ""
+    );
+  }
+
+  if (dateAvailable?.trim()) {
+    filteredItems = filteredItems.filter((item) =>
+      item?.availableDates?.some((dateObj) => dateObj?.date === dateAvailable)
+    );
+  }
+
+  if (status?.trim()) {
+    filteredItems = filteredItems.filter((item) => item?.status === status);
+  }
+
   return filteredItems;
 };
 

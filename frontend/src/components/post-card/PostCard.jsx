@@ -324,7 +324,7 @@ const PostCard = ({
                     )}
                   </Tooltip>
                 </div>
-                <div className="action-btns">
+                {/* <div className="action-btns">
                   <button className="btn btn-rectangle primary">Offer</button>
                   <button className="btn btn-icon primary">
                     <img src={cartIcon} alt="Message poster" />
@@ -360,7 +360,7 @@ const PostCard = ({
                       )}
                     </div>
                   )}
-                </div>
+                </div> */}
               </div>
               <div className="img-holder">
                 <img
@@ -376,7 +376,7 @@ const PostCard = ({
             </div>
             {isYou && (
               <div
-                className={`item-status ${ItemStatus(item.status).className}`}
+                className={`mt-2 item-status ${ItemStatus(item.status).className}`}
               >
                 {ItemStatus(item.status).label}
               </div>

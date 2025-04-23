@@ -72,12 +72,6 @@ const FilterToolbar = ({
     handleFilterChange("priceRange", value);
   };
 
-  const handleSortChange = (sortValue) => {
-    handleFilterChange("sort", sortValue);
-    setActiveTab(sortValue.toLowerCase());
-    setShowPopup(null);
-  };
-
   const handleCategoryChange = (category) => {
     handleFilterChange("category", category);
     setShowPopup(null);
@@ -98,6 +92,20 @@ const FilterToolbar = ({
     }
   };
 
+  const handleSortChange = (sortKey) => {
+    const currentSort = filters.sort;
+    let newSort;
+
+    if (currentSort === `${sortKey}Asc`) {
+      newSort = `${sortKey}Desc`;
+    } else {
+      newSort = `${sortKey}Asc`;
+    }
+
+    handleFilterChange("sort", newSort);
+    setActiveTab(newSort);
+  };
+
   return (
     <div className="filter-toolbar">
       {/* Scrollable Tabs */}
@@ -111,35 +119,42 @@ const FilterToolbar = ({
 
         <div className="tabs-wrapper">
           <div ref={tabsRef} className="tabs">
+            {!isPost && (
+              <div
+                className={`tab-item ${
+                  activeTab.includes("price") ? "active" : ""
+                }`}
+                onClick={() => handleSortChange("price")}
+              >
+                Price {filters.sort === "priceDesc" ? "↓" : "↑"}
+              </div>
+            )}
             <div
-              className={`tab-item ${activeTab === "price" ? "active" : ""}`}
-              onClick={() => {
-                setActiveTab("price");
-                setShowPopup("price");
-              }}
+              className={`tab-item ${
+                activeTab.includes("name") ? "active" : ""
+              }`}
+              onClick={() => handleSortChange("name")}
             >
-              Price <span className="ms-1">↕</span>
-            </div>
-            <div
-              className={`tab-item ${activeTab === "category" ? "active" : ""}`}
-              onClick={() => {
-                setActiveTab("category");
-                setShowPopup("category");
-              }}
-            >
-              Category
+              Name {filters.sort === "nameDesc" ? "Z→A" : "A→Z"}
             </div>
             <div
               className={`tab-item ${
-                activeTab === "condition" ? "active" : ""
+                activeTab.includes("date") ? "active" : ""
               }`}
-              onClick={() => {
-                setActiveTab("condition");
-                setShowPopup("condition");
-              }}
+              onClick={() => handleSortChange("date")}
             >
-              Condition
+              {filters.sort === "dateDesc" ? "Newest" : "Oldest"}
             </div>
+            {!isPost && (
+              <div
+                className={`tab-item ${
+                  activeTab.includes("rating") ? "active" : ""
+                }`}
+                onClick={() => handleSortChange("rating")}
+              >
+                Rating {filters.sort === "ratingDesc" ? "↓" : "↑"}
+              </div>
+            )}
             <div
               className={`tab-item ${activeTab === "advanced" ? "active" : ""}`}
               onClick={toggleAdvancedFilter}

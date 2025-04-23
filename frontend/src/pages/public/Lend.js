@@ -31,13 +31,13 @@ const Lend = () => {
     dispatch(fetchAllApprovedPosts({ keyword }));
   }, [dispatch, keyword]); // Added keyword as dependency
 
-    useEffect(() => {
-      if (keyword !== currentKeyword) {
-        setCurrentKeyword(keyword);
-        dispatch(fetchAllApprovedPosts({ keyword }));
-        setFilters({ ...defaultFilters });
-      }
-    }, [dispatch, keyword, currentKeyword]);
+  useEffect(() => {
+    if (keyword !== currentKeyword) {
+      setCurrentKeyword(keyword);
+      dispatch(fetchAllApprovedPosts({ keyword }));
+      setFilters({ ...defaultFilters });
+    }
+  }, [dispatch, keyword, currentKeyword]);
 
   const { allApprovedPosts, loadingAllApprovedPosts, errorAllApprovedPosts } =
     useSelector((state) => state.allApprovedPosts);
@@ -96,6 +96,7 @@ const Lend = () => {
             showAdvancefilter={showAdvancefilter}
             allApprovedPosts={allApprovedPosts}
             setFilteredItems={setFilteredItems}
+            isPost={true}
           />
 
           {showAdvancefilter && (

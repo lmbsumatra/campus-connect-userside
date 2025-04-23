@@ -3,6 +3,8 @@ const sequelize = require("../../config/database");
 const Fuse = require("fuse.js");
 const { Op } = require("sequelize");
 
+
+
 const getAllAvailable = async (req, res) => {
   const userId = req.query.userId || "";
 
