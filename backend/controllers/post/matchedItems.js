@@ -234,7 +234,7 @@ const matchedItems = async (req, res) => {
     const postSpecs = formattedPost.specs || "";
 
     const fuse = new Fuse(formattedItems, {
-      keys: ["name", "specsArray", "descArray"],
+      keys: ["name", "specsArray", "descArray", "tags"],
       threshold: 0.3,
       ignoreLocation: true,
       includeScore: true,
@@ -243,7 +243,6 @@ const matchedItems = async (req, res) => {
     const searchTermsArray = [
       ...postTags,
       postName,
-      postCategory,
       ...formattedPost.specsArray,
       ...formattedPost.descArray,
     ].filter(Boolean);
