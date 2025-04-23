@@ -53,80 +53,34 @@ const ReportDashboard = () => {
   }, [reports]);
 
   const handleView = (report) => {
-    navigate(
-      `/admin/reports/${report.entity_type}/${report.reported_entity_id}`,
-      {
-        state: {
-          reportDetails: {
-            id: report.id,
-            reporter: `${report.reporter.first_name} ${report.reporter.last_name}`,
-            reason: report.reason,
-            status: report.status,
-            createdAt: formatDate(report.createdAt),
-            lastUpdated: report.lastUpdated
-              ? formatDate(report.lastUpdated)
-              : null,
-            reviewedBy: report.reviewedBy || null,
+    // Check if we have a proper entity name (not the "[Deleted...]" placeholder)
+    if (report.entity_name && !report.entity_name.startsWith("[Deleted")) {
+      navigate(
+        `/admin/reports/${report.entity_type}/${report.reported_entity_id}`,
+        {
+          state: {
+            reportDetails: {
+              id: report.id,
+              reporter: `${report.reporter.first_name} ${report.reporter.last_name}`,
+              reason: report.reason,
+              status: report.status,
+              createdAt: formatDate(report.createdAt),
+              lastUpdated: report.lastUpdated
+                ? formatDate(report.lastUpdated)
+                : null,
+              reviewedBy: report.reviewedBy || null,
+              entityExists: true,
+            },
           },
-        },
-      }
-    );
+        }
+      );
+    } else {
+      // Show a modal or alert that the entity no longer exists
+      alert(
+        `Cannot view - ${report.entity_type} #${report.reported_entity_id} was deleted. Report kept for record keeping.`
+      );
+    }
   };
-
-  // const handleDelete = async (reportId) => {
-  //   dispatch(
-  //     showNotification({
-  //       type: "warning",
-  //       title: "Delete Report?",
-  //       text: "Are you sure you want to delete this report? This action cannot be undone.",
-  //       customButton: {
-  //         text: "Yes, Delete",
-  //         action: async () => {
-  //           try {
-  //             const response = await fetch(
-  //               `${baseApi}/api/reports/${reportId}`,
-  //               {
-  //                 method: "DELETE",
-  //                 headers: {
-  //                   "Content-Type": "application/json",
-  //                   Authorization: `Bearer ${adminUser.token}`,
-  //                 },
-  //               }
-  //             );
-
-  //             if (response.ok) {
-  //               await ShowAlert(
-  //                 dispatch,
-  //                 "success",
-  //                 "Report Deleted",
-  //                 "Report deleted successfully."
-  //               );
-  //               setOriginalData((prevData) =>
-  //                 prevData.filter((report) => report.id !== reportId)
-  //               );
-  //             } else {
-  //               await ShowAlert(
-  //                 dispatch,
-  //                 "error",
-  //                 "Report Deletion Failed",
-  //                 "Failed to delete the report. Please try again."
-  //               );
-  //             }
-  //           } catch (error) {
-  //             console.error("Error deleting the report:", error);
-  //             await ShowAlert(
-  //               dispatch,
-  //               "error",
-  //               "Error",
-  //               "An error occurred while deleting the report."
-  //             );
-  //           }
-  //         },
-  //         showCancel: true, // Enables the cancel button
-  //       },
-  //     })
-  //   );
-  // };
 
   const getStatusInfo = (status) => {
     const { label, className } = ReportStatus(status);
@@ -237,28 +191,30 @@ const ReportDashboard = () => {
 
   const data = displayedData.map((report) => {
     const { label, className } = getStatusInfo(report.status);
+    const entityTypeDisplay = report.entity_type
+      ? report.entity_type.charAt(0).toUpperCase() + report.entity_type.slice(1)
+      : "Unknown";
+
+    const reportedName =
+      report.entity_name || `[Deleted ${report.entity_type}]`;
+
     return [
-      <>
-        {report.reporter.first_name} {report.reporter.last_name}
-      </>,
-      report.entity_name,
+      `${report.reporter.first_name} ${report.reporter.last_name}`,
+      reportedName,
       report.reason,
-      report.entity_type.charAt(0).toUpperCase() + report.entity_type.slice(1),
+      entityTypeDisplay,
       formatDate(report.createdAt),
       <span className={`badge ${className}`}>{label}</span>,
       <div className="d-flex flex-column align-items-center gap-1">
         <button
           className="btn btn-action view"
           onClick={() => handleView(report)}
+          disabled={
+            !report.entity_name || report.entity_name.startsWith("[Deleted")
+          }
         >
           View
         </button>
-        {/* <button
-          className="btn btn-action delete"
-          onClick={() => handleDelete(report.id)}
-        >
-          Delete
-        </button> */}
       </div>,
     ];
   });

@@ -289,6 +289,20 @@ exports.getAllRecentActivities = async (req, res) => {
           date: report.createdAt,
           entity_type: report.entity_type,
           entity_id: report.reported_entity_id,
+          id: report.id,
+          reporter: `${report.reporter.first_name} ${report.reporter.last_name}`,
+          reason: report.reason,
+          status: report.status,
+          createdAt: report.createdAt.toISOString(),
+          lastUpdated: report.lastUpdated
+            ? report.lastUpdated.toISOString()
+            : null,
+          reviewedBy: report.reviewedBy || null,
+          isEntityDeleted:
+            (report.entity_type === "user" && !report.reportedUser) ||
+            (report.entity_type === "listing" && !report.reportedListing) ||
+            (report.entity_type === "post" && !report.reportedPost) ||
+            (report.entity_type === "sale" && !report.reportedSale),
         };
       }),
 

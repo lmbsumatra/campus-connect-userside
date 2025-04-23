@@ -123,6 +123,11 @@ const getBulkEntityNames = async (entityRefs) => {
     return acc;
   }, {});
 
+  // Initialize default values first
+  entityRefs.forEach((ref) => {
+    result[ref] = `[Deleted ${ref.split("_")[0]}]`; // Default value if not found
+  });
+
   // Listings
   if (grouped.listing) {
     const listings = await models.Listing.findAll({
