@@ -156,7 +156,7 @@ const getAllAvailable = async (req, res) => {
           paymentMethod: item.payment_mode,
           condition: item.item_condition,
           location: item.location,
-          averageRating,
+          averageRating: Number(item.averageRating) || 0,
           isFollowingBuyer,
           sellerId: item.seller_id,
           sellerFname: item.seller.first_name,

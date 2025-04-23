@@ -119,7 +119,7 @@ const adminItemForSaleById = async (req, res) => {
         createdAt: review.created_at,
         reviewerId: review.reviewer_id,
       })),
-      averageRating,
+      averageRating: Number(item.averageRating) || 0,
       // Include organization info if exists
       hasRepresentative: !!org && !!org.representative,
       organization: org

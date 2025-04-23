@@ -398,7 +398,7 @@ const ItemCard = ({
               {item.averageRating ? (
                 <div className="d-flex flex-row align-items-center">
                   <span className="fs-5 fw-bold text-success">
-                    {item.averageRating.toFixed(2)}
+                    {item?.averageRating?.toFixed(2)}
                   </span>
                   <span className="ms-1 text-warning">
                     <i
