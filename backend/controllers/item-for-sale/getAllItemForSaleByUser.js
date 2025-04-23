@@ -18,6 +18,11 @@ const getAllItemForSaleByUser = async (req, res) => {
           model: models.Date,
           as: "available_dates",
           required: false,
+          where: {
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
+          },
           include: [
             {
               model: models.Duration,

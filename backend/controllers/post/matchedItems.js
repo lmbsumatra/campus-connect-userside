@@ -1,9 +1,10 @@
 const { models } = require("../../models");
 const sequelize = require("../../config/database");
 const Fuse = require("fuse.js");
+const { Op } = require("sequelize");
 
 const parseToArray = (input) => {
-  // console.log("parseToArray input:", input);
+  console.log("parseToArray input:", input);
   if (!input) return [];
 
   try {
@@ -12,7 +13,8 @@ const parseToArray = (input) => {
       try {
         const parsed = JSON.parse(input);
         if (Array.isArray(parsed)) return parsed;
-        if (typeof parsed === "object" && parsed !== null) return Object.values(parsed);
+        if (typeof parsed === "object" && parsed !== null)
+          return Object.values(parsed);
       } catch {
         return input === "" ? [] : input.split(" ");
       }
@@ -25,9 +27,27 @@ const parseToArray = (input) => {
   }
 };
 
+const cleanSpecValues = (specs) => {
+  const array = parseToArray(specs);
+  return array
+    .flatMap((val) => {
+      try {
+        if (typeof val === "string") {
+          // Try parsing if it's a JSON string
+          const obj = JSON.parse(val);
+          if (typeof obj === "object") return Object.values(obj);
+        }
+      } catch {
+        // If not JSON, just return the string itself
+      }
+      return val;
+    })
+    .filter(Boolean);
+};
+
 const matchedItems = async (req, res) => {
   try {
-    // console.log("Request params:", req.params);
+    console.log("Request params:", req.params);
 
     const post = await models.Post.findOne({
       where: {
@@ -59,11 +79,11 @@ const matchedItems = async (req, res) => {
     });
 
     if (!post) {
-      // console.log("Post not found");
+      console.log("Post not found");
       return res.status(404).json({ error: "Post not found" });
     }
 
-    // console.log("Fetched Post:", post);
+    console.log("Fetched Post:", post);
 
     const formattedPost = {
       id: post.id,
@@ -77,7 +97,7 @@ const matchedItems = async (req, res) => {
       desc: post.description,
       descArray: parseToArray(post.description),
       specs: post.specifications,
-      specsArray: parseToArray(post.specifications),
+      specsArray: JSON.parse(post.specifications),
       images: JSON.parse(post.images),
       rentalDates: post.rental_dates.map((date) => ({
         id: date.id,
@@ -100,7 +120,7 @@ const matchedItems = async (req, res) => {
       },
     };
 
-    // console.log("Formatted Post:", formattedPost);
+    console.log("Formatted Post:", formattedPost);
 
     const itemsForSale = await models.ItemForSale.findAll({
       where: {
@@ -111,14 +131,23 @@ const matchedItems = async (req, res) => {
           model: models.Date,
           as: "available_dates",
           required: true,
-          where: { item_type: "item_for_sale" },
-          include: [{ model: models.Duration, as: "durations", required: true }],
+          where: {
+            item_type: "item_for_sale",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
+          },
+          include: [
+            { model: models.Duration, as: "durations", required: true },
+          ],
         },
         {
           model: models.User,
           as: "seller",
           attributes: ["first_name", "last_name"],
-          include: [{ model: models.Student, as: "student", attributes: ["college"] }],
+          include: [
+            { model: models.Student, as: "student", attributes: ["college"] },
+          ],
         },
       ],
     });
@@ -130,20 +159,35 @@ const matchedItems = async (req, res) => {
           model: models.Date,
           as: "rental_dates",
           required: true,
-          where: { item_type: "listing", status: "available" },
-          include: [{ model: models.Duration, as: "durations", required: true, where: { status: "available" } }],
+          where: {
+            item_type: "listing",
+            status: "available",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
+          },
+          include: [
+            {
+              model: models.Duration,
+              as: "durations",
+              required: true,
+              where: { status: "available" },
+            },
+          ],
         },
         {
           model: models.User,
           as: "owner",
           attributes: ["first_name", "last_name"],
-          include: [{ model: models.Student, as: "student", attributes: ["college"] }],
+          include: [
+            { model: models.Student, as: "student", attributes: ["college"] },
+          ],
         },
       ],
     });
 
-    // console.log("Items For Sale count:", itemsForSale.length);
-    // console.log("Items For Rent count:", itemsForRent.length);
+    console.log("Items For Sale count:", itemsForSale.length);
+    console.log("Items For Rent count:", itemsForRent.length);
 
     const formattedItems = [
       ...itemsForSale.map((item) => ({
@@ -162,7 +206,7 @@ const matchedItems = async (req, res) => {
         desc: item.description || "",
         descArray: parseToArray(item.description),
         specs: item.specifications || "",
-        specsArray: parseToArray(item.specifications),
+        specsArray: JSON.parse(item.specifications),
         availableDates: item.available_dates.map((date) => ({
           id: date.id,
           itemId: date.item_id,
@@ -193,7 +237,7 @@ const matchedItems = async (req, res) => {
         desc: item.description || "",
         descArray: parseToArray(item.description),
         specs: item.specifications || "",
-        specsArray: parseToArray(item.specifications),
+        specsArray: JSON.parse(item.specifications),
         itemType: "For Rent",
         images: JSON.parse(item.images),
         deliveryMethod: item.delivery_mode,
@@ -225,36 +269,38 @@ const matchedItems = async (req, res) => {
       })),
     ];
 
-    // console.log("Formatted Items Count:", formattedItems.length);
+    console.log("Formatted Items Count:", formattedItems.length);
 
     const postTags = formattedPost.tags || [];
     const postCategory = formattedPost.category || "";
-    const postName = formattedPost.name || "";
-    const postDesc = formattedPost.desc || "";
-    const postSpecs = formattedPost.specs || "";
+    const postName = (formattedPost.name || "").split(" ");
+    const postDesc = formattedPost.descArray || "";
+    const postSpecs = cleanSpecValues(formattedPost.specsArray) || "";
 
     const fuse = new Fuse(formattedItems, {
-      keys: ["name", "specsArray", "descArray", "tags"],
-      threshold: 0.3,
+      keys: [
+        { name: "name", weight: 0.6 },
+        { name: "specsArray", weight: 0.2 },
+        { name: "tags", weight: 0.15 },
+        // { name: "descArray", weight: 0.05 },
+      ],
+      threshold: 0.2,
       ignoreLocation: true,
       includeScore: true,
     });
 
-    const searchTermsArray = [
-      ...postTags,
-      postName,
-      ...formattedPost.specsArray,
-      ...formattedPost.descArray,
-    ].filter(Boolean);
+    const searchTermsArray = [...postTags, ...postName, ...postSpecs].filter(
+      Boolean
+    );
 
-    // console.log("Search Terms:", searchTermsArray);
+    console.log("Search Terms:", searchTermsArray);
 
     let results = [];
     const seenIds = new Set();
 
     if (searchTermsArray) {
       const nameResults = fuse.search(searchTermsArray);
-      // console.log("Name results count:", nameResults.length);
+      console.log("Name results count:", nameResults.length);
       for (const result of nameResults) {
         if (!seenIds.has(result.item.id)) {
           seenIds.add(result.item.id);
@@ -263,10 +309,10 @@ const matchedItems = async (req, res) => {
       }
     }
 
-    for (const term of [...postTags, postCategory]) {
+    for (const term of [...postTags, ...postName, ...postSpecs]) {
       if (!term) continue;
       const termResults = fuse.search(term);
-      // console.log(`Results for term "${term}":`, termResults.length);
+      console.log(`Results for term "${term}":`, termResults.length);
       for (const result of termResults) {
         if (!seenIds.has(result.item.id)) {
           seenIds.add(result.item.id);
@@ -275,10 +321,10 @@ const matchedItems = async (req, res) => {
       }
     }
 
-    const descWords = postDesc.split(" ").filter((word) => word.length > 3);
-    const specWords = postSpecs.split(" ").filter((word) => word.length > 3);
+    // const descWords = postDesc.split(" ").filter((word) => word.length > 3);
+    // const specWords = postSpecs.split(" ").filter((word) => word.length > 3);
 
-    for (const word of [...descWords, ...specWords]) {
+    for (const word of postSpecs) {
       if (!word) continue;
       const wordResults = fuse.search(word);
       for (const result of wordResults) {
@@ -289,7 +335,7 @@ const matchedItems = async (req, res) => {
       }
     }
 
-    // console.log("Final matched results count:", results.length);
+    console.log("Final matched results count:", results.length);
 
     return res.status(200).json({ matchedItems: results });
   } catch (error) {

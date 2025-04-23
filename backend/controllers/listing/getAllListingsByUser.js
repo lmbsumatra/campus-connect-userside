@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { models } = require("../../models/index");
 
 const getAllListingsByUser = async (req, res) => {
@@ -21,6 +22,9 @@ const getAllListingsByUser = async (req, res) => {
           required: false,
           where: {
             item_type: "listing",
+            date: {
+              [Op.gte]: new Date(), // today's date and future
+            },
           },
           include: [
             {
