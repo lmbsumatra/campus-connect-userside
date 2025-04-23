@@ -37,10 +37,19 @@ const Shop = () => {
   } = useSelector((state) => state.allApprovedItemForSale);
 
   const [filteredItems, setFilteredItems] = useState(allApprovedItemForSale);
+  const [currentKeyword, setCurrentKeyword] = useState("");
 
   useEffect(() => {
-    dispatch(fetchAllApprovedItemForSale(keyword));
+    dispatch(fetchAllApprovedItemForSale({keyword}));
   }, [dispatch, keyword]);
+
+  useEffect(() => {
+    if (keyword !== currentKeyword) {
+      setCurrentKeyword(keyword);
+      dispatch(fetchAllApprovedItemForSale({ keyword }));
+      setFilters({ ...defaultFilters });
+    }
+  }, [dispatch, keyword, currentKeyword]);
 
   useEffect(() => {
     setFilteredItems(allApprovedItemForSale);

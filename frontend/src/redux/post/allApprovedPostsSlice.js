@@ -19,6 +19,7 @@ export const fetchAllApprovedPosts = createAsyncThunk(
     const url = `${BASE_URL}?${params.toString()}`;
     const response = await fetch(url);
 
+
     if (!response.ok) {
       throw new Error("Failed to fetch approved posts");
     }

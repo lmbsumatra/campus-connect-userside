@@ -14,23 +14,6 @@ const TrialOnSearchResults = ({ keyword }) => {
           <div className="search-title">
             <p>You are searching for "{keyword}"</p>
           </div>
-          {/*           
-          <div className="result-section">
-            <div className="section-header">
-              <h3>Users</h3>
-              <Link to={`/results?q=${keyword}&type=users`} className="view-all">
-                View All
-              </Link>
-            </div>
-            <div className="result-wrapper">
-              <Link to="" className="user-result">
-                <div className="img-holder">
-                  <img src={userProfileIcon} alt="User profile" />
-                </div>
-                <span>{keyword}</span>
-              </Link>
-            </div>
-          </div> */}
 
           <div className="result-section">
             <div className="section-header">

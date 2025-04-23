@@ -25,10 +25,19 @@ const Lend = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
+  const [currentKeyword, setCurrentKeyword] = useState("");
 
   useEffect(() => {
-    dispatch(fetchAllApprovedPosts(keyword));
+    dispatch(fetchAllApprovedPosts({ keyword }));
   }, [dispatch, keyword]); // Added keyword as dependency
+
+    useEffect(() => {
+      if (keyword !== currentKeyword) {
+        setCurrentKeyword(keyword);
+        dispatch(fetchAllApprovedPosts({ keyword }));
+        setFilters({ ...defaultFilters });
+      }
+    }, [dispatch, keyword, currentKeyword]);
 
   const { allApprovedPosts, loadingAllApprovedPosts, errorAllApprovedPosts } =
     useSelector((state) => state.allApprovedPosts);

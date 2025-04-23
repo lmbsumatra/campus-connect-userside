@@ -40,10 +40,19 @@ const Rent = () => {
 
   const [filteredItems, setFilteredItems] = useState(allApprovedListings);
   const [filters, setFilters] = useState(defaultFilters);
+  const [currentKeyword, setCurrentKeyword] = useState("");
 
   useEffect(() => {
-    dispatch(fetchAllApprovedListings(keyword));
+    dispatch(fetchAllApprovedListings({ keyword }));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (keyword !== currentKeyword) {
+      setCurrentKeyword(keyword);
+      dispatch(fetchAllApprovedListings({ keyword }));
+      setFilters({ ...defaultFilters });
+    }
+  }, [dispatch, keyword, currentKeyword]);
 
   useEffect(() => {
     setFilteredItems(allApprovedListings);
