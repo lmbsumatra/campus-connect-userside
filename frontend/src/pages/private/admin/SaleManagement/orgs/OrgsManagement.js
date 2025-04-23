@@ -390,32 +390,28 @@ const OrgsManagement = () => {
                 <th>
                   Category
                   {/* Category filter */}
-                  <div className="category-filter ">
-                    <Form.Group>
-                      <Form.Select
-                        value={activeCategory}
-                        onChange={(e) => setActiveCategory(e.target.value)}
-                      >
-                        {getCategories().map((category) => {
-                          const categoryValue =
-                            typeof category === "object"
-                              ? category.name ||
-                                category.category ||
-                                String(category)
-                              : category;
-                          const displayText =
-                            categoryValue === "all"
-                              ? "All Categories"
-                              : categoryValue;
-                          return (
-                            <option key={categoryValue} value={categoryValue}>
-                              {displayText}
-                            </option>
-                          );
-                        })}
-                      </Form.Select>
-                    </Form.Group>
-                  </div>
+                  <Form.Select
+                    value={activeCategory}
+                    onChange={(e) => setActiveCategory(e.target.value)}
+                  >
+                    {getCategories().map((category) => {
+                      const categoryValue =
+                        typeof category === "object"
+                          ? category.name ||
+                            category.category ||
+                            String(category)
+                          : category;
+                      const displayText =
+                        categoryValue === "all"
+                          ? "All Categories"
+                          : categoryValue;
+                      return (
+                        <option key={categoryValue} value={categoryValue}>
+                          {displayText}
+                        </option>
+                      );
+                    })}
+                  </Form.Select>
                 </th>
                 <th onClick={() => handleSort("isActive")}>
                   Status{" "}

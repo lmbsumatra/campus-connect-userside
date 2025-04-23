@@ -86,7 +86,7 @@ const StudentProtectedRoutes = [
     }
   />,
   <Route
-    path="/rent-progress/:id"
+    path="/transaction-progress/:id"
     element={
       <StudentProtectedRoute allowedRoles="student">
         <RentProgress />

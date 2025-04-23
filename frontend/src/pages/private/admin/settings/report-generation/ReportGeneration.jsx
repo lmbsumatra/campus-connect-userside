@@ -1360,6 +1360,8 @@ const MonthlyReportGenerator = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [lastGeneratedMonth, setLastGeneratedMonth] = useState(null);
+  const [lastGeneratedYear, setLastGeneratedYear] = useState(null);
 
   const fetchReportData = async () => {
     setLoading(true);
@@ -1371,6 +1373,8 @@ const MonthlyReportGenerator = () => {
       });
       setReportData(response.data);
       setShowPreview(true);
+      setLastGeneratedMonth(month);
+      setLastGeneratedYear(year);
     } catch (err) {
       setError(err.message || "Failed to fetch report data");
     } finally {
@@ -1413,9 +1417,34 @@ const MonthlyReportGenerator = () => {
     }
   };
 
+  const handleMonthChange = (e) => {
+    const newMonth = Number(e.target.value);
+    setMonth(newMonth);
+    // Hide preview if selection changed after generating report
+    if (newMonth !== lastGeneratedMonth) {
+      setShowPreview(false);
+    }
+  };
+
+  const handleYearChange = (e) => {
+    const newYear = Number(e.target.value);
+    setYear(newYear);
+    // Hide preview if selection changed after generating report
+    if (newYear !== lastGeneratedYear) {
+      setShowPreview(false);
+    }
+  };
+
   const monthName = new Date(year, month - 1).toLocaleString("default", {
     month: "long",
   });
+
+  // Check if we should show results (report is generated and no changes to month/year)
+  const showResults =
+    showPreview &&
+    month === lastGeneratedMonth &&
+    year === lastGeneratedYear &&
+    reportData;
 
   return (
     <div className="container py-4">
@@ -1423,7 +1452,7 @@ const MonthlyReportGenerator = () => {
       <div className="d-flex mb-3">
         <select
           value={month}
-          onChange={(e) => setMonth(Number(e.target.value))}
+          onChange={handleMonthChange}
           className="form-select me-2"
         >
           {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
@@ -1435,7 +1464,7 @@ const MonthlyReportGenerator = () => {
         <input
           type="number"
           value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
+          onChange={handleYearChange}
           placeholder="Year"
           min="2020"
           max="2030"
@@ -1457,27 +1486,29 @@ const MonthlyReportGenerator = () => {
       {/* Error Message */}
       {error && <div className="alert alert-danger">{error}</div>}
 
-      {/* Report Status */}
-      {showPreview && reportData && (
+      {/* Report Status - Only show when report is generated and no changes to month/year */}
+      {showResults && (
         <div className="alert alert-success mb-3">
           <strong>Report Ready!</strong> {monthName} {year}
         </div>
       )}
 
-      {/* Actions: Preview & Download PDF */}
-      {reportData && (
+      {/* Actions: Preview & Download PDF - Only show when report is generated and no changes to month/year */}
+      {showResults && (
         <div className="d-flex gap-2">
           <button
-            className="btn btn-outline-primary"
+            className="btn btn-outline-primary bg-white"
             onClick={openPdfInNewTab}
             disabled={loading}
+            style={{ borderColor: "#0d6efd", color: "#0d6efd" }}
           >
             Preview PDF
           </button>
           <button
-            className="btn btn-outline-success"
+            className="btn btn-outline-success bg-white"
             onClick={downloadPdf}
             disabled={loading}
+            style={{ borderColor: "#198754", color: "#198754" }}
           >
             Download PDF
           </button>

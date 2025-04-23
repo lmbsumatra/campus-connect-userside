@@ -172,8 +172,8 @@ function ListingDetail({ selectedItem, loading, error, isAdmin = false }) {
           </Tooltip>
           <ImageSlider
             images={
-              selectedItem.images && selectedItem.images.length
-                ? selectedItem.images
+              selectedItem?.images && selectedItem?.images?.length
+                ? selectedItem?.images
                 : [defaultImages]
             }
           />

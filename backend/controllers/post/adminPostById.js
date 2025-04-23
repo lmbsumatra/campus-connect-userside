@@ -8,6 +8,7 @@ const adminPostById = async (req, res) => {
         {
           model: models.Date,
           as: "rental_dates",
+          required: false,
           where: {
             item_type: "post",
           },
@@ -63,6 +64,7 @@ const adminPostById = async (req, res) => {
       category: post.category,
       itemType: post.post_type,
       desc: post.description,
+      status: post.status,
       statusMessage: post.status_message,
       specs: post.specifications,
       requestDates: post.rental_dates.map((date) => ({

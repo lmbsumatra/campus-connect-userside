@@ -76,7 +76,7 @@ const AdminRoutes = [
     <Route path="sales" element={<ForSaleManagement />} />
     <Route path="sales/sales-overview" element={<SaleOverview />} />
     <Route path="sales/item-approval/:id" element={<ItemForSaleApproval />} />
-    <Route path="sales/orgs-management" element={<OrgsManagement />} />
+    <Route path="orgs-management" element={<OrgsManagement />} />
 
     {/* REPORT MANAGEMENT */}
     <Route path="reports" element={<Outlet />}>

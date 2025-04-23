@@ -170,8 +170,8 @@ const TransactionsTable = ({ transactions }) => {
                       onClick={() => {
                         const routePrefix =
                           transaction.transactionType === "Rental"
-                            ? "/rent-progress/"
-                            : "/purchase-progress/";
+                            ? "/transaction-progress/"
+                            : "/transaction-progress/";
                         navigate(`${routePrefix}${transaction.id}`);
                       }}
                     >

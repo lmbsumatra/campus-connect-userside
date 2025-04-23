@@ -8,6 +8,7 @@ const initialState = {
   scannedId: { value: "", triggered: false, hasError: true, error: "" },
   email: { value: "", triggered: false, hasError: true, error: "" },
   college: { value: "", triggered: false, hasError: true, error: "" },
+  course: { value: "", triggered: false, hasError: true, error: "" },
   password: {
     value: "",
     triggered: false,

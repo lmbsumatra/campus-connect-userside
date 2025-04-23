@@ -10,6 +10,7 @@ import usersIcon from "../../../assets/images/admin/sidebar/users.svg";
 import listingsIcon from "../../../assets/images/admin/sidebar/listings.svg";
 import postsIcon from "../../../assets/images/admin/sidebar/post.svg";
 import salesIcon from "../../../assets/images/admin/sidebar/forsale.svg";
+import repIcon from "../../../assets/images/admin/sidebar/rep.svg";
 import transactionIcon from "../../../assets/images/admin/sidebar/transaction.svg";
 import reportsIcon from "../../../assets/images/admin/sidebar/report.svg";
 import auditsIcon from "../../../assets/images/admin/sidebar/auditlogs.svg";
@@ -30,15 +31,15 @@ const AdminSidebar = () => {
       if (window.innerWidth <= 768) {
         setExpandSidebar(true);
       } else {
-        setExpandSidebar(false); 
+        setExpandSidebar(false);
       }
     };
 
-    handleResize(); 
+    handleResize();
 
-    window.addEventListener("resize", handleResize); 
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener("resize", handleResize); 
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -74,7 +75,7 @@ const AdminSidebar = () => {
       }
     } else if (path.includes("/admin/sales")) {
       setActiveTab("sales");
-      setActiveSubTab("orgsManagement");
+      // setActiveSubTab("orgsManagement");
     } else if (path.includes("/admin/reports")) {
       setActiveTab("reports");
 
@@ -94,6 +95,8 @@ const AdminSidebar = () => {
       setActiveTab("settings");
     } else if (path.includes("/admin/generate-report")) {
       setActiveTab("generate-report");
+    } else if (path.includes("/admin/orgs-management")) {
+      setActiveTab("orgsManagement");
     }
   }, [location]);
 
@@ -337,7 +340,7 @@ const AdminSidebar = () => {
           <div
             className={`sub-tabs ${openTabs.includes("sales") ? "show" : ""}`}
           >
-            <div
+            {/* <div
               className={`sub-tab ${
                 activeSubTab === "orgsManagement" ? "active" : ""
               }`}
@@ -354,11 +357,37 @@ const AdminSidebar = () => {
                 }`}
               ></div>
               {(expandSidebar || isHovered) && <>Orgs Management</>}
-            </div>
+            </div> */}
           </div>
         </div>
 
-        {/* Reports Management Tab */}
+        {/* Org Management Tab */}
+        <div>
+          <div
+            className={`tab ${activeTab === "orgsManagement" ? "active" : ""} ${
+              openTabs.includes("orgsManagement") ? "expand" : ""
+            }`}
+            onClick={() =>
+              handleActiveTab(["orgsManagement", "/admin/orgs-management"])
+            }
+          >
+            <img
+              src={repIcon}
+              className="sidebar-icon"
+              alt="Orgs Management"
+            />
+            {(expandSidebar || isHovered) && "Orgs Management"}
+            <img
+              src={arrowDown}
+              className="expand-tab"
+              onClick={() => handleExpandTab("orgsManagement")}
+              alt="Expand tab button"
+            />
+          </div>
+        </div>
+
+        {/* ?????????? */}
+
         {/* Reports Management Tab */}
         <div>
           <div

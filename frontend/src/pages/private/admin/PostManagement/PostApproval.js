@@ -67,6 +67,8 @@ const PostApproval = () => {
         `Post status successfully changed to ${selectedAction}`
       );
 
+      dispatch(fetchAdminPostById({ id }));
+
       setStatus(selectedAction);
     } catch (error) {
       console.error("Error updating status:", error);
@@ -82,6 +84,8 @@ const PostApproval = () => {
   };
 
   const { label, className } = ItemStatus(adminPostById?.status);
+
+  console.log({ adminPostById });
 
   return (
     <div className="admin-content-container">

@@ -367,6 +367,7 @@ const Trial = ({ onTabClick }) => {
 
   const handlePrevStep = () => {
     if (step > 1) setStep(step - 1);
+    console.log(signupDataState);
   };
 
   const isStepValid = () => {
@@ -385,7 +386,8 @@ const Trial = ({ onTabClick }) => {
           tupId.every((digit) => digit !== "") &&
           imgWithId.filename &&
           scannedId.filename &&
-          signupDataState.college;
+          !signupDataState?.college?.hasError &&
+          !signupDataState?.course?.hasError;
         break;
       case 3:
         isValid =
@@ -534,7 +536,7 @@ const Trial = ({ onTabClick }) => {
                       color: "white",
                     }}
                   >
-                    {signupDataState.course?.value || "Select your course"}
+                    {signupDataState.course?.value || "Select your program"}
                   </div>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>

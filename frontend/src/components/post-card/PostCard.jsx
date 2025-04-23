@@ -14,7 +14,7 @@ import forRentIcon from "../../assets/images/card/looking-for.svg";
 import editIcon from "../../assets/images/table/edit.svg";
 import deleteIcon from "../../assets/images/table/delete.svg";
 import "./postCardStyles.css";
-import { defaultImages } from "../../utils/consonants";
+import { defaultImages, TO_RENT } from "../../utils/consonants";
 import { ItemStatus } from "../../utils/Status";
 import { useDispatch, useSelector } from "react-redux";
 import ShowAlert from "../../utils/ShowAlert";
@@ -61,9 +61,8 @@ const PostCard = ({
   const userId = studentUser?.userId;
   const token = studentUser?.token;
 
-  
-  const { config } = useSystemConfig(); //   config?.Stripe 
-  
+  const { config } = useSystemConfig(); //   config?.Stripe
+
   const handleCardClick = (e, item) => {
     // console.log(item);
     e.stopPropagation();
@@ -191,11 +190,11 @@ const PostCard = ({
       user,
       listingType: "postLookingForItem",
       token,
-      config
+      config,
     });
 
     if (!canPost) return;
-    
+
     navigate(`/profile/my-posts/new`);
   };
 
@@ -277,7 +276,9 @@ const PostCard = ({
               <div className="description">
                 <p className="item-name">{item.name}</p>
                 <div className="rental-desc-holder">
-                  <label className="label">Rental Details</label>
+                  <label className="label">
+                    {item.itemType === TO_RENT ? "Rental" : "Purchase"} Details
+                  </label>
                   <span className="rental-date">
                     {item.rentalDates.length > 0
                       ? formatDate(item.rentalDates[0].date)
