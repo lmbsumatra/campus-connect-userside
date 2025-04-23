@@ -67,7 +67,7 @@ const MyRentals = ({ selectedOption, selectedTab, onTabChange }) => {
     }
 
     const formattedRentalId = String(rentalId).replace(/\s+/g, "-");
-    navigate(`/rent-progress/${formattedRentalId}`);
+    navigate(`/transaction-progress/${formattedRentalId}`);
   };
 
   if (loading) return <p>Loading...</p>;

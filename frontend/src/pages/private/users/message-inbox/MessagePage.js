@@ -8,8 +8,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useChat } from "../../../../context/ChatContext";
 import useSound from "use-sound";
 import sendSound from "../../../../assets/audio/sent.mp3";
-import { Modal, Button } from "react-bootstrap"
-import { FiPaperclip, FiX, FiSearch, FiMoreVertical } from "react-icons/fi"; 
+import { Modal, Button } from "react-bootstrap";
+import { FiPaperclip, FiX, FiSearch, FiMoreVertical } from "react-icons/fi";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import ShowAlert from "../../../../utils/ShowAlert.js";
@@ -54,17 +54,17 @@ const MessagePage = () => {
   const [isSearching, setIsSearching] = useState(false);
   // Add state to highlight matched messages
   const [highlightedMessageId, setHighlightedMessageId] = useState(null);
-  
+
   // Report functionality state
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportUser, setReportUser] = useState(null);
   const [hasReported, setHasReported] = useState({});
-  
+
   // Block and delete functionality states
   const [isBlocked, setIsBlocked] = useState({});
   const [blockedBy, setBlockedBy] = useState({});
   const [showUnblockButton, setShowUnblockButton] = useState(false);
-  
+
   const dispatch = useDispatch();
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
@@ -81,14 +81,13 @@ const MessagePage = () => {
   // modal state variables
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImage, setModalImage] = useState("");
-  
+
   // Image state variables
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [uploadingImages, setUploadingImages] = useState(false);
   const fileInputRef = useRef(null);
-  
-  
+
   const { userId } = studentUser || {};
 
   // Add these state variables after other state variables
@@ -104,9 +103,7 @@ const MessagePage = () => {
   useEffect(() => {
     if (!userId) return;
 
-    socket.current = io(
-      process.env.REACT_APP_SOCKET_URL || `${baseApi}`
-    );
+    socket.current = io(process.env.REACT_APP_SOCKET_URL || `${baseApi}`);
 
     socket.current.on("connect", () => {
       // console.log("Connected to WebSocket", socket.current.id);
@@ -157,7 +154,8 @@ const MessagePage = () => {
                 ...conversation,
                 messages: [...conversation.messages, newMessage],
                 updatedAt: new Date().toISOString(),
-                hasUnread: !activeChat || activeChat.id !== message.conversationId,
+                hasUnread:
+                  !activeChat || activeChat.id !== message.conversationId,
               };
             }
             return conversation;
@@ -169,7 +167,7 @@ const MessagePage = () => {
           // Conversation doesn't exist in our state, possibly because it was deleted
           // Fetch this conversation from the API
           fetchDeletedConversation(message.conversationId);
-          
+
           // Return current state for now, the fetch will update it
           return prevConversations;
         }
@@ -185,18 +183,18 @@ const MessagePage = () => {
               ...message,
               createdAt: message.createdAt || new Date().toISOString(),
               updatedAt: message.updatedAt || new Date().toISOString(),
-               // Ensure product card data is properly included
+              // Ensure product card data is properly included
               isProductCard: message.isProductCard || false,
               productDetails: message.productDetails || null,
             },
           ],
           updatedAt: new Date().toISOString(),
         }));
-        
+
         // Highlight the new message
         setHighlightNewMessage(true);
         setTimeout(() => setHighlightNewMessage(false), 3000);
-        
+
         // Play sound when receiving a message
         playSendSound();
       }
@@ -211,58 +209,68 @@ const MessagePage = () => {
     socket.current.on("userBlocked", (data) => {
       if (data.blockedId === userId) {
         // Current user has been blocked
-        setBlockedBy(prev => ({
+        setBlockedBy((prev) => ({
           ...prev,
-          [data.blockerId]: true
+          [data.blockerId]: true,
         }));
-        
+
         // Update conversation in list if it exists
-        setConversations(prevConversations =>
-          prevConversations.map(conv =>
+        setConversations((prevConversations) =>
+          prevConversations.map((conv) =>
             conv.otherUser.user_id === data.blockerId
               ? { ...conv, blockedBy: true }
               : conv
           )
         );
-        
+
         // Update active chat if needed
         if (activeChat && activeChat.otherUser.user_id === data.blockerId) {
-          setActiveChat(prev => ({
+          setActiveChat((prev) => ({
             ...prev,
-            blockedBy: true
+            blockedBy: true,
           }));
-          
-          ShowAlert(dispatch, "info", "Blocked", "You have been blocked by this user.");
+
+          ShowAlert(
+            dispatch,
+            "info",
+            "Blocked",
+            "You have been blocked by this user."
+          );
         }
       }
     });
-    
+
     socket.current.on("userUnblocked", (data) => {
       if (data.unblockedId === userId) {
         // Current user has been unblocked
-        setBlockedBy(prev => {
+        setBlockedBy((prev) => {
           const updated = { ...prev };
           delete updated[data.unblockerId];
           return updated;
         });
-        
+
         // Update conversation in list if it exists
-        setConversations(prevConversations =>
-          prevConversations.map(conv =>
+        setConversations((prevConversations) =>
+          prevConversations.map((conv) =>
             conv.otherUser.user_id === data.unblockerId
               ? { ...conv, blockedBy: false }
               : conv
           )
         );
-        
+
         // Update active chat if needed
         if (activeChat && activeChat.otherUser.user_id === data.unblockerId) {
-          setActiveChat(prev => ({
+          setActiveChat((prev) => ({
             ...prev,
-            blockedBy: false
+            blockedBy: false,
           }));
-          
-          ShowAlert(dispatch, "info", "Unblocked", "You have been unblocked by this user.");
+
+          ShowAlert(
+            dispatch,
+            "info",
+            "Unblocked",
+            "You have been unblocked by this user."
+          );
         }
       }
     });
@@ -286,14 +294,11 @@ const MessagePage = () => {
         const userId = studentUser.userId;
 
         // Fetch conversations
-        const response = await fetch(
-          `${baseApi}/api/conversations/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`${baseApi}/api/conversations/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch conversations");
@@ -303,7 +308,9 @@ const MessagePage = () => {
         // console.log("Fetched conversations:", data);
 
         // Update conversations state with sort (most recent first)
-        const sortedConversations = sortConversationsByLatestActivity(data.conversations);
+        const sortedConversations = sortConversationsByLatestActivity(
+          data.conversations
+        );
         setConversations(sortedConversations);
 
         // Set unread status for all conversations
@@ -319,15 +326,16 @@ const MessagePage = () => {
           const selectedConversation = sortedConversations.find(
             (conversation) => conversation.id === state.activeConversationId
           );
-          
+
           if (selectedConversation) {
             setActiveChat(selectedConversation);
           }
-        } 
-        else if (state?.ownerId || state?.sellerId || state?.renterId) {
+        } else if (state?.ownerId || state?.sellerId || state?.renterId) {
           // Otherwise try to find by member ID
-          const targetConversation = sortedConversations.find((conversation) =>
-            conversation.otherUser.user_id === (state.ownerId || state.sellerId || state.renterId)
+          const targetConversation = sortedConversations.find(
+            (conversation) =>
+              conversation.otherUser.user_id ===
+              (state.ownerId || state.sellerId || state.renterId)
           );
 
           if (targetConversation) {
@@ -344,11 +352,11 @@ const MessagePage = () => {
         const newBlockedByStatus = {};
 
         // Set blocked status for each conversation
-        sortedConversations.forEach(conversation => {
+        sortedConversations.forEach((conversation) => {
           if (conversation.isBlocked) {
             newBlockedStatus[conversation.otherUser.user_id] = true;
           }
-          
+
           if (conversation.blockedBy) {
             newBlockedByStatus[conversation.otherUser.user_id] = true;
           }
@@ -369,7 +377,14 @@ const MessagePage = () => {
     };
 
     fetchConversations();
-  }, [studentUser.userId, state?.ownerId, state?.sellerId, state?.renterId, state?.product, state?.activeConversationId]);
+  }, [
+    studentUser.userId,
+    state?.ownerId,
+    state?.sellerId,
+    state?.renterId,
+    state?.product,
+    state?.activeConversationId,
+  ]);
 
   useEffect(() => {
     if (chatContentRef.current) {
@@ -383,12 +398,22 @@ const MessagePage = () => {
     try {
       // Check if this user is blocked
       if (isBlocked[recipientId]) {
-        ShowAlert(dispatch, "error", "Blocked", "You cannot send messages to users you have blocked. Unblock this user to continue the conversation.");
+        ShowAlert(
+          dispatch,
+          "error",
+          "Blocked",
+          "You cannot send messages to users you have blocked. Unblock this user to continue the conversation."
+        );
         return;
       }
 
       if (blockedBy[recipientId]) {
-        ShowAlert(dispatch, "error", "Blocked", "This user has blocked you. You cannot send messages to them.");
+        ShowAlert(
+          dispatch,
+          "error",
+          "Blocked",
+          "This user has blocked you. You cannot send messages to them."
+        );
         return;
       }
 
@@ -418,23 +443,28 @@ const MessagePage = () => {
             terms: product.terms || null,
             // Include date and time IDs if they exist
             date_id: product.date_id || null,
-            time_id: product.time_id || null
+            time_id: product.time_id || null,
           },
         };
         // console.log("Sending product message payload:", productMessage);
 
-         // Add the message to the active chat first
-          setActiveChat((prev) => ({
-            ...prev,
-            messages: [...prev.messages, {
+        // Add the message to the active chat first
+        setActiveChat((prev) => ({
+          ...prev,
+          messages: [
+            ...prev.messages,
+            {
               ...productMessage,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
-            }],
-          }));
+            },
+          ],
+        }));
 
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL ?? baseApi}/api/conversations/${activeChat.id}/message`,
+          `${process.env.REACT_APP_API_URL ?? baseApi}/api/conversations/${
+            activeChat.id
+          }/message`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -447,26 +477,41 @@ const MessagePage = () => {
           const errorData = await response.json();
           if (response.status === 403) {
             if (errorData.isBlocked) {
-              setIsBlocked(prev => ({
+              setIsBlocked((prev) => ({
                 ...prev,
-                [recipientId]: true
+                [recipientId]: true,
               }));
               setShowUnblockButton(true);
-              ShowAlert(dispatch, "error", "Blocked", "You have blocked this user. Unblock them to send messages.");
+              ShowAlert(
+                dispatch,
+                "error",
+                "Blocked",
+                "You have blocked this user. Unblock them to send messages."
+              );
             } else if (errorData.blockedBy) {
-              setBlockedBy(prev => ({
+              setBlockedBy((prev) => ({
                 ...prev,
-                [recipientId]: true
+                [recipientId]: true,
               }));
-              ShowAlert(dispatch, "error", "Blocked", "You cannot send messages to this user as they have blocked you.");
+              ShowAlert(
+                dispatch,
+                "error",
+                "Blocked",
+                "You cannot send messages to this user as they have blocked you."
+              );
             } else {
-              ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to send message.");
+              ShowAlert(
+                dispatch,
+                "error",
+                "Error",
+                errorData.error || "Failed to send message."
+              );
             }
             return;
           }
         }
 
-       // Emit the message via socket
+        // Emit the message via socket
         socket.current.emit("sendMessageToUser", {
           ...productMessage,
           createdAt: new Date().toISOString(),
@@ -477,14 +522,14 @@ const MessagePage = () => {
         navigate("/messages", { replace: true }); // Clear state
       }
 
-       // Upload images if any
-       let uploadedImageUrls = [];
-       if (selectedFiles.length > 0) {
-         uploadedImageUrls = await uploadImages();
-       }
+      // Upload images if any
+      let uploadedImageUrls = [];
+      if (selectedFiles.length > 0) {
+        uploadedImageUrls = await uploadImages();
+      }
 
       // Send user's message
-      if (message.trim() || uploadedImageUrls.length > 0 ) {
+      if (message.trim() || uploadedImageUrls.length > 0) {
         const messageData = {
           sender: userId,
           text: message,
@@ -497,38 +542,55 @@ const MessagePage = () => {
         };
 
         const res = await fetch(
-          `${process.env.REACT_APP_API_URL ?? baseApi}/api/conversations/${activeChat.id}/message`,
+          `${process.env.REACT_APP_API_URL ?? baseApi}/api/conversations/${
+            activeChat.id
+          }/message`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(messageData),
           }
         );
-        
+
         // Check if the request was unsuccessful due to blocking
         if (!res.ok) {
           const errorData = await res.json();
           if (res.status === 403) {
             if (errorData.isBlocked) {
-              setIsBlocked(prev => ({
+              setIsBlocked((prev) => ({
                 ...prev,
-                [recipientId]: true
+                [recipientId]: true,
               }));
               setShowUnblockButton(true);
-              ShowAlert(dispatch, "error", "Blocked", "You have blocked this user. Unblock them to send messages.");
+              ShowAlert(
+                dispatch,
+                "error",
+                "Blocked",
+                "You have blocked this user. Unblock them to send messages."
+              );
             } else if (errorData.blockedBy) {
-              setBlockedBy(prev => ({
+              setBlockedBy((prev) => ({
                 ...prev,
-                [recipientId]: true
+                [recipientId]: true,
               }));
-              ShowAlert(dispatch, "error", "Blocked", "You cannot send messages to this user as they have blocked you.");
+              ShowAlert(
+                dispatch,
+                "error",
+                "Blocked",
+                "You cannot send messages to this user as they have blocked you."
+              );
             } else {
-              ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to send message.");
+              ShowAlert(
+                dispatch,
+                "error",
+                "Error",
+                errorData.error || "Failed to send message."
+              );
             }
             return;
           }
         }
-        
+
         const savedMessage = await res.json();
 
         setActiveChat((prev) => ({
@@ -566,7 +628,12 @@ const MessagePage = () => {
       }
     } catch (err) {
       console.error("Error sending message:", err);
-      ShowAlert(dispatch, "error", "Error", "Failed to send message. Please try again.");
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Failed to send message. Please try again."
+      );
     }
   };
 
@@ -608,8 +675,9 @@ const MessagePage = () => {
       setAcceptedOffers((prev) => new Set([...prev, currentOffer.id]));
 
       // Check if it's a rental or sale offer based on terms existence
-      const isRentalOffer = currentOffer.productDetails?.terms && 
-        Object.values(currentOffer.productDetails.terms).some(term => term);
+      const isRentalOffer =
+        currentOffer.productDetails?.terms &&
+        Object.values(currentOffer.productDetails.terms).some((term) => term);
 
       // Emit socket event to notify other user
       socket.current.emit("offerAccepted", {
@@ -617,26 +685,33 @@ const MessagePage = () => {
         conversationId: activeChat.id,
         recipient: currentOffer.sender,
         sender: userId, // Add sender ID for notification
-        offerType: isRentalOffer ? "rental" : "sale" // Include type of offer
+        offerType: isRentalOffer ? "rental" : "sale", // Include type of offer
       });
 
       // Create a transaction record in the database
-      if (currentOffer.productDetails?.date_id && currentOffer.productDetails?.time_id) {
+      if (
+        currentOffer.productDetails?.date_id &&
+        currentOffer.productDetails?.time_id
+      ) {
         try {
           const transactionDetails = {
             owner_id: currentOffer.sender, // The person who sent the offer
             renter_id: userId, // Current user accepting the offer
             buyer_id: isRentalOffer ? null : userId, // Add buyer_id for sales
             item_id: currentOffer.productDetails.productId,
-            delivery_method: currentOffer.productDetails.deliveryMethod || "meetup",
+            delivery_method:
+              currentOffer.productDetails.deliveryMethod || "meetup",
             date_id: currentOffer.productDetails.date_id,
             time_id: currentOffer.productDetails.time_id,
-            payment_mode: currentOffer.productDetails.paymentMethod || "payUponMeetup",
+            payment_mode:
+              currentOffer.productDetails.paymentMethod || "payUponMeetup",
             transaction_type: isRentalOffer ? "rental" : "sell",
             price: currentOffer.productDetails.offerPrice || 0,
             location: currentOffer.productDetails.location || "", // Add location field
-            stock: isRentalOffer ? null : (currentOffer.productDetails.stock || 1), // Add stock for sale transactions
-            sender_id: userId // Add sender_id for notification
+            stock: isRentalOffer
+              ? null
+              : currentOffer.productDetails.stock || 1, // Add stock for sale transactions
+            sender_id: userId, // Add sender_id for notification
           };
 
           // Call backend API to create transaction
@@ -719,102 +794,104 @@ const MessagePage = () => {
     };
   }, []);
 
-    // New function to handle image click
-    const handleImageClick = (imageUrl) => {
-      setModalImage(imageUrl);
-      setShowImageModal(true);
-    };
+  // New function to handle image click
+  const handleImageClick = (imageUrl) => {
+    setModalImage(imageUrl);
+    setShowImageModal(true);
+  };
 
-    const handleProductCardClick = (productId, type) => {
-      // console.log("Navigating with:", { productId, type });
-      if (productId && type) {
-        if (type === "rental-transaction") {
-          // Navigate to rental transaction page
-          navigate(`/rent-progress/${productId}`);
-        } else {
-          // Default navigation for product listings
-          navigate(`/${type}/${productId}`);
-        }
+  const handleProductCardClick = (productId, type) => {
+    // console.log("Navigating with:", { productId, type });
+    if (productId && type) {
+      if (type === "rental-transaction") {
+        // Navigate to rental transaction page
+        navigate(`/transaction-progress/${productId}`);
       } else {
-        // console.log("Cannot navigate: Missing required data", { productId, type });
+        // Default navigation for product listings
+        navigate(`/${type}/${productId}`);
       }
-    };
+    } else {
+      // console.log("Cannot navigate: Missing required data", { productId, type });
+    }
+  };
 
-   // Updated handleImageUpload function
+  // Updated handleImageUpload function
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    
+
     // Check total count including previously selected files
     if (files.length + selectedFiles.length > 5) {
-      alert('Maximum 5 images allowed');
+      alert("Maximum 5 images allowed");
       return;
     }
-    
+
     // Validate file types
-    const validFiles = files.filter(file => file.type.startsWith('image/'));
+    const validFiles = files.filter((file) => file.type.startsWith("image/"));
     if (validFiles.length !== files.length) {
-      alert('Only image files are allowed');
+      alert("Only image files are allowed");
       return;
     }
 
     // Add new files to selectedFiles state
-    setSelectedFiles(prev => [...prev, ...validFiles]);
-    
+    setSelectedFiles((prev) => [...prev, ...validFiles]);
+
     // Create preview URLs for display
-    validFiles.forEach(file => {
+    validFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (event) => {
-        setSelectedImages(prev => [...prev, event.target.result]);
+        setSelectedImages((prev) => [...prev, event.target.result]);
       };
       reader.readAsDataURL(file);
     });
   };
 
-   // Remove selected image
-   const removeImage = (index) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  // Remove selected image
+  const removeImage = (index) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-   // Upload images to server
-   const uploadImages = async () => {
+  // Upload images to server
+  const uploadImages = async () => {
     if (selectedFiles.length === 0) return [];
-    
+
     setUploadingImages(true);
-    
+
     try {
       const formData = new FormData();
-      selectedFiles.forEach(file => {
-        formData.append('message_images', file);
+      selectedFiles.forEach((file) => {
+        formData.append("message_images", file);
       });
-      
+
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/messages/upload-message-images`,
+        `${
+          process.env.REACT_APP_API_URL || `${baseApi}`
+        }/api/messages/upload-message-images`,
         {
-          method: 'POST',
+          method: "POST",
           body: formData,
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('Failed to upload images');
+        throw new Error("Failed to upload images");
       }
-      
+
       const data = await response.json();
       return data.images; // Array of image URLs
     } catch (error) {
-      console.error('Error uploading images:', error);
-      alert('Failed to upload images. Please try again.');
+      console.error("Error uploading images:", error);
+      alert("Failed to upload images. Please try again.");
       throw error; // Add this line to propagate the error
     } finally {
       setUploadingImages(false);
     }
   };
-  
+
   // Add function to toggle card expansion
   const toggleCardExpansion = (messageId, e) => {
     e.stopPropagation(); // Prevent card click from navigating
-    setExpandedCards(prev => {
+    setExpandedCards((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(messageId)) {
         newSet.delete(messageId);
@@ -840,68 +917,90 @@ const MessagePage = () => {
   const handleSearch = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-    
+
     if (query.trim() === "") {
       setIsSearching(false);
       setSearchResults([]);
       return;
     }
-    
+
     setIsSearching(true);
-    
+
     // Search in conversations
     const results = [];
-    
+
     if (conversations) {
-      conversations.forEach(chat => {
+      conversations.forEach((chat) => {
         // Check user name
-        const nameMatch = 
-          chat.otherUser.first_name.toLowerCase().includes(query.toLowerCase()) || 
-          (chat.otherUser.last_name && chat.otherUser.last_name.toLowerCase().includes(query.toLowerCase()));
-        
+        const nameMatch =
+          chat.otherUser.first_name
+            .toLowerCase()
+            .includes(query.toLowerCase()) ||
+          (chat.otherUser.last_name &&
+            chat.otherUser.last_name
+              .toLowerCase()
+              .includes(query.toLowerCase()));
+
         // Check messages content
         const messageMatches = [];
         if (chat.messages && chat.messages.length > 0) {
-          chat.messages.forEach(msg => {
+          chat.messages.forEach((msg) => {
             // Check text content
-            if (msg.text && msg.text.toLowerCase().includes(query.toLowerCase())) {
+            if (
+              msg.text &&
+              msg.text.toLowerCase().includes(query.toLowerCase())
+            ) {
               messageMatches.push({
-                messageId: msg.id || `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                messageId:
+                  msg.id ||
+                  `msg-${Date.now()}-${Math.random()
+                    .toString(36)
+                    .substr(2, 9)}`,
                 messageText: msg.text,
                 timestamp: msg.createdAt,
-                index: chat.messages.indexOf(msg) // Store the index for scrolling
+                index: chat.messages.indexOf(msg), // Store the index for scrolling
               });
             }
-            
+
             // Check product details
             if (msg.isProductCard && msg.productDetails) {
               const productDetails = msg.productDetails;
               if (
-                (productDetails.name && productDetails.name.toLowerCase().includes(query.toLowerCase())) ||
-                (productDetails.status && productDetails.status.toLowerCase().includes(query.toLowerCase()))
+                (productDetails.name &&
+                  productDetails.name
+                    .toLowerCase()
+                    .includes(query.toLowerCase())) ||
+                (productDetails.status &&
+                  productDetails.status
+                    .toLowerCase()
+                    .includes(query.toLowerCase()))
               ) {
                 messageMatches.push({
-                  messageId: msg.id || `product-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                  messageId:
+                    msg.id ||
+                    `product-${Date.now()}-${Math.random()
+                      .toString(36)
+                      .substr(2, 9)}`,
                   messageText: `Product: ${productDetails.name}`,
                   timestamp: msg.createdAt,
                   isProduct: true,
-                  index: chat.messages.indexOf(msg) // Store the index for scrolling
+                  index: chat.messages.indexOf(msg), // Store the index for scrolling
                 });
               }
             }
           });
         }
-        
+
         if (nameMatch || messageMatches.length > 0) {
           results.push({
             conversation: chat,
             nameMatch,
-            messageMatches
+            messageMatches,
           });
         }
       });
     }
-    
+
     setSearchResults(results);
   };
 
@@ -914,53 +1013,62 @@ const MessagePage = () => {
   };
 
   // Function to handle clicking on a search result
-  const handleSearchResultClick = (conversation, messageId = null, messageIndex = null) => {
+  const handleSearchResultClick = (
+    conversation,
+    messageId = null,
+    messageIndex = null
+  ) => {
     setActiveChat(conversation);
-    
+
     // Clear unread status
     setUnreadMessages((prev) => ({
       ...prev,
       [conversation.id]: false,
     }));
-    
+
     setConversations((prev) =>
       prev.map((conv) =>
         conv.id === conversation.id ? { ...conv, hasUnread: false } : conv
       )
     );
-    
+
     // If a specific message was clicked, highlight it
     if (messageId) {
       setHighlightedMessageId(messageId);
-      
+
       // Scroll to the message after the chat content is rendered
       setTimeout(() => {
         // Try to find by ID first
         let messageElement = document.getElementById(`message-${messageId}`);
-        
+
         // If not found by ID, try to find by index
         if (!messageElement && messageIndex !== null) {
-          const messageElements = document.querySelectorAll('.chat-message, .product-card');
+          const messageElements = document.querySelectorAll(
+            ".chat-message, .product-card"
+          );
           if (messageElements && messageElements.length > messageIndex) {
             messageElement = messageElements[messageIndex];
           }
         }
-        
+
         if (messageElement) {
-          messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
+          messageElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+
           // Add a temporary highlight class
-          messageElement.classList.add('highlighted-message');
-          
+          messageElement.classList.add("highlighted-message");
+
           // Remove highlight after a few seconds
           setTimeout(() => {
             setHighlightedMessageId(null);
-            messageElement.classList.remove('highlighted-message');
+            messageElement.classList.remove("highlighted-message");
           }, 3000);
         }
       }, 300); // Increased timeout to ensure chat is fully rendered
     }
-    
+
     // Clear search if on mobile
     if (isMobile) {
       clearSearch();
@@ -970,18 +1078,18 @@ const MessagePage = () => {
   // Modified getFilteredConversations to work with search
   const getFilteredConversations = () => {
     if (!conversations) return [];
-    
+
     // If in search mode and we have results, return conversations from search results
     if (isSearching && searchResults.length > 0) {
-      return searchResults.map(result => result.conversation);
+      return searchResults.map((result) => result.conversation);
     }
-    
+
     // Otherwise filter by read/unread status
-    switch(messageFilter) {
+    switch (messageFilter) {
       case "Read":
-        return conversations.filter(chat => !chat.hasUnread);
+        return conversations.filter((chat) => !chat.hasUnread);
       case "Unread":
-        return conversations.filter(chat => chat.hasUnread);
+        return conversations.filter((chat) => chat.hasUnread);
       case "All":
       default:
         return conversations;
@@ -991,176 +1099,241 @@ const MessagePage = () => {
   // Add function to handle conversation menu actions
   const handleConversationAction = async (action, chat, e) => {
     e.stopPropagation(); // Prevent conversation click
-    
-    switch(action) {
-      case 'viewProfile':
+
+    switch (action) {
+      case "viewProfile":
         // Navigate directly to user profile using the same path as in ListingDetail.js
         navigate(`/user/${chat.otherUser.user_id}`);
         break;
-      case 'block':
+      case "block":
         // Show confirmation dialog for blocking
-        if (window.confirm(`Are you sure you want to block ${chat.otherUser.first_name}?`)) {
+        if (
+          window.confirm(
+            `Are you sure you want to block ${chat.otherUser.first_name}?`
+          )
+        ) {
           try {
             const response = await fetch(
-              `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/block`,
+              `${
+                process.env.REACT_APP_API_URL || `${baseApi}`
+              }/api/conversations/block`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   blockerId: studentUser.userId,
-                  blockedId: chat.otherUser.user_id
+                  blockedId: chat.otherUser.user_id,
                 }),
               }
             );
 
             if (response.ok) {
               // Update UI to show user is blocked
-              setIsBlocked(prev => ({
+              setIsBlocked((prev) => ({
                 ...prev,
-                [chat.otherUser.user_id]: true
+                [chat.otherUser.user_id]: true,
               }));
-              
+
               // Update conversation in the list
-              setConversations(prevConversations =>
-                prevConversations.map(conv =>
+              setConversations((prevConversations) =>
+                prevConversations.map((conv) =>
                   conv.otherUser.user_id === chat.otherUser.user_id
                     ? { ...conv, isBlocked: true }
                     : conv
                 )
               );
-              
-              ShowAlert(dispatch, "success", "User Blocked", `${chat.otherUser.first_name} has been blocked.`);
-              
+
+              ShowAlert(
+                dispatch,
+                "success",
+                "User Blocked",
+                `${chat.otherUser.first_name} has been blocked.`
+              );
+
               // If this is the active chat, show the unblock button
               if (activeChat && activeChat.id === chat.id) {
                 setShowUnblockButton(true);
               }
-              
+
               // Emit socket event to notify the other user
               socket.current.emit("blockUser", {
                 blockerId: studentUser.userId,
-                blockedId: chat.otherUser.user_id
+                blockedId: chat.otherUser.user_id,
               });
             } else {
               const errorData = await response.json();
-              ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to block user.");
+              ShowAlert(
+                dispatch,
+                "error",
+                "Error",
+                errorData.error || "Failed to block user."
+              );
             }
           } catch (error) {
             console.error("Error blocking user:", error);
-            ShowAlert(dispatch, "error", "Error", "An unexpected error occurred.");
+            ShowAlert(
+              dispatch,
+              "error",
+              "Error",
+              "An unexpected error occurred."
+            );
           }
         }
         break;
-      case 'report':
+      case "report":
         // Check if user has already been reported
         if (hasReported[chat.otherUser.user_id]) {
-          ShowAlert(dispatch, "info", "Already Reported", "You have already reported this user.");
+          ShowAlert(
+            dispatch,
+            "info",
+            "Already Reported",
+            "You have already reported this user."
+          );
           break;
         }
-        
+
         // console.log("Showing report modal for user:", chat.otherUser);
-        
+
         // Set the user to be reported and show the report modal
         setReportUser({
           id: chat.otherUser.user_id,
-          name: `${chat.otherUser.first_name} ${chat.otherUser.last_name || ''}`
+          name: `${chat.otherUser.first_name} ${
+            chat.otherUser.last_name || ""
+          }`,
         });
         setShowReportModal(true);
         break;
-      case 'delete':
+      case "delete":
         // Show confirmation dialog for deleting
-        if (window.confirm(`Are you sure you want to delete this conversation with ${chat.otherUser.first_name}?`)) {
+        if (
+          window.confirm(
+            `Are you sure you want to delete this conversation with ${chat.otherUser.first_name}?`
+          )
+        ) {
           try {
             const response = await fetch(
-              `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/delete`,
+              `${
+                process.env.REACT_APP_API_URL || `${baseApi}`
+              }/api/conversations/delete`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   conversationId: chat.id,
-                  userId: studentUser.userId
+                  userId: studentUser.userId,
                 }),
               }
             );
 
             if (response.ok) {
               // Remove conversation from local state
-              setConversations(prevConversations => 
-                prevConversations.filter(conv => conv.id !== chat.id)
+              setConversations((prevConversations) =>
+                prevConversations.filter((conv) => conv.id !== chat.id)
               );
-              
+
               // If this was the active chat, clear it
               if (activeChat && activeChat.id === chat.id) {
                 setActiveChat(null);
               }
-              
-              ShowAlert(dispatch, "success", "Conversation Deleted", 
-                `Conversation with ${chat.otherUser.first_name} has been deleted.`);
+
+              ShowAlert(
+                dispatch,
+                "success",
+                "Conversation Deleted",
+                `Conversation with ${chat.otherUser.first_name} has been deleted.`
+              );
             } else {
               const errorData = await response.json();
-              ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to delete conversation.");
+              ShowAlert(
+                dispatch,
+                "error",
+                "Error",
+                errorData.error || "Failed to delete conversation."
+              );
             }
           } catch (error) {
             console.error("Error deleting conversation:", error);
-            ShowAlert(dispatch, "error", "Error", "An unexpected error occurred.");
+            ShowAlert(
+              dispatch,
+              "error",
+              "Error",
+              "An unexpected error occurred."
+            );
           }
         }
         break;
-      case 'unblock':
+      case "unblock":
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/unblock`,
+            `${
+              process.env.REACT_APP_API_URL || `${baseApi}`
+            }/api/conversations/unblock`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 blockerId: studentUser.userId,
-                blockedId: chat.otherUser.user_id
+                blockedId: chat.otherUser.user_id,
               }),
             }
           );
 
           if (response.ok) {
             // Update local state to reflect unblock
-            setIsBlocked(prev => {
+            setIsBlocked((prev) => {
               const updated = { ...prev };
               delete updated[chat.otherUser.user_id];
               return updated;
             });
-            ShowAlert(dispatch, "success", "User Unblocked", "This user has been unblocked successfully.");
+            ShowAlert(
+              dispatch,
+              "success",
+              "User Unblocked",
+              "This user has been unblocked successfully."
+            );
             setShowUnblockButton(false);
-            
+
             // Update any conversations with this user
-            setConversations(prevConversations =>
-              prevConversations.map(conv =>
+            setConversations((prevConversations) =>
+              prevConversations.map((conv) =>
                 conv.otherUser.user_id === chat.otherUser.user_id
                   ? { ...conv, isBlocked: false }
                   : conv
               )
             );
-            
+
             // Emit socket event to notify the other user
             socket.current.emit("unblockUser", {
               unblockerId: studentUser.userId,
-              unblockedId: chat.otherUser.user_id
+              unblockedId: chat.otherUser.user_id,
             });
-            
+
             return true;
           } else {
             const errorData = await response.json();
-            ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to unblock user.");
+            ShowAlert(
+              dispatch,
+              "error",
+              "Error",
+              errorData.error || "Failed to unblock user."
+            );
             return false;
           }
         } catch (err) {
           console.error("Error unblocking user:", err);
-          ShowAlert(dispatch, "error", "Error", "An unexpected error occurred while unblocking the user.");
+          ShowAlert(
+            dispatch,
+            "error",
+            "Error",
+            "An unexpected error occurred while unblocking the user."
+          );
           return false;
         }
         break;
       default:
         break;
     }
-    
+
     // Close the menu
     setActiveMenu(null);
   };
@@ -1175,12 +1348,19 @@ const MessagePage = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Close filter dropdown when clicking outside
-      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+      if (
+        filterDropdownRef.current &&
+        !filterDropdownRef.current.contains(event.target)
+      ) {
         setShowFilterDropdown(false);
       }
-      
+
       // Close active menu when clicking outside
-      if (activeMenu && menuRefs.current[activeMenu] && !menuRefs.current[activeMenu].contains(event.target)) {
+      if (
+        activeMenu &&
+        menuRefs.current[activeMenu] &&
+        !menuRefs.current[activeMenu].contains(event.target)
+      ) {
         setActiveMenu(null);
       }
     };
@@ -1194,17 +1374,14 @@ const MessagePage = () => {
   // Check if a user has been reported
   const checkIfReported = async (userId) => {
     if (!studentUser.userId || !userId) return false;
-    
+
     try {
-      const response = await axios.get(
-        `${baseApi}/api/reports/check`,
-        {
-          params: {
-            reporter_id: studentUser.userId,
-            reported_entity_id: userId,
-          },
-        }
-      );
+      const response = await axios.get(`${baseApi}/api/reports/check`, {
+        params: {
+          reporter_id: studentUser.userId,
+          reported_entity_id: userId,
+        },
+      });
       return response.data.hasReported;
     } catch (error) {
       console.error("Error checking report:", error);
@@ -1218,9 +1395,9 @@ const MessagePage = () => {
       console.error("No user to report");
       return;
     }
-    
+
     // console.log("Submitting report for user:", reportUser, "with reason:", reason);
-    
+
     const reportData = {
       reporter_id: studentUser.userId,
       reported_entity_id: reportUser.id,
@@ -1230,16 +1407,13 @@ const MessagePage = () => {
 
     try {
       // console.log("Sending report data:", reportData);
-      const response = await axios.post(
-        `${baseApi}/api/reports`,
-        reportData
-      );
+      const response = await axios.post(`${baseApi}/api/reports`, reportData);
       // console.log("Report submission response:", response.data);
 
       // Update hasReported state
-      setHasReported(prev => ({
+      setHasReported((prev) => ({
         ...prev,
-        [reportUser.id]: true
+        [reportUser.id]: true,
       }));
 
       // Show success notification
@@ -1277,9 +1451,9 @@ const MessagePage = () => {
         // console.log("Skipping report check - no user or conversations");
         return;
       }
-      
+
       // console.log("Checking reported users for", conversations.length, "conversations");
-      
+
       const reported = {};
       for (const chat of conversations) {
         if (chat.otherUser && chat.otherUser.user_id) {
@@ -1292,7 +1466,7 @@ const MessagePage = () => {
       }
       setHasReported(reported);
     };
-    
+
     checkReportedUsers();
   }, [conversations]);
 
@@ -1300,50 +1474,67 @@ const MessagePage = () => {
   const handleBlockUser = async (userId) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/block`,
+        `${
+          process.env.REACT_APP_API_URL || `${baseApi}`
+        }/api/conversations/block`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             blockerId: studentUser.userId,
-            blockedId: userId
+            blockedId: userId,
           }),
         }
       );
 
       if (response.ok) {
         // Update local state to reflect block
-        setIsBlocked(prev => ({
+        setIsBlocked((prev) => ({
           ...prev,
-          [userId]: true
+          [userId]: true,
         }));
-        
+
         // Update any conversations with this user
-        setConversations(prevConversations =>
-          prevConversations.map(conv =>
+        setConversations((prevConversations) =>
+          prevConversations.map((conv) =>
             conv.otherUser.user_id === userId
               ? { ...conv, isBlocked: true }
               : conv
           )
         );
-        
-        ShowAlert(dispatch, "success", "User Blocked", "This user has been blocked successfully.");
-        
+
+        ShowAlert(
+          dispatch,
+          "success",
+          "User Blocked",
+          "This user has been blocked successfully."
+        );
+
         // Emit socket event to notify the other user
         socket.current.emit("blockUser", {
           blockerId: studentUser.userId,
-          blockedId: userId
+          blockedId: userId,
         });
-        
+
         return true;
       } else {
         const errorData = await response.json();
-        ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to block user.");
+        ShowAlert(
+          dispatch,
+          "error",
+          "Error",
+          errorData.error || "Failed to block user."
+        );
         return false;
       }
     } catch (err) {
       console.error("Error blocking user:", err);
-      ShowAlert(dispatch, "error", "Error", "An unexpected error occurred while blocking the user.");
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "An unexpected error occurred while blocking the user."
+      );
       return false;
     }
   };
@@ -1352,51 +1543,68 @@ const MessagePage = () => {
   const handleUnblockUser = async (userId) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/unblock`,
+        `${
+          process.env.REACT_APP_API_URL || `${baseApi}`
+        }/api/conversations/unblock`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             blockerId: studentUser.userId,
-            blockedId: userId
+            blockedId: userId,
           }),
         }
       );
 
       if (response.ok) {
         // Update local state to reflect unblock
-        setIsBlocked(prev => {
+        setIsBlocked((prev) => {
           const updated = { ...prev };
           delete updated[userId];
           return updated;
         });
-        ShowAlert(dispatch, "success", "User Unblocked", "This user has been unblocked successfully.");
+        ShowAlert(
+          dispatch,
+          "success",
+          "User Unblocked",
+          "This user has been unblocked successfully."
+        );
         setShowUnblockButton(false);
-        
+
         // Update any conversations with this user
-        setConversations(prevConversations =>
-          prevConversations.map(conv =>
+        setConversations((prevConversations) =>
+          prevConversations.map((conv) =>
             conv.otherUser.user_id === userId
               ? { ...conv, isBlocked: false }
               : conv
           )
         );
-        
+
         // Emit socket event to notify the other user
         socket.current.emit("unblockUser", {
           unblockerId: studentUser.userId,
-          unblockedId: userId
+          unblockedId: userId,
         });
-        
+
         return true;
       } else {
         const errorData = await response.json();
-        ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to unblock user.");
+        ShowAlert(
+          dispatch,
+          "error",
+          "Error",
+          errorData.error || "Failed to unblock user."
+        );
         return false;
       }
     } catch (err) {
       console.error("Error unblocking user:", err);
-      ShowAlert(dispatch, "error", "Error", "An unexpected error occurred while unblocking the user.");
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "An unexpected error occurred while unblocking the user."
+      );
       return false;
     }
   };
@@ -1405,38 +1613,55 @@ const MessagePage = () => {
   const handleDeleteConversation = async (conversationId) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/delete`,
+        `${
+          process.env.REACT_APP_API_URL || `${baseApi}`
+        }/api/conversations/delete`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             conversationId: conversationId,
-            userId: studentUser.userId
+            userId: studentUser.userId,
           }),
         }
       );
 
       if (response.ok) {
         // Remove conversation from local state
-        setConversations(prevConversations => 
-          prevConversations.filter(conv => conv.id !== conversationId)
+        setConversations((prevConversations) =>
+          prevConversations.filter((conv) => conv.id !== conversationId)
         );
-        
+
         // If this was the active chat, clear it
         if (activeChat && activeChat.id === conversationId) {
           setActiveChat(null);
         }
-        
-        ShowAlert(dispatch, "success", "Conversation Deleted", "The conversation has been deleted successfully.");
+
+        ShowAlert(
+          dispatch,
+          "success",
+          "Conversation Deleted",
+          "The conversation has been deleted successfully."
+        );
         return true;
       } else {
         const errorData = await response.json();
-        ShowAlert(dispatch, "error", "Error", errorData.error || "Failed to delete conversation.");
+        ShowAlert(
+          dispatch,
+          "error",
+          "Error",
+          errorData.error || "Failed to delete conversation."
+        );
         return false;
       }
     } catch (err) {
       console.error("Error deleting conversation:", err);
-      ShowAlert(dispatch, "error", "Error", "An unexpected error occurred while deleting the conversation.");
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "An unexpected error occurred while deleting the conversation."
+      );
       return false;
     }
   };
@@ -1444,44 +1669,48 @@ const MessagePage = () => {
   // Helper function to fetch a conversation that was previously deleted
   const fetchDeletedConversation = async (conversationId) => {
     if (!userId) return;
-    
+
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || `${baseApi}`}/api/conversations/single/${conversationId}/${userId}`
+        `${
+          process.env.REACT_APP_API_URL || `${baseApi}`
+        }/api/conversations/single/${conversationId}/${userId}`
       );
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.conversation) {
           // Add the conversation to our state
-          setConversations(prev => {
+          setConversations((prev) => {
             // Make sure we don't add duplicate conversations
-            if (!prev.some(conv => conv.id === data.conversation.id)) {
+            if (!prev.some((conv) => conv.id === data.conversation.id)) {
               const updatedConvs = [...prev, data.conversation];
               // Sort conversations by most recent activity
-              return updatedConvs.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+              return updatedConvs.sort(
+                (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+              );
             }
             return prev;
           });
-          
+
           // Set conversation as unread
-          setUnreadMessages(prev => ({
+          setUnreadMessages((prev) => ({
             ...prev,
-            [conversationId]: true
+            [conversationId]: true,
           }));
-          
+
           // Set block status if needed
           if (data.conversation.isBlocked) {
-            setIsBlocked(prev => ({
+            setIsBlocked((prev) => ({
               ...prev,
-              [data.conversation.otherUser.user_id]: true
+              [data.conversation.otherUser.user_id]: true,
             }));
           }
-          
+
           if (data.conversation.blockedBy) {
-            setBlockedBy(prev => ({
+            setBlockedBy((prev) => ({
               ...prev,
-              [data.conversation.otherUser.user_id]: true
+              [data.conversation.otherUser.user_id]: true,
             }));
           }
         }
@@ -1497,16 +1726,18 @@ const MessagePage = () => {
       // First, prioritize conversations with unread messages
       if (a.hasUnread && !b.hasUnread) return -1;
       if (!a.hasUnread && b.hasUnread) return 1;
-      
+
       // Then check for latest messages in each conversation
-      const aLatestMessageTime = a.messages && a.messages.length > 0
-        ? new Date(a.messages[a.messages.length - 1].createdAt)
-        : new Date(a.updatedAt);
-      
-      const bLatestMessageTime = b.messages && b.messages.length > 0
-        ? new Date(b.messages[b.messages.length - 1].createdAt)
-        : new Date(b.updatedAt);
-      
+      const aLatestMessageTime =
+        a.messages && a.messages.length > 0
+          ? new Date(a.messages[a.messages.length - 1].createdAt)
+          : new Date(a.updatedAt);
+
+      const bLatestMessageTime =
+        b.messages && b.messages.length > 0
+          ? new Date(b.messages[b.messages.length - 1].createdAt)
+          : new Date(b.updatedAt);
+
       // Sort by most recent activity (message or conversation update)
       return bLatestMessageTime - aLatestMessageTime;
     });
@@ -1514,29 +1745,29 @@ const MessagePage = () => {
 
   // Add CSS for image preview positioning
   const messageInputStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    gap: '10px',
-    width: '100%'
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+    gap: "10px",
+    width: "100%",
   };
 
   const previewContainerStyle = {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '5px',
-    marginBottom: '10px'
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "5px",
+    marginBottom: "10px",
   };
 
   // Add this CSS for the accepted offer badge
   const acceptedOfferBadgeStyle = {
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    padding: '8px 12px',
-    borderRadius: '4px',
-    fontWeight: 'bold',
-    display: 'inline-block',
-    pointerEvents: 'none'
+    backgroundColor: "#4CAF50",
+    color: "white",
+    padding: "8px 12px",
+    borderRadius: "4px",
+    fontWeight: "bold",
+    display: "inline-block",
+    pointerEvents: "none",
   };
 
   return (
@@ -1548,28 +1779,36 @@ const MessagePage = () => {
           <div className="inbox-header">
             <h3>Messages</h3>
             <div className="filter-dropdown" ref={filterDropdownRef}>
-              <div 
-                className={`selected-filter ${showFilterDropdown ? "open" : ""}`} 
+              <div
+                className={`selected-filter ${
+                  showFilterDropdown ? "open" : ""
+                }`}
                 onClick={toggleFilterDropdown}
               >
                 {messageFilter} <span className="dropdown-arrow">▼</span>
               </div>
               {showFilterDropdown && (
                 <div className="filter-options">
-                  <div 
-                    className={`filter-option ${messageFilter === "All" ? "active" : ""}`}
+                  <div
+                    className={`filter-option ${
+                      messageFilter === "All" ? "active" : ""
+                    }`}
                     onClick={() => selectFilter("All")}
                   >
                     All
                   </div>
-                  <div 
-                    className={`filter-option ${messageFilter === "Read" ? "active" : ""}`}
+                  <div
+                    className={`filter-option ${
+                      messageFilter === "Read" ? "active" : ""
+                    }`}
                     onClick={() => selectFilter("Read")}
                   >
                     Read
                   </div>
-                  <div 
-                    className={`filter-option ${messageFilter === "Unread" ? "active" : ""}`}
+                  <div
+                    className={`filter-option ${
+                      messageFilter === "Unread" ? "active" : ""
+                    }`}
                     onClick={() => selectFilter("Unread")}
                   >
                     Unread
@@ -1578,7 +1817,7 @@ const MessagePage = () => {
               )}
             </div>
           </div>
-          
+
           {/* Search bar */}
           <div className="search-container">
             <div className="search-input-wrapper">
@@ -1591,90 +1830,274 @@ const MessagePage = () => {
                 onChange={handleSearch}
               />
               {searchQuery && (
-                <button 
-                  className="clear-search" 
-                  onClick={clearSearch}
-                >
+                <button className="clear-search" onClick={clearSearch}>
                   <FiX size={12} />
                 </button>
               )}
             </div>
           </div>
-          
+
           {isLoading ? (
             <p>Loading conversations...</p>
           ) : isSearching && searchResults.length === 0 ? (
-            <p className="no-conversations">No results found for "{searchQuery}"</p>
+            <p className="no-conversations">
+              No results found for "{searchQuery}"
+            </p>
           ) : getFilteredConversations().length > 0 ? (
             <div className="inbox-list">
-              {isSearching ? (
-                // Display search results with message previews
-                searchResults.map(result => {
-                  const chat = result.conversation;
-                  const hasUnreadMessages = chat.hasUnread;
-                  
-                  return (
-                    <div key={chat.id} className="search-result-group">
+              {isSearching
+                ? // Display search results with message previews
+                  searchResults.map((result) => {
+                    const chat = result.conversation;
+                    const hasUnreadMessages = chat.hasUnread;
+
+                    return (
+                      <div key={chat.id} className="search-result-group">
+                        <div
+                          className={`inbox-item ${
+                            hasUnreadMessages ? "unread" : ""
+                          } ${result.nameMatch ? "name-match" : ""}`}
+                          onClick={() => handleSearchResultClick(chat)}
+                        >
+                          <img
+                            src={UserIcon}
+                            alt="User Icon"
+                            className="user-icon"
+                          />
+                          <div className="message-info">
+                            <h5>{chat.otherUser.first_name}</h5>
+                            <p className="preview-message">
+                              {result.nameMatch ? (
+                                <span className="match-highlight">
+                                  Name matches your search
+                                </span>
+                              ) : (
+                                `${result.messageMatches.length} message${
+                                  result.messageMatches.length > 1 ? "s" : ""
+                                } found`
+                              )}
+                            </p>
+                          </div>
+                          <div className="message-meta">
+                            <span className="timestamp">
+                              {chat.messages && chat.messages.length > 0
+                                ? new Date(
+                                    chat.messages[
+                                      chat.messages.length - 1
+                                    ].createdAt
+                                  ).toLocaleString()
+                                : ""}
+                            </span>
+                            {hasUnreadMessages && (
+                              <div className="unread-indicator"></div>
+                            )}
+                          </div>
+                          <div
+                            className="conversation-menu"
+                            ref={(el) => (menuRefs.current[chat.id] = el)}
+                          >
+                            <button
+                              className="ellipsis-menu"
+                              onClick={(e) => toggleMenu(chat.id, e)}
+                            >
+                              <FiMoreVertical />
+                            </button>
+                            {activeMenu === chat.id && (
+                              <div className="menu-options">
+                                <div
+                                  className="menu-option"
+                                  onClick={(e) =>
+                                    handleConversationAction(
+                                      "viewProfile",
+                                      chat,
+                                      e
+                                    )
+                                  }
+                                >
+                                  View Profile
+                                </div>
+                                <div
+                                  className="menu-option"
+                                  onClick={(e) =>
+                                    handleConversationAction(
+                                      isBlocked[chat.otherUser.user_id]
+                                        ? "unblock"
+                                        : "block",
+                                      chat,
+                                      e
+                                    )
+                                  }
+                                >
+                                  {isBlocked[chat.otherUser.user_id]
+                                    ? "Unblock"
+                                    : "Block"}
+                                </div>
+                                <div
+                                  className="menu-option"
+                                  onClick={(e) => {
+                                    // console.log("Report button clicked", chat.otherUser);
+                                    handleConversationAction("report", chat, e);
+                                  }}
+                                >
+                                  Report
+                                </div>
+                                <div
+                                  className="menu-option delete"
+                                  onClick={(e) =>
+                                    handleConversationAction("delete", chat, e)
+                                  }
+                                >
+                                  Delete
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Show message matches */}
+                        {result.messageMatches.length > 0 && (
+                          <div className="message-matches">
+                            {result.messageMatches.map((match, idx) => (
+                              <div
+                                key={idx}
+                                className="message-match-item"
+                                onClick={() =>
+                                  handleSearchResultClick(
+                                    chat,
+                                    match.messageId,
+                                    match.index
+                                  )
+                                }
+                              >
+                                <div className="message-match-content">
+                                  <p className="message-match-text">
+                                    {match.isProduct ? (
+                                      <span className="product-match">
+                                        {match.messageText}
+                                      </span>
+                                    ) : match.messageText.length > 50 ? (
+                                      `${match.messageText.substring(0, 50)}...`
+                                    ) : (
+                                      match.messageText
+                                    )}
+                                  </p>
+                                  <span className="message-match-time">
+                                    {new Date(match.timestamp).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                : // Regular conversation list
+                  getFilteredConversations().map((chat) => {
+                    // Get the latest message
+                    const latestMessage =
+                      chat.messages && chat.messages.length > 0
+                        ? chat.messages[chat.messages.length - 1]
+                        : null;
+
+                    // Check if there are unread messages (we'll implement this state later)
+                    const hasUnreadMessages = chat.hasUnread;
+
+                    return (
                       <div
-                        className={`inbox-item ${hasUnreadMessages ? "unread" : ""} ${result.nameMatch ? "name-match" : ""}`}
-                        onClick={() => handleSearchResultClick(chat)}
+                        key={chat.id}
+                        className={`inbox-item ${
+                          hasUnreadMessages ? "unread" : ""
+                        }`}
+                        onClick={() => handleConversationClick(chat)}
                       >
-                        <img src={UserIcon} alt="User Icon" className="user-icon" />
+                        <img
+                          src={UserIcon}
+                          alt={`${chat.otherUser.first_name}'s profile`}
+                          className="user-icon"
+                        />
                         <div className="message-info">
                           <h5>{chat.otherUser.first_name}</h5>
                           <p className="preview-message">
-                            {result.nameMatch ? 
-                              <span className="match-highlight">Name matches your search</span> : 
-                              `${result.messageMatches.length} message${result.messageMatches.length > 1 ? 's' : ''} found`
-                            }
+                            {latestMessage
+                              ? latestMessage.images &&
+                                latestMessage.images.length > 0
+                                ? "Sent a Photo"
+                                : latestMessage.isProductCard
+                                ? "Shared a product"
+                                : latestMessage.text &&
+                                  latestMessage.text.length > 30
+                                ? `${latestMessage.text.substring(0, 30)}...`
+                                : latestMessage.text
+                              : "No messages yet"}
                           </p>
                         </div>
                         <div className="message-meta">
                           <span className="timestamp">
-                            {chat.messages && chat.messages.length > 0
-                              ? new Date(chat.messages[chat.messages.length - 1].createdAt).toLocaleString()
+                            {latestMessage
+                              ? new Date(
+                                  latestMessage.createdAt
+                                ).toLocaleString()
                               : ""}
                           </span>
                           {hasUnreadMessages && (
                             <div className="unread-indicator"></div>
                           )}
                         </div>
-                        <div 
-                          className="conversation-menu" 
-                          ref={el => menuRefs.current[chat.id] = el}
+                        <div
+                          className="conversation-menu"
+                          ref={(el) => (menuRefs.current[chat.id] = el)}
                         >
-                          <button 
-                            className="ellipsis-menu" 
+                          <button
+                            className="ellipsis-menu"
                             onClick={(e) => toggleMenu(chat.id, e)}
                           >
                             <FiMoreVertical />
                           </button>
                           {activeMenu === chat.id && (
                             <div className="menu-options">
-                              <div 
+                              <div
                                 className="menu-option"
-                                onClick={(e) => handleConversationAction('viewProfile', chat, e)}
+                                onClick={(e) =>
+                                  handleConversationAction(
+                                    "viewProfile",
+                                    chat,
+                                    e
+                                  )
+                                }
                               >
                                 View Profile
                               </div>
-                              <div 
+                              <div
                                 className="menu-option"
-                                onClick={(e) => handleConversationAction(isBlocked[chat.otherUser.user_id] ? 'unblock' : 'block', chat, e)}
+                                onClick={(e) =>
+                                  handleConversationAction(
+                                    isBlocked[chat.otherUser.user_id]
+                                      ? "unblock"
+                                      : "block",
+                                    chat,
+                                    e
+                                  )
+                                }
                               >
-                                {isBlocked[chat.otherUser.user_id] ? 'Unblock' : 'Block'}
+                                {isBlocked[chat.otherUser.user_id]
+                                  ? "Unblock"
+                                  : "Block"}
                               </div>
-                              <div 
+                              <div
                                 className="menu-option"
                                 onClick={(e) => {
                                   // console.log("Report button clicked", chat.otherUser);
-                                  handleConversationAction('report', chat, e);
+                                  handleConversationAction("report", chat, e);
                                 }}
                               >
                                 Report
                               </div>
-                              <div 
+                              <div
                                 className="menu-option delete"
-                                onClick={(e) => handleConversationAction('delete', chat, e)}
+                                onClick={(e) =>
+                                  handleConversationAction("delete", chat, e)
+                                }
                               >
                                 Delete
                               </div>
@@ -1682,130 +2105,8 @@ const MessagePage = () => {
                           )}
                         </div>
                       </div>
-                      
-                      {/* Show message matches */}
-                      {result.messageMatches.length > 0 && (
-                        <div className="message-matches">
-                          {result.messageMatches.map((match, idx) => (
-                            <div 
-                              key={idx} 
-                              className="message-match-item"
-                              onClick={() => handleSearchResultClick(chat, match.messageId, match.index)}
-                            >
-                              <div className="message-match-content">
-                                <p className="message-match-text">
-                                  {match.isProduct ? (
-                                    <span className="product-match">{match.messageText}</span>
-                                  ) : (
-                                    match.messageText.length > 50 ? 
-                                      `${match.messageText.substring(0, 50)}...` : 
-                                      match.messageText
-                                  )}
-                                </p>
-                                <span className="message-match-time">
-                                  {new Date(match.timestamp).toLocaleString()}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                // Regular conversation list
-                getFilteredConversations().map((chat) => {
-                  // Get the latest message
-                  const latestMessage =
-                    chat.messages && chat.messages.length > 0
-                      ? chat.messages[chat.messages.length - 1]
-                      : null;
-
-                  // Check if there are unread messages (we'll implement this state later)
-                  const hasUnreadMessages = chat.hasUnread;
-
-                  return (
-                    <div
-                      key={chat.id}
-                      className={`inbox-item ${hasUnreadMessages ? "unread" : ""}`}
-                      onClick={() => handleConversationClick(chat)}
-                    >
-                      <img 
-                        src={UserIcon} 
-                        alt={`${chat.otherUser.first_name}'s profile`} 
-                        className="user-icon" 
-                      />
-                      <div className="message-info">
-                        <h5>{chat.otherUser.first_name}</h5>
-                        <p className="preview-message">
-                        {latestMessage
-                            ? latestMessage.images && latestMessage.images.length > 0
-                              ? "Sent a Photo"
-                              : latestMessage.isProductCard
-                              ? "Shared a product"
-                              : latestMessage.text && latestMessage.text.length > 30
-                              ? `${latestMessage.text.substring(0, 30)}...`
-                              : latestMessage.text
-                            : "No messages yet"}
-                        </p>
-                      </div>
-                      <div className="message-meta">
-                        <span className="timestamp">
-                          {latestMessage
-                            ? new Date(latestMessage.createdAt).toLocaleString()
-                            : ""}
-                        </span>
-                        {hasUnreadMessages && (
-                          <div className="unread-indicator"></div>
-                        )}
-                      </div>
-                      <div 
-                        className="conversation-menu" 
-                        ref={el => menuRefs.current[chat.id] = el}
-                      >
-                        <button 
-                          className="ellipsis-menu" 
-                          onClick={(e) => toggleMenu(chat.id, e)}
-                        >
-                          <FiMoreVertical />
-                        </button>
-                        {activeMenu === chat.id && (
-                          <div className="menu-options">
-                            <div 
-                              className="menu-option"
-                              onClick={(e) => handleConversationAction('viewProfile', chat, e)}
-                            >
-                              View Profile
-                            </div>
-                            <div 
-                              className="menu-option"
-                              onClick={(e) => handleConversationAction(isBlocked[chat.otherUser.user_id] ? 'unblock' : 'block', chat, e)}
-                            >
-                              {isBlocked[chat.otherUser.user_id] ? 'Unblock' : 'Block'}
-                            </div>
-                            <div 
-                              className="menu-option"
-                              onClick={(e) => {
-                                // console.log("Report button clicked", chat.otherUser);
-                                handleConversationAction('report', chat, e);
-                              }}
-                            >
-                              Report
-                            </div>
-                            <div 
-                              className="menu-option delete"
-                              onClick={(e) => handleConversationAction('delete', chat, e)}
-                            >
-                              Delete
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })}
             </div>
           ) : (
             <p className="no-conversations">No conversations available.</p>
@@ -1828,15 +2129,25 @@ const MessagePage = () => {
               {activeChat.messages && activeChat.messages.length > 0 ? (
                 activeChat.messages.map((message, index) =>
                   message.isProductCard ? (
-                    <div 
+                    <div
                       key={index}
                       id={`message-${message.id}`}
-                      className={`product-card ${highlightedMessageId === message.id ? 'highlighted-message' : ''}`}
-                      onClick={() => handleProductCardClick(
-                        message.productDetails?.productId,
-                        message.productDetails?.type
-                      )}
-                      style={{ cursor: message.productDetails?.productId ? 'pointer' : 'default' }}
+                      className={`product-card ${
+                        highlightedMessageId === message.id
+                          ? "highlighted-message"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        handleProductCardClick(
+                          message.productDetails?.productId,
+                          message.productDetails?.type
+                        )
+                      }
+                      style={{
+                        cursor: message.productDetails?.productId
+                          ? "pointer"
+                          : "default",
+                      }}
                     >
                       <div className="product-card-header">
                         <h6>
@@ -1844,14 +2155,16 @@ const MessagePage = () => {
                             ? "Offer for this item"
                             : "Inquiring about this item"}
                         </h6>
-                        <button 
-                          className={`expand-toggle-btn ${expandedCards.has(message.id) ? 'expanded' : ''}`}
+                        <button
+                          className={`expand-toggle-btn ${
+                            expandedCards.has(message.id) ? "expanded" : ""
+                          }`}
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent card click from navigating
                             toggleCardExpansion(message.id, e);
                           }}
                         >
-                          {expandedCards.has(message.id) ? '−' : '+'}
+                          {expandedCards.has(message.id) ? "−" : "+"}
                         </button>
                       </div>
                       <div className="d-flex align-items-start">
@@ -1859,7 +2172,12 @@ const MessagePage = () => {
                           src={message.productDetails?.image}
                           alt={message.productDetails?.name}
                           className="me-3"
-                          style={{ width: "60px", height: "60px", objectFit: "cover", cursor: "pointer" }}
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            objectFit: "cover",
+                            cursor: "pointer",
+                          }}
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent parent card click
                             handleImageClick(message.productDetails?.image);
@@ -1873,7 +2191,8 @@ const MessagePage = () => {
                           {/* Display price based on whether it's an offer or inquiry */}
                           {message.productDetails?.title === "Offer" ? (
                             <p className="mb-1">
-                              Offered Price: ₱{message.productDetails?.offerPrice}
+                              Offered Price: ₱
+                              {message.productDetails?.offerPrice}
                             </p>
                           ) : (
                             message.productDetails?.inquiryPrice && (
@@ -1895,10 +2214,12 @@ const MessagePage = () => {
                                 </p>
                                 {/* Show either Accept Offer button or Accepted status,
                                     BUT ONLY if this is an offer, not an inquiry */}
-                                {message.productDetails?.title === "Offer" && (
-                                  isRecipient(message) ? (
+                                {message.productDetails?.title === "Offer" &&
+                                  (isRecipient(message) ? (
                                     acceptedOffers.has(message.id) ? (
-                                      <div className="accepted-offer-badge">Offer Accepted</div>
+                                      <div className="accepted-offer-badge">
+                                        Offer Accepted
+                                      </div>
                                     ) : (
                                       <button
                                         type="button"
@@ -1917,64 +2238,103 @@ const MessagePage = () => {
                                     )
                                   ) : (
                                     acceptedOffers.has(message.id) && (
-                                      <div className="accepted-offer-badge">Offer Accepted</div>
+                                      <div className="accepted-offer-badge">
+                                        Offer Accepted
+                                      </div>
                                     )
-                                  )
-                                )}
+                                  ))}
                               </div>
                             </>
                           ) : null}
-                          
+
                           {/* Display additional offer details only when expanded */}
                           {expandedCards.has(message.id) && (
                             <div className="additional-details mt-3">
                               {message.productDetails?.deliveryMethod && (
                                 <p className="mb-1">
-                                  <strong>Delivery:</strong> {message.productDetails.deliveryMethod === "meetup" ? "Meet up" : "Pick up"}
+                                  <strong>Delivery:</strong>{" "}
+                                  {message.productDetails.deliveryMethod ===
+                                  "meetup"
+                                    ? "Meet up"
+                                    : "Pick up"}
                                 </p>
                               )}
-                              
+
                               {message.productDetails?.paymentMethod && (
                                 <p className="mb-1">
-                                  <strong>Payment:</strong> {message.productDetails.paymentMethod === "gcash" ? "Online Payment" : "Pay upon meetup"}
+                                  <strong>Payment:</strong>{" "}
+                                  {message.productDetails.paymentMethod ===
+                                  "gcash"
+                                    ? "Online Payment"
+                                    : "Pay upon meetup"}
                                 </p>
                               )}
-                              
+
                               {message.productDetails?.itemCondition && (
                                 <p className="mb-1">
-                                  <strong>Condition:</strong> {message.productDetails.itemCondition}
+                                  <strong>Condition:</strong>{" "}
+                                  {message.productDetails.itemCondition}
                                 </p>
                               )}
-                              
+
                               {message.productDetails?.location && (
                                 <p className="mb-1">
-                                  <strong>Location:</strong> {message.productDetails.location}
+                                  <strong>Location:</strong>{" "}
+                                  {message.productDetails.location}
                                 </p>
                               )}
-                              
-                              {message.productDetails?.stock && !message.productDetails?.terms && (
-                                <p className="mb-1">
-                                  <strong>Stock:</strong> {message.productDetails.stock}
-                                </p>
-                              )}
-                              
+
+                              {message.productDetails?.stock &&
+                                !message.productDetails?.terms && (
+                                  <p className="mb-1">
+                                    <strong>Stock:</strong>{" "}
+                                    {message.productDetails.stock}
+                                  </p>
+                                )}
+
                               {/* Display terms if available and if product is for rent */}
-                              {message.productDetails?.terms && Object.values(message.productDetails.terms).some(term => term) && (
-                                <div className="terms-details mt-2">
-                                  <p className="mb-1"><strong>Terms & Conditions:</strong></p>
-                                  <div style={{ fontSize: '0.85rem' }}>
-                                    {message.productDetails.terms.lateCharges && (
-                                      <p className="mb-0">• Late Charges: {message.productDetails.terms.lateCharges}</p>
-                                    )}
-                                    {message.productDetails.terms.securityDeposit && (
-                                      <p className="mb-0">• Security Deposit: {message.productDetails.terms.securityDeposit}</p>
-                                    )}
-                                    {message.productDetails.terms.repairReplacement && (
-                                      <p className="mb-0">• Repair/Replacement: {message.productDetails.terms.repairReplacement}</p>
-                                    )}
+                              {message.productDetails?.terms &&
+                                Object.values(
+                                  message.productDetails.terms
+                                ).some((term) => term) && (
+                                  <div className="terms-details mt-2">
+                                    <p className="mb-1">
+                                      <strong>Terms & Conditions:</strong>
+                                    </p>
+                                    <div style={{ fontSize: "0.85rem" }}>
+                                      {message.productDetails.terms
+                                        .lateCharges && (
+                                        <p className="mb-0">
+                                          • Late Charges:{" "}
+                                          {
+                                            message.productDetails.terms
+                                              .lateCharges
+                                          }
+                                        </p>
+                                      )}
+                                      {message.productDetails.terms
+                                        .securityDeposit && (
+                                        <p className="mb-0">
+                                          • Security Deposit:{" "}
+                                          {
+                                            message.productDetails.terms
+                                              .securityDeposit
+                                          }
+                                        </p>
+                                      )}
+                                      {message.productDetails.terms
+                                        .repairReplacement && (
+                                        <p className="mb-0">
+                                          • Repair/Replacement:{" "}
+                                          {
+                                            message.productDetails.terms
+                                              .repairReplacement
+                                          }
+                                        </p>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
                             </div>
                           )}
                         </div>
@@ -1994,10 +2354,14 @@ const MessagePage = () => {
                           ? "new-message"
                           : ""
                       } ${
-                        highlightedMessageId === message.id ? 'highlighted-message' : ''
+                        highlightedMessageId === message.id
+                          ? "highlighted-message"
+                          : ""
                       }`}
                     >
-                      {message.images && Array.isArray(message.images) && message.images.length > 0 && (
+                      {message.images &&
+                        Array.isArray(message.images) &&
+                        message.images.length > 0 && (
                           <div className="image-grid">
                             {message.images.map((img, idx) => (
                               <img
@@ -2006,30 +2370,38 @@ const MessagePage = () => {
                                 alt={`Content ${idx}`}
                                 className="img-fluid rounded"
                                 onClick={() => handleImageClick(img)}
-                                style={{ cursor: 'pointer' }}
+                                style={{ cursor: "pointer" }}
                               />
                             ))}
                           </div>
                         )}
                       <span>
-                      {message.text && <p>{message.text}</p>}
+                        {message.text && <p>{message.text}</p>}
                         {new Date(message.createdAt).toLocaleString()}
                       </span>
                     </div>
                   )
                 )
               ) : (
-                <p className="no-messages">No messages yet. Start a conversation!</p>
+                <p className="no-messages">
+                  No messages yet. Start a conversation!
+                </p>
               )}
             </div>
 
             {/* Block status messages displayed where new messages would appear */}
             {isBlocked[activeChat.otherUser.user_id] && (
               <div className="block-status-message">
-                <p>You've blocked this user. You can't send or receive messages.</p>
-                <button 
+                <p>
+                  You've blocked this user. You can't send or receive messages.
+                </p>
+                <button
                   className="unblock-button"
-                  onClick={() => handleConversationAction('unblock', activeChat, { stopPropagation: () => {} })}
+                  onClick={() =>
+                    handleConversationAction("unblock", activeChat, {
+                      stopPropagation: () => {},
+                    })
+                  }
                 >
                   Unblock
                 </button>
@@ -2044,44 +2416,56 @@ const MessagePage = () => {
 
             <div className="chat-input" style={messageInputStyle}>
               {selectedImages.length > 0 && (
-                <div className="preview-container" style={previewContainerStyle}>
+                <div
+                  className="preview-container"
+                  style={previewContainerStyle}
+                >
                   {selectedImages.map((img, index) => (
-                    <div key={index} className="position-relative" style={{width: '60px', height: '60px'}}>
+                    <div
+                      key={index}
+                      className="position-relative"
+                      style={{ width: "60px", height: "60px" }}
+                    >
                       <img
                         src={img}
                         alt={`Preview ${index}`}
                         className="img-thumbnail"
                         onClick={() => handleImageClick(img)}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: "pointer" }}
                       />
-                      <button 
+                      <button
                         className="position-absolute top-0 start-100 translate-middle p-0 border-0 bg-transparent"
                         onClick={() => removeImage(index)}
                         style={{
-                          width: '20px',
-                          height: '20px',
-                          minWidth: '20px',
-                          transform: 'translate(-50%, -50%)'
+                          width: "20px",
+                          height: "20px",
+                          minWidth: "20px",
+                          transform: "translate(-50%, -50%)",
                         }}
                       >
-                        <div className="d-flex align-items-center justify-content-center rounded-circle bg-danger"
-                             style={{
-                               width: '100%',
-                               height: '100%',
-                             }}>
-                                 <FiX size={12} color="white" />
-                          </div>
+                        <div
+                          className="d-flex align-items-center justify-content-center rounded-circle bg-danger"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                          }}
+                        >
+                          <FiX size={12} color="white" />
+                        </div>
                       </button>
                     </div>
                   ))}
                 </div>
               )}
-              
+
               <div className="input-group d-flex flex-row g-0 p-0 m-0">
                 <button
                   className="btn btn-light attach-btn g-0 p-0 m-0"
                   onClick={() => fileInputRef.current.click()}
-                  disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
+                  disabled={
+                    isBlocked[activeChat.otherUser.user_id] ||
+                    blockedBy[activeChat.otherUser.user_id]
+                  }
                 >
                   <FiPaperclip />
                   <input
@@ -2093,23 +2477,38 @@ const MessagePage = () => {
                     accept="image/*"
                   />
                 </button>
-                
+
                 <input
                   type="text"
                   className="form-control flex-grow-1 g-0 m-0 py-2"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(newMessage, activeChat.otherUser.user_id)}
-                  placeholder={isBlocked[activeChat.otherUser.user_id] ? "You've blocked this user" : 
-                              blockedBy[activeChat.otherUser.user_id] ? "You've been blocked by this user" : 
-                              "Type a message..."}
-                  disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" &&
+                    handleSendMessage(newMessage, activeChat.otherUser.user_id)
+                  }
+                  placeholder={
+                    isBlocked[activeChat.otherUser.user_id]
+                      ? "You've blocked this user"
+                      : blockedBy[activeChat.otherUser.user_id]
+                      ? "You've been blocked by this user"
+                      : "Type a message..."
+                  }
+                  disabled={
+                    isBlocked[activeChat.otherUser.user_id] ||
+                    blockedBy[activeChat.otherUser.user_id]
+                  }
                 />
 
                 <button
                   className="btn btn-primary g-0 p-0 m-0"
-                  onClick={() => handleSendMessage(newMessage, activeChat.otherUser.user_id)}
-                  disabled={isBlocked[activeChat.otherUser.user_id] || blockedBy[activeChat.otherUser.user_id]}
+                  onClick={() =>
+                    handleSendMessage(newMessage, activeChat.otherUser.user_id)
+                  }
+                  disabled={
+                    isBlocked[activeChat.otherUser.user_id] ||
+                    blockedBy[activeChat.otherUser.user_id]
+                  }
                 >
                   Send
                 </button>
@@ -2120,8 +2519,8 @@ const MessagePage = () => {
       </div>
 
       {/* Image Modal */}
-      <Modal 
-        show={showImageModal} 
+      <Modal
+        show={showImageModal}
         onHide={() => setShowImageModal(false)}
         centered
         size="lg"
@@ -2130,14 +2529,14 @@ const MessagePage = () => {
           <Modal.Title>Image Preview</Modal.Title>
         </Modal.Header>
         <Modal.Body className="text-center">
-          <img 
-            src={modalImage} 
-            alt="Full Preview" 
-            style={{ maxWidth: '100%', maxHeight: '70vh' }} 
+          <img
+            src={modalImage}
+            alt="Full Preview"
+            style={{ maxWidth: "100%", maxHeight: "70vh" }}
           />
         </Modal.Body>
       </Modal>
-      
+
       {/* Report Modal */}
       <ReportModal
         show={showReportModal}
@@ -2151,10 +2550,15 @@ const MessagePage = () => {
 
       {/* Offer Confirmation Modal */}
       {showConfirmModal && currentOffer && (
-        <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+        <Modal
+          show={showConfirmModal}
+          onHide={() => setShowConfirmModal(false)}
+        >
           <Modal.Header closeButton>
             <Modal.Title>
-              {currentOffer.productDetails?.terms ? "Confirm Rental" : "Confirm Purchase"}
+              {currentOffer.productDetails?.terms
+                ? "Confirm Rental"
+                : "Confirm Purchase"}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
@@ -2168,12 +2572,18 @@ const MessagePage = () => {
                   />
                 </div>
                 <div className="item-desc">
-                  <span className="value">{currentOffer.productDetails?.name}</span>
-                  <span className="value">₱{currentOffer.productDetails?.offerPrice}</span>
+                  <span className="value">
+                    {currentOffer.productDetails?.name}
+                  </span>
+                  <span className="value">
+                    ₱{currentOffer.productDetails?.offerPrice}
+                  </span>
                   {currentOffer.productDetails?.itemCondition && (
                     <span className="label">
                       Item Condition:{" "}
-                      <span className="value">{currentOffer.productDetails.itemCondition}</span>
+                      <span className="value">
+                        {currentOffer.productDetails.itemCondition}
+                      </span>
                     </span>
                   )}
                 </div>
@@ -2183,7 +2593,9 @@ const MessagePage = () => {
                   <span className="label">
                     Delivery Method:{" "}
                     <span className="value">
-                      {currentOffer.productDetails.deliveryMethod === "meetup" ? "Meet up" : "Pick up"}
+                      {currentOffer.productDetails.deliveryMethod === "meetup"
+                        ? "Meet up"
+                        : "Pick up"}
                     </span>
                   </span>
                 )}
@@ -2191,7 +2603,9 @@ const MessagePage = () => {
                   <span className="label">
                     Payment Method:{" "}
                     <span className="value">
-                      {currentOffer.productDetails.paymentMethod === "gcash" ? "Online Payment" : "Pay upon meetup"}
+                      {currentOffer.productDetails.paymentMethod === "gcash"
+                        ? "Online Payment"
+                        : "Pay upon meetup"}
                     </span>
                   </span>
                 )}
@@ -2203,20 +2617,23 @@ const MessagePage = () => {
                     </span>
                   </span>
                 )}
-                {currentOffer.productDetails?.stock && !currentOffer.productDetails?.terms && (
-                  <span className="label">
-                    Stock:{" "}
-                    <span className="value">
-                      {currentOffer.productDetails.stock}
+                {currentOffer.productDetails?.stock &&
+                  !currentOffer.productDetails?.terms && (
+                    <span className="label">
+                      Stock:{" "}
+                      <span className="value">
+                        {currentOffer.productDetails.stock}
+                      </span>
                     </span>
-                  </span>
-                )}
+                  )}
                 {currentOffer.productDetails?.date_id && (
                   <span className="label">
                     Date:{" "}
                     <span className="value">
-                      {currentOffer.productDetails.status && 
-                       currentOffer.productDetails.status.split('\n')[0].replace('Date: ', '')}
+                      {currentOffer.productDetails.status &&
+                        currentOffer.productDetails.status
+                          .split("\n")[0]
+                          .replace("Date: ", "")}
                     </span>
                   </span>
                 )}
@@ -2224,42 +2641,58 @@ const MessagePage = () => {
                   <span className="label">
                     Duration:{" "}
                     <span className="value">
-                      {currentOffer.productDetails.status && 
-                       currentOffer.productDetails.status.split('\n')[1].replace('Duration: ', '')}
+                      {currentOffer.productDetails.status &&
+                        currentOffer.productDetails.status
+                          .split("\n")[1]
+                          .replace("Duration: ", "")}
                     </span>
                   </span>
                 )}
               </div>
-              {currentOffer.productDetails?.terms && Object.values(currentOffer.productDetails.terms).some(term => term) && (
-                <div className="terms-condition">
-                  {currentOffer.productDetails.terms.lateCharges && (
-                    <span className="label">
-                      Late Charges: <span className="value">{currentOffer.productDetails.terms.lateCharges}</span>
-                    </span>
-                  )}
-                  {currentOffer.productDetails.terms.securityDeposit && (
-                    <span className="label">
-                      Security Deposit:{" "}
-                      <span className="value">{currentOffer.productDetails.terms.securityDeposit}</span>
-                    </span>
-                  )}
-                  {currentOffer.productDetails.terms.repairReplacement && (
-                    <span className="label">
-                      Repair and Replacement:{" "}
-                      <span className="value">{currentOffer.productDetails.terms.repairReplacement}</span>
-                    </span>
-                  )}
-                </div>
-              )}
+              {currentOffer.productDetails?.terms &&
+                Object.values(currentOffer.productDetails.terms).some(
+                  (term) => term
+                ) && (
+                  <div className="terms-condition">
+                    {currentOffer.productDetails.terms.lateCharges && (
+                      <span className="label">
+                        Late Charges:{" "}
+                        <span className="value">
+                          {currentOffer.productDetails.terms.lateCharges}
+                        </span>
+                      </span>
+                    )}
+                    {currentOffer.productDetails.terms.securityDeposit && (
+                      <span className="label">
+                        Security Deposit:{" "}
+                        <span className="value">
+                          {currentOffer.productDetails.terms.securityDeposit}
+                        </span>
+                      </span>
+                    )}
+                    {currentOffer.productDetails.terms.repairReplacement && (
+                      <span className="label">
+                        Repair and Replacement:{" "}
+                        <span className="value">
+                          {currentOffer.productDetails.terms.repairReplacement}
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                )}
               <span>
-                By confirming your {currentOffer.productDetails?.terms ? "rental" : "purchase"}, you agree to the platform's Policies,
-                Terms and Conditions, and the terms with the other party
-                (as shown above).
+                By confirming your{" "}
+                {currentOffer.productDetails?.terms ? "rental" : "purchase"},
+                you agree to the platform's Policies, Terms and Conditions, and
+                the terms with the other party (as shown above).
               </span>
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => setShowConfirmModal(false)}
+            >
               Cancel
             </Button>
             <Button variant="primary" onClick={confirmAcceptOffer}>
