@@ -234,7 +234,7 @@ const matchedItems = async (req, res) => {
     const postSpecs = formattedPost.specs || "";
 
     const fuse = new Fuse(formattedItems, {
-      keys: ["name", "specsArray", "tags"],
+      keys: ["name", "specsArray", "descArray"],
       threshold: 0.3,
       ignoreLocation: true,
       includeScore: true,
@@ -253,8 +253,8 @@ const matchedItems = async (req, res) => {
     let results = [];
     const seenIds = new Set();
 
-    if (postName) {
-      const nameResults = fuse.search(postName);
+    if (searchTermsArray) {
+      const nameResults = fuse.search(searchTermsArray);
       // console.log("Name results count:", nameResults.length);
       for (const result of nameResults) {
         if (!seenIds.has(result.item.id)) {
