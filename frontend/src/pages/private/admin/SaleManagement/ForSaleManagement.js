@@ -27,7 +27,7 @@ const ForSaleManagement = () => {
     "Thumbnail",
     "Title",
     "Category",
-    "Renter",
+    "Seller",
     "Date Added",
     "Status",
     "Action",

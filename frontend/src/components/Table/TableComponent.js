@@ -12,7 +12,7 @@ const TableComponent = ({
   onFilterChange,
   currentFilters = {},
   currentSort = {},
-  statusOptions = [], // Kept for backward compatibility
+  statusOptions = [], 
 }) => {
   // Helper to determine current filter value for a header
   const getCurrentFilterValue = (header) => {

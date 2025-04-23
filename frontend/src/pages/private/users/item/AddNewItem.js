@@ -425,6 +425,13 @@ const AddNewItem = () => {
           const field = itemDataState[key];
           const { hasError, error } = validateInput(key, field.value);
 
+          if (itemType === FOR_RENT && key === "stock") {
+            const stockValue = itemDataState[key].value;
+            if (stockValue === "" || stockValue == null) {
+              return;
+            }
+          }
+
           if (hasError) {
             hasErrors = true;
             errors[key] = error;

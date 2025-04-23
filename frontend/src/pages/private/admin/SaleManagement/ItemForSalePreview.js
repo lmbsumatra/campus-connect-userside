@@ -232,7 +232,7 @@ function ItemForSalePreview({ selectedItem, loading, error, isAdmin = false }) {
 
           <div className="item-title">
             <>
-              <i>For rent </i>
+              <i>For sale </i>
               {selectedItem.itemName ? (
                 <span className="title">{selectedItem.itemName}</span>
               ) : (
