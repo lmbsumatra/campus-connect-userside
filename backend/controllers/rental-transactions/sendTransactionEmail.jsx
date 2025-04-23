@@ -226,7 +226,7 @@ const sendTransactionEmail = async ({
     </html>`,
   };
 
-  // return transporter.sendMail(mailOptions);
+  return transporter.sendMail(mailOptions);
 };
 
 module.exports = sendTransactionEmail;
