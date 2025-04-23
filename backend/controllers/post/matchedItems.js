@@ -234,7 +234,7 @@ const matchedItems = async (req, res) => {
     const postSpecs = formattedPost.specs || "";
 
     const fuse = new Fuse(formattedItems, {
-      keys: ["name", "specsArray", "descArray"],
+      keys: ["name", "specsArray", "tags"],
       threshold: 0.3,
       ignoreLocation: true,
       includeScore: true,
