@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { baseApi } from "../../utils/consonants";
+import axios from "axios";
 
 // Initial state
 const initialState = {
@@ -141,6 +142,20 @@ export const forgotPassword = createAsyncThunk(
     }
   }
 );
+
+
+export const validateResetToken = createAsyncThunk(
+  'auth/validateResetToken',
+  async ({ token }, { rejectWithValue }) => {
+    try {
+      const response = await axios .post(`${baseApi}/user/validate-reset-token`, { token });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 
 // Async thunk for reset password
 export const resetPassword = createAsyncThunk(

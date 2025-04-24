@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import "./loginSignupStyle.css";
 import CCLOGO from "../../../assets/images/navbar/cc-logo.png";
-import { resetPassword } from "../../../redux/auth/studentAuthSlice";
+import {
+  resetPassword,
+  validateResetToken,
+} from "../../../redux/auth/studentAuthSlice";
 import { useDispatch } from "react-redux";
 
 const ResetPasswordPage = () => {
@@ -17,14 +20,34 @@ const ResetPasswordPage = () => {
   const [isTokenValid, setIsTokenValid] = useState(true);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!token) {
       setIsTokenValid(false);
       setMessage("Invalid password reset link");
       setMessageType("error");
+      setIsLoading(false);
+      return;
     }
-  }, [token]);
+    const checkTokenValidity = async () => {
+      try {
+        await dispatch(validateResetToken({ token })).unwrap();
+        setIsTokenValid(true);
+      } catch (error) {
+        setIsTokenValid(false);
+        setMessage(
+          error.response?.data?.message ||
+            "Invalid or expired password reset link"
+        );
+        setMessageType("error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkTokenValidity();
+  }, [token, dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,12 +119,10 @@ const ResetPasswordPage = () => {
           <div className="error-message">{message}</div>
 
           <div className="auth-links">
-            <Link to="/forgot-password" className="auth-button primary-button">
-              Request New Password Reset
+            <Link to="/" className="auth-button primary-button">
+              Home
             </Link>
-            <Link to="/login" className="auth-link">
-              Back to Login
-            </Link>
+           
           </div>
         </div>
       </div>

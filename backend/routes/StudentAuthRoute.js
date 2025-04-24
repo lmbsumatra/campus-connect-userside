@@ -81,5 +81,6 @@ router.get(
 );
 router.post("/forgot-password", StudentController.forgotPassword);
 router.post("/reset-password", StudentController.resetPassword);
+router.post("/validate-reset-token", StudentController.validateResetToken);
 
 module.exports = router;
