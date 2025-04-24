@@ -40,8 +40,17 @@ const ForgotPassword = ({ onClose, show, onBackToLogin }) => {
 
       const response = await dispatch(forgotPassword(email));
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setSuccessMessage("Password reset link has been sent to your email!");
+      if (response.payload) {
+        setSuccessMessage(
+          response.payload ||
+            "A reset link was recently sent. Please try again after some time."
+        );
+      } else {
+        setSuccessMessage("Password reset link has been sent to your email!");
+        setTimeout(() => {
+          onClose();
+        }, 3000);
+      }
 
       setTimeout(() => {
         onClose();

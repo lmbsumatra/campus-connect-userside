@@ -5,22 +5,36 @@ const transporter = require("../../config/nodemailer");
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    
+
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
     }
 
     const user = await models.User.findOne({ where: { email } });
     if (!user) {
-
       return res.status(200).json({
         message:
           "If your email exists in our system, you will receive a password reset link",
       });
     }
 
+    if (
+      user.reset_password_token_expiration &&
+      user.reset_password_token_expiration > Date.now()
+    ) {
+      const timeRemaining = Math.ceil(
+        (user.reset_password_token_expiration - Date.now()) / 60000
+      );
+
+      return res.status(200).json({
+        hasActiveRequest: true,
+        waitTime: timeRemaining,
+        message: `A password reset link has already been sent. Please check your email or try again after ${timeRemaining} minutes.`,
+      });
+    }
+
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetTokenExpiration = Date.now() + 3600000; 
+    const resetTokenExpiration = Date.now() + 3600000;
 
     await models.User.update(
       {
@@ -35,191 +49,219 @@ const forgotPassword = async (req, res) => {
       to: email,
       subject: "Password Reset - RenTUPeers",
       html: `<!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Reset Your Password - RenTUPeers</title>
-          <style>
-            .container-content.email {
-              padding: 40px;
-              margin: 20px auto;
-              border: 1px solid #e1e4e8;
-              border-radius: 12px;
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-              background-color: white;
-              max-width: 600px;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            }
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reset Your Password - RenTUPeers</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        background-color: #f7f9fc;
+        color: #333;
+      }
       
-            .container-content.email img {
-              height: 45px;
-              margin-right: 12px;
-            }
+      .email-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
       
-            .logo-section {
-              display: flex;
-              align-items: center;
-              margin-bottom: 24px;
-            }
+      .email-header {
+        background-color: #f0f4f9;
+        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #e5e9f0;
+      }
       
-            .logo-text {
-              font-size: 22px;
-              font-weight: 600;
-              color: #2c3e50;
-              letter-spacing: -0.5px;
-            }
+      .email-header img {
+        height: 45px;
+        margin-right: 16px;
+      }
       
-            .divider {
-              border: none;
-              border-top: 1px solid #e1e4e8;
-              margin: 24px 0;
-            }
+      .email-header-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #2c3e50;
+        letter-spacing: -0.5px;
+      }
       
-            .header {
-              font-size: 32px;
-              margin-bottom: 16px;
-              color: #1a202c;
-              font-weight: 600;
-              letter-spacing: -0.5px;
-            }
+      .email-body {
+        padding: 32px;
+      }
       
-            .description {
-              font-size: 16px;
-              color: #4a5568;
-              margin-bottom: 24px;
-              line-height: 1.6;
-            }
+      .email-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 16px;
+        letter-spacing: -0.5px;
+      }
       
-            .reset-button {
-              display: inline-block;
-              background-color: #0056b3;
-              color: white;
-              font-size: 16px;
-              font-weight: 500;
-              padding: 12px 28px;
-              border: none;
-              border-radius: 6px;
-              cursor: pointer;
-              text-decoration: none;
-              transition: all 0.2s ease;
-              margin-bottom: 16px;
-            }
+      .email-text {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #4a5568;
+        margin-bottom: 24px;
+      }
       
-            .reset-button:hover {
-              background-color: #004494;
-              transform: translateY(-1px);
-            }
+      .reset-button {
+        display: inline-block;
+        background-color: #0056b3;
+        color: #ffffff !important;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 14px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        margin-bottom: 16px;
+      }
       
-            .expiration-text {
-              font-size: 14px;
-              color: #718096;
-              margin-top: 12px;
-              display: block;
-            }
+      .reset-button:hover {
+        background-color: #004494;
+      }
       
-            .alternative-link {
-              font-size: 14px;
-              color: #4a5568;
-              margin-top: 20px;
-              line-height: 1.6;
-            }
+      .expiration-notice {
+        font-size: 14px;
+        color: #718096;
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
       
-            .link {
-              color: #0056b3;
-              text-decoration: none;
-              word-break: break-all;
-            }
+      .alt-link-section {
+        margin-top: 24px;
+        padding: 16px;
+        background-color: #f8fafc;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #4a5568;
+        line-height: 1.6;
+      }
       
-            .link:hover {
-              text-decoration: underline;
-            }
+      .link {
+        color: #0056b3;
+        text-decoration: none;
+        word-break: break-all;
+      }
       
-            .contact-section {
-              font-size: 14px;
-              color: #718096;
-              margin-top: 24px;
-              line-height: 1.6;
-            }
+      .link:hover {
+        text-decoration: underline;
+      }
       
-            .security-note {
-              font-size: 14px;
-              color: #e53e3e;
-              margin-top: 24px;
-              line-height: 1.6;
-              padding: 12px;
-              background-color: #fff5f5;
-              border-radius: 6px;
-              border-left: 4px solid #e53e3e;
-            }
+      .security-alert {
+        margin-top: 28px;
+        padding: 16px;
+        background-color: #fff5f5;
+        border-radius: 8px;
+        border-left: 4px solid #e53e3e;
+        font-size: 14px;
+        color: #e53e3e;
+        line-height: 1.6;
+      }
       
-            @media (max-width: 600px) {
-              .container-content.email {
-                padding: 24px;
-                margin: 10px;
-                width: auto;
-              }
+      .email-divider {
+        height: 1px;
+        background-color: #e5e9f0;
+        border: none;
+        margin: 32px 0;
+      }
       
-              .header {
-                font-size: 26px;
-              }
+      .email-footer {
+        padding: 24px 32px;
+        background-color: #f0f4f9;
+        font-size: 14px;
+        color: #718096;
+        text-align: center;
+        border-top: 1px solid #e5e9f0;
+      }
       
-              .description {
-                font-size: 15px;
-              }
+      .support-section {
+        padding: 0 0 16px 0;
+        font-size: 14px;
+        color: #718096;
+        line-height: 1.6;
+      }
       
-              .reset-button {
-                font-size: 15px;
-                padding: 10px 24px;
-                width: 100%;
-                text-align: center;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container-content email">
-            <div class="logo-section">
-              <img src="https://res.cloudinary.com/campusconnectcl/image/upload/v1735845626/cc/eazvmzm29uqxkk6vski3.png" alt="RenTUPeers Logo" />
-              <span class="logo-text">RenTUPeers</span>
-            </div>
-            
-            <hr class="divider" />
-            
-            <h1 class="header">Reset Your Password</h1>
-            
-            <p class="description">
-              We received a request to reset your password for your RenTUPeers account. Click the button below to create a new password.
-            </p>
-            
-            <a class="reset-button" href="https://rentupeers.shop/reset-password/${resetToken}" target="_blank">
-              Reset Password
-            </a>
-            
-            <span class="expiration-text">⏰ This link will expire in 1 hour</span>
-            
-            <p class="alternative-link">
-              If the button above doesn't work, click or copy + paste this link in your browser:
-              <br />
-              <a class="link" href="https://rentupeers.shop/reset-password/${resetToken}">
-                https://rentupeers.shop/reset-password/${resetToken}
-              </a>
-            </p>
-            
-            <div class="security-note">
-              If you didn't request a password reset, please ignore this email or contact support - your account is still secure.
-            </div>
-            
-            <hr class="divider" />
-            
-            <p class="contact-section">
-              If you need any help, contact us at
-              <a class="link" href="mailto:campusconnect@gmail.com">campusconnect@gmail.com</a>.
-              We're here to assist you.
-            </p>
-          </div>
-        </body>
-      </html>`,
+      @media (max-width: 600px) {
+        .email-container {
+          margin: 20px;
+          width: auto;
+        }
+        
+        .email-header, .email-body, .email-footer {
+          padding: 20px;
+        }
+        
+        .email-title {
+          font-size: 24px;
+        }
+        
+        .reset-button {
+          display: block;
+          text-align: center;
+          padding: 12px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="email-header">
+        <img src="https://res.cloudinary.com/campusconnectcl/image/upload/v1735845626/cc/eazvmzm29uqxkk6vski3.png" alt="RenTUPeers Logo" />
+        <div class="email-header-title">RenTUPeers</div>
+      </div>
+      
+      <div class="email-body">
+        <h1 class="email-title">Reset Your Password</h1>
+        
+        <p class="email-text">
+          We received a request to reset your password for your RenTUPeers account. Click the button below to create a new password.
+        </p>
+        
+        <a class="reset-button" href="https://rentupeers.shop/reset-password/${resetToken}" target="_blank">
+          Reset Password
+        </a>
+        
+        <div class="expiration-notice">
+          <span>⏰ This link will expire in 1 hour</span>
+        </div>
+        
+        <div class="alt-link-section">
+          If the button above doesn't work, click or copy + paste this link in your browser:
+          <br />
+          <a class="link" href="https://rentupeers.shop/reset-password/${resetToken}">
+            https://rentupeers.shop/reset-password/${resetToken}
+          </a>
+        </div>
+        
+        <div class="security-alert">
+          If you didn't request a password reset, please ignore this email or contact support - your account is still secure.
+        </div>
+        
+        <hr class="email-divider" />
+        
+        <div class="support-section">
+          If you need any help, contact us at
+          <a class="link" href="mailto:jione.capstone@gmail.com">rentupeers.team@tup.edu.ph</a>.
+          We're here to assist you.
+        </div>
+      </div>
+      
+      <div class="email-footer">
+        © ${new Date().getFullYear()} RenTUPeers · All rights reserved.
+      </div>
+    </div>
+  </body>
+</html>`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

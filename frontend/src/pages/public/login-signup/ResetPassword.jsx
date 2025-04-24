@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import "./loginSignupStyle.css"; 
+import "./loginSignupStyle.css";
 import CCLOGO from "../../../assets/images/navbar/cc-logo.png";
 import { resetPassword } from "../../../redux/auth/studentAuthSlice";
 import { useDispatch } from "react-redux";
@@ -16,7 +16,7 @@ const ResetPasswordPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTokenValid, setIsTokenValid] = useState(true);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState(""); 
+  const [messageType, setMessageType] = useState("");
 
   useEffect(() => {
     if (!token) {
@@ -87,11 +87,7 @@ const ResetPasswordPage = () => {
         <div className="auth-card">
           <div className="auth-header">
             <div className="logo-container">
-              <img
-                src={CCLOGO}
-                alt="RenTUPeers Logo"
-                className="auth-logo"
-              />
+              <img src={CCLOGO} alt="RenTUPeers Logo" className="auth-logo" />
               <h1>RenTUPeers</h1>
             </div>
             <h2>Invalid Reset Link</h2>
@@ -118,7 +114,7 @@ const ResetPasswordPage = () => {
         <div className="auth-header">
           <div className="logo-container">
             <img
-              src="/path-to-your-logo.png"
+              src="https://res.cloudinary.com/campusconnectcl/image/upload/v1735845626/cc/eazvmzm29uqxkk6vski3.png"
               alt="RenTUPeers Logo"
               className="auth-logo"
             />

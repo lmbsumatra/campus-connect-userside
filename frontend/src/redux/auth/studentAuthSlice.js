@@ -156,7 +156,7 @@ export const resetPassword = createAsyncThunk(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ token, newPassword }),
-        signal: controller.signal,
+        // signal: controller.signal,
       });
 
       if (!response.ok) {
