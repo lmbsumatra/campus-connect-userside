@@ -55,6 +55,8 @@ const getNotificationDetails = (transactionType) => {
 
 const createRentalTransaction = async (req, res, emitNotification) => {
   try {
+    console.log(req.body);
+
     const {
       owner_id,
       renter_id,
@@ -68,6 +70,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       isFromCart,
       amount,
       quantity,
+      from_post,
     } = req.body;
 
     const missingFields = [];
@@ -184,32 +187,63 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       ],
     });
 
-    let item;
-    if (transaction_type === "rental") {
-      item = await models.Listing.findOne({
-        where: { id: rental.item_id },
-        attributes: ["id", "listing_name", "rate", "security_deposit"],
-        include: [
-          {
-            as: "owner",
-            model: models.User,
-            attributes: ["user_id", "email", "stripe_acct_id", "first_name"],
-          },
-        ],
-      });
-    } else if (transaction_type === "sell") {
-      item = await models.ItemForSale.findOne({
-        where: { id: rental.item_id },
-        attributes: ["id", "item_for_sale_name", "price"],
-        include: [
-          {
-            as: "seller",
-            model: models.User,
-            attributes: ["user_id", "email", "stripe_acct_id", "first_name"],
-          },
-        ],
-      });
+    // if (from_post) true skip getting item
+    if (!from_post) {
+      let item;
+      if (transaction_type === "sell") {
+        item = await models.Listing.findOne({
+          where: { id: rental.item_id },
+          attributes: ["id", "listing_name", "rate", "security_deposit"],
+          include: [
+            {
+              as: "owner",
+              model: models.User,
+              attributes: ["user_id", "email", "stripe_acct_id", "first_name"],
+            },
+          ],
+        });
+      } else if (transaction_type === "rental") {
+        item = await models.ItemForSale.findOne({
+          where: { id: rental.item_id },
+          attributes: ["id", "item_for_sale_name", "price"],
+          include: [
+            {
+              as: "seller",
+              model: models.User,
+              attributes: ["user_id", "email", "stripe_acct_id", "first_name"],
+            },
+          ],
+        });
+      }
+    } else {
+      if (transaction_type === "rental") {
+        item = await models.Post.findOne({
+          where: { id: rental.item_id },
+          attributes: ["id", "post_item_name"],
+          include: [
+            {
+              as: "renter",
+              model: models.User,
+              attributes: ["user_id", "email", "stripe_acct_id", "first_name"],
+            },
+          ],
+        });
+      } else if (transaction_type === "sell") {
+        item = await models.Post.findOne({
+          where: { id: rental.item_id },
+          attributes: ["id", "post_item_name"],
+          include: [
+            {
+              as: "renter",
+              model: models.User,
+              attributes: ["user_id", "email", "stripe_acct_id", "first_name"],
+            },
+          ],
+        });
+      }
     }
+
+    console.log(item, rental.item_id);
 
     const totalAmountPHP =
       transaction_type === "sell"

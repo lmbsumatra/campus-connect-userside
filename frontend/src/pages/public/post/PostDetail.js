@@ -1038,7 +1038,6 @@ function PostDetail() {
               </div>
             </div>
 
-            {/* Stock Field - Only for Sale items */}
             {approvedPostById.itemType === TO_BUY && (
               <div className="group-container stock">
                 <label className="label">Stock</label>
@@ -1050,16 +1049,30 @@ function PostDetail() {
                     min="1"
                     value={stock}
                     onChange={(e) => {
-                      const value = parseInt(e.target.value);
+                      const inputValue = e.target.value;
+                      
+                      // For empty input, allow the field to be empty temporarily while typing
+                      if (inputValue === '') {
+                        setStock('');
+                        return;
+                      }
+                      
+                      const value = parseInt(inputValue);
                       if (!isNaN(value) && value > 0) {
                         setStock(value);
+                      }
+                    }}
+                    // Optional: Ensure a valid value when the user leaves the input
+                    onBlur={() => {
+                      // If empty or invalid when focus is lost, set to minimum value
+                      if (stock === '' || isNaN(parseInt(stock)) || parseInt(stock) <= 0) {
+                        setStock(1);
                       }
                     }}
                   />
                 </div>
               </div>
             )}
-
             {/* Location Field */}
             <div className="group-container location">
               <label className="label">Location (for meetup / pick up)</label>

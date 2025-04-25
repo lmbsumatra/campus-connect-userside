@@ -674,10 +674,11 @@ const MessagePage = () => {
       // Add the message ID to accepted offers
       setAcceptedOffers((prev) => new Set([...prev, currentOffer.id]));
 
-      // Check if it's a rental or sale offer based on terms existence
+      // Check if it's a rental or sale offer based on terms existence or offer title
       const isRentalOffer =
-        currentOffer.productDetails?.terms &&
-        Object.values(currentOffer.productDetails.terms).some((term) => term);
+        (currentOffer.productDetails?.terms &&
+        Object.values(currentOffer.productDetails.terms).some((term) => term)) ||
+        currentOffer.productDetails?.title === "Rent Offer";
 
       // Emit socket event to notify other user
       socket.current.emit("offerAccepted", {
@@ -693,27 +694,185 @@ const MessagePage = () => {
         currentOffer.productDetails?.date_id &&
         currentOffer.productDetails?.time_id
       ) {
-        try {
+        // Define transaction details outside the try block so error handler can access it
+        // Determine the correct item type and model based on the offer
+        let itemType = "post"; // Default type
+        let correctItemId = currentOffer.productDetails.productId;
+        let detectedItemType = "";
+        
+        // First, check if it's a rental offer from a post
+        if (isRentalOffer && 
+            currentOffer.productDetails.type === "post" &&
+            currentOffer.productDetails.terms) {
+          // This is a rental offer that was created from a post
+          itemType = "rental_from_post";
+          detectedItemType = "RENTAL FROM POST";
+        }
+        // Check if type is explicitly provided
+        else if (currentOffer.productDetails.type) {
+          itemType = currentOffer.productDetails.type;
+          detectedItemType = "FROM TYPE FIELD";
+          
+          // Handle special case for post type - might need to use different ID
+          if (itemType === "post" && currentOffer.productDetails.originalItemId) {
+            correctItemId = currentOffer.productDetails.originalItemId;
+          }
+        } 
+        // Next check based on terms existence (rental) vs stock existence (sale)
+        else if (isRentalOffer || 
+                 (currentOffer.productDetails.terms && 
+                  Object.values(currentOffer.productDetails.terms).some(term => term))) {
+          itemType = "listing";
+          detectedItemType = "FROM TERMS";
+        } 
+        else if (currentOffer.productDetails.stock || 
+                 currentOffer.productDetails.title === "Sale Offer") {
+          itemType = "item-for-sale";
+          detectedItemType = "FROM STOCK/TITLE"; 
+        }
+        
+        console.log("Detected item type:", itemType, "isRentalOffer:", isRentalOffer, "Detection method:", detectedItemType);
+        
+        // Add additional check to ensure we're using the correct item ID field based on transaction type
+        if (isRentalOffer) {
+          // For rental offers, the item is a listing
+          if (currentOffer.productDetails.listingId) {
+            correctItemId = currentOffer.productDetails.listingId;
+          }
+        } else {
+          // For sale offers, the item is an item-for-sale
+          if (currentOffer.productDetails.itemForSaleId) {
+            correctItemId = currentOffer.productDetails.itemForSaleId;
+          }
+        }
+        
+        // Get necessary details from the offer
+        const stock = currentOffer.productDetails.stock || 1;
+        const quantity = stock > 0 ? stock : 1; // Ensure quantity is at least 1
+        
+        // Calculate the total amount based on offer type and quantity
+        const offerPrice = currentOffer.productDetails.offerPrice || 0;
+        let totalAmount = isRentalOffer ? offerPrice : offerPrice * quantity;
+        
+        // Extract timeFrom and timeTo from status field if available
+        let timeFrom, timeTo;
+        if (currentOffer.productDetails.status) {
+          const durationText = currentOffer.productDetails.status.split("\n").find(line => line.includes("Duration:"));
+          if (durationText) {
+            const durationMatch = durationText.match(/Duration: ([\d:]+)\s*-\s*([\d:]+)/);
+            if (durationMatch && durationMatch.length === 3) {
+              timeFrom = durationMatch[1];
+              timeTo = durationMatch[2];
+            }
+          }
+        }
+        
+        // Include owner/seller contact information directly in the transaction details
+        // This is a backup in case the backend can't find the related model
+        let ownerInfo = {};
+        
+        // If we have sender info from the message, include it
+        if (activeChat && activeChat.participants) {
+          const sender = activeChat.participants.find(p => p.id === currentOffer.sender);
+          if (sender) {
+            ownerInfo = {
+              owner_email: sender.email || "",
+              owner_first_name: sender.fname || "",
+              owner_last_name: sender.lname || "",
+              // Use the same field names for seller
+              seller_email: sender.email || "",
+              seller_first_name: sender.fname || "",
+              seller_last_name: sender.lname || ""
+            };
+          }
+        }
+        
+        // For post-based offers, gather extended item information to help with lookup
+        let extendedItemInfo = {};
+        if (itemType === "post" || itemType === "rental_from_post") {
+          // Get all available information from the product details
+          extendedItemInfo = {
+            // Basic identification
+            post_id: correctItemId,
+            // Include full item details to help with item lookup
+            item_name: currentOffer.productDetails.name || "",
+            item_description: currentOffer.productDetails.description || "",
+            item_price: currentOffer.productDetails.offerPrice || currentOffer.productDetails.price || 0,
+            item_image: currentOffer.productDetails.image || "",
+            // For rental items, include rental-specific fields
+            item_security_deposit: isRentalOffer && currentOffer.productDetails.terms 
+              ? (currentOffer.productDetails.terms.securityDeposit || 0) 
+              : 0,
+            // Explicitly add the post information
+            post_type: isRentalOffer ? "rental" : "sale",
+            // Flag that helps backend identify this is a post transaction
+            from_post: true,
+            // Make extra sure transaction type is correct
+            transaction_type: isRentalOffer ? "rental" : "sell"
+          };
+        }
+        
+        console.log(`Transaction type: ${isRentalOffer ? "rental" : "sell"}`);
+        console.log("Using item_id:", correctItemId, "Original ID:", currentOffer.productDetails.productId);
+        console.log("Owner info available:", Object.keys(ownerInfo).length > 0);
+        console.log("Extended item info:", Object.keys(extendedItemInfo).length > 0);
+        
+        // For rental_from_post type, we need to set the proper transaction_type
+        // This is critical to make sure the backend uses the correct item lookup logic
+        const transactionType = isRentalOffer ? "rental" : "sell";
+        
+        // Create transaction details
           const transactionDetails = {
-            owner_id: currentOffer.sender, // The person who sent the offer
-            renter_id: userId, // Current user accepting the offer
-            buyer_id: isRentalOffer ? null : userId, // Add buyer_id for sales
-            item_id: currentOffer.productDetails.productId,
+          // The person who sent the offer is ALWAYS the owner/seller (they created the post)
+          owner_id: currentOffer.sender,
+          // For sale transactions, explicitly set sender as seller
+          seller_id: currentOffer.sender,
+          // The current user (who is accepting the offer) is the buyer/renter
+          renter_id: isRentalOffer ? userId : undefined,
+          buyer_id: !isRentalOffer ? userId : undefined,
+          
+          item_id: correctItemId,
             delivery_method:
               currentOffer.productDetails.deliveryMethod || "meetup",
             date_id: currentOffer.productDetails.date_id,
             time_id: currentOffer.productDetails.time_id,
             payment_mode:
               currentOffer.productDetails.paymentMethod || "payUponMeetup",
-            transaction_type: isRentalOffer ? "rental" : "sell",
-            price: currentOffer.productDetails.offerPrice || 0,
-            location: currentOffer.productDetails.location || "", // Add location field
-            stock: isRentalOffer
-              ? null
-              : currentOffer.productDetails.stock || 1, // Add stock for sale transactions
-            sender_id: userId, // Add sender_id for notification
-          };
+          transaction_type: transactionType,
+          amount: totalAmount,
+          location: currentOffer.productDetails.location || "",
+          quantity: quantity, // Ensure quantity is always provided
+          isFromCart: false,
+          // Add item_type to help backend identify the correct model
+          item_type: itemType,
+          // Add original type to help with debugging
+          original_type: currentOffer.productDetails.type || "",
+          // Include sender information to help with owner/seller lookup
+          sender_name: currentOffer.senderName || "",
+          message_id: currentOffer.id,
+          // Include any owner info we could gather
+          ...ownerInfo,
+          // Include extended item info for post transactions
+          ...extendedItemInfo
+        };
+        
+        // CRITICAL FIX: For post-type offers, explicitly add post_id field
+        // This helps backend identify the correct model relationship
+        if (itemType === "post" || itemType === "rental_from_post") {
+          transactionDetails.post_id = correctItemId;
+          // Also include the original productId as a fallback
+          transactionDetails.original_product_id = currentOffer.productDetails.productId;
+        }
 
+        // Add time information if we extracted it successfully
+        if (timeFrom && timeTo) {
+          transactionDetails.timeFrom = timeFrom;
+          transactionDetails.timeTo = timeTo;
+        }
+
+        console.log("Sending transaction details:", JSON.stringify(transactionDetails, null, 2));
+
+        try {
           // Call backend API to create transaction
           const response = await axios.post(
             `${baseApi}/rental-transaction/add`,
@@ -746,17 +905,105 @@ const MessagePage = () => {
               "Success",
               `${isRentalOffer ? "Rental" : "Purchase"} confirmed successfully!`
             );
-            // Navigate to transactions page
-            navigate("/profile/transactions/renter/requests");
+            
+            // Navigate to appropriate transactions page based on offer type
+            const transactionPath = isRentalOffer ? 
+              "/profile/transactions/renter/requests" : 
+              "/profile/transactions/buyer/requests";
+            navigate(transactionPath);
           }
         } catch (error) {
-          console.error("Error creating transaction:", error);
+          console.error("Error creating transaction:", error.response?.data || error);
+          
+          // Extract error message from error response
+          let errorMsg = "Failed to create transaction record.";
+          let errorTitle = "Error";
+          
+          if (error.response?.data) {
+            // Check for specific owner/seller lookup errors
+            if (error.response.data.details && 
+                (error.response.data.details.includes("reading 'seller'") || 
+                 error.response.data.details.includes("reading 'owner'"))) {
+              
+              console.error("Owner/Seller lookup error detected - attempting fallback method");
+              
+              // If we encounter the owner/seller null error, try a direct approach
+              try {
+                console.log("Attempting direct transaction creation for post-based offer");
+                
+                // Create an enhanced transaction object with all necessary data
+                // to ensure the backend can create the transaction without model relationships
+                const enhancedTransaction = {
+                  ...transactionDetails,
+                  // Make sure all critical owner/seller fields are present
+                  owner_id: Number(currentOffer.sender),
+                  seller_id: Number(currentOffer.sender),
+                  item_name: currentOffer.productDetails.name || "Unknown Item",
+                  item_price: offerPrice,
+                  
+                  // CRITICAL: Fix the transaction type to match post_type
+                  // This is the key to fixing the item lookup in the backend
+                  transaction_type: isRentalOffer ? "rental" : "sell",
+                  
+                  // Clear flags for post-based transactions
+                  post_type: isRentalOffer ? "rental" : "sale",
+                  from_post: true,
+                  
+                  // Flag to indicate this needs special handling
+                  is_direct_transaction: true
+                };
+                
+                console.log("Attempting direct transaction creation with enhanced data:", 
+                  JSON.stringify(enhancedTransaction, null, 2));
+                
+                // Try again with the enhanced data
+                const directResponse = await axios.post(
+                  `${baseApi}/rental-transaction/add`,
+                  enhancedTransaction
+                );
+                
+                // If successful, proceed normally
+                setShowConfirmModal(false);
+                ShowAlert(
+                  dispatch,
+                  "success",
+                  "Success",
+                  `${isRentalOffer ? "Rental" : "Purchase"} confirmed successfully!`
+                );
+                
+                const transactionPath = isRentalOffer ? 
+                  "/profile/transactions/renter/requests" : 
+                  "/profile/transactions/buyer/requests";
+                navigate(transactionPath);
+                return;
+              } catch (directError) {
+                console.error("Direct approach also failed:", directError.response?.data || directError);
+                
+                // If both approaches fail, provide a clearer error message
+                errorMsg = "This post-based transaction could not be processed. There might be an issue with how the offer was created.";
+                errorTitle = "Transaction Processing Error";
+              }
+            } 
+            // Otherwise extract general error message
+            else if (error.response.data.error) {
+              errorMsg = error.response.data.error;
+            }
+            else if (error.response.data.message) {
+              errorMsg = error.response.data.message;
+            }
+            else if (error.response.data.details) {
+              errorMsg = error.response.data.details;
+            }
+          }
+          
+          // Show error and close modal
           ShowAlert(
             dispatch,
             "error",
-            "Error",
-            "Failed to create transaction record."
+            errorTitle,
+            errorMsg
           );
+          
           setShowConfirmModal(false);
         }
       } else {
@@ -771,13 +1018,21 @@ const MessagePage = () => {
       }
     } catch (error) {
       console.error("Error accepting offer:", error);
-      // Optionally revert the UI state if the API call fails
+      // Revert the UI state if the API call fails
       setAcceptedOffers((prev) => {
         const newSet = new Set([...prev]);
         newSet.delete(currentOffer.id);
         return newSet;
       });
       setShowConfirmModal(false);
+      
+      // Show user-friendly error message
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Failed to accept offer. Please try again."
+      );
     }
   };
 
