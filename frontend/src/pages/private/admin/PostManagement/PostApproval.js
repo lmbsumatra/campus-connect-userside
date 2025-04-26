@@ -41,7 +41,6 @@ const PostApproval = () => {
   };
 
   const handleStatusChange = async (selectedAction, reason) => {
-    // console.log("Admin user token being sent:", adminUser?.token);
     try {
       const response = await fetch(`${baseApi}/posts/${id}/status`, {
         method: "PATCH",
@@ -52,10 +51,7 @@ const PostApproval = () => {
         body: JSON.stringify({ status: selectedAction, reason }),
       });
 
-      // Add this to see the complete response
       const responseData = await response.json();
-      // console.log("Response status:", response.status);
-      // console.log("Response data:", responseData);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -84,8 +80,6 @@ const PostApproval = () => {
   };
 
   const { label, className } = ItemStatus(adminPostById?.status);
-
-  console.log({ adminPostById });
 
   return (
     <div className="admin-content-container">

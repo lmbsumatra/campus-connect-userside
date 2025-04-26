@@ -34,7 +34,6 @@ const StudentProtectedRoute = ({
   }
 
   const { role } = studentUser;
-  console.log(isRepresentative);
 
   if (!allowedRoles.includes(role)) {
     return <Navigate to="/" replace />;

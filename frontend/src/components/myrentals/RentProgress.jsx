@@ -66,18 +66,12 @@ function RentProgress() {
 
   useEffect(() => {
     if (transaction && transaction.rental) {
-      console.log("Fetched status:", transaction);
     }
   }, [transaction]);
 
   useEffect(() => {
     if (studentUser && studentUser.token) {
-      console.log(
-        "Auth token available:",
-        studentUser.token.substring(0, 10) + "..."
-      );
     } else {
-      console.log("No auth token available in context");
     }
   }, [studentUser]);
 
@@ -287,8 +281,6 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
     timeTo: transaction?.rental?.Duration?.rental_time_to,
   });
 
-  console.log({ total, rate, hrs });
-
   return (
     <>
       <div className="rent-progress-wrapper">
@@ -374,8 +366,8 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                     <div className="detail-row">
                       <span className="detail-label">Total Rental Fee:</span>
                       <span className="detail-value">
-                        {total} php ({transaction.rental?.Listing?.rate} php (Rate per hr) x{" "}
-                        {hrs} hrs)
+                        {total} php ({transaction.rental?.Listing?.rate} php
+                        (Rate per hr) x {hrs} hrs)
                       </span>
                     </div>
                   )}
@@ -385,7 +377,7 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                       <div className="detail-row">
                         <span className="detail-label">Security Deposit:</span>
                         <span className="detail-value">
-                         + {transaction.rental?.Listing?.security_deposit} php
+                          + {transaction.rental?.Listing?.security_deposit} php
                           (Refunded after transation)
                         </span>
                       </div>

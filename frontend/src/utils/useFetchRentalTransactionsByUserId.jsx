@@ -9,7 +9,7 @@ const useFetchRentalTransactionsByUserId = (userId) => {
 
   useEffect(() => {
     if (!userId) {
-      setLoading(false); // If no userId is provided, set loading to false
+      setLoading(false);
       return;
     }
 
@@ -19,8 +19,8 @@ const useFetchRentalTransactionsByUserId = (userId) => {
         if (response.data && Array.isArray(response.data)) {
           setTransactions(response.data);
         } else {
-          setTransactions([]); // Set to an empty array if no valid data
-          setError("No transactions found."); // Set an error message
+          setTransactions([]); 
+          setError("No transactions found."); 
         }
       } catch (err) {
         setError(err.message);

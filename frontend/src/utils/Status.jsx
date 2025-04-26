@@ -7,7 +7,7 @@ export const ItemStatus = (status) => {
     case "revoked":
       return { label: "Removal Revoked", className: "bg-info text-white" };
     case "pending":
-      return { label: "Pending", className: "bg-warning text-white" }; // Changed from text-dark
+      return { label: "Pending", className: "bg-warning text-white" };
     case "removed":
       return { label: "Removed", className: "bg-danger text-white" };
     case "flagged":
@@ -20,11 +20,11 @@ export const ItemStatus = (status) => {
 export const StudentStatus = (status) => {
   switch (status) {
     case "verified":
-      return { label: "Verified", className: "bg-success text-white" }; // Changed label case
+      return { label: "Verified", className: "bg-success text-white" };
     case "banned":
-      return { label: "Banned", className: "bg-danger text-white" }; // Changed class to danger
+      return { label: "Banned", className: "bg-danger text-white" };
     case "pending":
-      return { label: "Pending", className: "bg-warning text-dark" }; // Changed text color
+      return { label: "Pending", className: "bg-warning text-dark" };
     case "flagged":
       return { label: "Flagged", className: "bg-primary text-white" };
     case "restricted":
@@ -50,9 +50,9 @@ export const TransactionStatus = (status) => {
       return { label: "Returned", className: "bg-success text-white" };
     case "Completed":
       return { label: "Completed", className: "bg-primary text-white" };
-    case "HandOver": // For BuyAndSellTransaction
+    case "HandOver":
       return { label: "HandOver", className: "bg-info text-white" };
-    case "Review": // For BuyAndSellTransaction
+    case "Review":
       return { label: "Review", className: "bg-primary text-white" };
     default:
       return { label: "Unknown", className: "bg-light text-dark" };
@@ -63,33 +63,30 @@ export const ReportStatus = (status) => {
   switch (status) {
     case "pending":
       return { label: "Pending", className: "bg-warning text-dark" };
-    case "reviewed": // Added missing status
+    case "reviewed":
       return { label: "Reviewed", className: "bg-info text-white" };
     case "dismissed":
       return { label: "Dismissed", className: "bg-secondary text-white" };
     case "resolved":
-      return { label: "Resolved", className: "bg-success text-white" }; // Changed class to success
+      return { label: "Resolved", className: "bg-success text-white" };
     default:
       return { label: "Unknown", className: "bg-light text-dark" };
   }
 };
 
-// Status function for Transaction Reports
 export const TransactionReportStatus = (status) => {
   const lowerStatus = status?.toLowerCase();
 
   switch (lowerStatus) {
-    // Student-centric statuses
     case "open":
       return { label: "Open", className: "bg-warning text-dark" };
-    case "under_review": // After first response
+    case "under_review":
       return { label: "Under Review", className: "bg-info text-white" };
-    case "resolved": // Resolved by reporter
+    case "resolved":
       return { label: "Resolved", className: "bg-success text-white" };
-    case "escalated": // Escalated to admin
+    case "escalated":
       return { label: "Escalated", className: "bg-danger text-white" };
 
-    // Admin-centric statuses
     case "admin_review":
       return { label: "Admin Review", className: "bg-primary text-white" };
     case "admin_resolved":

@@ -22,12 +22,10 @@ export const fetchAllApprovedItemForSale = createAsyncThunk(
     if (keyword) params.append("q", keyword);
     if (preference) params.append("preference", preference);
     if (studentUser && studentUser.userId)
-      params.append("userId", studentUser.userId); // Customization
+      params.append("userId", studentUser.userId);
 
     if (params.toString()) {
       url += `?${params.toString()}`;
-
-      console.log(url);
     }
     const response = await fetch(url);
     return response.json();

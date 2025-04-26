@@ -7,7 +7,6 @@ import {
   PICK_UP,
 } from "../../utils/consonants";
 
-// Utility function to validate available dates
 const validateAvailableDates = (dates) => {
   const errors = [];
 
@@ -16,7 +15,6 @@ const validateAvailableDates = (dates) => {
     return errors;
   }
 
-  // Check if each date has at least one time period
   const datesWithoutTime = dates.filter(
     (date) => !date.durations || date.durations.length === 0
   );
@@ -24,7 +22,6 @@ const validateAvailableDates = (dates) => {
     errors.push("Each selected date must have at least one time period.");
   }
 
-  // Validate time periods
   dates.forEach((dateItem) => {
     if (dateItem.durations) {
       dateItem.durations.forEach((period) => {
@@ -37,7 +34,6 @@ const validateAvailableDates = (dates) => {
     }
   });
 
-  // Check for overlapping time periods on the same date
   dates.forEach((dateItem) => {
     if (dateItem.durations && dateItem.durations.length > 1) {
       for (let i = 0; i < dateItem.durations.length; i++) {
@@ -62,7 +58,6 @@ const validateAvailableDates = (dates) => {
   return errors;
 };
 
-// Utility function for input validation
 export const validateInput = (name, value, itemType) => {
   let hasError = false;
   let error = "";
@@ -117,8 +112,6 @@ export const validateInput = (name, value, itemType) => {
         hasError = true;
         error = "Delivery method cannot be empty.";
       } else if (value !== PICK_UP && value !== MEET_UP) {
-        // Changed to AND
-        // console.log(value, PICK_UP, MEET_UP);
         hasError = true;
         error = "Please choose between pickup and meetup only.";
       } else {
@@ -132,7 +125,6 @@ export const validateInput = (name, value, itemType) => {
         hasError = true;
         error = "Payment method cannot be empty.";
       } else if (value !== PAY_UPON_MEETUP && value !== GCASH) {
-        // Changed to AND
         hasError = true;
         error = "Please choose between Payment upon meetup and Gcash only.";
       } else {
@@ -205,11 +197,10 @@ export const validateInput = (name, value, itemType) => {
     case "tags":
       const isTagsEmpty = value.length === 0;
       const isTagsLessThan3 = value.length < 3;
-      // console.log(isTagsEmpty, isTagsLessThan3, value.length);
+
       if (isTagsEmpty) {
         hasError = true;
         error = "Tag is required.";
-        // console.log(isTagsEmpty, error, hasError);
       } else if (value.length < 3) {
         hasError = true;
         error = "Add at least 3 tags.";
@@ -229,10 +220,8 @@ export const validateInput = (name, value, itemType) => {
       } else {
         const entries = Object.entries(value);
 
-        // Get the last entry
         const [key, specValue] = entries[entries.length - 1] || [null, null];
 
-        // Validate key and specValue
         if (!key || !specValue || !key.trim() || !specValue.trim()) {
           hasError = true;
           error = "Both key and value are required.";
@@ -255,7 +244,6 @@ export const validateInput = (name, value, itemType) => {
       }
       break;
     case "images": {
-      // First, ensure value is an array we can work with
       if (!Array.isArray(value)) {
         hasError = true;
         error = "Invalid image data format";
@@ -273,12 +261,10 @@ export const validateInput = (name, value, itemType) => {
       } else {
         for (const fileName of value) {
           try {
-            // Skip validation for non-string values
             if (typeof fileName !== "string") {
               continue;
             }
 
-            // Make sure the filename has an extension
             if (!fileName.includes(".")) {
               continue;
             }
@@ -293,7 +279,6 @@ export const validateInput = (name, value, itemType) => {
             }
           } catch (err) {
             console.error("Error validating file:", fileName, err);
-            // Continue instead of breaking to allow other valid files
             continue;
           }
         }
@@ -309,7 +294,6 @@ export const validateInput = (name, value, itemType) => {
   return { hasError, error };
 };
 
-// Initial state
 const initialState = {
   category: { value: "", triggered: false, hasError: false, error: "" },
   itemName: { value: "", triggered: false, hasError: false, error: "" },
@@ -321,21 +305,19 @@ const initialState = {
     error: "",
   },
 
-  images: { value: [], triggered: false, hasError: false, error: "" }, // Array of images
-  desc: { value: "", triggered: false, hasError: false, error: "" }, // Array of tags
-  tags: { value: [], triggered: false, hasError: false, error: "" }, // Array of tags
-  specs: { value: {}, triggered: false, hasError: false, error: "" }, // Object for specs
+  images: { value: [], triggered: false, hasError: false, error: "" },
+  desc: { value: "", triggered: false, hasError: false, error: "" },
+  tags: { value: [], triggered: false, hasError: false, error: "" },
+  specs: { value: {}, triggered: false, hasError: false, error: "" },
 
   isFormValid: false,
 };
 
-// Create a slice for the form
 const postFormSlice = createSlice({
   name: "post-form",
   initialState,
   reducers: {
     updateRequestDates: (state, action) => {
-      // console.log(action.payload);
       const { hasError, error } = validateInput("requestDates", action.payload);
       state.requestDates = {
         value: action.payload,
@@ -348,10 +330,8 @@ const postFormSlice = createSlice({
       const { name, value } = action.payload;
       const { hasError, error } = validateInput(name, value);
 
-      // Update the field
       state[name] = { value, hasError, error, triggered: false };
 
-      // Recalculate form validity
       state.isFormValid = Object.keys(state).every(
         (key) => key === "isFormValid" || !state[key].hasError
       );
@@ -360,10 +340,8 @@ const postFormSlice = createSlice({
       const { name, value } = action.payload;
       const { hasError, error } = validateInput(name, value);
 
-      // Update the field on blur
       state[name] = { value, hasError, error, triggered: true };
 
-      // Recalculate form validity
       state.isFormValid = Object.keys(state).every(
         (key) => key === "isFormValid" || !state[key].hasError
       );
@@ -380,7 +358,6 @@ const postFormSlice = createSlice({
     populatePostData: (state, action) => {
       Object.keys(state).forEach((key) => {
         if (key !== "isFormValid") {
-          // Don't touch isFormValid here
           state[key].value = "";
           state[key].hasError = false;
           state[key].error = "";
@@ -389,7 +366,6 @@ const postFormSlice = createSlice({
       });
       let itemData = action.payload;
 
-      // Now itemData is guaranteed to be an object
       Object.keys(itemData).forEach((key) => {
         if (state[key] !== undefined) {
           state[key] = {
@@ -401,16 +377,13 @@ const postFormSlice = createSlice({
         }
       });
 
-      // Recalculate form validity
       state.isFormValid = Object.keys(state).every(
         (key) => key === "isFormValid" || !state[key].hasError
       );
     },
-    // Clear the form fields but retain structure
     clearPostForm: (state) => {
       Object.keys(state).forEach((key) => {
         if (key !== "isFormValid") {
-          // Don't touch isFormValid here
           state[key].value = "";
           state[key].hasError = false;
           state[key].error = "";
@@ -421,7 +394,6 @@ const postFormSlice = createSlice({
   },
 });
 
-// Export actions
 export const {
   updateField,
   blurField,
@@ -431,5 +403,4 @@ export const {
   updateAvailableDates,
 } = postFormSlice.actions;
 
-// Export the reducer
 export default postFormSlice.reducer;

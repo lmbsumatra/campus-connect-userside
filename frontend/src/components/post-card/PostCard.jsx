@@ -61,10 +61,9 @@ const PostCard = ({
   const userId = studentUser?.userId;
   const token = studentUser?.token;
 
-  const { config } = useSystemConfig(); //   config?.Stripe
+  const { config } = useSystemConfig();
 
   const handleCardClick = (e, item) => {
-    // console.log(item);
     e.stopPropagation();
     if (item.itemType === "To Buy" || item.itemType === "To Rent")
       if (item.renter && isYou) {
@@ -105,7 +104,6 @@ const PostCard = ({
   };
 
   const handleAddItemClick = async () => {
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -117,14 +115,11 @@ const PostCard = ({
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -137,7 +132,6 @@ const PostCard = ({
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -152,7 +146,6 @@ const PostCard = ({
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -167,7 +160,6 @@ const PostCard = ({
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -207,7 +199,7 @@ const PostCard = ({
       navigate(`/profile/my-posts/edit/${item.id}`);
     } else if (option === "delete") {
       if (onDelete) {
-        onDelete(item.id); // Call handleDelete with item ID
+        onDelete(item.id);
       }
     }
   };
@@ -264,8 +256,8 @@ const PostCard = ({
                   <input
                     type="checkbox"
                     checked={selectedItems.includes(item.id)}
-                    onClick={(e) => e.stopPropagation()} // Prevent card click
-                    onChange={(e) => onSelectItem(item.id)} // Handle selection
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => onSelectItem(item.id)}
                   />
                   {selectedItems.includes(item.id) ? "Selected" : "Select"}
                 </div>
@@ -368,15 +360,17 @@ const PostCard = ({
                   alt={item.name}
                   className="img"
                   onError={(e) => {
-                    e.target.onerror = null; // Prevent infinite loop
-                    e.target.src = defaultImages; // Provide a backup fallback image
+                    e.target.onerror = null;
+                    e.target.src = defaultImages;
                   }}
                 />
               </div>
             </div>
             {isYou && (
               <div
-                className={`mt-2 item-status ${ItemStatus(item.status).className}`}
+                className={`mt-2 item-status ${
+                  ItemStatus(item.status).className
+                }`}
               >
                 {ItemStatus(item.status).label}
               </div>
@@ -401,13 +395,11 @@ const PostCard = ({
                   onChange={(e) => {
                     const allIds = borrowingPosts.map((item) => item.id);
                     if (e.target.checked) {
-                      // Select all items that aren't already selected
                       const newSelected = [
                         ...new Set([...selectedItems, ...allIds]),
                       ];
                       if (onSelectItem) onSelectItem(newSelected);
                     } else {
-                      // Deselect all items
                       if (onSelectItem) onSelectItem([]);
                     }
                   }}

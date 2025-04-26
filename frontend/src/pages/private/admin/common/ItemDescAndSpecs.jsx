@@ -1,7 +1,7 @@
 import "./itemDescAndSpecsStyles.css";
 
 export const ItemDescAndSpecs = ({ specs, desc, tags }) => {
-  // console.log({ specs, desc, tags });
+  
   return (
     <div className="item-desc">
       <label className="sub-section-label">Specifications</label>
@@ -13,7 +13,7 @@ export const ItemDescAndSpecs = ({ specs, desc, tags }) => {
                 ? Object.entries(JSON.parse(specs))
                 : [];
 
-              // console.log(JSON.parse(specs));
+            
 
               if (specsParsed.length === 0) {
                 return (

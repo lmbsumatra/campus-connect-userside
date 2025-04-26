@@ -22,7 +22,6 @@ const ViewItem = () => {
   const itemData = location?.state?.item || {};
   const { user } = useSelector((state) => state.user);
 
-  // console.log(user, itemData);
 
   const renderDurations = (date) => {
     const dateItem = itemData.availableDates?.find(

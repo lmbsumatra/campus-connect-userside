@@ -8,7 +8,6 @@ export const onInputChange = (name, value, dispatch, loginDataState) => {
   );
   let isFormValid = true;
 
-  // Validate the input fields dynamically on change
   for (const key in loginDataState) {
     const item = loginDataState[key];
     if (key === name && hasError) {
@@ -20,7 +19,6 @@ export const onInputChange = (name, value, dispatch, loginDataState) => {
     }
   }
 
-  // Dispatch to update state for the specific field
   dispatch({
     type: UPDATE_FORM,
     data: {
@@ -94,7 +92,6 @@ export const validateInput = (name, value, password) => {
       }
       break;
     case "password":
-      // Password validation
       const isNotEmpty = value.trim() !== "";
       const isMinLength = value.length >= 8;
       const hasUppercase = /[A-Z]/.test(value);
@@ -134,9 +131,7 @@ export const validateInput = (name, value, password) => {
         !hasDigit ||
         !hasSpecialChar;
       break;
-    // Add other fields validation here
     case "confirmPassword":
-      // Password validation
       const isConfirmPasswordNotEmpty = value.trim() !== "";
       const isPasswordEmpty = password.length !== 0;
       const isPasswordEqual = value === password;
@@ -171,7 +166,7 @@ export const validateInput = (name, value, password) => {
         error = "TUP Id incomplete";
       } else {
         hasError = false;
-        error = ""; // Reset error when TUP Id is valid
+        error = "";
       }
       break;
 
@@ -226,7 +221,6 @@ export const onBlur = (name, value, dispatch, loginDataState) => {
     loginDataState.password.value
   );
   let isFormValid = true;
-  // console.log(name, value);
 
   for (const key in loginDataState) {
     const item = loginDataState[key];

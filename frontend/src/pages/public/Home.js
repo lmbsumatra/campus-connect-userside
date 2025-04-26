@@ -18,7 +18,6 @@ import { Link } from "react-router-dom";
 import "./homeStyles.css";
 import { baseUrl } from "../../utils/consonants.js";
 
-// Section Title component with View All link
 function SectionTitle({ title, viewAllLink }) {
   return (
     <div className="section-header">
@@ -32,7 +31,6 @@ function SectionTitle({ title, viewAllLink }) {
   );
 }
 
-// Enhanced ContentSection with empty fallback
 function ContentSection({
   error,
   loading,
@@ -83,12 +81,6 @@ function Home() {
     ...state.allApprovedListings,
     ...state.allApprovedItemForSale,
   }));
-
-  console.log(
-    allApprovedPosts, 
-    // allApprovedListings, 
-    // allApprovedItemForSale
-  );
 
   return (
     <div className="">

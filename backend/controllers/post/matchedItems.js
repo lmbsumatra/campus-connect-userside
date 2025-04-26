@@ -4,7 +4,7 @@ const Fuse = require("fuse.js");
 const { Op } = require("sequelize");
 
 const parseToArray = (input) => {
-  console.log("parseToArray input:", input);
+  // console.log("parseToArray input:", input);
   if (!input) return [];
 
   try {
@@ -22,7 +22,7 @@ const parseToArray = (input) => {
     if (typeof input === "object") return Object.values(input);
     return [];
   } catch (err) {
-    console.error("parseToArray error:", err);
+    // console.error("parseToArray error:", err);
     return [];
   }
 };
@@ -33,12 +33,10 @@ const cleanSpecValues = (specs) => {
     .flatMap((val) => {
       try {
         if (typeof val === "string") {
-          // Try parsing if it's a JSON string
           const obj = JSON.parse(val);
           if (typeof obj === "object") return Object.values(obj);
         }
       } catch {
-        // If not JSON, just return the string itself
       }
       return val;
     })
@@ -47,7 +45,7 @@ const cleanSpecValues = (specs) => {
 
 const matchedItems = async (req, res) => {
   try {
-    console.log("Request params:", req.params);
+    // console.log("Request params:", req.params);
 
     const post = await models.Post.findOne({
       where: {
@@ -79,11 +77,11 @@ const matchedItems = async (req, res) => {
     });
 
     if (!post) {
-      console.log("Post not found");
+      // console.log("Post not found");
       return res.status(404).json({ error: "Post not found" });
     }
 
-    console.log("Fetched Post:", post);
+    // console.log("Fetched Post:", post);
 
     const formattedPost = {
       id: post.id,
@@ -120,7 +118,7 @@ const matchedItems = async (req, res) => {
       },
     };
 
-    console.log("Formatted Post:", formattedPost);
+    // console.log("Formatted Post:", formattedPost);
 
     const itemsForSale = await models.ItemForSale.findAll({
       where: {
@@ -186,8 +184,8 @@ const matchedItems = async (req, res) => {
       ],
     });
 
-    console.log("Items For Sale count:", itemsForSale.length);
-    console.log("Items For Rent count:", itemsForRent.length);
+    // console.log("Items For Sale count:", itemsForSale.length);
+    // console.log("Items For Rent count:", itemsForRent.length);
 
     const formattedItems = [
       ...itemsForSale.map((item) => ({
@@ -269,7 +267,7 @@ const matchedItems = async (req, res) => {
       })),
     ];
 
-    console.log("Formatted Items Count:", formattedItems.length);
+    // console.log("Formatted Items Count:", formattedItems.length);
 
     const postTags = formattedPost.tags || [];
     const postCategory = formattedPost.category || "";
@@ -293,14 +291,14 @@ const matchedItems = async (req, res) => {
       Boolean
     );
 
-    console.log("Search Terms:", searchTermsArray);
+    // console.log("Search Terms:", searchTermsArray);
 
     let results = [];
     const seenIds = new Set();
 
     if (searchTermsArray) {
       const nameResults = fuse.search(searchTermsArray);
-      console.log("Name results count:", nameResults.length);
+      // console.log("Name results count:", nameResults.length);
       for (const result of nameResults) {
         if (!seenIds.has(result.item.id)) {
           seenIds.add(result.item.id);
@@ -312,7 +310,7 @@ const matchedItems = async (req, res) => {
     for (const term of [...postTags, ...postName, ...postSpecs]) {
       if (!term) continue;
       const termResults = fuse.search(term);
-      console.log(`Results for term "${term}":`, termResults.length);
+      // console.log(`Results for term "${term}":`, termResults.length);
       for (const result of termResults) {
         if (!seenIds.has(result.item.id)) {
           seenIds.add(result.item.id);
@@ -320,9 +318,6 @@ const matchedItems = async (req, res) => {
         }
       }
     }
-
-    // const descWords = postDesc.split(" ").filter((word) => word.length > 3);
-    // const specWords = postSpecs.split(" ").filter((word) => word.length > 3);
 
     for (const word of postSpecs) {
       if (!word) continue;
@@ -335,11 +330,11 @@ const matchedItems = async (req, res) => {
       }
     }
 
-    console.log("Final matched results count:", results.length);
+    // console.log("Final matched results count:", results.length);
 
     return res.status(200).json({ matchedItems: results });
   } catch (error) {
-    console.error("Error in matchedItems:", error);
+    // console.error("Error in matchedItems:", error);
     res.status(500).json({ error: error.message });
   }
 };

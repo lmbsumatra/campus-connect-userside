@@ -15,7 +15,6 @@ const initialState = {
   errorFollow: null,
 };
 
-// Fetch all users
 export const fetchAllUsers = createAsyncThunk(
   "users/allUsers",
   async (keyword = "", { getState }) => {
@@ -34,30 +33,25 @@ export const fetchAllUsers = createAsyncThunk(
   }
 );
 
-// Update follow/unfollow action
 export const updateUserAction = createAsyncThunk(
   "users/updateUserActions",
   async ({ loggedInUserId, otherUserId }, { getState }) => {
     const dispatch = useDispatch();
-    // console.log({ loggedInUserId, otherUserId });
     if (!loggedInUserId) {
       console.error("User must be logged in to follow");
       return;
     }
     try {
-      const response = await fetch(
-        `${baseApi}/api/follow/follow-user`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            loggedInUserId,
-            otherUserId,
-          }),
-        }
-      );
+      const response = await fetch(`${baseApi}/api/follow/follow-user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          loggedInUserId,
+          otherUserId,
+        }),
+      });
 
       if (!response.ok) {
         console.error("Server error:", response.status, response.statusText);
@@ -65,7 +59,6 @@ export const updateUserAction = createAsyncThunk(
       }
 
       const data = await response.json();
-      // console.log({ otherUserId: otherUserId, action: data.action, data });
       dispatch(
         updateUserActionById({
           otherUserId: otherUserId,
@@ -103,7 +96,6 @@ const allUsersSlice = createSlice({
         state.errorAllUsers = action.error.message;
       })
 
-      // Follow/Unfollow User
       .addCase(updateUserAction.pending, (state) => {
         state.loadingFollow = true;
         state.successFollow = false;

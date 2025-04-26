@@ -238,7 +238,6 @@
   background-color: rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive Media Queries */
 @media only screen and (max-width: 600px) {
   .navbar-main .nav-searchbar input {
     width: 100%;
@@ -332,7 +331,6 @@
   color: #555;
 }
 
-
 /* Clear search button styles */
 .search-wrapper {
   position: relative;
@@ -356,7 +354,6 @@
   border-radius: 50%;
 }
 
-
 .clear-search-btn.dark {
   color: #555;
 }
@@ -368,4 +365,3 @@
 .clear-search-btn i {
   font-size: 12px;
 }
-

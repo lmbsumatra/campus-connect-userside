@@ -88,7 +88,7 @@
   width: 100%;
 }
 
-.dropdown-btn {
+.dropdown-btn2 {
   display: flex;
   align-items: center;
   width: 100%;
@@ -101,15 +101,15 @@
   transition: background 0.3s ease;
 }
 
-.dropdown-btn:hover {
+.dropdown-btn2:hover {
   background: var(--clr-light);
 }
 
-.dropdown-btn .icon {
+.dropdown-btn2 .icon {
   margin-right: 10px;
 }
 
-.dropdown-btn h6 {
+.dropdown-btn2 h6 {
   margin: 0;
 }
 

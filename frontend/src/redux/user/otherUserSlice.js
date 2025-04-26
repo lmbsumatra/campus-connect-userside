@@ -6,11 +6,10 @@ const BASE_URL = `${baseApi}/user/other-user/info`;
 export const fetchOtherUser = createAsyncThunk(
   "otherUser/fetchOtherUser",
   async (id, { getState, rejectWithValue }) => {
-    const state = getState(); // Log the whole state to debug
+    const state = getState(); 
 
-    const { studentUser } = state.studentAuth || {}; // Safely access studentUser
+    const { studentUser } = state.studentAuth || {}; 
 
-    // If no studentUser, you may want to return early or reject with an error
     if (!studentUser) {
       return rejectWithValue("User is not logged in.");
     }
@@ -25,7 +24,6 @@ export const fetchOtherUser = createAsyncThunk(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      // console.log({ otherUser: data });
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -33,11 +31,9 @@ export const fetchOtherUser = createAsyncThunk(
   }
 );
 
-// Update follow/unfollow action
 export const updateUserActionById = createAsyncThunk(
   "users/updateUserActions",
   async ({ loggedInUserId, otherUserId }, { getState }) => {
-    // console.log({ loggedInUserId, otherUserId });
     if (!loggedInUserId) {
       console.error("User must be logged in to follow");
       return;
@@ -62,7 +58,6 @@ export const updateUserActionById = createAsyncThunk(
         return;
       }
       const data = await response.json();
-      // console.log({ otherUserId: otherUserId, action: data.action, data });
       return { userId: otherUserId, action: data.action };
     } catch (error) {
       console.error("Error during follow request:", error);
@@ -110,7 +105,6 @@ const otherUserSlice = createSlice({
         state.user = null;
       })
 
-      // Handle Follow/Unfollow for otherUser
       .addCase(updateUserActionById.pending, (state) => {
         state.loadingFollow = true;
         state.successFollow = false;
@@ -121,10 +115,8 @@ const otherUserSlice = createSlice({
         state.successFollow = true;
         const { userId, action: newAction } = action.payload;
 
-        // ✅ Update `otherUser` if the ID matches, ayaw gumana ng condition?????????????????????????
         if (state.user?.id === userId) {
           state.user.action = newAction;
-          // console.log(state.user?.id, userId, "?????");
         }
 
         state.user.action = newAction;

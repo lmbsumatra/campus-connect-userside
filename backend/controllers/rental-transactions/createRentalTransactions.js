@@ -100,26 +100,26 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
 
-    // const existingTransaction = await models.RentalTransaction.findOne({
-    //   where: {
-    //     item_id,
-    //     [transaction_type === "sell" ? "buyer_id" : "renter_id"]:
-    //       transaction_type === "sell" ? buyer_id : renter_id,
-    //     transaction_type: transaction_type === "sell" ? "sell" : "rental",
-    //     status: {
-    //       [Op.notIn]: ["cancelled", "declined", "completed"],
-    //     },
-    //     createdAt: {
-    //       [Op.between]: [startDate, endDate],
-    //     },
-    //   },
-    // });
+    const existingTransaction = await models.RentalTransaction.findOne({
+      where: {
+        item_id,
+        [transaction_type === "sell" ? "buyer_id" : "renter_id"]:
+          transaction_type === "sell" ? buyer_id : renter_id,
+        transaction_type: transaction_type === "sell" ? "sell" : "rental",
+        status: {
+          [Op.notIn]: ["cancelled", "declined", "completed"],
+        },
+        createdAt: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+    });
 
-    // if (existingTransaction) {
-    //   const errorMsg = "A transaction already exists.";
-    //   console.error(errorMsg);
-    //   return res.status(409).json({ message: errorMsg });
-    // }
+    if (existingTransaction) {
+      const errorMsg = "A transaction already exists.";
+      console.error(errorMsg);
+      return res.status(409).json({ message: errorMsg });
+    }
 
     const rentalData = {
       owner_id,

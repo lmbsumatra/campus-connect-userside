@@ -19,13 +19,10 @@ const UserVerification = () => {
   const [statusMessage, setStatusMessage] = useState("");
   const dispatch = useDispatch();
 
-  console.log({ user, student });
-
-  // Update selectedStatus when student data loads
   useEffect(() => {
     if (student?.status) {
       setSelectedStatus(student.status);
-      setStatusMessage(student.statusMessage || ""); // Pre-fill message if exists
+      setStatusMessage(student.statusMessage || "");
     }
   }, [student]);
 
@@ -287,7 +284,6 @@ const UserVerification = () => {
     }
   };
 
-  // Get badge class based on status
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case "verified":
@@ -475,7 +471,6 @@ const UserVerification = () => {
           </div>
         </>
       ) : (
-        // Fallback if user/student data couldn't be loaded but no specific error message
         <div className="error-message alert alert-warning">
           Could not load user or student details.
         </div>

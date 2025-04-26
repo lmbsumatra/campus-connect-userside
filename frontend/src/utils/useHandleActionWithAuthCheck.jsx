@@ -10,7 +10,7 @@ const useHandleActionWithAuthCheck = () => {
 
   const handleAction = (action, hide = () => {}) => {
     if (studentUser === null) {
-      hide(); // Hide modal first
+      hide(); 
       ShowAlert(dispatch, "warning", "Action Required", "Please login first", {
         text: "Login",
         action: () => {

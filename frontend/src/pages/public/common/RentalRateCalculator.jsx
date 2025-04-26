@@ -11,7 +11,7 @@ const RentalRateCalculator = ({ pricePerHour, timeFrom, timeTo }) => {
       if (modifier === "PM" && hours !== 12) {
         hours += 12;
       } else if (modifier === "AM" && hours === 12) {
-        hours = 0; // Midnight case
+        hours = 0;
       }
 
       return { hours, minutes };
@@ -19,8 +19,6 @@ const RentalRateCalculator = ({ pricePerHour, timeFrom, timeTo }) => {
 
     const start = parseTime(startTime);
     const end = parseTime(endTime);
-
-    console.log(start, end);
 
     const startDate = new Date();
     startDate.setHours(start.hours, start.minutes, 0);
@@ -31,19 +29,17 @@ const RentalRateCalculator = ({ pricePerHour, timeFrom, timeTo }) => {
     const diffMs = endDate - startDate;
     const diffHours = diffMs / (1000 * 60 * 60);
 
-    return diffHours > 0 ? diffHours : 0; // Ensure positive value
+    return diffHours > 0 ? diffHours : 0;
   };
 
   const hours = getHoursDifference(timeFrom, timeTo);
   const totalRate = pricePerHour * hours;
 
-  // console.log(hours, totalRate, pricePerHour);
-
   return {
     total: totalRate.toFixed(2),
     rate: pricePerHour,
     hrs: hours.toFixed(2),
-  }; // Return the total rate with two decimal places
+  };
 };
 
 export default RentalRateCalculator;

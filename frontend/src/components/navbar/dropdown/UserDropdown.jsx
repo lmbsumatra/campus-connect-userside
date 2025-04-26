@@ -1,14 +1,8 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import UserIcon from "../../../assets/images/icons/user.svg";
-import MyRentalsIcon from "../../../assets/images/icons/rental.svg";
-import MyItemsIcon from "../../../assets/images/icons/item.svg";
-import MyPostsIcon from "../../../assets/images/icons/post.svg";
-import LogoutIcon from "../../../assets/images/icons/logout.svg";
 import "./style.css";
-import FetchUserInfo from "../../../utils/FetchUserInfo";
 import { selectStudentUser } from "../../../redux/auth/studentAuthSlice";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Cart from "../../../pages/private/users/cart/Cart";
 
 const UserDropdown = ({
@@ -108,7 +102,7 @@ const UserDropdown = ({
 
               <div className="dropdown-content">
                 <button
-                  className="dropdown-btn"
+                  className="dropdown-btn2"
                   onClick={() => {
                     navigate("/profile/dashboard");
                     toggleDropdown();
@@ -117,11 +111,11 @@ const UserDropdown = ({
                   <h6>Dashboard</h6>
                 </button>
 
-                <button className="dropdown-btn" onClick={toggleCart}>
+                <button className="dropdown-btn2" onClick={toggleCart}>
                   View Cart
                 </button>
                 <button
-                  className="dropdown-btn"
+                  className="dropdown-btn2"
                   onClick={() => {
                     navigate("/profile/my-listings");
                     toggleDropdown();
@@ -130,7 +124,7 @@ const UserDropdown = ({
                   <h6>My Listings</h6>
                 </button>
                 <button
-                  className="dropdown-btn"
+                  className="dropdown-btn2"
                   onClick={() => {
                     navigate("/profile/my-for-sale");
                     toggleDropdown();
@@ -139,7 +133,7 @@ const UserDropdown = ({
                   <h6>My Items For Sale</h6>
                 </button>
                 <button
-                  className="dropdown-btn"
+                  className="dropdown-btn2"
                   onClick={() => {
                     navigate("/profile/my-posts");
                     toggleDropdown();
@@ -148,7 +142,7 @@ const UserDropdown = ({
                   <h6>My Posts</h6>
                 </button>
                 <button
-                  className="dropdown-btn"
+                  className="dropdown-btn2"
                   onClick={() => {
                     navigate("/profile/transactions/renter/requests");
                     toggleDropdown();
@@ -157,7 +151,7 @@ const UserDropdown = ({
                   <h6>Transactions</h6>
                 </button>
                 <button
-                  className="dropdown-btn"
+                  className="dropdown-btn2"
                   onClick={() => {
                     navigate("/profile/reviews");
                     toggleDropdown();
@@ -166,7 +160,7 @@ const UserDropdown = ({
                   <h6>Reviews</h6>
                 </button>
                 <button
-                  className="dropdown-btn"
+                  className="dropdown-btn2"
                   onClick={() => {
                     toggleDropdown();
                     handleLogout();

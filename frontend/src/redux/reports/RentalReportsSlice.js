@@ -2,10 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { baseApi } from "../../utils/consonants";
 
-// Base URL for transaction reports API
 const BASE_URL = `${baseApi}/api/transaction-reports`;
 
-// Thunk to submit a new transaction report
 export const submitTransactionReport = createAsyncThunk(
   "reports/submitTransaction",
   async (
@@ -13,22 +11,14 @@ export const submitTransactionReport = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log(
-        "Submitting report with token:",
-        token ? "Token exists" : "Token is missing"
-      );
-
       const formData = new FormData();
       formData.append("transaction_id", transactionId);
       formData.append("transaction_type", transactionType);
       formData.append("reason", reason);
       files.forEach((file) => formData.append("evidence", file));
 
-      // Make sure the full URL is correct (not just BASE_URL)
       const fullUrl = `${BASE_URL}`;
-      console.log("Submitting to URL:", fullUrl);
 
-      // Make sure Authorization header is correctly formatted
       const response = await axios.post(fullUrl, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -45,7 +35,7 @@ export const submitTransactionReport = createAsyncThunk(
     }
   }
 );
-// Thunk to submit a report response
+
 export const submitReportResponse = createAsyncThunk(
   "reports/submitResponse",
   async ({ reportId, responseText, files, token }, { rejectWithValue }) => {
@@ -73,7 +63,6 @@ export const submitReportResponse = createAsyncThunk(
   }
 );
 
-// Thunk to fetch report details
 export const fetchReportDetails = createAsyncThunk(
   "reports/fetchDetails",
   async ({ reportId, token }, { rejectWithValue }) => {
@@ -94,7 +83,6 @@ export const fetchReportDetails = createAsyncThunk(
   }
 );
 
-// Thunk to mark report as resolved
 export const resolveReport = createAsyncThunk(
   "reports/resolveReport",
   async ({ reportId, token }, { rejectWithValue }) => {
@@ -113,7 +101,6 @@ export const resolveReport = createAsyncThunk(
   }
 );
 
-// Thunk to escalate report to admin
 export const escalateReport = createAsyncThunk(
   "reports/escalateReport",
   async ({ reportId, token }, { rejectWithValue }) => {
@@ -132,7 +119,6 @@ export const escalateReport = createAsyncThunk(
   }
 );
 
-// Slice definition
 const transactionReportsSlice = createSlice({
   name: "transactionReports",
   initialState: {

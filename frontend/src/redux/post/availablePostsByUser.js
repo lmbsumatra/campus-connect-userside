@@ -14,7 +14,6 @@ export const fetchAvailablePostsByUser = createAsyncThunk(
   "listings/AvailablePostsByUser",
   async (userId) => {
     const response = await axios.get(`${BASE_URL}/${userId}/available`);
-    // console.log(userId, response.data);
     return response.data;
   }
 );

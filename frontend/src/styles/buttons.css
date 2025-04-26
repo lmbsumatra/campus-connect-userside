@@ -194,15 +194,14 @@
 
 /* Icon Buttons */
 .btn.btn-icon {
-  all: unset;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
   padding: 6px !important;
-  color: white !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: row;
+  justify-content: center;
   border-radius: 4px;
-  cursor: pointer;
+  background-color: white;
 }
 
 .btn.btn-icon.primary {

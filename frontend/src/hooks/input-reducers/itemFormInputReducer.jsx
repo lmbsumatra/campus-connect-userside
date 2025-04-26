@@ -4,7 +4,6 @@ export const onInputChange = (name, value, dispatch, itemDataState) => {
   const { hasError, error } = validateInput(name, value);
   let isFormValid = true;
 
-  // Validate the input fields dynamically on change
   for (const key in itemDataState) {
     const item = itemDataState[key];
     if (key === name && hasError) {
@@ -16,7 +15,6 @@ export const onInputChange = (name, value, dispatch, itemDataState) => {
     }
   }
 
-  // Dispatch to update state for the specific field
   dispatch({
     type: UPDATE_FORM,
     data: {
@@ -158,11 +156,9 @@ export const validateInput = (name, value) => {
     case "tags":
       const isTagsEmpty = value.length === 0;
       const isTagsLessThan3 = value.length < 3;
-      // console.log(isTagsEmpty, isTagsLessThan3, value.length);
       if (isTagsEmpty) {
         hasError = true;
         error = "Tag is required.";
-        // console.log(isTagsEmpty, error, hasError);
       } else if (value.length < 3) {
         hasError = true;
         error = "Add at least 3 tags.";
@@ -173,14 +169,8 @@ export const validateInput = (name, value) => {
       break;
     case "specs":
       const entries = Object.entries(value);
-      // console.log(entries)
-
       const [key, specValue] = entries[entries.length - 1];
 
-      // console.log(key); // Output: 'brand'
-      // console.log(specValue); // Output: 'new'
-
-      // Check if key or specValue are undefined or empty
       if (!key || !specValue || !key.trim() || !specValue.trim()) {
         hasError = true;
         error = "Both key and value are required.";
@@ -205,17 +195,15 @@ export const validateInput = (name, value) => {
   return { hasError, error };
 };
 
-// Helper function to validate available dates and durations
 const validateAvailableDates = (availableDates) => {
   const errors = [];
 
   availableDates.forEach((dateObj, index) => {
-    // Validate date format
+
     if (!isValidDate(dateObj.date)) {
       errors.push(`Invalid date format at index ${index + 1}: ${dateObj.date}`);
     }
 
-    // Ensure unique durations for each date
     const durationsSet = new Set(dateObj.durations);
     if (durationsSet.size !== dateObj.durations.length) {
       errors.push(
@@ -225,7 +213,6 @@ const validateAvailableDates = (availableDates) => {
       );
     }
 
-    // Validate each duration
     dateObj.durations.forEach((duration, durationIndex) => {
       if (!isValidDuration(duration)) {
         errors.push(
@@ -234,7 +221,6 @@ const validateAvailableDates = (availableDates) => {
           }: ${duration}`
         );
       } else {
-        // Additional check: ensure the start time is earlier than the end time
         if (!isValidTimeRange(duration)) {
           errors.push(
             `Start time is not earlier than end time at index ${
@@ -249,39 +235,33 @@ const validateAvailableDates = (availableDates) => {
   return errors;
 };
 
-// Helper function to check if a date is valid
 const isValidDate = (date) => {
   const parsedDate = new Date(date);
-  return !isNaN(parsedDate.getTime()); // Returns true if the date is valid
+  return !isNaN(parsedDate.getTime()); 
 };
 
-// Helper function to validate the duration format (e.g., "9pm-11pm" or "10am-12pm")
 const isValidDuration = (duration) => {
   const durationRegex = /^(?:\d{1,2}[ap]m)-(\d{1,2}[ap]m)$/;
   return durationRegex.test(duration);
 };
 
-// Helper function to check if a time range is valid (start time < end time)
 const isValidTimeRange = (timeRange) => {
   const [startTime, endTime] = timeRange.split("-");
 
-  // Convert time to 24-hour format for comparison
   const start = convertTo24Hour(startTime);
   const end = convertTo24Hour(endTime);
 
-  // Check if start time is earlier than end time
   return start < end;
 };
 
-// Helper function to convert time (e.g., "9pm" or "10am") to 24-hour format
 const convertTo24Hour = (time) => {
   const [hour, period] = time.match(/(\d{1,2})([ap]m)/).slice(1);
   let hourIn24 = parseInt(hour, 10);
 
   if (period === "pm" && hourIn24 !== 12) {
-    hourIn24 += 12; // Convert PM times
+    hourIn24 += 12; 
   } else if (period === "am" && hourIn24 === 12) {
-    hourIn24 = 0; // Convert 12am to 0
+    hourIn24 = 0; 
   }
 
   return hourIn24;
@@ -291,7 +271,6 @@ export const onBlur = (name, value, dispatch, itemDataState) => {
   const { hasError, error } = validateInput(name, value);
   let isFormValid = true;
 
-  // console.log(name, value);
 
   for (const key in itemDataState) {
     const item = itemDataState[key];

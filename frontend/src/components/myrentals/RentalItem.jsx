@@ -41,26 +41,6 @@ function RentalItem({
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-  // console.log(item);
-  // const handleConfirmPayment = () => {
-  //   if (
-  //     item.transactionType === "Rental" &&
-  //     item.tx.status === "HandedOver" &&
-  //     (item.tx.owner.user_id === userId || item.tx.renter.user_id === userId)
-  //   ) {
-  //     // console.log("rent");
-  //     // setIsPaymentModalOpen(false);
-  //     handleStatusUpdate("return");
-  //   } else if (
-  //     item.transactionType === "Purchase" &&
-  //     item.tx.status === "Accepted" &&
-  //     (item.tx.owner.user_id === userId || item.tx.buyer.user_id === userId)
-  //   ) {
-  //     // console.log("buy");
-  //     // setIsPaymentModalOpen(false);
-  //     handleStatusUpdate("hand-over");
-  //   }
-  // };
 
   const handleStatusUpdate = async (action) => {
     try {
@@ -87,12 +67,10 @@ function RentalItem({
         const isCurrentUserOwner = transaction.owner_id === userId;
 
         if (isRental) {
-          // For rental transactions
           return isCurrentUserOwner
             ? transaction.renter_id
             : transaction.owner_id;
         } else if (isSell) {
-          // For purchase/sale transactions
           return isCurrentUserOwner
             ? transaction.buyer_id
             : transaction.owner_id;
@@ -160,27 +138,11 @@ function RentalItem({
 
         onTabChange(nextTab);
       }
-    } catch (error) {
-      // console.error("Error updating transaction status:", error);
-    }
+    } catch (error) {}
   };
 
   const handleMessageClick = async () => {
     try {
-      // Debug the complete item structure to see all properties
-      console.log("Complete item structure:", JSON.stringify(item, null, 2));
-
-      // Debug the transaction structure
-      console.log("Transaction item structure:", {
-        item_id: item.id,
-        owner_id: item.owner_id,
-        tx: item.tx,
-        userId: userId,
-        renter_id: item.renter_id,
-        buyer_id: item.buyer_id,
-      });
-
-      // Safer extraction of IDs from possibly nested structures
       const safeGetId = (obj, ...paths) => {
         for (const path of paths) {
           let value = obj;
@@ -193,10 +155,8 @@ function RentalItem({
         return undefined;
       };
 
-      // Handle possibility of missing owner_id or transaction type
       let recipientId;
 
-      // Get owner ID from all possible locations
       const ownerId = safeGetId(
         item,
         "owner_id",
@@ -205,7 +165,6 @@ function RentalItem({
         "owner.user_id"
       );
 
-      // Get renter ID from all possible locations
       const renterId = safeGetId(
         item,
         "renter_id",
@@ -214,7 +173,6 @@ function RentalItem({
         "renter.user_id"
       );
 
-      // Get buyer ID from all possible locations
       const buyerId = safeGetId(
         item,
         "buyer_id",
@@ -223,38 +181,25 @@ function RentalItem({
         "buyer.user_id"
       );
 
-      console.log("Extracted IDs:", { ownerId, renterId, buyerId, userId });
-
-      // Determine transaction type with fallbacks
       const transactionType =
         safeGetId(item, "tx.transaction_type", "transactionType") ||
         (renterId ? "rental" : "sell");
 
-      // Determine recipient based on user role
       if (userId == ownerId) {
-        // Current user is the owner
         recipientId =
           transactionType === "rental" || transactionType === "rent"
             ? renterId
             : buyerId;
       } else {
-        // Current user is renter/buyer
         recipientId = ownerId;
       }
 
-      // If still undefined, try any non-userId participant
       if (!recipientId) {
         const allParticipants = [ownerId, renterId, buyerId].filter(
           (id) => id && id != userId
         );
         recipientId = allParticipants[0];
       }
-
-      // Check if we have valid IDs
-      console.log("User IDs for conversation:", {
-        senderId: userId,
-        recipientId,
-      });
 
       if (!userId || !recipientId) {
         console.error("Missing required IDs:", { userId, recipientId });
@@ -264,29 +209,20 @@ function RentalItem({
         return;
       }
 
-      // Ensure IDs are strings
       const senderId = String(userId);
       recipientId = String(recipientId);
 
-      // Get item name from various possible sources
       const itemName = getItemName();
 
-      // Get item image
       const itemImageUrl =
         item.item?.image_url ||
         item.Listing?.image_url ||
         item.tx?.image_url ||
         itemImage;
 
-      // Format status for display
       const formattedStatus = item.status
         .replace(/_/g, " ")
         .replace(/\b\w/g, (l) => l.toUpperCase());
-
-      console.log("Making API request to create conversation:", {
-        senderId,
-        recipientId,
-      });
 
       const response = await axios.post(
         `${baseApi}/api/conversations/createConversation`,
@@ -296,15 +232,12 @@ function RentalItem({
         }
       );
 
-      console.log("API response:", response.data);
-
       if (!response.data) {
         throw new Error("Failed to create conversation");
       }
 
       const conversationData = response.data;
 
-      // Determine transaction type for display text
       const displayTransactionType =
         transactionType === "rental" || transactionType === "rent"
           ? "Rental"
@@ -312,7 +245,6 @@ function RentalItem({
           ? "Purchase"
           : "Transaction";
 
-      // Navigate to messages with properly formatted product details
       navigate("/messages", {
         state: {
           activeConversationId: conversationData.id,
@@ -321,8 +253,8 @@ function RentalItem({
             name: itemName,
             price: item.tx?.price || item.price || item.tx?.rate || "N/A",
             image: itemImageUrl,
-            title: "Inquiry", // This ensures it shows as "Inquiring about this item"
-            type: "rental-transaction", // Custom type for navigation
+            title: "Inquiry",
+            type: "rental-transaction",
             status: `Type: ${displayTransactionType}
 Status: ${formattedStatus}
 Item: ${itemName}`,
@@ -526,12 +458,10 @@ Item: ${itemName}`,
     [userId, item]
   );
 
-  // Safeguard against invalid item - moved after hooks
   if (!item) {
     return <div className="rental-item">Invalid item data</div>;
   }
 
-  // Define button color based on selected option (Owner or Renter)
   const getButtonColor = (primary) => {
     if (selectedOption === "owner") {
       return primary ? "btn-owner-primary" : "btn-owner-secondary";
@@ -544,20 +474,16 @@ Item: ${itemName}`,
   };
 
   const getItemName = () => {
-    // Check all possible places where the item name could be stored
     if (item.Listing && item.Listing.listing_name) {
       return item.Listing.listing_name;
     }
 
     if (item.item) {
-      // Try different property names for rental items
       if (item.tx.transaction_type === "rental") {
         return (
           item.item.listing_name || item.item.name || item.item.title || ""
         );
-      }
-      // Try different property names for sale items
-      else if (item.tx.transaction_type === "sell") {
+      } else if (item.tx.transaction_type === "sell") {
         return (
           item.item.item_for_sale_name ||
           item.item.name ||
@@ -567,7 +493,6 @@ Item: ${itemName}`,
       }
     }
 
-    // Check additional possible locations
     if (item.itemName) {
       return item.itemName;
     }
@@ -594,7 +519,6 @@ Item: ${itemName}`,
         item.tx.status === "HandedOver" &&
         (item.tx.owner.user_id === userId || item.tx.renter.user_id === userId)
       ) {
-        // Rental return
         if (evidenceImage && item.tx.owner.user_id === userId) {
           await uploadEvidenceImage(
             evidenceImage,
@@ -608,7 +532,6 @@ Item: ${itemName}`,
         item.tx.status === "Accepted" &&
         (item.tx.owner.user_id === userId || item.tx.buyer.user_id === userId)
       ) {
-        // Purchase handover
         if (evidenceImage && item.tx.owner.user_id === userId) {
           await uploadEvidenceImage(
             evidenceImage,
@@ -622,7 +545,6 @@ Item: ${itemName}`,
         item.tx.status === "Accepted" &&
         item.tx.owner.user_id === userId
       ) {
-        // Rental handover
         if (evidenceImage) {
           await uploadEvidenceImage(
             evidenceImage,
@@ -663,21 +585,18 @@ Item: ${itemName}`,
     }
   };
 
-  // Add a new function to handle evidence upload
   const uploadEvidenceImage = async (
     imageFile,
     transactionId,
     evidenceType
   ) => {
     try {
-      // Create FormData object to send the file
       const formData = new FormData();
       formData.append("transaction_evidence", imageFile);
       formData.append("transactionId", transactionId);
       formData.append("evidenceType", evidenceType);
       formData.append("userId", userId);
 
-      // Make API call to upload the evidence
       const response = await axios.post(
         `${baseApi}/rental-transaction/upload-evidence`,
         formData,
@@ -710,9 +629,9 @@ Item: ${itemName}`,
             backgroundColor: "teal",
             padding: " 4px 10px",
             borderRadius: "5px",
-            display: "inline-block", // Ensures it doesn't take full width
-            whiteSpace: "nowrap", // Ensures text doesn't wrap
-            width: "fit-content", // Adjust width based on the content's width
+            display: "inline-block",
+            whiteSpace: "nowrap",
+            width: "fit-content",
           }}
         >
           Type: {item.transactionType || "rental"}
