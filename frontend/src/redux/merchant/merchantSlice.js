@@ -3,7 +3,6 @@ import { baseApi } from "../../utils/consonants";
 
 const BASE_URL = `${baseApi}/user/merchant-details`;
 
-// Async thunk for fetching merchant data
 export const fetchMerchant = createAsyncThunk(
   "merchant/fetchMerchant",
   async (id, { rejectWithValue }) => {
@@ -13,15 +12,13 @@ export const fetchMerchant = createAsyncThunk(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      // console.log({ data });
-      return data; // Expecting { merchantSettings, payoutSettings, payoutSchedule }
+      return data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-// Async thunk for updating merchant data
 export const updateMerchant = createAsyncThunk(
   "merchant/updateMerchant",
   async ({ id, updates }, { rejectWithValue }) => {
@@ -68,13 +65,11 @@ const merchantSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Handle fetchMerchant lifecycle
       .addCase(fetchMerchant.pending, (state) => {
         state.loadingFetchMerchant = true;
         state.errorFetchMerchant = null;
       })
       .addCase(fetchMerchant.fulfilled, (state, action) => {
-        // console.log("Fulfilled payload:", action.payload);
         const {
           merchantSettings,
           payoutSettings,
@@ -94,14 +89,12 @@ const merchantSlice = createSlice({
         state.loadingFetchMerchant = false;
         state.errorFetchMerchant = action.payload;
       })
-      // Handle updateMerchant lifecycle
       .addCase(updateMerchant.pending, (state) => {
         state.loadingUpdateMerchant = true;
         state.errorUpdateMerchant = null;
       })
       .addCase(updateMerchant.fulfilled, (state, action) => {
         state.loadingUpdateMerchant = false;
-        // Update relevant parts of the state based on the updates returned
         if (action.payload.merchantSettings) {
           state.merchantSettings = {
             ...state.merchantSettings,

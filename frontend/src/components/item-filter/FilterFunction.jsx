@@ -81,14 +81,16 @@ const FilterFunction = (items = [], filters = {}, usePriceRange = true) => {
       );
       break;
     case "ratingAsc":
-      filteredItems.sort((a, b) =>
-        (a?.averageRating ?? "").localeCompare(b?.averageRating ?? "")
+      filteredItems.sort(
+        (a, b) => (a?.averageRating ?? 0) - (b?.averageRating ?? 0)
       );
       break;
     case "ratingDesc":
-      filteredItems.sort((a, b) =>
-        (b?.averageRating ?? "").localeCompare(a?.averageRating ?? "")
+      filteredItems.sort(
+        (a, b) => (b?.averageRating ?? 0) - (a?.averageRating ?? 0)
       );
+      break;
+
       break;
     case "dateAsc":
       filteredItems.sort((a, b) =>

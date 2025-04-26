@@ -80,7 +80,7 @@ const getUsers = async (req, res) => {
           lname: user.last_name,
           college: user.student.college,
           profilePic: user.student.profile_pic,
-          rating: averageRating,
+          rating: averageRating || 0,
           course: user.student.course,
           ratingCount: totalReviews,
           mutuals: "to be added",

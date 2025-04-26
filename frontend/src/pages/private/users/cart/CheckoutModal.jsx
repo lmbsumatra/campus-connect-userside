@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./checkoutModalStyles.css";
 import { Tooltip } from "@mui/material";
-import { baseApi, GCASH } from "../../../../utils/consonants.js";
+import { baseApi, baseUrl, GCASH } from "../../../../utils/consonants.js";
 import RentalRateCalculator from "../../../public/common/RentalRateCalculator.jsx";
 
 const CheckoutModal = ({ show, onHide, items }) => {
@@ -16,7 +16,6 @@ const CheckoutModal = ({ show, onHide, items }) => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [stripePaymentDetails, setStripePaymentDetails] = useState(null);
-  // Ensure only one item is selected
   const selectedItem = items.length === 1 ? items[0] : null;
   const [paymentMethod, setPaymentMethod] = useState(
     selectedItem?.paymentMode || null
@@ -33,7 +32,6 @@ const CheckoutModal = ({ show, onHide, items }) => {
     setIsProcessing(true);
 
     try {
-      // Get user ID from localStorage
       const studentUser = JSON.parse(localStorage.getItem("studentUser"));
       const loggedInUserId = studentUser?.userId || null;
 
@@ -41,28 +39,26 @@ const CheckoutModal = ({ show, onHide, items }) => {
         throw new Error("User not logged in");
       }
 
-      // Prepare rental details
       const rentalDetails = {
         owner_id: selectedItem.owner.id,
         [selectedItem.itemType === "buy" ? "buyer_id" : "renter_id"]:
           loggedInUserId,
         item_id: selectedItem.itemId,
-        delivery_method: selectedItem.deliveryMethod || "meetup", // Default to meetup if not specified
+        delivery_method: selectedItem.deliveryMethod || "meetup", 
         date_id: selectedItem.dateId,
         time_id: selectedItem.durationId,
         payment_mode: selectedItem?.paymentMode || paymentMethod,
         isFromCart: true,
         transaction_type: selectedItem.itemType === "buy" ? "sell" : "rental",
         amount: selectedItem.itemType === "buy" ? selectedItem.price : total,
+        quantity: selectedItem.quantity
       };
 
-      // Send rental details to backend
       const response = await axios.post(
         `${baseApi}/rental-transaction/add`,
         rentalDetails
       );
 
-      // Handle payment based on payment method
       if (selectedItem?.paymentMode === GCASH) {
         if (!response.data.clientSecret || !response.data.paymentIntentId) {
           dispatch(
@@ -75,7 +71,6 @@ const CheckoutModal = ({ show, onHide, items }) => {
           return;
         }
 
-        // Store payment details in state
         const paymentDetails = {
           paymentIntentId: response.data.paymentIntentId,
           clientSecretFromState: response.data.clientSecret,
@@ -85,11 +80,9 @@ const CheckoutModal = ({ show, onHide, items }) => {
 
         setStripePaymentDetails(paymentDetails);
 
-        // Close modal and navigate to payment page
         onHide();
         navigate("/payment", { state: paymentDetails });
       } else {
-        // For non-GCASH payments (e.g., meetup)
         dispatch(
           showNotification({
             type: "success",
@@ -98,7 +91,6 @@ const CheckoutModal = ({ show, onHide, items }) => {
           })
         );
 
-        // Clear cart or refresh items
         dispatch(fetchCart());
         onHide();
         navigate("/profile/transactions/renter/requests");
@@ -173,7 +165,6 @@ const CheckoutModal = ({ show, onHide, items }) => {
               </div>
             </div>
 
-            {/* Payment Method Section */}
             <div className="checkout-section">
               <h4>Payment Method</h4>
               <Tooltip
@@ -184,27 +175,8 @@ const CheckoutModal = ({ show, onHide, items }) => {
                     : ""
                 }
               >
-                {/* <div className="payment-options">
-                  <Form.Check
-                    type="radio"
-                    id="meetup-payment"
-                    name="paymentMethod"
-                    label="Pay upon Meetup"
-                    checked={selectedItem.paymentMode === "payment upon meetup"}
-                    disabled={!!selectedItem.paymentMode}
-                    onChange={() => setPaymentMethod("payment upon meetup")}
-                  />
-                  <Form.Check
-                    type="radio"
-                    id="gcash-payment"
-                    name="paymentMethod"
-                    label="Online Payment"
-                    checked={selectedItem.paymentMode === "gcash"}
-                    disabled={!!selectedItem.paymentMode}
-                    onChange={() => setPaymentMethod("gcash")}
-                  />
-                </div> */}
-                <div>{selectedItem?.paymentMode}</div>
+              
+                <div>{selectedItem?.paymentMode === GCASH ? "Online Payment" : "Pay upon meetup"}</div>
               </Tooltip>
             </div>
 
@@ -212,8 +184,8 @@ const CheckoutModal = ({ show, onHide, items }) => {
               <h4>Confirmation</h4>
               <p>
                 By placing this order, you agree to our{" "}
-                <a href="#">Terms of Service</a> and acknowledge that you have
-                read our <a href="#">Rental Policies</a>.
+                <a href={`${baseUrl}/terms-and-condition`}>Terms and Condition</a> and acknowledge that you have
+                read our <a href={`${baseUrl}/privacy-policy`}>Privacy Policy</a>.
               </p>
             </div>
 

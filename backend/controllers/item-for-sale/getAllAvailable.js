@@ -3,8 +3,6 @@ const sequelize = require("../../config/database");
 const Fuse = require("fuse.js");
 const { Op } = require("sequelize");
 
-
-
 const getAllAvailable = async (req, res) => {
   const userId = req.query.userId || "";
 
@@ -80,13 +78,11 @@ const getAllAvailable = async (req, res) => {
       ],
     });
 
-    // Filter out items that do not belong to an org or have no representative
     const filteredItems = items.filter((item) => {
       const org = item.organization;
-      return org && org.representative; // Ensure org exists and has a representative
+      return org && org.representative;
     });
 
-    // Handle followings and filtering based on preference or search query
     let followingIds = [];
     if (userId) {
       const followings = await models.Follow.findAll({
@@ -156,7 +152,7 @@ const getAllAvailable = async (req, res) => {
           paymentMethod: item.payment_mode,
           condition: item.item_condition,
           location: item.location,
-          averageRating: Number(item.averageRating) || 0,
+          averageRating: Number(averageRating) || 0,
           isFollowingBuyer,
           sellerId: item.seller_id,
           sellerFname: item.seller.first_name,
@@ -210,12 +206,10 @@ const getAllAvailable = async (req, res) => {
 
     let finalItems = [...formattedItems];
 
-    // Filter by new
     if (preference === "new_items_for_sale") {
       finalItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
-    // Search
     if (q) {
       const fuse = new Fuse(finalItems, {
         keys: ["name", "category", "tags", "specsArray"],

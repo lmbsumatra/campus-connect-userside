@@ -131,7 +131,7 @@ const getAvailableItemForSaleById = async (req, res) => {
       specs: item.specifications,
       images: JSON.parse(item.images || "[]"),
       location: item.location,
-      averageRating: Number(item.averageRating) || 0,
+      averageRating: Number(averageRating) || 0,
       isFollowingBuyer,
       stock: item.current_stock,
       rentalDates: item.available_dates.map((date) => ({

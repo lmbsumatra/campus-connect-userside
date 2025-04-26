@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import { selectStudentUser } from "../redux/auth/studentAuthSlice";
 import { checkSlotLimit } from "../components/item-card/checkSlotLimit";
 
-// Constants
 const FOR_SALE = "itemForSale";
 const FOR_RENT = "listingForRent";
 const POST_LOOKING = "postLookingForItem";
@@ -53,11 +52,10 @@ const HeroActionCards = ({ show, hide }) => {
 
   const [showTypeSelection, setShowTypeSelection] = useState(false);
   const token = studentUser?.token || "";
-  // console.log(token);
   const { config } = useSelector((state) => state.systemConfig);
 
+
   const handleTypeSelection = async (itemType) => {
-    // Check slot availability for the selected item type
     try {
       const hasAvailableSlots = await checkSlotLimit({
         dispatch,
@@ -75,13 +73,10 @@ const HeroActionCards = ({ show, hide }) => {
 
       if (hasAvailableSlots) {
         setShowTypeSelection(false);
-        // If slots are available, navigate to the add item page with the selected type
         navigate("/profile/my-listings/add", {
           state: { itemType: itemType },
         });
       } else {
-        // If no slots are available, the alert is already shown by checkSlotLimit
-        // Just close the popup
         setShowTypeSelection(false);
       }
     } catch (error) {
@@ -98,7 +93,6 @@ const HeroActionCards = ({ show, hide }) => {
 
   const addItem = () => {
     hide();
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -110,14 +104,11 @@ const HeroActionCards = ({ show, hide }) => {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -130,7 +121,6 @@ const HeroActionCards = ({ show, hide }) => {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -145,7 +135,6 @@ const HeroActionCards = ({ show, hide }) => {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -169,7 +158,6 @@ const HeroActionCards = ({ show, hide }) => {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -190,7 +178,6 @@ const HeroActionCards = ({ show, hide }) => {
   };
 
   const createPost = async () => {
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -202,14 +189,11 @@ const HeroActionCards = ({ show, hide }) => {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -222,7 +206,6 @@ const HeroActionCards = ({ show, hide }) => {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -237,7 +220,6 @@ const HeroActionCards = ({ show, hide }) => {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -261,7 +243,6 @@ const HeroActionCards = ({ show, hide }) => {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -278,7 +259,6 @@ const HeroActionCards = ({ show, hide }) => {
       return;
     }
 
-    // Check slot availability
     try {
       const hasAvailableSlots = await checkSlotLimit({
         dispatch,
@@ -286,14 +266,12 @@ const HeroActionCards = ({ show, hide }) => {
         user,
         token,
         config,
-        listingType: "postLookingForItem", // Assuming you want to check for post slots
+        listingType: "postLookingForItem",
       });
 
       if (hasAvailableSlots) {
-        // If slots are available, navigate to the post creation page
         navigate("/profile/my-posts/new");
       } else {
-        // If no slots are available, show an alert (handled by checkSlotLimit)
       }
     } catch (error) {
       console.error("Error checking slot availability:", error);
@@ -304,8 +282,6 @@ const HeroActionCards = ({ show, hide }) => {
         "Failed to check available slots. Please try again later."
       );
     }
-
-    // handleActionWithAuthCheck("/profile/my-posts/new");
   };
 
   return (
@@ -334,8 +310,8 @@ const HeroActionCards = ({ show, hide }) => {
       {/* Type Selection Popup */}
       {showTypeSelection && (
         <TypeSelectionPopup
-          onSelect={handleTypeSelection} // Handle type selection after item type is chosen
-          onClose={() => setShowTypeSelection(false)} // Close the type selection popup
+          onSelect={handleTypeSelection}
+          onClose={() => setShowTypeSelection(false)}
         />
       )}
     </>

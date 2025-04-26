@@ -114,7 +114,6 @@ const allUsersSlice = createSlice({
         state.successFollow = true;
 
         const { userId, action: newAction } = action.payload;
-        // console.log(Number(userId), { action: newAction });
         state.allUsers = state.allUsers.map((user) =>
           user.id === Number(userId) ? { ...user, action: newAction } : user
         );

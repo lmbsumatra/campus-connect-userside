@@ -17,7 +17,6 @@ export const fetchUserReviews = createAsyncThunk(
   "reviews/fetchUserReviews",
   async (userId) => {
     const response = await axios.get(`${BASE_URL}/user/${userId}`);
-    // console.log(userId, response.data);
     return response.data;
   }
 );

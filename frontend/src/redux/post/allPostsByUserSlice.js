@@ -2,35 +2,32 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { baseApi } from "../../utils/consonants";
 
-const BASE_URL = `${baseApi}/posts/users`; // Base URL for your API endpoint
+const BASE_URL = `${baseApi}/posts/users`; 
 
 const initialState = {
   allPostsByUser: [],
   deleteStatus: null,
   loadingAllPostsByUser: false,
-  deletingPost: false, // Optional separate state for delete loading
+  deletingPost: false, 
   errorPostByUser: null,
-  deleteError: null, // Optional specific state for delete errors
+  deleteError: null,
 };
 
-// Create async thunk to fetch all ItemForSale by user
 export const fetchAllPostsByUser = createAsyncThunk(
   "Post/fetchAllPostsByUser",
   async (userId) => {
     const response = await axios.get(`${BASE_URL}/${userId}`);
-    // console.log(userId, response);
     return response.data;
   }
 );
 
-// Create async thunk to delete a ItemForSaleById by ID
 export const deletePostById = createAsyncThunk(
   "Post/deletePostById",
   async ({ userId, postId }, { rejectWithValue }) => {
-    // console.log(userId, postId);
+   
     try {
       await axios.delete(`${BASE_URL}/${userId}/delete/${postId}`);
-      return postId; // Return the ID of the deleted itemForSaleId
+      return postId; 
     } catch (error) {
       return rejectWithValue(
         error.response?.data || "Failed to delete item for sale"
@@ -39,14 +36,14 @@ export const deletePostById = createAsyncThunk(
   }
 );
 
-// Slice Definition
+
 const allPostsByUser = createSlice({
   name: "Post",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch ItemForSale Cases
+  
       .addCase(fetchAllPostsByUser.pending, (state) => {
         state.loadingAllPostsByUser = true;
         state.allPostsByUser = [];
@@ -60,22 +57,22 @@ const allPostsByUser = createSlice({
         state.errorPostByUser = action.error.message;
       })
 
-      // Delete itemForSaleId Cases
+    
       .addCase(deletePostById.pending, (state) => {
-        state.deletingPost = true; // Show loading for delete
-        state.deleteError = null; // Reset error
+        state.deletingPost = true;
+        state.deleteError = null; 
         state.deleteStatus = null;
       })
       .addCase(deletePostById.fulfilled, (state, action) => {
-        state.deletingPost = false; // Stop loading
+        state.deletingPost = false; 
         state.allPostsByUser = state.allPostsByUser.filter(
           (item) => item.id !== action.payload
        || [] );
         state.deleteStatus = "success";
       })
       .addCase(deletePostById.rejected, (state, action) => {
-        state.deletingPost = false; // Stop loading
-        state.deleteError = action.payload; // Capture the error
+        state.deletingPost = false; 
+        state.deleteError = action.payload;
         state.deleteStatus = "failed";
       });
   },

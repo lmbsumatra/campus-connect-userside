@@ -20,8 +20,8 @@ const FAB = ({ cartItems }) => {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
   const isEmailVerified = user?.user?.emailVerified ?? false;
-   const studentUser = useSelector(selectStudentUser);
-  const token = studentUser?.token | "";
+  const studentUser = useSelector(selectStudentUser);
+  const token = studentUser?.token || "";
   const { config } = useSelector((state) => state.systemConfig);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,7 +31,6 @@ const FAB = ({ cartItems }) => {
 
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
 
-  // Add effect to ensure cart state is consistent with menu state
   useEffect(() => {
     if (!isMenuOpen && isCartOpen) {
       setIsCartOpen(false);
@@ -41,7 +40,6 @@ const FAB = ({ cartItems }) => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const createPost = async () => {
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -53,14 +51,11 @@ const FAB = ({ cartItems }) => {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -73,7 +68,6 @@ const FAB = ({ cartItems }) => {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -88,7 +82,6 @@ const FAB = ({ cartItems }) => {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -112,7 +105,6 @@ const FAB = ({ cartItems }) => {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -129,7 +121,6 @@ const FAB = ({ cartItems }) => {
       return;
     }
 
-    // Check slot availability
     try {
       const hasAvailableSlots = await checkSlotLimit({
         dispatch,
@@ -137,14 +128,12 @@ const FAB = ({ cartItems }) => {
         user,
         token,
         config,
-        listingType: "postLookingForItem", // Assuming you want to check for post slots
+        listingType: "postLookingForItem",
       });
 
       if (hasAvailableSlots) {
-        // If slots are available, navigate to the post creation page
         navigate("/profile/my-posts/new");
       } else {
-        // If no slots are available, show an alert (handled by checkSlotLimit)
       }
     } catch (error) {
       console.error("Error checking slot availability:", error);
@@ -155,12 +144,9 @@ const FAB = ({ cartItems }) => {
         "Failed to check available slots. Please try again later."
       );
     }
-
-    // handleActionWithAuthCheck("/profile/my-posts/new");
   };
 
   const handleTypeSelection = async (itemType) => {
-    // Check slot availability for the selected item type
     try {
       const hasAvailableSlots = await checkSlotLimit({
         dispatch,
@@ -178,15 +164,11 @@ const FAB = ({ cartItems }) => {
 
       if (hasAvailableSlots) {
         setShowTypeSelectionPopup(false);
-        // If slots are available, navigate to the add item page with the selected type
         navigate("/profile/my-listings/add", {
           state: { itemType: itemType },
         });
       } else {
-        // If no slots are available, the alert is already shown by checkSlotLimit
-        // Just close the popup
         setShowTypeSelectionPopup(false);
-       
       }
     } catch (error) {
       console.error("Error checking slot availability:", error);
@@ -201,7 +183,6 @@ const FAB = ({ cartItems }) => {
   };
 
   const addItem = () => {
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -213,14 +194,11 @@ const FAB = ({ cartItems }) => {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -233,7 +211,6 @@ const FAB = ({ cartItems }) => {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -248,7 +225,6 @@ const FAB = ({ cartItems }) => {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -272,7 +248,6 @@ const FAB = ({ cartItems }) => {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -296,7 +271,6 @@ const FAB = ({ cartItems }) => {
     setIsCartOpen(!isCartOpen);
   };
 
-  // Component for the item type selection popup
   const TypeSelectionPopup = ({ onSelect, onClose }) => {
     return (
       <div className="type-selection-overlay">

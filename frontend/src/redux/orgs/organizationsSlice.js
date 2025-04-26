@@ -11,7 +11,6 @@ const initialState = {
   searchRepMap: {},
 };
 
-// Helper function for API requests with timeout
 const fetchWithTimeout = async (url, options = {}) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -32,7 +31,6 @@ const fetchWithTimeout = async (url, options = {}) => {
     const data = await response.json();
 
     if (!response.ok) {
-      // Extract error message from response
       const errorMessage =
         data.error || data.message || `Failed with status ${response.status}`;
       throw new Error(errorMessage);
@@ -49,7 +47,6 @@ const fetchWithTimeout = async (url, options = {}) => {
   }
 };
 
-// GET /api/orgs
 export const fetchOrganizations = createAsyncThunk(
   "organizations/fetchOrganizations",
   async (_, { rejectWithValue }) => {
@@ -61,7 +58,6 @@ export const fetchOrganizations = createAsyncThunk(
   }
 );
 
-// GET /api/orgs/categories
 export const fetchCategories = createAsyncThunk(
   "organizations/fetchCategories",
   async (_, { rejectWithValue }) => {
@@ -73,7 +69,6 @@ export const fetchCategories = createAsyncThunk(
   }
 );
 
-// GET /api/users
 export const fetchUsers = createAsyncThunk(
   "organizations/fetchUsers",
   async (_, { rejectWithValue }) => {
@@ -85,12 +80,10 @@ export const fetchUsers = createAsyncThunk(
   }
 );
 
-// POST /api/orgs
 export const addOrganization = createAsyncThunk(
   "organizations/addOrganization",
   async (orgData, { rejectWithValue }) => {
     try {
-      // Validate required fields before sending to API
       if (!orgData.org_name || !orgData.org_name.trim()) {
         return rejectWithValue("Organization name is required");
       }
@@ -99,9 +92,6 @@ export const addOrganization = createAsyncThunk(
         return rejectWithValue("Category is required");
       }
 
-      console.log("Sending organization data:", orgData);
-
-      // Create FormData object for file upload
       const formData = new FormData();
       formData.append("org_name", orgData.org_name);
       formData.append("description", orgData.description || "");
@@ -109,15 +99,13 @@ export const addOrganization = createAsyncThunk(
       formData.append("isActive", orgData.isActive || "active");
       formData.append("rep_id", orgData.rep_id);
 
-      // Append logo file if present
       if (orgData.logo_file) {
         formData.append("logo_file", orgData.logo_file);
       }
 
-      // Send the request with FormData
       const res = await fetch(`${baseApi}/api/orgs/add`, {
         method: "POST",
-        body: formData, // Send the FormData with logo file
+        body: formData,
       });
       return res.json();
     } catch (error) {
@@ -126,12 +114,10 @@ export const addOrganization = createAsyncThunk(
   }
 );
 
-// PUT /api/orgs/:id
 export const updateOrganization = createAsyncThunk(
   "organizations/updateOrganization",
   async (orgData, { rejectWithValue }) => {
     try {
-      // Validate required fields
       if (!orgData.org_name || !orgData.org_name.trim()) {
         return rejectWithValue("Organization name is required");
       }
@@ -142,7 +128,6 @@ export const updateOrganization = createAsyncThunk(
 
       const orgId = orgData.org_id || orgData.orgId;
 
-      // Create FormData object for file upload (same as addOrganization)
       const formData = new FormData();
       formData.append("org_name", orgData.org_name);
       formData.append("description", orgData.description || "");
@@ -150,15 +135,13 @@ export const updateOrganization = createAsyncThunk(
       formData.append("isActive", orgData.isActive || "active");
       formData.append("rep_id", orgData.rep_id);
 
-      // Append logo file if present
       if (orgData.logo_file) {
         formData.append("logo_file", orgData.logo_file);
       }
 
-      // Send the request with FormData
       const res = await fetch(`${baseApi}/api/orgs/${orgId}`, {
         method: "PUT",
-        body: formData, // Send the FormData with logo file
+        body: formData,
       });
       return res.json();
     } catch (error) {
@@ -167,7 +150,6 @@ export const updateOrganization = createAsyncThunk(
   }
 );
 
-// PATCH /api/orgs/:id/status
 export const toggleOrgStatus = createAsyncThunk(
   "organizations/toggleOrgStatus",
   async ({ orgId, isActive }, { rejectWithValue }) => {
@@ -182,7 +164,6 @@ export const toggleOrgStatus = createAsyncThunk(
   }
 );
 
-// PATCH /api/orgs/:id/representative
 export const setOrgRepresentative = createAsyncThunk(
   "organizations/setOrgRepresentative",
   async ({ orgId, rep_id }, { rejectWithValue }) => {
@@ -200,7 +181,6 @@ export const setOrgRepresentative = createAsyncThunk(
   }
 );
 
-// DELETE /api/orgs/:id
 export const deleteOrganization = createAsyncThunk(
   "organizations/deleteOrganization",
   async (orgId, { rejectWithValue }) => {
@@ -237,7 +217,6 @@ const organizationsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Organizations
       .addCase(fetchOrganizations.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -252,7 +231,6 @@ const organizationsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch Categories
       .addCase(fetchCategories.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -267,7 +245,6 @@ const organizationsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch Users
       .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -282,14 +259,12 @@ const organizationsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Add Organization
       .addCase(addOrganization.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(addOrganization.fulfilled, (state, action) => {
         state.loading = false;
-        // Check if response has org property or is the org itself
         const newOrg = action.payload.org || action.payload;
         state.organizations = [...state.organizations, newOrg];
         state.error = null;
@@ -299,14 +274,12 @@ const organizationsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Update Organization
       .addCase(updateOrganization.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateOrganization.fulfilled, (state, action) => {
         state.loading = false;
-        // Handle both possible response formats
         const updatedOrg = action.payload.org || action.payload;
         const orgId = updatedOrg.orgId || updatedOrg.org_id;
 
@@ -321,8 +294,6 @@ const organizationsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
-      // Toggle Organization Status
       .addCase(toggleOrgStatus.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -330,7 +301,6 @@ const organizationsSlice = createSlice({
       .addCase(toggleOrgStatus.fulfilled, (state, action) => {
         state.loading = false;
 
-        // Handle response with either nested org or direct response
         const updatedOrg = action.payload.org || action.payload;
         const orgId = updatedOrg.orgId || updatedOrg.org_id;
 
@@ -356,7 +326,6 @@ const organizationsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Set Organization Representative
       .addCase(setOrgRepresentative.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -364,7 +333,6 @@ const organizationsSlice = createSlice({
       .addCase(setOrgRepresentative.fulfilled, (state, action) => {
         state.loading = false;
 
-        // Handle response with either nested org or direct response
         const updatedOrg = action.payload.org || action.payload;
         const orgId = updatedOrg.orgId || updatedOrg.org_id;
         const repId =
@@ -389,7 +357,6 @@ const organizationsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Delete Organization
       .addCase(deleteOrganization.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -411,7 +378,6 @@ const organizationsSlice = createSlice({
   },
 });
 
-// Export selectors and actions
 export const selectOrganizations = (state) => state.organizations.organizations;
 export const selectCategories = (state) => state.organizations.categories;
 export const selectUsers = (state) => state.organizations.users;

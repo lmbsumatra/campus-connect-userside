@@ -158,10 +158,9 @@ const OrgsManagement = () => {
 
   const getCategories = () => {
     const processedCategories = processCategories();
-    return processedCategories.length > 1
-      ? processedCategories
-      : getCategoriesFromOrgs();
+    return processedCategories;
   };
+  
 
   const getFilteredOrgs = () => {
     let filteredOrgs = organizations;

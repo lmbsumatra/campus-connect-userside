@@ -6,11 +6,9 @@ const BASE_URL = `${baseApi}/user/info`;
 export const fetchUser = createAsyncThunk(
   "user/fetchUser",
   async (id, { getState, rejectWithValue }) => {
-    const state = getState(); // Log the whole state to debug
+    const state = getState(); 
 
-    const { studentUser } = state.studentAuth || {}; // Safely access studentUser
-
-    // If no studentUser, you may want to return early or reject with an error
+    const { studentUser } = state.studentAuth || {}; 
     if (!studentUser) {
       return rejectWithValue("User is not logged in.");
     }
@@ -25,7 +23,6 @@ export const fetchUser = createAsyncThunk(
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log(data);
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -57,7 +54,6 @@ export const updateProfileImage = createAsyncThunk(
   }
 );
 
-// Update follow/unfollow action
 export const updateUserAction = createAsyncThunk(
   "users/updateUserActions",
   async ({ loggedInUserId, otherUserId }, { getState }) => {
@@ -136,7 +132,6 @@ const userSlice = createSlice({
         state.loadingUpdateImage = false;
         state.errorUpdateImage = action.payload;
       })
-      // Handle follow/unfollow update in Redux
       .addCase(updateUserAction.fulfilled, (state, action) => {
         const { action: newAction } = action.payload;
         state.user.action = newAction;

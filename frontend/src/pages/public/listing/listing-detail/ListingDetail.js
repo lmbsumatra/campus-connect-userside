@@ -50,36 +50,6 @@ import ConfirmationModal from "../ConfirmationModal.js";
 import { fetchUnavailableDates } from "../../../../redux/dates/unavaibleDatesSlice.js";
 import RentalRateCalculator from "../../common/RentalRateCalculator.jsx";
 
-// async function getUserFullName(userId) {
-//   console.log("Fetching user details for userId:", userId);
-//   try {
-//     const studentUser = JSON.parse(localStorage.getItem("studentUser"));
-//     const token = studentUser?.token;
-
-//     console.log(JSON.parse(localStorage.getItem("studentUser")));
-
-//     const res = await fetch(
-//       `${
-//         process.env.REACT_APP_API_URL || `${baseApi}`
-//       }/user/info/${userId}`,
-//       {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       }
-//     );
-//     if (!res.ok) throw new Error("Failed to fetch user details");
-//     const data = await res.json();
-//     // Access user data from the 'user' property of the response
-//     const userData = data.user || {}; // Fallback to empty object if undefined
-//     const { first_name, last_name } = userData;
-//     return `${first_name || ""} ${last_name || ""}`.trim() || "Unknown User";
-//   } catch (error) {
-//     console.error("Error fetching user details:", error);
-//     return "Unknown User";
-//   }
-// }
-
 function ListingDetail() {
   const { user, loadingFetchUser } = useSelector((state) => state.user);
   const isVerified = user?.student?.status ?? false;
@@ -139,8 +109,6 @@ function ListingDetail() {
   );
 
   useEffect(() => {
-    // console.log("unavailableDates before processing:", unavailableDates);
-
     if (
       unavailableDates.unavailableDates &&
       Array.isArray(unavailableDates.unavailableDates) &&
@@ -151,10 +119,8 @@ function ListingDetail() {
         reason: item.description,
       }));
 
-      // console.log("Formatted unavailable dates:", formatted);
       setFormattedUnavailableDates(formatted);
     } else {
-      // console.log("No valid unavailableDates found.");
       setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);
@@ -175,7 +141,7 @@ function ListingDetail() {
     if (fromStripe === "cancelled" && rentalId) {
       navigate(`/payment-cancelled?rentalId=${rentalId}`, { replace: true });
     } else {
-      setPreparing(false); // Only allow rendering if no redirect happens
+      setPreparing(false);
     }
   }, [navigate]);
 
@@ -185,15 +151,6 @@ function ListingDetail() {
   }, [warnSelectDateAndTime]);
 
   useEffect(() => {
-    // Retrieve isAdmin from localStorage
-    // di ko alam kung ako gumawa nito, pero wala akong matandaan
-    // iccomment ko muna - missy
-    // const storedIsAdmin =
-    //   JSON.parse(localStorage.getItem("adminUser")).role ===
-    //   ("superadmin" || "admin");
-    // setIsAdmin(storedIsAdmin);
-    // console.log(storedIsAdmin);
-
     if (id) {
       dispatch(fetchApprovedListingById(id));
     }
@@ -225,7 +182,6 @@ function ListingDetail() {
       handleActionWithAuthCheck("");
       return;
     }
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -237,14 +193,11 @@ function ListingDetail() {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -257,7 +210,6 @@ function ListingDetail() {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -272,7 +224,6 @@ function ListingDetail() {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -287,7 +238,6 @@ function ListingDetail() {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -320,7 +270,6 @@ function ListingDetail() {
       handleActionWithAuthCheck("");
       return;
     }
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -332,14 +281,11 @@ function ListingDetail() {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -352,7 +298,6 @@ function ListingDetail() {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -367,7 +312,6 @@ function ListingDetail() {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -382,7 +326,6 @@ function ListingDetail() {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -421,7 +364,6 @@ function ListingDetail() {
     )?.id;
 
     if (!selectedDateId) {
-      // Remove the loading notification on error
       dispatch(clearNotification(loadingNotify));
       return ShowAlert(dispatch, "error", "Error", "Invalid date selection.");
     }
@@ -463,7 +405,7 @@ function ListingDetail() {
 
   const stripePromise = loadStripe(
     "pk_test_51Qd6OGJyLaBvZZCyI1v3VC4nkJ4FnP3JqVkEeRlpth6sUUKxeaGVwsgpOKEUIiDI61ITMyzWvTYJUYshL6H4jfks00mNbCIiZP"
-  ); // Replace with your actual key
+  );
 
   const [stripePaymentDetails, setStripePaymentDetails] = useState(null);
 
@@ -497,15 +439,12 @@ function ListingDetail() {
         rentalDetails
       );
 
-      // console.log(response.data.message)
-
       if (approvedListingById.paymentMethod === GCASH) {
         if (!response.data.clientSecret || !response.data.paymentIntentId) {
           ShowAlert(dispatch, "error", "Error", "Failed to setup payment.");
           return;
         }
 
-        // Store payment details in state instead of localStorage
         setStripePaymentDetails({
           paymentIntentId: response.data.paymentIntentId,
           clientSecretFromState: response.data.clientSecret,
@@ -543,14 +482,6 @@ function ListingDetail() {
       dispatch(fetchApprovedListingById(id));
     }
   }, [id, dispatch]);
-
-  // useEffect(() => {
-  //   if (loggedInUserId) {
-  //     checkIfReported();
-  //   }
-  // }, [loggedInUserId, approvedListingById.id]);
-
-  // item not found alert
 
   useEffect(() => {
     if (errorApprovedListingById) {
@@ -596,7 +527,6 @@ function ListingDetail() {
       handleActionWithAuthCheck("");
       return;
     }
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -608,14 +538,11 @@ function ListingDetail() {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -628,7 +555,6 @@ function ListingDetail() {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -643,7 +569,6 @@ function ListingDetail() {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -658,7 +583,6 @@ function ListingDetail() {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -684,14 +608,13 @@ function ListingDetail() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            senderId: studentUser.userId, // Logged-in user
-            ownerId: approvedListingById.owner.id, // Listing owner's user ID
+            senderId: studentUser.userId,
+            ownerId: approvedListingById.owner.id,
           }),
         }
       );
 
       if (response.ok) {
-        // Navigate to the message page with product details
         navigate("/messages", {
           state: {
             ownerId: approvedListingById.owner.id,
@@ -699,9 +622,9 @@ function ListingDetail() {
               productId: approvedListingById.id,
               name: approvedListingById.name,
               price: approvedListingById.rate,
-              image: approvedListingById.images[0], // Use the first image for the product card
+              image: approvedListingById.images[0],
               title: approvedListingById.itemType,
-              type: "rent", // Add type identifier
+              type: "rent",
             },
           },
         });
@@ -725,10 +648,8 @@ function ListingDetail() {
     try {
       const response = await axios.post(`${baseApi}/api/reports`, reportData);
 
-      // Update hasReported state
       setHasReported(true);
 
-      // Show success notification
       await ShowAlert(
         dispatch,
         "success",
@@ -738,10 +659,8 @@ function ListingDetail() {
     } catch (error) {
       console.error("Error submitting report:", error);
 
-      // Handle 403 error separately
       await handleUnavailableDateError(dispatch, error);
 
-      // If it's not a 403 error, handle other errors
       if (error.response?.status !== 403) {
         await ShowAlert(
           dispatch,
@@ -752,16 +671,15 @@ function ListingDetail() {
       }
     }
 
-    setShowReportModal(false); // Close the modal
+    setShowReportModal(false);
   };
 
   const handleReportClick = () => {
     if (loggedInUserId) {
-      const entityType = "listing"; // You can change this based on which entity is being reported
+      const entityType = "listing";
       setShowReportModal(true);
       setEntityType(entityType);
     } else {
-      // If the user is not logged in, use the authentication check
       handleActionWithAuthCheck(
         () => setShowReportModal(true),
         () =>
@@ -883,11 +801,10 @@ function ListingDetail() {
               </div>
             )}
 
-            {/* Report Modal */}
             <ReportModal
               show={showReportModal}
-              handleClose={() => setShowReportModal(false)} // Close the modal
-              handleSubmit={handleReportSubmit} // Submit the report
+              handleClose={() => setShowReportModal(false)}
+              handleSubmit={handleReportSubmit}
               entityType={entityType}
             />
           </div>
@@ -919,7 +836,7 @@ function ListingDetail() {
                 <span className="ms-1 text-warning">
                   <i
                     className="bi-star-fill text-warning"
-                    style={{ fontSize: "1rem", verticalAlign: "middle" }} // Ensure star is inline with text
+                    style={{ fontSize: "1rem", verticalAlign: "middle" }}
                   />
                 </span>
               </div>
@@ -981,26 +898,21 @@ function ListingDetail() {
                   }
                 }}
                 dayClassName={(date) => {
-                  // Get today's date with time set to midnight for proper comparison
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
 
-                  // Check if this date is in the past
                   const isPast = date.getTime() < today.getTime();
 
-                  // Check if this date is in the unavailable dates
                   const isUnavailable = formattedUnavailableDates.some(
                     (item) =>
                       new Date(item.date).toDateString() === date.toDateString()
                   );
 
-                  // Check if this is the selected date
                   const isSelected =
                     selectedDate &&
                     date.toDateString() ===
                       new Date(selectedDate).toDateString();
 
-                  // Apply appropriate class based on conditions
                   if (isSelected) {
                     return "bg-blue";
                   } else if (
@@ -1018,7 +930,7 @@ function ListingDetail() {
                 excludeDates={formattedUnavailableDates.map(
                   (item) => new Date(item.date)
                 )}
-                minDate={new Date()} // Prevents selecting past dates
+                minDate={new Date()}
                 maxDate={
                   unavailableDates?.endSemesterDates?.length > 0
                     ? new Date(unavailableDates?.endSemesterDates[0]?.date)
@@ -1038,22 +950,52 @@ function ListingDetail() {
                   showDurations && showDurations.length > 0 ? (
                     <div className="duration-list">
                       {showDurations
-                        .slice() // Create a copy to avoid mutating the original array
+                        .slice()
                         .sort((a, b) => {
-                          // Convert timeFrom strings to comparable values (assuming they're in a format that can be compared)
                           return a.timeFrom.localeCompare(b.timeFrom);
                         })
-                        .map((duration) => (
-                          <div key={duration.id} className="duration-item">
-                            <input
-                              type="checkbox"
-                              id={`duration-${duration.id}`}
-                              onChange={() => handleSelectDuration(duration)}
-                            />
-                            {formatTimeTo12Hour(duration.timeFrom)} -{" "}
-                            {formatTimeTo12Hour(duration.timeTo)}
-                          </div>
-                        ))}
+                        .map((duration) => {
+                          const currentDateTime = new Date();
+
+                          const selectedDateTime = new Date(selectedDate);
+
+                          const [hours, minutes, seconds] =
+                            duration.timeFrom.split(":");
+
+                          selectedDateTime.setHours(
+                            parseInt(hours, 10),
+                            parseInt(minutes, 10),
+                            parseInt(seconds, 10)
+                          );
+
+                          const isToday =
+                            currentDateTime.getDate() ===
+                              selectedDateTime.getDate() &&
+                            currentDateTime.getMonth() ===
+                              selectedDateTime.getMonth() &&
+                            currentDateTime.getFullYear() ===
+                              selectedDateTime.getFullYear();
+
+                          if (isToday && selectedDateTime < currentDateTime) {
+                            return null;
+                          }
+
+                          return (
+                            <div key={duration.id} className="duration-item">
+                              <input
+                                type="checkbox"
+                                id={`duration-${duration.id}`}
+                                checked={
+                                  selectedDuration &&
+                                  selectedDuration.id === duration.id
+                                }
+                                onChange={() => handleSelectDuration(duration)}
+                              />
+                              {formatTimeTo12Hour(duration.timeFrom)} -{" "}
+                              {formatTimeTo12Hour(duration.timeTo)}
+                            </div>
+                          );
+                        })}
                     </div>
                   ) : (
                     <p className="no-duration-message">

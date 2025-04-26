@@ -8,19 +8,14 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCart,
   removeCartItem,
-  selectCartItems,
-  selectCartLoading,
-  selectCartError,
-  selectCartSuccessMessage,
   clearSuccessMessage,
   updateCartItemQty,
 } from "../../../../redux/cart/cartSlice";
 import { Modal, Button } from "react-bootstrap";
 import { showNotification } from "../../../../redux/alert-popup/alertPopupSlice";
-import { defaultImages } from "../../../../utils/consonants";
+import { baseUrl, defaultImages } from "../../../../utils/consonants";
 import CheckoutModal from "./CheckoutModal";
 import QuantityControl from "../../../public/item-for-sale/QuantityControl";
-
 const Cart = ({ isOpen, onClose }) => {
   const { cartItems, loading, error, successMessage } = useSelector(
     (state) => state.cart
@@ -36,14 +31,13 @@ const Cart = ({ isOpen, onClose }) => {
   const [selectAll, setSelectAll] = useState(false);
   const cartRef = useRef(null);
 
-  // Fetch cart items on component mount
   useEffect(() => {
     dispatch(fetchCart());
   }, [dispatch]);
 
   useEffect(() => {
-    setSelectedItems([]); // Clear selection when cart updates
-    setSelectAll(false); // Reset "Select All"
+    setSelectedItems([]);
+    setSelectAll(false); 
   }, [cartItems]);
 
   useEffect(() => {
@@ -62,7 +56,6 @@ const Cart = ({ isOpen, onClose }) => {
     };
   }, [isOpen, onClose]);
 
-  // Close modal after success message
   useEffect(() => {
     if (successMessage) {
       setTimeout(() => {
@@ -108,12 +101,11 @@ const Cart = ({ isOpen, onClose }) => {
     );
   };
 
-  // Handle Select All logic
   const handleSelectAll = () => {
     if (selectAll) {
-      setSelectedItems([]); // Deselect all if currently all are selected
+      setSelectedItems([]); 
     } else {
-      setSelectedItems(cartItems.map((item) => item.id)); // Select all
+      setSelectedItems(cartItems.map((item) => item.id)); 
     }
     setSelectAll(!selectAll);
   };
@@ -142,7 +134,7 @@ const Cart = ({ isOpen, onClose }) => {
           })
         );
         setSelectedItems([]);
-        setSelectAll(false); // Reset Select All when items are removed
+        setSelectAll(false); 
       })
       .catch((error) => {
         console.error("Error removing selected items:", error);
@@ -179,22 +171,17 @@ const Cart = ({ isOpen, onClose }) => {
       return;
     }
     setShowCheckout(true);
-    // Optionally, you might want to close the cart when opening checkout
-    // onClose();
   };
+
   useEffect(() => {
-    setQuantities((prev) => {
-      const newQuantities = { ...prev };
-      cartItems.forEach((item) => {
-        if (!(item.id in newQuantities)) {
-          newQuantities[item.id] = item.quantity || 1;
-        }
-      });
-      return newQuantities;
+    const newQuantities = {};
+    cartItems.forEach((item) => {
+      newQuantities[item.id] = item.quantity;
     });
+    setQuantities(newQuantities);
   }, [cartItems]);
 
-  // console.log({ cartItems });
+  console.log({ cartItems });
 
   const handleQuantityChange = async (itemId, newQuantity) => {
     await dispatch(updateCartItemQty({ itemId, quantity: newQuantity }));
@@ -223,7 +210,7 @@ const Cart = ({ isOpen, onClose }) => {
       return (
         <div className="owner-group" key={index}>
           <div className="header">
-            <a href="" className="owner-name">
+            <a href={`${baseUrl}/user/${ownerId}`} className="owner-name">
               {owner[0].owner.fname}
               <img
                 src={lookUpIcon}
@@ -282,33 +269,43 @@ const Cart = ({ isOpen, onClose }) => {
   return (
     <div id="cart-popup">
       <div ref={cartRef} className={`cart container ${isOpen ? "open" : ""}`}>
-        <div className="header">
-          <h3 className="header-text">Your Cart</h3>
-          <button className="close-btn" onClick={onClose}>
+        <div
+          className="header2"
+          style={{ display: "flex", alignItems: "center" }}
+        >
+          <h2 className="header-text">Your Cart</h2>
+          <button className="close-btn2" onClick={onClose}>
             &times;
           </button>
         </div>
-        <div className="bulk-actions">
-          <div className="d-flex align-items-center px-3 gap-2">
-            <input
-              type="checkbox"
-              checked={selectAll}
-              onChange={handleSelectAll}
-            />
-            <label>Select All</label>
-            <button className="btn btn-danger" onClick={handleBulkRemove}>
-              Remove Selected
-            </button>
+        <div className="idkna">
+          <div className="bulk-actions2">
+            <div
+              className=" px-3"
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <input
+                type="checkbox"
+                checked={selectAll}
+                onChange={handleSelectAll}
+              />
+              <label>Select All</label>
+              <button className="btn btn-danger" onClick={handleBulkRemove}>
+                Remove Selected
+              </button>
+            </div>
           </div>
+          <div className="cart-items">
+            {renderItems()}
+          </div>
+          <button
+            className="btn btn-primary checkout-btn px-3"
+            onClick={handleCheckout}
+            disabled={cartItems.length === 0}
+          >
+            Checkout
+          </button>
         </div>
-        <div className="cart-items">{renderItems()}</div>
-        <button
-          className="btn btn-primary checkout-btn"
-          onClick={handleCheckout}
-          disabled={cartItems.length === 0}
-        >
-          Checkout
-        </button>
       </div>
 
       {/* Confirmation Modal for Item Removal */}

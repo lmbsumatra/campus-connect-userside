@@ -123,7 +123,6 @@ const PaymentPage = () => {
     }
   }, [clientSecretFromState, navigate, dispatch]);
 
-  // Handle browser back button
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
 

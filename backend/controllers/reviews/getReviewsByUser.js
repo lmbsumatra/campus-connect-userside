@@ -12,7 +12,7 @@ const getReviewsByUser = async (req, res) => {
     const reviews = await models.ReviewAndRate.findAll({
       where: {
         reviewee_id: userId,
-        reviewer_id: { [Op.ne]: userId }, // Exclude self-reviews
+        reviewer_id: { [Op.ne]: userId }, 
       },
       attributes: [
         "id",
@@ -40,20 +40,17 @@ const getReviewsByUser = async (req, res) => {
       order: [
         ["transaction_id", "ASC"],
         ["created_at", "ASC"],
-      ], // Sort by transaction and time
+      ], 
     });
 
-    // Process reviews with item details based on transaction type
     const formattedReviews = await Promise.all(
       reviews.map(async (review) => {
-        // First, get the transaction to determine its type
         const transaction = await models.RentalTransaction.findByPk(review.transaction_id, {
           attributes: ["transaction_type", "item_id"]
         });
         
         let itemDetails = null;
         
-        // Based on transaction type, get appropriate item details
         if (transaction) {
           if (transaction.transaction_type === "rental") {
             const listing = await models.Listing.findByPk(review.item_id, {
@@ -75,7 +72,7 @@ const getReviewsByUser = async (req, res) => {
               itemDetails = {
                 name: itemForSale.item_for_sale_name,
                 img: itemForSale.images ? JSON.parse(itemForSale.images) : null,
-                rate: itemForSale.price, // Using 'rate' for consistency
+                rate: itemForSale.price, 
                 type: "sell"
               };
             }
@@ -112,7 +109,6 @@ const getReviewsByUser = async (req, res) => {
 
     res.status(200).json(formattedReviews);
   } catch (error) {
-    // console.error("Error fetching user reviews:", error);
     res
       .status(500)
       .json({ error: "An error occurred while fetching reviews." });

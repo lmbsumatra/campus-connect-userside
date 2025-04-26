@@ -134,7 +134,7 @@ const getStudentById = async (req, res) => {
         stripeAcctId: user.stripe_acct_id,
         email: user.email,
         joinDate: user.createdAt,
-        rating: averageRating,
+        rating: averageRating || 0,
         ratingCount: totalReviews,
         hasStripe: !!(user.is_stripe_completed && user.stripe_acct_id),
         isRepresentative,

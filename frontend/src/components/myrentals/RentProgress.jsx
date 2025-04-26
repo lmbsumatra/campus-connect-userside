@@ -13,6 +13,7 @@ import useGoBack from "../backNav.jsx";
 import { useDispatch } from "react-redux";
 import { submitTransactionReport } from "../../redux/reports/RentalReportsSlice";
 import AlreadyReportedModal from "./ReportedModal.jsx";
+import RentalRateCalculator from "../../pages/public/common/RentalRateCalculator.jsx";
 
 function RentProgress() {
   const goBack = useGoBack();
@@ -30,12 +31,10 @@ function RentProgress() {
   const [showAlreadyReportedModal, setShowAlreadyReportedModal] =
     useState(false);
 
-  // Get reports from Redux store
   const { transactionReportsByUser } = useSelector(
     (state) => state.transactionReportsByUser
   );
 
-  // Fetch transaction data every 5 seconds.
   useEffect(() => {
     const fetchTransaction = async () => {
       try {
@@ -55,7 +54,6 @@ function RentProgress() {
     return () => clearInterval(interval);
   }, [id]);
 
-  // Check for existing reports when data loads
   useEffect(() => {
     if (transaction?.rental?.id && transactionReportsByUser) {
       const existing = transactionReportsByUser.find(
@@ -66,7 +64,6 @@ function RentProgress() {
     }
   }, [transaction, transactionReportsByUser]);
 
-  // Log the fetched status only when transaction is available.
   useEffect(() => {
     if (transaction && transaction.rental) {
       console.log("Fetched status:", transaction);
@@ -87,22 +84,17 @@ function RentProgress() {
   const getUserType = () => {
     if (!transaction || !transaction.rental) return null;
 
-    console.log(userId);
-
     const { rental } = transaction;
 
-    // Check if user is the owner by comparing with owner_id
     if (rental.owner_id === userId) return "owner";
 
-    // Check if user is the buyer in a sale transaction
     if (rental.transaction_type === "sell" && rental.buyer_id === userId)
       return "buyer";
 
-    // Check if user is the renter in a rental transaction
     if (rental.transaction_type === "rental" && rental.renter_id === userId)
       return "renter";
 
-    return "guest"; // User is not related to this transaction
+    return "guest";
   };
 
   const userType = getUserType();
@@ -110,7 +102,6 @@ function RentProgress() {
     transaction?.rental?.transaction_type === "rental";
   const isSaleTransaction = transaction?.rental?.transaction_type === "sell";
 
-  // Modified report click handler
   const handleReportClick = () => {
     if (hasExistingReport) {
       setShowAlreadyReportedModal(true);
@@ -120,7 +111,6 @@ function RentProgress() {
   };
 
   const handleSendMessage = () => {
-    // Determine whether the user is the owner or the other party
     const isOwner = transaction.rental?.owner?.user_id === userId;
     let recipientId;
 
@@ -139,12 +129,10 @@ function RentProgress() {
       return;
     }
 
-    // Format date to a readable string
     const formattedDate = transaction.rental?.Date?.date
       ? new Date(transaction.rental.Date.date).toLocaleDateString()
       : "Not specified";
 
-    // Get the correct item name and image
     const itemName = isRentalTransaction
       ? transaction.rental?.Listing?.listing_name || "Rental Transaction"
       : transaction.rental?.ItemForSale?.item_for_sale_name ||
@@ -160,7 +148,6 @@ function RentProgress() {
       ? transaction.rental?.Listing?.rate || "0"
       : transaction.rental?.ItemForSale?.price || "0";
 
-    // Navigate to messages with transaction details
     navigate("/messages", {
       state: {
         ownerId: recipientId,
@@ -200,13 +187,11 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
     }
   };
 
-  // Called when the report modal form is submitted.
   const handleRentalReportSubmit = async (reportData) => {
     const { reason, evidence } = reportData;
     const transactionId = transaction.rental?.id;
     const transactionType = transaction.rental?.transaction_type;
 
-    // Check if token exists
     if (!studentUser || !studentUser.token) {
       console.error("No authentication token available");
       alert(
@@ -214,8 +199,6 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
       );
       return;
     }
-
-    console.log("Using token:", studentUser.token.substring(0, 10) + "...");
 
     dispatch(
       submitTransactionReport({
@@ -250,7 +233,6 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
     );
   }
 
-  // Define progress steps based on current status.
   const getProgressSteps = () => {
     const status = transaction.rental?.status?.toLowerCase() || "";
     const statusOrder = [
@@ -270,7 +252,6 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
     ];
   };
 
-  // For mobile view, show only current and adjacent steps.
   const getMobileProgressSteps = () => {
     const allSteps = getProgressSteps();
     const currentStepIndex = allSteps.findIndex(
@@ -291,7 +272,6 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
     ? getMobileProgressSteps()
     : getProgressSteps();
 
-  // Get the right images for rendering
   const getItemImage = () => {
     if (isRentalTransaction && transaction.rental?.Listing?.images) {
       return JSON.parse(transaction.rental.Listing.images)[0] || item1;
@@ -300,6 +280,14 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
     }
     return item1;
   };
+
+  const { total, rate, hrs } = RentalRateCalculator({
+    pricePerHour: transaction.rental?.Listing?.rate,
+    timeFrom: transaction?.rental?.Duration?.rental_time_from,
+    timeTo: transaction?.rental?.Duration?.rental_time_to,
+  });
+
+  console.log({ total, rate, hrs });
 
   return (
     <>
@@ -384,9 +372,10 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
 
                   {isRentalTransaction && (
                     <div className="detail-row">
-                      <span className="detail-label">Rental Rate:</span>
+                      <span className="detail-label">Total Rental Fee:</span>
                       <span className="detail-value">
-                        {transaction.rental?.Listing?.rate} php
+                        {total} php ({transaction.rental?.Listing?.rate} php (Rate per hr) x{" "}
+                        {hrs} hrs)
                       </span>
                     </div>
                   )}
@@ -396,7 +385,7 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                       <div className="detail-row">
                         <span className="detail-label">Security Deposit:</span>
                         <span className="detail-value">
-                          {transaction.rental?.Listing?.security_deposit} php
+                         + {transaction.rental?.Listing?.security_deposit} php
                           (Refunded after transation)
                         </span>
                       </div>
@@ -421,12 +410,20 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                       </span>
                     </div>
                   )}
+                  {isSaleTransaction && (
+                    <div className="detail-row">
+                      <span className="detail-label">Quantity:</span>
+                      <span className="detail-value">
+                        x {transaction.rental?.quantity}
+                      </span>
+                    </div>
+                  )}
 
                   <div className="detail-row total-cost">
                     <span className="detail-label">Total Cost:</span>
                     <span className="detail-value">
                       {transaction.rental?.amount || calculateTotalCost()} php
-                      (Late charges not included)
+                      {!isSaleTransaction && " (Late charges not included)"}
                     </span>
                   </div>
                 </div>

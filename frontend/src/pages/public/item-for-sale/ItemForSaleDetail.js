@@ -98,7 +98,6 @@ function ItemForSaleDetail() {
       handleActionWithAuthCheck("");
       return;
     }
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -110,14 +109,11 @@ function ItemForSaleDetail() {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -130,7 +126,6 @@ function ItemForSaleDetail() {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -145,7 +140,6 @@ function ItemForSaleDetail() {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -160,7 +154,6 @@ function ItemForSaleDetail() {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -192,9 +185,7 @@ function ItemForSaleDetail() {
     }
   };
 
-  const handleSelectDeliveryMethod = (method) => {
-    // console.log(method);
-  };
+  const handleSelectDeliveryMethod = (method) => {};
 
   const handleAddToCart = async (e, item) => {
     e.stopPropagation();
@@ -204,7 +195,6 @@ function ItemForSaleDetail() {
       return;
     }
 
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -216,14 +206,11 @@ function ItemForSaleDetail() {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -236,7 +223,6 @@ function ItemForSaleDetail() {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -251,7 +237,6 @@ function ItemForSaleDetail() {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -266,7 +251,6 @@ function ItemForSaleDetail() {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -371,8 +355,6 @@ function ItemForSaleDetail() {
   );
 
   useEffect(() => {
-    // console.log("unavailableDates before processing:", unavailableDates);
-
     if (
       unavailableDates.unavailableDates &&
       Array.isArray(unavailableDates.unavailableDates) &&
@@ -383,10 +365,8 @@ function ItemForSaleDetail() {
         reason: item.description,
       }));
 
-      // console.log("Formatted unavailable dates:", formatted);
       setFormattedUnavailableDates(formatted);
     } else {
-      // console.log("No valid unavailableDates found.");
       setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);
@@ -401,7 +381,7 @@ function ItemForSaleDetail() {
         owner_id: approvedItemForSaleById.seller.id,
         buyer_id: loggedInUserId,
         item_id: approvedItemForSaleById.id,
-        delivery_method: approvedItemForSaleById.deliveryMethod || "meetup", // Default to meetup if not specified
+        delivery_method: approvedItemForSaleById.deliveryMethod || "meetup",
         date_id: selectedDateId,
         time_id: selectedDuration.id,
         payment_mode: approvedItemForSaleById.paymentMethod,
@@ -422,7 +402,6 @@ function ItemForSaleDetail() {
           return;
         }
 
-        // Store payment details in state instead of localStorage
         setStripePaymentDetails({
           paymentIntentId: response.data.paymentIntentId,
           clientSecretFromState: response.data.clientSecret,
@@ -504,7 +483,7 @@ function ItemForSaleDetail() {
       errorApprovedItemForSaleById ||
       (!loadingApprovedItemForSaleById && !approvedItemForSaleById)
     ) {
-      setRedirecting(true); // Start the redirect process
+      setRedirecting(true);
       const timer = setTimeout(() => {
         dispatch(
           showNotification({
@@ -512,9 +491,9 @@ function ItemForSaleDetail() {
             title: "Redirecting",
           })
         );
-      }, 5000); // Show redirect notification after 5 seconds
+      }, 5000);
 
-      return () => clearTimeout(timer); // Clean up the timeout if dependencies change
+      return () => clearTimeout(timer);
     }
   }, [
     errorApprovedItemForSaleById,
@@ -526,14 +505,13 @@ function ItemForSaleDetail() {
   useEffect(() => {
     if (redirecting) {
       const redirectTimer = setTimeout(() => {
-        navigate(-1); // Redirect to previous page
-      }, 6000); // Wait 6 seconds before redirect
+        navigate(-1);
+      }, 6000);
 
-      return () => clearTimeout(redirectTimer); // Clean up redirect timer
+      return () => clearTimeout(redirectTimer);
     }
   }, [redirecting, navigate]);
 
-  // Show loading skeleton if still loading or redirecting
   if (loadingApprovedItemForSaleById || redirecting) {
     return <LoadingItemDetailSkeleton />;
   }
@@ -544,7 +522,6 @@ function ItemForSaleDetail() {
       return;
     }
 
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -556,14 +533,11 @@ function ItemForSaleDetail() {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -576,7 +550,6 @@ function ItemForSaleDetail() {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -591,7 +564,6 @@ function ItemForSaleDetail() {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -606,7 +578,6 @@ function ItemForSaleDetail() {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -632,8 +603,8 @@ function ItemForSaleDetail() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            senderId: studentUser.userId, // Logged-in user
-            sellerId: approvedItemForSaleById.seller.id, // Seller's user ID
+            senderId: studentUser.userId,
+            sellerId: approvedItemForSaleById.seller.id,
           }),
         }
       );
@@ -643,14 +614,14 @@ function ItemForSaleDetail() {
           state: {
             sellerId: approvedItemForSaleById.seller.id,
             product: {
-              productId: approvedItemForSaleById.id, // Add product ID
+              productId: approvedItemForSaleById.id,
               name: approvedItemForSaleById.name,
               price: approvedItemForSaleById.price,
               image: approvedItemForSaleById.images[0],
               title: approvedItemForSaleById.itemType,
-              type: "shop", // Add type identifier
+              type: "shop",
             },
-          }, // Pass sellerId to MessagePage
+          },
         });
       } else {
         const error = await response.json();
@@ -663,18 +634,16 @@ function ItemForSaleDetail() {
 
   const handleReportSubmit = async (reason) => {
     const reportData = {
-      reporter_id: loggedInUserId, // ID of the logged-in user
-      reported_entity_id: approvedItemForSaleById.id, // ID of the item being reported
-      entity_type: "sale", // Type of entity being reported
-      reason: reason, // Reason for the report
+      reporter_id: loggedInUserId,
+      reported_entity_id: approvedItemForSaleById.id,
+      entity_type: "sale",
+      reason: reason,
     };
 
     try {
-      const response = await axios.post(`${baseApi}/api/reports`, reportData); // API endpoint
-      // Update hasReported state
+      const response = await axios.post(`${baseApi}/api/reports`, reportData);
       setHasReported(true);
 
-      // Show success notification instead of alert
       await ShowAlert(
         dispatch,
         "success",
@@ -684,10 +653,8 @@ function ItemForSaleDetail() {
     } catch (error) {
       console.error("Error submitting report:", error);
 
-      // Handle 403 error separately
       await handleUnavailableDateError(dispatch, error);
 
-      // If it's not a 403 error, handle other errors
       if (error.response?.status !== 403) {
         await ShowAlert(
           dispatch,
@@ -698,16 +665,15 @@ function ItemForSaleDetail() {
       }
     }
 
-    setShowReportModal(false); // Close the modal
+    setShowReportModal(false);
   };
 
   const handleReportClick = () => {
     if (loggedInUserId) {
-      const entityType = "sale"; // You can change this based on which entity is being reported
+      const entityType = "sale";
       setShowReportModal(true);
       setEntityType(entityType);
     } else {
-      // If the user is not logged in, use the authentication check
       handleActionWithAuthCheck(
         () => setShowReportModal(true),
         () =>
@@ -860,11 +826,10 @@ function ItemForSaleDetail() {
               </div>
             )}
 
-            {/* Report Modal */}
             <ReportModal
               show={showReportModal}
-              handleClose={() => setShowReportModal(false)} // Close the modal
-              handleSubmit={handleReportSubmit} // Submit the report
+              handleClose={() => setShowReportModal(false)}
+              handleSubmit={handleReportSubmit}
               entityType={entityType}
             />
           </div>
@@ -895,7 +860,7 @@ function ItemForSaleDetail() {
                 <span className="ms-1 text-warning">
                   <i
                     className="bi-star-fill text-warning"
-                    style={{ fontSize: "1rem", verticalAlign: "middle" }} // Ensure star is inline with text
+                    style={{ fontSize: "1rem", verticalAlign: "middle" }}
                   />
                 </span>
               </div>
@@ -966,26 +931,21 @@ function ItemForSaleDetail() {
                   }
                 }}
                 dayClassName={(date) => {
-                  // Get today's date with time set to midnight for proper comparison
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
 
-                  // Check if this date is in the past
                   const isPast = date.getTime() < today.getTime();
 
-                  // Check if this date is in the unavailable dates
                   const isUnavailable = formattedUnavailableDates.some(
                     (item) =>
                       new Date(item.date).toDateString() === date.toDateString()
                   );
 
-                  // Check if this is the selected date
                   const isSelected =
                     selectedDate &&
                     date.toDateString() ===
                       new Date(selectedDate).toDateString();
 
-                  // Apply appropriate class based on conditions
                   if (isSelected) {
                     return "bg-blue";
                   } else if (
@@ -1003,7 +963,7 @@ function ItemForSaleDetail() {
                 excludeDates={formattedUnavailableDates.map(
                   (item) => new Date(item.date)
                 )}
-                minDate={new Date()} // Prevents selecting past dates
+                minDate={new Date()}
                 maxDate={
                   unavailableDates?.endSemesterDates?.length > 0
                     ? new Date(unavailableDates?.endSemesterDates[0]?.date)
@@ -1023,20 +983,34 @@ function ItemForSaleDetail() {
                   showDurations && showDurations.length > 0 ? (
                     <div className="duration-list">
                       {showDurations
-                        .slice() // Create a copy to avoid mutating the original array
+                        .slice()
                         .sort((a, b) => {
-                          // Convert timeFrom strings to comparable values (assuming they're in a format that can be compared)
                           return a.timeFrom.localeCompare(b.timeFrom);
                         })
                         .map((duration) => {
-                          // Check if the duration time is in the past
-                          const currentTime = new Date();
-                          const durationStart = new Date(duration.timeFrom);
-                          const durationEnd = new Date(duration.timeTo);
+                          const currentDateTime = new Date();
 
-                          // If the duration has passed, skip rendering it
-                          if (durationEnd < currentTime) {
-                            return null; // Do not render this duration
+                          const selectedDateTime = new Date(selectedDate);
+
+                          const [hours, minutes, seconds] =
+                            duration.timeFrom.split(":");
+
+                          selectedDateTime.setHours(
+                            parseInt(hours, 10),
+                            parseInt(minutes, 10),
+                            parseInt(seconds, 10)
+                          );
+
+                          const isToday =
+                            currentDateTime.getDate() ===
+                              selectedDateTime.getDate() &&
+                            currentDateTime.getMonth() ===
+                              selectedDateTime.getMonth() &&
+                            currentDateTime.getFullYear() ===
+                              selectedDateTime.getFullYear();
+
+                          if (isToday && selectedDateTime < currentDateTime) {
+                            return null;
                           }
 
                           return (

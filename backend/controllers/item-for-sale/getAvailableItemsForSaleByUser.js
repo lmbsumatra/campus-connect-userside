@@ -119,7 +119,7 @@ const getAvailableItemsForSaleByUser = async (req, res) => {
                 paymentMethod: item.payment_mode,
                 specs: item.specifications,
                 location: item.location,
-                averageRating: Number(item.averageRating) || 0,
+                averageRating: Number(averageRating) || 0,
                 availableDates,
                 stock: item.current_stock,
                 seller: {

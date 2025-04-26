@@ -82,7 +82,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
         userDropdownRef.current.contains(event.target)) ||
       (searchRef.current && searchRef.current.contains(event.target))
     ) {
-      return; // Clicked inside the active popup, do nothing
+      return; 
     }
 
     if (
@@ -91,7 +91,7 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
       event.target.closest("#user-dropdown-popup") ||
       event.target.closest("#search-results-popup")
     ) {
-      return; // Clicked inside a popup, do nothing
+      return; 
     }
 
     setOpenPopup(null);
@@ -123,16 +123,13 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
     setKeyword("");
     setShowPopUpSearchBarResults(false);
 
-    // Clear query parameter from URL
     const currentPath = location.pathname;
     const hasQueryParam = location.search.includes("q=");
 
     if (hasQueryParam) {
-      // Keep only non-search related query params if they exist
       const searchParams = new URLSearchParams(location.search);
       searchParams.delete("q");
 
-      // If there are other query params, keep them
       const remainingParams = searchParams.toString();
       const newPath = remainingParams
         ? `${currentPath}?${remainingParams}`
@@ -168,14 +165,13 @@ const TrialOnNavbar = ({ theme = "dark" }) => {
   };
 
   const handleLogout = () => {
-    // console.log("clicked");
     dispatch(logoutStudent());
     navigate(0);
   };
 
   return (
     <div className={`navbar-container2 ${isDarkTheme ? "dark" : "light"}`}>
-      {/* Top Section */}
+  
       <div className="navbar-top">
         <ul>
           {["Privacy Policy", "Terms and Condition"].map((text, index) => (

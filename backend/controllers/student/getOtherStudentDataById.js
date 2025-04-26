@@ -87,7 +87,7 @@ const getUserById = async (req, res) => {
         stripeAcctId: user.stripe_acct_id,
         email: user.email,
         joinDate: user.createdAt,
-        rating: averageRating,
+        rating: averageRating || 0,
         ratingCount: totalReviews,
         isRepresentative: isRepresentative,
         organization: org
