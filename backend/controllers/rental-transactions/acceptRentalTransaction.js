@@ -13,7 +13,13 @@ const getUserNames = async (userId) => {
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
 
-const getItemName = async (itemId, transactionType) => {
+const getItemName = async (itemId, transactionType, isFromPost = false) => {
+  if (isFromPost) {
+    const post = await models.Post.findByPk(itemId, {
+      attributes: ["post_item_name"],
+    });
+    return post ? post.post_item_name : "Unknown Item";
+  }
   if (transactionType === "sell") {
     const item = await models.ItemForSale.findByPk(itemId, {
       attributes: ["item_for_sale_name"],
@@ -30,7 +36,6 @@ const getItemName = async (itemId, transactionType) => {
 const acceptRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
   const { userId } = req.body;
-
 
   try {
     const rental = await models.RentalTransaction.findByPk(id, {
@@ -95,7 +100,11 @@ const acceptRentalTransaction = async (req, res, emitNotification) => {
     }
 
     const ownerName = await getUserNames(rental.owner_id);
-    const itemName = await getItemName(rental.item_id, rental.transaction_type);
+    const itemName = await getItemName(
+      rental.post_id || rental.item_id,
+      rental.transaction_type,
+      Boolean(rental.post_id)
+    );
 
     rental.status = "Accepted";
     await rental.save();
@@ -115,7 +124,6 @@ const acceptRentalTransaction = async (req, res, emitNotification) => {
       is_read: false,
       rental_id: rental.id,
     });
-
 
     if (emitNotification) {
       emitNotification(

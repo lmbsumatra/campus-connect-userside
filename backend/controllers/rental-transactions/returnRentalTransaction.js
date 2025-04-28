@@ -13,7 +13,13 @@ const getUserNames = async (userId) => {
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
 
-const getItemName = async (itemId, transactionType) => {
+const getItemName = async (itemId, transactionType, isFromPost = false) => {
+  if (isFromPost) {
+    const post = await models.Post.findByPk(itemId, {
+      attributes: ["post_item_name"],
+    });
+    return post ? post.post_item_name : "Unknown Item";
+  }
   if (transactionType === "sell") {
     const item = await models.ItemForSale.findByPk(itemId, {
       attributes: ["item_for_sale_name"],
@@ -86,7 +92,11 @@ const returnRentalTransaction = async (req, res, emitNotification) => {
 
     const ownerName = await getUserNames(rental.owner_id);
     const renterName = await getUserNames(rental.renter_id);
-    const itemName = await getItemName(rental.item_id, rental.transaction_type);
+    const itemName = await getItemName(
+      rental.item_id || rental.post_id,
+      rental.transaction_type,
+      Boolean(rental.post_id)
+    );
 
     if (isOwner) {
       rental.owner_confirmed = true;
@@ -146,23 +156,28 @@ const returnRentalTransaction = async (req, res, emitNotification) => {
         }
       }
 
-      try {
-        const intent = await stripe.paymentIntents.retrieve(
-          rental.stripe_payment_intent_id
-        );
+      if (rental.stripe_payment_intent_id) {
+        try {
+          const intent = await stripe.paymentIntents.retrieve(
+            rental.stripe_payment_intent_id
+          );
 
-        const depositAmount = parseFloat(intent.metadata?.deposit || "0");
+          const depositAmount = parseFloat(intent.metadata?.deposit || "0");
 
-        if (depositAmount > 0) {
-          const cadDeposit = await convertToCAD(depositAmount);
-          const refund = await stripe.refunds.create({
-            payment_intent: rental.stripe_payment_intent_id,
-            amount: Math.round(cadDeposit * 100), // cents
-            reason: "requested_by_customer",
-          });
+          if (depositAmount > 0) {
+            const cadDeposit = await convertToCAD(depositAmount);
+            const refund = await stripe.refunds.create({
+              payment_intent: rental.stripe_payment_intent_id,
+              amount: Math.round(cadDeposit * 100), // cents
+              reason: "requested_by_customer",
+            });
+          }
+        } catch (refundError) {
+          console.error(
+            "Error refunding security deposit:",
+            refundError.message
+          );
         }
-      } catch (refundError) {
-        console.error("Error refunding security deposit:", refundError.message);
       }
 
       rental.status = "Returned";

@@ -1,12 +1,11 @@
 const { Op } = require("sequelize");
 const { models } = require("../../models");
-const { GCASH } = require("../../utils/constants"); // Make sure STRIPE is added to constants
+const { GCASH } = require("../../utils/constants");
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
 );
 
 const formatTransactionsForFrontend = (transactions, userId) => {
-  // Group by transaction type
   const rentalTransactions = transactions.filter(
     (tx) => tx.transaction_type === "rental"
   );
@@ -14,13 +13,11 @@ const formatTransactionsForFrontend = (transactions, userId) => {
     (tx) => tx.transaction_type === "sell"
   );
 
-  // Calculate statistics
   const stats = {
     totalTransactions: transactions.length,
     rentalTransactions: rentalTransactions.length,
     saleTransactions: saleTransactions.length,
 
-    // Calculate revenue from completed transactions where user is the owner
     revenue: transactions
       .filter(
         (tx) => tx.status === "Completed" && tx.owner_id === Number(userId)
@@ -31,7 +28,6 @@ const formatTransactionsForFrontend = (transactions, userId) => {
       (tx) => tx.status === "Completed"
     ).length,
 
-    // Additional helpful statistics
     pendingTransactions: transactions.filter((tx) => tx.status === "Requested")
       .length,
     cancelledTransactions: transactions.filter(
@@ -39,15 +35,11 @@ const formatTransactionsForFrontend = (transactions, userId) => {
     ).length,
   };
 
-  // Format each transaction for display
   const formattedTransactions = transactions.map((tx) => {
-    // Determine user role in transaction
     const userRole = getUserRole(tx, userId);
 
-    // Determine counterparty based on user role
     const counterparty = getCounterparty(tx, userId);
 
-    // Format dates and times nicely
     const formattedDate = tx.Date
       ? new Date(tx.Date.date).toLocaleDateString()
       : "N/A";
@@ -59,11 +51,9 @@ const formatTransactionsForFrontend = (transactions, userId) => {
       timeRange = from && to ? `${from} - ${to}` : "N/A";
     }
 
-    // Format prices and determine transaction type nicely
     const transactionTypeName =
       tx.transaction_type === "rental" ? "Rental" : "Purchase";
 
-    // Get item name and price based on transaction type
     const itemName =
       tx.item?.[
         tx.transaction_type === "rental" ? "listing_name" : "item_for_sale_name"
@@ -71,7 +61,6 @@ const formatTransactionsForFrontend = (transactions, userId) => {
     const itemPrice =
       tx.item?.[tx.transaction_type === "rental" ? "rate" : "price"] || "0";
 
-    // Get Stripe payment status
     const paymentStatus = tx.stripe_payment_intent_id
       ? "Processing"
       : tx.payment_status || "Pending";
@@ -97,7 +86,6 @@ const formatTransactionsForFrontend = (transactions, userId) => {
       paymentMethod: tx.payment_mode?.toUpperCase() || "N/A",
       paymentStatus: paymentStatus,
       createdAt: new Date(tx.createdAt).toLocaleDateString(),
-      // Include raw data for detailed views if needed
       tx,
     };
   });
@@ -108,7 +96,6 @@ const formatTransactionsForFrontend = (transactions, userId) => {
   };
 };
 
-// Helper function to determine user's role in the transaction
 const getUserRole = (transaction, userId) => {
   if (transaction.owner_id === Number(userId)) {
     return "Owner";
@@ -120,7 +107,6 @@ const getUserRole = (transaction, userId) => {
   return "Unknown";
 };
 
-// Helper function to get the counterparty based on user role
 const getCounterparty = (transaction, userId) => {
   if (transaction.owner_id === Number(userId)) {
     return transaction.transaction_type === "rental"
@@ -131,7 +117,6 @@ const getCounterparty = (transaction, userId) => {
   }
 };
 
-// Example usage in your controller
 const getTransactionsByUserId = async (req, res) => {
   const { userId } = req.params;
 
@@ -166,7 +151,7 @@ const getTransactionsByUserId = async (req, res) => {
           attributes: ["id", "rental_time_from", "rental_time_to"],
         },
       ],
-      order: [["createdAt", "DESC"]], // Order by createdAt in descending order
+      order: [["createdAt", "DESC"]],
     });
 
     if (transactions.length === 0) {
@@ -177,12 +162,10 @@ const getTransactionsByUserId = async (req, res) => {
       });
     }
 
-    // Process each transaction to include the appropriate item details
     const processedTransactions = await Promise.all(
       transactions.map(async (transaction) => {
         const transactionData = transaction.toJSON();
 
-        // Add item details based on transaction type
         if (transaction.transaction_type === "rental") {
           const listing = await models.Listing.findByPk(transaction.item_id, {
             attributes: [
@@ -195,14 +178,12 @@ const getTransactionsByUserId = async (req, res) => {
             ],
           });
 
-          // Get only the first image if images exist
           if (listing && listing.images && listing.images.length > 0) {
             listing.images = [JSON.parse(listing.images)[0]];
           }
 
           transactionData.item = listing;
 
-          // Calculate revenue for rental transactions
           if (listing) {
             transactionData.revenue = parseFloat(listing.rate);
           }
@@ -220,16 +201,91 @@ const getTransactionsByUserId = async (req, res) => {
             }
           );
 
-          // Get only the first image if images exist
           if (saleItem && saleItem.images && saleItem.images.length > 0) {
             saleItem.images = [JSON.parse(saleItem.images)[0]];
           }
 
           transactionData.item = saleItem;
 
-          // Calculate revenue for sale transactions
           if (saleItem) {
             transactionData.revenue = parseFloat(saleItem.price);
+          }
+        }
+
+        if (transaction.post_id) {
+          const post = await models.Post.findOne({
+            where: { id: transaction.post_id },
+            include: [
+              {
+                as: "renter",
+                model: models.User,
+                attributes: [
+                  "user_id",
+                  "email",
+                  "stripe_acct_id",
+                  "first_name",
+                ],
+              },
+            ],
+          });
+
+          const messages = await models.Message.findAll({
+            where: {
+              isProductCard: 1,
+            },
+          });
+
+          let foundProductDetails = null;
+
+          if (messages && messages.length > 0) {
+            for (const message of messages) {
+              try {
+                const parsedProductDetails = JSON.parse(message.productDetails);
+                if (parsedProductDetails.productId === transaction.post_id) {
+                  foundProductDetails = parsedProductDetails;
+                  break;
+                }
+              } catch (error) {
+                console.error(
+                  "Error parsing productDetails in message:",
+                  error
+                );
+              }
+            }
+          }
+
+          if (foundProductDetails) {
+            transactionData.item = {
+              id: post?.id || transaction.post_id,
+              item_for_sale_name:
+                foundProductDetails.name ||
+                post?.post_item_name ||
+                "Unknown Item",
+              listing_name:
+                foundProductDetails.name ||
+                post?.post_item_name ||
+                "Unknown Item",
+              description: post?.description || "",
+              price: foundProductDetails.offerPrice || "0.00",
+              rate: foundProductDetails.offerPrice || "0.00",
+              images: foundProductDetails.image
+                ? [foundProductDetails.image]
+                : [],
+            };
+
+            transactionData.revenue = parseFloat(
+              foundProductDetails.offerPrice || "0"
+            );
+          } else if (post) {
+            transactionData.item = {
+              id: post.id,
+              item_for_sale_name: post.post_item_name || "Unknown Item",
+              listing_name: post.post_item_name || "Unknown Item",
+              description: post.description || "",
+              price: "0.00",
+              rate: "0.00",
+              images: post.images ? JSON.parse(post.images) : [],
+            };
           }
         }
 
@@ -237,18 +293,13 @@ const getTransactionsByUserId = async (req, res) => {
       })
     );
 
-    // Format data for frontend
     const formattedData = formatTransactionsForFrontend(
       processedTransactions,
       userId
     );
 
-    // Return the formatted data
     res.json(formattedData);
   } catch (error) {
-    // console.error("Error fetching transactions:", error);
-
-    // Provide detailed error messages
     let errorMessage =
       "An unexpected error occurred while fetching transactions.";
     if (error.name === "SequelizeDatabaseError") {

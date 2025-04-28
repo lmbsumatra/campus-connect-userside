@@ -1,14 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { baseApi } from "../../utils/consonants";
+import { useDispatch } from "react-redux";
+import { logoutStudent } from "../auth/studentAuthSlice";
 
 const BASE_URL = `${baseApi}/user/info`;
 
 export const fetchUser = createAsyncThunk(
   "user/fetchUser",
-  async (id, { getState, rejectWithValue }) => {
-    const state = getState(); 
+  async (id, { getState, rejectWithValue, dispatch }) => {
+    const state = getState();
 
-    const { studentUser } = state.studentAuth || {}; 
+    const { studentUser } = state.studentAuth || {};
     if (!studentUser) {
       return rejectWithValue("User is not logged in.");
     }
@@ -20,6 +22,7 @@ export const fetchUser = createAsyncThunk(
         },
       });
       if (!response.ok) {
+        dispatch(logoutStudent());
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();

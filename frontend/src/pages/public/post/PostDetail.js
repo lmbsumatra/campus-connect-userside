@@ -90,12 +90,11 @@ function PostDetail() {
   const [imageError, setImageError] = useState(false);
   const isYou = approvedPostById?.renter?.id === studentUser?.userId;
 
-  // State variables for offer details
   const [deliveryMethod, setDeliveryMethod] = useState(MEET_UP);
   const [paymentMethod, setPaymentMethod] = useState(PAY_UPON_MEETUP);
   const [itemCondition, setItemCondition] = useState("");
-  const [location, setLocation] = useState(""); // Add location for meetup/pickup
-  const [stock, setStock] = useState(1); // Add stock field for FOR_SALE items
+  const [location, setLocation] = useState("");
+  const [stock, setStock] = useState(1);
   const [termsValues, setTermsValues] = useState({
     lateCharges: "",
     securityDeposit: "",
@@ -139,8 +138,6 @@ function PostDetail() {
       return;
     }
 
-    // Add ban/restriction check
-    // Ban check
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -152,7 +149,6 @@ function PostDetail() {
       return;
     }
 
-    // Check if user is representative or part of an organization for sale items
     if (approvedPostById.itemType === TO_BUY && !user?.user?.isRepresentative) {
       ShowAlert(
         dispatch,
@@ -164,14 +160,11 @@ function PostDetail() {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -184,7 +177,6 @@ function PostDetail() {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -199,7 +191,6 @@ function PostDetail() {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -214,7 +205,6 @@ function PostDetail() {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -231,7 +221,6 @@ function PostDetail() {
       return;
     }
 
-    // Validate stock for sale items
     if (approvedPostById.itemType === TO_BUY && (!stock || stock < 1)) {
       ShowAlert(
         dispatch,
@@ -252,7 +241,6 @@ function PostDetail() {
       return;
     }
 
-    // Validate price is positive and not empty
     if (!offerPrice || parseFloat(offerPrice) <= 0) {
       ShowAlert(
         dispatch,
@@ -263,7 +251,6 @@ function PostDetail() {
       return;
     }
 
-    // Validate item condition
     if (!itemCondition) {
       ShowAlert(
         dispatch,
@@ -274,7 +261,6 @@ function PostDetail() {
       return;
     }
 
-    // Validate location
     if (!location) {
       ShowAlert(
         dispatch,
@@ -285,7 +271,6 @@ function PostDetail() {
       return;
     }
 
-    // Validate image is uploaded
     if (!offerImage) {
       setImageError(true);
       ShowAlert(
@@ -306,7 +291,7 @@ function PostDetail() {
       handleActionWithAuthCheck("");
       return;
     }
-    // Ban check
+
     if (isVerified === "banned") {
       ShowAlert(
         dispatch,
@@ -318,14 +303,11 @@ function PostDetail() {
       return;
     }
 
-    // Restricted status check (regardless of date)
     if (isVerified === "restricted") {
-      // Try to get the restriction end date
       let restrictionDate = null;
       if (user?.student?.restricted_until) {
         restrictionDate = new Date(user.student.restricted_until);
       } else if (user?.student?.statusMsg) {
-        // Try to extract from statusMsg
         const dateMatch = user.student.statusMsg.match(
           /restricted until ([^\.]+)/i
         );
@@ -338,7 +320,6 @@ function PostDetail() {
         }
       }
 
-      // Check if the restriction is still active
       const isCurrentlyRestricted =
         restrictionDate &&
         !isNaN(restrictionDate.getTime()) &&
@@ -353,7 +334,6 @@ function PostDetail() {
           { text: "Ok" }
         );
       } else {
-        // Restriction expired but status still "restricted"
         ShowAlert(
           dispatch,
           "warning",
@@ -368,7 +348,6 @@ function PostDetail() {
       return;
     }
 
-    // Other status checks (pending, flagged, etc.)
     if (isVerified !== "verified" || isEmailVerified !== true) {
       ShowAlert(
         dispatch,
@@ -401,16 +380,15 @@ function PostDetail() {
       );
 
       if (response.ok) {
-        // Navigate to the message page with product details
         navigate("/messages", {
           state: {
             renterId: approvedPostById.renter.id,
             product: {
               name: approvedPostById.name,
-              image: approvedPostById.images[0], // Use the first image for the product card
+              image: approvedPostById.images[0],
               title: approvedPostById.itemType,
               productId: approvedPostById.id,
-              type: "post", // Add type identifier
+              type: "post",
             },
           },
         });
@@ -439,8 +417,6 @@ function PostDetail() {
   );
 
   useEffect(() => {
-    // console.log("unavailableDates before processing:", unavailableDates);
-
     if (
       unavailableDates.unavailableDates &&
       Array.isArray(unavailableDates.unavailableDates) &&
@@ -451,10 +427,8 @@ function PostDetail() {
         reason: item.description,
       }));
 
-      // console.log("Formatted unavailable dates:", formatted);
       setFormattedUnavailableDates(formatted);
     } else {
-      // console.log("No valid unavailableDates found.");
       setFormattedUnavailableDates([]);
     }
   }, [unavailableDates]);
@@ -463,10 +437,9 @@ function PostDetail() {
     try {
       let imageUrl = approvedPostById.images?.[0] || defaultImages[0];
 
-      // Upload image if exists
       if (offerImage) {
         const formData = new FormData();
-        formData.append("upload_images", offerImage); // Must match Multer field name
+        formData.append("upload_images", offerImage);
 
         const uploadResponse = await axios.post(
           `${
@@ -481,11 +454,9 @@ function PostDetail() {
           }
         );
 
-        // Get URL from Cloudinary response
         imageUrl = uploadResponse.data.urls[0];
       }
 
-      // Then create conversation
       const createConversationResponse = await fetch(
         `${
           process.env.REACT_APP_API_URL || `${baseApi}`
@@ -502,17 +473,15 @@ function PostDetail() {
 
       const conversation = await createConversationResponse.json();
 
-      // Get the selected date ID from the rentalDates array
       const selectedDateId = approvedPostById.rentalDates.find(
         (rentalDate) => rentalDate.date === selectedDate
       )?.id;
 
-      // Prepare offer details with Cloudinary URL and additional fields
       const offerDetails = {
         name: approvedPostById.name,
         image: imageUrl,
         price: offerPrice,
-        offerPrice: offerPrice, // Add offerPrice field explicitly for transaction creation
+        offerPrice: offerPrice,
         title: "Offer",
         status: `Date: ${new Date(
           selectedDate
@@ -521,15 +490,15 @@ function PostDetail() {
         }`,
         productId: approvedPostById.id,
         type: "post",
-        // Add new fields
+
         deliveryMethod: deliveryMethod,
         paymentMethod: paymentMethod,
         itemCondition: itemCondition,
-        location: location, // Add location field
+        location: location,
         terms: approvedPostById.itemType === TO_RENT ? termsValues : null,
-        // Add stock for sale items
+
         stock: approvedPostById.itemType === TO_BUY ? stock : null,
-        // Add date_id and time_id for transaction creation
+
         date_id: selectedDateId,
         time_id: selectedDuration.id,
       };
@@ -563,6 +532,20 @@ function PostDetail() {
     }
   }, [id, dispatch]);
 
+  const checkIfReported = async () => {
+    try {
+      const response = await axios.get(`${baseApi}/api/reports/check`, {
+        params: {
+          reporter_id: loggedInUserId,
+          reported_entity_id: approvedPostById.id,
+        },
+      });
+      setHasReported(response.data.hasReported);
+    } catch (error) {
+      console.error("Error checking report:", error);
+    }
+  };
+
   useEffect(() => {
     if (loggedInUserId) {
       checkIfReported();
@@ -592,7 +575,7 @@ function PostDetail() {
       errorApprovedPostById ||
       (!loadingApprovedPostById && !approvedPostById)
     ) {
-      setRedirecting(true); // Start the redirect process
+      setRedirecting(true);
       const timer = setTimeout(() => {
         dispatch(
           showNotification({
@@ -600,9 +583,9 @@ function PostDetail() {
             title: "Redirecting",
           })
         );
-      }, 5000); // Show redirect notification after 5 seconds
+      }, 5000);
 
-      return () => clearTimeout(timer); // Clean up the timeout if dependencies change
+      return () => clearTimeout(timer);
     }
   }, [
     errorApprovedPostById,
@@ -614,14 +597,13 @@ function PostDetail() {
   useEffect(() => {
     if (redirecting) {
       const redirectTimer = setTimeout(() => {
-        navigate(-1); // Redirect to previous page
-      }, 6000); // Wait 6 seconds before redirect
+        navigate(-1);
+      }, 6000);
 
-      return () => clearTimeout(redirectTimer); // Clean up redirect timer
+      return () => clearTimeout(redirectTimer);
     }
   }, [redirecting, navigate]);
 
-  // Show loading skeleton if still loading or redirecting
   if (loadingApprovedPostById || redirecting) {
     return <LoadingItemDetailSkeleton />;
   }
@@ -635,12 +617,10 @@ function PostDetail() {
     };
 
     try {
-      const response = await axios.post(`${baseApi}/api/reports`, reportData); // API endpoint
+      const response = await axios.post(`${baseApi}/api/reports`, reportData);
 
-      // Update hasReported state
       setHasReported(true);
 
-      // Show success notification instead of alert
       await ShowAlert(
         dispatch,
         "success",
@@ -650,10 +630,8 @@ function PostDetail() {
     } catch (error) {
       console.error("Error submitting report:", error);
 
-      // Handle 403 error separately
       await handleUnavailableDateError(dispatch, error);
 
-      // If it's not a 403 error, handle other errors
       if (error.response?.status !== 403) {
         await ShowAlert(
           dispatch,
@@ -663,16 +641,15 @@ function PostDetail() {
         );
       }
     }
-    setShowReportModal(false); // Close the modal
+    setShowReportModal(false);
   };
 
   const handleReportClick = () => {
     if (loggedInUserId) {
-      const entityType = "post"; // You can change this based on which entity is being reported
+      const entityType = "post";
       setShowReportModal(true);
       setEntityType(entityType);
     } else {
-      // If the user is not logged in, use the authentication check
       handleActionWithAuthCheck(
         () => setShowReportModal(true),
         () =>
@@ -694,20 +671,6 @@ function PostDetail() {
     }
   };
 
-  const checkIfReported = async () => {
-    try {
-      const response = await axios.get(`${baseApi}/api/reports/check`, {
-        params: {
-          reporter_id: loggedInUserId,
-          reported_entity_id: approvedPostById.id,
-        },
-      });
-      setHasReported(response.data.hasReported);
-    } catch (error) {
-      console.error("Error checking report:", error);
-    }
-  };
-
   return (
     <div className="container-content post-detail">
       {isYou && <ViewToolbar />}
@@ -716,13 +679,15 @@ function PostDetail() {
         data-item-type={approvedPostById.itemType}
         style={{ position: "relative" }}
       >
-        {approvedPostById.itemType === TO_BUY && !user?.user?.isRepresentative && (
-          <div className="restriction-overlay">
-            <div className="restriction-message">
-              Not eligible to sell an item. Only representatives or organization members can sell.
+        {approvedPostById.itemType === TO_BUY &&
+          !user?.user?.isRepresentative && (
+            <div className="restriction-overlay">
+              <div className="restriction-message">
+                Not eligible to sell an item. Only representatives or
+                organization members can sell.
+              </div>
             </div>
-          </div>
-        )}
+          )}
         <div className="imgs-container">
           <Tooltip
             title={`This item is ${
@@ -789,8 +754,8 @@ function PostDetail() {
             {/* Report Modal */}
             <ReportModal
               show={showReportModal}
-              handleClose={() => setShowReportModal(false)} // Close the modal
-              handleSubmit={handleReportSubmit} // Submit the report
+              handleClose={() => setShowReportModal(false)}
+              handleSubmit={handleReportSubmit}
               entityType={entityType}
             />
           </div>
@@ -859,7 +824,7 @@ function PostDetail() {
                     ? "bg-green"
                     : "";
                 }}
-                minDate={new Date()} // Prevents selecting past dates
+                minDate={new Date()}
                 maxDate={
                   unavailableDates?.endSemesterDates?.length > 0
                     ? new Date(unavailableDates?.endSemesterDates[0]?.date)
@@ -878,9 +843,8 @@ function PostDetail() {
                   showDurations && showDurations.length > 0 ? (
                     <div className="duration-list">
                       {showDurations
-                        .slice() // Create a copy to avoid mutating the original array
+                        .slice()
                         .sort((a, b) => {
-                          // Convert timeFrom strings to comparable values (assuming they're in a format that can be compared)
                           return a.timeFrom.localeCompare(b.timeFrom);
                         })
                         .map((duration) => (
@@ -921,7 +885,6 @@ function PostDetail() {
                   className="form-control"
                   value={offerPrice}
                   onChange={(e) => {
-                    // Only allow positive numbers
                     const value = parseFloat(e.target.value);
                     if (e.target.value === "" || (!isNaN(value) && value > 0)) {
                       setOfferPrice(e.target.value);
@@ -950,7 +913,7 @@ function PostDetail() {
                   onChange={({ file, preview }) => {
                     setOfferImage(file);
                     setImagePreview(preview);
-                    setImageError(false); // Clear error when image is uploaded
+                    setImageError(false);
                   }}
                 />
                 {imageError && (
@@ -1001,7 +964,7 @@ function PostDetail() {
                         paymentMethod === GCASH ? "selected" : ""
                       }`}
                       onClick={() => setPaymentMethod(GCASH)}
-                      disabled={!studentUser?.hasStripe} // Ensures the button is disabled if hasStripe is false or undefined
+                      disabled={!studentUser?.hasStripe}
                     >
                       Online Payment
                     </button>
@@ -1028,7 +991,9 @@ function PostDetail() {
                   value={itemCondition}
                   onChange={(e) => setItemCondition(e.target.value)}
                 >
-                  <option value="" disabled>Select item condition</option>
+                  <option value="" disabled>
+                    Select item condition
+                  </option>
                   {CONDITIONS.map((condition) => (
                     <option key={condition} value={condition}>
                       {condition}
@@ -1050,22 +1015,23 @@ function PostDetail() {
                     value={stock}
                     onChange={(e) => {
                       const inputValue = e.target.value;
-                      
-                      // For empty input, allow the field to be empty temporarily while typing
-                      if (inputValue === '') {
-                        setStock('');
+
+                      if (inputValue === "") {
+                        setStock("");
                         return;
                       }
-                      
+
                       const value = parseInt(inputValue);
                       if (!isNaN(value) && value > 0) {
                         setStock(value);
                       }
                     }}
-                    // Optional: Ensure a valid value when the user leaves the input
                     onBlur={() => {
-                      // If empty or invalid when focus is lost, set to minimum value
-                      if (stock === '' || isNaN(parseInt(stock)) || parseInt(stock) <= 0) {
+                      if (
+                        stock === "" ||
+                        isNaN(parseInt(stock)) ||
+                        parseInt(stock) <= 0
+                      ) {
                         setStock(1);
                       }
                     }}
@@ -1190,7 +1156,11 @@ function PostDetail() {
       {/* Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>{approvedPostById.itemType === TO_RENT ? "Confirm Rental Offer" : "Confirm Sale Offer"}</Modal.Title>
+          <Modal.Title>
+            {approvedPostById.itemType === TO_RENT
+              ? "Confirm Rental Offer"
+              : "Confirm Sale Offer"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="confirmation-modal">
@@ -1209,7 +1179,10 @@ function PostDetail() {
                 </p>
                 <p>
                   <strong>
-                    {approvedPostById.itemType === TO_RENT ? "Rental Fee" : "Price"}:
+                    {approvedPostById.itemType === TO_RENT
+                      ? "Rental Fee"
+                      : "Price"}
+                    :
                   </strong>{" "}
                   ₱{offerPrice}
                 </p>
@@ -1224,10 +1197,13 @@ function PostDetail() {
                 </p>
                 <p>
                   <strong>Payment Method:</strong>{" "}
-                  {paymentMethod === GCASH ? "Online Payment" : "Pay upon meetup"}
+                  {paymentMethod === GCASH
+                    ? "Online Payment"
+                    : "Pay upon meetup"}
                 </p>
                 <p>
-                  <strong>Item Condition:</strong> {itemCondition || "Not specified"}
+                  <strong>Item Condition:</strong>{" "}
+                  {itemCondition || "Not specified"}
                 </p>
                 <p>
                   <strong>Location:</strong> {location || "Not specified"}
@@ -1244,7 +1220,8 @@ function PostDetail() {
                     <ul>
                       {termsValues.lateCharges && (
                         <li>
-                          <strong>Late Charges:</strong> {termsValues.lateCharges}
+                          <strong>Late Charges:</strong>{" "}
+                          {termsValues.lateCharges}
                         </li>
                       )}
                       {termsValues.securityDeposit && (
@@ -1275,11 +1252,14 @@ function PostDetail() {
                 </div>
               )}
             </div>
-            
+
             <div className="note mt-3">
               <p>
-                By sending this {approvedPostById.itemType === TO_RENT ? "rental" : "sale"} offer, you agree to the platform's Policies and Terms.
-                The recipient can accept your offer, initiating a transaction with the details above.
+                By sending this{" "}
+                {approvedPostById.itemType === TO_RENT ? "rental" : "sale"}{" "}
+                offer, you agree to the platform's Policies and Terms. The
+                recipient can accept your offer, initiating a transaction with
+                the details above.
               </p>
             </div>
           </div>
@@ -1289,7 +1269,8 @@ function PostDetail() {
             Cancel
           </Button>
           <Button variant="primary" onClick={handleConfirmOffer}>
-            Send {approvedPostById.itemType === TO_RENT ? "Offer" : "Sale Offer"}
+            Send{" "}
+            {approvedPostById.itemType === TO_RENT ? "Offer" : "Sale Offer"}
           </Button>
         </Modal.Footer>
       </Modal>

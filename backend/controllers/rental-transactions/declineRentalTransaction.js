@@ -13,7 +13,13 @@ const getUserNames = async (userId) => {
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
 
-const getItemName = async (itemId, transactionType) => {
+const getItemName = async (itemId, transactionType, isFromPost = false) => {
+  if (isFromPost) {
+    const post = await models.Post.findByPk(itemId, {
+      attributes: ["post_item_name"],
+    });
+    return post ? post.post_item_name : "Unknown Item";
+  }
   if (transactionType === "sell") {
     const item = await models.ItemForSale.findByPk(itemId, {
       attributes: ["item_for_sale_name"],
@@ -81,12 +87,16 @@ const declineRentalTransaction = async (req, res, emitNotification) => {
     const otherName = await getUserNames(
       rental.transaction_type === "sell" ? rental.buyer_id : rental.renter_id
     );
-    const itemName = await getItemName(rental.item_id, rental.transaction_type);
+    const itemName = await getItemName(
+      rental.item_id || rental.post_id,
+      rental.transaction_type,
+      Boolean(rental.post_id)
+    );
 
     if (rental.stripe_payment_intent_id) {
       try {
         await stripe.paymentIntents.cancel(rental.stripe_payment_intent_id);
-      
+
         // Optionally, update a field like rental.payment_status = "Cancelled";
       } catch (stripeError) {
         console.error("Error cancelling Stripe payment intent:", stripeError);

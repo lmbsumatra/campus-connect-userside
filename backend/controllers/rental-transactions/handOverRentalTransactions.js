@@ -13,7 +13,13 @@ const getUserNames = async (userId) => {
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
 
-const getItemName = async (itemId, transactionType) => {
+const getItemName = async (itemId, transactionType, isFromPost = false) => {
+  if (isFromPost) {
+    const post = await models.Post.findByPk(itemId, {
+      attributes: ["post_item_name"],
+    });
+    return post ? post.post_item_name : "Unknown Item";
+  }
   if (transactionType === "sell") {
     const item = await models.ItemForSale.findByPk(itemId, {
       attributes: ["item_for_sale_name"],
@@ -32,13 +38,13 @@ const convertToCAD = async (amount) => {
     return amount * 0.025;
   } catch (error) {
     console.error("Error fetching exchange rate:", error);
-    return amount; 
+    return amount;
   }
 };
 
 const handOverRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
-  const { userId } = req.body; 
+  const { userId } = req.body;
 
   try {
     const transaction = await models.RentalTransaction.findByPk(id, {
@@ -77,7 +83,6 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
     const isRental = transaction.transaction_type === "rental";
     const isPurchase = transaction.transaction_type === "sell";
 
-  
     const isOwner = transaction.owner_id === userId;
     const isRenter = isRental && transaction.renter_id === userId;
     const isBuyer = isPurchase && transaction.buyer_id === userId;
@@ -94,8 +99,9 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
 
     const ownerName = await getUserNames(transaction.owner_id);
     const itemName = await getItemName(
-      transaction.item_id,
-      transaction.transaction_type
+      transaction.item_id || transaction.post_id,
+      transaction.transaction_type,
+      Boolean(transaction.post_id)
     );
 
     // Variables for different user roles
@@ -115,14 +121,14 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
 
     if (isOwner) {
       transaction.owner_confirmed = true;
-      transaction.renter_confirmed = true; 
+      transaction.renter_confirmed = true;
     }
 
     if (transaction.owner_confirmed) {
       if (isRental) {
         transaction.status = "HandedOver";
       } else if (isPurchase) {
-        transaction.status = "Returned"; 
+        transaction.status = "Returned";
       }
       transaction.owner_confirmed = false;
       transaction.renter_confirmed = false;
@@ -134,7 +140,6 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
         transaction.transaction_type === "sell" &&
         transaction.payment_status !== "Completed"
       ) {
-     
         const paymentIntent = await stripe.paymentIntents.capture(
           transaction.stripe_payment_intent_id
         );
@@ -148,7 +153,6 @@ const handOverRentalTransaction = async (req, res, emitNotification) => {
           payment_status: "Completed",
         });
       }
-
     } catch (stripeError) {
       console.error("Error capturing payment:", stripeError);
       return res.status(500).json({

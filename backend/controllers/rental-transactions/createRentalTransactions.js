@@ -16,9 +16,14 @@ const getUserNames = async (userId) => {
   return userName;
 };
 
-const getItemName = async (itemId, transactionType) => {
+const getItemName = async (itemId, transactionType, isFromPost = false) => {
   let item;
-  if (transactionType === "sell") {
+  if (isFromPost) {
+    item = await models.Post.findByPk(itemId, {
+      attributes: ["post_item_name"],
+    });
+    return item ? item.post_item_name : "Unknown Item";
+  } else if (transactionType === "sell") {
     item = await models.ItemForSale.findByPk(itemId, {
       attributes: ["item_for_sale_name"],
     });
@@ -55,8 +60,6 @@ const getNotificationDetails = (transactionType) => {
 
 const createRentalTransaction = async (req, res, emitNotification) => {
   try {
-    console.log(req.body);
-
     const {
       owner_id,
       renter_id,
@@ -71,7 +74,10 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       amount,
       quantity,
       from_post,
+      item_security_deposit,
     } = req.body;
+
+    console.log(req.body);
 
     const missingFields = [];
     if (!owner_id) missingFields.push("owner_id");
@@ -115,24 +121,27 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       },
     });
 
-    if (existingTransaction) {
-      const errorMsg = "A transaction already exists.";
-      console.error(errorMsg);
-      return res.status(409).json({ message: errorMsg });
-    }
+    // if (existingTransaction) {
+    //   const errorMsg = "A transaction already exists.";
+    //   console.error(errorMsg);
+    //   return res.status(409).json({ message: errorMsg });
+    // }
 
     const rentalData = {
       owner_id,
       renter_id,
       buyer_id,
-      item_id,
+      [from_post ? "post_id" : "item_id"]: item_id,
       delivery_method,
       payment_mode,
       date_id,
       time_id,
       transaction_type: transaction_type === "sell" ? "sell" : "rental",
       quantity,
+      amount: Number(amount),
     };
+
+    console.log(rentalData.amount);
 
     const dateInfo = await models.Date.findByPk(date_id, {
       attributes: ["date"],
@@ -180,6 +189,17 @@ const createRentalTransaction = async (req, res, emitNotification) => {
           attributes: ["user_id", "email", "stripe_acct_id"],
         },
         {
+          as: "owner",
+          model: models.User,
+          attributes: [
+            "user_id",
+            "email",
+            "stripe_acct_id",
+            "first_name",
+            "last_name",
+          ],
+        },
+        {
           as: "buyer",
           model: models.User,
           attributes: ["user_id", "email", "stripe_acct_id"],
@@ -187,10 +207,11 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       ],
     });
 
+    let item;
+
     // if (from_post) true skip getting item
     if (!from_post) {
-      let item;
-      if (transaction_type === "sell") {
+      if (transaction_type === "rental") {
         item = await models.Listing.findOne({
           where: { id: rental.item_id },
           attributes: ["id", "listing_name", "rate", "security_deposit"],
@@ -202,7 +223,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
             },
           ],
         });
-      } else if (transaction_type === "rental") {
+      } else if (transaction_type === "sell") {
         item = await models.ItemForSale.findOne({
           where: { id: rental.item_id },
           attributes: ["id", "item_for_sale_name", "price"],
@@ -218,7 +239,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     } else {
       if (transaction_type === "rental") {
         item = await models.Post.findOne({
-          where: { id: rental.item_id },
+          where: { id: rental.post_id },
           attributes: ["id", "post_item_name"],
           include: [
             {
@@ -230,11 +251,11 @@ const createRentalTransaction = async (req, res, emitNotification) => {
         });
       } else if (transaction_type === "sell") {
         item = await models.Post.findOne({
-          where: { id: rental.item_id },
+          where: { id: rental.post_id },
           attributes: ["id", "post_item_name"],
           include: [
             {
-              as: "renter",
+              as: "buyer",
               model: models.User,
               attributes: ["user_id", "email", "stripe_acct_id", "first_name"],
             },
@@ -243,12 +264,14 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       }
     }
 
-    console.log(item, rental.item_id);
-
     const totalAmountPHP =
       transaction_type === "sell"
         ? Number(amount)
-        : Number(amount) + Number(item?.security_deposit);
+        : Number(amount) +
+          Number(
+            item?.security_deposit || (from_post ? item_security_deposit : 0)
+          );
+
 
     rental.amount = totalAmountPHP;
     rental.quantity = quantity;
@@ -292,11 +315,15 @@ const createRentalTransaction = async (req, res, emitNotification) => {
                 : rental.buyer.email,
           },
           transfer_data: {
-            destination:
-              transaction_type === "rental"
-                ? item.owner.stripe_acct_id
-                : item.seller.stripe_acct_id,
+            destination: from_post
+              ? transaction_type === "rental"
+                ? rental.owner.stripe_acct_id
+                : rental.seller.stripe_acct_id
+              : transaction_type === "rental"
+              ? item.owner.stripe_acct_id
+              : item.seller.stripe_acct_id,
           },
+
           application_fee_amount: Math.floor(applicationFeeAmount * 100),
         });
 
@@ -319,7 +346,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     const renterName = await getUserNames(
       transaction_type === "sell" ? buyer_id : renter_id
     );
-    const itemName = await getItemName(item_id, transaction_type);
+    const itemName = await getItemName(item_id, transaction_type, from_post);
 
     const { type: notificationType, action } =
       getNotificationDetails(transaction_type);
@@ -337,15 +364,25 @@ const createRentalTransaction = async (req, res, emitNotification) => {
     if (emitNotification) {
       emitNotification(owner_id, notification.toJSON());
     }
+
+    const ownerEmail = from_post
+      ? rental.owner?.email
+      : transaction_type === "sell"
+      ? item.seller?.email
+      : item.owner?.email;
+
+    const ownerName = from_post
+      ? rental.owner?.first_name
+      : transaction_type === "sell"
+      ? item.seller?.first_name
+      : item.owner?.first_name;
+
     await sendTransactionEmail({
-      email: transaction_type === "sell" ? item.seller.email : item.owner.email,
+      email: ownerEmail,
       itemName,
       transactionType: transaction_type,
       amount: totalAmountPHP,
-      userName:
-        transaction_type === "sell"
-          ? item.seller.first_name
-          : item.owner.first_name,
+      userName: ownerName,
       recipientType: "owner",
       status: "Requested",
     });

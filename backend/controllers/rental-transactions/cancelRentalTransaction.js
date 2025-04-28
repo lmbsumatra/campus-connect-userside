@@ -12,7 +12,13 @@ const getUserNames = async (userId) => {
   });
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
-const getItemName = async (itemId, transactionType) => {
+const getItemName = async (itemId, transactionType, isFromPost = false) => {
+  if (isFromPost) {
+    const post = await models.Post.findByPk(itemId, {
+      attributes: ["post_item_name"],
+    });
+    return post ? post.post_item_name : "Unknown Item";
+  }
   let item;
   if (transactionType === "sell") {
     item = await models.ItemForSale.findByPk(itemId, {
@@ -30,7 +36,6 @@ const getItemName = async (itemId, transactionType) => {
     : "Unknown Item";
   return itemName;
 };
-
 
 const cancelRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
@@ -71,7 +76,6 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: "Rental transaction not found." });
     }
 
-
     if (
       (rental.renter_id !== userId && rental.transaction_type === "rental") ||
       (rental.transaction_type === "sell" && rental.buyer_id !== userId)
@@ -91,7 +95,11 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     const renterName = await getUserNames(
       rental.transaction_type === "sell" ? rental.buyer_id : rental.renter_id
     );
-    const itemName = await getItemName(rental.item_id, rental.transaction_type);
+    const itemName = await getItemName(
+      rental.post_id || rental.item_id,
+      rental.transaction_type,
+      Boolean(rental.post_id)
+    );
 
     if (rental.stripe_payment_intent_id) {
       try {
@@ -180,7 +188,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
         amount: rental.amount,
         userName: `${rental.owner.first_name} ${rental.owner.last_name}`,
         recipientType: "owner",
-        status: "Cancelled", 
+        status: "Cancelled",
       });
 
       await sendTransactionEmail({
@@ -193,7 +201,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
         amount: rental.amount,
         userName: renterName,
         recipientType: "renter",
-        status: "Cancelled", 
+        status: "Cancelled",
       });
     } catch (emailError) {
       console.error("Error sending cancellation email:", emailError);

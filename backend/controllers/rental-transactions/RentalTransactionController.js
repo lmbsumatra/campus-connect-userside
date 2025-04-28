@@ -133,7 +133,10 @@ module.exports = ({ emitNotification }) => {
               "location",
             ],
           },
-          { model: models.Post, attributes: ["id", "post_item_name"] },
+          {
+            model: models.Post,
+            attributes: ["id", "post_item_name", "description", "images"],
+          },
           { model: models.Date, attributes: ["id", "date"] },
           {
             model: models.Duration,
@@ -146,13 +149,84 @@ module.exports = ({ emitNotification }) => {
         return res.status(404).json({ error: "Rental transaction not found" });
       }
 
+      const rentalData = rental.toJSON();
+
+      // If the rental is based on a POST, fetch security_deposit and late_charges from messages
+      if (rentalData.post_id) {
+        const messages = await models.Message.findAll({
+          where: {
+            isProductCard: 1,
+          },
+        });
+
+        let foundProductDetails = null;
+
+        if (messages && messages.length > 0) {
+          for (const message of messages) {
+            try {
+              const parsedProductDetails = JSON.parse(message.productDetails);
+              if (parsedProductDetails.productId === rentalData.post_id) {
+                foundProductDetails = parsedProductDetails;
+                break;
+              }
+            } catch (error) {
+              console.error("Error parsing productDetails in message:", error);
+            }
+          }
+        }
+
+        console.log(foundProductDetails);
+
+        if (foundProductDetails && rental.transaction_type === "rental") {
+          rentalData.Listing = {
+            id: rentalData.Post?.id || rentalData.post_id,
+            listing_name:
+              foundProductDetails.name ||
+              rentalData.Post?.post_item_name ||
+              "Unknown Item",
+            description: rentalData.Post?.description || "",
+            rate: foundProductDetails.offerPrice || "0.00",
+            price: foundProductDetails.offerPrice || "0.00",
+            security_deposit:
+              foundProductDetails.terms?.securityDeposit || "0.00",
+            late_charges: foundProductDetails.terms?.lateCharges || "0.00",
+            repair_replacement:
+              foundProductDetails.terms?.repairReplacement || "no",
+            delivery_method:
+              foundProductDetails.deliveryMethod || "Not specified",
+            payment_method:
+              foundProductDetails.paymentMethod || "Not specified",
+            item_condition:
+              foundProductDetails.itemCondition || "Not specified",
+            location: foundProductDetails.location || "Not specified",
+            stock: foundProductDetails.stock || null,
+          };
+        } else if (foundProductDetails && rental.transaction_type === "sell") {
+          rentalData.ItemForSale = {
+            id: rentalData.Post?.id || rentalData.post_id,
+            item_for_sale_name:
+              foundProductDetails.name ||
+              rentalData.Post?.post_item_name ||
+              "Unknown Item",
+            description: rentalData.Post?.description || "",
+            price: foundProductDetails.offerPrice || "0.00",
+            delivery_method:
+              foundProductDetails.deliveryMethod || "Not specified",
+            payment_method:
+              foundProductDetails.paymentMethod || "Not specified",
+            item_condition:
+              foundProductDetails.itemCondition || "Not specified",
+            location: foundProductDetails.location || "Not specified",
+            stock: foundProductDetails.stock || null,
+          };
+        }
+      }
+
       res.json({
         success: true,
-        rental,
+        rental: rentalData,
       });
     } catch (error) {
-      // console.error("Error fetching rental transaction:", error);
-
       res.status(500).json({
         error:
           "An unexpected error occurred while fetching the rental transaction.",

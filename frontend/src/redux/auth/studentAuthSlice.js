@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { baseApi } from "../../utils/consonants";
 import axios from "axios";
 
-// Initial state
 const initialState = {
   studentUser: JSON.parse(localStorage.getItem("studentUser")) || null,
   loading: false,
@@ -15,11 +14,9 @@ export const googleLogin = createAsyncThunk(
   "studentAuth/googleLogin",
   async (token, { rejectWithValue }) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
-      // console.log("Sending Google Token:", token); // Debug log
-
       const response = await fetch(`${baseApi}/user/google-login`, {
         method: "POST",
         headers: {
@@ -31,17 +28,16 @@ export const googleLogin = createAsyncThunk(
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Google Login Error Response:", errorData); // Debug log
+        console.error("Google Login Error Response:", errorData);
         throw new Error(errorData.message || "Failed to log in with Google.");
       }
 
       const data = await response.json();
-      // console.log("Google Login Response Data:", data); // Debug log
 
       if (data.token && data.role && data.userId) {
         localStorage.setItem("studentUser", JSON.stringify(data));
-        // console.log(data);
-        return data; // Return successful login data
+
+        return data;
       } else {
         throw new Error("Invalid response data from server.");
       }
@@ -56,13 +52,12 @@ export const googleLogin = createAsyncThunk(
   }
 );
 
-// Async thunk for manual login
 export const manualLogin = createAsyncThunk(
   "studentAuth/manualLogin",
   async (loginData, { rejectWithValue }) => {
     const { email, password } = loginData;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
       const response = await fetch(`${baseApi}/user/login`, {
@@ -91,7 +86,7 @@ export const manualLogin = createAsyncThunk(
       if (data.token && data.role && data.userId) {
         localStorage.setItem("studentUser", JSON.stringify(data));
 
-        return data; // Return successful login data
+        return data;
       } else {
         return rejectWithValue("Invalid response data. Please try again.");
       }
@@ -106,12 +101,11 @@ export const manualLogin = createAsyncThunk(
   }
 );
 
-// Async thunk for forgot password
 export const forgotPassword = createAsyncThunk(
   "studentAuth/forgotPassword",
   async (email, { rejectWithValue }) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
       const response = await fetch(`${baseApi}/user/forgot-password`, {
@@ -143,12 +137,14 @@ export const forgotPassword = createAsyncThunk(
   }
 );
 
-
 export const validateResetToken = createAsyncThunk(
-  'auth/validateResetToken',
+  "auth/validateResetToken",
   async ({ token }, { rejectWithValue }) => {
     try {
-      const response = await axios .post(`${baseApi}/user/validate-reset-token`, { token });
+      const response = await axios.post(
+        `${baseApi}/user/validate-reset-token`,
+        { token }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
@@ -156,13 +152,11 @@ export const validateResetToken = createAsyncThunk(
   }
 );
 
-
-// Async thunk for reset password
 export const resetPassword = createAsyncThunk(
   "studentAuth/resetPassword",
   async ({ token, newPassword }, { rejectWithValue }) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
       const response = await fetch(`${baseApi}/user/reset-password`, {
@@ -194,7 +188,6 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
-// Authentication Slice for Student User
 const studentAuthSlice = createSlice({
   name: "studentAuth",
   initialState,
@@ -202,15 +195,14 @@ const studentAuthSlice = createSlice({
     logoutStudent: (state) => {
       state.studentUser = null;
       localStorage.removeItem("studentUser");
-      state.error = null; // Clear errors on logout
-      // console.log(state.studentUser);
+      state.error = null;
     },
 
     saveUserData: (state, action) => {
       const { token, role, userId } = action.payload;
       const newUser = { token, role, userId };
       state.studentUser = newUser;
-      localStorage.setItem("studentUser", JSON.stringify(newUser)); // Store in localStorage
+      localStorage.setItem("studentUser", JSON.stringify(newUser));
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
@@ -227,16 +219,16 @@ const studentAuthSlice = createSlice({
     builder
       .addCase(manualLogin.pending, (state) => {
         state.loading = true;
-        state.error = null; // Clear previous errors
+        state.error = null;
       })
       .addCase(manualLogin.fulfilled, (state, action) => {
         state.loading = false;
         state.studentUser = action.payload;
-        state.error = null; // Clear errors on success
+        state.error = null;
       })
       .addCase(manualLogin.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload; // Set error from rejected action
+        state.error = action.payload;
       })
       .addCase(googleLogin.pending, (state) => {
         state.loading = true;
@@ -251,7 +243,7 @@ const studentAuthSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Forgot password
+
       .addCase(forgotPassword.pending, (state) => {
         state.loading = true;
         state.passwordResetStatus = null;
@@ -267,7 +259,7 @@ const studentAuthSlice = createSlice({
         state.passwordResetStatus = null;
         state.passwordResetError = action.payload;
       })
-      // Reset password
+
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
         state.passwordResetStatus = null;
@@ -286,7 +278,6 @@ const studentAuthSlice = createSlice({
   },
 });
 
-// Selectors
 export const selectStudentUser = (state) => state.studentAuth.studentUser;
 export const studentAuthLoading = (state) => state.studentAuth.loading;
 export const studentAuthError = (state) => state.studentAuth.error;
@@ -295,7 +286,6 @@ export const selectPasswordResetStatus = (state) =>
 export const selectPasswordResetError = (state) =>
   state.studentAuth.passwordResetError;
 
-// Export actions
 export const {
   logoutStudent,
   saveUserData,
@@ -304,5 +294,4 @@ export const {
   clearPasswordResetStatus,
 } = studentAuthSlice.actions;
 
-// Export reducer
 export default studentAuthSlice.reducer;

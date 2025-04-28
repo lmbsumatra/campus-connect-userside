@@ -80,6 +80,10 @@ module.exports = (sequelize) => {
       foreignKey: "user_id",
       as: "renter",
     });
+    Post.belongsTo(models.User, {
+      foreignKey: "user_id",
+      as: "buyer",
+    });
   };
 
   return Post;

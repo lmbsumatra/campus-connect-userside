@@ -281,6 +281,8 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
     timeTo: transaction?.rental?.Duration?.rental_time_to,
   });
 
+  console.log(transaction)
+
   return (
     <>
       <div className="rent-progress-wrapper">
@@ -334,6 +336,8 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
                         transaction.rental?.Listing?.listing_name}
                       {isSaleTransaction &&
                         transaction.rental?.ItemForSale?.item_for_sale_name}
+                      {transaction.rental?.Post?.post_item_name &&
+                        transaction.rental?.Post?.post_item_name}
                     </span>
                   </div>
 

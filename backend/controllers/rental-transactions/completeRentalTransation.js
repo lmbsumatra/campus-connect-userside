@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const { models } = require("../../models");
-const { GCASH } = require("../../utils/constants"); 
+const { GCASH } = require("../../utils/constants");
 const sendTransactionEmail = require("./sendTransactionEmail.jsx");
 const stripe = require("stripe")(
   "sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd"
@@ -13,7 +13,13 @@ const getUserNames = async (userId) => {
   return user ? `${user.first_name} ${user.last_name}` : "Unknown User";
 };
 
-const getItemName = async (itemId, transactionType) => {
+const getItemName = async (itemId, transactionType, isFromPost = false) => {
+  if (isFromPost) {
+    const post = await models.Post.findByPk(itemId, {
+      attributes: ["post_item_name"],
+    });
+    return post ? post.post_item_name : "Unknown Item";
+  }
   if (transactionType === "sell") {
     const item = await models.ItemForSale.findByPk(itemId, {
       attributes: ["item_for_sale_name"],
@@ -30,7 +36,6 @@ const getItemName = async (itemId, transactionType) => {
 const completeRentalTransaction = async (req, res, emitNotification) => {
   const { id } = req.params;
   const { userId } = req.body;
-
 
   try {
     const transaction = await models.RentalTransaction.findByPk(id, {
@@ -135,7 +140,7 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
       transaction.status = "Completed";
       transaction.owner_confirmed = false;
       transaction.renter_confirmed = false;
-      transaction.buyer_confirmed = false; 
+      transaction.buyer_confirmed = false;
 
       if (isRental && transaction.Duration) {
         await models.Duration.update(
@@ -182,8 +187,9 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
       }
 
       const itemName = await getItemName(
-        transaction.item_id,
-        transaction.transaction_type
+        transaction.item_id || transaction.post_id,
+        transaction.transaction_type,
+        Boolean(transaction.post_id)
       );
 
       await sendTransactionEmail({
@@ -191,7 +197,7 @@ const completeRentalTransaction = async (req, res, emitNotification) => {
         itemName,
         transactionType: transaction.transaction_type,
         amount: transaction.amount,
-        userName: ownerName, 
+        userName: ownerName,
         status: "Completed",
         recipientType: "renter",
       });
