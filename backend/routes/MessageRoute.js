@@ -71,7 +71,15 @@ router.post("/", async (req, res) => {
       images: req.body.images || [], // Add support for image URLs
     });
 
-    res.status(200).json(newMessage);
+    // Ensure we're returning a properly formatted message
+    const formattedMessage = {
+      ...newMessage.toJSON(),
+      images: Array.isArray(newMessage.images) ? newMessage.images : 
+              (typeof newMessage.images === 'string' ? 
+                JSON.parse(newMessage.images) : [])
+    };
+
+    res.status(200).json(formattedMessage);
   } catch (err) {
     // console.error("Error saving message:", err);
     res.status(500).json({ error: "Failed to save message." });
@@ -130,8 +138,35 @@ router.get("/:conversationId", async (req, res) => {
       ], // Include required fields
     });
 
-    // Return the messages or an empty array
-    res.status(200).json(messages);
+    // Format the messages to ensure consistent data types
+    const formattedMessages = messages.map(message => {
+      const messageData = message.toJSON();
+      
+      // Ensure images is always an array
+      if (typeof messageData.images === 'string') {
+        try {
+          messageData.images = JSON.parse(messageData.images);
+        } catch (e) {
+          messageData.images = [];
+        }
+      } else if (!Array.isArray(messageData.images)) {
+        messageData.images = [];
+      }
+      
+      // Ensure productDetails is properly parsed
+      if (typeof messageData.productDetails === 'string') {
+        try {
+          messageData.productDetails = JSON.parse(messageData.productDetails);
+        } catch (e) {
+          messageData.productDetails = null;
+        }
+      }
+      
+      return messageData;
+    });
+
+    // Return the formatted messages
+    res.status(200).json(formattedMessages);
   } catch (err) {
     // console.error("Error fetching messages:", err);
     res.status(500).json({ error: err.message });

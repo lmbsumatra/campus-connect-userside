@@ -122,6 +122,26 @@ const MessagePage = () => {
     socket.current.on("receiveMessage", (message) => {
       // console.log("Received message:", message);
 
+      // Ensure message.images is always an array
+      if (typeof message.images === 'string') {
+        try {
+          message.images = JSON.parse(message.images);
+        } catch (e) {
+          message.images = [];
+        }
+      } else if (!Array.isArray(message.images)) {
+        message.images = message.images || [];
+      }
+
+      // Ensure productDetails is properly parsed
+      if (typeof message.productDetails === 'string') {
+        try {
+          message.productDetails = JSON.parse(message.productDetails);
+        } catch (e) {
+          message.productDetails = null;
+        }
+      }
+
       // Mark conversation as having unread messages if it's not the active chat
       if (!activeChat || activeChat.id !== message.conversationId) {
         setUnreadMessages((prev) => ({
@@ -176,21 +196,27 @@ const MessagePage = () => {
 
       // If this message belongs to the active chat, update the active chat state
       if (activeChat && message.conversationId === activeChat.id) {
-        setActiveChat((prev) => ({
-          ...prev,
-          messages: [
-            ...prev.messages,
-            {
-              ...message,
-              createdAt: message.createdAt || new Date().toISOString(),
-              updatedAt: message.updatedAt || new Date().toISOString(),
-              // Ensure product card data is properly included
-              isProductCard: message.isProductCard || false,
-              productDetails: message.productDetails || null,
-            },
-          ],
-          updatedAt: new Date().toISOString(),
-        }));
+        setActiveChat((prev) => {
+          // Create a properly formatted message object
+          const formattedMessage = {
+            ...message,
+            createdAt: message.createdAt || new Date().toISOString(),
+            updatedAt: message.updatedAt || new Date().toISOString(),
+            // Ensure product card data is properly included
+            isProductCard: message.isProductCard || false,
+            // Ensure images is always an array
+            images: Array.isArray(message.images) ? message.images : 
+                    (typeof message.images === 'string' ? 
+                      JSON.parse(message.images) : []),
+            productDetails: message.productDetails || null,
+          };
+          
+          return {
+            ...prev,
+            messages: [...prev.messages, formattedMessage],
+            updatedAt: new Date().toISOString(),
+          };
+        });
 
         // Highlight the new message
         setHighlightNewMessage(true);
@@ -2387,15 +2413,16 @@ const MessagePage = () => {
                           <h5>{chat.otherUser.first_name}</h5>
                           <p className="preview-message">
                             {latestMessage
-                              ? latestMessage.images &&
-                                latestMessage.images.length > 0
-                                ? "Sent a Photo"
-                                : latestMessage.isProductCard
+                              ? latestMessage.isProductCard
                                 ? "Shared a product"
-                                : latestMessage.text &&
-                                  latestMessage.text.length > 30
-                                ? `${latestMessage.text.substring(0, 30)}...`
-                                : latestMessage.text
+                                : latestMessage.images &&
+                                  Array.isArray(latestMessage.images) &&
+                                  latestMessage.images.length > 0
+                                  ? "Sent a Photo"
+                                  : latestMessage.text &&
+                                    latestMessage.text.length > 30
+                                  ? `${latestMessage.text.substring(0, 30)}...`
+                                  : latestMessage.text
                               : "No messages yet"}
                           </p>
                         </div>

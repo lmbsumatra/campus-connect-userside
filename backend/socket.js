@@ -186,12 +186,12 @@ function initializeSocket(server) {
         const messageData = {
           sender,
           text,
-          images: images || [],
+          images: Array.isArray(images) ? images : [],
           conversationId,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          isProductCard: data.isProductCard || false,
-          productDetails: data.productDetails || null,
+          isProductCard: isProductCard || false,
+          productDetails: productDetails || null,
         };
 
         //e Send message to the recipient's room
@@ -199,13 +199,10 @@ function initializeSocket(server) {
         // console.log(`Message sent to user ${recipientStr}'s room`);
 
         if (recipientSocketId) {
-          // Send message to recipient
+          // Send message to recipient with all needed data
           io.to(recipientSocketId).emit("receiveMessage", {
-            sender,
-            text,
-            conversationId,
+            ...messageData,
             otherUser: { userId: sender },
-            timestamp: new Date(),
           });
           // console.log(`Message sent to user ${recipient}`);
 
