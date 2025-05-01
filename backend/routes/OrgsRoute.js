@@ -16,7 +16,14 @@ router.post(
   logAdminActivity,
   OrgsController.createOrg
 );
-router.put("/:orgId", upload_org_logo, OrgsController.editOrg);
+router.put(
+  "/:orgId",
+  upload_org_logo,
+  authenticateToken,
+  checkPermission("ReadWrite"),
+  logAdminActivity,
+  OrgsController.editOrg
+);
 router.patch(
   "/:orgId/status",
   authenticateToken,

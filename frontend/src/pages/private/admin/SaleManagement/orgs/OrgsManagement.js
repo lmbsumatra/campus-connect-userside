@@ -271,7 +271,10 @@ const OrgsManagement = () => {
   };
 
   const handleUpdateOrg = () => {
-    dispatch(updateOrganization(editableOrg))
+    dispatch(
+      updateOrganization({ orgData: editableOrg, token: adminUser.token })
+    )
+      .unwrap()
       .then(() => {
         setShowEditModal(false);
         resetFormState();
