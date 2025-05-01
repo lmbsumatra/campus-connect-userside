@@ -166,13 +166,16 @@ export const toggleOrgStatus = createAsyncThunk(
 
 export const setOrgRepresentative = createAsyncThunk(
   "organizations/setOrgRepresentative",
-  async ({ orgId, rep_id }, { rejectWithValue }) => {
+  async ({ orgId, rep_id, token }, { rejectWithValue }) => {
     try {
       return await fetchWithTimeout(
         `${baseApi}/api/orgs/${orgId}/representative`,
         {
           method: "PATCH",
           body: JSON.stringify({ rep_id }),
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
     } catch (error) {

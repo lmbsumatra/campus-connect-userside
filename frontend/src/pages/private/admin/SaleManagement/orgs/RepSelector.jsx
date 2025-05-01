@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Button,
-  Form,
-  ListGroup,
-  InputGroup,
-  Badge,
-} from "react-bootstrap";
+import { Button, Form, ListGroup, InputGroup, Badge } from "react-bootstrap";
 import "./OrgsManagement.css";
 import {
   setOrgRepresentative,
   updateSearchRepMap,
   selectSearchRepMap,
 } from "../../../../../redux/orgs/organizationsSlice";
+import { useAuth } from "../../../../../context/AuthContext";
 
 const RepSelector = ({
   orgId,
@@ -35,6 +30,7 @@ const RepSelector = ({
   const initialSearchValue = searchRepMapFromRedux[orgId] || "";
   const [localSearch, setLocalSearch] = useState(initialSearchValue);
   const dispatch = useDispatch();
+  const { adminUser } = useAuth();
 
   useEffect(() => {
     if (
@@ -52,7 +48,13 @@ const RepSelector = ({
   }, [initialSearchValue, showRepList[orgId]]);
 
   const handleRemoveRep = (org_id) => {
-    dispatch(setOrgRepresentative({ orgId: org_id, rep_id: null })).then(() => {
+    dispatch(
+      setOrgRepresentative({
+        orgId: org_id,
+        rep_id: null,
+        token: adminUser.token,
+      })
+    ).then(() => {
       const orgName =
         organizations.find((org) => (org.orgId || org.org_id) === org_id)
           ?.name || "Organization";
@@ -68,7 +70,13 @@ const RepSelector = ({
   };
 
   const handleSetRep = async (org_id, user_id) => {
-    await dispatch(setOrgRepresentative({ orgId: org_id, rep_id: user_id }));
+    await dispatch(
+      setOrgRepresentative({
+        orgId: org_id,
+        rep_id: user_id,
+        token: adminUser.token,
+      })
+    );
     const rep = getUserById(user_id);
     const orgName =
       organizations.find((org) => org.orgId === org_id)?.name || "Organization";
