@@ -267,11 +267,23 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
     : getProgressSteps();
 
   const getItemImage = () => {
-    if (isRentalTransaction && transaction.rental?.Listing?.images) {
+    // Check for message offer-based transaction and retrieve the associated image
+    if (transaction.rental?.product_image) {
+      return transaction.rental.product_image;
+    } 
+    // Check for standard rental transaction with listing images
+    else if (isRentalTransaction && transaction.rental?.Listing?.images) {
       return JSON.parse(transaction.rental.Listing.images)[0] || item1;
-    } else if (isSaleTransaction && transaction.rental?.ItemForSale?.images) {
+    } 
+    // Check for sale transaction with item for sale images
+    else if (isSaleTransaction && transaction.rental?.ItemForSale?.images) {
       return JSON.parse(transaction.rental.ItemForSale.images)[0] || item1;
     }
+    // Check for post-based transaction
+    else if (transaction.rental?.Post?.images) {
+      return JSON.parse(transaction.rental.Post.images)[0] || item1;
+    }
+    // Fallback to default image
     return item1;
   };
 

@@ -820,7 +820,9 @@ const MessagePage = () => {
             item_name: currentOffer.productDetails.name || "",
             item_description: currentOffer.productDetails.description || "",
             item_price: currentOffer.productDetails.offerPrice || currentOffer.productDetails.price || 0,
+            // Store the image URL for the product
             item_image: currentOffer.productDetails.image || "",
+            product_image: currentOffer.productDetails.image || "",
             // For rental items, include rental-specific fields
             item_security_deposit: isRentalOffer && currentOffer.productDetails.terms 
               ? (currentOffer.productDetails.terms.securityDeposit || 0) 
@@ -875,7 +877,9 @@ const MessagePage = () => {
           // Include any owner info we could gather
           ...ownerInfo,
           // Include extended item info for post transactions
-          ...extendedItemInfo
+          ...extendedItemInfo,
+          // Store the product image URL directly in the transaction for display in RentProgress
+          product_image: currentOffer.productDetails.image || "",
         };
         
         // CRITICAL FIX: For post-type offers, explicitly add post_id field
@@ -972,7 +976,10 @@ const MessagePage = () => {
                   from_post: true,
                   
                   // Flag to indicate this needs special handling
-                  is_direct_transaction: true
+                  is_direct_transaction: true,
+                  
+                  // Store the product image URL for display in RentProgress
+                  product_image: currentOffer.productDetails.image || "",
                 };
                 
                 console.log("Attempting direct transaction creation with enhanced data:", 
