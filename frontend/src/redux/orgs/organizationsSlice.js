@@ -152,11 +152,14 @@ export const updateOrganization = createAsyncThunk(
 
 export const toggleOrgStatus = createAsyncThunk(
   "organizations/toggleOrgStatus",
-  async ({ orgId, isActive }, { rejectWithValue }) => {
+  async ({ orgId, isActive, token }, { rejectWithValue }) => {
     try {
       return await fetchWithTimeout(`${baseApi}/api/orgs/${orgId}/status`, {
         method: "PATCH",
         body: JSON.stringify({ status: isActive }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
     } catch (error) {
       return rejectWithValue(error.message || "Failed to update status.");

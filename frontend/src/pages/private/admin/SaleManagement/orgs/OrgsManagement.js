@@ -22,9 +22,11 @@ import {
 import OrgFormModal from "./OrgFormModal";
 import RepSelector from "./RepSelector";
 import PaginationComponent from "../../../../../components/Pagination/PaginationComponent";
+import { useAuth } from "../../../../../context/AuthContext";
 
 const OrgsManagement = () => {
   const dispatch = useDispatch();
+  const { adminUser } = useAuth();
   const organizations = useSelector(selectOrganizations);
   const categoriesFromRedux = useSelector(selectCategories);
   const users = useSelector(selectUsers);
@@ -160,7 +162,6 @@ const OrgsManagement = () => {
     const processedCategories = processCategories();
     return processedCategories;
   };
-  
 
   const getFilteredOrgs = () => {
     let filteredOrgs = organizations;
@@ -233,8 +234,10 @@ const OrgsManagement = () => {
       toggleOrgStatus({
         orgId: orgId,
         isActive: newStatus,
+        token: adminUser.token,
       })
     )
+      .unwrap()
       .then(() => {
         displayAlert(
           `Organization "${orgName}" status changed to ${newStatus}`,
@@ -242,7 +245,16 @@ const OrgsManagement = () => {
         );
       })
       .catch((err) => {
-        displayAlert(`Failed to update status: ${err.message}`, "danger");
+        if (err?.status === 403) {
+          displayAlert("Insufficient Permissions. Action denied.", "danger");
+          return;
+        }
+        const errorMessage =
+          typeof err === "string"
+            ? err
+            : err?.message || "An unknown error occurred";
+
+        displayAlert(`Failed to update status: ${errorMessage}`, "danger");
       });
   };
 
