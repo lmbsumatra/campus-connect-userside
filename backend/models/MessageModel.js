@@ -31,6 +31,11 @@ Message.init(
       allowNull: true,
       defaultValue: [],
     },
+    offerStatus: {
+      type: DataTypes.ENUM('pending', 'accepted', 'rejected'),
+      allowNull: true,
+      defaultValue: 'pending', // Default is pending for offer messages
+    },
   },
   {
     sequelize,

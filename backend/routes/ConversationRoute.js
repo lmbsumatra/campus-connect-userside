@@ -264,7 +264,8 @@ router.get("/:id", async (req, res) => {
               text: message.text,
               images: message.images,
               isProductCard: message.isProductCard, // Include isProductCard
-              productDetails: JSON.parse(message.productDetails), // Include productDetails
+              productDetails: JSON.parse(message.productDetails || '{}'), // Include productDetails
+              offerStatus: message.offerStatus || 'pending', // Include offer status
               createdAt: message.createdAt,
               updatedAt: message.updatedAt,
             })),
@@ -597,6 +598,7 @@ router.get("/single/:conversationId/:userId", async (req, res) => {
         images: message.images,
         isProductCard: message.isProductCard,
         productDetails: JSON.parse(message.productDetails || "{}"),
+        offerStatus: message.offerStatus || 'pending',
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
       })),

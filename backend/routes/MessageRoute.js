@@ -126,6 +126,7 @@ router.get("/:conversationId", async (req, res) => {
         "productDetails", 
         "createdAt",
         "images",
+        "offerStatus", // Include the offer status
       ], // Include required fields
     });
 
@@ -134,6 +135,49 @@ router.get("/:conversationId", async (req, res) => {
   } catch (err) {
     // console.error("Error fetching messages:", err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// New route to update offer status (accept/reject)
+router.post("/:messageId/offer-status", async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { status, userId, recipientId } = req.body;
+
+    // Validate inputs
+    if (!messageId || !status || !userId) {
+      return res.status(400).json({ error: "Message ID, status, and user ID are required." });
+    }
+
+    // Validate status value
+    if (!['accepted', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: "Status must be either 'accepted' or 'rejected'." });
+    }
+
+    // Find the message
+    const message = await Message.findByPk(messageId);
+    if (!message) {
+      return res.status(404).json({ error: "Message not found." });
+    }
+
+    // Ensure the message is a product card (offer)
+    if (!message.isProductCard) {
+      return res.status(400).json({ error: "This message is not an offer." });
+    }
+
+    // Update the message status
+    await message.update({ offerStatus: status });
+
+    // Return the updated message
+    res.status(200).json({ 
+      success: true,
+      message: "Offer status updated successfully.",
+      offerStatus: status,
+      messageId: messageId
+    });
+  } catch (err) {
+    console.error("Error updating offer status:", err);
+    res.status(500).json({ error: "Failed to update offer status." });
   }
 });
 

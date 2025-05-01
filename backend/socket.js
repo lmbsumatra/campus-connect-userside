@@ -224,6 +224,61 @@ function initializeSocket(server) {
       }
     });
 
+    // Handle offer acceptance events
+    socket.on("offerAccepted", (data) => {
+      const { messageId, conversationId, recipient, sender, offerType } = data;
+
+      if (recipient === sender) {
+        // console.log("Prevented self-notification for offer acceptance");
+        return;
+      }
+
+      try {
+        // Convert recipient to string to match how it's stored in the Map
+        const recipientStr = recipient.toString();
+
+        // Notify the recipient about the offer being accepted
+        io.to(recipientStr).emit("offerAccepted", {
+          messageId,
+          conversationId,
+          recipient,
+          sender,
+          offerType
+        });
+
+        // console.log(`Offer acceptance notification sent to user ${recipientStr}`);
+      } catch (error) {
+        // console.error("Error handling offer acceptance event:", error);
+      }
+    });
+
+    // Handle offer rejection events
+    socket.on("offerRejected", (data) => {
+      const { messageId, conversationId, recipient, sender } = data;
+
+      if (recipient === sender) {
+        // console.log("Prevented self-notification for offer rejection");
+        return;
+      }
+
+      try {
+        // Convert recipient to string to match how it's stored in the Map
+        const recipientStr = recipient.toString();
+
+        // Notify the recipient about the offer being rejected
+        io.to(recipientStr).emit("offerRejected", {
+          messageId,
+          conversationId,
+          recipient,
+          sender
+        });
+
+        // console.log(`Offer rejection notification sent to user ${recipientStr}`);
+      } catch (error) {
+        // console.error("Error handling offer rejection event:", error);
+      }
+    });
+
     // Handle block user events
     socket.on("blockUser", (data) => {
       const { blockerId, blockedId } = data;

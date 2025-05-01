@@ -38,6 +38,7 @@ const MessagePage = () => {
   const chatContentRef = useRef(null);
   const socket = useRef(null);
   const [acceptedOffers, setAcceptedOffers] = useState(new Set());
+  const [rejectedOffers, setRejectedOffers] = useState(new Set());
   // Add state for expanded product cards
   const [expandedCards, setExpandedCards] = useState(new Set());
   // Add state for message filter
@@ -205,6 +206,10 @@ const MessagePage = () => {
       setAcceptedOffers((prev) => new Set([...prev, data.messageId]));
     });
 
+    socket.current.on("offerRejected", (data) => {
+      setRejectedOffers((prev) => new Set([...prev, data.messageId]));
+    });
+
     // Listen for block status updates
     socket.current.on("userBlocked", (data) => {
       if (data.blockedId === userId) {
@@ -279,6 +284,7 @@ const MessagePage = () => {
       if (socket.current) {
         socket.current.off("receiveMessage");
         socket.current.off("offerAccepted");
+        socket.current.off("offerRejected");
         socket.current.off("userBlocked");
         socket.current.off("userUnblocked");
         socket.current.disconnect();
@@ -689,6 +695,22 @@ const MessagePage = () => {
         offerType: isRentalOffer ? "rental" : "sale", // Include type of offer
       });
 
+      // Update the offer status in the backend
+      await fetch(
+        `${process.env.REACT_APP_API_URL ?? baseApi}/api/messages/${currentOffer.id}/offer-status`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: "accepted",
+            userId: userId,
+            recipientId: currentOffer.sender,
+          }),
+        }
+      );
+
+      // Rest of the existing function code...
+      
       // Create a transaction record in the database
       if (
         currentOffer.productDetails?.date_id &&
@@ -1044,8 +1066,13 @@ const MessagePage = () => {
       setAcceptedOffers((prev) => new Set([...prev, data.messageId]));
     });
 
+    socket.current.on("offerRejected", (data) => {
+      setRejectedOffers((prev) => new Set([...prev, data.messageId]));
+    });
+
     return () => {
       socket.current.off("offerAccepted");
+      socket.current.off("offerRejected");
     };
   }, []);
 
@@ -2025,6 +2052,62 @@ const MessagePage = () => {
     pointerEvents: "none",
   };
 
+  // Add a new function to handle rejecting offers
+  const handleRejectOffer = async (message) => {
+    try {
+      // Add the message ID to rejected offers
+      setRejectedOffers((prev) => new Set([...prev, message.id]));
+
+      // Emit socket event to notify other user
+      socket.current.emit("offerRejected", {
+        messageId: message.id,
+        conversationId: activeChat.id,
+        recipient: message.sender,
+        sender: userId,
+      });
+
+      // Update the offer status in the backend
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL ?? baseApi}/api/messages/${message.id}/offer-status`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: "rejected",
+            userId: userId,
+            recipientId: message.sender,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update offer status");
+      }
+
+      ShowAlert(
+        dispatch,
+        "info",
+        "Offer Rejected",
+        "You have rejected this offer."
+      );
+    } catch (error) {
+      console.error("Error rejecting offer:", error);
+      // Revert the UI state if the API call fails
+      setRejectedOffers((prev) => {
+        const newSet = new Set([...prev]);
+        newSet.delete(message.id);
+        return newSet;
+      });
+      
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Failed to reject offer. Please try again."
+      );
+    }
+  };
+
   return (
     <div className="container-content message-page">
       <div className="message-content">
@@ -2471,32 +2554,48 @@ const MessagePage = () => {
                                     BUT ONLY if this is an offer, not an inquiry */}
                                 {message.productDetails?.title === "Offer" &&
                                   (isRecipient(message) ? (
-                                    acceptedOffers.has(message.id) ? (
+                                    message.offerStatus === "accepted" || acceptedOffers.has(message.id) ? (
                                       <div className="accepted-offer-badge">
                                         Offer Accepted
+                                      </div>
+                                    ) : message.offerStatus === "rejected" || rejectedOffers.has(message.id) ? (
+                                      <div className="rejected-offer-badge" style={{ backgroundColor: "#d9534f", color: "white", padding: "8px 12px", borderRadius: "4px", fontWeight: "bold", display: "inline-block" }}>
+                                        Offer Rejected
                                       </div>
                                     ) : (
-                                      <button
-                                        type="button"
-                                        style={{
-                                          float: "right",
-                                          marginLeft: "100px",
-                                        }}
-                                        className="btn btn-primary mt-2"
-                                        onClick={(e) => {
-                                          e.stopPropagation(); // Prevent card click
-                                          handleAcceptOffer(message);
-                                        }}
-                                      >
-                                        Accept Offer
-                                      </button>
+                                      <div className="offer-action-buttons" style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "10px" }}>
+                                        <button
+                                          type="button"
+                                          className="btn btn-danger"
+                                          onClick={(e) => {
+                                            e.stopPropagation(); // Prevent card click
+                                            handleRejectOffer(message);
+                                          }}
+                                        >
+                                          Reject Offer
+                                        </button>
+                                        <button
+                                          type="button"
+                                          className="btn btn-primary"
+                                          onClick={(e) => {
+                                            e.stopPropagation(); // Prevent card click
+                                            handleAcceptOffer(message);
+                                          }}
+                                        >
+                                          Accept Offer
+                                        </button>
+                                      </div>
                                     )
                                   ) : (
-                                    acceptedOffers.has(message.id) && (
+                                    (message.offerStatus === "accepted" || acceptedOffers.has(message.id)) ? (
                                       <div className="accepted-offer-badge">
                                         Offer Accepted
                                       </div>
-                                    )
+                                    ) : (message.offerStatus === "rejected" || rejectedOffers.has(message.id)) ? (
+                                      <div className="rejected-offer-badge" style={{ backgroundColor: "#d9534f", color: "white", padding: "8px 12px", borderRadius: "4px", fontWeight: "bold", display: "inline-block" }}>
+                                        Offer Rejected
+                                      </div>
+                                    ) : null
                                   ))}
                               </div>
                             </>
