@@ -7,10 +7,11 @@ import {
   updateUserAction,
 } from "../../redux/user/allUsersSlice";
 import ShowAlert from "../../utils/ShowAlert";
-import { Follow, FollowBack, Following } from "../../utils/consonants";
+import { Follow, FollowBack, Following, baseApi } from "../../utils/consonants";
 
 import "./userCardStyles.css";
 import { updateUserActionById } from "../../redux/user/otherUserSlice";
+
 const UserCard = ({ users }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -20,8 +21,6 @@ const UserCard = ({ users }) => {
   const { loadingFollow, successFollow, errorFollow } = useSelector(
     (state) => state.allUsers
   );
-
-  // console.log(users);
 
   // Local state to store the last action performed (Followed/Unfollowed)
   const [lastAction, setLastAction] = useState(null);
@@ -50,7 +49,7 @@ const UserCard = ({ users }) => {
     );
   };
 
-  // 🔥 Move ShowAlert to useEffect to trn v igger AFTER Redux state updates
+  // Show Alert to trigger AFTER Redux state updates
   useEffect(() => {
     if (successFollow && lastUser) {
       ShowAlert(dispatch, "success", `${lastAction} ${lastUser.fname}`);
@@ -61,6 +60,75 @@ const UserCard = ({ users }) => {
       dispatch(resetFollowState());
     }
   }, [successFollow, errorFollow, dispatch, lastAction, lastUser]);
+
+  const handleMessageClick = async (e, user) => {
+    e.stopPropagation(); // Prevent navigation to profile
+    
+    const otherUserId = user?.id;
+
+    if (!loggedInUserId) {
+      ShowAlert(
+        dispatch,
+        "error",
+        "You need to be logged in to send messages"
+      );
+      return;
+    }
+
+    if (!otherUserId) {
+      ShowAlert(
+        dispatch,
+        "error",
+        "Recipient information not available"
+      );
+      return;
+    }
+
+    // Don't allow messaging yourself
+    if (otherUserId === loggedInUserId) {
+      ShowAlert(dispatch, "info", "You cannot message yourself");
+      return;
+    }
+
+    try {
+      // Create/get a conversation with the user
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || baseApi}/api/conversations/createConversation`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            senderId: loggedInUserId,
+            ownerId: otherUserId,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create conversation");
+      }
+
+      const conversationData = await response.json();
+
+      // Navigate to messages with the conversation already active
+      navigate("/messages", {
+        state: {
+          activeConversationId: conversationData.id,
+          recipientId: otherUserId,
+          recipientName: `${user.fname} ${user.lname || ''}`.trim(),
+          recipientProfilePic: user.profilePic,
+        },
+      });
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+      ShowAlert(
+        dispatch,
+        "error",
+        error.message || "Failed to start conversation"
+      );
+    }
+  };
 
   return (
     <div className="users-container">
@@ -108,13 +176,19 @@ const UserCard = ({ users }) => {
                 <>
                   <button
                     className="btn btn-rectangle primary"
-                    onClick={(e) => navigate("/profile")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/profile");
+                    }}
                   >
                     Go to profile
                   </button>
                   <button
                     className="btn btn-rectangle secondary"
-                    onClick={(e) => navigate("/profile")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/profile/edit-profile");
+                    }}
                   >
                     Edit profile
                   </button>
@@ -131,10 +205,7 @@ const UserCard = ({ users }) => {
                   </button>
                   <button
                     className="btn btn-rectangle secondary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // console.log("Message button clicked");
-                    }}
+                    onClick={(e) => handleMessageClick(e, user)}
                   >
                     Message
                   </button>
