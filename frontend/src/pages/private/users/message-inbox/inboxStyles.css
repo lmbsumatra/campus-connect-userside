@@ -51,6 +51,14 @@
   display: flex; /* Show on hover */
 }
 
+.user-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
 .message-info {
   margin: 0;
   font-size: 16px;
@@ -121,6 +129,17 @@
   background-color: #e0e7ff;
   display: flex;
   align-items: center;
+}
+
+.chat-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-user-info h4 {
+  margin: 0;
+  font-size: 16px;
 }
 
 .back-button {

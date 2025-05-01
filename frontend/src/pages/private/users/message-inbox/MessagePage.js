@@ -2197,11 +2197,22 @@ const MessagePage = () => {
                           } ${result.nameMatch ? "name-match" : ""}`}
                           onClick={() => handleSearchResultClick(chat)}
                         >
-                          <img
-                            src={UserIcon}
-                            alt="User Icon"
-                            className="user-icon"
-                          />
+                          {chat.otherUser.profile_pic ? (
+                            <img
+                              src={chat.otherUser.profile_pic}
+                              alt={`${chat.otherUser.first_name}'s profile`}
+                              className="user-icon"
+                              onError={(e) => {
+                                e.target.src = UserIcon;
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={UserIcon}
+                              alt={`${chat.otherUser.first_name}'s profile`}
+                              className="user-icon"
+                            />
+                          )}
                           <div className="message-info">
                             <h5>{chat.otherUser.first_name}</h5>
                             <p className="preview-message">
@@ -2349,11 +2360,22 @@ const MessagePage = () => {
                         }`}
                         onClick={() => handleConversationClick(chat)}
                       >
-                        <img
-                          src={UserIcon}
-                          alt={`${chat.otherUser.first_name}'s profile`}
-                          className="user-icon"
-                        />
+                        {chat.otherUser.profile_pic ? (
+                          <img
+                            src={chat.otherUser.profile_pic}
+                            alt={`${chat.otherUser.first_name}'s profile`}
+                            className="user-icon"
+                            onError={(e) => {
+                              e.target.src = UserIcon;
+                            }}
+                          />
+                        ) : (
+                          <img
+                            src={UserIcon}
+                            alt={`${chat.otherUser.first_name}'s profile`}
+                            className="user-icon"
+                          />
+                        )}
                         <div className="message-info">
                           <h5>{chat.otherUser.first_name}</h5>
                           <p className="preview-message">
@@ -2460,7 +2482,25 @@ const MessagePage = () => {
               >
                 Back
               </button>
-              <h4>{activeChat.otherUser.first_name}</h4>
+              <div className="chat-user-info">
+                {activeChat.otherUser.profile_pic ? (
+                  <img
+                    src={activeChat.otherUser.profile_pic}
+                    alt={`${activeChat.otherUser.first_name}'s profile`}
+                    className="user-icon"
+                    onError={(e) => {
+                      e.target.src = UserIcon;
+                    }}
+                  />
+                ) : (
+                  <img
+                    src={UserIcon}
+                    alt={`${activeChat.otherUser.first_name}'s profile`}
+                    className="user-icon"
+                  />
+                )}
+                <h4>{activeChat.otherUser.first_name}</h4>
+              </div>
             </div>
 
             <div className="chat-content" ref={chatContentRef}>

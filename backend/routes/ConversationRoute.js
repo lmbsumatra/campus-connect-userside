@@ -214,6 +214,11 @@ router.get("/:id", async (req, res) => {
           // Fetch other user's details
           const otherUser = await models.User.findByPk(otherUserId);
 
+          // Get other user's student profile for profile picture
+          const otherUserStudent = await models.Student.findOne({
+            where: { user_id: otherUserId },
+          });
+
           // Fetch all messages for the current conversation
           const messages = await models.Message.findAll({
             where: { conversationId: conversation.id },
@@ -255,6 +260,7 @@ router.get("/:id", async (req, res) => {
               first_name: otherUser.first_name,
               middle_name: otherUser.middle_name,
               last_name: otherUser.last_name,
+              profile_pic: otherUserStudent ? otherUserStudent.profile_pic : null,
             },
             isBlocked: userBlockedOther !== null, // User has blocked the other person
             blockedBy: userIsBlocked !== null,    // User is blocked by the other person
@@ -388,6 +394,11 @@ router.get("/preview/:userId", async (req, res) => {
         const otherUserId = members.find((id) => id !== userId);
         const otherUser = await User.findByPk(otherUserId);
 
+        // Get other user's student profile for profile picture
+        const otherUserStudent = await models.Student.findOne({
+          where: { user_id: otherUserId },
+        });
+
         // Get latest message
         const latestMessage = await Message.findOne({
           where: { conversationId: conv.id },
@@ -399,7 +410,9 @@ router.get("/preview/:userId", async (req, res) => {
           otherUser: {
             user_id: otherUser.user_id,
             first_name: otherUser.first_name,
+            middle_name: otherUser.middle_name,
             last_name: otherUser.last_name,
+            profile_pic: otherUserStudent ? otherUserStudent.profile_pic : null,
           },
           latestMessage: latestMessage
             ? {
