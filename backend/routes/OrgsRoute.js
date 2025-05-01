@@ -8,7 +8,14 @@ const logAdminActivity = require("../middlewares/auditMiddleware");
 const checkPermission = require("../middlewares/CheckPermission");
 
 router.get("/", OrgsController.getAllOrgs);
-router.post("/add", upload_org_logo, OrgsController.createOrg);
+router.post(
+  "/add",
+  upload_org_logo,
+  authenticateToken,
+  checkPermission("ReadWrite"),
+  logAdminActivity,
+  OrgsController.createOrg
+);
 router.put("/:orgId", upload_org_logo, OrgsController.editOrg);
 router.patch(
   "/:orgId/status",

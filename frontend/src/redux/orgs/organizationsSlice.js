@@ -82,7 +82,7 @@ export const fetchUsers = createAsyncThunk(
 
 export const addOrganization = createAsyncThunk(
   "organizations/addOrganization",
-  async (orgData, { rejectWithValue }) => {
+  async ({ orgData, token }, { rejectWithValue }) => {
     try {
       if (!orgData.org_name || !orgData.org_name.trim()) {
         return rejectWithValue("Organization name is required");
@@ -106,7 +106,19 @@ export const addOrganization = createAsyncThunk(
       const res = await fetch(`${baseApi}/api/orgs/add`, {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      if (!res.ok) {
+        const error = await res.json();
+        return rejectWithValue({
+          status: res.status,
+          message: error.message,
+        });
+      }
+
       return res.json();
     } catch (error) {
       return rejectWithValue(error.message || "Failed to add organization.");

@@ -194,11 +194,6 @@ const OrgFormModal = ({
     } catch (err) {
       console.error("Failed to delete organization:", err);
 
-      if (err?.status === 403) {
-        displayAlert("Insufficient Permissions. Action denied.", "danger");
-        return;
-      }
-
       const errorMessage =
         typeof err === "string"
           ? err

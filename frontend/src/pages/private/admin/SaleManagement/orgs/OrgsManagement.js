@@ -245,10 +245,6 @@ const OrgsManagement = () => {
         );
       })
       .catch((err) => {
-        if (err?.status === 403) {
-          displayAlert("Insufficient Permissions. Action denied.", "danger");
-          return;
-        }
         const errorMessage =
           typeof err === "string"
             ? err
@@ -259,7 +255,8 @@ const OrgsManagement = () => {
   };
 
   const handleAddOrg = () => {
-    dispatch(addOrganization(editableOrg))
+    dispatch(addOrganization({ orgData: editableOrg, token: adminUser.token }))
+      .unwrap()
       .then(() => {
         setShowAddModal(false);
         resetFormState();
