@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import { deleteOrganization } from "../../../../../redux/orgs/organizationsSlice";
 import { useDispatch } from "react-redux";
+import { useAuth } from "../../../../../context/AuthContext";
 
 const OrgFormModal = ({
   show,
@@ -33,6 +34,7 @@ const OrgFormModal = ({
   const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
+  const { adminUser } = useAuth();
 
   useEffect(() => {
     if (editableOrg.logo) {
@@ -177,7 +179,13 @@ const OrgFormModal = ({
 
   const handleDelete = async () => {
     try {
-      await dispatch(deleteOrganization(editableOrg.org_id)).unwrap();
+      await dispatch(
+        deleteOrganization({
+          orgId: editableOrg.org_id,
+          token: adminUser.token,
+        })
+      ).unwrap();
+
       displayAlert(
         `Organization "${editableOrg.org_name}" deleted successfully`,
         "success"
@@ -185,7 +193,18 @@ const OrgFormModal = ({
       handleClose();
     } catch (err) {
       console.error("Failed to delete organization:", err);
-      displayAlert(`Failed to delete organization: ${err.message}`, "danger");
+
+      if (err?.status === 403) {
+        displayAlert("Insufficient Permissions. Action denied.", "danger");
+        return;
+      }
+
+      const errorMessage =
+        typeof err === "string"
+          ? err
+          : err?.message || "An unknown error occurred";
+
+      displayAlert(`Failed to delete organization: ${errorMessage}`, "danger");
     }
   };
 

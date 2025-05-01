@@ -189,10 +189,13 @@ export const setOrgRepresentative = createAsyncThunk(
 
 export const deleteOrganization = createAsyncThunk(
   "organizations/deleteOrganization",
-  async (orgId, { rejectWithValue }) => {
+  async ({ orgId, token }, { rejectWithValue }) => {
     try {
       return await fetchWithTimeout(`${baseApi}/api/orgs/${orgId}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
     } catch (error) {
       return rejectWithValue(error.message || "Failed to delete organization.");

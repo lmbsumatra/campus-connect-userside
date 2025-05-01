@@ -27,6 +27,12 @@ router.patch(
 
 router.get("/categories", OrgCategoriesController.getAllCategories);
 router.post("/categories/add", OrgCategoriesController.createCategory);
-router.delete("/:orgId", OrgsController.deleteOrg);
+router.delete(
+  "/:orgId",
+  authenticateToken,
+  checkPermission("ReadWrite"),
+  logAdminActivity,
+  OrgsController.deleteOrg
+);
 
 module.exports = router;
