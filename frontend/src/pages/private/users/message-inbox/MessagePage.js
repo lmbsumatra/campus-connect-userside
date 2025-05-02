@@ -8,7 +8,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useChat } from "../../../../context/ChatContext";
 import useSound from "use-sound";
 import sendSound from "../../../../assets/audio/sent.mp3";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Spinner } from "react-bootstrap";
 import { FiPaperclip, FiX, FiSearch, FiMoreVertical } from "react-icons/fi";
 import axios from "axios";
 import { useDispatch } from "react-redux";
@@ -65,6 +65,13 @@ const MessagePage = () => {
   const [isBlocked, setIsBlocked] = useState({});
   const [blockedBy, setBlockedBy] = useState({});
   const [showUnblockButton, setShowUnblockButton] = useState(false);
+
+  // Add new loading states for spinner indicators
+  const [isLoadingMoreMessages, setIsLoadingMoreMessages] = useState(false);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const messagesPerPage = 20;
 
   const dispatch = useDispatch();
   const handleActionWithAuthCheck = useHandleActionWithAuthCheck();
@@ -405,6 +412,7 @@ const MessagePage = () => {
         setIsLoading(false);
       } catch (err) {
         console.error("Error fetching conversations:", err);
+        setIsLoading(false);
       }
     };
 
@@ -423,6 +431,86 @@ const MessagePage = () => {
       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
     }
   }, [activeChat?.messages]);
+
+  // Add new effect to handle scroll event for loading older messages
+  useEffect(() => {
+    const chatContent = chatContentRef.current;
+    if (!chatContent) return;
+
+    const handleScroll = () => {
+      // Check if user has scrolled to the top (with a small threshold)
+      if (chatContent.scrollTop < 50 && !isLoadingMoreMessages && hasMoreMessages && activeChat) {
+        loadOlderMessages();
+      }
+    };
+
+    chatContent.addEventListener('scroll', handleScroll);
+    return () => {
+      chatContent.removeEventListener('scroll', handleScroll);
+    };
+  }, [activeChat, isLoadingMoreMessages, hasMoreMessages, currentPage]);
+
+  // Add function to load older messages
+  const loadOlderMessages = async () => {
+    if (!activeChat || isLoadingMoreMessages || !hasMoreMessages) return;
+
+    try {
+      setIsLoadingMoreMessages(true);
+      const nextPage = currentPage + 1;
+      
+      // Fetch older messages with pagination
+      const response = await fetch(
+        `${baseApi}/api/conversations/${activeChat.id}/messages?page=${nextPage}&limit=${messagesPerPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${studentUser.token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch older messages");
+      }
+
+      const data = await response.json();
+      const olderMessages = data.messages;
+      
+      // If no more messages or received fewer than requested, we've reached the end
+      if (!olderMessages || olderMessages.length === 0 || olderMessages.length < messagesPerPage) {
+        setHasMoreMessages(false);
+      }
+
+      if (olderMessages && olderMessages.length > 0) {
+        // Get current scroll height before adding new messages
+        const scrollHeight = chatContentRef.current.scrollHeight;
+        
+        // Process and update the messages
+        setActiveChat(prev => ({
+          ...prev,
+          messages: [...olderMessages, ...prev.messages]
+        }));
+        
+        setCurrentPage(nextPage);
+        
+        // After the component re-renders with new messages,
+        // adjust scroll position to maintain the visible content position
+        setTimeout(() => {
+          const newScrollHeight = chatContentRef.current.scrollHeight;
+          chatContentRef.current.scrollTop = newScrollHeight - scrollHeight;
+        }, 10);
+      }
+    } catch (error) {
+      console.error("Error loading older messages:", error);
+      ShowAlert(
+        dispatch,
+        "error",
+        "Error",
+        "Failed to load older messages. Please try again."
+      );
+    } finally {
+      setIsLoadingMoreMessages(false);
+    }
+  };
 
   const handleSendMessage = async (message, recipientId) => {
     if (!activeChat) return;
@@ -671,6 +759,9 @@ const MessagePage = () => {
 
   const handleConversationClick = (conversation) => {
     setActiveChat(conversation);
+    // Reset pagination state when switching conversations
+    setCurrentPage(1);
+    setHasMoreMessages(true);
 
     // Clear unread status for this conversation
     setUnreadMessages((prev) => ({
@@ -1228,95 +1319,101 @@ const MessagePage = () => {
     setShowFilterDropdown(false);
   };
 
-  // Enhanced search function
-  const handleSearch = (e) => {
+  // Enhanced search function with loading state
+  const handleSearch = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
 
     if (query.trim() === "") {
       setIsSearching(false);
       setSearchResults([]);
+      setIsSearchLoading(false);
       return;
     }
 
     setIsSearching(true);
+    setIsSearchLoading(true);
 
-    // Search in conversations
-    const results = [];
+    // Add a small delay to avoid too many searches while typing
+    setTimeout(() => {
+      // Search in conversations
+      const results = [];
 
-    if (conversations) {
-      conversations.forEach((chat) => {
-        // Check user name
-        const nameMatch =
-          chat.otherUser.first_name
-            .toLowerCase()
-            .includes(query.toLowerCase()) ||
-          (chat.otherUser.last_name &&
-            chat.otherUser.last_name
+      if (conversations) {
+        conversations.forEach((chat) => {
+          // Check user name
+          const nameMatch =
+            chat.otherUser.first_name
               .toLowerCase()
-              .includes(query.toLowerCase()));
+              .includes(query.toLowerCase()) ||
+            (chat.otherUser.last_name &&
+              chat.otherUser.last_name
+                .toLowerCase()
+                .includes(query.toLowerCase()));
 
-        // Check messages content
-        const messageMatches = [];
-        if (chat.messages && chat.messages.length > 0) {
-          chat.messages.forEach((msg) => {
-            // Check text content
-            if (
-              msg.text &&
-              msg.text.toLowerCase().includes(query.toLowerCase())
-            ) {
-              messageMatches.push({
-                messageId:
-                  msg.id ||
-                  `msg-${Date.now()}-${Math.random()
-                    .toString(36)
-                    .substr(2, 9)}`,
-                messageText: msg.text,
-                timestamp: msg.createdAt,
-                index: chat.messages.indexOf(msg), // Store the index for scrolling
-              });
-            }
-
-            // Check product details
-            if (msg.isProductCard && msg.productDetails) {
-              const productDetails = msg.productDetails;
+          // Check messages content
+          const messageMatches = [];
+          if (chat.messages && chat.messages.length > 0) {
+            chat.messages.forEach((msg) => {
+              // Check text content
               if (
-                (productDetails.name &&
-                  productDetails.name
-                    .toLowerCase()
-                    .includes(query.toLowerCase())) ||
-                (productDetails.status &&
-                  productDetails.status
-                    .toLowerCase()
-                    .includes(query.toLowerCase()))
+                msg.text &&
+                msg.text.toLowerCase().includes(query.toLowerCase())
               ) {
                 messageMatches.push({
                   messageId:
                     msg.id ||
-                    `product-${Date.now()}-${Math.random()
+                    `msg-${Date.now()}-${Math.random()
                       .toString(36)
                       .substr(2, 9)}`,
-                  messageText: `Product: ${productDetails.name}`,
+                  messageText: msg.text,
                   timestamp: msg.createdAt,
-                  isProduct: true,
                   index: chat.messages.indexOf(msg), // Store the index for scrolling
                 });
               }
-            }
-          });
-        }
 
-        if (nameMatch || messageMatches.length > 0) {
-          results.push({
-            conversation: chat,
-            nameMatch,
-            messageMatches,
-          });
-        }
-      });
-    }
+              // Check product details
+              if (msg.isProductCard && msg.productDetails) {
+                const productDetails = msg.productDetails;
+                if (
+                  (productDetails.name &&
+                    productDetails.name
+                      .toLowerCase()
+                      .includes(query.toLowerCase())) ||
+                  (productDetails.status &&
+                    productDetails.status
+                      .toLowerCase()
+                      .includes(query.toLowerCase()))
+                ) {
+                  messageMatches.push({
+                    messageId:
+                      msg.id ||
+                      `product-${Date.now()}-${Math.random()
+                        .toString(36)
+                        .substr(2, 9)}`,
+                    messageText: `Product: ${productDetails.name}`,
+                    timestamp: msg.createdAt,
+                    isProduct: true,
+                    index: chat.messages.indexOf(msg), // Store the index for scrolling
+                  });
+                }
+              }
+            });
+          }
 
-    setSearchResults(results);
+          if (nameMatch || messageMatches.length > 0) {
+            results.push({
+              conversation: chat,
+              nameMatch,
+              messageMatches,
+            });
+          }
+        });
+      }
+
+      setSearchResults(results);
+      setIsSearchLoading(false);
+    }, 300);
   };
 
   // Function to clear search
@@ -1325,6 +1422,7 @@ const MessagePage = () => {
     setIsSearching(false);
     setSearchResults([]);
     setHighlightedMessageId(null);
+    setIsSearchLoading(false);
   };
 
   // Function to handle clicking on a search result
@@ -2192,7 +2290,11 @@ const MessagePage = () => {
           {/* Search bar */}
           <div className="search-container">
             <div className="search-input-wrapper">
-              <FiSearch className="search-icon" size={16} />
+              {isSearchLoading ? (
+                <Spinner animation="border" size="sm" className="search-icon" />
+              ) : (
+                <FiSearch className="search-icon" size={16} />
+              )}
               <input
                 type="text"
                 className="search-input"
@@ -2209,7 +2311,19 @@ const MessagePage = () => {
           </div>
 
           {isLoading ? (
-            <p>Loading conversations...</p>
+            <div className="d-flex flex-column align-items-center justify-content-center p-4">
+              <Spinner animation="border" role="status" className="mb-2">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+              <p>Loading conversations...</p>
+            </div>
+          ) : isSearching && isSearchLoading ? (
+            <div className="d-flex flex-column align-items-center justify-content-center p-4">
+              <Spinner animation="border" role="status" className="mb-2">
+                <span className="visually-hidden">Searching...</span>
+              </Spinner>
+              <p>Searching messages...</p>
+            </div>
           ) : isSearching && searchResults.length === 0 ? (
             <p className="no-conversations">
               No results found for "{searchQuery}"
@@ -2538,6 +2652,14 @@ const MessagePage = () => {
             </div>
 
             <div className="chat-content" ref={chatContentRef}>
+              {/* Loading indicator for older messages */}
+              {isLoadingMoreMessages && (
+                <div className="loading-more-messages text-center py-2">
+                  <Spinner animation="border" size="sm" role="status" className="me-2" />
+                  <span>Loading older messages...</span>
+                </div>
+              )}
+              
               {activeChat.messages && activeChat.messages.length > 0 ? (
                 activeChat.messages.map((message, index) =>
                   message.isProductCard ? (
