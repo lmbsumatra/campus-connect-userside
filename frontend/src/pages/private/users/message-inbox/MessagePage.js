@@ -26,6 +26,57 @@ import { baseApi } from "../../../../utils/consonants.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 import { formatDate } from "../../../../utils/dateFormat";
 
+// Helper functions for timestamp formatting
+const formatChatTimestamp = (timestamp) => {
+  if (!timestamp) return '';
+  
+  const date = new Date(timestamp);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  // Format time as HH:MM AM/PM
+  const timeOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
+  const timeString = date.toLocaleTimeString(undefined, timeOptions);
+  
+  // Check if it's today, yesterday, or another day
+  if (date.toDateString() === today.toDateString()) {
+    return `Today at ${timeString}`;
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return `Yesterday at ${timeString}`;
+  } else {
+    // Format date as Month Day, Year
+    const dateOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+    const dateString = date.toLocaleDateString(undefined, dateOptions);
+    return `${dateString} at ${timeString}`;
+  }
+};
+
+const formatRelativeTime = (timestamp) => {
+  if (!timestamp) return '';
+  
+  const now = new Date();
+  const date = new Date(timestamp);
+  const diffInSeconds = Math.floor((now - date) / 1000);
+  
+  if (diffInSeconds < 60) {
+    return 'Just now';
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `${minutes} ${minutes === 1 ? 'min' : 'mins'} ago`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+  } else if (diffInSeconds < 604800) {
+    const days = Math.floor(diffInSeconds / 86400);
+    return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+  } else {
+    // For older messages, show the date
+    const dateOptions = { month: 'short', day: 'numeric' };
+    return date.toLocaleDateString(undefined, dateOptions);
+  }
+};
+
 const MessagePage = () => {
   const { studentUser } = useAuth();
   const { state } = useLocation(); // Get ownerId from navigate state
@@ -2377,11 +2428,11 @@ const MessagePage = () => {
                           <div className="message-meta">
                             <span className="timestamp">
                               {chat.messages && chat.messages.length > 0
-                                ? new Date(
+                                ? formatRelativeTime(
                                     chat.messages[
                                       chat.messages.length - 1
                                     ].createdAt
-                                  ).toLocaleString()
+                                  )
                                 : ""}
                             </span>
                             {hasUnreadMessages && (
@@ -2478,7 +2529,7 @@ const MessagePage = () => {
                                     )}
                                   </p>
                                   <span className="message-match-time">
-                                    {new Date(match.timestamp).toLocaleString()}
+                                    {formatChatTimestamp(match.timestamp)}
                                   </span>
                                 </div>
                               </div>
@@ -2543,9 +2594,7 @@ const MessagePage = () => {
                         <div className="message-meta">
                           <span className="timestamp">
                             {latestMessage
-                              ? new Date(
-                                  latestMessage.createdAt
-                                ).toLocaleString()
+                              ? formatRelativeTime(latestMessage.createdAt)
                               : ""}
                           </span>
                           {hasUnreadMessages && (
@@ -2927,7 +2976,7 @@ const MessagePage = () => {
                         )}
                       <span>
                         {message.text && <p>{message.text}</p>}
-                        {new Date(message.createdAt).toLocaleString()}
+                        {formatChatTimestamp(message.createdAt)}
                       </span>
                     </div>
                   )
