@@ -1,4 +1,5 @@
 export const notificationRoutes = {
+  student_status: "/profile/dashboard",
   listing_status: (notification) => `/rent/${notification.listing_id}`,
   post_status: "/profile/my-posts",
   "new-listing": (notification) => `/rent/${notification.listing_id}`,
@@ -44,6 +45,10 @@ export const determineRoute = (
   isRenter,
   notification
 ) => {
+  if (type === "student_status") {
+    return "/profile";
+  }
+
   if (type === "listing_status" && notification && notification.listing_id) {
     return `/rent/${notification.listing_id}`;
   }

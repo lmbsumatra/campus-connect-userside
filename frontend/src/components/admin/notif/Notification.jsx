@@ -55,9 +55,9 @@ const Notification = ({
       case "escalated-report":
         navigate("/admin/reports/transaction-reports");
         break;
-      // You can add more cases as needed
+      case "new-student":
+        navigate("/admin/users");
       default:
-        // Default navigation or stay on current page
         console.log("No specific navigation for this notification type");
         break;
     }
@@ -102,10 +102,25 @@ const Notification = ({
             <em>{notification.message}</em>
           </>
         );
+      case "new-student":
+        return (
+          <>
+            <strong>{notification.title}</strong>
+            <em>
+              <br />
+              <strong>{notification.ownerName}</strong>
+              {notification.message}
+            </em>
+          </>
+        );
       case "escalated-report":
         return (
           <>
-            <strong>Report Escalated</strong>
+            <strong> Escalated Transaction Report</strong>
+            <br />
+            <strong>
+              {notification.ownerName || notification.owner?.name}
+            </strong>
             <em>{notification.message}</em>
           </>
         );

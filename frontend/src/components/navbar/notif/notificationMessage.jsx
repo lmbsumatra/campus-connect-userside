@@ -287,7 +287,6 @@ const NotificationMessage = ({ message, type }) => {
         let isBuyerPerspective = true;
 
         if (!match) {
-          // Check for seller's message format
           match = message.match(
             /Sale of\s(.*?)\sto\s(.*?)\shas been completed/
           );
@@ -295,7 +294,7 @@ const NotificationMessage = ({ message, type }) => {
         }
 
         if (match) {
-          const [, item, partnerName] = match; // Renamed from sender for clarity
+          const [, item, partnerName] = match;
           return (
             <>
               <span className="font-large success-text">
@@ -311,7 +310,75 @@ const NotificationMessage = ({ message, type }) => {
             </>
           );
         }
-        return <span className="success-text">{message}</span>; // Fallback
+        return <span className="success-text">{message}</span>;
+      }
+      case "student_status": {
+        if (message.includes("verified")) {
+          return (
+            <>
+              <span className="font-large success-text">Account Verified</span>
+              <br />
+              <span className="default-text">{message}</span>
+              <br />
+              <span className="action-text">
+                You now have full platform access.
+              </span>
+            </>
+          );
+        } else if (message.includes("flagged")) {
+          return (
+            <>
+              <span className="font-large warning-text">Account Flagged</span>
+              <br />
+              <span className="default-text">{message}</span>
+              <br />
+              <span className="action-text">
+                Contact support for more information.
+              </span>
+            </>
+          );
+        } else if (message.includes("banned")) {
+          return (
+            <>
+              <span className="font-large error-text">Account Banned</span>
+              <br />
+              <span className="default-text">{message}</span>
+              <br />
+              <span className="action-text">
+                Contact support if you believe this is an error.
+              </span>
+            </>
+          );
+        } else if (message.includes("restricted")) {
+          return (
+            <>
+              <span className="font-large error-text">Account Restricted</span>
+              <br />
+              <span className="default-text">{message}</span>
+              <br />
+              <span className="action-text">
+                Some features may be unavailable.
+              </span>
+            </>
+          );
+        } else if (message.includes("pending")) {
+          return (
+            <>
+              <span className="font-large item-name">Verification Pending</span>
+              <br />
+              <span className="default-text">{message}</span>
+              <br />
+              <span className="action-text">Please wait for admin review.</span>
+            </>
+          );
+        }
+        return (
+          <>
+            <span className="item-name">Account Status Update</span>
+            <br />
+            <span className="default-text">{message}</span>
+          </>
+        );
       }
       case "listing_status": {
         if (message.includes("approved")) {

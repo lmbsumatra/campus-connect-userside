@@ -297,8 +297,39 @@ const registerStudent = async (req, res) => {
       // console.log("Email sent:", info.response);
     });
 
+    // Create notification in database for administrators
+    const adminNotificationData = {
+      type: "new-student",
+      title: "Student Account Pending Approval",
+      message: ` has joined Rentupeers`,
+      ownerName: `${first_name} ${last_name}`,
+      ownerId: newUser.user_id,
+      itemId: newStudent.id,
+      itemType: "student",
+      timestamp: new Date(),
+      isRead: false,
+    };
+
+    const adminNotification = await models.Notification.create(
+      adminNotificationData,
+      {
+        transaction: t,
+      }
+    );
+
     // Commit transaction if all actions succeed
     await t.commit();
+
+    // Emit socket event for admin notification
+    if (req.notifyAdmins) {
+      req.notifyAdmins({
+        ...adminNotification.toJSON(),
+        owner: {
+          id: newUser.user_id,
+          name: `${first_name} ${last_name}`,
+        },
+      });
+    }
 
     // Fetch the registered user to ensure all fields are present
     const registeredUser = await models.User.findOne({
