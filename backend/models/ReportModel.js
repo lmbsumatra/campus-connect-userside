@@ -31,7 +31,7 @@ Report.init(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM("pending", "reviewed", "dismissed", "resolved"),
+      type: DataTypes.ENUM("pending", "reviewed", "dismissed"),
       defaultValue: "pending",
     },
     is_dispute: {

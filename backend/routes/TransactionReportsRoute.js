@@ -6,6 +6,7 @@ const authenticateStudentToken = require("../middlewares/StudentAuthMiddleware")
 const {
   authenticateToken: authenticateAdminToken,
 } = require("../middlewares/AdminAuthMiddleware");
+const checkPermission = require("../middlewares/CheckPermission");
 
 module.exports = (dependencies) => {
   const controller = TransactionReportController(dependencies);
@@ -75,6 +76,7 @@ module.exports = (dependencies) => {
   router.put(
     "/:reportId/admin-action",
     authenticateAdminToken,
+    checkPermission("ReadWrite"),
     controller.updateEscalatedReportStatusByAdmin
   );
 

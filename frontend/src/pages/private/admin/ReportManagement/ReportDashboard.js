@@ -87,12 +87,7 @@ const ReportDashboard = () => {
     return { label, className };
   };
 
-  const filterableStatusOptions = [
-    "pending",
-    "reviewed",
-    "dismissed",
-    "resolved",
-  ];
+  const filterableStatusOptions = ["pending", "reviewed", "dismissed"];
 
   const handleSortChange = (column, order) => {
     if (order === "default") {

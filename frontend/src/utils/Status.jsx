@@ -67,8 +67,6 @@ export const ReportStatus = (status) => {
       return { label: "Reviewed", className: "bg-info text-white" };
     case "dismissed":
       return { label: "Dismissed", className: "bg-secondary text-white" };
-    case "resolved":
-      return { label: "Resolved", className: "bg-success text-white" };
     default:
       return { label: "Unknown", className: "bg-light text-dark" };
   }

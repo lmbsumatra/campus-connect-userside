@@ -112,12 +112,13 @@ const AdminActionModal = ({
       onHide();
     } catch (err) {
       console.error("Error submitting admin action:", err);
-      await ShowAlert(
-        dispatch,
-        "error",
-        "Submission Error",
-        err.response?.data?.error || "Failed to submit action."
-      );
+
+      const errorMessage =
+        err.response?.status === 403
+          ? err.response?.data?.message || "Insufficient permissions."
+          : err.response?.data?.error || "Failed to submit action.";
+
+      await ShowAlert(dispatch, "error", "Permission Error", errorMessage);
     } finally {
       setActionLoading(false);
     }
