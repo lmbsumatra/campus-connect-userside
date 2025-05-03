@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchApprovedPostById } from "../../../redux/post/approvedPostByIdSlice";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
@@ -86,6 +86,7 @@ function PostDetail() {
 
   const [offerImage, setOfferImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [imageError, setImageError] = useState(false);
   const isYou = approvedPostById?.renter?.id === studentUser?.userId;
@@ -435,6 +436,7 @@ function PostDetail() {
 
   const handleConfirmOffer = async () => {
     try {
+      setIsSubmitting(true);
       let imageUrl = approvedPostById.images?.[0] || defaultImages[0];
 
       if (offerImage) {
@@ -511,8 +513,10 @@ function PostDetail() {
         },
       });
 
+      setIsSubmitting(false);
       setShowModal(false);
     } catch (error) {
+      setIsSubmitting(false);
       console.error("Error handling offer:", error);
       dispatch(
         showNotification({
@@ -1265,12 +1269,18 @@ function PostDetail() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={() => setShowModal(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleConfirmOffer}>
-            Send{" "}
-            {approvedPostById.itemType === TO_RENT ? "Offer" : "Sale Offer"}
+          <Button variant="primary" onClick={handleConfirmOffer} disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+                Processing...
+              </>
+            ) : (
+              `Send ${approvedPostById.itemType === TO_RENT ? "Offer" : "Sale Offer"}`
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
