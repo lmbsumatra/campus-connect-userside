@@ -7,6 +7,8 @@ import React, {
 } from "react";
 import { jwtDecode } from "jwt-decode";
 import { baseApi } from "../utils/consonants";
+import ShowAlert from "../utils/ShowAlert";
+import { useDispatch } from "react-redux";
 
 const AuthContext = createContext();
 
@@ -16,6 +18,7 @@ export const AuthProvider = ({ children }) => {
     const savedUser = localStorage.getItem("adminUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const storedAdminUser = localStorage.getItem("adminUser");
@@ -247,22 +250,33 @@ export const AuthProvider = ({ children }) => {
     let isLoggedOut = false;
 
     const resetTimeout = () => {
-      if (isLoggedOut) return; // Don't reset if already logged out
+      if (isLoggedOut) return;
 
       clearTimeout(activityDebounce);
       activityDebounce = setTimeout(() => {
         clearTimeout(timeout);
         timeout = setTimeout(() => {
           if (isLoggedOut) return;
-          console.warn("Session expired due to inactivity");
-          console.log("You have been logged out due to inactivity");
           isLoggedOut = true; // Prevent multiple logouts
-          logoutAdmin(true);
+
+          // Show logout alert
+          ShowAlert(
+            dispatch,
+            "error",
+            "Session Expired",
+            "You have been automatically logged out due to 15 minutes of inactivity.",
+            {
+              text: "OK",
+              action: () => logoutAdmin(true),
+            }
+          ).then(() => {
+            logoutAdmin(true);
+          });
         }, 15 * 60 * 1000);
       }, 200);
     };
 
-    const events = ["mousemove", "keydown", "scroll", "click"];
+    const events = ["mousemove", "keydown", "scroll", "click", "touchstart"];
     events.forEach((e) => window.addEventListener(e, resetTimeout));
 
     resetTimeout(); // Start the timer
@@ -272,7 +286,7 @@ export const AuthProvider = ({ children }) => {
       clearTimeout(activityDebounce);
       events.forEach((e) => window.removeEventListener(e, resetTimeout));
     };
-  }, [logoutAdmin]);
+  }, [logoutAdmin, dispatch]);
 
   return (
     <AuthContext.Provider
