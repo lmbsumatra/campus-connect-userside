@@ -10,6 +10,7 @@ import { formatDistanceToNow } from "date-fns";
 import useSound from "use-sound";
 import notificationSound from "../../../assets/audio/message.mp3";
 import { baseApi } from "../../../utils/consonants";
+import { decryptMessage } from "../../../utils/messageEncryption";
 
 const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
   const [notifications, setNotifications] = useState([]);
@@ -231,8 +232,11 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
 
     const messageText = conv.latestMessage.text || "";
     const isCurrentUserSender = conv.latestMessage.sender === String(userId); // Convert userId to string
+    
+    // Decrypt the message text for the preview
+    const decryptedText = decryptMessage(messageText);
 
-    return isCurrentUserSender ? `You: ${messageText}` : messageText;
+    return isCurrentUserSender ? `You: ${decryptedText}` : decryptedText;
   };
   return (
     <div className="message-menu-container" id="message-popup">
