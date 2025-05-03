@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const TransactionReportController = require("../controllers/TransactionReportController");
+const TransactionReportController = require("../controllers/transactionreports/TransactionReportController");
 const { uploadEvidence } = require("../config/multer");
 const authenticateStudentToken = require("../middlewares/StudentAuthMiddleware");
 const {

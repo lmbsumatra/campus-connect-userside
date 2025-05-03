@@ -85,7 +85,7 @@ const rentalTransactionController =
   });
 
 const transactionReportController =
-  require("./controllers/TransactionReportController")({
+  require("./controllers/transactionreports/TransactionReportController")({
     emitNotification,
   });
 
