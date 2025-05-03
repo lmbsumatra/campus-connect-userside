@@ -213,36 +213,39 @@ export const AuthProvider = ({ children }) => {
 
   // Auto-refresh token on app start
   useEffect(() => {
-    const autoRefreshToken = async () => {
-      if (!adminUser?.token || !adminUser?.refreshToken) return;
+    // Early exit if no admin user or missing tokens
+    if (!adminUser?.token || !adminUser?.refreshToken) return;
 
+    const autoRefreshToken = async () => {
       try {
         const decodedToken = jwtDecode(adminUser.token);
         const currentTime = Date.now() / 1000;
         const buffer = 30; // 30 seconds buffer
 
-        // Refresh if token is expired or about to expire
-        if (decodedToken.exp < currentTime + buffer) {
-          console.log("Token needs refresh, attempting...");
-          const newToken = await refreshAdminToken();
+        // Skip if token is still fresh (no need to refresh yet)
+        if (decodedToken.exp > currentTime + buffer) {
+          return;
+        }
 
-          if (!newToken) {
-            // console.log("Refresh failed on app start, logging out...");
-            logoutAdmin();
-          }
+        //console.log("Token needs refresh, attempting...");
+        const newToken = await refreshAdminToken();
+
+        if (!newToken) {
+          //console.log("Refresh failed, logging out...");
+          logoutAdmin();
         }
       } catch (error) {
-        console.error("Error in token check:", error);
+        //console.error("Error in token refresh check:", error);
         logoutAdmin();
       }
     };
 
-    // Check every minute
+    // Check every minute (60000ms)
     const interval = setInterval(autoRefreshToken, 60000);
     autoRefreshToken(); // Run immediately on mount
 
     return () => clearInterval(interval);
-  }, [adminUser, logoutAdmin, refreshAdminToken]); // ✅ Now properly includes dependencies
+  }, [adminUser, logoutAdmin, refreshAdminToken]);
 
   useEffect(() => {
     if (!adminUser) return;
