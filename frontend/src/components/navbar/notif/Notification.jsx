@@ -81,7 +81,6 @@ const Notification = ({
 
           socket.on("receiveNotification", handler);
 
-          // Cleanup function to remove listener when component unmounts or dependencies change
           return () => {
             if (socket) {
               // Check if socket still exists on cleanup
@@ -113,7 +112,13 @@ const Notification = ({
         let route = null;
         let navigationState = {};
 
-        // Handle routes that don't require rental_id lookup first
+        if (notif.type === "user_followed" && notif.sender_id) {
+          route = `/user/${notif.sender_id}`;
+          toggleNotifications();
+          navigate(route);
+          return;
+        }
+
         const nonRentalTypes = [
           "listing_status",
           "post_status",

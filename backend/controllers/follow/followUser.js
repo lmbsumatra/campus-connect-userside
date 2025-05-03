@@ -16,6 +16,11 @@ const followUser = async (req, res) => {
       where: { follower_id: otherUserId, followee_id: loggedInUserId },
     });
 
+    // Get user data for notification
+    const loggedInUser = await models.User.findByPk(loggedInUserId, {
+      attributes: ["first_name", "last_name"],
+    });
+
     if (isFollowing) {
       // Unfollow logic
       await isFollowing.destroy();
@@ -29,6 +34,20 @@ const followUser = async (req, res) => {
         follower_id: loggedInUserId,
         followee_id: otherUserId,
       });
+
+      // Create a notification for the followee
+      const notification = await models.StudentNotification.create({
+        sender_id: loggedInUserId,
+        recipient_id: otherUserId,
+        type: "user_followed",
+        message: `${loggedInUser.first_name} ${loggedInUser.last_name} started following you`,
+        is_read: false,
+      });
+
+      // If socket notification is available in the request
+      if (req.emitNotification) {
+        req.emitNotification(otherUserId, notification.toJSON());
+      }
 
       return res.json({
         message: "Followed successfully!",

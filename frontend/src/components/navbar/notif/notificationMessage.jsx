@@ -513,6 +513,22 @@ const NotificationMessage = ({ message, type }) => {
           </>
         );
       }
+      case "user_followed": {
+        const match = message.match(/(.*?)\sstarted following you/);
+        if (match) {
+          const [, follower] = match;
+          return (
+            <>
+              <span className="font-large">{follower}</span>
+              <br />
+              <span className="default-text">
+                started <span className="success-text">following</span> you
+              </span>
+            </>
+          );
+        }
+        return <span className="default-text">{message}</span>;
+      }
       default:
         return message;
     }

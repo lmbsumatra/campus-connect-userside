@@ -35,6 +35,7 @@ export const notificationRoutes = {
   purchase_accepted: "/profile/transactions/buyer/to receive",
   purchase_declined: "/profile/transactions/buyer/cancelled",
   purchase_cancelled: "/profile/transactions/owner/cancelled",
+  user_followed: (notification) => `/user/${notification.sender_id}`,
   default: "/profile/transactions/owner/requests", // Default fallback route
 };
 
@@ -45,6 +46,22 @@ export const determineRoute = (
   isRenter,
   notification
 ) => {
+  // For debugging
+  console.log("Determining route for:", {
+    type,
+    notification,
+    sender_id: notification?.sender_id,
+  });
+
+  // Special case for user_followed - handle it directly
+  if (type === "user_followed" && notification && notification.sender_id) {
+    console.log(
+      "User followed route determined:",
+      `/user/${notification.sender_id}`
+    );
+    return `/user/${notification.sender_id}`;
+  }
+
   if (type === "student_status") {
     return "/profile";
   }
@@ -53,56 +70,60 @@ export const determineRoute = (
     return `/rent/${notification.listing_id}`;
   }
 
-  if (
-    !rental &&
-    ![
-      "listing_status",
-      "post_status",
-      "new-listing",
-      "new-post",
-      "item_status",
-      "new-item-for-sale",
-      "listing_reviewed",
-      "purchase_accepted",
-      "purchase_declined",
-      "purchase_cancelled",
-      "purchase_request",
+  // Define special notification types that don't require rental data
+  const specialTypes = [
+    "listing_status",
+    "post_status",
+    "new-listing",
+    "new-post",
+    "item_status",
+    "new-item-for-sale",
+    "listing_reviewed",
+    "purchase_accepted",
+    "purchase_declined",
+    "purchase_cancelled",
+    "purchase_request",
+    "transaction_report",
+    "transaction_report_response",
+    "report_resolved",
+    "report_escalated",
+    "admin_report_update",
+    "user_followed",
+  ];
 
-      "transaction_report",
-      "transaction_report_response",
-      "report_resolved",
-      "report_escalated",
-      "admin_report_update",
-    ].includes(type)
-  ) {
+  // Handle cases where rental data isn't required
+  if (!rental && !specialTypes.includes(type)) {
     console.warn(
       `No rental data available for routing type: ${type}, using default.`
     );
-    // Attempt to handle non-rental routes directly if possible
+
+    // Attempt to handle routes directly if possible
     const directRoute = notificationRoutes[type];
-    if (typeof directRoute === "string") return directRoute;
-    if (
-      typeof directRoute === "function" &&
-      notification && // Make sure notification exists
-      (type === "new-listing" ||
-        type === "new-post" ||
-        type === "new-item-for-sale" ||
-        type === "listing_status")
-    ) {
-      return directRoute(notification);
+
+    if (typeof directRoute === "string") {
+      return directRoute;
     }
 
     return notificationRoutes.default;
   }
 
+  // Get the route handler
   const route = notificationRoutes[type];
 
+  // If no route handler exists for this type
+  if (!route) {
+    console.warn(`No route handler for notification type: ${type}`);
+    return notificationRoutes.default;
+  }
+
+  // If route is a function, call it with appropriate parameters
   if (typeof route === "function") {
     if (
       type === "new-listing" ||
       type === "new-post" ||
       type === "new-item-for-sale" ||
-      type === "listing_status" // Added listing_status here
+      type === "listing_status" ||
+      type === "user_followed"
     ) {
       return route(notification);
     } else if (type === "handover_confirmed") {
@@ -116,8 +137,10 @@ export const determineRoute = (
       return route(isOwner);
     }
 
+    // For any other function route
     return route(isOwner, isRenter, notification);
   }
 
-  return route || notificationRoutes.default;
+  // If route is a string, return it directly
+  return route;
 };
