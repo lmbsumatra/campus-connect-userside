@@ -305,7 +305,18 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
                     }`}
                     onClick={() => handleConversationClick(conv)}
                   >
-                    <img src={UserIcon} alt="User" className="message-img" />
+                    {conv.otherUser.profile_pic ? (
+                      <img
+                        src={conv.otherUser.profile_pic}
+                        alt={`${conv.otherUser.first_name}'s profile`}
+                        className="message-img"
+                        onError={(e) => {
+                          e.target.src = UserIcon;
+                        }}
+                      />
+                    ) : (
+                      <img src={UserIcon} alt="User" className="message-img" />
+                    )}
                     <div className="message-info">
                       <h6>{`${conv.otherUser.first_name} ${conv.otherUser.last_name}`}</h6>
                       <p>{renderMessagePreview(conv)}</p>
