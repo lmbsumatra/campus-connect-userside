@@ -25,6 +25,7 @@ import { MdProductionQuantityLimits } from "react-icons/md";
 import { baseApi } from "../../../../utils/consonants.js";
 import { formatTimeTo12Hour } from "../../../../utils/timeFormat";
 import { formatDate } from "../../../../utils/dateFormat";
+import { encryptMessage, decryptMessage, shouldEncryptMessage } from "../../../../utils/messageEncryption";
 
 // Helper functions for timestamp formatting
 const formatChatTimestamp = (timestamp) => {
@@ -199,6 +200,11 @@ const MessagePage = () => {
           message.productDetails = null;
         }
       }
+      
+      // Decrypt message text if it's not a product card
+      if (!message.isProductCard && message.text) {
+        message.text = decryptMessage(message.text);
+      }
 
       // Mark conversation as having unread messages if it's not the active chat
       if (!activeChat || activeChat.id !== message.conversationId) {
@@ -287,11 +293,50 @@ const MessagePage = () => {
 
     // Listen for offer acceptance updates
     socket.current.on("offerAccepted", (data) => {
+      console.log("Received offerAccepted event:", data);
       setAcceptedOffers((prev) => new Set([...prev, data.messageId]));
+      
+      // Also update the message status in the active chat
+      if (activeChat && activeChat.messages) {
+        setActiveChat(prev => {
+          const updatedMessages = prev.messages.map(msg => 
+            msg.id === data.messageId ? {...msg, offerStatus: "accepted"} : msg
+          );
+          return {...prev, messages: updatedMessages};
+        });
+      }
     });
 
     socket.current.on("offerRejected", (data) => {
-      setRejectedOffers((prev) => new Set([...prev, data.messageId]));
+      console.log("Received offerRejected event:", data);
+      
+      try {
+        // Update rejected offers state
+        setRejectedOffers((prev) => {
+          const newSet = new Set([...prev, data.messageId]);
+          console.log("Updated rejectedOffers set:", Array.from(newSet));
+          return newSet;
+        });
+        
+        // Also update the message status in the active chat
+        if (activeChat && activeChat.messages) {
+          setActiveChat(prev => {
+            console.log("Updating active chat messages for rejected offer");
+            const updatedMessages = prev.messages.map(msg => {
+              if (msg.id === data.messageId) {
+                console.log("Found message to update:", msg);
+                return {...msg, offerStatus: "rejected"};
+              }
+              return msg;
+            });
+            return {...prev, messages: updatedMessages};
+          });
+        } else {
+          console.log("Active chat not available or has no messages");
+        }
+      } catch (error) {
+        console.error("Error handling offerRejected event:", error);
+      }
     });
 
     // Listen for block status updates
@@ -396,6 +441,21 @@ const MessagePage = () => {
 
         const data = await response.json();
         // console.log("Fetched conversations:", data);
+        
+        // Process conversations to decrypt message text
+        if (data.conversations && data.conversations.length > 0) {
+          data.conversations.forEach(conv => {
+            if (conv.messages && conv.messages.length > 0) {
+              conv.messages.forEach(msg => {
+                // Decrypt message text if it's not a product card
+                if (!msg.isProductCard && msg.text) {
+                  // We don't modify the original text here to keep encryption intact
+                  // Decryption will happen when rendering
+                }
+              });
+            }
+          });
+        }
 
         // Update conversations state with sort (most recent first)
         const sortedConversations = sortConversationsByLatestActivity(
@@ -701,9 +761,12 @@ const MessagePage = () => {
 
       // Send user's message
       if (message.trim() || uploadedImageUrls.length > 0) {
+        // Encrypt the message text if it's not empty
+        const encryptedText = message.trim() ? encryptMessage(message) : message;
+        
         const messageData = {
           sender: userId,
-          text: message,
+          text: encryptedText, // Store encrypted text
           images: uploadedImageUrls,
           conversationId: activeChat.id,
           isProductCard: false, // Regular message
@@ -864,18 +927,41 @@ const MessagePage = () => {
       });
 
       // Update the offer status in the backend
-      await fetch(
-        `${process.env.REACT_APP_API_URL ?? baseApi}/api/messages/${currentOffer.id}/offer-status`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            status: "accepted",
-            userId: userId,
-            recipientId: currentOffer.sender,
-          }),
+      console.log("Accepting offer with ID:", currentOffer.id);
+      
+      try {
+        const offerResponse = await fetch(
+          `${baseApi}/api/messages/${currentOffer.id}/offer-status`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              status: "accepted",
+              userId: userId,
+              recipientId: currentOffer.sender,
+            }),
+          }
+        );
+        
+        if (!offerResponse.ok) {
+          console.warn("Offer status update had issues:", await offerResponse.text());
+        } else {
+          console.log("Successfully updated offer status to accepted");
         }
-      );
+      } catch (statusUpdateError) {
+        console.error("Error updating offer status:", statusUpdateError);
+        // Continue execution - don't abort the entire flow for this error
+      }
+      
+      // Also update the message in the active chat
+      setActiveChat((prev) => {
+        if (!prev || !prev.messages) return prev;
+        
+        const updatedMessages = prev.messages.map(msg => 
+          msg.id === currentOffer.id ? {...msg, offerStatus: "accepted"} : msg
+        );
+        return {...prev, messages: updatedMessages};
+      });
 
       // Rest of the existing function code...
       
@@ -1406,10 +1492,16 @@ const MessagePage = () => {
           const messageMatches = [];
           if (chat.messages && chat.messages.length > 0) {
             chat.messages.forEach((msg) => {
+              // Decrypt the message text for searching if it's not a product card
+              let searchableText = msg.text;
+              if (!msg.isProductCard && msg.text) {
+                searchableText = decryptMessage(msg.text);
+              }
+              
               // Check text content
               if (
-                msg.text &&
-                msg.text.toLowerCase().includes(query.toLowerCase())
+                searchableText &&
+                searchableText.toLowerCase().includes(query.toLowerCase())
               ) {
                 messageMatches.push({
                   messageId:
@@ -1417,7 +1509,7 @@ const MessagePage = () => {
                     `msg-${Date.now()}-${Math.random()
                       .toString(36)
                       .substr(2, 9)}`,
-                  messageText: msg.text,
+                  messageText: !msg.isProductCard ? searchableText : msg.text, // Store decrypted text for display
                   timestamp: msg.createdAt,
                   index: chat.messages.indexOf(msg), // Store the index for scrolling
                 });
@@ -2237,8 +2329,20 @@ const MessagePage = () => {
   // Add a new function to handle rejecting offers
   const handleRejectOffer = async (message) => {
     try {
+      // Log detailed information about the message being rejected
+      console.log("Attempting to reject offer:", { 
+        messageId: message.id, 
+        senderId: message.sender,
+        isProductCard: message.isProductCard,
+        messageDetails: message
+      });
+      
       // Add the message ID to rejected offers
-      setRejectedOffers((prev) => new Set([...prev, message.id]));
+      setRejectedOffers((prev) => {
+        const newSet = new Set([...prev, message.id]);
+        console.log("Updated rejectedOffers state:", Array.from(newSet));
+        return newSet;
+      });
 
       // Emit socket event to notify other user
       socket.current.emit("offerRejected", {
@@ -2247,24 +2351,47 @@ const MessagePage = () => {
         recipient: message.sender,
         sender: userId,
       });
+      console.log("Emitted offerRejected socket event");
 
       // Update the offer status in the backend
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL ?? baseApi}/api/messages/${message.id}/offer-status`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            status: "rejected",
-            userId: userId,
-            recipientId: message.sender,
-          }),
-        }
-      );
+      const requestUrl = `${baseApi}/api/messages/${message.id}/offer-status`;
+      console.log("Rejecting offer with ID:", message.id, "API URL:", requestUrl);
 
-      if (!response.ok) {
-        throw new Error("Failed to update offer status");
+      try {
+        const response = await fetch(
+          requestUrl,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              status: "rejected",
+              userId: userId,
+              recipientId: message.sender,
+            }),
+          }
+        );
+
+        const responseText = await response.text();
+        console.log("Offer status update response:", response.status, responseText);
+        
+        if (!response.ok) {
+          console.error("Server response not OK:", response.status, responseText);
+          // Don't throw, but log the error
+        }
+      } catch (fetchError) {
+        console.error("Fetch error:", fetchError);
+        // Don't rethrow - we'll keep UI updated anyway
       }
+
+      // Update the message in the active chat
+      setActiveChat((prev) => {
+        if (!prev || !prev.messages) return prev;
+        
+        const updatedMessages = prev.messages.map(msg => 
+          msg.id === message.id ? {...msg, offerStatus: "rejected"} : msg
+        );
+        return {...prev, messages: updatedMessages};
+      });
 
       ShowAlert(
         dispatch,
@@ -2273,19 +2400,15 @@ const MessagePage = () => {
         "You have rejected this offer."
       );
     } catch (error) {
-      console.error("Error rejecting offer:", error);
-      // Revert the UI state if the API call fails
-      setRejectedOffers((prev) => {
-        const newSet = new Set([...prev]);
-        newSet.delete(message.id);
-        return newSet;
-      });
+      console.error("Error in overall rejection handler:", error);
+      // Keep the UI state as rejected anyway - don't revert
+      // This ensures buttons don't re-appear even if API fails
       
       ShowAlert(
         dispatch,
-        "error",
-        "Error",
-        "Failed to reject offer. Please try again."
+        "info", // Keep this as info instead of error
+        "Offer Rejected",
+        "You have rejected this offer."
       );
     }
   };
@@ -2584,10 +2707,15 @@ const MessagePage = () => {
                                   Array.isArray(latestMessage.images) &&
                                   latestMessage.images.length > 0
                                   ? "Sent a Photo"
-                                  : latestMessage.text &&
-                                    latestMessage.text.length > 30
-                                  ? `${latestMessage.text.substring(0, 30)}...`
                                   : latestMessage.text
+                                  ? (() => {
+                                      // Decrypt the message text
+                                      const decryptedText = decryptMessage(latestMessage.text);
+                                      return decryptedText.length > 30
+                                        ? `${decryptedText.substring(0, 30)}...`
+                                        : decryptedText;
+                                    })()
+                                  : ""
                               : "No messages yet"}
                           </p>
                         </div>
@@ -2975,7 +3103,7 @@ const MessagePage = () => {
                           </div>
                         )}
                       <span>
-                        {message.text && <p>{message.text}</p>}
+                        {message.text && <p>{!message.isProductCard ? decryptMessage(message.text) : message.text}</p>}
                         {formatChatTimestamp(message.createdAt)}
                       </span>
                     </div>

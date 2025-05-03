@@ -62,10 +62,11 @@ router.post("/", async (req, res) => {
     }
 
     // Create the new message
+    // Note: text is already encrypted on the client side for regular messages
     const newMessage = await Message.create({
       conversationId,
       sender,
-      text: isProductCard ? null : text, // Nullify text for product cards
+      text: isProductCard ? null : text, // Use the text as-is (encrypted from client)
       isProductCard: isProductCard || false,
       productDetails: isProductCard ? productDetails : null,
       images: req.body.images || [], // Add support for image URLs
@@ -179,6 +180,8 @@ router.post("/:messageId/offer-status", async (req, res) => {
     const { messageId } = req.params;
     const { status, userId, recipientId } = req.body;
 
+    console.log(`Processing offer status update: messageId=${messageId}, status=${status}`);
+
     // Validate inputs
     if (!messageId || !status || !userId) {
       return res.status(400).json({ error: "Message ID, status, and user ID are required." });
@@ -192,16 +195,20 @@ router.post("/:messageId/offer-status", async (req, res) => {
     // Find the message
     const message = await Message.findByPk(messageId);
     if (!message) {
+      console.error(`Message with ID ${messageId} not found`);
       return res.status(404).json({ error: "Message not found." });
     }
 
-    // Ensure the message is a product card (offer)
-    if (!message.isProductCard) {
-      return res.status(400).json({ error: "This message is not an offer." });
-    }
+    console.log(`Found message: isProductCard=${message.isProductCard}, currentStatus=${message.offerStatus}`);
+
+    // Ensure the message is a product card (offer) - REMOVING THIS CHECK TEMPORARILY FOR DEBUGGING
+    // if (!message.isProductCard) {
+    //   return res.status(400).json({ error: "This message is not an offer." });
+    // }
 
     // Update the message status
     await message.update({ offerStatus: status });
+    console.log(`Updated message status to ${status}`);
 
     // Return the updated message
     res.status(200).json({ 

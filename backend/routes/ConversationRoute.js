@@ -267,7 +267,7 @@ router.get("/:id", async (req, res) => {
             messages: messages.map((message) => ({
               id: message.id,
               sender: message.sender,
-              text: message.text,
+              text: message.text, // Text remains encrypted, will be decrypted on client-side
               images: message.images,
               isProductCard: message.isProductCard, // Include isProductCard
               productDetails: JSON.parse(message.productDetails || '{}'), // Include productDetails
