@@ -245,6 +245,8 @@ export const AuthProvider = ({ children }) => {
   }, [adminUser, logoutAdmin, refreshAdminToken]); // ✅ Now properly includes dependencies
 
   useEffect(() => {
+    if (!adminUser) return;
+
     let timeout;
     let activityDebounce;
     let isLoggedOut = false;
@@ -257,9 +259,8 @@ export const AuthProvider = ({ children }) => {
         clearTimeout(timeout);
         timeout = setTimeout(() => {
           if (isLoggedOut) return;
-          isLoggedOut = true; // Prevent multiple logouts
+          isLoggedOut = true;
 
-          // Show logout alert
           ShowAlert(
             dispatch,
             "error",
@@ -286,7 +287,7 @@ export const AuthProvider = ({ children }) => {
       clearTimeout(activityDebounce);
       events.forEach((e) => window.removeEventListener(e, resetTimeout));
     };
-  }, [logoutAdmin, dispatch]);
+  }, [adminUser, logoutAdmin, dispatch]);
 
   return (
     <AuthContext.Provider
