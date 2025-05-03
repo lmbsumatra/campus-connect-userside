@@ -7,6 +7,7 @@ const transporter = require("../../config/nodemailer");
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken");
 const TokenGenerator = require("../../middlewares/TokenGenerator.js");
+const sendAdminNotificationEmail = require("../../config/sendAdminNotificationEmail.jsx");
 
 const registerStudent = async (req, res) => {
   const t = await sequelize.transaction();
@@ -296,6 +297,17 @@ const registerStudent = async (req, res) => {
       }
       // console.log("Email sent:", info.response);
     });
+
+    try {
+      await sendAdminNotificationEmail({
+        actionType: "user_verification",
+        userName: `${(first_name, " ", last_name)}`,
+        details: "User has created an account",
+        timestamp: new Date().toLocaleString(),
+      });
+    } catch (emailError) {
+      console.error("Error sending admin email notification:", emailError);
+    }
 
     // Create notification in database for administrators
     const adminNotificationData = {

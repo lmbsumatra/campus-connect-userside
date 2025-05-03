@@ -1169,6 +1169,7 @@ function ListingDetail() {
             ? approvedListingById.owner.id === loggedInUserId
             : false
         }
+        tab={`listings`}
       />
 
       <ItemDescAndSpecs

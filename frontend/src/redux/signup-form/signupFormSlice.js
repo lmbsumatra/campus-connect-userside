@@ -53,7 +53,7 @@ const validateInput = (name, value, password) => {
     case "middleName":
       if (value.trim() === "") {
         hasError = false;
-        error = "Middle name is optional.";
+        error = null;
       } else if (/[^a-zA-Z0-9]/.test(value)) {
         hasError = true;
         error = "Middle name cannot have special character.";

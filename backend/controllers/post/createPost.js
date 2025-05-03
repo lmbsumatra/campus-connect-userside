@@ -1,5 +1,6 @@
 const { models } = require("../../models");
 const sequelize = require("../../config/database");
+const sendAdminNotificationEmail = require("../../config/sendAdminNotificationEmail.jsx");
 
 const validatePostData = (postData) => {
   const requiredFields = ["userId", "itemName", "category", "desc"];
@@ -60,7 +61,9 @@ const createPost = async (req, res) => {
     // console.log("Received Files:", req.files);
 
     const postData =
-      typeof req.body.post === "string" ? JSON.parse(req.body.post) : req.body.post;
+      typeof req.body.post === "string"
+        ? JSON.parse(req.body.post)
+        : req.body.post;
 
     // console.log("Parsed Post Data:", postData);
 
@@ -136,6 +139,17 @@ const createPost = async (req, res) => {
       ? `${renter.first_name} ${renter.last_name}`
       : "Unknown";
 
+    try {
+      await sendAdminNotificationEmail({
+        actionType: "post_approval",
+        itemName: `${postData.itemName}`,
+        details: "User has created a post",
+        timestamp: new Date().toLocaleString(),
+      });
+    } catch (emailError) {
+      console.error("Error sending admin email notification:", emailError);
+    }
+
     // Create notification data
     const notificationData = {
       type: "new-post", // You can adjust this based on different types
@@ -150,7 +164,9 @@ const createPost = async (req, res) => {
     };
 
     // Store notification in the database
-    const notification = await models.Notification.create(notificationData, { transaction });
+    const notification = await models.Notification.create(notificationData, {
+      transaction,
+    });
 
     // Commit transaction
     await transaction.commit();
@@ -191,6 +207,5 @@ const createPost = async (req, res) => {
     });
   }
 };
-
 
 module.exports = createPost;

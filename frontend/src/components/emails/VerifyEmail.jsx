@@ -39,13 +39,13 @@ const VerifyEmail = () => {
           setMessage(
             responseData.message || "Verification failed. Please try again."
           );
-          startErrorCountdown("/login"); // Start countdown for error
+          startErrorCountdown("/"); // Start countdown for error
         }
       } catch (error) {
         console.error("Error during email verification:", error);
         setStatus("error");
         setMessage("An error occurred. Please try again later.");
-        startErrorCountdown("/login");
+        startErrorCountdown("/");
       }
     };
 

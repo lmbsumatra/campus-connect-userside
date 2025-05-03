@@ -125,8 +125,8 @@ const getAllAvailablePost = async (req, res) => {
       }
 
       const fuse = new Fuse(formattedPosts, {
-        keys: ["name", "desc", "category", "tags", "specsArray"],
-        threshold: 0.4,
+        keys: ["name", "category", "tags", "specsArray"],
+        threshold: 0.3,
         includeScore: true,
         includeMatches: true,
         ignoreLocation: true,

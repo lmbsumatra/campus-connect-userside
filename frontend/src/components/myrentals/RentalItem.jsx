@@ -25,6 +25,7 @@ function RentalItem({
   selectedTab,
   onTabChange,
 }) {
+  console.log(item);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const { studentUser } = useAuth();
@@ -43,6 +44,15 @@ function RentalItem({
   };
 
   const handleStatusUpdate = async (action) => {
+    if (!action) {
+      await ShowAlert(
+        dispatch,
+        "warning",
+        "Action Required",
+        "Please select an action for the entity."
+      );
+      return;
+    }
     try {
       let updatePayload = {
         rentalId: item.id,
@@ -57,7 +67,20 @@ function RentalItem({
         updatePayload.renterConfirmed = true;
       }
 
-      await dispatch(updateRentalStatus(updatePayload));
+      const updateResult = await dispatch(updateRentalStatus(updatePayload));
+
+      if (updateResult.error) {
+        throw new Error(
+          updateResult.error.message || "Failed to update transaction"
+        );
+      } else {
+        await ShowAlert(
+          dispatch,
+          "success",
+          "Success",
+          `Transaction status successfully updated to ${action}.`
+        );
+      }
       await dispatch(fetchRentalTransactions(userId));
 
       const recipientId = (() => {
@@ -138,7 +161,17 @@ function RentalItem({
 
         onTabChange(nextTab);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error updating transaction status:", error);
+      await ShowAlert(
+        dispatch,
+        "error",
+        "Action Failed",
+        "Failed to update transaction"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleMessageClick = async () => {
@@ -300,6 +333,12 @@ Item: ${itemName}`,
                 label: "Cancel",
                 onClick: () => handleStatusUpdate("cancel"),
                 primary: true,
+                disabled:
+                  item.is_allowed_to_cancel === false ||
+                  item.tx.owner_confirmed,
+                disabledReason: item.tx.owner_confirmed
+                  ? "Wait for the other party"
+                  : "Not allowed to cancel",
               },
             ]
           : []),
@@ -318,6 +357,17 @@ Item: ${itemName}`,
                 primary: true,
                 disabled: true,
                 disabledReason: "Please wait until the owner confirms.",
+              },
+              {
+                label: "Cancel",
+                onClick: () => handleStatusUpdate("cancel"),
+                primary: true,
+                disabled:
+                  item.is_allowed_to_cancel === false ||
+                  item.tx.owner_confirmed,
+                disabledReason: item.tx.owner_confirmed
+                  ? "Wait for the other party"
+                  : "Not allowed to cancel",
               },
             ]
           : []),
@@ -339,6 +389,17 @@ Item: ${itemName}`,
                 disabledReason: item.tx.owner_confirmed
                   ? "Wait for the other party"
                   : "Not yet allowed to proceed",
+              },
+              {
+                label: "Cancel",
+                onClick: () => handleStatusUpdate("cancel"),
+                primary: true,
+                disabled:
+                  item.is_allowed_to_cancel === false ||
+                  item.tx.owner_confirmed,
+                disabledReason: item.tx.owner_confirmed
+                  ? "Wait for the other party"
+                  : "Not allowed to cancel",
               },
             ]
           : []),
@@ -440,15 +501,15 @@ Item: ${itemName}`,
               : "Review",
           onClick: handleOpenModal,
           primary: true,
-          disabled:
-            item.is_allowed_to_proceed === false ||
-            (item.tx.owner_id === userId
-              ? item.tx.owner_confirmed
-              : item.tx.renter_confirmed),
-          disabledReason:
-            item.is_allowed_to_proceed === false
-              ? "Not yet allowed to proceed"
-              : "Wait for the other party",
+          // disabled:
+          //   item.is_allowed_to_proceed === false ||
+          //   (item.tx.owner_id === userId
+          //     ? item.tx.owner_confirmed
+          //     : item.tx.renter_confirmed),
+          // disabledReason:
+          //   item.is_allowed_to_proceed === false
+          //     ? "Not yet allowed to proceed"
+          //     : "Wait for the other party",
         },
       ],
       Reviewed: [],

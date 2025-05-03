@@ -17,7 +17,7 @@ export function SocketProvider({ children }) {
   const maxReconnectAttempts = 5;
 
   useEffect(() => {
-    console.log("Initializing socket connection to:", baseApi);
+    // console.log("Initializing socket connection to:", baseApi);
 
     const initializeSocket = () => {
       if (reconnectAttemptRef.current >= maxReconnectAttempts) {
@@ -36,13 +36,13 @@ export function SocketProvider({ children }) {
       socketRef.current = newSocket;
 
       newSocket.on("connect", () => {
-        console.log("Socket connected:", newSocket.id);
+        // console.log("Socket connected:", newSocket.id);
         reconnectAttemptRef.current = 0;
         setSocket(newSocket);
       });
 
       newSocket.on("disconnect", () => {
-        console.log("Socket disconnected");
+        // console.log("Socket disconnected");
       });
 
       newSocket.on("connect_error", (err) => {
@@ -51,9 +51,9 @@ export function SocketProvider({ children }) {
 
         // Attempt to reconnect manually if still within max attempts
         if (reconnectAttemptRef.current < maxReconnectAttempts) {
-          console.log(
-            `Reconnection attempt ${reconnectAttemptRef.current}/${maxReconnectAttempts}`
-          );
+          // console.log(
+          //   `Reconnection attempt ${reconnectAttemptRef.current}/${maxReconnectAttempts}`
+          // );
           setTimeout(() => {
             if (socketRef.current) {
               socketRef.current.disconnect();
@@ -67,7 +67,7 @@ export function SocketProvider({ children }) {
     initializeSocket();
 
     return () => {
-      console.log("Cleaning up socket...");
+      // console.log("Cleaning up socket...");
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;

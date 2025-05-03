@@ -55,7 +55,7 @@ const SaleOverview = () => {
     "approved",
     "declined",
     "removed",
-    "revoked",
+    // "revoked",
     "flagged",
   ];
 

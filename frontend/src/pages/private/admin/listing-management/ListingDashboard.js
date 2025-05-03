@@ -59,7 +59,7 @@ const ListingDashboard = () => {
     "approved",
     "declined",
     "removed",
-    "revoked",
+    // "revoked",
     "flagged",
   ];
 

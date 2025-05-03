@@ -95,6 +95,11 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: false,
       },
+      is_allowed_to_cancel: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       transaction_type: {
         type: DataTypes.ENUM("rental", "sell"),
         allowNull: false,

@@ -48,9 +48,9 @@ const TrialOnHeroSection = () => {
             >
               Get Started!
             </button>
-            <button className="btn btn-rectangle secondary opac">
+            {/* <button className="btn btn-rectangle secondary opac">
               Learn more
-            </button>
+            </button> */}
           </div>
         </div>
 

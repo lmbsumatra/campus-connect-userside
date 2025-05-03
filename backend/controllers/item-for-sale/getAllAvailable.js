@@ -213,7 +213,7 @@ const getAllAvailable = async (req, res) => {
     if (q) {
       const fuse = new Fuse(finalItems, {
         keys: ["name", "category", "tags", "specsArray"],
-        threshold: 0.4,
+        threshold: 0.3,
         ignoreLocation: true,
         includeScore: true,
       });

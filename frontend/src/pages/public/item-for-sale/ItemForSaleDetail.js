@@ -1185,6 +1185,7 @@ function ItemForSaleDetail() {
             ? approvedItemForSaleById.seller.id === loggedInUserId
             : false
         }
+        tab={`for-sale`}
       />
 
       <ItemDescAndSpecs

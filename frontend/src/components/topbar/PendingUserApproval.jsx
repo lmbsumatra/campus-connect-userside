@@ -55,16 +55,16 @@ const PendingUserApproval = ({ isVerified, user }) => {
 
   if (restrictionEndDate) {
     const restrictionDate = new Date(restrictionEndDate);
-    console.log(
-      "Restriction End Date (parsed):",
-      restrictionDate.toISOString()
-    );
-    console.log("Is date valid?", !isNaN(restrictionDate.getTime()));
-    console.log(
-      "Time difference (ms):",
-      restrictionDate.getTime() - Date.now()
-    );
-    console.log("Is restriction still active?", restrictionDate > new Date());
+    // console.log(
+    //   "Restriction End Date (parsed):",
+    //   restrictionDate.toISOString()
+    // );
+    // console.log("Is date valid?", !isNaN(restrictionDate.getTime()));
+    // console.log(
+    //   "Time difference (ms):",
+    //   restrictionDate.getTime() - Date.now()
+    // );
+    // console.log("Is restriction still active?", restrictionDate > new Date());
   }
 
   // Calculate if CURRENTLY restricted
@@ -73,27 +73,27 @@ const PendingUserApproval = ({ isVerified, user }) => {
     restrictionEndDate &&
     new Date(restrictionEndDate) > new Date();
 
-  console.log(
-    "Final active restriction check result:",
-    isCurrentlyActiveRestriction
-  );
+  // console.log(
+  //   "Final active restriction check result:",
+  //   isCurrentlyActiveRestriction
+  // );
 
   useEffect(() => {
     // This will run once when the component mounts
     if (isVerified === "restricted" && restrictionEndDate) {
-      console.log("TIMEZONE CHECK:");
-      console.log(
-        "Browser timezone:",
-        Intl.DateTimeFormat().resolvedOptions().timeZone
-      );
-      console.log("Local string representation:", new Date().toString());
-      console.log("UTC string:", new Date().toUTCString());
+      // console.log("TIMEZONE CHECK:");
+      // console.log(
+      //   "Browser timezone:",
+      //   Intl.DateTimeFormat().resolvedOptions().timeZone
+      // );
+      // console.log("Local string representation:", new Date().toString());
+      // console.log("UTC string:", new Date().toUTCString());
     }
   }, [isVerified, restrictionEndDate]);
 
   // Handle missing date despite restricted status
   if (isVerified === "restricted" && !restrictionEndDate) {
-    console.log("WARNING: User is restricted but has no restriction end date");
+    // console.log("WARNING: User is restricted but has no restriction end date");
     statusMessage = (
       <>
         Your account is currently restricted. Please contact support for

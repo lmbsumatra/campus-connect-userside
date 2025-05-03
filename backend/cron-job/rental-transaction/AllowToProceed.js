@@ -10,7 +10,7 @@ const server = http.createServer(app);
 const { io } = require("socket.io-client");
 
 // Create the socket connection outside the cron job
-const socket = io("https://api.rentupeers.shop/", {
+const socket = io("http://localhost:3001/", {
   withCredentials: true,
   reconnection: true,
   reconnectionAttempts: 5,
@@ -32,7 +32,7 @@ socket.on("disconnect", (reason) => {
 
 const AllowToProceed = () => {
   cron.schedule("* * * * *", async () => {
-    // console.log("Running cron job to update rental status...");
+    console.log("Running cron job to update rental status...");
 
     try {
       const now = new Date();
@@ -49,7 +49,7 @@ const AllowToProceed = () => {
         include: [
           {
             model: models.Date,
-            where: { date: currentDate },
+            // where: { date: currentDate },
             include: [
               {
                 model: models.Duration,
@@ -62,9 +62,9 @@ const AllowToProceed = () => {
 
       for (const rental of rentals) {
         if (!rental.Date || !rental.Date.durations) {
-          // console.error(
-          //   `Missing rental date or duration for rental ID ${rental.id}`
-          // );
+          console.error(
+            `Missing rental date or duration for rental ID ${rental.id}`
+          );
           continue;
         }
 
@@ -81,41 +81,76 @@ const AllowToProceed = () => {
           ).getTime();
 
           // Now that startTime and endTime exist, calculate ALLOWED_TIME_WINDOW
-          const ALLOWED_TIME_WINDOW = Math.max(
-            15 * 60 * 1000,
-            endTime - startTime
-          );
+          const ALLOWED_TIME_WINDOW = 30 * 60 * 1000;
 
           let nextStatus = null;
+          const THIRTY_MINUTES = 30 * 60 * 1000;
 
+          console.log(`[Rental ${rental.id}]`);
+          console.log(`  Date: ${rentalDate}`);
+          console.log(`  rental_time_from: ${duration.rental_time_from}`);
+          console.log(`  startTime: ${new Date(startTime).toISOString()}`);
+          console.log(`  currentTime: ${new Date(currentTime).toISOString()}`);
+          console.log(`  diffMins: ${(startTime - currentTime) / (60 * 1000)}`);
+          console.log(
+            `  canCancel: ${currentTime <= startTime - THIRTY_MINUTES}`
+          );
+
+          // Check if cancellation is allowed based on time before rental start
+          let canCancel = false;
+          if (
+            (rental.status === "Requested" || rental.status === "Accepted") &&
+            currentTime <= startTime - THIRTY_MINUTES
+          ) {
+            canCancel = true;
+            await rental.update({ is_allowed_to_cancel: true });
+          } else if (rental.is_allowed_to_cancel) {
+            // Reset cancellation flag if outside window
+            await rental.update({ is_allowed_to_cancel: false });
+          }
+
+          const ONE_DAY = 24 * 60 * 60 * 1000;
           switch (rental.status) {
             case "Requested":
-              if (currentTime >= startTime - ALLOWED_TIME_WINDOW) {
+              if (currentTime >= startTime) {
                 nextStatus = "Cancelled"; // Auto-cancel if not accepted
               }
               break;
 
             case "Accepted":
-              if (currentTime >= startTime - ALLOWED_TIME_WINDOW) {
+              if (currentTime >= startTime) {
                 await rental.update({ is_allowed_to_proceed: true });
               }
+              console.log("currentTime:", currentTime);
+              console.log(
+                "startTime + ALLOWED_TIME_WINDOW:",
+                startTime + ALLOWED_TIME_WINDOW
+              );
+              console.log("ALLOWED_TIME_WINDOW:", ALLOWED_TIME_WINDOW);
+
               if (currentTime > startTime + ALLOWED_TIME_WINDOW) {
-                nextStatus = "HandedOver"; // Auto-hand over if too late
+                console.log("Auto-cancelling rental due to timeout");
+                nextStatus = "Cancelled"; // Auto-cancel if not handed over
               }
+
               break;
 
             case "HandedOver":
-              if (currentTime >= endTime - ALLOWED_TIME_WINDOW) {
+              // Allow the owner to send proof after the rental end time (no need for 30-minute wait)
+              if (currentTime >= endTime) {
                 await rental.update({ is_allowed_to_proceed: true });
               }
-              if (currentTime > endTime + ALLOWED_TIME_WINDOW) {
+
+              // After one full day past the rental end time, auto-return the rental
+              if (currentTime > endTime + ONE_DAY) {
                 nextStatus = "Returned"; // Auto-return if too late
               }
               break;
 
             case "Returned":
-              if (currentTime > endTime + ALLOWED_TIME_WINDOW) {
-                nextStatus = "Completed"; // Auto-complete fast for short rentals
+              // Check if current time is beyond the allowed time window plus 24 hours
+              if (currentTime > endTime + ONE_DAY) {
+                nextStatus = "Completed"; // Auto-complete after 24 hours
               }
               break;
 
@@ -142,22 +177,22 @@ const AllowToProceed = () => {
               status: nextStatus,
             });
 
-            // console.log(
-            //   `Rental ID ${rental.id} automatically updated to ${nextStatus}.`
-            // );
+            console.log(
+              `Rental ID ${rental.id} automatically updated to ${nextStatus}.`
+            );
           }
 
           // Reset is_allowed_to_proceed after the allowed time window expires
           if (shouldResetAllow) {
             await rental.update({ is_allowed_to_proceed: false });
-            // console.log(
-            //   `Rental ID ${rental.id}: is_allowed_to_proceed reset to false.`
-            // );
+            console.log(
+              `Rental ID ${rental.id}: is_allowed_to_proceed reset to false.`
+            );
           }
         }
       }
     } catch (error) {
-      // console.error("Error updating rental statuses:", error);
+      console.error("Error updating rental statuses:", error);
     }
   });
 };

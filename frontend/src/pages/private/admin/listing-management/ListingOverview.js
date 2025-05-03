@@ -52,7 +52,7 @@ const ListingOverview = () => {
     "approved",
     "declined",
     "removed",
-    "revoked",
+    // "revoked",
     "flagged",
   ];
 

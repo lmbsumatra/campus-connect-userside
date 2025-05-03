@@ -138,7 +138,7 @@ const ProfileHeader = ({
   const validStatuses = [
     "Requested",
     "Accepted",
-    "Declined",
+    // "Declined",
     "HandedOver",
     "Returned",
   ];

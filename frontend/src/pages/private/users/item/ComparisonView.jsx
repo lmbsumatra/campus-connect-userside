@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Diff } from "lucide-react";
 import "./comparisonViewStyles.css";
+import { FOR_RENT, FOR_SALE } from "../../../../utils/consonants";
 
 const formatValue = (value) => {
   if (value === null || value === undefined) return "None";
@@ -26,7 +27,7 @@ const normalizeFieldName = (fieldName) => {
     .trim();
 };
 
-const ComparisonView = ({ originalData, currentData }) => {
+const ComparisonView = ({ originalData, currentData, itemType }) => {
   const changes = useMemo(() => {
     const differences = {};
 
@@ -78,7 +79,19 @@ const ComparisonView = ({ originalData, currentData }) => {
     return differences;
   }, [originalData, currentData]);
 
-  const hasChanges = Object.keys(changes).length > 0;
+  const filteredChanges = Object.entries(changes).filter(([field]) => {
+    if (itemType === FOR_RENT && field === "stock") return false;
+    if (
+      itemType === FOR_SALE &&
+      (field === "lateCharges" ||
+        field === "securityDeposit" ||
+        field === "repairReplacement")
+    )
+      return false;
+    return true;
+  });
+
+  const hasChanges = filteredChanges.length > 0;
 
   const renderValue = (value, type) => {
     if (type === "images") {
@@ -123,27 +136,39 @@ const ComparisonView = ({ originalData, currentData }) => {
         <p className="no-changes">No changes detected</p>
       ) : (
         <div className="changes-list">
-          {Object.entries(changes).map(([field, values]) => (
-            <div key={field} className="change-item">
-              <label className="field-label">{normalizeFieldName(field)}</label>
+          {Object.entries(changes).map(([field, values]) => {
+            if (itemType === FOR_RENT && field === "stock") return null;
+            if (
+              itemType === FOR_SALE &&
+              (field === "lateCharges" ||
+                field === "securityDeposit" ||
+                field === "repairReplacement")
+            )
+              return null;
+            return (
+              <div key={field} className="change-item">
+                <label className="field-label">
+                  {normalizeFieldName(field)}
+                </label>
 
-              <div className="comparison-row">
-                <div className="comparison-column previous">
-                  <p className="column-header">Previous</p>
-                  <div className="value-container">
-                    {renderValue(values.old, field)}
+                <div className="comparison-row">
+                  <div className="comparison-column previous">
+                    <p className="column-header">Previous</p>
+                    <div className="value-container">
+                      {renderValue(values.old, field)}
+                    </div>
                   </div>
-                </div>
 
-                <div className="comparison-column new">
-                  <p className="column-header">New</p>
-                  <div className="value-container">
-                    {renderValue(values.new, field)}
+                  <div className="comparison-column new">
+                    <p className="column-header">New</p>
+                    <div className="value-container">
+                      {renderValue(values.new, field)}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

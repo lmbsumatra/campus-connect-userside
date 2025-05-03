@@ -89,7 +89,7 @@ const ResetPasswordPage = () => {
       setMessageType("success");
 
       setTimeout(() => {
-        navigate("/login");
+        navigate("/");
       }, 3000);
     } catch (error) {
       console.error("Reset password error:", error);
@@ -152,10 +152,10 @@ const ResetPasswordPage = () => {
           <div className="success-container">
             <p>
               Your password has been reset successfully! You will be redirected
-              to the login page.
+              to the home page.
             </p>
-            <Link to="/login" className="auth-link">
-              Go to Login Now
+            <Link to="/" className="auth-link">
+              Go to Home Now
             </Link>
           </div>
         ) : (

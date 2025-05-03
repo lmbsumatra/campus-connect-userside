@@ -180,7 +180,7 @@ router.post("/:messageId/offer-status", async (req, res) => {
     const { messageId } = req.params;
     const { status, userId, recipientId } = req.body;
 
-    console.log(`Processing offer status update: messageId=${messageId}, status=${status}`);
+    // console.log(`Processing offer status update: messageId=${messageId}, status=${status}`);
 
     // Validate inputs
     if (!messageId || !status || !userId) {
@@ -199,7 +199,7 @@ router.post("/:messageId/offer-status", async (req, res) => {
       return res.status(404).json({ error: "Message not found." });
     }
 
-    console.log(`Found message: isProductCard=${message.isProductCard}, currentStatus=${message.offerStatus}`);
+    // console.log(`Found message: isProductCard=${message.isProductCard}, currentStatus=${message.offerStatus}`);
 
     // Ensure the message is a product card (offer) - REMOVING THIS CHECK TEMPORARILY FOR DEBUGGING
     // if (!message.isProductCard) {
@@ -208,7 +208,7 @@ router.post("/:messageId/offer-status", async (req, res) => {
 
     // Update the message status
     await message.update({ offerStatus: status });
-    console.log(`Updated message status to ${status}`);
+    // console.log(`Updated message status to ${status}`);
 
     // Return the updated message
     res.status(200).json({ 

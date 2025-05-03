@@ -61,7 +61,7 @@ const PostDashboard = () => {
     "approved",
     "declined",
     "removed",
-    "revoked",
+    // "revoked",
     "flagged",
   ];
 

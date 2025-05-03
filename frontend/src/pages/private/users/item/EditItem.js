@@ -1113,7 +1113,7 @@ const EditItem = () => {
       />
 
       <button
-        className="btn btn-secondary mr-4"
+        className="btn btn-primary mr-4"
         onClick={() => setShowComparison(true)}
       >
         Submit Changes
@@ -1124,18 +1124,22 @@ const EditItem = () => {
         onClose={() => setShowComparison(false)}
         contentLabel="Changes Comparison"
       >
-        <div className="flex justify-end mb-4">
+        {/* <div className="flex justify-end mb-4">
           <button
             className="btn btn-secondary"
             onClick={() => setShowComparison(false)}
           >
             Close
           </button>
-        </div>
-        <ComparisonView
-          originalData={originalData}
-          currentData={itemDataState}
-        />
+        </div> */}
+
+        <Modal.Body className="p-4">
+          <ComparisonView
+            originalData={originalData}
+            currentData={itemDataState}
+            itemType={itemType}
+          />
+        </Modal.Body>
         <Modal.Footer>
           <button
             className="btn btn-secondary"

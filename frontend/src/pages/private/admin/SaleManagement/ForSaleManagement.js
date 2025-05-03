@@ -59,7 +59,7 @@ const ForSaleManagement = () => {
     "approved",
     "declined",
     "removed",
-    "revoked",
+    // "revoked",
     "flagged",
   ];
 

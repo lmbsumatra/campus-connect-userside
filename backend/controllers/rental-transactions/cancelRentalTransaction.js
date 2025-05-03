@@ -76,16 +76,22 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: "Rental transaction not found." });
     }
 
-    if (
-      (rental.renter_id !== userId && rental.transaction_type === "rental") ||
-      (rental.transaction_type === "sell" && rental.buyer_id !== userId)
-    ) {
-      return res
-        .status(403)
-        .json({ error: "Only the renter can cancel this transaction." });
+    const isRental = rental.transaction_type === "rental";
+    const isSell = rental.transaction_type === "sell";
+
+    const isParticipant =
+      userId === rental.owner_id ||
+      (isRental && userId === rental.renter_id) ||
+      (isSell && userId === rental.buyer_id);
+
+    if (!isParticipant) {
+      return res.status(403).json({
+        error:
+          "Only the owner or participant of the transaction can cancel it.",
+      });
     }
 
-    if (rental.status !== "Requested") {
+    if (rental.status !== "Requested" && rental.status !== "Accepted") {
       return res
         .status(400)
         .json({ error: "Only Requested rentals can be cancelled." });
@@ -104,7 +110,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     if (rental.stripe_payment_intent_id) {
       try {
         await stripe.paymentIntents.cancel(rental.stripe_payment_intent_id);
-        // rental.payment_status = "Cancelled";
+        rental.payment_status = "Cancelled";
       } catch (stripeError) {
         console.error("Error canceling payment intent:", stripeError);
         return res.status(500).json({
@@ -158,6 +164,8 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     rental.status = "Cancelled";
     await rental.save();
 
+    console.log(rental);
+
     const notifType =
       rental.transaction_type === "sell"
         ? "purchase_cancelled"
@@ -180,7 +188,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     }
 
     try {
-      console.log("Sending cancellation email to owner:", rental.owner.email);
+      // console.log("Sending cancellation email to owner:", rental.owner.email);
       await sendTransactionEmail({
         email: rental.owner.email,
         itemName: itemName,

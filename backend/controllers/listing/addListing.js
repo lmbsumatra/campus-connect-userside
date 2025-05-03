@@ -1,5 +1,6 @@
 const { models } = require("../../models");
 const sequelize = require("../../config/database");
+const sendAdminNotificationEmail = require("../../config/sendAdminNotificationEmail.jsx");
 
 const validateListingData = (listingData) => {
   const requiredFields = ["ownerId", "itemName", "category", "desc"];
@@ -17,7 +18,7 @@ const validateRentalDates = (rentalDates) => {
 
   rentalDates.forEach((date) => {
     if (!date.date) {
-      throw new Error("Rental date is missing");
+      throw new Error("Rental date is missing");s
     }
 
     if (date.times && !Array.isArray(date.times)) {
@@ -206,6 +207,17 @@ const addListing = async (req, res) => {
           name: ownerName,
         },
       });
+    }
+
+    try {
+     await  sendAdminNotificationEmail({
+        actionType: "item_approval",
+        itemName: `${listingData.itemName}`,
+        details: "User has created an item",
+        timestamp: new Date().toLocaleString()
+      });
+    } catch (emailError) {
+      console.error("Error sending admin email notification:", emailError);
     }
 
     res.status(201).json({

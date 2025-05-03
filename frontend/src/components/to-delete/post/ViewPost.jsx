@@ -22,12 +22,12 @@ function ViewPost() {
         const response = await axios.get(
           `${baseApi}/listings/${id}`
         );
-        console.log("Response data:", response.data);
+        // console.log("Response data:", response.data);
 
         setSelectedItem(response.data);
 
         const fetchedTags = response.data.tags;
-        console.log("Fetched tags:", fetchedTags);
+        // console.log("Fetched tags:", fetchedTags);
 
         let parsedTags = [];
         if (Array.isArray(fetchedTags)) {
@@ -39,7 +39,7 @@ function ViewPost() {
             parsedTags = fetchedTags.split(",").map((tag) => tag.trim());
           }
         }
-        console.log("parsedTags tags:", parsedTags);
+        // console.log("parsedTags tags:", parsedTags);
 
         setTags(parsedTags);
       } catch (err) {

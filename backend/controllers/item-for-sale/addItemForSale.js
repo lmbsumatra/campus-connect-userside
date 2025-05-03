@@ -2,6 +2,7 @@ const { models } = require("../../models");
 const sequelize = require("../../config/database");
 const fs = require("fs");
 const path = require("path");
+const sendAdminNotificationEmail = require("../../config/sendAdminNotificationEmail.jsx");
 
 const validateItemData = (itemData) => {
   const requiredFields = [
@@ -162,6 +163,17 @@ const addItemForSale = async (req, res) => {
     const sellerName = seller
       ? `${seller.first_name} ${seller.last_name}`
       : "Unknown";
+
+    try {
+      await sendAdminNotificationEmail({
+        actionType: "item_approval",
+        itemName: `${itemData.itemName}`,
+        details: "User has created an item",
+        timestamp: new Date().toLocaleString(),
+      });
+    } catch (emailError) {
+      console.error("Error sending admin email notification:", emailError);
+    }
 
     // Create notification in database
     const adminNotificationData = {

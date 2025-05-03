@@ -462,8 +462,8 @@ const EditPost = () => {
     dispatch(updateAvailableDates(serializedDates));
 
     // Log the formatted removed dates and durations for debugging
-    console.log("Formatted Removed Dates:", formattedRemovedDates);
-    console.log("Formatted Removed Durations:", formattedRemovedDurations);
+    // console.log("Formatted Removed Dates:", formattedRemovedDates);
+    // console.log("Formatted Removed Durations:", formattedRemovedDurations);
   };
 
   const handleCategoryChange = (selectedCategory) => {
@@ -935,7 +935,7 @@ const EditPost = () => {
       />
 
       <button
-        className="btn btn-secondary mr-4"
+        className="btn btn-primary mr-4"
         onClick={() => setShowComparison(true)}
       >
         Submit Changes
@@ -946,13 +946,14 @@ const EditPost = () => {
         onHide={() => setShowComparison(false)}
         contentLabel="Changes Comparison"
       >
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Review Changes</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="p-4">
           <ComparisonView
             originalData={originalData}
             currentData={postDataState}
+            itemType={itemType}
           />
         </Modal.Body>
         <Modal.Footer>

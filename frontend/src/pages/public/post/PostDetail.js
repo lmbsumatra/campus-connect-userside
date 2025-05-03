@@ -1149,6 +1149,7 @@ function PostDetail() {
             ? approvedPostById.renter.id === loggedInUserId
             : false
         }
+        tab={`posts`}
       />
 
       <ItemDescAndSpecs
@@ -1269,17 +1270,34 @@ function PostDetail() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)} disabled={isSubmitting}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowModal(false)}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleConfirmOffer} disabled={isSubmitting}>
+          <Button
+            variant="primary"
+            onClick={handleConfirmOffer}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <>
-                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="me-2"
+                />
                 Processing...
               </>
             ) : (
-              `Send ${approvedPostById.itemType === TO_RENT ? "Offer" : "Sale Offer"}`
+              `Send ${
+                approvedPostById.itemType === TO_RENT ? "Offer" : "Sale Offer"
+              }`
             )}
           </Button>
         </Modal.Footer>

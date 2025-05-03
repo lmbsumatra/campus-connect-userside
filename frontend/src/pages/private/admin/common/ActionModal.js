@@ -19,8 +19,8 @@ const ActionModal = ({ show, onHide, title, formLabels, onConfirm, status }) => 
         return 'Reason for declining the listing';
       case 'removed':
         return 'Reason for removing the listing';
-      case 'revoked':
-        return 'Reason for revoking approval';
+      // case 'revoked':
+      //   return 'Reason for revoking approval';
       case 'flagged':
         return 'Reason for flagging the listing';
       case 'unavailable':
@@ -39,7 +39,7 @@ const ActionModal = ({ show, onHide, title, formLabels, onConfirm, status }) => 
         return formLabels.reasonForDenialLabel;
       case 'removed':
         return formLabels.removalLabel;
-      case 'revoked':
+      // case 'revoked':
       case 'flagged':
         return formLabels.reasonForRestrictionLabel;
       default:
@@ -63,7 +63,7 @@ const ActionModal = ({ show, onHide, title, formLabels, onConfirm, status }) => 
               <option value="approved">Approve</option>
               <option value="declined">Decline</option>
               <option value="removed">Remove</option>
-              <option value="revoked">Revoke</option>
+              {/* <option value="revoked">Revoke</option> */}
               <option value="flagged">Flag</option>
               <option value="unavailable">Mark Unavailable</option>
             </Form.Select>

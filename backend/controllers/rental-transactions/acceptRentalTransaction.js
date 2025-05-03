@@ -72,13 +72,17 @@ const acceptRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: "Rental transaction not found." });
     }
 
+    console.log(userId);
+
     if (rental.owner_id !== userId) {
+     
       return res
         .status(403)
         .json({ error: "Only the owner can accept this transaction." });
     }
 
     if (rental.status !== "Requested") {
+    
       return res
         .status(400)
         .json({ error: "Only Requested rentals can be accepted." });

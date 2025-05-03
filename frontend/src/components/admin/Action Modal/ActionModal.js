@@ -77,13 +77,13 @@ const ActionModal = ({
             <Form.Group className="mb-2">
               <Form.Label>{formLabels.removalLabel}</Form.Label>
               <div className="d-flex gap-5 justify-between">
-                <Form.Check
+                {/* <Form.Check
                   type="radio"
                   label="Revoke"
                   name="status"
                   value="revoked"
                   onChange={() => setSelectedStatus("revoked")}
-                />
+                /> */}
                 <Form.Check
                   type="radio"
                   label="Remove"

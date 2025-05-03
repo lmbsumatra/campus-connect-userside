@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import userProfilePicture from "../../../assets/images/icons/user-icon.svg";
 import "./userToolbarStyles.css";
 
-export const UserToolbar = ({ user, isYou }) => {
+export const UserToolbar = ({ user, isYou, tab = "" }) => {
+  const navigate = useNavigate();
   // console.log(user, isYou);
   return (
     <div className="owner-info">
@@ -50,10 +52,18 @@ export const UserToolbar = ({ user, isYou }) => {
         )}
       </div>
 
-      <button className="btn btn-rectangle primary" disabled={isYou}>
-        View Listings
+      <button
+        className="btn btn-rectangle primary"
+        disabled={isYou}
+        onClick={() => navigate(`/user/${user.id}?tab=${tab}`)}
+      >
+        View {tab.slice(0, 1).toUpperCase()}{tab.slice(1)}
       </button>
-      <button className="btn btn-rectangle secondary" disabled={isYou}>
+      <button
+        className="btn btn-rectangle secondary"
+        disabled={isYou}
+        onClick={() => navigate(`/user/${user.id}`)}
+      >
         View Profile
       </button>
     </div>

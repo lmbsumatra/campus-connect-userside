@@ -77,7 +77,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       item_security_deposit,
     } = req.body;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     const missingFields = [];
     if (!owner_id) missingFields.push("owner_id");
@@ -141,7 +141,7 @@ const createRentalTransaction = async (req, res, emitNotification) => {
       amount: Number(amount),
     };
 
-    console.log(rentalData.amount);
+    // console.log(rentalData.amount);
 
     const dateInfo = await models.Date.findByPk(date_id, {
       attributes: ["date"],

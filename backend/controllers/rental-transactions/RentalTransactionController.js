@@ -175,7 +175,7 @@ module.exports = ({ emitNotification }) => {
           }
         }
 
-        console.log(foundProductDetails);
+        // console.log(foundProductDetails);
 
         if (foundProductDetails && rental.transaction_type === "rental") {
           rentalData.Listing = {

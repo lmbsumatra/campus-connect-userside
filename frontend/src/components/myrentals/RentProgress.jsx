@@ -293,7 +293,7 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
     timeTo: transaction?.rental?.Duration?.rental_time_to,
   });
 
-  console.log(transaction)
+  // console.log(transaction)
 
   return (
     <>
