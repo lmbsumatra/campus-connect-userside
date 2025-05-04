@@ -516,7 +516,7 @@ const AddNewItem = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log({ response, formData });
+      // console.log({ response, formData });
 
       /* if (socket) {
         const notification = {

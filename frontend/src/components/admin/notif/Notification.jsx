@@ -58,7 +58,7 @@ const Notification = ({
       case "new-student":
         navigate("/admin/users");
       default:
-        console.log("No specific navigation for this notification type");
+        // console.log("No specific navigation for this notification type");
         break;
     }
   };

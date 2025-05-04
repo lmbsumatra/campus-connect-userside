@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   firstName: { value: "", triggered: false, hasError: true, error: "" },
-  middleName: { value: "", triggered: false, hasError: true, error: "" },
+  middleName: { value: "", triggered: false, hasError: false, error: "" },
   lastName: { value: "", triggered: false, hasError: true, error: "" },
   imgWithId: { value: "", triggered: false, hasError: true, error: "" },
   scannedId: { value: "", triggered: false, hasError: true, error: "" },

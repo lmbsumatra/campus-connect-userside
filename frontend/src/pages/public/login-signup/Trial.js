@@ -367,7 +367,7 @@ const Trial = ({ onTabClick }) => {
 
   const handlePrevStep = () => {
     if (step > 1) setStep(step - 1);
-    console.log(signupDataState);
+    // console.log(signupDataState);
   };
 
   const isStepValid = () => {

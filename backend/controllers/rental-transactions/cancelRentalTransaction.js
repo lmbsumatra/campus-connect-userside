@@ -164,7 +164,7 @@ const cancelRentalTransaction = async (req, res, emitNotification) => {
     rental.status = "Cancelled";
     await rental.save();
 
-    console.log(rental);
+    // console.log(rental);
 
     const notifType =
       rental.transaction_type === "sell"

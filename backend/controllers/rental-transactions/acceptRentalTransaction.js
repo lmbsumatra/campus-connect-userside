@@ -72,7 +72,7 @@ const acceptRentalTransaction = async (req, res, emitNotification) => {
       return res.status(404).json({ error: "Rental transaction not found." });
     }
 
-    console.log(userId);
+    // console.log(userId);
 
     if (rental.owner_id !== userId) {
      

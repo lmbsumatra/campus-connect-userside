@@ -6,7 +6,7 @@ const getStudentById = async (req, res) => {
   const loggedInUserId = req.params.id;
   const studentId = req.params.id;
 
-  console.log({ loggedInUserId, studentId });
+  // console.log({ loggedInUserId, studentId });
 
   try {
     const user = await models.User.findOne({

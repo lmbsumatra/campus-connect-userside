@@ -25,7 +25,7 @@ function RentalItem({
   selectedTab,
   onTabChange,
 }) {
-  console.log(item);
+  // console.log(item);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const { studentUser } = useAuth();

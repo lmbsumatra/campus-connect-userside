@@ -293,7 +293,7 @@ const MessagePage = () => {
 
     // Listen for offer acceptance updates
     socket.current.on("offerAccepted", (data) => {
-      console.log("Received offerAccepted event:", data);
+      // console.log("Received offerAccepted event:", data);
       setAcceptedOffers((prev) => new Set([...prev, data.messageId]));
       
       // Also update the message status in the active chat
@@ -308,23 +308,23 @@ const MessagePage = () => {
     });
 
     socket.current.on("offerRejected", (data) => {
-      console.log("Received offerRejected event:", data);
+      // console.log("Received offerRejected event:", data);
       
       try {
         // Update rejected offers state
         setRejectedOffers((prev) => {
           const newSet = new Set([...prev, data.messageId]);
-          console.log("Updated rejectedOffers set:", Array.from(newSet));
+          // console.log("Updated rejectedOffers set:", Array.from(newSet));
           return newSet;
         });
         
         // Also update the message status in the active chat
         if (activeChat && activeChat.messages) {
           setActiveChat(prev => {
-            console.log("Updating active chat messages for rejected offer");
+            // console.log("Updating active chat messages for rejected offer");
             const updatedMessages = prev.messages.map(msg => {
               if (msg.id === data.messageId) {
-                console.log("Found message to update:", msg);
+                // console.log("Found message to update:", msg);
                 return {...msg, offerStatus: "rejected"};
               }
               return msg;
@@ -332,7 +332,7 @@ const MessagePage = () => {
             return {...prev, messages: updatedMessages};
           });
         } else {
-          console.log("Active chat not available or has no messages");
+          // console.log("Active chat not available or has no messages");
         }
       } catch (error) {
         console.error("Error handling offerRejected event:", error);
@@ -927,7 +927,7 @@ const MessagePage = () => {
       });
 
       // Update the offer status in the backend
-      console.log("Accepting offer with ID:", currentOffer.id);
+      // console.log("Accepting offer with ID:", currentOffer.id);
       
       try {
         const offerResponse = await fetch(
@@ -946,7 +946,7 @@ const MessagePage = () => {
         if (!offerResponse.ok) {
           console.warn("Offer status update had issues:", await offerResponse.text());
         } else {
-          console.log("Successfully updated offer status to accepted");
+          // console.log("Successfully updated offer status to accepted");
         }
       } catch (statusUpdateError) {
         console.error("Error updating offer status:", statusUpdateError);
@@ -1007,7 +1007,7 @@ const MessagePage = () => {
           detectedItemType = "FROM STOCK/TITLE"; 
         }
         
-        console.log("Detected item type:", itemType, "isRentalOffer:", isRentalOffer, "Detection method:", detectedItemType);
+        // console.log("Detected item type:", itemType, "isRentalOffer:", isRentalOffer, "Detection method:", detectedItemType);
         
         // Add additional check to ensure we're using the correct item ID field based on transaction type
         if (isRentalOffer) {
@@ -1090,10 +1090,10 @@ const MessagePage = () => {
           };
         }
         
-        console.log(`Transaction type: ${isRentalOffer ? "rental" : "sell"}`);
-        console.log("Using item_id:", correctItemId, "Original ID:", currentOffer.productDetails.productId);
-        console.log("Owner info available:", Object.keys(ownerInfo).length > 0);
-        console.log("Extended item info:", Object.keys(extendedItemInfo).length > 0);
+        // console.log(`Transaction type: ${isRentalOffer ? "rental" : "sell"}`);
+        // console.log("Using item_id:", correctItemId, "Original ID:", currentOffer.productDetails.productId);
+        // console.log("Owner info available:", Object.keys(ownerInfo).length > 0);
+        // console.log("Extended item info:", Object.keys(extendedItemInfo).length > 0);
         
         // For rental_from_post type, we need to set the proper transaction_type
         // This is critical to make sure the backend uses the correct item lookup logic
@@ -1150,7 +1150,7 @@ const MessagePage = () => {
           transactionDetails.timeTo = timeTo;
         }
 
-        console.log("Sending transaction details:", JSON.stringify(transactionDetails, null, 2));
+        // console.log("Sending transaction details:", JSON.stringify(transactionDetails, null, 2));
 
         try {
           // Call backend API to create transaction
@@ -1209,7 +1209,7 @@ const MessagePage = () => {
               
               // If we encounter the owner/seller null error, try a direct approach
               try {
-                console.log("Attempting direct transaction creation for post-based offer");
+                // console.log("Attempting direct transaction creation for post-based offer");
                 
                 // Create an enhanced transaction object with all necessary data
                 // to ensure the backend can create the transaction without model relationships
@@ -1236,8 +1236,8 @@ const MessagePage = () => {
                   product_image: currentOffer.productDetails.image || "",
                 };
                 
-                console.log("Attempting direct transaction creation with enhanced data:", 
-                  JSON.stringify(enhancedTransaction, null, 2));
+                // console.log("Attempting direct transaction creation with enhanced data:", 
+                //   JSON.stringify(enhancedTransaction, null, 2));
                 
                 // Try again with the enhanced data
                 const directResponse = await axios.post(
@@ -2330,17 +2330,17 @@ const MessagePage = () => {
   const handleRejectOffer = async (message) => {
     try {
       // Log detailed information about the message being rejected
-      console.log("Attempting to reject offer:", { 
-        messageId: message.id, 
-        senderId: message.sender,
-        isProductCard: message.isProductCard,
-        messageDetails: message
-      });
+      // console.log("Attempting to reject offer:", { 
+      //   messageId: message.id, 
+      //   senderId: message.sender,
+      //   isProductCard: message.isProductCard,
+      //   messageDetails: message
+      // });
       
       // Add the message ID to rejected offers
       setRejectedOffers((prev) => {
         const newSet = new Set([...prev, message.id]);
-        console.log("Updated rejectedOffers state:", Array.from(newSet));
+        // console.log("Updated rejectedOffers state:", Array.from(newSet));
         return newSet;
       });
 
@@ -2351,11 +2351,11 @@ const MessagePage = () => {
         recipient: message.sender,
         sender: userId,
       });
-      console.log("Emitted offerRejected socket event");
+      // console.log("Emitted offerRejected socket event");
 
       // Update the offer status in the backend
       const requestUrl = `${baseApi}/api/messages/${message.id}/offer-status`;
-      console.log("Rejecting offer with ID:", message.id, "API URL:", requestUrl);
+      // console.log("Rejecting offer with ID:", message.id, "API URL:", requestUrl);
 
       try {
         const response = await fetch(
@@ -2372,7 +2372,7 @@ const MessagePage = () => {
         );
 
         const responseText = await response.text();
-        console.log("Offer status update response:", response.status, responseText);
+        // console.log("Offer status update response:", response.status, responseText);
         
         if (!response.ok) {
           console.error("Server response not OK:", response.status, responseText);

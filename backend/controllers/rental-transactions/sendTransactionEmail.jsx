@@ -10,15 +10,15 @@ const sendTransactionEmail = async ({
   status,
 }) => {
   let subject, message;
-  console.log(
-    email,
-    itemName,
-    transactionType,
-    amount,
-    userName,
-    recipientType,
-    status
-  );
+  // console.log(
+  //   email,
+  //   itemName,
+  //   transactionType,
+  //   amount,
+  //   userName,
+  //   recipientType,
+  //   status
+  // );
 
   switch (status) {
     case "Requested":
@@ -226,7 +226,7 @@ const sendTransactionEmail = async ({
     </html>`,
   };
 
-  // return transporter.sendMail(mailOptions);
+  return transporter.sendMail(mailOptions);
 };
 
 module.exports = sendTransactionEmail;

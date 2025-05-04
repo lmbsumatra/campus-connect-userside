@@ -10,7 +10,7 @@ const server = http.createServer(app);
 const { io } = require("socket.io-client");
 
 // Create the socket connection outside the cron job
-const socket = io("http://localhost:3001/", {
+const socket = io("https://api.rentupeers.shop", {
   withCredentials: true,
   reconnection: true,
   reconnectionAttempts: 5,
@@ -32,7 +32,7 @@ socket.on("disconnect", (reason) => {
 
 const AllowToProceed = () => {
   cron.schedule("* * * * *", async () => {
-    console.log("Running cron job to update rental status...");
+    // console.log("Running cron job to update rental status...");
 
     try {
       const now = new Date();
@@ -86,15 +86,15 @@ const AllowToProceed = () => {
           let nextStatus = null;
           const THIRTY_MINUTES = 30 * 60 * 1000;
 
-          console.log(`[Rental ${rental.id}]`);
-          console.log(`  Date: ${rentalDate}`);
-          console.log(`  rental_time_from: ${duration.rental_time_from}`);
-          console.log(`  startTime: ${new Date(startTime).toISOString()}`);
-          console.log(`  currentTime: ${new Date(currentTime).toISOString()}`);
-          console.log(`  diffMins: ${(startTime - currentTime) / (60 * 1000)}`);
-          console.log(
-            `  canCancel: ${currentTime <= startTime - THIRTY_MINUTES}`
-          );
+          // console.log(`[Rental ${rental.id}]`);
+          // console.log(`  Date: ${rentalDate}`);
+          // console.log(`  rental_time_from: ${duration.rental_time_from}`);
+          // console.log(`  startTime: ${new Date(startTime).toISOString()}`);
+          // console.log(`  currentTime: ${new Date(currentTime).toISOString()}`);
+          // console.log(`  diffMins: ${(startTime - currentTime) / (60 * 1000)}`);
+          // console.log(
+          //   `  canCancel: ${currentTime <= startTime - THIRTY_MINUTES}`
+          // );
 
           // Check if cancellation is allowed based on time before rental start
           let canCancel = false;
@@ -121,15 +121,15 @@ const AllowToProceed = () => {
               if (currentTime >= startTime) {
                 await rental.update({ is_allowed_to_proceed: true });
               }
-              console.log("currentTime:", currentTime);
-              console.log(
-                "startTime + ALLOWED_TIME_WINDOW:",
-                startTime + ALLOWED_TIME_WINDOW
-              );
-              console.log("ALLOWED_TIME_WINDOW:", ALLOWED_TIME_WINDOW);
+              // console.log("currentTime:", currentTime);
+              // console.log(
+              //   "startTime + ALLOWED_TIME_WINDOW:",
+              //   startTime + ALLOWED_TIME_WINDOW
+              // );
+              // console.log("ALLOWED_TIME_WINDOW:", ALLOWED_TIME_WINDOW);
 
               if (currentTime > startTime + ALLOWED_TIME_WINDOW) {
-                console.log("Auto-cancelling rental due to timeout");
+                // console.log("Auto-cancelling rental due to timeout");
                 nextStatus = "Cancelled"; // Auto-cancel if not handed over
               }
 
@@ -177,17 +177,17 @@ const AllowToProceed = () => {
               status: nextStatus,
             });
 
-            console.log(
-              `Rental ID ${rental.id} automatically updated to ${nextStatus}.`
-            );
+            // console.log(
+            //   `Rental ID ${rental.id} automatically updated to ${nextStatus}.`
+            // );
           }
 
           // Reset is_allowed_to_proceed after the allowed time window expires
           if (shouldResetAllow) {
             await rental.update({ is_allowed_to_proceed: false });
-            console.log(
-              `Rental ID ${rental.id}: is_allowed_to_proceed reset to false.`
-            );
+            // console.log(
+            //   `Rental ID ${rental.id}: is_allowed_to_proceed reset to false.`
+            // );
           }
         }
       }

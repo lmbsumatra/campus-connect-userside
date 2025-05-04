@@ -47,18 +47,18 @@ export const determineRoute = (
   notification
 ) => {
   // For debugging
-  console.log("Determining route for:", {
-    type,
-    notification,
-    sender_id: notification?.sender_id,
-  });
+  // console.log("Determining route for:", {
+  //   type,
+  //   notification,
+  //   sender_id: notification?.sender_id,
+  // });
 
   // Special case for user_followed - handle it directly
   if (type === "user_followed" && notification && notification.sender_id) {
-    console.log(
-      "User followed route determined:",
-      `/user/${notification.sender_id}`
-    );
+    // console.log(
+    //   "User followed route determined:",
+    //   `/user/${notification.sender_id}`
+    // );
     return `/user/${notification.sender_id}`;
   }
 
