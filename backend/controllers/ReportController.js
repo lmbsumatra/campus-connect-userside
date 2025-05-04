@@ -201,7 +201,7 @@ exports.updateReportStatus = async (req, res) => {
     await report.save();
 
     // Handle entity status changes
-    if (reportStatus === "reviewed" && entityAction) {
+    if (reportStatus === "resolved" && entityAction) {
       // Update the entity status (flagging, banning, etc.)
       if (report.entity_type === "user") {
         const student = await models.Student.findOne({
@@ -246,7 +246,7 @@ exports.updateReportStatus = async (req, res) => {
       // Update all reports for the same entity to "resolved"
       await models.Report.update(
         {
-          status: "reviewed",
+          status: "resolved",
           lastUpdated: lastUpdated || new Date().toISOString(),
           reviewedBy: reviewedBy,
         },

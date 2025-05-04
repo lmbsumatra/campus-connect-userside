@@ -265,8 +265,7 @@ export const ReportStatusTrend = ({ reports }) => {
   // Group by date and status
   const statusTrendData = filteredReports.reduce((acc, report) => {
     const date = new Date(report.createdAt).toLocaleDateString();
-    if (!acc[date])
-      acc[date] = { pending: 0, reviewed: 0, dismissed: 0, resolved: 0 };
+    if (!acc[date]) acc[date] = { pending: 0, dismissed: 0, resolved: 0 };
     acc[date][report.status]++;
     return acc;
   }, {});
@@ -285,8 +284,8 @@ export const ReportStatusTrend = ({ reports }) => {
         borderColor: "rgba(255, 206, 86, 1)",
       },
       {
-        label: "Reviewed",
-        data: sortedDates.map((date) => statusTrendData[date].reviewed),
+        label: "Resolved",
+        data: sortedDates.map((date) => statusTrendData[date].resolved),
         backgroundColor: "rgba(54, 162, 235, 0.6)",
         borderColor: "rgba(54, 162, 235, 1)",
       },
@@ -338,7 +337,7 @@ export const ReportStatusTrend = ({ reports }) => {
 export const ResolutionTimeAnalysis = ({ reports }) => {
   // Filter only resolved reports
   const resolvedReports = reports.filter(
-    (r) => r.status === "reviewed" || r.status === "dismissed"
+    (r) => r.status === "resolved" || r.status === "dismissed"
   );
 
   const resolutionTimes = resolvedReports.map((report) => {
@@ -436,7 +435,7 @@ export const ReviewerEfficiency = ({ reports }) => {
   const reviewerData = useMemo(() => {
     const reviewedReports = filteredReports.filter(
       (r) =>
-        (r.status === "reviewed" || r.status === "dismissed") && r.reviewedBy
+        (r.status === "resolved" || r.status === "dismissed") && r.reviewedBy
     );
 
     return Object.entries(

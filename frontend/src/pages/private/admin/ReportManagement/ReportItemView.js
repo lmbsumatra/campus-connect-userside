@@ -142,8 +142,8 @@ const ReportItemView = () => {
     switch (status?.toLowerCase()) {
       case "pending":
         return "status-badge status-pending";
-      case "reviewed":
-        return "status-badge status-reviewed";
+      case "resolved":
+        return "status-badge status-resolved";
       case "rejected":
         return "status-badge status-rejected";
       default:
@@ -249,12 +249,12 @@ const ReportItemView = () => {
           className="btn btn-primary btn-lg"
           onClick={handleOpenModal}
           disabled={
-            reportDetails?.status === "reviewed" ||
+            reportDetails?.status === "resolved" ||
             reportDetails?.status === "dismissed"
           }
         >
-          {reportDetails?.status === "reviewed"
-            ? "Already Reviewed"
+          {reportDetails?.status === "resolved"
+            ? "Already Resolved"
             : reportDetails?.status === "dismissed"
             ? "Dismissed"
             : "Take Action"}

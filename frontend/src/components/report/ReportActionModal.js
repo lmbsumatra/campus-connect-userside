@@ -18,7 +18,7 @@ const ReportActionModal = ({
   const dispatch = useDispatch();
 
   const handleConfirm = () => {
-    if (selectedReportStatus === "reviewed") {
+    if (selectedReportStatus === "resolved") {
       if (
         entityType === "user" &&
         (!entityAction || entityAction.trim() === "")
@@ -76,13 +76,13 @@ const ReportActionModal = ({
               onChange={(e) => setSelectedReportStatus(e.target.value)}
             >
               <option value="pending">Pending</option>
-              <option value="reviewed">Reviewed</option>
+              <option value="resolved">Resolved</option>
               <option value="dismissed">Dismissed</option>
             </Form.Control>
           </Form.Group>
 
-          {/* Show flagged/banned options only when the report is reviewed */}
-          {selectedReportStatus === "reviewed" && (
+          {/* Show flagged/banned options only when the report is resolved */}
+          {selectedReportStatus === "resolved" && (
             <Form.Group>
               <Form.Label>
                 {entityType === "user" ? "User Action" : "Entity Action"}
