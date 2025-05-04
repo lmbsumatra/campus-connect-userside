@@ -132,11 +132,7 @@ function RentProgress() {
       : transaction.rental?.ItemForSale?.item_for_sale_name ||
         "Sale Transaction";
 
-    const itemImage = isRentalTransaction
-      ? transaction.rental?.Listing?.image_url || item1
-      : transaction.rental?.ItemForSale?.images
-      ? JSON.parse(transaction.rental?.ItemForSale?.images)[0]
-      : item1;
+    const itemImage = getItemImage();
 
     const itemPrice = isRentalTransaction
       ? transaction.rental?.Listing?.rate || "0"
