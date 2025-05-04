@@ -31,7 +31,8 @@ const buySlotRoutes = require("./routes/BuySlotRoute.js");
 // Cron Jobs
 const autoDeclineExpired = require("./cron-job/rental-transaction/AutoDecline.js");
 const cron = require("node-cron");
-const endSemesterCron = require("./cron-job/endSemester.js"); //for resetting status of verified student
+const endSemesterCron = require("./cron-job/endSemester.js");
+const cleanupOldAuditCron = require("./cron-job/deleteOldAuditLogs.js");
 const {
   AllowToProceed,
 } = require("./cron-job/rental-transaction/AllowToProceed.js");
