@@ -1360,8 +1360,8 @@ const MessagePage = () => {
   const handleProductCardClick = (productId, type) => {
     // console.log("Navigating with:", { productId, type });
     if (productId && type) {
-      if (type === "rental-transaction") {
-        // Navigate to rental transaction page
+      if (type === "rental-transaction" || type === "sale-transaction") {
+        // Navigate to transaction progress page for both rental and sale transactions
         navigate(`/transaction-progress/${productId}`);
       } else {
         // Default navigation for product listings
