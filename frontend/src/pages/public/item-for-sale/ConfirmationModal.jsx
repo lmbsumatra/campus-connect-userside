@@ -1,7 +1,8 @@
-import { Button, Modal } from "react-bootstrap";
+import { Button, Modal, Spinner } from "react-bootstrap";
 import { defaultImages } from "../../../utils/consonants";
 import { formatTimeTo12Hour } from "../../../utils/timeFormat";
 import { formatDate } from "../../../utils/dateFormat";
+import { useState } from "react";
 
 const ConfirmationModal = ({
   show,
@@ -15,6 +16,18 @@ const ConfirmationModal = ({
   const selectedDateId = itemforsale.rentalDates.find(
     (rentalDate) => rentalDate.date === selectedDate
   )?.id;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await confirm();
+    } catch (error) {
+      console.error("Error in confirmation:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Modal show={show} onHide={onHide}>
@@ -94,11 +107,29 @@ const ConfirmationModal = ({
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
+        <Button variant="secondary" onClick={onHide} disabled={isLoading}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={(e) => confirm()}>
-          Confirm
+        <Button
+          variant="primary"
+          onClick={(e) => handleConfirm()}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+                className="me-2"
+              />
+              Processing...
+            </>
+          ) : (
+            "Confirm"
+          )}
         </Button>
       </Modal.Footer>
     </Modal>

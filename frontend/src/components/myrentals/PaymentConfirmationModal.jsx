@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Button, Modal, Form } from "react-bootstrap";
+import { Button, Modal, Form, Spinner } from "react-bootstrap";
 
 const PaymentConfirmationModal = ({
   isOpen,
@@ -13,6 +13,7 @@ const PaymentConfirmationModal = ({
   const [evidenceImage, setEvidenceImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploadError, setUploadError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -34,7 +35,7 @@ const PaymentConfirmationModal = ({
     }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -44,7 +45,15 @@ const PaymentConfirmationModal = ({
       return;
     }
 
-    onConfirm(evidenceImage);
+    setIsLoading(true);
+
+    try {
+      await onConfirm(evidenceImage);
+    } catch (error) {
+      console.error("Confirmation failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const shouldRequireEvidence = () => {
@@ -232,11 +241,26 @@ const PaymentConfirmationModal = ({
               e.stopPropagation();
               onClose();
             }}
+            disabled={isLoading}
           >
             Cancel
           </Button>
-          <Button variant="primary" type="submit">
-            {getButtonText()}
+          <Button variant="primary" type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="me-2"
+                />
+                Processing...
+              </>
+            ) : (
+              getButtonText()
+            )}
           </Button>
         </Modal.Footer>
       </Form>
