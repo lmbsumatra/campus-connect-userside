@@ -153,6 +153,8 @@ const MessagePage = () => {
   // Add these state variables after other state variables
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [currentOffer, setCurrentOffer] = useState(null);
+  // Add this state variable with the other state variables around line 155
+  const [isConfirming, setIsConfirming] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -909,10 +911,12 @@ const MessagePage = () => {
     setShowConfirmModal(true);
   };
 
+  // Update the confirmAcceptOffer function to set the loading state
   const confirmAcceptOffer = async () => {
     if (!currentOffer) return;
 
     try {
+      setIsConfirming(true);
       // Add the message ID to accepted offers
       setAcceptedOffers((prev) => new Set([...prev, currentOffer.id]));
 
@@ -1155,8 +1159,6 @@ const MessagePage = () => {
           transactionDetails.timeTo = timeTo;
         }
 
-        // console.log("Sending transaction details:", JSON.stringify(transactionDetails, null, 2));
-
         try {
           // Call backend API to create transaction
           const response = await axios.post(
@@ -1167,12 +1169,14 @@ const MessagePage = () => {
           // If payment method is GCASH/online, redirect to payment page
           if (currentOffer.productDetails.paymentMethod === "gcash") {
             if (!response.data.clientSecret || !response.data.paymentIntentId) {
+              setIsConfirming(false);
               ShowAlert(dispatch, "error", "Error", "Failed to setup payment.");
               return;
             }
 
             // Close modal and navigate to payment
             setShowConfirmModal(false);
+            setIsConfirming(false);
             navigate("/payment", {
               state: {
                 paymentIntentId: response.data.paymentIntentId,
@@ -1184,6 +1188,7 @@ const MessagePage = () => {
           } else {
             // Close modal and show success
             setShowConfirmModal(false);
+            setIsConfirming(false);
             ShowAlert(
               dispatch,
               "success",
@@ -1252,6 +1257,7 @@ const MessagePage = () => {
                 
                 // If successful, proceed normally
                 setShowConfirmModal(false);
+                setIsConfirming(false);
                 ShowAlert(
                   dispatch,
                   "success",
@@ -1284,6 +1290,7 @@ const MessagePage = () => {
             }
           }
           
+          setIsConfirming(false);
           // Show error and close modal
           ShowAlert(
             dispatch,
@@ -1296,6 +1303,7 @@ const MessagePage = () => {
         }
       } else {
         console.warn("Missing date_id or time_id in offer details");
+        setIsConfirming(false);
         setShowConfirmModal(false);
         ShowAlert(
           dispatch,
@@ -1312,6 +1320,7 @@ const MessagePage = () => {
         newSet.delete(currentOffer.id);
         return newSet;
       });
+      setIsConfirming(false);
       setShowConfirmModal(false);
       
       // Show user-friendly error message
@@ -3446,11 +3455,30 @@ const MessagePage = () => {
             <Button
               variant="secondary"
               onClick={() => setShowConfirmModal(false)}
+              disabled={isConfirming}
             >
               Cancel
             </Button>
-            <Button variant="primary" onClick={confirmAcceptOffer}>
-              Confirm
+            <Button 
+              variant="primary" 
+              onClick={confirmAcceptOffer}
+              disabled={isConfirming}
+            >
+              {isConfirming ? (
+                <>
+                  <Spinner 
+                    as="span" 
+                    animation="border" 
+                    size="sm" 
+                    role="status" 
+                    aria-hidden="true" 
+                    className="me-2" 
+                  />
+                  Processing...
+                </>
+              ) : (
+                "Confirm"
+              )}
             </Button>
           </Modal.Footer>
         </Modal>
