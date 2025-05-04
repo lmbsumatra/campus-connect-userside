@@ -10,7 +10,11 @@ const User = require("../models/UserModel"); // Adjust the path if necessary
 
 const { models } = require("../models/index");
 
-// New conversation route
+/**
+ * Route for creating a new conversation
+ * Used when a user sends a message to another user for the first time
+ * The members array stores the IDs of both participants in the conversation
+ */
 router.post("/", async (req, res) => {
   try {
     // Create a new conversation by storing senderId and receiverId
@@ -26,7 +30,11 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Create a conversation between user and lender
+/**
+ * Route for creating a conversation between a user and an item owner
+ * Used when a user inquires about an item from the marketplace
+ * Checks if a conversation already exists before creating a new one
+ */
 router.post("/createConversation", async (req, res) => {
   const { senderId, ownerId } = req.body; // Extract senderId and ownerId from request body
 
@@ -39,6 +47,7 @@ router.post("/createConversation", async (req, res) => {
     }
 
     // Check if a conversation already exists between the sender and owner
+    // Using MySQL JSON function to check if both user IDs exist in the members field
     const existingConversation = await models.Conversation.findOne({
       where: {
         members: sequelize.literal(
@@ -67,7 +76,11 @@ router.post("/createConversation", async (req, res) => {
   }
 });
 
-// Create a conversation between user and renter
+/**
+ * Route for creating a conversation between a user and a renter
+ * Similar to createConversation, but specifically for rental posts
+ * Used when a user contacts the creator of a rental post
+ */
 router.post("/createConversationPost", async (req, res) => {
   const { senderId, renterId } = req.body; // Extract senderId and ownerId from request body
   // console.log({ senderId, renterId });
@@ -108,7 +121,11 @@ router.post("/createConversationPost", async (req, res) => {
   }
 });
 
-// Create a conversation between user and seller
+/**
+ * Route for creating a conversation between a user and a seller
+ * Similar to the other creation routes, but specific to sale transactions
+ * Used when a buyer wants to contact a seller about an item for sale
+ */
 router.post("/createBySeller", async (req, res) => {
   const { senderId, sellerId } = req.body; // Extract senderId and sellerId from request body
 
@@ -149,7 +166,12 @@ router.post("/createBySeller", async (req, res) => {
   }
 });
 
-// Get all conversations of a user
+/**
+ * Route for fetching all conversations for a specific user
+ * This is the main endpoint used by the MessagePage component to load conversation list
+ * Returns conversations with details about the other participant and message history
+ * Also includes information about block status and deleted conversations
+ */
 router.get("/:id", async (req, res) => {
   const userId = req.params.id; // Extract userId from URL parameters
 
@@ -169,6 +191,7 @@ router.get("/:id", async (req, res) => {
 
   try {
     // Query the database for all conversations involving the user
+    // Uses MySQL JSON_CONTAINS to find conversations where userId is in the members array
     const query = `
           SELECT * 
           FROM conversations 
@@ -194,6 +217,7 @@ router.get("/:id", async (req, res) => {
     }
 
     // Prepare response with conversations and additional user data
+    // This formats the data for consumption by the frontend MessagePage component
     const responseData = {
       user: {
         user_id: user.user_id,
@@ -226,6 +250,7 @@ router.get("/:id", async (req, res) => {
           });
 
           // Check if the user has blocked or been blocked by the other user
+          // This info is used in the UI to show appropriate messaging controls
           const userBlockedOther = await models.BlockedUser.findOne({
             where: { 
               blocker_id: userId,
@@ -241,6 +266,7 @@ router.get("/:id", async (req, res) => {
           });
 
           // Check if the conversation is marked as deleted by this user
+          // If it's deleted, we'll exclude it from the response
           const isDeleted = await models.DeletedConversation.findOne({
             where: {
               conversation_id: conversation.id,
@@ -290,7 +316,11 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Handle sending a message in a conversation
+/**
+ * Route for sending a message in a conversation
+ * Used by the frontend when a user submits a new message
+ * Handles both text messages and product cards
+ */
 router.post("/:conversationId/message", async (req, res) => {
   const { conversationId } = req.params; // Extract conversation ID from URL params
   const { sender, text, isProductCard, productDetails, images  } = req.body; // Extract sender and message text from request body
@@ -310,6 +340,7 @@ router.post("/:conversationId/message", async (req, res) => {
     }
 
     // Create the new message for the conversation
+    // Note: Text messages are already encrypted from the frontend using messageEncryption.js
     const newMessage = await Message.create({
       conversationId,
       sender: sender,
@@ -332,7 +363,11 @@ router.post("/:conversationId/message", async (req, res) => {
   }
 });
 
-// Get all messages in a conversation
+/**
+ * Route for fetching messages from a specific conversation
+ * Used when loading message history in the chat interface
+ * Returns messages in chronological order (oldest first)
+ */
 router.get("/:conversationId/messages", async (req, res) => {
   try {
     const { conversationId } = req.params; // Get conversation ID from URL params
@@ -362,7 +397,11 @@ router.get("/:conversationId/messages", async (req, res) => {
   }
 });
 
-// Add this new route to get conversations with latest message and unread status
+/**
+ * Route for fetching conversation previews with latest message info
+ * Used to show a preview of each conversation in the conversation list
+ * Includes unread status to show notifications for new messages
+ */
 router.get("/preview/:userId", async (req, res) => {
   // console.log("Fetching conversations for user:", req.params.userId);
   try {
@@ -436,7 +475,11 @@ router.get("/preview/:userId", async (req, res) => {
   }
 });
 
-// Block a user
+/**
+ * Route for blocking a user
+ * Used when a user blocks another user from the messaging interface
+ * Prevents further communication between the users
+ */
 router.post("/block", async (req, res) => {
   try {
     const { blockerId, blockedId } = req.body;
@@ -471,7 +514,11 @@ router.post("/block", async (req, res) => {
   }
 });
 
-// Unblock a user
+/**
+ * Route for unblocking a user
+ * Used when a user decides to unblock someone they previously blocked
+ * Removes the block record and allows communication to resume
+ */
 router.post("/unblock", async (req, res) => {
   try {
     const { blockerId, blockedId } = req.body;
@@ -501,7 +548,11 @@ router.post("/unblock", async (req, res) => {
   }
 });
 
-// Delete a conversation (for one user only)
+/**
+ * Route for deleting a conversation
+ * This performs a "soft delete" by marking the conversation as deleted for one user
+ * The conversation will still exist for the other user
+ */
 router.post("/delete", async (req, res) => {
   try {
     const { conversationId, userId } = req.body;
@@ -517,6 +568,7 @@ router.post("/delete", async (req, res) => {
     }
     
     // Create a record to mark this conversation as deleted for this user
+    // This is a soft delete - the data remains in the database but is filtered out for this user
     await models.DeletedConversation.create({
       conversation_id: conversationId,
       user_id: userId,
@@ -530,7 +582,11 @@ router.post("/delete", async (req, res) => {
   }
 });
 
-// Get a single conversation by ID, even if deleted
+/**
+ * Route for fetching a single conversation by ID, even if previously deleted
+ * This endpoint is used when receiving a new message in a previously deleted conversation
+ * Will "undelete" the conversation for the user by removing the deleted record
+ */
 router.get("/single/:conversationId/:userId", async (req, res) => {
   try {
     const { conversationId, userId } = req.params;
@@ -581,6 +637,7 @@ router.get("/single/:conversationId/:userId", async (req, res) => {
     });
     
     // Remove any record of this conversation being deleted by this user
+    // This "undeletes" the conversation when a new message is received
     const deletedRecord = await models.DeletedConversation.findOne({
       where: {
         conversation_id: conversationId,

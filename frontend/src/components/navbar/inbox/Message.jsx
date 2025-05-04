@@ -234,7 +234,15 @@ const Message = ({ icon, isDarkTheme, showDropdown, toggleDropdown }) => {
     const isCurrentUserSender = conv.latestMessage.sender === String(userId); // Convert userId to string
     
     // Decrypt the message text for the preview
-    const decryptedText = decryptMessage(messageText);
+    let decryptedText = messageText;
+    try {
+      if (!conv.latestMessage.isProductCard) {
+        decryptedText = decryptMessage(messageText);
+      }
+    } catch (error) {
+      console.warn('Error decrypting message for notification preview:', error);
+      // Keep original text if decryption fails
+    }
 
     return isCurrentUserSender ? `You: ${decryptedText}` : decryptedText;
   };

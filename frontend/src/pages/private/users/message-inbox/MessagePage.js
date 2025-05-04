@@ -203,7 +203,12 @@ const MessagePage = () => {
       
       // Decrypt message text if it's not a product card
       if (!message.isProductCard && message.text) {
-        message.text = decryptMessage(message.text);
+        try {
+          message.text = decryptMessage(message.text);
+        } catch (error) {
+          console.warn('Error decrypting socket message:', error);
+          // Keep the original encrypted text if decryption fails
+        }
       }
 
       // Mark conversation as having unread messages if it's not the active chat
@@ -1495,7 +1500,12 @@ const MessagePage = () => {
               // Decrypt the message text for searching if it's not a product card
               let searchableText = msg.text;
               if (!msg.isProductCard && msg.text) {
-                searchableText = decryptMessage(msg.text);
+                try {
+                  searchableText = decryptMessage(msg.text);
+                } catch (error) {
+                  console.warn('Error decrypting message for search:', error);
+                  // Keep the original text for searching if decryption fails
+                }
               }
               
               // Check text content
@@ -2710,10 +2720,16 @@ const MessagePage = () => {
                                   : latestMessage.text
                                   ? (() => {
                                       // Decrypt the message text
-                                      const decryptedText = decryptMessage(latestMessage.text);
-                                      return decryptedText.length > 30
-                                        ? `${decryptedText.substring(0, 30)}...`
-                                        : decryptedText;
+                                      try {
+                                        const decryptedText = decryptMessage(latestMessage.text);
+                                        return decryptedText.length > 30
+                                          ? `${decryptedText.substring(0, 30)}...`
+                                          : decryptedText;
+                                      } catch (error) {
+                                        console.warn('Error decrypting message for preview:', error);
+                                        // Show a generic preview if decryption fails
+                                        return "Message";
+                                      }
                                     })()
                                   : ""
                               : "No messages yet"}
@@ -3103,7 +3119,18 @@ const MessagePage = () => {
                           </div>
                         )}
                       <span>
-                        {message.text && <p>{!message.isProductCard ? decryptMessage(message.text) : message.text}</p>}
+                        {message.text && <p>{
+                          !message.isProductCard ? 
+                            (() => {
+                              try {
+                                return decryptMessage(message.text);
+                              } catch (error) {
+                                console.warn('Error decrypting message for display:', error);
+                                return message.text; // Fallback to encrypted text
+                              }
+                            })() 
+                            : message.text
+                        }</p>}
                         {formatChatTimestamp(message.createdAt)}
                       </span>
                     </div>

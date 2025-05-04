@@ -3,7 +3,12 @@ const Message = require("../models/MessageModel");
 const { upload_message_images, rollbackUpload  } = require("../config/multer");
 const { models } = require("../models/index");
 
-// Add a new message
+/**
+ * Route to create a new message
+ * This endpoint is used when sending messages through the socket.io connection
+ * Messages are already encrypted from the client using messageEncryption.js
+ * Handles both regular text messages and product card messages
+ */
 router.post("/", async (req, res) => {
   try {
     const { conversationId, sender, text, isProductCard, productDetails } = req.body;
@@ -31,6 +36,7 @@ router.post("/", async (req, res) => {
     const recipient = members.find(memberId => memberId !== sender.toString());
 
     // Check if the sender has blocked the recipient or vice versa
+    // This prevents sending messages to blocked users
     const senderBlockedRecipient = await models.BlockedUser.findOne({
       where: {
         blocker_id: sender,
@@ -62,7 +68,9 @@ router.post("/", async (req, res) => {
     }
 
     // Create the new message
-    // Note: text is already encrypted on the client side for regular messages
+    // Note: For regular messages, text is already encrypted on the client side
+    // using the encryptMessage function in messageEncryption.js
+    // Product cards are not encrypted to maintain searchability
     const newMessage = await Message.create({
       conversationId,
       sender,
@@ -87,7 +95,12 @@ router.post("/", async (req, res) => {
   }
 });
 
-// New route to handle image uploads for messages
+/**
+ * Route to handle image uploads for messages
+ * This endpoint uses multer middleware to process image files
+ * Uploaded images are stored on the server and URLs are returned
+ * These URLs are then included in message objects sent through socket.io
+ */
 router.post("/upload-message-images", upload_message_images, async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -105,6 +118,7 @@ router.post("/upload-message-images", upload_message_images, async (req, res) =>
     // console.error("Error uploading message images:", err);
     
     // Try to rollback uploads if available
+    // This removes any files that were uploaded before the error occurred
     if (req.files && req.files.length > 0) {
       const imagePaths = req.files.map(file => file.path);
       try {
@@ -118,7 +132,12 @@ router.post("/upload-message-images", upload_message_images, async (req, res) =>
   }
 });
 
-// Get all messages for a specific conversation
+/**
+ * Route to get all messages for a specific conversation
+ * Used when loading the conversation history in the message page
+ * Returns messages sorted by creation date (oldest first)
+ * Text messages are returned encrypted - decryption happens on the client side
+ */
 router.get("/:conversationId", async (req, res) => {
   try {
     const { conversationId } = req.params;
@@ -140,6 +159,7 @@ router.get("/:conversationId", async (req, res) => {
     });
 
     // Format the messages to ensure consistent data types
+    // This is important for handling encrypted text and properly formatted JSON
     const formattedMessages = messages.map(message => {
       const messageData = message.toJSON();
       
@@ -174,7 +194,11 @@ router.get("/:conversationId", async (req, res) => {
   }
 });
 
-// New route to update offer status (accept/reject)
+/**
+ * Route to update offer status (accept/reject)
+ * Used when a user accepts or rejects a product offer in the chat
+ * This will trigger socket events to notify the other user about the status change
+ */
 router.post("/:messageId/offer-status", async (req, res) => {
   try {
     const { messageId } = req.params;
