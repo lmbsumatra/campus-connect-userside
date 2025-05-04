@@ -251,43 +251,38 @@ export const AuthProvider = ({ children }) => {
     if (!adminUser) return;
 
     let timeout;
-    let activityDebounce;
     let isLoggedOut = false;
 
     const resetTimeout = () => {
       if (isLoggedOut) return;
 
-      clearTimeout(activityDebounce);
-      activityDebounce = setTimeout(() => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          if (isLoggedOut) return;
-          isLoggedOut = true;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        if (isLoggedOut) return;
+        isLoggedOut = true;
 
-          ShowAlert(
-            dispatch,
-            "error",
-            "Session Expired",
-            "You have been automatically logged out due to 15 minutes of inactivity.",
-            {
-              text: "OK",
-              action: () => logoutAdmin(true),
-            }
-          ).then(() => {
-            logoutAdmin(true);
-          });
-        }, 15 * 60 * 1000);
-      }, 200);
+        ShowAlert(
+          dispatch,
+          "error",
+          "Session Expired",
+          "You have been automatically logged out due to 15 minutes of inactivity.",
+          {
+            text: "OK",
+            action: () => logoutAdmin(true),
+          }
+        ).then(() => {
+          logoutAdmin(true);
+        });
+      }, 15 * 60 * 1000); // 15 minutes
     };
 
     const events = ["mousemove", "keydown", "scroll", "click", "touchstart"];
     events.forEach((e) => window.addEventListener(e, resetTimeout));
 
-    resetTimeout(); // Start the timer
+    resetTimeout(); // Initialize timer
 
     return () => {
       clearTimeout(timeout);
-      clearTimeout(activityDebounce);
       events.forEach((e) => window.removeEventListener(e, resetTimeout));
     };
   }, [adminUser, logoutAdmin, dispatch]);
