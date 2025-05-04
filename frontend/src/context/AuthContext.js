@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { jwtDecode } from "jwt-decode";
 import { baseApi } from "../utils/consonants";
@@ -83,7 +84,7 @@ export const AuthProvider = ({ children }) => {
         lastLogoutTimestamp &&
         now - lastLogoutTimestamp < 5000
       ) {
-        console.warn("Logout event ignored: Cooldown active.");
+        //console.warn("Logout event ignored: Cooldown active.");
         return;
       }
 
@@ -182,7 +183,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        console.error("Failed to check permission status.");
+        //console.error("Failed to check permission status.");
         return;
       }
 
@@ -235,7 +236,7 @@ export const AuthProvider = ({ children }) => {
           logoutAdmin();
         }
       } catch (error) {
-        //console.error("Error in token refresh check:", error);
+        console.error("Error in token refresh check:", error);
         logoutAdmin();
       }
     };
@@ -247,45 +248,52 @@ export const AuthProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [adminUser, logoutAdmin, refreshAdminToken]);
 
+  const timeoutRef = useRef();
+  const isLoggedOut = useRef(false);
+
+  const resetTimeout = useCallback(() => {
+    if (isLoggedOut.current) return;
+
+    clearTimeout(timeoutRef.current);
+    //console.log("[Inactivity] Timer reset at", new Date().toLocaleTimeString());
+
+    timeoutRef.current = setTimeout(() => {
+      if (isLoggedOut.current) return;
+      isLoggedOut.current = true;
+
+      //console.log("[Inactivity] Logging out due to 20 minutes of inactivity");
+
+      ShowAlert(
+        dispatch,
+        "error",
+        "Session Expired",
+        "You have been automatically logged out due to 20 minutes of inactivity.",
+        {
+          text: "OK",
+          action: () => logoutAdmin(true),
+        }
+      );
+    }, 15 * 60 * 1000); // 20 minutes
+  }, [dispatch, logoutAdmin]);
+
   useEffect(() => {
-    if (!adminUser) return;
+    if (!adminUser || !adminUser.userId) return;
 
-    let timeout;
-    let isLoggedOut = false;
-
-    const resetTimeout = () => {
-      if (isLoggedOut) return;
-
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        if (isLoggedOut) return;
-        isLoggedOut = true;
-
-        ShowAlert(
-          dispatch,
-          "error",
-          "Session Expired",
-          "You have been automatically logged out due to 15 minutes of inactivity.",
-          {
-            text: "OK",
-            action: () => logoutAdmin(true),
-          }
-        ).then(() => {
-          logoutAdmin(true);
-        });
-      }, 15 * 60 * 1000); // 15 minutes
-    };
-
-    const events = ["mousemove", "keydown", "scroll", "click", "touchstart"];
+    const events = ["click", "keydown", "touchstart", "scroll"];
     events.forEach((e) => window.addEventListener(e, resetTimeout));
-
-    resetTimeout(); // Initialize timer
+    resetTimeout(); // Start initial timer
+    // console.log(
+    //   "[Inactivity] Initial timeout set at",
+    //   new Date().toLocaleTimeString()
+    // );
 
     return () => {
-      clearTimeout(timeout);
+      clearTimeout(timeoutRef.current);
       events.forEach((e) => window.removeEventListener(e, resetTimeout));
+      isLoggedOut.current = false;
+      //console.log("[Inactivity] Cleanup: listeners removed and timer cleared");
     };
-  }, [adminUser, logoutAdmin, dispatch]);
+  }, []);
 
   return (
     <AuthContext.Provider
