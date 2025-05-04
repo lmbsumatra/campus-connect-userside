@@ -267,7 +267,7 @@ export const AuthProvider = ({ children }) => {
         dispatch,
         "error",
         "Session Expired",
-        "You have been automatically logged out due to 20 minutes of inactivity.",
+        "You have been automatically logged out due to 15 minutes of inactivity.",
         {
           text: "OK",
           action: () => logoutAdmin(true),
