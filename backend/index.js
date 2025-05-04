@@ -100,7 +100,7 @@ app.use("/admin", adminAuthRoutes);
 app.use("/listings", listingRoutes);
 app.use("/posts", postRoutes);
 app.use("/item-for-sale", itemForSaleRoutes);
-app.use("/review-and-rate", reviewAndRateRoutes);
+app.use("/review-and-rate", reviewAndRateRoutes({ emitNotification }));
 app.use("/api/cart", cartRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/admin/transactions", adminTransactionRoutes);

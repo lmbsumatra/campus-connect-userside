@@ -36,6 +36,10 @@ export const notificationRoutes = {
   purchase_declined: "/profile/transactions/buyer/cancelled",
   purchase_cancelled: "/profile/transactions/owner/cancelled",
   user_followed: (notification) => `/user/${notification.sender_id}`,
+  item_reviewed: "/profile/reviews",
+  owner_reviewed: "/profile/reviews",
+  renter_reviewed: "/profile/reviews",
+  buyer_reviewed: "/profile/reviews",
   default: "/profile/transactions/owner/requests", // Default fallback route
 };
 

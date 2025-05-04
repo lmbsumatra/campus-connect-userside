@@ -529,6 +529,66 @@ const NotificationMessage = ({ message, type }) => {
         }
         return <span className="default-text">{message}</span>;
       }
+      case "item_reviewed": {
+        const match = message.match(
+          /(.*?)\sleft a review for your item:\s(.*)/
+        );
+        if (match) {
+          const [, reviewer, stars, item] = match;
+          return (
+            <>
+              <span className="item-name">{reviewer}</span>
+              <br />
+              <span className="default-text">left a review to your item</span>
+              <br />
+              <span className="item-name">{item}</span>
+            </>
+          );
+        }
+        return <span className="default-text">{message}</span>;
+      }
+      case "owner_reviewed": {
+        const match = message.match(/(.*?)\sleft a review for you/);
+        if (match) {
+          const [, reviewer, stars] = match;
+          return (
+            <>
+              <span className="item-name">{reviewer}</span>
+              <br />
+              <span className="default-text">left a review for you</span>
+            </>
+          );
+        }
+        return <span className="default-text">{message}</span>;
+      }
+      case "renter_reviewed": {
+        const match = message.match(/(.*?)\sleft a review for you/);
+        if (match) {
+          const [, reviewer, stars] = match;
+          return (
+            <>
+              <span className="item-name">{reviewer}</span>
+              <br />
+              <span className="default-text">left a review for you</span>
+            </>
+          );
+        }
+        return <span className="default-text">{message}</span>;
+      }
+      case "buyer_reviewed": {
+        const match = message.match(/(.*?)\sleft a review for you/);
+        if (match) {
+          const [, reviewer, stars] = match;
+          return (
+            <>
+              <span className="item-name">{reviewer}</span>
+              <br />
+              <span className="default-text">left a review for you</span>
+            </>
+          );
+        }
+        return <span className="default-text">{message}</span>;
+      }
       default:
         return message;
     }

@@ -1,8 +1,15 @@
 const express = require("express");
-const router = express.Router();
 const ReviewAndRateController = require("../controllers/reviews/ReviewRatesController.js");
 
-router.post("/submit", ReviewAndRateController.createReview);
-router.get("/get/user/:userId", ReviewAndRateController.getReviewsByUser);
+module.exports = function ({ emitNotification }) {
+  const router = express.Router();
 
-module.exports = router;
+  router.use((req, res, next) => {
+    req.emitNotification = emitNotification;
+    next();
+  });
+  router.post("/submit", ReviewAndRateController.createReview);
+  router.get("/get/user/:userId", ReviewAndRateController.getReviewsByUser);
+
+  return router;
+};
