@@ -70,6 +70,8 @@ const formatTransactionsForFrontend = (transactions, userId) => {
       transactionType: transactionTypeName,
       // is_allowed_to_proceed: tx.is_allowed_to_proceed, // aye, just comment this line to remove restriction ye
       // is_allowed_to_cancel: tx.is_allowed_to_cancel, // aye, just comment this line to remove restriction ye
+      is_allowed_to_proceed: true,
+      is_allowed_to_cancel: true,
       status: tx.status,
       date: formattedDate,
       time: timeRange,
