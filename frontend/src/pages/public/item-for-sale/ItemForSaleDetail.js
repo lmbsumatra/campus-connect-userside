@@ -835,7 +835,7 @@ function ItemForSaleDetail() {
           </div>
           <div className="item-title">
             <>
-              <i>For rent </i>
+              <i>For sale </i>
               {approvedItemForSaleById.name ? (
                 <span className="title">{approvedItemForSaleById.name}</span>
               ) : (

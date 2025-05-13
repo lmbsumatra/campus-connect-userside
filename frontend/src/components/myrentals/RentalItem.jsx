@@ -722,6 +722,19 @@ Item: ${itemName}`,
               : `${item.tx.owner.first_name} ${item.tx.owner.last_name}`}
           </p>
         )}
+        {item.tx.updatedAt && (
+          <p>
+            Last Updated:{" "}
+            {new Date(item.tx.updatedAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })} – {new Date(item.tx.updatedAt).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </p>
+        )}
         {item.RentalDate && (
           <p>Request Date: {formatDate(item.RentalDate.date)}</p>
         )}

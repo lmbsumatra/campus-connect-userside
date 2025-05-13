@@ -332,6 +332,21 @@ Total Cost: ${transaction.rental?.amount || calculateTotalCost()} php`,
 
             <div className="transaction-details mb-3">
               <h3 className="details-heading">Transaction Details</h3>
+              {transaction.rental?.updatedAt && (
+                <div className="transaction-date">
+                  <span className="detail-label">Last Updated:</span>
+                  <span className="detail-value">
+                    {new Date(transaction.rental.updatedAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })} – {new Date(transaction.rental.updatedAt).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                </div>
+              )}
               <div className="item-info">
                 <div className="item-image-container">
                   <img src={getItemImage()} alt="Item" className="item-image" />
