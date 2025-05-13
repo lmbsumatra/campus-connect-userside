@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Navigate, useParams, Outlet } from "react-router-dom";
 import Admin from "../pages/private/admin/Admin";
 import AdminDashboard from "../pages/private/admin/dashboard/admindashboard/AdminDashboard";
+import StripeDashboard from "../pages/private/admin/balance-overview/StripeDashboard";
 import AdminLogin from "../pages/private/admin/login/AdminLogin";
 import UserDashboard from "../pages/private/admin/user-management/UserDashboard";
 import UserOverview from "../pages/private/admin/user-management/UserOverview";
@@ -110,6 +111,7 @@ const AdminRoutes = [
     {/* ADMIN MANAGEMENT */}
     <Route path="logs" element={<LogsDashboard />} />
     <Route path="settings" element={<AdminSettings />} />
+    <Route path="/admin/balance-overview" element={<StripeDashboard />} />
     <Route path="*" element={<Navigate to="/admin/dashboard" />} />
 
     <Route path="generate-report" element={<MonthlyReportGenerator />} />

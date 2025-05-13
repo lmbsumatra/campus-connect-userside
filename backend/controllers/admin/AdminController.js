@@ -16,6 +16,7 @@ const reportGeneration = require("./reportGeneration");
 const updatePermissionLevel = require("./updatePermissionLevel");
 const checkPermissionLevel = require("./checkPermissionLevel");
 const updateStudentSlots = require("./updateStudentSlots");
+const getStripeAdminOverview = require("./stripeAdmin");
 
 const AdminController = {
   addEndSemesterDate,
@@ -31,6 +32,7 @@ const AdminController = {
   registerAdmin,
   refreshAdminToken,
   allUnavailableDates,
+  getStripeAdminOverview,
   logAdminLogout,
   reportGeneration,
   updatePermissionLevel,

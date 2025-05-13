@@ -16,6 +16,7 @@ import reportsIcon from "../../../assets/images/admin/sidebar/report.svg";
 import auditsIcon from "../../../assets/images/admin/sidebar/auditlogs.svg";
 import settingsIcon from "../../../assets/images/admin/sidebar/settings.svg";
 import generateReportIcon from "../../../assets/images/admin/sidebar/generatereport.svg";
+import walletIcon from "../../../assets/images/admin/sidebar/wallet.png";
 
 const AdminSidebar = () => {
   const [openTabs, setOpenTabs] = useState([]);
@@ -97,6 +98,8 @@ const AdminSidebar = () => {
       setActiveTab("generate-report");
     } else if (path.includes("/admin/orgs-management")) {
       setActiveTab("orgsManagement");
+    } else if (path.includes("/admin/balance-overview")) {
+      setActiveTab("balanceOverview");
     }
   }, [location]);
 
@@ -164,6 +167,25 @@ const AdminSidebar = () => {
         >
           <img src={dashboardIcon} className="sidebar-icon" alt="Dashboard" />
           {(expandSidebar || isHovered) && "Dashboard"}
+        </div>
+
+        {/* Stripe Dashboard Tab */}
+        <div>
+          <div
+            className={`tab ${
+              activeTab === "balanceOverview" ? "active" : ""
+            } ${openTabs.includes("balanceOverview") ? "expand" : ""}`}
+            onClick={() =>
+              handleActiveTab(["stripeDashboard", "/admin/balance-overview"])
+            }
+          >
+            <img
+              src={walletIcon}
+              className="sidebar-icon"
+              alt="Balance Overview"
+            />
+            {(expandSidebar || isHovered) && "Balance"}
+          </div>
         </div>
 
         {/* Users tab */}
@@ -371,11 +393,7 @@ const AdminSidebar = () => {
               handleActiveTab(["orgsManagement", "/admin/orgs-management"])
             }
           >
-            <img
-              src={repIcon}
-              className="sidebar-icon"
-              alt="Orgs Management"
-            />
+            <img src={repIcon} className="sidebar-icon" alt="Orgs Management" />
             {(expandSidebar || isHovered) && "Orgs Management"}
             <img
               src={arrowDown}

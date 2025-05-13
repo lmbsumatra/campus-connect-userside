@@ -100,6 +100,12 @@ router.get(
   AdminController.checkPermissionLevel
 );
 
+router.get(
+  "/stripe-dashboard",
+  authenticateToken,
+  AdminController.getStripeAdminOverview
+);
+
 router.put(
   "/update-student-slots",
   authenticateToken,
