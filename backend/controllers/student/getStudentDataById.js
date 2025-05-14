@@ -24,6 +24,7 @@ const getStudentById = async (req, res) => {
             "college",
             "scanned_id",
             "photo_with_id",
+            "cor_image",
             "profile_pic",
             "course",
             "status",
@@ -164,6 +165,7 @@ const getStudentById = async (req, res) => {
             course: user.student.course,
             scannedId: user.student.scanned_id,
             photoWithId: user.student.photo_with_id,
+            corImage: user.student.cor_image,
             profilePic: user.student.profile_pic,
             status: user.student.status,
             statusMsg:

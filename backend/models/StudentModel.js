@@ -67,6 +67,11 @@ Student.init(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    cor_image: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      comment: "URL to the Certificate of Registration (COR) image",
+    },
     profile_pic: {
       type: DataTypes.STRING(255),
       allowNull: true,

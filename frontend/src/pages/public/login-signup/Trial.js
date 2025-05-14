@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   updateField,
@@ -44,11 +44,24 @@ const Trial = ({ onTabClick }) => {
     filename: "",
     filesize: 0,
   });
+  const [corImage, setCorImage] = useState({
+    file: null,
+    blob: null,
+    filename: "",
+    filesize: 0,
+  });
   const [tupId, setTupId] = useState(Array(6).fill(""));
   const inputRefs = useRef([]);
   const imgWithIdInputRef = useRef(null);
   const scannedIdInputRef = useRef(null);
+  const corImageInputRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!signupDataState.corImage) {
+      dispatch(updateField({ name: 'corImage', value: '' }));
+    }
+  }, [dispatch, signupDataState.corImage]);
 
   const handleShowIdPolicyModal = (message) => {
     setIdPolicyMessage(message);
@@ -108,6 +121,7 @@ const Trial = ({ onTabClick }) => {
     formData.append("course", signupDataState.course?.value || "");
     formData.append("scanned_id", scannedId.file);
     formData.append("photo_with_id", imgWithId.file);
+    formData.append("cor_image", corImage.file);
     formData.append("role", "student");
 
     try {
@@ -172,6 +186,8 @@ const Trial = ({ onTabClick }) => {
         setImgWithId(fileInfo);
       } else if (name === "scannedId") {
         setScannedId(fileInfo);
+      } else if (name === "corImage") {
+        setCorImage(fileInfo);
       }
 
       const fileDetails = {
@@ -199,6 +215,13 @@ const Trial = ({ onTabClick }) => {
       setScannedId({ file: null, blob: null, filename: "", filesize: 0 }); // Reset the image state
       dispatch(updateField({ name: "scannedId", value: "" })); // Clear redux state
       dispatch(blurField({ name: "scannedId", value: "" }));
+    } else if (name === "corImage") {
+      if (corImageInputRef.current) {
+        corImageInputRef.current.value = null; // Clear file input
+      }
+      setCorImage({ file: null, blob: null, filename: "", filesize: 0 }); // Reset the image state
+      dispatch(updateField({ name: "corImage", value: "" })); // Clear redux state
+      dispatch(blurField({ name: "corImage", value: "" }));
     }
   };
 
@@ -222,12 +245,18 @@ const Trial = ({ onTabClick }) => {
       <div className="image-input-wrapper">
         <label
           htmlFor={name}
-          className={`image ${signupDataState[name].value ? "has-image" : ""}`}
+          className={`image ${signupDataState[name]?.value ? "has-image" : ""}`}
         >
-          {signupDataState[name].value ? (
+          {signupDataState[name]?.value ? (
             <>
               <img
-                src={name === "imgWithId" ? imgWithId.blob : scannedId.blob}
+                src={
+                  name === "imgWithId"
+                    ? imgWithId.blob
+                    : name === "scannedId"
+                    ? scannedId.blob
+                    : corImage.blob
+                }
                 alt="Preview"
                 className="preview"
               />
@@ -242,10 +271,16 @@ const Trial = ({ onTabClick }) => {
           type="file"
           accept="image/*"
           onChange={(e) => handleImageChange(e, name)}
-          ref={name === "imgWithId" ? imgWithIdInputRef : scannedIdInputRef}
+          ref={
+            name === "imgWithId"
+              ? imgWithIdInputRef
+              : name === "scannedId"
+              ? scannedIdInputRef
+              : corImageInputRef
+          }
           onBlur={(e) => handleBlur(name, e.target.value)}
         />
-        {signupDataState[name].value && (
+        {signupDataState[name]?.value && (
           <button
             className="remove-button"
             onClick={() => handleRemoveImage(name)}
@@ -254,7 +289,7 @@ const Trial = ({ onTabClick }) => {
           </button>
         )}
       </div>
-      {signupDataState[name].triggered && signupDataState[name].hasError && (
+      {signupDataState[name]?.triggered && signupDataState[name]?.hasError && (
         <div className="validation error">
           <img src={warningIcon} className="icon2" alt={`Error on ${name}`} />
           <span className="text">{signupDataState[name].error}</span>
@@ -386,6 +421,9 @@ const Trial = ({ onTabClick }) => {
           tupId.every((digit) => digit !== "") &&
           imgWithId.filename &&
           scannedId.filename &&
+          corImage.filename &&
+          signupDataState?.college?.value &&
+          signupDataState?.course?.value &&
           !signupDataState?.college?.hasError &&
           !signupDataState?.course?.hasError;
         break;
@@ -581,6 +619,11 @@ const Trial = ({ onTabClick }) => {
             "scannedId",
             "Scanned ID",
             "We ask for your ID to confirm your identity with official documentation"
+          )}
+          {renderImageUpload(
+            "corImage",
+            "Certificate of Registration (COR)",
+            "We require your Certificate of Registration to verify your enrollment status"
           )}
         </div>
       )}

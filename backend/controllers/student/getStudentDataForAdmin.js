@@ -79,9 +79,11 @@ const getStudentDataForAdmin = async (req, res) => {
         college: user.student.college,
         scannedId: user.student.scanned_id,
         photoWithId: user.student.photo_with_id,
+        corImage: user.student.cor_image,
         profilePic: user.student.profile_pic,
         status: user.student.status,
         course: user.student.course,
+        statusMessage: user.student.status_message,
       },
     };
 

@@ -295,3 +295,106 @@ h3.section-label {
     font-size: 0.9rem;
   }
 }
+
+/* Responsive styling for verification documents */
+.verification-grid .document-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.verification-grid .document-container:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.verification-grid .document-label {
+  padding: 12px 15px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.verification-grid .document-preview {
+  flex: 1;
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  overflow: hidden;
+}
+
+.verification-grid .document-preview img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  max-height: 250px;
+}
+
+.verification-grid .empty-document {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  padding: 20px;
+}
+
+.verification-grid .document-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.verification-grid .position-relative:hover .document-overlay {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .verification-grid .document-container {
+    margin-bottom: 20px;
+  }
+  
+  .verification-grid .document-preview {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .verification-grid .document-preview {
+    min-height: 160px;
+  }
+  
+  .verification-grid .document-preview img {
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .verification-grid .document-label span {
+    font-size: 14px;
+  }
+  
+  .verification-grid .document-preview {
+    min-height: 140px;
+  }
+  
+  .verification-grid .empty-document i {
+    font-size: 1.5rem !important;
+  }
+  
+  .verification-grid .empty-document span {
+    font-size: 14px;
+  }
+}

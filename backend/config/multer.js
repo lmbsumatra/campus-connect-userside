@@ -26,6 +26,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage: storage }).fields([
   { name: "scanned_id" },
   { name: "photo_with_id" },
+  { name: "cor_image" },
 ]);
 
 const upload_prof = multer({ storage: storage }).single("profile_pic");

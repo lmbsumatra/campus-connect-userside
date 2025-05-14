@@ -14,6 +14,7 @@ const validateRequiredFields = (
   userData,
   uploadedId,
   uploadedImage,
+  uploadedCor,
   selectedCollege
 ) => {
   return (
@@ -25,7 +26,8 @@ const validateRequiredFields = (
     !userData.tupId ||
     !selectedCollege ||
     !uploadedId ||
-    !uploadedImage
+    !uploadedImage ||
+    !uploadedCor
   );
 };
 
@@ -43,9 +45,11 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
   const [authTab, setAuthTab] = useState(tab);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadedId, setUploadedId] = useState(null);
+  const [uploadedCor, setUploadedCor] = useState(null);
   const [selectedCollege, setSelectedCollege] = useState("Select your college");
   const [imageTouched, setImageTouched] = useState(false);
   const [idTouched, setIdTouched] = useState(false);
+  const [corTouched, setCorTouched] = useState(false);
   const [collegeTouched, setCollegeTouched] = useState(false);
   const [inputWarning, setInputWarning] = useState(false);
   const [isShowPassword, setShowPassword] = useState(false);
@@ -102,6 +106,11 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
     document.getElementById("uploadIdInput").click();
   };
 
+  const handleCorClick = () => {
+    setCorTouched(true);
+    document.getElementById("uploadCorInput").click();
+  };
+
   const handleSelectCollege = (eventKey) => {
     setSelectedCollege(eventKey);
     setCollegeTouched(true);
@@ -134,6 +143,7 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
         userData,
         uploadedId,
         uploadedImage,
+        uploadedCor,
         selectedCollege
       )
     ) {
@@ -158,6 +168,7 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
     formData.append("college", selectedCollege);
     formData.append("scanned_id", uploadedId);
     formData.append("photo_with_id", uploadedImage);
+    formData.append("cor_image", uploadedCor);
     formData.append("role", "student");
 
     try {
@@ -344,6 +355,35 @@ const SignupForm = ({ tab, handleTabClick, errorMessage, setErrorMessage }) => {
                     id="uploadIdInput"
                     style={{ display: "none" }}
                     onChange={(e) => handleImageUpload(e, setUploadedId)}
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label>Certificate of Registration (COR)</label>
+                <div
+                  className="upload-box"
+                  onClick={handleCorClick}
+                  style={{
+                    borderColor: corTouched && uploadedCor === null ? "red" : "",
+                  }}
+                >
+                  {uploadedCor ? (
+                    <img
+                      src={URL.createObjectURL(uploadedCor)}
+                      alt="Uploaded COR"
+                      className="preview"
+                    />
+                  ) : (
+                    <div className="preview">
+                      Drag & drop your COR here or click to upload
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    id="uploadCorInput"
+                    style={{ display: "none" }}
+                    onChange={(e) => handleImageUpload(e, setUploadedCor)}
                     required
                   />
                 </div>

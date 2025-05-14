@@ -63,6 +63,18 @@ const updateVerificationDocx = async (req, res) => {
       }
     }
 
+    // Handle Certificate of Registration (COR) update
+    if (req.files.cor_image && req.files.cor_image.length > 0) {
+      // Keep track of new Cloudinary URL
+      cloudinaryUrls.push(req.files.cor_image[0].path);
+      updateData.cor_image = req.files.cor_image[0].path;
+
+      // Add old file URL to delete later
+      if (student.cor_image) {
+        oldFiles.push(student.cor_image);
+      }
+    }
+
     // If no files were actually processed
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ message: "No valid files were uploaded" });

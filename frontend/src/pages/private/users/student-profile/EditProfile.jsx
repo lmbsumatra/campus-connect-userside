@@ -27,6 +27,7 @@ function EditProfile() {
     tup_id: "",
     scannedId: "",
     photoWithId: "",
+    corImage: "",
     status: "",
   });
 
@@ -69,6 +70,7 @@ function EditProfile() {
         tup_id: `${student.id}` || "",
         scannedId: student.scannedId || "",
         photoWithId: student.photoWithId || "",
+        corImage: student.corImage || "",
         status: student.status || "",
         statusMsg: student.statusMsg || "",
       };
@@ -256,13 +258,16 @@ function EditProfile() {
 
   const [photoHover, setPhotoHover] = useState(false);
   const [idHover, setIdHover] = useState(false);
+  const [corHover, setCorHover] = useState(false);
 
   const photoFileRef = useRef(null);
   const idFileRef = useRef(null);
+  const corFileRef = useRef(null);
 
   const [uploadedFiles, setUploadedFiles] = useState({
     scannedId: null,
     photoWithId: null,
+    corImage: null,
   });
 
   const handleFileUpload = (e, type) => {
@@ -303,7 +308,7 @@ function EditProfile() {
   const handleDocumentSubmission = async (e) => {
     e.preventDefault();
 
-    if (!uploadedFiles.scannedId && !uploadedFiles.photoWithId) {
+    if (!uploadedFiles.scannedId && !uploadedFiles.photoWithId && !uploadedFiles.corImage) {
       setVerificationErrorMessage(
         "Please select at least one document to update."
       );
@@ -330,6 +335,10 @@ function EditProfile() {
 
       if (uploadedFiles.photoWithId) {
         formDataToSubmit.append("photo_with_id", uploadedFiles.photoWithId);
+      }
+
+      if (uploadedFiles.corImage) {
+        formDataToSubmit.append("cor_image", uploadedFiles.corImage);
       }
 
       const response = await fetch(
@@ -359,7 +368,7 @@ function EditProfile() {
           status: data.status,
           statusMsg: data.statusMsg,
         }));
-        setUploadedFiles({ scannedId: null, photoWithId: null });
+        setUploadedFiles({ scannedId: null, photoWithId: null, corImage: null });
         ShowAlert(dispatch, "success", "Verification documents uploaded!");
 
         setTimeout(() => {
@@ -625,7 +634,7 @@ function EditProfile() {
           )} */}
 
           <div className="row verification-grid g-4">
-            <div className="col-md-6">
+            <div className="col-lg-4 col-md-6 col-12">
               <div className="document-container">
                 <div className="document-label d-flex justify-content-between">
                   <span>Photo with ID</span>
@@ -702,7 +711,7 @@ function EditProfile() {
               </div>
             </div>
 
-            <div className="col-md-6">
+            <div className="col-lg-4 col-md-6 col-12">
               <div className="document-container">
                 <div className="document-label d-flex justify-content-between">
                   <span>Scanned ID</span>
@@ -771,6 +780,83 @@ function EditProfile() {
                   ref={idFileRef}
                   style={{ display: "none" }}
                   onChange={(e) => handleFileUpload(e, "scannedId")}
+                  disabled={
+                    formData.status !== "pending" &&
+                    formData.status !== "flagged"
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="col-lg-4 col-md-6 col-12">
+              <div className="document-container">
+                <div className="document-label d-flex justify-content-between">
+                  <span>Certificate of Registration (COR)</span>
+                  {(formData.status === "pending" ||
+                    formData.status === "flagged") && (
+                    <small className="text-primary">
+                      Click image to change
+                    </small>
+                  )}
+                </div>
+                <div
+                  className={`document-preview ${
+                    formData.status === "pending" ||
+                    formData.status === "flagged"
+                      ? "document-preview-editable"
+                      : ""
+                  }`}
+                  onMouseEnter={() =>
+                    (formData.status === "pending" ||
+                      formData.status === "flagged") &&
+                    setCorHover(true)
+                  }
+                  onMouseLeave={() => setCorHover(false)}
+                  onClick={() =>
+                    (formData.status === "pending" ||
+                      formData.status === "flagged") &&
+                    corFileRef.current.click()
+                  }
+                >
+                  {formData.corImage ? (
+                    <div className="position-relative">
+                      <img
+                        src={formData.corImage}
+                        alt="Certificate of Registration"
+                        className="img-fluid rounded"
+                      />
+                      {corHover &&
+                        (formData.status === "pending" ||
+                          formData.status === "flagged") && (
+                          <div className="document-overlay d-flex align-items-center justify-content-center">
+                            <i className="bi bi-camera-fill me-2"></i>
+                            Update COR
+                          </div>
+                        )}
+                    </div>
+                  ) : (
+                    <div className="empty-document d-flex flex-column align-items-center justify-content-center">
+                      <i className="bi bi-file-earmark-text fs-1 mb-2"></i>
+                      <span>Upload your Certificate of Registration</span>
+                      {(formData.status === "pending" ||
+                        formData.status === "flagged") && (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary mt-2"
+                          onClick={() => corFileRef.current.click()}
+                        >
+                          Select COR
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={corFileRef}
+                  style={{ display: "none" }}
+                  onChange={(e) => handleFileUpload(e, "corImage")}
                   disabled={
                     formData.status !== "pending" &&
                     formData.status !== "flagged"

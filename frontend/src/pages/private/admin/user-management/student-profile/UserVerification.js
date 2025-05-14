@@ -458,10 +458,27 @@ const UserVerification = () => {
                     </div>
                   </div>
                 )}
+                {/* Certificate of Registration */}
+                {student.corImage && (
+                  <div className="document-card">
+                    <h4>Certificate of Registration</h4>
+                    <div className="document-image-container">
+                      <img
+                        src={student.corImage}
+                        alt="Certificate of Registration"
+                        onClick={() => handleImageClick(student.corImage)}
+                      />
+                      <div className="image-overlay">
+                        <span>Click to enlarge</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {/* Handle case where no documents are available */}
                 {!student.profilePic &&
                   !student.scannedId &&
-                  !student.photoWithId && (
+                  !student.photoWithId &&
+                  !student.corImage && (
                     <p className="text-muted">
                       No verification documents submitted.
                     </p>

@@ -27,7 +27,7 @@ const registerStudent = async (req, res) => {
 
     // console.log(req.body);
 
-    const { scanned_id, photo_with_id } = req.files;
+    const { scanned_id, photo_with_id, cor_image } = req.files;
 
     // Check for missing fields
     if (
@@ -60,6 +60,9 @@ const registerStudent = async (req, res) => {
 
     // Store uploaded file names for potential rollback
     publicIds.push(scanned_id[0].filename, photo_with_id[0].filename);
+    if (cor_image && cor_image.length > 0) {
+      publicIds.push(cor_image[0].filename);
+    }
 
     // Create a new user
     const newUser = await models.User.create(
@@ -75,16 +78,24 @@ const registerStudent = async (req, res) => {
       { transaction: t }
     );
 
+    // Create a new student record with structured data
+    const studentData = {
+      tup_id,
+      user_id: newUser.user_id,
+      college,
+      scanned_id: scanned_id[0].path,
+      photo_with_id: photo_with_id[0].path,
+      course,
+    };
+
+    // Add COR image if it exists
+    if (cor_image && cor_image.length > 0) {
+      studentData.cor_image = cor_image[0].path;
+    }
+
     // Create a new student record
     const newStudent = await models.Student.create(
-      {
-        tup_id,
-        user_id: newUser.user_id,
-        college,
-        scanned_id: scanned_id[0].path,
-        photo_with_id: photo_with_id[0].path,
-        course,
-      },
+      studentData,
       { transaction: t }
     );
 
