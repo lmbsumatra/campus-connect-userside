@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStripeAdminOverview } from "../../../../redux/admin/stripeAdminSlice";
+import { updateSystemConfig } from "../../../../redux/system-config/systemConfigSlice";
 import { useSystemConfig } from "../../../../context/SystemConfigProvider";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../context/AuthContext";
@@ -18,6 +19,7 @@ const StripeDashboard = () => {
     error,
   } = useSelector((state) => state.stripeAdmin);
   const { config } = useSystemConfig();
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     // Check if user is authenticated using context
@@ -27,17 +29,26 @@ const StripeDashboard = () => {
       return;
     }
 
-    // Set tokens in localStorage for the API call
-    localStorage.setItem("adminToken", adminUser.token);
-    localStorage.setItem("adminRefreshToken", adminUser.refreshToken);
-
+    // Don't set tokens in localStorage - they should already be there from the AuthContext
+    // Instead, pass the current token directly to the action
     const fetchData = async () => {
       try {
-        const result = await dispatch(fetchStripeAdminOverview());
+        // Check if Stripe is enabled in system config
+        if (config && config.Stripe === false) {
+          setErrorMessage("Stripe payments are disabled in system settings. Enable Stripe in Settings to view the dashboard.");
+          return;
+        }
+        
+        const result = await dispatch(fetchStripeAdminOverview(adminUser.token));
+
+        // Clear any existing error message on success
+        setErrorMessage(null);
 
         // If there was an error, handle authentication issues
         if (fetchStripeAdminOverview.rejected.match(result)) {
-          if (
+          if (result.payload && result.payload.includes("Stripe payments are disabled")) {
+            setErrorMessage("Stripe payments are disabled in system settings. Enable Stripe in Settings to view the dashboard.");
+          } else if (
             result.payload &&
             (result.payload.includes("Session expired") ||
               result.payload.includes("Authentication required"))
@@ -47,6 +58,7 @@ const StripeDashboard = () => {
         }
       } catch (err) {
         console.error("Error fetching Stripe data:", err);
+        setErrorMessage("Error loading Stripe dashboard. Please try again later.");
       }
     };
 
@@ -60,31 +72,44 @@ const StripeDashboard = () => {
     }, 300000);
 
     return () => clearInterval(interval);
-  }, [dispatch, navigate, adminUser]);
+  }, [dispatch, navigate, adminUser, config]);
 
   // Handle auth errors from the redux state
   useEffect(() => {
-    if (
-      error &&
-      (error.includes("Session expired") ||
-        error.includes("Authentication required"))
-    ) {
-      navigate("/admin/login");
+    if (error) {
+      if (error.includes("Session expired") ||
+        error.includes("Authentication required")) {
+        navigate("/admin/login");
+      } else if (error.includes("Stripe payments are disabled")) {
+        setErrorMessage("Stripe payments are disabled in system settings. Enable Stripe in Settings to view the dashboard.");
+      }
     }
   }, [error, navigate]);
 
-  if (loading && !platformBalance.available) {
-    return <div className="loading-state">Loading Stripe data...</div>;
-  }
+  const handleEnableStripe = () => {
+    dispatch(updateSystemConfig({ config: "Stripe", config_value: true }))
+      .then(() => {
+        setErrorMessage(null);
+      })
+      .catch(err => {
+        console.error("Error enabling Stripe:", err);
+      });
+  };
 
-  if (!config?.Stripe) {
+  if (errorMessage) {
     return (
       <div className="stripe-disabled-container">
-        <h2>Stripe Payments Disabled</h2>
-        <p>Stripe payments are currently disabled in system settings.</p>
-        <p>Enable Stripe in System Settings to view the dashboard.</p>
+        <h2>Stripe Dashboard Unavailable</h2>
+        <p>{errorMessage}</p>
+        <button onClick={handleEnableStripe} className="btn btn-primary mt-3">
+          Enable Stripe
+        </button>
       </div>
     );
+  }
+
+  if (loading && !platformBalance?.available) {
+    return <div className="loading-state">Loading Stripe data...</div>;
   }
 
   return (
@@ -98,11 +123,11 @@ const StripeDashboard = () => {
         </div>
         <div className="stat-card available">
           <h3>Available Balance</h3>
-          <p>${platformBalance.available.toFixed(2)}</p>
+          <p>${platformBalance?.available?.toFixed(2) || "0.00"}</p>
         </div>
         <div className="stat-card pending">
           <h3>Pending Balance</h3>
-          <p>${platformBalance.pending.toFixed(2)}</p>
+          <p>${platformBalance?.pending?.toFixed(2) || "0.00"}</p>
         </div>
       </div>
       <div className="transactions-section">
@@ -118,7 +143,7 @@ const StripeDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {recentTransactions.length > 0 ? (
+              {recentTransactions && recentTransactions.length > 0 ? (
                 recentTransactions.map((transaction) => (
                   <tr key={transaction.id}>
                     <td>

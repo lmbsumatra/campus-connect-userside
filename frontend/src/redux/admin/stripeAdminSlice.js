@@ -4,14 +4,11 @@ import { baseApi } from "../../utils/consonants";
 
 export const fetchStripeAdminOverview = createAsyncThunk(
   "stripeAdmin/fetchOverview",
-  async (_, { rejectWithValue }) => {
+  async (token, { rejectWithValue }) => {
     try {
-      // Get the token directly from localStorage
-      let token = localStorage.getItem("adminToken");
-      const refreshToken = localStorage.getItem("adminRefreshToken");
-
-      if (!token || !refreshToken) {
-        console.error("Missing authentication tokens");
+      // Use the token passed from the component
+      if (!token) {
+        console.error("Missing authentication token");
         return rejectWithValue("Authentication required. Please log in again.");
       }
 
@@ -36,6 +33,13 @@ export const fetchStripeAdminOverview = createAsyncThunk(
           console.log("Received 401/403 error, attempting token refresh");
 
           try {
+            // Get refresh token from localStorage
+            const refreshToken = JSON.parse(localStorage.getItem("adminUser"))?.refreshToken;
+            
+            if (!refreshToken) {
+              return rejectWithValue("No refresh token available. Please log in again.");
+            }
+            
             // Make refresh token request
             const refreshResponse = await axios.post(
               `${baseApi}/admin/refresh-token`,
@@ -48,12 +52,13 @@ export const fetchStripeAdminOverview = createAsyncThunk(
             );
 
             if (refreshResponse.data.token) {
-              // Store new tokens
-              localStorage.setItem("adminToken", refreshResponse.data.token);
-              localStorage.setItem(
-                "adminRefreshToken",
-                refreshResponse.data.refreshToken
-              );
+              // Update admin user in localStorage with new tokens
+              const adminUser = JSON.parse(localStorage.getItem("adminUser"));
+              if (adminUser) {
+                adminUser.token = refreshResponse.data.token;
+                adminUser.refreshToken = refreshResponse.data.refreshToken;
+                localStorage.setItem("adminUser", JSON.stringify(adminUser));
+              }
 
               // Retry API call with new token
               console.log("Retrying API call with refreshed token");

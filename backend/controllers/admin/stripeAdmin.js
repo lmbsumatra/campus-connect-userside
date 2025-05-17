@@ -13,11 +13,26 @@ const stripe = require("stripe")(
 const getStripeAdminOverview = async (req, res) => {
   try {
     // Check if system config allows Stripe
-    const stripeConfig = await models.SystemConfig.findOne({
+    let stripeConfig = await models.SystemConfig.findOne({
       where: { config: "is_stripe_allowed" },
     });
 
-    if (!stripeConfig || !stripeConfig.config_value) {
+    // If the stripe config doesn't exist yet, create it as enabled by default
+    if (!stripeConfig) {
+      try {
+        console.log("Creating missing is_stripe_allowed config...");
+        stripeConfig = await models.SystemConfig.create({
+          config: "is_stripe_allowed",
+          config_value: "true",
+          config_type: "boolean"
+        });
+        console.log("Successfully created is_stripe_allowed config");
+      } catch (createError) {
+        console.error("Error creating Stripe config:", createError);
+        // Continue with the request even if creation fails
+      }
+    } else if (stripeConfig.config_value === "false") {
+      // If stripe is disabled, return error
       return res.status(403).json({ error: "Stripe payments are disabled" });
     }
 

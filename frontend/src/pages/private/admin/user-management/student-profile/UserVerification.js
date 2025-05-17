@@ -8,6 +8,7 @@ import "./userVerification.css";
 import { baseApi } from "../../../../../utils/consonants";
 import { useDispatch } from "react-redux";
 import ShowAlert from "../../../../../utils/ShowAlert";
+import { useSystemConfig } from "../../../../../context/SystemConfigProvider";
 
 const UserVerification = () => {
   const { adminUser } = useAuth();
@@ -18,6 +19,7 @@ const UserVerification = () => {
   const [selectedStatus, setSelectedStatus] = useState("verified");
   const [statusMessage, setStatusMessage] = useState("");
   const dispatch = useDispatch();
+  const { config } = useSystemConfig();
 
   useEffect(() => {
     if (student?.status) {
@@ -38,7 +40,7 @@ const UserVerification = () => {
   });
   const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
 
-  const SLOT_PRICE = 10;
+  const SLOT_PRICE = config && config["Slot Price"] ? config["Slot Price"] : 10;
   const FREE_TIER_LIMIT = 3;
 
   useEffect(() => {

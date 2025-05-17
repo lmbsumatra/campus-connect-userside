@@ -1,8 +1,9 @@
 const stripe = require("stripe")("sk_test_51Qd6OGJyLaBvZZCypqCCmDPuXcuaTI1pH4j2Jxhj1GvnD4WuL42jRbQhEorchvZMznXhbXew0l33ZDplhuyRPVtp00iHoX6Lpd");
+const { models } = require("../../models");
 
 const createPaymentIntent = async (req, res) => {
   try {
-    const { amount, currency = "PHP", listingType } = req.body;
+    const { currency = "PHP", listingType } = req.body;
 
     const userId = req.user?.userId;
 
@@ -15,6 +16,17 @@ const createPaymentIntent = async (req, res) => {
         message: "Missing required fields",
         missing: missingFields,
       });
+    }
+
+    // Get the slot price from system config
+    const slotPriceConfig = await models.SystemConfig.findOne({
+      where: { config: "slot_price" }
+    });
+
+    // Default to 10 if not found in config
+    let amount = 10;
+    if (slotPriceConfig) {
+      amount = parseFloat(slotPriceConfig.config_value);
     }
 
     const exchangeRate = 0.024;
@@ -34,12 +46,14 @@ const createPaymentIntent = async (req, res) => {
         userId,
         purpose: "slot-purchase",
         listingType,
+        slotPrice: amount
       },
     });
 
     res.status(200).json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
+      slotPrice: amount
     });
   } catch (error) {
     console.error("Stripe Error:", error.message);

@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import ShowAlert from "../../utils/ShowAlert";
 import "./paymentPageStyles.css";
 import { baseApi } from "../../utils/consonants";
+import { useSystemConfig } from "../../context/SystemConfigProvider";
 
 const stripePromise = loadStripe(
   "pk_test_51Qd6OGJyLaBvZZCyI1v3VC4nkJ4FnP3JqVkEeRlpth6sUUKxeaGVwsgpOKEUIiDI61ITMyzWvTYJUYshL6H4jfks00mNbCIiZP"
@@ -24,6 +25,7 @@ const BuySlotPage = ({ clientSecret }) => {
   const elements = useElements();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { config } = useSystemConfig();
 
   const location = useLocation();
   const {
@@ -32,6 +34,8 @@ const BuySlotPage = ({ clientSecret }) => {
     userId = "",
     paymentIntentId = "",
   } = location.state || {};
+
+  const slotPrice = config && config["Slot Price"] ? config["Slot Price"] : 10;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -103,7 +107,7 @@ const BuySlotPage = ({ clientSecret }) => {
     <div className="payment-page-container">
       <div className="payment-card">
         <h2>Buy Extra Slot</h2>
-        <p>You're about to purchase an additional item slot for ₱10.</p>
+        <p>You're about to purchase an additional item slot for ₱{slotPrice}.</p>
 
         <form onSubmit={handleSubmit} className="payment-form">
           <div className="payment-element-container">
@@ -117,7 +121,7 @@ const BuySlotPage = ({ clientSecret }) => {
             disabled={!stripe || isLoading}
             className="payment-button"
           >
-            {isLoading ? "Processing..." : "Buy Extra Slot"}
+            {isLoading ? "Processing..." : `Buy Extra Slot (₱${slotPrice})`}
           </button>
         </form>
       </div>

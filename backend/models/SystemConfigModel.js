@@ -15,9 +15,14 @@ const SystemConfig = sequelize.define(
       unique: true,
     },
     config_value: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.TEXT,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: "false",
+    },
+    config_type: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      defaultValue: "boolean",
     },
   },
   {

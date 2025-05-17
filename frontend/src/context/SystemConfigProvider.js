@@ -9,7 +9,16 @@ export const SystemConfigProvider = ({ children }) => {
   const { config, loading, error } = useSelector((state) => state.systemConfig);
 
   useEffect(() => {
+    // Initial fetch
     dispatch(fetchSystemConfig());
+
+    // Set up a refresh interval (every 5 minutes)
+    const refreshInterval = setInterval(() => {
+      dispatch(fetchSystemConfig());
+    }, 300000); // 5 minutes = 300000 ms
+    
+    // Clean up on unmount
+    return () => clearInterval(refreshInterval);
   }, [dispatch]);
 
   useEffect(() => {}, [config]);
